@@ -1,0 +1,12 @@
+# Game data — never commit
+disc/
+*.bin
+*.cue
+*.iso
+SLUS_*
+
+# Ghidra projects, if one ever lands in here by accident
+*.gpr
+*.rep/
+*.lock
+*.lock~
