@@ -22,6 +22,25 @@ Findings from initial reconnaissance. Each entry is marked **confirmed** (verifi
 - `CDDATA/XA/*.XA`: streamed XA audio. Out of scope for code recon.
 - Track 2: CD audio.
 
+## Code inventory
+
+From `tools/Count-MipsFunctions.ps1` (counts of `jr ra`; estimates ±10–20%). 53 of 249 extracted files contain code. Total: 12,243 `jr ra`.
+
+| Group | `jr ra` | Share (deduplicated) |
+|---|---|---|
+| `SLUS_006.03` | 292 | 2.7% |
+| `ROCK_NEO.EXE` | 1,630 | 15.1% |
+| Stage files `ST*.BIN` (unique) | 8,708 | 80.9% |
+| `SUPPORT.BIN`, `ARM*R.BIN` | 134 | 1.2% |
+| **Total, duplicates removed** | **10,764** | |
+
+- **Confirmed:** most code lives in the stage overlays, not the main executables.
+- **Confirmed:** only top-level stage files contain code (`ST03.BIN`, `ST04.BIN`, ...). Sub-area files (`ST04_00B.BIN`, etc.) have no hits, so they're data.
+- **Suspected duplicates** (identical counts, and for `SUPPORT*` identical sizes): `ST03`/`ST03B`, `ST04`/`ST04B`, `ST10`/`ST10B`, `ST11`/`ST11B`, `ST0C`/`ST0CB`/`ST0CC`, `SUPPORT`/`SUPPORT2`. Possibly the same code bundled with different assets. Verify by hashing their code regions.
+- **Suspected:** all stage overlays load at the same RAM address, a shared overlay region.
+- **Suspected:** `ARM*R.BIN` (4–18 each) are small code modules, perhaps per-weapon behavior. `ARM00L`/`ARM04L` have no code.
+- Totals still include PsyQ library code, which isn't a decompilation target. Calibrate against Ghidra's function count for `SLUS_006.03`.
+
 ## SLUS_006.03
 
 **Tooling:** Ghidra 12.1.4, ghidra_psx_ldr 2026.10.03, default auto-analysis.
@@ -52,6 +71,8 @@ Findings from initial reconnaissance. Each entry is marked **confirmed** (verifi
   } DB;                // 0x90
   ```
   `DAT_80059bcc` is the current-buffer pointer. Ghidra mistyped it as `DISPENV *`.
+  **Applied in Ghidra:** struct named `DisplayBuffer`. The pointer is retyped `DisplayBuffer *`, and `0x8005b5a8` is typed `DisplayBuffer[2]`.
+- **Confirmed:** the buffers live in uninitialized memory (no bytes in the file; filled at runtime). `FUN_800108ec` and `FUN_800109f8` write into buffer fields (`draw.clip`, `disp.disp`). **Suspected:** this is display/draw environment setup, e.g. `SetDefDispEnv` / `SetDefDrawEnv`.
 - **Confirmed:** uses the scratchpad (fast on-chip RAM at `0x1F800000`). `0x1f800000` holds the current buffer index (toggles 0/1). `0x1f800001` is compared against the frame counter, so it's likely the number of vsyncs to wait per frame.
 - **Suspected:** `DAT_80059bc0` is a vsync counter, incremented by a `VSyncCallback` handler (probably registered in `FUN_800108ec`).
 - **Suspected:** the shim draws something simple, such as a logo or loading screen, before handing off. An 8-entry ordering table is far too small for the full 3D game. The loop never exits because the handoff (e.g. `LoadExec`) never returns. It replaces the running program.
@@ -59,6 +80,20 @@ Findings from initial reconnaissance. Each entry is marked **confirmed** (verifi
 ### Analysis issues
 
 - `0x800126d8`: "Bad Instruction / unable to resolve constructor." Ghidra created a function over `2MBYTE.OBJ` data. With 0 references, it's data, not code. **Fixed:** function deleted, bytes defined as `dword`.
+
+## Exit criteria: ready for splat
+
+Recon is done for an executable when splat has what it needs to produce a byte-identical rebuild from assembly. Naming and struct work are *not* required. They happen progressively during decompilation.
+
+| | SLUS_006.03 | ROCK_NEO.EXE | Overlays |
+|---|---|---|---|
+| Header fields (load address, entry, sizes) | [ ] | [ ] | — |
+| `gp` value | [x] | [ ] | — |
+| Rough code / data / BSS boundaries | [ ] | [ ] | [ ] |
+| PsyQ library functions identified | [ ] | [ ] | — |
+| Which files are code, and their load addresses | — | [ ] | [ ] |
+
+Compiler identification (PsyQ version → GCC version and flags) isn't needed for the splat step, since splat only assembles. It's needed for the m2c step after it.
 
 ## Open questions
 
