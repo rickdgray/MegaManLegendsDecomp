@@ -40,9 +40,11 @@ Rip the disc to BIN/CUE and verify each track's hash against the Redump entry ab
 
 Extract Track 1 with `dumpsxiso` from [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) into `disc/extracted/`:
 
-```bash
-# TODO: record the exact dumpsxiso command used
+```powershell
+dumpsxiso -x .\disc\extracted\ -s .\layout\mml.xml ".\disc\image\Mega Man Legends (USA).cue"
 ```
+
+This also writes the layout XML (`-s`) used to rebuild the disc.
 
 ### 3. Verify the executable
 
