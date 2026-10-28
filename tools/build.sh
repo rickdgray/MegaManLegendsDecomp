@@ -23,6 +23,13 @@ LD_SCRIPTS=()
 for f in undefined_syms_auto.txt undefined_funcs_auto.txt; do
     [[ -f "$f" ]] && LD_SCRIPTS+=(-T "$f")
 done
+
+# Symbols marked absolute:True (hardware registers, scratchpad) aren't defined by any
+# object file. symbol_addrs lines ("name = 0xADDR; // ...") are valid linker-script
+# assignments once the comment is stripped, so define them that way.
+mkdir -p "$OBJ_DIR"
+grep 'absolute:True' symbol_addrs.txt | sed 's|//.*||' > "$OBJ_DIR/absolute_syms.ld" || true
+LD_SCRIPTS+=(-T "$OBJ_DIR/absolute_syms.ld")
 $LD "${LD_SCRIPTS[@]}" -T "$NAME.ld" -Map "$OBJ_DIR/$NAME.map" -o "$OBJ_DIR/$NAME.elf"
 
 # 3. Convert the ELF to a raw binary.
