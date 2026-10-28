@@ -4,6 +4,7 @@ disc/
 *.cue
 *.iso
 SLUS_*
+!slus_006.03.yaml
 
 # Ghidra projects, if one ever lands in here by accident
 *.gpr

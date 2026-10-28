@@ -35,6 +35,10 @@ $LD "${LD_SCRIPTS[@]}" -T "$NAME.ld" -Map "$OBJ_DIR/$NAME.map" -o "$OBJ_DIR/$NAM
 # 3. Convert the ELF to a raw binary.
 $OBJCOPY -O binary "$OBJ_DIR/$NAME.elf" "$OBJ_DIR/SLUS_006.03"
 
+# PS-X EXE files are padded with zeros to a multiple of 2048 bytes (one CD sector).
+# BSS occupies no file space, so the binary ends at the last data byte; pad it back out.
+truncate -s %2048 "$OBJ_DIR/SLUS_006.03"
+
 # 4. Compare.
 sha1sum "$TARGET" "$OBJ_DIR/SLUS_006.03"
 if cmp -s "$TARGET" "$OBJ_DIR/SLUS_006.03"; then
