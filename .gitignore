@@ -10,3 +10,12 @@ SLUS_*
 *.rep/
 *.lock
 *.lock~
+
+# python virtual environments
+.venv/
+
+# generated
+asm/
+assets/
+build/
+undefined_*_auto.txt

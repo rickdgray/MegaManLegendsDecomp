@@ -25,8 +25,8 @@ Other regions and disc revisions are not supported.
 
 - [x] Verified clean disc image against Redump
 - [x] Extracted filesystem and confirmed boot executable
-- [ ] Recon: code/data boundaries, PsyQ version, overlay map
-- [ ] Split with splat; rebuild matches original byte-for-byte
+- [ ] Recon: code/data boundaries, PsyQ version, overlay map (`SLUS_006.03` done; `ROCK_NEO.EXE` and overlays next)
+- [ ] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` **matches**)
 - [ ] Decompilation passes (m2c, permuter, agent-assisted matching)
 - [ ] Naming and documentation
 
