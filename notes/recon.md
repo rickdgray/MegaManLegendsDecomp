@@ -183,3 +183,26 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 - **Done:** rodata split at `0xF6C` (vram `0x8001076c`, SpuSetCommonAttr's object).
 - **Open (harmless):** `missing .end` warning at `stup0`. The function ends with `break`, so the disassembler absorbs the following `0x00200000` words. Fix later with `size:0xC` for `stup0` in a hand-maintained symbols file.
 - Not yet: further rodata/data object splits.
+
+## Compiler identification
+
+- Probe 1: `DequeueCommand` on decomp.me (maspsx, `-O2 -G0`). gcc 2.6.0 through 2.7.2-psx produce identical output and are the closest. 2.8.x and newer get progressively worse. **Suspected:** the GCC ≤2.7.2 family (consistent with PsyQ 4.0). This probe can't separate 2.6.x from 2.7.2; needs a second probe (switch, constant multiply, or more complex loop).
+- **Suspected:** `Command` = `{ int type; CommandArgs args; }` with `CommandArgs = { int arg1; int arg2; short arg3; }` (12 bytes). The target copies `type` alone, then the 12-byte args as one block (3 `lw` + 3 `sw`). Possibly a union of per-command-type args in the original.
+- Best so far: `while (p->type != 0) { p->type = p[1].type; p->args = p[1].args; p++; }`, instruction-for-instruction aligned. Remaining: the loop pointer is based at `p+4` (target `p+0xc`), the `p++` is scheduled after the stores (target before), and register numbering. Candidate for decomp-permuter if source variants don't close it.
+- `DequeueCommand` **parked** as non-matching (score 530 with gcc 2.7.2). An index-based loop scored far worse (<25%), so the pointer loop is the right shape. Flags made no difference: `-mips1 -mcpu=3000 -mgas -msoft-float -fgnu-linker`, `-f[no-]schedule-insns`, `-O1`. Remaining diff (loop-pointer base, `p++` placement, registers) left for decomp-permuter.
+- `QueuePlayMovie` **matches** (decomp.me, gcc 2.7.2 `-O2 -G0`; the only diff is `5` vs `0x5` immediate formatting). Confirms `Command` offsets: `type` 0x0, int args 0x4/0x8, short at 0xc (`sh`). Doesn't distinguish nested vs flat args.
+- **Strongly suspected toolchain: gcc 2.7.2 + ASPSX 2.56** (decomp.me preset `PSYQ4.0`, `-O2 -G0`). `QueuePlayMovie` matches 100% in objdiff under it. Plain gcc 2.7.2 with default maspsx emitted `ori v1,zero,5` for `li` where the original has `addiu v1,zero,5`, so the assembler version matters. Consistent with the PsyQ 4.0 libraries and with another PSX project's `--aspsx-version=2.56`. Local pipeline: `cc1` (gcc-2.7.2-psx) → `maspsx --aspsx-version=2.56` → `mips-linux-gnu-as`. Confirm with more matches.
+- `DequeueCommand` unchanged under `PSYQ4.0` (expected: its remaining diffs are compiler-side, not assembler).
+- Lesson: decomp.me's Compilation tab normalizes pseudo-instructions (`li`). Use **objdiff** for the real byte-level score.
+- `InitDisplayBuffer` **matches** under `PSYQ4.0` (field stores in source order; confirms `DisplayBuffer` / `DRAWENV` / `DISPENV` offsets). Second match for gcc 2.7.2 + ASPSX 2.56.
+- Plan: headers by subsystem (`include/common.h`, `include/psyq/libgpu.h` with self-written declarations, `include/display.h`, `include/cmd.h`). Generate `ctx.c` with `cpp -P -Iinclude` for decomp.me and m2c rather than hand-maintaining one file.
+- `SetupDisplay` **matches** under `PSYQ4.0`, written with `g_screenWidths[mode]` in each of the four calls. Confirms the reload theory: the address is computed once, the value is reloaded after every call. Third match for gcc 2.7.2 + ASPSX 2.56.
+- decomp.me tally (shim): matched `QueuePlayMovie`, `InitDisplayBuffer`, `SetupDisplay`. Parked `DequeueCommand`.
+
+## Build: C pipeline (shim)
+
+- **Confirmed:** MATCH with Capcom code as a C file. yaml: `[0x800, .rodata, main]` (jump table `0x800`–`0x818`, migrated into `func_80011194.s`), `[0x818, rodata, 818]`, `[0xF6C, rodata, F6C]`, `[0xFE8, c, main]` (`main` … `RunIntroSequence`, `0x800107e8`–`0x80012623`), `[0x2E24, asm, 2E24]` (PsyQ from `__main`). `include_asm_macro_style: maspsx_hack`. `include/common.h` must `#include "include_asm.h"` (splat's generated `main.c` includes `common.h`).
+- Toolchain (`tools/cc.sh`): `cpp -P -undef -nostdinc` → gcc-2.7.2-psx `cc1 -quiet -O2 -G0` → `maspsx --aspsx-version=2.56 --expand-div` → `mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0`. Pinned in `tools/fetch_tools.sh`: old-gcc 0.17 (sha256 `500a459b…`), maspsx `4ffa8b51`, m2c `c632946b`. The cc1 banner reports defaults `-mgas -msoft-float`, R3000, ISA 1, **-G 8** (so `-G0` must be passed).
+- `test/smoke.c` (`QueuePlayMovie`) compiles locally to the same 12 instructions as the PSYQ4.0 match, including `addiu v1,zero,5`.
+- `symbol_addrs_manual.txt`: hand-maintained overrides; the exporter skips these names. `stup0 size:0xC` cleared the `missing .end` warning.
+- **Open:** splat hint "rodata `818` may belong to `2E24`" (`v_wait` → `D_80010018`). Root cause: `2E24` lumps all PsyQ objects together. Fix by splitting it into per-object `asm` subsegments (names from Ghidra's `Possible X.OBJ/...` comments), each paired with its own `.rodata`.

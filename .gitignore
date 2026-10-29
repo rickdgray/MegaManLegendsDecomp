@@ -20,3 +20,6 @@ asm/
 assets/
 build/
 undefined_*_auto.txt
+
+# build tools
+tools/vendor/

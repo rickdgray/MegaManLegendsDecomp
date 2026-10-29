@@ -12,11 +12,19 @@ LD="mips-linux-gnu-ld -EL"
 OBJCOPY="mips-linux-gnu-objcopy"
 
 # 1. Assemble every .s file splat produced (code, data, header).
-find asm -name '*.s' | while read -r src; do
+#    Per-function files under asm/nonmatchings/ are pulled into C objects by INCLUDE_ASM.
+find asm -name '*.s' -not -path 'asm/nonmatchings/*' | while read -r src; do
     obj="$OBJ_DIR/${src%.s}.o"     # asm/foo.s -> build/asm/foo.o (matches $NAME.ld)
     mkdir -p "$(dirname "$obj")"
     $AS -o "$obj" "$src"
 done
+
+# 1a. Compile every C file with the matching toolchain (tools/cc.sh).
+if [[ -d src ]]; then
+    find src -name '*.c' | while read -r csrc; do
+        tools/cc.sh "$csrc" "$OBJ_DIR/${csrc%.c}.o"   # src/main.c -> build/src/main.o
+    done
+fi
 
 # 1b. Wrap every binary blob splat extracted (bin segments) into an object file.
 #     The bytes land in a .data section, which is what the linker script pulls in.

@@ -244,7 +244,6 @@ RunIntroSequence = 0x800125E8; // type:func
 __main = 0x80012624; // type:func
 start = 0x8001262C; // type:func
 stup1 = 0x80012650; // type:func
-stup0 = 0x800126CC; // type:func
 VSync = 0x800126E8; // type:func
 VSYNC_OBJ_84 = 0x8001276C; // type:func
 VSYNC_OBJ_130 = 0x80012818; // type:func

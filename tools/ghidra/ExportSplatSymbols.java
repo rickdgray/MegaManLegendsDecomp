@@ -3,6 +3,8 @@
 // non-primary labels, names that aren't valid assembler identifiers, duplicates,
 // and the PSX loader's artificial GTEMAC block (not real memory).
 // Addresses below 0x80000000 (scratchpad, hardware registers) are tagged absolute:True.
+// Names defined in symbol_addrs_manual.txt (same folder as the output) are skipped,
+// so hand-maintained overrides always win.
 //@category Export
 
 import ghidra.app.script.GhidraScript;
@@ -16,6 +18,7 @@ import ghidra.program.model.symbol.SymbolIterator;
 import ghidra.program.model.symbol.SymbolType;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,6 +33,19 @@ public class ExportSplatSymbols extends GhidraScript {
     public void run() throws Exception {
         File out = askFile("Save symbol_addrs.txt", "Save");
         Listing listing = currentProgram.getListing();
+
+        // Names maintained by hand take priority over Ghidra's.
+        Set<String> manual = new HashSet<>();
+        File manualFile = new File(out.getParentFile(), "symbol_addrs_manual.txt");
+        if (manualFile.exists()) {
+            for (String line : Files.readAllLines(manualFile.toPath())) {
+                String t = line.trim();
+                if (t.isEmpty() || t.startsWith("//") || !t.contains("=")) continue;
+                manual.add(t.substring(0, t.indexOf('=')).trim());
+            }
+            printf("Read %d manual symbols from %s%n", manual.size(), manualFile);
+        }
+        int skippedManual = 0;
 
         TreeMap<Long, String> lines = new TreeMap<>();
         Set<String> seen = new HashSet<>();
@@ -59,6 +75,10 @@ public class ExportSplatSymbols extends GhidraScript {
             if (!name.matches(VALID_NAME)) {
                 printf("Skipped (not a valid assembler name): %s @ %s%n", name, a);
                 skippedName++;
+                continue;
+            }
+            if (manual.contains(name)) {
+                skippedManual++;
                 continue;
             }
             if (!seen.add(name)) {
@@ -93,6 +113,7 @@ public class ExportSplatSymbols extends GhidraScript {
         }
 
         printf("Wrote %d functions and %d globals to %s%n", funcs, globals, out);
-        printf("Skipped %d invalid names, %d duplicates%n", skippedName, skippedDup);
+        printf("Skipped %d invalid names, %d duplicates, %d manual overrides%n",
+               skippedName, skippedDup, skippedManual);
     }
 }

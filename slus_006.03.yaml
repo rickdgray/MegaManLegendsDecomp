@@ -1,5 +1,6 @@
 name: SLUS_006.03
 sha1: 888039c514ae2349db9d1b28892c943e2dc92739
+
 options:
   basename: slus_006.03
   target_path: disc/extracted/SLUS_006.03
@@ -33,6 +34,7 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.txt
+    - symbol_addrs_manual.txt
   reloc_addrs_path:
     - reloc_addrs.txt
 
@@ -48,9 +50,8 @@ options:
   rodata_string_guesser_level: 2
   data_string_guesser_level: 2
 
-  # Uncomment this line if you need to use the maspsx reorder workaround hack
-  # https://github.com/mkst/maspsx?tab=readme-ov-file#include_asm-reordering-workaround-hack
-  # include_asm_macro_style: maspsx_hack
+  include_asm_macro_style: maspsx_hack
+
 segments:
   - name: header
     type: header
@@ -62,9 +63,11 @@ segments:
     vram: 0x80010000
     bss_size: 0x3f00
     subsegments:
-      - [0x800, rodata, 800]
+      - [0x800, .rodata, main]
+      - [0x818, rodata, 818] # PsyQ4 library
       - [0xF6C, rodata, F6C]
-      - [0xFE8, asm, FE8]
+      - [0xFE8, c, main]
+      - [0x2E24, asm, 2E24] # PsyQ4 library
       - [0xDBB4, data, DBB4]
       - { start: 0x4A340, type: bss, name: 4A340, vram: 0x80059B40 }
 
