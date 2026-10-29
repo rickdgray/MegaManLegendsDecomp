@@ -34,7 +34,6 @@ options:
 
   symbol_addrs_path:
     - symbol_addrs.txt
-    - symbol_addrs_manual.txt
   reloc_addrs_path:
     - reloc_addrs.txt
 
@@ -64,10 +63,46 @@ segments:
     bss_size: 0x3f00
     subsegments:
       - [0x800, .rodata, main]
-      - [0x818, rodata, 818] # PsyQ4 library
-      - [0xF6C, rodata, F6C]
+      - [0x818, rodata, psyq/VSYNC]
+      - [0x85C, rodata, psyq/INTR]
+      - [0x894, rodata, psyq/INTR_DMA]
+      - [0x8C0, rodata, psyq/EVENT]
+      - [0x8D8, rodata, psyq/BIOS]
+      - [0xB30, rodata, psyq/CDREAD]
+      - [0xB74, rodata, psyq/PRIM]
+      - [0xC78, rodata, psyq/SYS_2]
+      - [0xE78, rodata, psyq/LIBPRESS]
+      - [0xF24, rodata, psyq/SPU]
+      - [0xF6C, rodata, psyq/S_SCA]
+      - [0xFAC, rodata, psyq/S_M_INIT]
       - [0xFE8, c, main]
-      - [0x2E24, asm, 2E24] # PsyQ4 library
+      - [0x2E24, asm, psyq/2MBYTE]    # __main
+      - [0x2EE8, asm, psyq/VSYNC]     # VSync
+      - [0x30CC, asm, psyq/INTR]      # ResetCallback
+      - [0x37DC, asm, psyq/INTR_VB]   # startIntrVSync
+      - [0x3904, asm, psyq/INTR_DMA]  # startIntrDMA
+      - [0x3BD4, asm, psyq/EVENT]     # CdInit
+      - [0x3CE4, asm, psyq/SYS]       # CdStatus
+      - [0x4470, asm, psyq/BIOS]      # getintr
+      - [0x5C48, asm, psyq/CDREAD]    # cb_read
+      - [0x64C4, asm, psyq/EXT]       # LoadTPage
+      - [0x6774, asm, psyq/PRIM]      # GetTPage
+      - [0x6E68, asm, psyq/SYS_2]     # ResetGraph
+      - [0x9EFC, asm, psyq/LIBPRESS]  # DecDCTReset
+      - [0xA65C, asm, psyq/VLC]
+      - [0xAB24, asm, psyq/PAD]       # SetInitPadFlag
+      - [0xAEA4, asm, psyq/PATCH]     # EnablePAD
+      - [0xAF44, asm, psyq/SENDPAD]   # _SendPAD
+      - [0xB004, asm, psyq/CHCLRPAD]  # _remove_ChgclrPAD
+      - [0xB0B4, asm, psyq/S_INI]     # _SpuInit
+      - [0xB248, asm, psyq/SPU]       # _spu_init
+      - [0xBE00, asm, psyq/SSINIT]    # _SsInit
+      - [0xBFA4, asm, psyq/SSSATTR]   # SsSetSerialAttr
+      - [0xC038, asm, psyq/S_SCA]     # SpuSetCommonAttr
+      - [0xC3CC, asm, psyq/SSSV]      # SsSetSerialVol
+      - [0xC7E8, asm, psyq/S_M_INIT]  # SpuInitMalloc
+      - [0xCE8C, asm, psyq/S_N2P]     # _spu_2pitch
+      - [0xD8CC, asm, psyq/S_SK]      # SpuSetKey
       - [0xDBB4, data, DBB4]
       - { start: 0x4A340, type: bss, name: 4A340, vram: 0x80059B40 }
 

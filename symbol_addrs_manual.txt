@@ -1,2 +1,0 @@
-// Hand-maintained symbols. ExportSplatSymbols.java skips any name defined here.
-stup0 = 0x800126CC; // type:func size:0xC
