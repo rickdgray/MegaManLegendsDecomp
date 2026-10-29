@@ -27,7 +27,7 @@ Other regions and disc revisions are not supported.
 - [x] Extracted filesystem and confirmed boot executable
 - [ ] Recon: code/data boundaries, PsyQ version, overlay map (`SLUS_006.03` done; `ROCK_NEO.EXE` and overlays next)
 - [ ] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` **matches**)
-- [ ] Decompilation passes (m2c, permuter, agent-assisted matching)
+- [ ] Decompilation passes (m2c, permuter, agent-assisted matching): local toolchain matching; first `SLUS_006.03` functions banked
 - [ ] Naming and documentation
 
 ## Setup

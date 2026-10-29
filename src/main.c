@@ -1,12 +1,30 @@
 #include "common.h"
+#include "display.h"
+#include "cmd.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800108EC);
 
-INCLUDE_ASM("asm/nonmatchings/main", SetupDisplay);
+void SetupDisplay(int mode) {
+    SetDefDrawEnv(&g_displayBuffers[0].draw, 0, 0,   g_screenWidths[mode], 240);
+    SetDefDispEnv(&g_displayBuffers[0].disp, 0, 256, g_screenWidths[mode], 240);
+    SetDefDrawEnv(&g_displayBuffers[1].draw, 0, 256, g_screenWidths[mode], 240);
+    SetDefDispEnv(&g_displayBuffers[1].disp, 0, 0,   g_screenWidths[mode], 240);
+    InitDisplayBuffer(&g_displayBuffers[0]);
+    InitDisplayBuffer(&g_displayBuffers[1]);
+}
 
-INCLUDE_ASM("asm/nonmatchings/main", InitDisplayBuffer);
+void InitDisplayBuffer(DisplayBuffer *buf) {
+    ClearOTag(buf->ot, 8);
+    buf->disp.screen.y = 0;
+    buf->draw.dtd = 0;
+    buf->draw.dfe = 0;
+    buf->draw.isbg = 1;
+    buf->draw.r0 = 0;
+    buf->draw.g0 = 0;
+    buf->draw.b0 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80010B14);
 
@@ -51,7 +69,13 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80011C84);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011CEC);
 
-INCLUDE_ASM("asm/nonmatchings/main", QueuePlayMovie);
+void QueuePlayMovie(int arg1, int arg2, short arg3) {
+    g_cmdWritePtr->type = 5;
+    g_cmdWritePtr->args.arg1 = arg1;
+    g_cmdWritePtr->args.arg2 = arg2;
+    g_cmdWritePtr->args.arg3 = arg3;
+    g_cmdWritePtr++;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", IsBusy);
 
