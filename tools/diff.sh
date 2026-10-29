@@ -32,12 +32,12 @@ read -r start size <<< "$found"
 end=$(( 0x$start + 0x$size ))
 
 if (( whole )); then
-    exec python3 tools/vendor/asm-differ/diff.py -o --no-pager "$fn" "$@"
+    exec .venv/bin/python tools/vendor/asm-differ/diff.py -o --no-pager "$fn" "$@"
 fi
 
 # Stop printing at the function end, but keep reading so asm-differ can finish writing
 # (exiting early would close the pipe and make Python raise BrokenPipeError).
-python3 tools/vendor/asm-differ/diff.py -o --no-pager "$fn" "$@" | awk -v end="$end" '
+.venv/bin/python tools/vendor/asm-differ/diff.py -o --no-pager "$fn" "$@" | awk -v end="$end" '
     function hex(s,    i, v) {
         v = 0; s = tolower(s)
         for (i = 1; i <= length(s); i++) v = v * 16 + index("0123456789abcdef", substr(s, i, 1)) - 1
