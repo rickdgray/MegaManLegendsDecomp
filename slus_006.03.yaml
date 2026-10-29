@@ -63,7 +63,10 @@ segments:
     bss_size: 0x3f00
     subsegments:
       - [0x800, rodata, 800]
+      - [0xF6C, rodata, F6C]
       - [0xFE8, asm, FE8]
       - [0xDBB4, data, DBB4]
-      - [0x4A340, bss, 4A340]
+      - { start: 0x4A340, type: bss, name: 4A340, vram: 0x80059B40 }
+
+  - [0x4A340, bin, sector_padding]
   - [0x4A800]

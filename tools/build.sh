@@ -18,6 +18,16 @@ find asm -name '*.s' | while read -r src; do
     $AS -o "$obj" "$src"
 done
 
+# 1b. Wrap every binary blob splat extracted (bin segments) into an object file.
+#     The bytes land in a .data section, which is what the linker script pulls in.
+if [[ -d assets ]]; then
+    find assets -name '*.bin' | while read -r bin; do
+        obj="$OBJ_DIR/${bin%.bin}.o"     # assets/foo.bin -> build/assets/foo.o
+        mkdir -p "$(dirname "$obj")"
+        $OBJCOPY -I binary -O elf32-tradlittlemips -B mips "$bin" "$obj"
+    done
+fi
+
 # 2. Link with splat's linker script (plus its auto-generated symbol files, if present).
 LD_SCRIPTS=()
 for f in undefined_syms_auto.txt undefined_funcs_auto.txt; do
