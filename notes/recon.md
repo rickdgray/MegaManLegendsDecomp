@@ -219,3 +219,13 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 ## Workflow change
 
 - **The repo is the source of truth for names.** `symbol_addrs.txt` is hand-maintained; the Ghidra exporter is retired. The `stup0 size:0xC` override is folded into `symbol_addrs.txt`, and `symbol_addrs_manual.txt` is removed. Renaming a function: update `symbol_addrs.txt`, `src/*.c` (definition or `INCLUDE_ASM` name), headers, then re-split. Ghidra will import names later.
+
+## Tooling
+
+- `tools/split.sh`: clears `asm/` and re-runs splat with the venv's Python.
+- `tools/build.sh`: full build and SHA-1 check (MATCH/MISMATCH). **The authority on matching.**
+- `tools/make_expected.sh`: snapshots `build/` into `expected/` (gitignored); refuses unless the build matches.
+- `tools/diff.sh <Function>`: asm-differ `-o --no-pager` against `expected/`, output cut at the function's end (start + size from the object's symbol table; `-o` mode won't take an end address). `--whole` shows the uncut output. The header score covers everything diffed, so it's approximate; trust the flagged lines. asm-differ shows pseudo-instructions (`li`), so it can hide `ori`/`addiu`-type encoding differences. Confirm with `build.sh`.
+- `tools/objdump.sh <file.o | Function>`: disassembly with `-M no-aliases` (real instructions) and relocations.
+- `diff_settings.py` (repo root): asm-differ config. `fetch_tools.sh` must delete asm-differ's bundled example `diff_settings.py`, which otherwise shadows ours (Python imports from the script's own folder first).
+- Shell gotcha: an awk program in single quotes must not contain apostrophes, even in comments.

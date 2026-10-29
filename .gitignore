@@ -1,4 +1,4 @@
-# Game data — never commit
+# Game data
 disc/
 *.bin
 *.cue
@@ -6,13 +6,17 @@ disc/
 SLUS_*
 !slus_006.03.yaml
 
-# Ghidra projects, if one ever lands in here by accident
+# Ghidra
 *.gpr
 *.rep/
 *.lock
 *.lock~
 
-# python virtual environments
+#vscode
+.vscode/
+
+# python
+__pycache__/
 .venv/
 
 # generated
@@ -23,3 +27,4 @@ undefined_*_auto.txt
 
 # build tools
 tools/vendor/
+expected/

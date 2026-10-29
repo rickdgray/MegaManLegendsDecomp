@@ -17,6 +17,8 @@ MASPSX_REPO=https://github.com/mkst/maspsx
 MASPSX_COMMIT=4ffa8b5106f9780d5d4aa7609f184949433ddbbc
 M2C_REPO=https://github.com/matt-kempster/m2c
 M2C_COMMIT=c632946b8cfbe8fce442b522dba92dfa72f1f317
+ASMDIFF_REPO=https://github.com/simonlindholm/asm-differ
+ASMDIFF_COMMIT=0dd09af8f8008f1f880327cf0aca3b26d2562ea2
 # ----------------------------------------------------------------------------
 
 mkdir -p "$VENDOR"
@@ -59,6 +61,12 @@ fetch_commit() {    # name repo commit dest
 fetch_tarball gcc-2.7.2-psx "$GCC_URL" "$GCC_SHA256" "$VENDOR/gcc-2.7.2-psx"
 fetch_commit  maspsx "$MASPSX_REPO" "$MASPSX_COMMIT" "$VENDOR/maspsx"
 fetch_commit  m2c    "$M2C_REPO"    "$M2C_COMMIT"    "$VENDOR/m2c"
+fetch_commit  asm-differ "$ASMDIFF_REPO" "$ASMDIFF_COMMIT" "$VENDOR/asm-differ"
+
+rm -f "$VENDOR/asm-differ/diff_settings.py"
+
+echo "asm-differ: install its dependencies into your venv with:"
+echo "  pip install colorama watchdog levenshtein cxxfilt"
 
 if [[ -f "$VENDOR/m2c/requirements.txt" ]]; then
     echo "m2c: install its dependencies into your venv with:"
