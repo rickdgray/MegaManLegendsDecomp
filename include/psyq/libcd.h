@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-/* CdControl command codes. */
+// CdControl command codes.
 #define CdlSetmode 0x0e
 
 typedef void (*CdlCB)(u_char, u_char *);
@@ -20,4 +20,4 @@ int CdReset(int mode);
 CdlCB CdSyncCallback(CdlCB func);
 CdlCB CdReadyCallback(CdlCB func);
 
-#endif /* PSYQ_LIBCD_H */
+#endif // PSYQ_LIBCD_H

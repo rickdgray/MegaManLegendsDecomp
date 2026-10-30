@@ -1,22 +1,25 @@
-/* Smoke test for the local toolchain: QueuePlayMovie, matched on decomp.me (PSYQ4.0). */
+// Smoke test for the local toolchain: Cmd_set_movie, matched on decomp.me (PSYQ4.0).
 
-typedef struct {
-    int   arg1;
-    int   arg2;
+typedef struct
+{
+    int arg1;
+    int arg2;
     short arg3;
-} CommandArgs;
+} CMD_ARGS;
 
-typedef struct {
-    int         type;
-    CommandArgs args;
-} Command;
+typedef struct
+{
+    int type; // 0 = end of queue, 5 = play movie
+    CMD_ARGS args;
+} CMD;
 
-extern Command *g_cmdWritePtr;
+extern CMD *Cmd_write_ptr;
 
-void QueuePlayMovie(int arg1, int arg2, short arg3) {
-    g_cmdWritePtr->type = 5;
-    g_cmdWritePtr->args.arg1 = arg1;
-    g_cmdWritePtr->args.arg2 = arg2;
-    g_cmdWritePtr->args.arg3 = arg3;
-    g_cmdWritePtr++;
+void Cmd_set_movie(int arg1, int arg2, short arg3)
+{
+    Cmd_write_ptr->type = 5;
+    Cmd_write_ptr->args.arg1 = arg1;
+    Cmd_write_ptr->args.arg2 = arg2;
+    Cmd_write_ptr->args.arg3 = arg3;
+    Cmd_write_ptr++;
 }

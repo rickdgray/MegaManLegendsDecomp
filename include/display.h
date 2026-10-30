@@ -4,18 +4,19 @@
 #include "common.h"
 #include "psyq/libgpu.h"
 
-/* One of the two double buffers. */
-typedef struct {
-    DISPENV disp;                           /* 0x00 */
-    DRAWENV draw;                           /* 0x14 */
-    u_long  ot[8];                          /* 0x70 */
-} DisplayBuffer;                            /* 0x90 */
+// One of the two double buffers.
+typedef struct
+{
+    DISPENV disp;
+    DRAWENV draw;
+    u_long ot[8];
+} DISP_ENV;
 
-extern DisplayBuffer  g_displayBuffers[2];  /* 0x8005b5a8 */
-extern DisplayBuffer *g_curBuffer;          /* 0x80059bcc */
-extern short          g_screenWidths[2];    /* 0x8001d3d8: {320, 640} */
+extern DISP_ENV Disp_env[2];
+extern DISP_ENV *Disp_env_ptr;
+extern short disp_width_tbl[2];
 
-void SetupDisplay(int mode);
-void InitDisplayBuffer(DisplayBuffer *buf);
+void Disp_env_set(int mode);
+void Disp_env_init(DISP_ENV *buf);
 
-#endif /* DISPLAY_H */
+#endif // DISPLAY_H
