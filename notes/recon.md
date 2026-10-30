@@ -144,6 +144,8 @@ From `tools/Count-MipsFunctions.ps1` (counts of `jr ra`; estimates ±10–20%). 
 - **Confirmed:** uses the scratchpad (fast on-chip RAM at `0x1F800000`). `0x1f800000` holds the current buffer index (toggles 0/1). `0x1f800001` is compared against the frame counter, so it's likely the number of vsyncs to wait per frame.
 - **Suspected:** `DAT_80059bc0` is a vsync counter, incremented by a `VSyncCallback` handler (probably registered in `FUN_800108ec`).
 - **Suspected:** the shim draws something simple, such as a logo or loading screen, before handing off. An 8-entry ordering table is far too small for the full 3D game. The loop never exits because the handoff (e.g. `LoadExec`) never returns. It replaces the running program.
+- **Confirmed:** `0x80011C84` (`Cd_ControlRetry` in `symbol_addrs.txt`) takes `(com, param, result)`. It loops `CdSync(1, result)` until it returns nonzero, then retries `CdControlB(com & 0xff, param, result)` until that succeeds. It's a blocking CdControl wrapper, not unmatched library code, so `com` is a `u_char`.
+- **Confirmed:** `InitCd` calls it as `(CdlSetmode, &D_80059BCB, D_80059C40)`: `D_80059BCB` is the mode byte (set to 0 just before the call, proposed `g_cdMode`), and `D_80059C40` is the 8-byte result buffer. `D_80059C38` is set to the queue start along with `g_cmdWritePtr`, so it's probably the read pointer; confirm from its readers before naming it.
 
 ### Analysis issues
 
@@ -229,3 +231,10 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 - `tools/objdump.sh <file.o | Function>`: disassembly with `-M no-aliases` (real instructions) and relocations.
 - `diff_settings.py` (repo root): asm-differ config. `fetch_tools.sh` must delete asm-differ's bundled example `diff_settings.py`, which otherwise shadows ours (Python imports from the script's own folder first).
 - Shell gotcha: an awk program in single quotes must not contain apostrophes, even in comments.
+
+## Agent trial 1 (Claude Code, Opus 5.5)
+
+- Banked `IsBusy`, `RunIntroSequence`, `InitCd`, each first try. Cost $1.02 total (~$0.34/function, easy ones): 1.5M cache-read tokens (~98K context per turn; it read all of recon.md), 64K cache write, 10.6K output. Next: Sonnet/Haiku, grep recon.md instead of reading it whole, shorter report.
+- `InitCd` really does store 0 to `D_80059BCA` twice: removing either store breaks the match. Ghidra's pseudocode showed only one; **Ghidra hides dead stores**. The queue-clear loop matches as `for (i = 0; i < 16; i++)` (GCC reverses it).
+- `g_cmdQueue` registry size was `0xE0` (16 × 14, stale from the 14-byte `Command`); should be `0x100`.
+- Found the `diff.sh` symbol-lookup SIGPIPE (exit 141). Fixed: awk reads all input.

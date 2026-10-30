@@ -1,6 +1,7 @@
 #include "common.h"
 #include "display.h"
 #include "cmd.h"
+#include "screen.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
@@ -34,9 +35,39 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80010C18);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80010C40);
 
-INCLUDE_ASM("asm/nonmatchings/main", InitCd);
+void InitCd(void) {
+    int i;
 
-void func_800110E4(void) {
+    while (CdInit() == 0) {
+    }
+
+    D_80059BCA = 0; // redundant
+    D_80059C00 = 0;
+    D_80059BC8 = 0;
+    D_80059C74 = 7;
+    g_cdMode = 0;
+    D_80059C48 = 0;
+    D_80059BCA = 0; // redundant
+
+    Cd_ControlRetry(CdlSetmode, &g_cdMode, g_cdResult);
+
+    D_80059BD4 = 1;
+
+    for (i = 0; i < 16; i++) {
+        g_cmdQueue[i].type = 0;
+    }
+
+    D_80059C38 = g_cmdQueue;
+    g_cmdWritePtr = g_cmdQueue;
+    
+    D_80059BB4 = 0;
+    D_80059BD8 = 0;
+    D_80059C24 = 0;
+    D_80059C20 = 0;
+    D_80059BC9 = 0;
+}
+
+void Cmd_Nop(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800110EC);
@@ -65,7 +96,7 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80011A64);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011C1C);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011C84);
+INCLUDE_ASM("asm/nonmatchings/main", Cd_ControlRetry);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011CEC);
 
@@ -77,7 +108,9 @@ void QueuePlayMovie(int arg1, int arg2, short arg3) {
     g_cmdWritePtr++;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", IsBusy);
+int IsBusy(void) {
+    return g_cmdWritePtr != g_cmdQueue;
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011DA8);
 
@@ -91,4 +124,6 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80012264);
 
 INCLUDE_ASM("asm/nonmatchings/main", Screen_LaunchGame);
 
-INCLUDE_ASM("asm/nonmatchings/main", RunIntroSequence);
+void RunIntroSequence(void) {
+    g_screenFuncs[g_screenIndex]();
+}

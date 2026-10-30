@@ -19,7 +19,8 @@ if [[ "${1:-}" == "--whole" ]]; then whole=1; shift; fi
 # Find the function's offset and size in the object that defines it ("F" = function symbol).
 found=""
 while read -r obj; do
-    line=$(mips-linux-gnu-objdump -t "$obj" | awk -v f="$fn" '$NF == f && $3 == "F" { print $1, $5; exit }')
+    # Read all input (no early exit): exiting would SIGPIPE objdump, and pipefail would kill us.
+    line=$(mips-linux-gnu-objdump -t "$obj" | awk -v f="$fn" '!hit && $NF == f && $3 == "F" { print $1, $5; hit = 1 }')
     if [[ -n "$line" ]]; then found=$line; break; fi
 done < <(find build -name '*.o')
 

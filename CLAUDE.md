@@ -4,8 +4,8 @@ Matching decompilation of **Mega Man Legends** (PlayStation, USA, SLUS-00603).
 "Matching" means the C in `src/` compiles back to the original executable **byte for byte**.
 Current target: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
 
-Background, findings, and open questions: `notes/recon.md`. Read the sections relevant to a
-function before working on it.
+Background, findings, and open questions: `notes/recon.md`. It is long: **search it for the
+function's name and the globals it touches** (`grep -n`) instead of reading it whole.
 
 ## The one rule
 
@@ -112,6 +112,12 @@ gcc 2.7.2 is a C89 compiler.
   "better" code. Some idioms are deliberate and must be preserved; for example,
   `DrawCopyrightWarning` passes `ot[0]` rather than `ot` to `addPrim` (see recon.md).
 - Avoid casts and `unkXX` names in banked code where a proper type or field name works.
+- **No redundant statements**, unless the build needs them. Try removing anything that looks
+  redundant; if the build still matches, leave it out. If removing it breaks the match, it was in
+  the original source: keep it, with a short comment. (Example: `InitCd` stores to `D_80059BCA`
+  twice.) Note that Ghidra's pseudocode hides dead stores; the assembly is the truth.
+- **Prefer the natural form when several match.** For example, try `for (i = 0; i < n; i++)`
+  before a reversed loop; GCC often reverses loop direction itself.
 
 ## Types and headers
 
@@ -132,11 +138,14 @@ The repo is the source of truth for names. `symbol_addrs.txt` is the hand-mainta
 that splat uses when generating assembly.
 
 Renaming a function or global means changing all of:
-1. `symbol_addrs.txt`
+1. `symbol_addrs.txt`. Symbols with splat's default names (`func_XXXXXXXX`, `D_XXXXXXXX`) are
+   **not listed**; add a new line, e.g. `Cmd_Nop = 0x800110E4; // type:func` or
+   `g_cdMode = 0x80059BCB; // size:0x1`.
 2. Its definition in `src/` (or the name in its `INCLUDE_ASM` line)
 3. Any declaration in `include/`
 
 Then `./tools/split.sh` and `./tools/build.sh`. A mismatch shows up as a link error.
+Only rename when the owner approves a name; otherwise propose it in the report.
 
 Conventions: functions `PascalCase` (`SetupDisplay`, `QueuePlayMovie`); related groups take a
 prefix (`Screen_LaunchGame`, `Cmd_Nop`). Globals `g_camelCase` (`g_curBuffer`). Types
@@ -154,9 +163,15 @@ prefix (`Screen_LaunchGame`, `Cmd_Nop`). Globals `g_camelCase` (`g_curBuffer`). 
 
 ## When you finish a task
 
-Leave everything uncommitted and report, so the owner can review:
-- Every file you changed, and what changed in each.
-- Functions banked (build MATCHes) and functions parked (with what still differs).
-- Names proposed, and types added or changed.
-- Anything learned that belongs in `notes/recon.md` (or the edit you made there).
-- The final `./tools/build.sh` result.
+Leave everything uncommitted. Keep the report short; the owner reads the diff itself.
+
+```
+Banked: IsBusy, RunIntroSequence
+Parked: DequeueCommand (loop pointer based at p+4, target p+0xc)
+Files:  src/main.c, include/cmd.h, include/screen.h (new)
+Build:  MATCH
+Decisions needed:
+- <only items that need the owner: proposed names, suspected registry errors, tool bugs>
+```
+
+Don't restate the code or narrate each step.
