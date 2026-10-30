@@ -16,8 +16,8 @@ typedef struct {
     CommandArgs args;
 } Command;                                  /* 0x10 */
 
-extern Command  g_cmdQueue[16];             /* 0x8005b348 */
-extern Command *g_cmdWritePtr;              /* 0x80059c08 */
+extern Command  g_cmdQueue[16];
+extern Command *g_cmdWritePtr;
 
 /* Per-command progress, cleared on dequeue. Rename once identified. */
 extern int D_80059C20;
@@ -30,15 +30,18 @@ extern u8       D_80059BC9;
 extern u8       D_80059BCA;
 extern u8       g_cdMode;
 extern u8       D_80059BD4;
+extern u8       D_80059BDC;
 extern int      D_80059BD8;
 extern int      D_80059C00;
-extern Command *D_80059C38;                 /* set to the queue start, like g_cmdWritePtr */
+extern Command *g_cmdHead;
 extern u_char   g_cdResult[8];
 extern u8       D_80059C48;
 extern u8       D_80059C74;
 
+extern void   (*g_cmdHandlers[6])(void);
+
 void InitCd(void);
-void Cd_ControlRetry(u_char com, u_char *param, u_char *result); /* CdSync, then CdControlB until it succeeds */
+void Cd_ControlRetry(u_char com, u_char *param, u_char *result);
 void QueuePlayMovie(int arg1, int arg2, short arg3);
 void DequeueCommand(void);
 int  IsBusy(void);

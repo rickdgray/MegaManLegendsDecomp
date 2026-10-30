@@ -41,13 +41,13 @@ void InitCd(void) {
     while (CdInit() == 0) {
     }
 
-    D_80059BCA = 0; // redundant
+    D_80059BCA = 0; /* redundant */
     D_80059C00 = 0;
     D_80059BC8 = 0;
     D_80059C74 = 7;
     g_cdMode = 0;
     D_80059C48 = 0;
-    D_80059BCA = 0; // redundant
+    D_80059BCA = 0; /* redundant */
 
     Cd_ControlRetry(CdlSetmode, &g_cdMode, g_cdResult);
 
@@ -57,7 +57,7 @@ void InitCd(void) {
         g_cmdQueue[i].type = 0;
     }
 
-    D_80059C38 = g_cmdQueue;
+    g_cmdHead = g_cmdQueue;
     g_cmdWritePtr = g_cmdQueue;
     
     D_80059BB4 = 0;
@@ -80,9 +80,36 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80011614);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011680);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011730);
+void RunCommandQueue(void) {
+    if (D_80059BDC) {
+        DequeueCommand();
+        CdSyncCallback(0);
+        CdReadyCallback(0);
+        while (CdReset(0) == 0) {
+        }
+    }
 
+    g_cmdHandlers[g_cmdHead->type]();
+}
+
+#ifdef NON_MATCHING
+void DequeueCommand(void) {
+    Command *p;
+
+    p = g_cmdQueue;
+    while (p->type != 0) {
+        p->type = p[1].type;
+        p->args = p[1].args;
+        p++;
+    }
+    p[1].type = 0;
+    D_80059C24 = 0;
+    D_80059C20 = 0;
+    g_cmdWritePtr--;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/main", DequeueCommand);
+#endif
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011830);
 
@@ -96,7 +123,13 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80011A64);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011C1C);
 
-INCLUDE_ASM("asm/nonmatchings/main", Cd_ControlRetry);
+void Cd_ControlRetry(u_char com, u_char *param, u_char *result) {
+    while (CdSync(1, result) == 0) {
+    }
+
+    while (CdControlB(com, param, result) == 0) {
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011CEC);
 
@@ -118,9 +151,40 @@ INCLUDE_ASM("asm/nonmatchings/main", DrawCopyrightWarning);
 
 INCLUDE_ASM("asm/nonmatchings/main", Screen_FadeImage);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800121D8);
+void Screen_WaitIdle(void) {
+    RECT rect; /* unused, likely copy paste */
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80012264);
+    switch (g_screenState) {
+        case 0:
+            SetupDisplay(0);
+            g_screenState++;
+            break;
+        case 1:
+            if (!IsBusy()) {
+                g_screenState = 0;
+                g_screenIndex++;
+            }
+            break;
+    }
+}
+
+void Screen_PlayMovie(void) {
+    RECT rect; /* unused, likely copy paste */
+
+    switch (g_screenState) {
+        case 0:
+            SetupDisplay(0);
+            QueuePlayMovie(0xd0, 0x91, 0x2008);
+            g_screenState++;
+            break;
+        case 1:
+            if (!IsBusy()) {
+                g_screenState = 0;
+                g_screenIndex++;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/main", Screen_LaunchGame);
 

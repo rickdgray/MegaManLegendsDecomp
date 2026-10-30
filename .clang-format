@@ -1,0 +1,20 @@
+# Allman braces, always braced blocks, 4-space indent.
+# Needs clang-format 15+ (InsertBraces). Run: clang-format-15 -i <files>
+# Never run on generated files (include/include_asm.h, asm/, build/).
+BasedOnStyle: LLVM
+Language: Cpp
+BreakBeforeBraces: Allman
+InsertBraces: true
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+PointerAlignment: Right
+SortIncludes: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+IndentCaseLabels: false
+AlignTrailingComments: true
+ReflowComments: false

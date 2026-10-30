@@ -238,3 +238,4 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 - `InitCd` really does store 0 to `D_80059BCA` twice: removing either store breaks the match. Ghidra's pseudocode showed only one; **Ghidra hides dead stores**. The queue-clear loop matches as `for (i = 0; i < 16; i++)` (GCC reverses it).
 - `g_cmdQueue` registry size was `0xE0` (16 × 14, stale from the 14-byte `Command`); should be `0x100`.
 - Found the `diff.sh` symbol-lookup SIGPIPE (exit 141). Fixed: awk reads all input.
+- `DequeueCommand` parked: shift loop `p->type = p[1].type; p->args = p[1].args; p++` is close, but the target copies args through a second pointer at p+0xC (loads 8/0xc/0x10, stores -8/-4/0) and mine bases it at p+4 with a single induction var; also the terminator store is `p[1].type = 0`. Tried `*p = p[1]`, index form, explicit `CommandArgs *`.
