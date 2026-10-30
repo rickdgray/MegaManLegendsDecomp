@@ -1,13 +1,13 @@
 #include "common.h"
 #include "display.h"
 #include "cmd.h"
-#include "screen.h"
+#include "intro.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", main);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_800108EC);
 
-void Disp_env_set(int mode)
+void Disp_env_set(sint32 mode)
 {
     SetDefDrawEnv(&Disp_env[0].draw, 0, 0, disp_width_tbl[mode], 240);
     SetDefDispEnv(&Disp_env[0].disp, 0, 256, disp_width_tbl[mode], 240);
@@ -39,7 +39,7 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80010C40);
 
 void Cd_init(void)
 {
-    int i;
+    sint32 i;
 
     while (CdInit() == 0)
     {
@@ -62,7 +62,7 @@ void Cd_init(void)
         Cmd_queue[i].type = 0;
     }
 
-    g_cmdHead = Cmd_queue;
+    Cmd_exec_ptr = Cmd_queue;
     Cmd_write_ptr = Cmd_queue;
 
     D_80059BB4 = 0;
@@ -86,7 +86,7 @@ INCLUDE_ASM("asm/nonmatchings/main", func_80011614);
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011680);
 
-void RunCommandQueue(void)
+void Cmd_exec(void)
 {
     if (D_80059BDC)
     {
@@ -98,7 +98,7 @@ void RunCommandQueue(void)
         }
     }
 
-    g_cmdHandlers[g_cmdHead->type]();
+    cmd_tbl[Cmd_exec_ptr->type]();
 }
 
 #ifdef NON_MATCHING
@@ -147,7 +147,7 @@ void Cd_control_retry(u_char com, u_char *param, u_char *result)
 
 INCLUDE_ASM("asm/nonmatchings/main", func_80011CEC);
 
-void Cmd_set_movie(int arg1, int arg2, short arg3)
+void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3)
 {
     Cmd_write_ptr->type = 5;
     Cmd_write_ptr->args.arg1 = arg1;
@@ -156,7 +156,7 @@ void Cmd_set_movie(int arg1, int arg2, short arg3)
     Cmd_write_ptr++;
 }
 
-int Cmd_busy_check(void)
+sint32 Cmd_busy_check(void)
 {
     return Cmd_write_ptr != Cmd_queue;
 }
@@ -167,42 +167,42 @@ INCLUDE_ASM("asm/nonmatchings/main", intro_copyright_draw);
 
 INCLUDE_ASM("asm/nonmatchings/main", intro_copyright);
 
-void Screen_WaitIdle(void)
+void intro_wait_idle(void)
 {
     RECT rect; // unused, likely copy paste
 
-    switch (g_screenState)
+    switch (Intro_routine_1)
     {
     case 0:
         Disp_env_set(0);
-        g_screenState++;
+        Intro_routine_1++;
         break;
     case 1:
         if (!Cmd_busy_check())
         {
-            g_screenState = 0;
-            g_screenIndex++;
+            Intro_routine_1 = 0;
+            Intro_routine_0++;
         }
         break;
     }
 }
 
-void Screen_PlayMovie(void)
+void intro_play_movie(void)
 {
     RECT rect; // unused, likely copy paste
 
-    switch (g_screenState)
+    switch (Intro_routine_1)
     {
     case 0:
         Disp_env_set(0);
         Cmd_set_movie(0xd0, 0x91, 0x2008);
-        g_screenState++;
+        Intro_routine_1++;
         break;
     case 1:
         if (!Cmd_busy_check())
         {
-            g_screenState = 0;
-            g_screenIndex++;
+            Intro_routine_1 = 0;
+            Intro_routine_0++;
         }
         break;
     }
@@ -212,5 +212,5 @@ INCLUDE_ASM("asm/nonmatchings/main", intro_launch_game);
 
 void Intro_task(void)
 {
-    intro_tbl[g_screenIndex]();
+    intro_tbl[Intro_routine_0]();
 }

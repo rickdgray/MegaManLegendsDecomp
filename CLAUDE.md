@@ -163,6 +163,12 @@ What decompilers show vs. what to write:
 - **One wide store over several small fields** is Capcom's habit: `*(uint32 *)&wp->routine_0 = 0;`
   resets `routine_0`…`routine_3` at once. Write it that way when the assembly has one `sw`/`sh`
   spanning several fields.
+- **Adjacent globals vs. one struct:** don't merge separate globals into a struct just because
+  they sit next to each other. GCC keeps a struct's base address in a register (often a saved
+  `s` register, which grows the frame) and reaches fields by offset, while separate globals
+  each get their own `lui`/`%lo` access. The assembly shows which: one shared base register
+  means a struct; a fresh `lui` per access means separate globals. (`Intro_routine_0`/`_1` are
+  separate globals; `Intro_init` writes both with one cast 32-bit store.)
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
   pattern for modes and states. Byte fields `routine_0`…`routine_3` start most `_WORK` structs.
 - **GPU primitives:** separate byte stores in the assembly → PsyQ's macros (`setSprt`, `setRGB0`,

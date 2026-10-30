@@ -25,10 +25,16 @@ Other regions and disc revisions are not supported.
 
 - [x] Verified clean disc image against Redump
 - [x] Extracted filesystem and confirmed boot executable
-- [ ] Recon: code/data boundaries, PsyQ version, overlay map (`SLUS_006.03` done; `ROCK_NEO.EXE` and overlays next)
-- [ ] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` **matches**)
+- [X] Recon: code/data boundaries, PsyQ version, overlay map (`SLUS_006.03` done; `ROCK_NEO.EXE` and overlays next)
+- [X] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` **matches**)
 - [ ] Decompilation passes (m2c, permuter, agent-assisted matching): local toolchain matching; first `SLUS_006.03` functions banked
 - [ ] Naming and documentation
+
+## Code style
+
+Naming and type conventions follow Capcom's own style, as seen in fragments of the game's [original source that shipped on the Japanese release (`ST1E.BIN`)](https://tcrf.net/Mega_Man_Legends/Source_Code). That covers `Capitalized_snake_case` globals, `lower_snake_case` statics, `ALL_CAPS` types such as `PL_WORK`, `_tbl` tables, `routine_N` state fields, and the `uint8`/`sint32` type names. Where the original's real name for something is known, it's used.
+
+Formatting is modern (Allman braces, always-braced blocks, typedefs for function pointers), since formatting never affects the compiled output. All C in this repository is reconstructed from the binary; no original source code is included.
 
 ## Setup
 
