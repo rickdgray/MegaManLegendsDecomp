@@ -46,23 +46,24 @@ void System_init(void)
     VSync(0);
     ResetGraph(0);
     DecDCTReset(0);
-    SetVideoMode(0);
+    SetVideoMode(MODE_NTSC);
 
     InitPAD((u_char *)&Joy1, 8, (u_char *)&Joy2, 8);
+    // ugly, but idiomatic to Capcom's codebase
     *(uint32 *)Joy1.unk34 = 0x4001;
     *(uint32 *)Joy2.unk34 = 0x4001;
     StartPAD();
     ChangeClearPAD(0);
 
     ClearImage(&Clear_rect, 0, 0, 0);
-    Disp_env_set(1);
+    Disp_env_set(DISP_MODE_640);
     Disp_env_ptr = Disp_env;
     Dbl_buff_idx = 0;
-    Vsync_wait   = 2;
+    Vsync_wait   = VSYNC_30FPS;
     VSyncCallback(Vsync_handler);
     D_80059BBC = 0;
-    SsSetSerialAttr(0, 0, 1);
-    SsSetSerialVol(0, 0x7F, 0x7F);
+    SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
+    SsSetSerialVol(SS_SERIAL_A, SS_VOL_MAX, SS_VOL_MAX);
 }
 
 void Disp_env_set(sint32 mode)
@@ -442,7 +443,7 @@ void intro_wait_idle(void)
     switch (Intro_routine_1)
     {
         case 0:
-            Disp_env_set(0);
+            Disp_env_set(DISP_MODE_320);
             Intro_routine_1++;
             break;
         case 1:
@@ -462,7 +463,7 @@ void intro_play_movie(void)
     switch (Intro_routine_1)
     {
         case 0:
-            Disp_env_set(0);
+            Disp_env_set(DISP_MODE_320);
             Cmd_set_movie(0xd0, 0x91, 0x2008);
             Intro_routine_1++;
             break;
@@ -484,7 +485,7 @@ void intro_launch_game(void)
     switch (Intro_routine_1)
     {
         case 0:
-            Disp_env_set(0);
+            Disp_env_set(DISP_MODE_320);
 
             img = loading_tim;
 

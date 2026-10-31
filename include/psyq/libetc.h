@@ -8,6 +8,9 @@
 
 #include "common.h"
 
+#define MODE_NTSC 0
+#define MODE_PAL 1
+
 typedef void (*VSYNC_FUNC)(void);
 
 void ResetCallback(void);

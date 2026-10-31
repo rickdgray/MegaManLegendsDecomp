@@ -4,6 +4,9 @@
 #include "common.h"
 #include "psyq/libgpu.h"
 
+#define DISP_MODE_320 0
+#define DISP_MODE_640 1
+
 // One of the two double buffers.
 typedef struct
 {
