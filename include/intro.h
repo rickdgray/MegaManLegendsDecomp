@@ -29,5 +29,6 @@ extern u_long copyright_tim[]; // 0x8001DFA4 copyright image (CLUT at +0x14, pix
 extern char rock_neo_path[];   // 0x80059B24 "cdrom:\\ROCK_NEO.EXE;1"
 
 void Intro_task(void);
+void Intro_init(void);
 
 #endif // INTRO_H

@@ -127,11 +127,30 @@ Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `P
 
 Parked (`NON_MATCHING`, on the permuter):
 
-- `Intro_init`: instruction-for-instruction identical (chained assignments); only `i` and the
-  constant `4` swap registers (`s1`/`s2`), and the same in the second loop.
-- `Cmd_dequeue`: best form `while (p->type != 0) { p->type = p[1].type; p->args = p[1].args; p++; }`.
-  The target bases the args copy on `p + 0xc` (mine `p + 4`), schedules `p++` before the stores,
-  and numbers registers differently.
+- `Intro_init`: best draft uses chained assignments for the two sprite buffers, `getClut(0, 240)`,
+  and one counter `i` for both the sprite loop and the draw-mode loop (asm-differ 210). Same length
+  and instruction stream as the target; only the first loop's `i` and the hoisted constant `4`
+  (sprite length) swap `s1`/`s2`, which also costs the second loop one extra `move`.
+  - Permuter (10 h): best 175, by moving `rect.x = 0` into the loop (breaks the first `LoadImage`;
+    shows that store timing affects allocation, not a fix). Matching the target's store order for
+    the first `RECT` changed nothing.
+  - Ruled out: a separate counter for the draw-mode loop (`j`): the target keeps both loops'
+    counters in the same register (`s2`), so the original reuses one variable.
+  - Remaining: an `s1`/`s2` priority tie between `i` and the constant. Long permuter run; it's
+    slow here (~10 outputs per night vs ~50 for `Cmd_dequeue`), so a good server job.
+- `Cmd_dequeue`: best draft is a single-pointer `for` loop:
+  `for (p = Cmd_queue; p->type != 0; p++) { p->type = p[1].type; p->args = p[1].args; }`,
+  then `p[1].type = 0`. Instruction-for-instruction aligned (asm-differ 530). Remaining: GCC's
+  derived loop pointer is based at `p + 4` (target `p + 0xc`), `p++` is scheduled after the args
+  stores (target: before), and register numbering.
+  - Permuter (10 h, from the older `while` draft): best 150 (permuter scale), only via implausible
+    disguises (constant index variables, always-true `if`s). All of them make the `type` copy and
+    the `args` copy reach `p[1]` through *different* expressions.
+  - Ruled out: two pointers `dst`/`src` (the target stores args through the derived pointer, so
+    one source pointer), a `next` pointer (worse), `*p = p[1]`, index form, reversed copy order.
+  - **Suspected:** `p + 0xc` is `&p->args.arg3`, so the original may touch `arg3`'s word directly,
+    e.g. through a union view of `CMD_ARGS`. Revisit when group B shows how `CMD_ARGS` is used.
+  - `permuter/Cmd_dequeue/` regenerated from the `for` loop draft.
 
 Not started (group B, the CD module): `func_800110EC`, `func_8001115C`, `cmd_play_movie`,
 `func_80011614`, `func_80011680`, `func_80011830`, `func_80011860`, `func_800118CC`,
