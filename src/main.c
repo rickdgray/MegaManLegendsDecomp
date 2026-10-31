@@ -258,11 +258,10 @@ void Cmd_dequeue(void)
     CMD *p;
 
     p = Cmd_queue;
-    while (p->type != 0)
+    for (p = Cmd_queue; p->type != 0; p++)
     {
         p->type = p[1].type;
         p->args = p[1].args;
-        p++;
     }
 
     p[1].type  = 0;
