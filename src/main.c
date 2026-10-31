@@ -168,13 +168,13 @@ void Intro_init(void)
 {
     RECT rect;
     u_long *img;
+    uint32 i;
+    uint32 j;
+    uint32 k;
     SPRT *p0;
     SPRT *p1;
-    uint32 k;
-    uint32 j;
-    uint32 i;
 
-    img                         = D_8001DFA4;
+    img                         = copyright_tim;
     *(uint32 *)&Intro_routine_0 = 2;
     *(uint32 *)&Intro_bright    = 0;
 
@@ -200,26 +200,16 @@ void Intro_init(void)
             {
                 setSprt(p0);
                 setSprt(p1);
-                p1->x0   = i * 128 + j * 32;
-                p0->x0   = i * 128 + j * 32;
-                p1->y0   = k * 64;
-                p0->y0   = k * 64;
-                p1->u0   = j * 32;
-                p0->u0   = j * 32;
-                p1->v0   = k * 64;
-                p0->v0   = k * 64;
-                p1->clut = 0x3c00;
-                p0->clut = 0x3c00;
-                p1->r0   = 0;
-                p0->r0   = 0;
-                p1->g0   = 0;
-                p0->g0   = 0;
-                p1->b0   = 0;
-                p0->b0   = 0;
-                p1->w    = 32;
-                p0->w    = 32;
-                p1->h    = 64;
-                p0->h    = 64;
+                p0->x0 = p1->x0 = i * 128 + j * 32;
+                p0->y0 = p1->y0 = k * 64;
+                p0->u0 = p1->u0 = j * 32;
+                p0->v0 = p1->v0 = k * 64;
+                p0->clut = p1->clut = getClut(0, 240);
+                p0->r0 = p1->r0 = 0;
+                p0->g0 = p1->g0 = 0;
+                p0->b0 = p1->b0 = 0;
+                p0->w = p1->w = 32;
+                p0->h = p1->h = 64;
                 p0++;
                 p1++;
             }

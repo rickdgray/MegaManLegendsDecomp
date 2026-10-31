@@ -23,10 +23,10 @@ extern DR_MODE loading_dr_mode[2];   // 0x80059B40 loading banner texture page, 
 
 // HACK: aliases D_80059B40[1]. The target reaches the second draw mode through a separate
 // symbol (a fresh lui), which the array alone doesn't reproduce. Revisit.
-extern DR_MODE D_80059B4C;   // 0x80059B4C second element of loading_dr_mode
-extern u_long loading_tim[]; // 0x800461C4 loading banner image (CLUT at +0x14, pixels at +0x40)
-extern char rock_neo_path[]; // 0x80059B24 "cdrom:\\ROCK_NEO.EXE;1"
-extern u_long D_8001DFA4[];  // 0x8001DFA4 copyright image (CLUT at +0x14, pixels at +0x220)
+extern DR_MODE D_80059B4C;     // 0x80059B4C second element of loading_dr_mode
+extern u_long loading_tim[];   // 0x800461C4 loading banner image (CLUT at +0x14, pixels at +0x40)
+extern u_long copyright_tim[]; // 0x8001DFA4 copyright image (CLUT at +0x14, pixels at +0x220)
+extern char rock_neo_path[];   // 0x80059B24 "cdrom:\\ROCK_NEO.EXE;1"
 
 void Intro_task(void);
 
