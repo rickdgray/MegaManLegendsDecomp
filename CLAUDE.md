@@ -4,10 +4,9 @@ Matching decompilation of **Mega Man Legends** (PlayStation, USA, SLUS-00603).
 "Matching" means the C in `src/` compiles back to the original executable **byte for byte**.
 Current target: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
 
-Background, findings, and open questions: `notes/recon.md`. It is long: **search it for the
-function's name and the globals it touches** (`grep -n`) instead of reading it whole. Many
-entries predate the current names, so **also search by address** (e.g. `80011da8`, case-
-insensitive), which never changes.
+Background, findings, and open questions live in `notes/` (start with `notes/README.md`; the
+executable you're working on has its own file, e.g. `notes/shim.md`). **Search, don't read whole
+files**: `grep -rn -i "<name>\|<address>" notes/`. Addresses never change, so search by both.
 
 ## The one rule
 
@@ -75,7 +74,7 @@ differences such as `addiu` vs `ori`. When the diff is clean, confirm with `buil
 ## Workflow: decompiling one function
 
 1. Pick a function still written as `INCLUDE_ASM("asm/nonmatchings/main", Func);` in `src/main.c`.
-2. Read its assembly in `asm/nonmatchings/main/Func.s` and any notes in `notes/recon.md`.
+2. Read its assembly in `asm/nonmatchings/main/Func.s` and search `notes/` for it.
 3. Run `./tools/m2c.sh Func` for a draft. Treat the draft as a starting point, never as an answer:
    m2c often gets pointer arithmetic in bytes rather than elements, emits `unkXX` fields where a
    struct is incomplete, and writes `if` + `do/while` where the source was a plain `while`.
@@ -108,7 +107,8 @@ INCLUDE_ASM("asm/nonmatchings/main", Func);
 #endif
 ```
 
-Add a line to `notes/recon.md` with what remains different. decomp-permuter will handle these later.
+Update the executable's notes file ("Function status", e.g. in `notes/shim.md`) with what remains
+different. decomp-permuter will handle these later.
 
 ## Toolchain facts (established; do not change without asking)
 
@@ -126,7 +126,7 @@ gcc 2.7.2 is a C89 compiler.
 - No `inline`, no `bool`, no designated initializers, no mixed declarations and code.
 - Write the plainest C that produces the bytes. The goal is the source Capcom wrote, not
   "better" code. Some idioms are deliberate and must be preserved; for example,
-  `DrawCopyrightWarning` passes `ot[0]` rather than `ot` to `addPrim` (see recon.md).
+  `intro_copyright_draw` passes `ot[0]` rather than `ot` to `addPrim` (see `notes/shim.md`).
 - **Brace style is Allman** (braces on their own line), 4-space indent, `case` labels indented
   one level inside their `switch`, and **always use braces**, even for a one-line `if`, loop, or
   `else` body. After editing, run `clang-format-15 -i` on the C
