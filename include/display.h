@@ -15,7 +15,9 @@ typedef struct
 extern DISP_ENV Disp_env[2];
 extern DISP_ENV *Disp_env_ptr;
 extern sint16 disp_width_tbl[2];
-extern uint8 Dbl_buff_idx; // 0x1F800000 (scratchpad) current buffer index, toggles 0/1
+extern volatile uint32 Vsync_count; // 0x80059BC0 incremented once per vblank by Vsync_handler
+extern RECT Clear_rect;             // cleared with ClearImage at init
+extern sint32 D_80059BBC;           // zeroed at init
 
 void Disp_env_set(sint32 mode);
 void Disp_env_init(DISP_ENV *buf);

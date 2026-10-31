@@ -45,6 +45,8 @@ extern CMD_FUNC cmd_tbl[6];
 void Cd_init(void);
 void Cd_control_retry(u_char com, u_char *param, u_char *result);
 void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3);
+void func_80011680(void);
+void Cmd_exec(void);
 void Cmd_dequeue(void);
 sint32 Cmd_busy_check(void);
 

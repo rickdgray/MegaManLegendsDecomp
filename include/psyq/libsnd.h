@@ -8,6 +8,9 @@
 
 #include "common.h"
 
+void SsInit(void);
 void SsQuit(void);
+void SsSetSerialAttr(char s_num, char attr, char mode);
+void SsSetSerialVol(char s_num, short voll, short volr);
 
 #endif // PSYQ_LIBSND_H

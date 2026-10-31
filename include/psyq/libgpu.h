@@ -77,8 +77,8 @@ typedef struct
 //   tp:  color depth (0 = 4-bit, 1 = 8-bit, 2 = 16-bit)
 //   abr: semi-transparency blend mode (0-3)
 //   x:   VRAM x, a multiple of 64.  y: VRAM y, 0 or 256
-#define getTPage(tp, abr, x, y) \
-    ((((tp) & 0x3) << 7) | (((abr) & 0x3) << 5) | (((y) & 0x100) >> 4) | (((x) & 0x3ff) >> 6))
+#define getTPage(tp, abr, x, y)                                                                    \
+    ((((tp)&0x3) << 7) | (((abr)&0x3) << 5) | (((y)&0x100) >> 4) | (((x)&0x3ff) >> 6))
 
 // CLUT (palette) position in VRAM. x must be a multiple of 16.
 #define getClut(x, y) (((y) << 6) | (((x) >> 4) & 0x3f))
@@ -91,6 +91,8 @@ DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
 DRAWENV *PutDrawEnv(DRAWENV *env);
 DISPENV *PutDispEnv(DISPENV *env);
 void SetDispMask(int mask);
+int ResetGraph(int mode);
+int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
 int LoadImage(RECT *rect, u_long *p);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
 

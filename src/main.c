@@ -1,12 +1,69 @@
 #include "common.h"
+#include "system.h"
 #include "display.h"
 #include "cmd.h"
 #include "intro.h"
+#include "pad.h"
+#include "scratch.h"
+#include "psyq/libapi.h"
+#include "psyq/libpress.h"
 #include "psyq/libsnd.h"
+#include "psyq/libetc.h"
 
-INCLUDE_ASM("asm/nonmatchings/main", main);
+void main(void)
+{
+    System_init();
+    VSync(0);
+    SetDispMask(1);
+    Intro_init();
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800108EC);
+    while (1)
+    {
+        while (Vsync_count < Vsync_wait)
+        {
+        }
+
+        Vsync_count = 0;
+        PutDispEnv(&Disp_env_ptr->disp);
+        PutDrawEnv(&Disp_env_ptr->draw);
+        func_80011680();
+        DrawOTag(Disp_env_ptr->ot);
+        Pad_update_all();
+        Dbl_buff_idx ^= 1;
+        Disp_env_ptr = &Disp_env[Dbl_buff_idx];
+        ClearOTag(Disp_env_ptr->ot, 8);
+        Intro_task();
+        Cmd_exec();
+        DrawSync(0);
+    }
+}
+
+void System_init(void)
+{
+    ResetCallback();
+    Cd_init();
+    SsInit();
+    VSync(0);
+    ResetGraph(0);
+    DecDCTReset(0);
+    SetVideoMode(0);
+
+    InitPAD((u_char *)&Joy1, 8, (u_char *)&Joy2, 8);
+    *(uint32 *)Joy1.unk34 = 0x4001;
+    *(uint32 *)Joy2.unk34 = 0x4001;
+    StartPAD();
+    ChangeClearPAD(0);
+
+    ClearImage(&Clear_rect, 0, 0, 0);
+    Disp_env_set(1);
+    Disp_env_ptr = Disp_env;
+    Dbl_buff_idx = 0;
+    Vsync_wait   = 2;
+    VSyncCallback(Vsync_handler);
+    D_80059BBC = 0;
+    SsSetSerialAttr(0, 0, 1);
+    SsSetSerialVol(0, 0x7F, 0x7F);
+}
 
 void Disp_env_set(sint32 mode)
 {
@@ -30,13 +87,105 @@ void Disp_env_init(DISP_ENV *buf)
     buf->draw.b0       = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80010B14);
+void Pad_update(PAD_WORK *pad)
+{
+    if (pad->status == 0xFF)
+    {
+        pad->type                  = 0xFF;
+        pad->flags.all             = 0;
+        PAD_NOW(*pad)              = 0;
+        *(uint32 *)pad->analog_cpy = 0;
+        *(uint32 *)pad->old        = 0;
+    }
+    else
+    {
+        pad->type                  = pad->id >> 4;
+        PAD_OLD(*pad)              = PAD_NOW(*pad);
+        *(uint32 *)pad->analog_cpy = *(uint32 *)pad->analog;
+        PAD_NOW(*pad)              = ~PAD_RAW(*pad);
+        PAD_ON(*pad)               = PAD_NOW(*pad) & ~PAD_OLD(*pad);
+        PAD_OFF(*pad)              = PAD_OLD(*pad) & ~PAD_NOW(*pad);
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80010BE0);
+        if ((pad->flags.all & 3) == 1)
+        {
+            pad->unk36 = 1;
+        }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80010C18);
+        if ((pad->flags.all & 3) == 2)
+        {
+            pad->unk36 = 0;
+        }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80010C40);
+        pad->flags.bit.prev = pad->flags.bit.cur;
+    }
+}
+
+void Pad_update_all(void)
+{
+    Pad_update(&Joy1);
+    Pad_update(&Joy2);
+}
+
+void Vsync_handler(void)
+{
+    Vsync_count++;
+}
+
+void Disp_adjust(void)
+{
+    DISPENV disp;
+    PAD_WORK save0;
+    PAD_WORK save1;
+    sint32 x;
+    sint32 y;
+
+    save0 = Joy1;
+    save1 = Joy2;
+    y     = 0;
+    x     = 0;
+
+    while (1)
+    {
+        Pad_update_all();
+
+        if (PAD_NOW(Joy2) & PAD_UP)
+        {
+            y -= 8;
+        }
+
+        if (PAD_NOW(Joy2) & PAD_DOWN)
+        {
+            y += 8;
+        }
+
+        if (PAD_NOW(Joy2) & PAD_RIGHT)
+        {
+            x += 8;
+        }
+
+        if (PAD_NOW(Joy2) & PAD_LEFT)
+        {
+            x -= 8;
+        }
+
+        if (PAD_ON(Joy2) & PAD_START)
+        {
+            break;
+        }
+
+        if (PAD_ON(Joy2) & PAD_R2)
+        {
+            break;
+        }
+
+        SetDefDispEnv(&disp, x, y, 320, 240);
+        VSync(0);
+        PutDispEnv(&disp);
+    }
+
+    Joy1 = save0;
+    Joy2 = save1;
+}
 
 void Cd_init(void)
 {
