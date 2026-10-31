@@ -17,7 +17,7 @@ extern CMD *Cmd_write_ptr;
 
 void Cmd_set_movie(int arg1, int arg2, short arg3)
 {
-    Cmd_write_ptr->type = 5;
+    Cmd_write_ptr->type      = 5;
     Cmd_write_ptr->args.arg1 = arg1;
     Cmd_write_ptr->args.arg2 = arg2;
     Cmd_write_ptr->args.arg3 = arg3;

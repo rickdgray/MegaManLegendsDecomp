@@ -15,6 +15,7 @@ AllowShortFunctionsOnASingleLine: None
 AllowShortBlocksOnASingleLine: Never
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-IndentCaseLabels: false
+IndentCaseLabels: true
 AlignTrailingComments: true
+AlignConsecutiveAssignments: Consecutive
 ReflowComments: false

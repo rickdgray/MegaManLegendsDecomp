@@ -68,6 +68,21 @@ typedef struct
 #define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
 #define addPrim(ot, p) setaddr(p, getaddr(ot)), setaddr(ot, p)
 
+// Primitive header setters. Same effect as PsyQ's macros, written from the layouts above.
+#define setlen(p, _len) (((P_TAG *)(p))->len = (u_long)(_len))
+#define setcode(p, _code) (((P_TAG *)(p))->code = (u_char)(_code))
+#define setSprt(p) (setlen(p, 4), setcode(p, 0x64))
+
+// Texture page: which 64x256 block of VRAM to texture from, and how.
+//   tp:  color depth (0 = 4-bit, 1 = 8-bit, 2 = 16-bit)
+//   abr: semi-transparency blend mode (0-3)
+//   x:   VRAM x, a multiple of 64.  y: VRAM y, 0 or 256
+#define getTPage(tp, abr, x, y) \
+    ((((tp) & 0x3) << 7) | (((abr) & 0x3) << 5) | (((y) & 0x100) >> 4) | (((x) & 0x3ff) >> 6))
+
+// CLUT (palette) position in VRAM. x must be a multiple of 16.
+#define getClut(x, y) (((y) << 6) | (((x) >> 4) & 0x3f))
+
 u_long *ClearOTag(u_long *ot, int n);
 void DrawOTag(u_long *p);
 int DrawSync(int mode);

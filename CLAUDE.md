@@ -5,7 +5,9 @@ Matching decompilation of **Mega Man Legends** (PlayStation, USA, SLUS-00603).
 Current target: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
 
 Background, findings, and open questions: `notes/recon.md`. It is long: **search it for the
-function's name and the globals it touches** (`grep -n`) instead of reading it whole.
+function's name and the globals it touches** (`grep -n`) instead of reading it whole. Many
+entries predate the current names, so **also search by address** (e.g. `80011da8`, case-
+insensitive), which never changes.
 
 ## The one rule
 
@@ -125,8 +127,9 @@ gcc 2.7.2 is a C89 compiler.
 - Write the plainest C that produces the bytes. The goal is the source Capcom wrote, not
   "better" code. Some idioms are deliberate and must be preserved; for example,
   `DrawCopyrightWarning` passes `ot[0]` rather than `ot` to `addPrim` (see recon.md).
-- **Brace style is Allman** (braces on their own line), 4-space indent, and **always use braces**,
-  even for a one-line `if`, loop, or `else` body. After editing, run `clang-format-15 -i` on the C
+- **Brace style is Allman** (braces on their own line), 4-space indent, `case` labels indented
+  one level inside their `switch`, and **always use braces**, even for a one-line `if`, loop, or
+  `else` body. After editing, run `clang-format-15 -i` on the C
   and header files you changed (config: `.clang-format`). Never run it on generated files such as
   `include/include_asm.h`.
 - **Types:** use Capcom's `uint8`, `sint8`, `uint16`, `sint16`, `uint32`, `sint32` in game code,
@@ -135,6 +138,10 @@ gcc 2.7.2 is a C89 compiler.
 - Type function pointers with a **typedef**, never inline and never as `void *`. That includes
   dispatch tables: `static SCREEN_FUNC screen_tbl[] = { ... };` (identical bytes to Capcom's
   inline declarations). PsyQ's own callback type keeps its PsyQ name (`CdlCB`).
+- **Name magic numbers** when the name folds to the same constant: PsyQ's macros (`getTPage`,
+  `getClut`, in `include/psyq/libgpu.h`) or a `#define`. Only with constant arguments: with a
+  variable involved, the macro emits real arithmetic and the bytes change. If the build stops
+  matching, keep the raw value with a comment explaining it.
 - Avoid casts and `unkXX` names in banked code where a proper type or field name works.
 - **No redundant statements**, unless the build needs them. Try removing anything that looks
   redundant; if the build still matches, leave it out. If removing it breaks the match, it was in
@@ -169,6 +176,15 @@ What decompilers show vs. what to write:
   each get their own `lui`/`%lo` access. The assembly shows which: one shared base register
   means a struct; a fresh `lui` per access means separate globals. (`Intro_routine_0`/`_1` are
   separate globals; `Intro_init` writes both with one cast 32-bit store.)
+- **Same symbol vs. different symbols:** GCC shares the `lui %hi(sym)` of one symbol across
+  several accesses (often in a saved `s` register), but can't share it between two different
+  symbols, even adjacent ones. So if the target reloads `lui` for `x[0]` and `x[1]`, the original
+  probably had **two separate variables**. Seen three times in the shim: `Intro_routine_0`/`_1`,
+  `D_80059C54`/`D_80059C55`, and the loading screen's two `DR_MODE`s.
+- **Chained assignment** stores right to left: `p->r0 = p->g0 = p->b0 = v;` emits `b0`, then
+  `g0`, then `r0`. Use it when the target's store order is reversed like that.
+- **Embedded TIM images:** image data in the binary is often a whole TIM file, read at fixed
+  offsets (CLUT pixels at +0x14). Name the symbol `*_tim`.
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
   pattern for modes and states. Byte fields `routine_0`…`routine_3` start most `_WORK` structs.
 - **GPU primitives:** separate byte stores in the assembly → PsyQ's macros (`setSprt`, `setRGB0`,

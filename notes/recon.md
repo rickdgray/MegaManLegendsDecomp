@@ -219,6 +219,7 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 - [x] Total function count, and how many are PsyQ-signature matches. **Answered:** 602 in Ghidra, 561 PsyQ matches (93%), 31 unnamed `FUN_`, ~10 named manually. At most ~41 are Capcom's. Recorded under `### main`, bullet "602 functions in Ghidra".
 - [ ] Meaning of the loader's `_B4` suffix on `2MBYTE_OBJ_B4`
 - [ ] `2MBYTE.OBJ` holds two `0x00200000` words. Expected layout is RAM size plus a smaller stack size. Which is which, and why is the second value also 2 MB? **Partly answered:** `stup1` reads both, and sets the stack from the 2 MB value (see the `stup0` and `start` bullets under `### main`). Which word is the RAM size is still open.
+- [ ] The use of `D_80059B4C` is clearly a hack with `D_80059B40[1]` also in use to get the matching score up. Needs a fix.
 
 ## Build: SLUS_006.03
 
@@ -285,3 +286,4 @@ Compiler identification (PsyQ version → GCC version and flags) isn't needed fo
 - Found the `diff.sh` symbol-lookup SIGPIPE (exit 141). Fixed: awk reads all input.
 - `intro_wait_idle` and `intro_play_movie` are banked with an unused `RECT rect;` local (the frame is 0x20 bytes), a leftover from copying the screen template.
 - `Cmd_dequeue` parked: shift loop `p->type = p[1].type; p->args = p[1].args; p++` is close, but the target copies args through a second pointer at p+0xC (loads 8/0xc/0x10, stores -8/-4/0) and mine bases it at p+4 with a single induction var; also the terminator store is `p[1].type = 0`. Tried `*p = p[1]`, index form, explicit `CMD_ARGS *`.
+- `Intro_init` parked: C is instruction-for-instruction aligned (score 875), including the two 32-bit stores, `LoadImage` base in `s1`, and the 5x4x4 sprite loop with `p0`/`p1` stepping 0x14. Remaining diff is register allocation: the target keeps the constants `4` and `0x64` in callee-saved `s1`/`s0` with `i` in `s2` (mine: `s0` and a temp, `i` in `s1`), and has an extra `move v0,v1` for `k * 64`. Tried locals for x/y/u, declaration order, p1-before-p0 store order, per-field rgb stores. Candidate for decomp-permuter.
