@@ -19,6 +19,8 @@ M2C_REPO=https://github.com/matt-kempster/m2c
 M2C_COMMIT=c632946b8cfbe8fce442b522dba92dfa72f1f317
 ASMDIFF_REPO=https://github.com/simonlindholm/asm-differ
 ASMDIFF_COMMIT=0dd09af8f8008f1f880327cf0aca3b26d2562ea2
+PERMUTER_REPO=https://github.com/simonlindholm/decomp-permuter
+PERMUTER_COMMIT=8556c81d80d1c1af98a858c8f4dc951357f29139
 # ----------------------------------------------------------------------------
 
 mkdir -p "$VENDOR"
@@ -62,6 +64,7 @@ fetch_tarball gcc-2.7.2-psx "$GCC_URL" "$GCC_SHA256" "$VENDOR/gcc-2.7.2-psx"
 fetch_commit  maspsx "$MASPSX_REPO" "$MASPSX_COMMIT" "$VENDOR/maspsx"
 fetch_commit  m2c    "$M2C_REPO"    "$M2C_COMMIT"    "$VENDOR/m2c"
 fetch_commit  asm-differ "$ASMDIFF_REPO" "$ASMDIFF_COMMIT" "$VENDOR/asm-differ"
+fetch_commit  decomp-permuter "$PERMUTER_REPO" "$PERMUTER_COMMIT" "$VENDOR/decomp-permuter"
 
 rm -f "$VENDOR/asm-differ/diff_settings.py"
 

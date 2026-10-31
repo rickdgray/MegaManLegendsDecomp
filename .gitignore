@@ -25,6 +25,7 @@ assets/
 build/
 undefined_*_auto.txt
 
-# build tools
+# tools
 tools/vendor/
 expected/
+permuter/
