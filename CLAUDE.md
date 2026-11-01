@@ -196,6 +196,11 @@ What decompilers show vs. what to write:
   one only if the initializer form doesn't match.
 - **`switch` fall-through** (no `break`) is deliberate in places. Keep it, with a `// fall through`
   comment.
+- **Reload vs. reuse after a store:** after a store through a pointer, GCC must reload any global
+  the source mentions again (the store might have changed it), but it remembers the value it just
+  stored. If the target reloads a global for one use but reuses an older value for another, the
+  second use probably reads *through the stored pointer* (`(*hdrs)->nSectors`). Matching it can
+  reveal a parameter's real type (`Movie_buf_get`: `StHEADER **hdrs`, not `u_long **`).
 
 ## Types and headers
 

@@ -229,22 +229,18 @@ void cmd_nop(void)
 {
 }
 
-#ifdef NON_MATCHING
-sint32 Movie_buf_get(u_long **end, u_long **base)
+sint32 Movie_buf_get(u_long **data, StHEADER **hdrs)
 {
     if (Movie_buf_ready[Movie_buf_idx] == 0)
     {
         return 0;
     }
 
-    *base = (u_long *)(0x80100000 + (Movie_buf_idx << 15));
-    *end  = (u_long *)(0x80100000 + (Movie_buf_idx << 15) +
-                      (*(u_short *)(0x80100006 + (Movie_buf_idx << 15)) << 5));
+    *hdrs = MOVIE_SLOT(Movie_buf_idx);
+    *data = (u_long *)(MOVIE_SLOT(Movie_buf_idx) + (*hdrs)->nSectors);
+
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/main", Movie_buf_get);
-#endif
 
 void Movie_buf_release(void)
 {
@@ -256,8 +252,8 @@ void Movie_buf_release(void)
 void cmd_play_movie(void)
 {
     RECT rect; // unused, likely copy paste
-    u_long *end;
-    u_long *base;
+    u_long *data;
+    StHEADER *hdrs;
     sint32 i;
     uint32 timeout;
     RECT *r0;
@@ -327,7 +323,7 @@ void cmd_play_movie(void)
                 Cd_set_volume(i);
             }
 
-            while (Movie_buf_get(&end, &base) == 0)
+            while (Movie_buf_get(&data, &hdrs) == 0)
             {
                 timeout++;
 
@@ -342,14 +338,14 @@ void cmd_play_movie(void)
                 }
             }
 
-            DecDCTvlc(end, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            DecDCTvlc(data, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
             Movie_buf_release();
             Cmd_routine++;
             // fall through
         case 3:
             timeout = 0;
 
-            while (Movie_buf_get(&end, &base) == 0)
+            while (Movie_buf_get(&data, &hdrs) == 0)
             {
                 timeout++;
 
@@ -364,7 +360,7 @@ void cmd_play_movie(void)
                 }
             }
 
-            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || base[2] == D_80059BB0 ||
+            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->type == D_80059BB0 ||
                 (Cd_error_flags | D_80059BA4))
             {
                 Cmd_routine++;
@@ -378,7 +374,7 @@ void cmd_play_movie(void)
             DecDCTin((u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)), 0);
             DecDCTout(Movie_slice_ptr, 0x780);
             Movie_frame_idx ^= 1;
-            DecDCTvlc(end, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            DecDCTvlc(data, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
             Movie_buf_release();
 
             // Wait for Movie_dct_out_callback to clear the flag. The outer test is needed for the match.
@@ -566,7 +562,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
     if (status == CdlDataReady)
     {
-        CdGetSector((void *)STR_SECTOR_BUF, 0x200);
+        CdGetSector((void *)STR_SECTOR_BUF, sizeof(STR_SECTOR) / 4);
         sec = (STR_SECTOR *)STR_SECTOR_BUF;
 
         if (Movie_sector_wait)
@@ -585,20 +581,18 @@ void Movie_sector_cb(u_char status, u_char *result)
             return;
         }
 
-        // Header (32 bytes) goes to a table at the start of the slot.
-        src = (u_long *)STR_SECTOR_BUF;
-        dst = Movie_write_ptr + sec->hdr.secCount * 8;
-
-        for (i = 0; i < 8; i++)
+        // Header goes into the slot's header table, at this sector's index.
+        src = (u_long *)&sec->hdr;
+        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.secCount);
+        for (i = 0; i < 8; i++) // one StHEADER, in u_longs
         {
             *dst++ = *src++;
         }
 
-        // Payload goes after the table, one slice per sector.
-        src = (u_long *)(STR_SECTOR_BUF + 0x20);
-        dst = Movie_write_ptr + sec->hdr.nSectors * 8 + sec->hdr.secCount * 0x1F8;
-
-        for (i = 0; i < 0x1F8; i++)
+        // Frame data goes after the table, one sector's worth per sector.
+        src = sec->data;
+        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) + sec->hdr.secCount * STR_DATA_WORDS;
+        for (i = 0; i < STR_DATA_WORDS; i++)
         {
             *dst++ = *src++;
         }
@@ -606,14 +600,14 @@ void Movie_sector_cb(u_char status, u_char *result)
         if (sec->hdr.nSectors == sec->hdr.secCount + 1)
         {
             Movie_buf_ready[Movie_write_idx] = 1;
-            Movie_write_idx                  = (Movie_write_idx + 1) & 3;
-            Movie_write_ptr                  = (u_long *)(MOVIE_RING_BUF + (Movie_write_idx << 15));
+            Movie_write_idx                  = (Movie_write_idx + 1) & (MOVIE_SLOT_COUNT - 1);
+            Movie_write_ptr                  = (u_long *)MOVIE_SLOT(Movie_write_idx);
         }
     }
     else
     {
         D_80059BC8 = 0x80;
-        Cd_error_flags |= 4;
+        Cd_error_flags |= CD_ERR_READY;
         CdReadyCallback(0);
     }
 }

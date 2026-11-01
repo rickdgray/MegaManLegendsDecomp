@@ -88,6 +88,15 @@ not decompiled.
 - Screens 1 and 2 each have an unused `RECT rect;` local (frame `0x20`), a leftover from copying
   the screen template.
 
+## Movie
+
+- **Ring buffer** (`MOVIE_RING_BUF`, 4 slots of `0x8000`, `MOVIE_SLOT(i)`): each slot holds one
+  frame as a table of its sectors' `StHEADER`s (indexed by `secCount`), followed by all the
+  sectors' frame data (`STR_DATA_WORDS` longs each). `Movie_sector_cb` fills the slot at
+  `Movie_write_idx` and marks it in `Movie_buf_ready` when the last sector arrives;
+  `Movie_buf_get(&data, &hdrs)` returns the header table and the start of the data for the
+  slot at `Movie_buf_idx`.
+
 ## CD command queue
 
 - `Cmd_queue` (`0x8005b348`): `CMD[16]`, `0x10` bytes each: `sint32 type` (0 = end of queue,
@@ -123,7 +132,8 @@ functions called from Capcom code and identified by hand: `SsInit` (`0x8001a864`
 Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `Pad_update_all`,
 `Vsync_handler`, `Disp_adjust`, `Cd_init`, `Cd_control_retry`, `cmd_nop`, `Cmd_exec`,
 `Cmd_set_movie`, `Cmd_busy_check`, `Intro_task`, `intro_copyright`, `intro_copyright_draw`,
-`intro_wait_idle`, `intro_play_movie`, `intro_launch_game`.
+`intro_wait_idle`, `intro_play_movie`, `intro_launch_game`, `Movie_buf_get`, `Movie_buf_release`,
+`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`
 
 Parked (`NON_MATCHING`, on the permuter):
 
@@ -152,19 +162,17 @@ Parked (`NON_MATCHING`, on the permuter):
     e.g. through a union view of `CMD_ARGS`. Revisit when group B shows how `CMD_ARGS` is used.
   - `permuter/Cmd_dequeue/` regenerated from the `for` loop draft.
 
-Banked (group B): `Movie_buf_release`, `Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`.
-
 Parked (group B, `NON_MATCHING`):
 
-- `Movie_buf_get`: `(end, base)` out-pointers into the movie buffers at `0x80100000 + idx*0x8000`
-  (`idx = Movie_buf_idx`, valid flag `Movie_buf_ready[idx]`; `end = base + (u16 at +6) * 32`). Same
-  instruction count; the target copies `a0→a3`, `a1→a0` at entry and keeps `idx<<15` in `a1`
-  (`a2` = the constant `0x8010`), with `li v0,1` in the `beqz` delay slot. Tried: early return,
-  if/else, `ret` variable, local `idx`, buffer temp. All allocate `idx` to `v1`.
 - `Movie_frame_upload`: pointer-based loop matches except `s1`/`s2` are swapped (image pointer vs
   counter). Tried four declaration orders, operand order, and a `u_long *` pointer (breaks the
   `<< 11`). Image address is `0x80140000 + (1 - Movie_frame_idx) * 0x25800 + i * 0x1E00` (note: splat's
   `D_80141E00` is really `0x80140000` + stride `0x1E00`).
+- `Movie_sector_cb`: cleaned up (`MOVIE_SLOT`, `StHEADER` table indexing, `sec->data`,
+  `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
+  (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
+  as a `nop`, where ours fills it. A delay-slot difference: candidate for the assembler
+  (maspsx `--aspsx-version`) test, along with `cmd_play_movie`'s case 3.
 
 Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
 `D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
