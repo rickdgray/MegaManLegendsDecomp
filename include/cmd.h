@@ -34,7 +34,7 @@ extern sint32 Cmd_routine;
 // Unknown
 extern sint32 D_80059C24; // cleared with Cmd_routine, not otherwise referenced in the shim
 
-void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3);
+void Cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3);
 void Cmd_exec(void);
 void Cmd_dequeue(void);
 sint32 Cmd_busy_check(void);

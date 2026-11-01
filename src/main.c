@@ -659,7 +659,7 @@ void Cd_set_mode(u_char mode)
     }
 }
 
-void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3)
+void Cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
 {
     Cmd_write_ptr->type      = 5;
     Cmd_write_ptr->args.arg1 = arg1;
