@@ -105,3 +105,17 @@ improvements to the draft and re-run `permuter_prep.py` to continue from the bet
   (they pass `a0`–`a3` straight through). The assembly is the truth.
 - **Ghidra's PsyQ matcher** gives every empty function (`jr ra; nop`) the same bogus match
   (`VM_VIB.OBJ/SsUtVibrateOff`). Ignore matches on empty functions.
+- **`-fno-expensive-optimizations` (tested, rejected as the toolchain setting):** a three-call
+  probe showed it makes GCC rebuild a repeated constant address before each call, as the target
+  does in `Movie_start`, and `Movie_start` matches with it. But it breaks 8 banked functions across
+  every region (`Disp_env_set`; `cmd_play_movie`, `Movie_dct_out_callback`, `Cd_sync_cb`;
+  `intro_copyright`, `intro_wait_idle`, `intro_play_movie`, `intro_launch_game`), so it's a
+  proxy for one cost decision, not Capcom's setting, and not evidence of a separately compiled
+  module. It doesn't affect `Movie_frame_upload`, `Cmd_dequeue`, or `Intro_init`.
+  Method: build the same source with and without the flag, and compare per-function instruction
+  words in the two objects (pass flags as `CC1_EXTRA=... ./tools/build.sh`, never a bare shell
+  variable).
+- **Compiler versions (decomp.me, `Movie_start`):** gcc 2.6.0 through 2.7.2.3 give identical output
+  (all with the `s0` difference); 2.5.7 is worse, with a different allocation order; 2.8.x and
+  later are very different. ASPSX version makes no difference. Confirms the gcc 2.7.2 family and
+  rules out a toolchain explanation for the parked functions: their differences are in the source.

@@ -200,6 +200,12 @@ Parked (group B, `NON_MATCHING`):
   `s0`. No source construct controls this; it's GCC's cost choice between rematerializing a
   constant and keeping it in a saved register. Cleanest evidence for a toolchain difference; a
   three-call probe reproduces it (see the compiler/flag test).
+    - Probe results (three calls passing the same buffer): GCC keeps a symbol's address in a saved
+    register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
+    is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
+    symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
+    `-fno-expensive-optimizations` reproduces it but breaks other functions. All gcc 2.6.0–2.7.2.3
+    builds behave alike. Next: permuter.
 
 Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
 `D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
