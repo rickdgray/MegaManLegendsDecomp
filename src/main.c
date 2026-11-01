@@ -219,7 +219,7 @@ void Cd_init(void)
     Cmd_write_ptr = Cmd_queue;
 
     D_80059BB4  = 0;
-    D_80059BD8  = 0;
+    Movie_playing  = 0;
     D_80059C24  = 0;
     Cmd_routine = 0;
     D_80059BC9  = 0;
@@ -312,7 +312,7 @@ void cmd_play_movie(void)
             timeout = 0;
             Movie_start(Cmd_exec_ptr->args.arg1);
             D_80059BC9      = 3;
-            D_80059BD8      = 1;
+            Movie_playing      = 1;
             Movie_buf_idx   = 0;
             Vsync_wait      = VSYNC_60FPS;
             Movie_end_frame = Cmd_exec_ptr->args.arg2;
@@ -386,7 +386,7 @@ void cmd_play_movie(void)
             Cmd_routine++;
             break;
         case 5:
-            D_80059BD8 = 0;
+            Movie_playing = 0;
             Cmd_dequeue();
             Vsync_wait = VSYNC_30FPS;
             break;
@@ -416,7 +416,7 @@ void Movie_frame_upload(void)
     RECT *rect;
     u_char *img;
 
-    if (D_80059BD8)
+    if (Movie_playing)
     {
         rect = Movie_rect_tbl[Dbl_buff_idx];
         img  = (u_char *)0x80140000;

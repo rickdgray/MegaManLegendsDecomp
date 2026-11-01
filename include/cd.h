@@ -21,7 +21,6 @@ extern uint8 D_80059BC8;
 extern uint8 D_80059BC9;
 extern uint8 D_80059BCA;
 extern uint8 D_80059BD4;
-extern sint32 D_80059BD8;
 extern sint32 D_80059C00;
 extern uint8 D_80059C48;
 extern uint8 D_80059C74;

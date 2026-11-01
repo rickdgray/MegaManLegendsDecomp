@@ -184,10 +184,12 @@ Parked (`NON_MATCHING`, on the permuter):
 
 Parked (group B, `NON_MATCHING`):
 
-- `Movie_frame_upload`: pointer-based loop matches except `s1`/`s2` are swapped (image pointer vs
-  counter). Tried four declaration orders, operand order, and a `u_long *` pointer (breaks the
-  `<< 11`). Image address is `0x80140000 + (1 - Movie_frame_idx) * 0x25800 + i * 0x1E00` (note: splat's
-  `D_80141E00` is really `0x80140000` + stride `0x1E00`).
+- `Movie_frame_upload`: right shape (rect pointer computed once from `Dbl_buff_idx` before the
+  loop; walking image pointer stepping one column, `0x1E00` bytes). Only register allocation
+  differs: `i` and the image pointer swap `s1`/`s2`, and the constant `1` (for
+  `1 - Movie_frame_idx`) is loaded at a different point. Ruled out: indexed form
+  (`&Movie_rect_tbl[Dbl_buff_idx][i]`, `MOVIE_IMG(...) + i * ...`), which reloads `Dbl_buff_idx`
+  inside the loop (the target loads it once). Register-allocation group: compiler/flag test.
 - `Movie_sector_cb`: cleaned up (`MOVIE_SLOT`, `StHEADER` table indexing, `sec->data`,
   `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
   (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
