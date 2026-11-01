@@ -201,6 +201,15 @@ What decompilers show vs. what to write:
   stored. If the target reloads a global for one use but reuses an older value for another, the
   second use probably reads *through the stored pointer* (`(*hdrs)->nSectors`). Matching it can
   reveal a parameter's real type (`Movie_buf_get`: `StHEADER **hdrs`, not `u_long **`).
+- **Busy-waits on interrupt flags need `volatile`.** If the target reloads a global on every pass
+  of a wait loop, declare it `volatile` (`Vsync_count`, `Movie_dct_busy`). Without it, GCC loads
+  it once and spins forever. Don't imitate the reloads with extra `if`s around the loop; GCC
+  already tests once before entering a `while` and again at the bottom.
+- **Fix semantic differences before blaming scheduling.** A wrong load width or offset (a `lhu`
+  where the target has `lw`), or an extra saved register (an extra variable kept alive across
+  calls), is a source bug, and it disturbs instruction order and delay slots elsewhere.
+  `cmd_play_movie`'s apparent scheduling difference disappeared once its wrong field and wrong
+  macro argument were fixed.
 
 ## Types and headers
 

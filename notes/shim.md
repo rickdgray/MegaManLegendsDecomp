@@ -97,6 +97,26 @@ not decompiled.
   `Movie_buf_get(&data, &hdrs)` returns the header table and the start of the data for the
   slot at `Movie_buf_idx`.
 
+### Movie playback (`cmd_play_movie`, command type 5)
+
+Arguments: `arg1` = index into `Movie_tbl` (disc position, default end frame); `arg2` = last frame
+to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested against Joy1's
+"on" bits). One step per frame, driven by `Cmd_routine`:
+
+| State | Does |
+|---|---|
+| 0 | Stop the drive if needed; clear both display buffers (320×480); build `Movie_rect_tbl`, two sets of twenty 16×240 column rects (y = 0 and y = 256) |
+| 1 | Wait for `D_80059BD4`, then `Cd_set_mode(CdlModeSpeed \| CdlModeRT \| CdlModeSF)`: double speed, XA-ADPCM audio, subheader filter |
+| 2 | Countdown on `D_80059BB4`; then reset the MDEC, `Movie_start(arg1)`, 60 fps (`Vsync_wait = 1`), ramp CD volume 0→127, wait for the first frame (timeout `MOVIE_TIMEOUT`), and start variable-length decoding it into `MOVIE_VLC(Movie_frame_idx)` |
+| 3 | Per frame: wait for the next frame; decide whether this is the last (skip button, `frameCount == Movie_end_frame`, or an error); decode the previous frame's VLC data through the MDEC into `MOVIE_IMG` in 16-pixel columns (`DecDCTout`, `MOVIE_SLICE_WORDS`), uploaded by `Movie_dct_out_callback`; VLC-decode the new frame into the other buffer (`Movie_frame_idx ^= 1`); spin until `Movie_dct_busy` clears |
+| 4 | Remove the MDEC callback, stop the drive |
+| 5 | Dequeue the command, back to 30 fps |
+
+- A CD timeout sets `CD_ERR_TIMEOUT`, resets the drive, sets `Cd_mode = 0xFF`, and restarts at state 0.
+- Decoding is double-buffered: the MDEC decodes one frame while the CPU VLC-decodes the next.
+- `Movie_dct_busy` is set before decoding and cleared from the MDEC interrupt callback, so it is
+  `volatile` (the target reloads it in the wait loop).
+
 ## CD command queue
 
 - `Cmd_queue` (`0x8005b348`): `CMD[16]`, `0x10` bytes each: `sint32 type` (0 = end of queue,
@@ -133,7 +153,7 @@ Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `P
 `Vsync_handler`, `Disp_adjust`, `Cd_init`, `Cd_control_retry`, `cmd_nop`, `Cmd_exec`,
 `Cmd_set_movie`, `Cmd_busy_check`, `Intro_task`, `intro_copyright`, `intro_copyright_draw`,
 `intro_wait_idle`, `intro_play_movie`, `intro_launch_game`, `Movie_buf_get`, `Movie_buf_release`,
-`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`
+`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`, `cmd_play_movie`.
 
 Parked (`NON_MATCHING`, on the permuter):
 
@@ -180,11 +200,6 @@ Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_8
 
 Group B, parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
 
-- `cmd_play_movie`: all of it matches except case 3 right after the skip test. The target emits
-  `li a0,1` before `li v0,1` and leaves the preceding `beqz` delay slot as `nop`; ours puts
-  `li v0,1` in that slot and `li a0,1` in the `DecDCTReset` slot. Tried: operand order of the skip
-  test, `volatile D_80059C2C` (worse). The wait loop needs `if (x) { while (x) {} }`. The
-  timeout-error block is duplicated in cases 2 and 3 (the target has two copies of it, merged by GCC).
 - `func_80011940`: only `Cd_result`'s address differs. The target reloads `lui/addiu` for each of
   its three `Cd_control_retry` calls; ours shares it in `s0`. Tried `&Cd_result[0]`.
   `D_80059BC8 = 1` must come first (it hoists `li s1,1`); the filter stores follow `D_80059BB0`.

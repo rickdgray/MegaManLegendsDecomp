@@ -3,6 +3,7 @@
 
 #include "common.h"
 
+#define VSYNC_60FPS 1
 #define VSYNC_30FPS 2
 
 void System_init(void);

@@ -248,10 +248,9 @@ void Movie_buf_release(void)
     Movie_buf_idx                  = (Movie_buf_idx + 1) & 3;
 }
 
-#ifdef NON_MATCHING
 void cmd_play_movie(void)
 {
-    RECT rect; // unused, likely copy paste
+    RECT rect;
     u_long *data;
     StHEADER *hdrs;
     sint32 i;
@@ -269,8 +268,8 @@ void cmd_play_movie(void)
 
             rect.x = 0;
             rect.y = 0;
-            rect.w = 0x140;
-            rect.h = 0x1E0;
+            rect.w = 320; // clear display buffer
+            rect.h = 480; // clear display buffer
             Cmd_routine++;
             ClearImage(&rect, 0, 0, 0);
             DrawSync(0);
@@ -280,14 +279,14 @@ void cmd_play_movie(void)
 
             for (i = 0; i < 20; i++)
             {
-                r1->x = i * 16;
-                r0->x = i * 16;
+                r0->x = r1->x = i * 16;
+
                 r0->y = 0;
-                r1->y = 0x100;
-                r1->w = 0x10;
-                r0->w = 0x10;
-                r1->h = 0xF0;
-                r0->h = 0xF0;
+                r1->y = 256;
+
+                r0->w = r1->w = 16;
+                r0->h = r1->h = 240;
+
                 r0++;
                 r1++;
             }
@@ -298,7 +297,7 @@ void cmd_play_movie(void)
                 break;
             }
 
-            Cd_set_mode(0xC8);
+            Cd_set_mode(CdlModeSpeed | CdlModeRT | CdlModeSF);
             Cmd_routine++;
             // fall through
         case 2:
@@ -312,11 +311,11 @@ void cmd_play_movie(void)
             DecDCTReset(1);
             timeout = 0;
             Movie_start(Cmd_exec_ptr->args.arg1);
-            D_80059BC9    = 3;
-            D_80059BD8    = 1;
-            Movie_buf_idx = 0;
-            Vsync_wait    = 1;
-            D_80059BB0    = Cmd_exec_ptr->args.arg2;
+            D_80059BC9      = 3;
+            D_80059BD8      = 1;
+            Movie_buf_idx   = 0;
+            Vsync_wait      = VSYNC_60FPS;
+            Movie_end_frame = Cmd_exec_ptr->args.arg2;
 
             for (i = 0; i < 0x7F; i++)
             {
@@ -327,9 +326,9 @@ void cmd_play_movie(void)
             {
                 timeout++;
 
-                if (timeout > 0x3FFFFF)
+                if (timeout > MOVIE_TIMEOUT)
                 {
-                    Cd_error_flags |= 0x10;
+                    Cd_error_flags |= CD_ERR_TIMEOUT;
                     CdReadyCallback(0);
                     CdReset(0);
                     Cd_mode     = 0xFF;
@@ -338,7 +337,7 @@ void cmd_play_movie(void)
                 }
             }
 
-            DecDCTvlc(data, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            DecDCTvlc(data, MOVIE_VLC(Movie_frame_idx));
             Movie_buf_release();
             Cmd_routine++;
             // fall through
@@ -349,9 +348,9 @@ void cmd_play_movie(void)
             {
                 timeout++;
 
-                if (timeout > 0x3FFFFF)
+                if (timeout > MOVIE_TIMEOUT)
                 {
-                    Cd_error_flags |= 0x10;
+                    Cd_error_flags |= CD_ERR_TIMEOUT;
                     CdReadyCallback(0);
                     CdReset(0);
                     Cd_mode     = 0xFF;
@@ -360,29 +359,25 @@ void cmd_play_movie(void)
                 }
             }
 
-            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->type == D_80059BB0 ||
+            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame ||
                 (Cd_error_flags | D_80059BA4))
             {
                 Cmd_routine++;
             }
 
-            D_80059C2C = 1;
+            Movie_dct_busy = 1;
             DecDCTReset(1);
             DecDCToutCallback(Movie_dct_out_callback);
             Movie_slice_count = 0;
-            Movie_slice_ptr   = (u_long *)(MOVIE_IMG_BUF + Movie_frame_idx * 0x25800);
-            DecDCTin((u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)), 0);
-            DecDCTout(Movie_slice_ptr, 0x780);
+            Movie_slice_ptr   = MOVIE_IMG(Movie_frame_idx);
+            DecDCTin(MOVIE_VLC(Movie_frame_idx), 0);
+            DecDCTout(Movie_slice_ptr, MOVIE_SLICE_WORDS);
             Movie_frame_idx ^= 1;
-            DecDCTvlc(data, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            DecDCTvlc(data, MOVIE_VLC(Movie_frame_idx));
             Movie_buf_release();
 
-            // Wait for Movie_dct_out_callback to clear the flag. The outer test is needed for the match.
-            if (D_80059C2C)
+            while (Movie_dct_busy)
             {
-                while (D_80059C2C)
-                {
-                }
             }
             break;
         case 4:
@@ -393,13 +388,10 @@ void cmd_play_movie(void)
         case 5:
             D_80059BD8 = 0;
             Cmd_dequeue();
-            Vsync_wait = 2;
+            Vsync_wait = VSYNC_30FPS;
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/main", cmd_play_movie);
-#endif
 
 void Movie_dct_out_callback(void)
 {
@@ -412,7 +404,7 @@ void Movie_dct_out_callback(void)
     }
     else
     {
-        D_80059C2C = 0;
+        Movie_dct_busy = 0;
         DecDCToutCallback(0);
     }
 }
@@ -515,7 +507,7 @@ void Cd_sync_cb(u_char status, u_char *result)
     else
     {
         D_80059BC8 = 0x80;
-        Cd_error_flags |= 8;
+        Cd_error_flags |= CD_ERR_SYNC;
     }
 }
 
@@ -539,7 +531,7 @@ void Movie_start(sint32 movie)
     Movie_write_idx    = 0;
     Movie_write_ptr    = (u_long *)MOVIE_RING_BUF;
     CdIntToPos(Movie_tbl[movie].pos, &loc);
-    D_80059BB0  = Movie_tbl[movie].end_frame;
+    Movie_end_frame = Movie_tbl[movie].end_frame;
     filter.file = filter.chan = 1;
     CdReadyCallback(Movie_sector_cb);
     Cd_controlb_retry(CdlSetfilter, (u_char *)&filter, Cd_result);
@@ -591,7 +583,8 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         // Frame data goes after the table, one sector's worth per sector.
         src = sec->data;
-        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) + sec->hdr.secCount * STR_DATA_WORDS;
+        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) +
+              sec->hdr.secCount * STR_DATA_WORDS;
         for (i = 0; i < STR_DATA_WORDS; i++)
         {
             *dst++ = *src++;
