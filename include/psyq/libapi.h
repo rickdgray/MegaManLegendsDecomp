@@ -8,7 +8,9 @@
 
 #include "common.h"
 
+// Differs from official PsyQ 4.4 docs; either a typo in the docs or a change in the library.
 void InitPAD(u_char *buf0, long len0, u_char *buf1, long len1);
+
 void StartPAD(void);
 void ChangeClearPAD(int mode);
 void StopPAD(void);

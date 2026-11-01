@@ -9,9 +9,12 @@
 #include "common.h"
 
 #define SS_SERIAL_A 0
-#define SS_VOL_MAX 0x7f
+#define SS_SERIAL_B 1
 #define SS_MIX 0
+#define SS_REV 1
+#define SS_SOFF 0
 #define SS_SON 1
+#define SS_VOL_MAX 0x7f
 
 void SsInit(void);
 void SsQuit(void);

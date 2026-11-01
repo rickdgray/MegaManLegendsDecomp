@@ -16,7 +16,7 @@ void main(void)
 {
     System_init();
     VSync(0);
-    SetDispMask(1);
+    SetDispMask(1); // display on
     Intro_init();
 
     while (1)
@@ -46,8 +46,8 @@ void System_init(void)
     Cd_init();
     SsInit();
     VSync(0);
-    ResetGraph(0);
-    DecDCTReset(0);
+    ResetGraph(0);  // complete reset: drawing and display environments
+    DecDCTReset(0); // full reset, including internal tables
     SetVideoMode(MODE_NTSC);
 
     InitPAD((u_char *)&Joy1, 8, (u_char *)&Joy2, 8);
@@ -571,7 +571,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         if (Movie_sector_wait)
         {
-            if (((STR_SECTOR *)STR_SECTOR_BUF)->sector_no != 0)
+            if (((STR_SECTOR *)STR_SECTOR_BUF)->hdr.secCount != 0)
             {
                 return;
             }
@@ -587,7 +587,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         // Header (32 bytes) goes to a table at the start of the slot.
         src = (u_long *)STR_SECTOR_BUF;
-        dst = Movie_write_ptr + sec->sector_no * 8;
+        dst = Movie_write_ptr + sec->hdr.secCount * 8;
 
         for (i = 0; i < 8; i++)
         {
@@ -596,14 +596,14 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         // Payload goes after the table, one slice per sector.
         src = (u_long *)(STR_SECTOR_BUF + 0x20);
-        dst = Movie_write_ptr + sec->sector_count * 8 + sec->sector_no * 0x1F8;
+        dst = Movie_write_ptr + sec->hdr.nSectors * 8 + sec->hdr.secCount * 0x1F8;
 
         for (i = 0; i < 0x1F8; i++)
         {
             *dst++ = *src++;
         }
 
-        if (sec->sector_count == sec->sector_no + 1)
+        if (sec->hdr.nSectors == sec->hdr.secCount + 1)
         {
             Movie_buf_ready[Movie_write_idx] = 1;
             Movie_write_idx                  = (Movie_write_idx + 1) & 3;

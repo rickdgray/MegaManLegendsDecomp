@@ -5,6 +5,7 @@ disc/
 *.iso
 SLUS_*
 !slus_006.03.yaml
+notes/sdk
 
 # Ghidra
 *.gpr

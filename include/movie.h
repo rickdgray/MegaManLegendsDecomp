@@ -4,6 +4,7 @@
 // Movie (STR) playback: sectors read from the disc, decoded by the MDEC, uploaded to VRAM.
 
 #include "common.h"
+#include "psyq/libcd.h"
 #include "psyq/libgpu.h"
 
 // Fixed RAM areas used by movie (STR) playback.
@@ -11,15 +12,13 @@
 #define MOVIE_RING_BUF 0x80100000 // 4 slots of 0x8000 bytes, one frame each
 #define MOVIE_VLC_BUF 0x80120000  // 2 buffers of 0x10000 bytes, DecDCTvlc output
 #define MOVIE_IMG_BUF 0x80140000  // 2 buffers of 0x25800 bytes, decoded 320x240 image
+#define STR_STATUS 0x0160         // StHEADER.id: STR format, version 1
+#define STR_TYPE_MDEC 0x8001      // StHEADER.type: MDEC movie data
 
-// A raw movie sector (0x200 words): 32-byte header, then 0x7E0 bytes of payload.
+// A raw movie sector: the header, then 2016 bytes of frame data.
 typedef struct
 {
-    u_long id;
-    u_short sector_no;    // index of this sector within the frame
-    u_short sector_count; // number of sectors in the frame
-    u_long frame_no;
-    u_long unk0C[5];
+    StHEADER hdr;
     u_long data[0x1F8];
 } STR_SECTOR;
 
