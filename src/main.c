@@ -2,6 +2,8 @@
 #include "system.h"
 #include "display.h"
 #include "cmd.h"
+#include "cd.h"
+#include "movie.h"
 #include "intro.h"
 #include "pad.h"
 #include "scratch.h"
@@ -26,7 +28,7 @@ void main(void)
         Vsync_count = 0;
         PutDispEnv(&Disp_env_ptr->disp);
         PutDrawEnv(&Disp_env_ptr->draw);
-        func_80011680();
+        Movie_frame_upload();
         DrawOTag(Disp_env_ptr->ot);
         Pad_update_all();
         Dbl_buff_idx ^= 1;
@@ -204,7 +206,7 @@ void Cd_init(void)
     D_80059C48 = 0;
     D_80059BCA = 0; // redundant
 
-    Cd_control_retry(CdlSetmode, &Cd_mode, Cd_result);
+    Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
     D_80059BD4 = 1;
 
@@ -216,30 +218,236 @@ void Cd_init(void)
     Cmd_exec_ptr  = Cmd_queue;
     Cmd_write_ptr = Cmd_queue;
 
-    D_80059BB4 = 0;
-    D_80059BD8 = 0;
-    D_80059C24 = 0;
-    D_80059C20 = 0;
-    D_80059BC9 = 0;
+    D_80059BB4  = 0;
+    D_80059BD8  = 0;
+    D_80059C24  = 0;
+    Cmd_routine = 0;
+    D_80059BC9  = 0;
 }
 
 void cmd_nop(void)
 {
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800110EC);
+#ifdef NON_MATCHING
+sint32 Movie_buf_get(u_long **end, u_long **base)
+{
+    if (Movie_buf_ready[Movie_buf_idx] == 0)
+    {
+        return 0;
+    }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_8001115C);
+    *base = (u_long *)(0x80100000 + (Movie_buf_idx << 15));
+    *end  = (u_long *)(0x80100000 + (Movie_buf_idx << 15) +
+                      (*(u_short *)(0x80100006 + (Movie_buf_idx << 15)) << 5));
+    return 1;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", Movie_buf_get);
+#endif
 
+void Movie_buf_release(void)
+{
+    Movie_buf_ready[Movie_buf_idx] = 0;
+    Movie_buf_idx                  = (Movie_buf_idx + 1) & 3;
+}
+
+#ifdef NON_MATCHING
+void cmd_play_movie(void)
+{
+    RECT rect; // unused, likely copy paste
+    u_long *end;
+    u_long *base;
+    sint32 i;
+    uint32 timeout;
+    RECT *r0;
+    RECT *r1;
+
+    switch (Cmd_routine)
+    {
+        case 0:
+            if (D_80059BD4 == 0)
+            {
+                Cd_stop();
+            }
+
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = 0x140;
+            rect.h = 0x1E0;
+            Cmd_routine++;
+            ClearImage(&rect, 0, 0, 0);
+            DrawSync(0);
+
+            r0 = Movie_rect_tbl[0];
+            r1 = Movie_rect_tbl[1];
+
+            for (i = 0; i < 20; i++)
+            {
+                r1->x = i * 16;
+                r0->x = i * 16;
+                r0->y = 0;
+                r1->y = 0x100;
+                r1->w = 0x10;
+                r0->w = 0x10;
+                r1->h = 0xF0;
+                r0->h = 0xF0;
+                r0++;
+                r1++;
+            }
+            // fall through
+        case 1:
+            if (D_80059BD4 == 0)
+            {
+                break;
+            }
+
+            Cd_set_mode(0xC8);
+            Cmd_routine++;
+            // fall through
+        case 2:
+            if (D_80059BB4 != 0)
+            {
+                D_80059BB4--;
+                break;
+            }
+
+            D_80059BB4 = 0xFF;
+            DecDCTReset(1);
+            timeout = 0;
+            Movie_start(Cmd_exec_ptr->args.arg1);
+            D_80059BC9    = 3;
+            D_80059BD8    = 1;
+            Movie_buf_idx = 0;
+            Vsync_wait    = 1;
+            D_80059BB0    = Cmd_exec_ptr->args.arg2;
+
+            for (i = 0; i < 0x7F; i++)
+            {
+                Cd_set_volume(i);
+            }
+
+            while (Movie_buf_get(&end, &base) == 0)
+            {
+                timeout++;
+
+                if (timeout > 0x3FFFFF)
+                {
+                    Cd_error_flags |= 0x10;
+                    CdReadyCallback(0);
+                    CdReset(0);
+                    Cd_mode     = 0xFF;
+                    Cmd_routine = 0;
+                    return;
+                }
+            }
+
+            DecDCTvlc(end, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            Movie_buf_release();
+            Cmd_routine++;
+            // fall through
+        case 3:
+            timeout = 0;
+
+            while (Movie_buf_get(&end, &base) == 0)
+            {
+                timeout++;
+
+                if (timeout > 0x3FFFFF)
+                {
+                    Cd_error_flags |= 0x10;
+                    CdReadyCallback(0);
+                    CdReset(0);
+                    Cd_mode     = 0xFF;
+                    Cmd_routine = 0;
+                    return;
+                }
+            }
+
+            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || base[2] == D_80059BB0 ||
+                (Cd_error_flags | D_80059BA4))
+            {
+                Cmd_routine++;
+            }
+
+            D_80059C2C = 1;
+            DecDCTReset(1);
+            DecDCToutCallback(Movie_dct_out_callback);
+            Movie_slice_count = 0;
+            Movie_slice_ptr   = (u_long *)(MOVIE_IMG_BUF + Movie_frame_idx * 0x25800);
+            DecDCTin((u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)), 0);
+            DecDCTout(Movie_slice_ptr, 0x780);
+            Movie_frame_idx ^= 1;
+            DecDCTvlc(end, (u_long *)(MOVIE_VLC_BUF + (Movie_frame_idx << 16)));
+            Movie_buf_release();
+
+            // Wait for Movie_dct_out_callback to clear the flag. The outer test is needed for the match.
+            if (D_80059C2C)
+            {
+                while (D_80059C2C)
+                {
+                }
+            }
+            break;
+        case 4:
+            DecDCToutCallback(0);
+            Cd_stop();
+            Cmd_routine++;
+            break;
+        case 5:
+            D_80059BD8 = 0;
+            Cmd_dequeue();
+            Vsync_wait = 2;
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/main", cmd_play_movie);
+#endif
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011614);
+void Movie_dct_out_callback(void)
+{
+    Movie_slice_count++;
+    Movie_slice_ptr += 0x780;
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011680);
+    if (Movie_slice_count < 0x14)
+    {
+        DecDCTout(Movie_slice_ptr, 0x780);
+    }
+    else
+    {
+        D_80059C2C = 0;
+        DecDCToutCallback(0);
+    }
+}
+
+#ifdef NON_MATCHING
+void Movie_frame_upload(void)
+{
+    sint32 i;
+    RECT *rect;
+    u_char *img;
+
+    if (D_80059BD8)
+    {
+        rect = Movie_rect_tbl[Dbl_buff_idx];
+        img  = (u_char *)0x80140000;
+
+        for (i = 0; i < 20; i++)
+        {
+            LoadImage(rect, (u_long *)(img + (1 - Movie_frame_idx) * 0x25800));
+            rect++;
+            img += 0x1E00;
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", Movie_frame_upload);
+#endif
 
 void Cmd_exec(void)
 {
-    if (D_80059BDC)
+    if (Cd_error_flags)
     {
         Cmd_dequeue();
         CdSyncCallback(0);
@@ -264,28 +472,167 @@ void Cmd_dequeue(void)
         p->args = p[1].args;
     }
 
-    p[1].type  = 0;
-    D_80059C24 = 0;
-    D_80059C20 = 0;
+    p[1].type   = 0;
+    D_80059C24  = 0;
+    Cmd_routine = 0;
     Cmd_write_ptr--;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/main", Cmd_dequeue);
 #endif
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011830);
+void Cd_set_volume(uint8 vol)
+{
+    CdlATV atv;
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011860);
+    atv.val0 = vol;
+    atv.val1 = 0;
+    atv.val2 = vol;
+    atv.val3 = 0;
+    CdMix(&atv);
+}
 
-INCLUDE_ASM("asm/nonmatchings/main", func_800118CC);
+void Cd_stop(void)
+{
+    sint32 i;
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011940);
+    for (i = 0x7f; i > 0; i--)
+    {
+        Cd_set_volume(i);
+    }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011A64);
+    Cd_error_flags = 0;
+    CdReadyCallback(0);
+    CdSyncCallback(Cd_sync_cb);
+    Cd_control_retry(9, 0, Cd_result);
+}
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011C1C);
+void Cd_sync_cb(u_char status, u_char *result)
+{
+    CdSyncCallback(0);
+
+    if (status == CdlComplete)
+    {
+        D_80059BD4 = 1;
+        D_80059BC8 = 0;
+    }
+    else
+    {
+        D_80059BC8 = 0x80;
+        Cd_error_flags |= 8;
+    }
+}
+
+#ifdef NON_MATCHING
+void Movie_start(sint32 movie)
+{
+    CdlLOC loc;
+    CdlFILTER filter;
+
+    D_80059BC8         = 1;
+    Movie_buf_ready[3] = 0;
+    Movie_buf_ready[2] = 0;
+    Movie_buf_ready[1] = 0;
+    Movie_buf_ready[0] = 0;
+    D_80059C74         = 7;
+    Cd_error_flags     = 0;
+    D_80059BD4         = 0;
+    Movie_sector_wait  = 0;
+    D_80059BA4         = 0;
+    Movie_frame_idx    = 0;
+    Movie_write_idx    = 0;
+    Movie_write_ptr    = (u_long *)MOVIE_RING_BUF;
+    CdIntToPos(Movie_tbl[movie].pos, &loc);
+    D_80059BB0  = Movie_tbl[movie].end_frame;
+    filter.file = filter.chan = 1;
+    CdReadyCallback(Movie_sector_cb);
+    Cd_controlb_retry(CdlSetfilter, (u_char *)&filter, Cd_result);
+    Cd_controlb_retry(CdlSetloc, (u_char *)&loc, Cd_result);
+    Cd_controlb_retry(CdlReadS, 0, Cd_result);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", Movie_start);
+#endif
+
+#ifdef NON_MATCHING
+void Movie_sector_cb(u_char status, u_char *result)
+{
+    sint32 i;
+    STR_SECTOR *sec;
+    u_long *src;
+    u_long *dst;
+
+    D_80059BB4 = 0x80;
+
+    if (status == CdlDataReady)
+    {
+        CdGetSector((void *)STR_SECTOR_BUF, 0x200);
+        sec = (STR_SECTOR *)STR_SECTOR_BUF;
+
+        if (Movie_sector_wait)
+        {
+            if (((STR_SECTOR *)STR_SECTOR_BUF)->sector_no != 0)
+            {
+                return;
+            }
+
+            Movie_sector_wait = 0;
+        }
+
+        if (Movie_buf_ready[Movie_write_idx])
+        {
+            Movie_sector_wait = status;
+            return;
+        }
+
+        // Header (32 bytes) goes to a table at the start of the slot.
+        src = (u_long *)STR_SECTOR_BUF;
+        dst = Movie_write_ptr + sec->sector_no * 8;
+
+        for (i = 0; i < 8; i++)
+        {
+            *dst++ = *src++;
+        }
+
+        // Payload goes after the table, one slice per sector.
+        src = (u_long *)(STR_SECTOR_BUF + 0x20);
+        dst = Movie_write_ptr + sec->sector_count * 8 + sec->sector_no * 0x1F8;
+
+        for (i = 0; i < 0x1F8; i++)
+        {
+            *dst++ = *src++;
+        }
+
+        if (sec->sector_count == sec->sector_no + 1)
+        {
+            Movie_buf_ready[Movie_write_idx] = 1;
+            Movie_write_idx                  = (Movie_write_idx + 1) & 3;
+            Movie_write_ptr                  = (u_long *)(MOVIE_RING_BUF + (Movie_write_idx << 15));
+        }
+    }
+    else
+    {
+        D_80059BC8 = 0x80;
+        Cd_error_flags |= 4;
+        CdReadyCallback(0);
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/main", Movie_sector_cb);
+#endif
 
 void Cd_control_retry(u_char com, u_char *param, u_char *result)
+{
+    while (CdSync(1, result) == 0)
+    {
+    }
+
+    while (CdControl(com, param, result) == 0)
+    {
+    }
+}
+
+void Cd_controlb_retry(u_char com, u_char *param, u_char *result)
 {
     while (CdSync(1, result) == 0)
     {
@@ -296,7 +643,21 @@ void Cd_control_retry(u_char com, u_char *param, u_char *result)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/main", func_80011CEC);
+void Cd_set_mode(u_char mode)
+{
+    D_80059BB4 = 0;
+
+    if (Cd_mode != mode)
+    {
+        if ((Cd_mode & 0x80) != (mode & 0x80))
+        {
+            D_80059BB4 = 2;
+        }
+
+        Cd_mode = mode;
+        Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
+    }
+}
 
 void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3)
 {

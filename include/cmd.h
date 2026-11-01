@@ -1,15 +1,18 @@
 #ifndef CMD_H
 #define CMD_H
 
-#include "common.h"
-#include "psyq/libcd.h"
+// The command queue: requests (e.g. "play this movie") run one at a time by Cmd_exec, one step
+// per frame, each by its handler in cmd_tbl.
 
-// Arguments are copied as one 12-byte block; possibly a union per command type.
+#include "common.h"
+
+// Arguments are copied as one 12-byte block; possibly a union per command type. Only the
+// play-movie command (type 5) is seen in the shim: (movie index, last frame, skip buttons).
 typedef struct
 {
-    sint32 arg1;
-    sint32 arg2;
-    sint16 arg3;
+    sint32 arg1; // movie index into Movie_tbl
+    sint32 arg2; // frame number at which playback ends
+    uint16 arg3; // pad buttons (matched against Joy1's "on" bits) that skip the movie
 } CMD_ARGS;
 
 typedef struct
@@ -18,34 +21,20 @@ typedef struct
     CMD_ARGS args;
 } CMD;
 
-extern CMD Cmd_queue[16];
-extern CMD *Cmd_write_ptr;
-
-extern sint32 D_80059C20;
-extern sint32 D_80059C24;
-
-extern sint32 D_80059BB4;
-extern uint8 D_80059BC8;
-extern uint8 D_80059BC9;
-extern uint8 D_80059BCA;
-extern uint8 Cd_mode;
-extern uint8 D_80059BD4;
-extern uint8 D_80059BDC;
-extern sint32 D_80059BD8;
-extern sint32 D_80059C00;
-extern CMD *Cmd_exec_ptr;
-extern u_char Cd_result[8];
-extern uint8 D_80059C48;
-extern uint8 D_80059C74;
-
 typedef void (*CMD_FUNC)(void);
 
+extern CMD Cmd_queue[16];
+extern CMD *Cmd_write_ptr; // next free slot
+extern CMD *Cmd_exec_ptr;  // the command being run
 extern CMD_FUNC cmd_tbl[6];
 
-void Cd_init(void);
-void Cd_control_retry(u_char com, u_char *param, u_char *result);
+// The running command's state (cmd_play_movie's switch index); cleared on dequeue.
+extern sint32 Cmd_routine;
+
+// Unknown
+extern sint32 D_80059C24; // cleared with Cmd_routine, not otherwise referenced in the shim
+
 void Cmd_set_movie(sint32 arg1, sint32 arg2, sint16 arg3);
-void func_80011680(void);
 void Cmd_exec(void);
 void Cmd_dequeue(void);
 sint32 Cmd_busy_check(void);

@@ -8,6 +8,12 @@
 
 #include "common.h"
 
+typedef void (*DecDCTCB)(void);
+
 void DecDCTReset(int mode);
+void DecDCTin(u_long *buf, int mode);
+int DecDCTvlc(u_long *bs, u_long *buf);
+void DecDCTout(u_long *buf, int size);
+DecDCTCB DecDCToutCallback(DecDCTCB func);
 
 #endif // PSYQ_LIBPRESS_H

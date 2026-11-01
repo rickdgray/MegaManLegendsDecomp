@@ -218,15 +218,19 @@ check offsets against the binary.
 The repo is the source of truth for names. `symbol_addrs.txt` is the hand-maintained registry
 that splat uses when generating assembly.
 
-Renaming a function or global means changing all of:
-1. `symbol_addrs.txt`. Symbols with splat's default names (`func_XXXXXXXX`, `D_XXXXXXXX`) are
-   **not listed**; add a new line, e.g. `Cmd_nop = 0x800110E4; // type:func` or
-   `Cd_mode = 0x80059BCB; // size:0x1`.
-2. Its definition in `src/` (or the name in its `INCLUDE_ASM` line)
-3. Any declaration in `include/`
+**Only the owner renames.** Don't apply names yourself. Write each proposal to `renames.txt` in
+the repo root (create it if needed), one per line, in the format `tools/rename.py` reads:
 
-Then `./tools/split.sh` and `./tools/build.sh`. A mismatch shows up as a link error.
-Only rename when the owner approves a name; otherwise propose it in the report.
+```
+# OLD          NEW            [splat attributes]   # why
+func_80011940  Movie_start                         # starts playback of Movie_tbl[arg1]
+D_8001D3DC     Movie_tbl      size:0x24            # MOVIE_INFO[3]
+```
+
+Give `size:` for data when you know it. The owner edits the file and runs
+`tools/rename.py -f renames.txt`, which updates `symbol_addrs.txt`, `src/`, `include/` and `notes/`
+together (it adds `type:func` and `absolute:True` where needed), then `./tools/rebuild.sh`.
+In your report, just say how many proposals you added to `renames.txt`.
 
 Conventions (Capcom's own, from their source):
 
@@ -244,7 +248,7 @@ Conventions (Capcom's own, from their source):
 
 Acronyms stay uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the
 splat default (`func_800110E4`, `D_80059C20`) until their purpose is clear; propose a name in
-your summary rather than guessing.
+`renames.txt` rather than guessing.
 
 ## Do not
 
@@ -265,7 +269,8 @@ Parked: DequeueCommand (loop pointer based at p+4, target p+0xc)
 Files:  src/main.c, include/cmd.h, include/screen.h (new)
 Build:  MATCH
 Decisions needed:
-- <only items that need the owner: proposed names, suspected registry errors, tool bugs>
+- <only items that need the owner: suspected registry errors, tool bugs, open questions>
+Names:  <N> proposals added to renames.txt
 ```
 
 Don't restate the code or narrate each step.

@@ -32,7 +32,7 @@ not decompiled.
 
 - `main` (`0x800107e8`): `System_init`, `VSync(0)`, `SetDispMask(1)`, `Intro_init`, then loops
   forever: wait until `Vsync_count` reaches `Vsync_wait`, `PutDispEnv`/`PutDrawEnv`,
-  `func_80011680` (CD module), `DrawOTag`, `Pad_update_all`, swap buffers (`Dbl_buff_idx`, `Disp_env_ptr`), `ClearOTag`, `Intro_task`,
+  `Movie_frame_upload` (CD module), `DrawOTag`, `Pad_update_all`, swap buffers (`Dbl_buff_idx`, `Disp_env_ptr`), `ClearOTag`, `Intro_task`,
   `Cmd_exec`, `DrawSync(0)`. GCC inserts the `__main` call itself.
 - `System_init` (`0x800108ec`): `ResetCallback`, `Cd_init`, `SsInit`, `ResetGraph`,
   `DecDCTReset`, `SetVideoMode(MODE_NTSC)`, pads (`InitPAD` with `Joy1`/`Joy2`, `StartPAD`,
@@ -152,9 +152,42 @@ Parked (`NON_MATCHING`, on the permuter):
     e.g. through a union view of `CMD_ARGS`. Revisit when group B shows how `CMD_ARGS` is used.
   - `permuter/Cmd_dequeue/` regenerated from the `for` loop draft.
 
-Not started (group B, the CD module): `func_800110EC`, `func_8001115C`, `cmd_play_movie`,
-`func_80011614`, `func_80011680`, `func_80011830`, `func_80011860`, `func_800118CC`,
-`func_80011940`, `func_80011A64`, `func_80011C1C`, `func_80011CEC`.
+Banked (group B): `Movie_buf_release`, `Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`.
+
+Parked (group B, `NON_MATCHING`):
+
+- `Movie_buf_get`: `(end, base)` out-pointers into the movie buffers at `0x80100000 + idx*0x8000`
+  (`idx = Movie_buf_idx`, valid flag `Movie_buf_ready[idx]`; `end = base + (u16 at +6) * 32`). Same
+  instruction count; the target copies `a0→a3`, `a1→a0` at entry and keeps `idx<<15` in `a1`
+  (`a2` = the constant `0x8010`), with `li v0,1` in the `beqz` delay slot. Tried: early return,
+  if/else, `ret` variable, local `idx`, buffer temp. All allocate `idx` to `v1`.
+- `Movie_frame_upload`: pointer-based loop matches except `s1`/`s2` are swapped (image pointer vs
+  counter). Tried four declaration orders, operand order, and a `u_long *` pointer (breaks the
+  `<< 11`). Image address is `0x80140000 + (1 - Movie_frame_idx) * 0x25800 + i * 0x1E00` (note: splat's
+  `D_80141E00` is really `0x80140000` + stride `0x1E00`).
+
+Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
+`D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
+(set CD mode; `D_80059BB4 = 2` if bit 7 flips).
+
+Group B, parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
+
+- `cmd_play_movie`: all of it matches except case 3 right after the skip test. The target emits
+  `li a0,1` before `li v0,1` and leaves the preceding `beqz` delay slot as `nop`; ours puts
+  `li v0,1` in that slot and `li a0,1` in the `DecDCTReset` slot. Tried: operand order of the skip
+  test, `volatile D_80059C2C` (worse). The wait loop needs `if (x) { while (x) {} }`. The
+  timeout-error block is duplicated in cases 2 and 3 (the target has two copies of it, merged by GCC).
+- `func_80011940`: only `Cd_result`'s address differs. The target reloads `lui/addiu` for each of
+  its three `Cd_control_retry` calls; ours shares it in `s0`. Tried `&Cd_result[0]`.
+  `D_80059BC8 = 1` must come first (it hoists `li s1,1`); the filter stores follow `D_80059BB0`.
+- `func_80011A64`: one instruction. The target's last `else` arm has `move a0,zero` first and a
+  `nop` delay slot; ours fills the slot with it. Needs the STR sector header read through a struct
+  pointer assigned after `CdGetSector`, and payload source as a literal `0x800F0020`.
+
+Movie command: `CMD_ARGS` = `{movie index into the 12-byte table at 0x8001D3DC, last frame number
+(compared with word 2 of the frame's first sector header), pad buttons that skip (tested against
+Joy1's "on" word)}`. `D_80059C20` is `cmd_play_movie`'s state (the switch index, 0–5);
+`D_80059C24` is only ever cleared (Cd_init, Cmd_dequeue).
 
 ## Hacks to revisit
 
