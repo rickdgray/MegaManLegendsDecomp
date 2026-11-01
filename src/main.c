@@ -518,10 +518,7 @@ void Movie_start(sint32 movie)
     CdlFILTER filter;
 
     D_80059BC8         = 1;
-    Movie_buf_ready[3] = 0;
-    Movie_buf_ready[2] = 0;
-    Movie_buf_ready[1] = 0;
-    Movie_buf_ready[0] = 0;
+    Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
     D_80059C74         = 7;
     Cd_error_flags     = 0;
     D_80059BD4         = 0;
@@ -536,7 +533,7 @@ void Movie_start(sint32 movie)
     CdReadyCallback(Movie_sector_cb);
     Cd_controlb_retry(CdlSetfilter, (u_char *)&filter, Cd_result);
     Cd_controlb_retry(CdlSetloc, (u_char *)&loc, Cd_result);
-    Cd_controlb_retry(CdlReadS, 0, Cd_result);
+    Cd_controlb_retry(CdlReadS, NULL, Cd_result);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/main", Movie_start);

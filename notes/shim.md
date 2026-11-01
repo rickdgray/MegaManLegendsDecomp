@@ -195,6 +195,11 @@ Parked (group B, `NON_MATCHING`):
   (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
   as a `nop`, where ours fills it. A delay-slot difference: candidate for the assembler
   (maspsx `--aspsx-version`) test, along with `cmd_play_movie`'s case 3.
+- `Movie_start`: body matches exactly. Only difference: the target rebuilds `Cd_result`'s address
+  (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls; our compiler keeps it in
+  `s0`. No source construct controls this; it's GCC's cost choice between rematerializing a
+  constant and keeping it in a saved register. Cleanest evidence for a toolchain difference; a
+  three-call probe reproduces it (see the compiler/flag test).
 
 Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
 `D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
