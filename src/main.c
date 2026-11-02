@@ -198,13 +198,13 @@ void Cd_init(void)
     {
     }
 
-    D_80059BCA = 0; // redundant
+    D_80059BCA = 0; // stored twice in the original; both needed for the match
     D_80059C00 = 0;
     D_80059BC8 = 0;
     D_80059C74 = 7;
     Cd_mode    = 0;
     D_80059C48 = 0;
-    D_80059BCA = 0; // redundant
+    D_80059BCA = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
@@ -218,7 +218,7 @@ void Cd_init(void)
     Cmd_exec_ptr  = Cmd_queue;
     Cmd_write_ptr = Cmd_queue;
 
-    D_80059BB4    = 0;
+    Cd_wait       = 0;
     Movie_playing = 0;
     D_80059C24    = 0;
     Cmd_routine   = 0;
@@ -245,7 +245,7 @@ sint32 Movie_buf_get(u_long **data, StHEADER **hdrs)
 void Movie_buf_release(void)
 {
     Movie_buf_ready[Movie_buf_idx] = 0;
-    Movie_buf_idx                  = (Movie_buf_idx + 1) & 3;
+    Movie_buf_idx                  = (Movie_buf_idx + 1) & (MOVIE_SLOT_COUNT - 1);
 }
 
 void cmd_play_movie(void)
@@ -268,8 +268,11 @@ void cmd_play_movie(void)
 
             rect.x = 0;
             rect.y = 0;
-            rect.w = 320; // clear display buffer
-            rect.h = 480; // clear display buffer
+
+            // clear both display buffers (320×480 covers y = 0 and y = 256)
+            rect.w = 320;
+            rect.h = 480;
+
             Cmd_routine++;
             ClearImage(&rect, 0, 0, 0);
             DrawSync(0);
@@ -301,13 +304,13 @@ void cmd_play_movie(void)
             Cmd_routine++;
             // fall through
         case 2:
-            if (D_80059BB4 != 0)
+            if (Cd_wait != 0)
             {
-                D_80059BB4--;
+                Cd_wait--;
                 break;
             }
 
-            D_80059BB4 = 0xFF;
+            Cd_wait = 0xFF;
             DecDCTReset(1);
             timeout = 0;
             Movie_start(Cmd_exec_ptr->args.arg1);
@@ -331,6 +334,7 @@ void cmd_play_movie(void)
                     Cd_error_flags |= CD_ERR_TIMEOUT;
                     CdReadyCallback(0);
                     CdReset(0);
+                    // an invalid mode, so the next Cd_set_mode always sends the command
                     Cd_mode     = 0xFF;
                     Cmd_routine = 0;
                     return;
@@ -420,10 +424,10 @@ void Movie_frame_upload(void)
 
     if (Movie_playing)
     {
-        i       = 0;
-        rect    = Movie_rect_tbl[Dbl_buff_idx];
-        one = 1;
-        img     = (u_char *)MOVIE_IMG_BUF;
+        i    = 0;
+        rect = Movie_rect_tbl[Dbl_buff_idx];
+        one  = 1;
+        img  = (u_char *)MOVIE_IMG_BUF;
 
         for (; i < MOVIE_SLICE_COUNT; i++)
         {
@@ -457,7 +461,6 @@ void Cmd_dequeue(void)
 {
     CMD *p;
 
-    p = Cmd_queue;
     for (p = Cmd_queue; p->type != 0; p++)
     {
         p->type = p[1].type;
@@ -477,10 +480,13 @@ void Cd_set_volume(uint8 vol)
 {
     CdlATV atv;
 
-    atv.val0 = vol;
-    atv.val1 = 0;
-    atv.val2 = vol;
-    atv.val3 = 0;
+    atv.val0 = vol; // val0 = CD left → output left
+    atv.val1 = 0;   // val1 = CD left → output right
+    atv.val2 = vol; // val2 = CD right → output right
+    atv.val3 = 0;   // val3 = CD right → output left
+
+    // in other words, save vol both sides and no mixing
+
     CdMix(&atv);
 }
 
@@ -496,7 +502,7 @@ void Cd_stop(void)
     Cd_error_flags = 0;
     CdReadyCallback(0);
     CdSyncCallback(Cd_sync_cb);
-    Cd_control_retry(9, 0, Cd_result);
+    Cd_control_retry(CdlPause, 0, Cd_result);
 }
 
 void Cd_sync_cb(u_char status, u_char *result)
@@ -521,16 +527,18 @@ void Movie_start(sint32 movie)
     CdlLOC loc;
     CdlFILTER filter;
 
-    D_80059BC8         = 1;
+    D_80059BC8 = 1;
+
     Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
-    D_80059C74                                                                        = 7;
-    Cd_error_flags                                                                    = 0;
-    D_80059BD4                                                                        = 0;
-    Movie_sector_wait                                                                 = 0;
-    D_80059BA4                                                                        = 0;
-    Movie_frame_idx                                                                   = 0;
-    Movie_write_idx                                                                   = 0;
-    Movie_write_ptr = (u_long *)MOVIE_RING_BUF;
+
+    D_80059C74        = 7;
+    Cd_error_flags    = 0;
+    D_80059BD4        = 0;
+    Movie_sector_wait = 0;
+    D_80059BA4        = 0;
+    Movie_frame_idx   = 0;
+    Movie_write_idx   = 0;
+    Movie_write_ptr   = (u_long *)MOVIE_SLOT(0);
     CdIntToPos(Movie_tbl[movie].pos, &loc);
     Movie_end_frame = Movie_tbl[movie].end_frame;
     filter.file = filter.chan = 1;
@@ -551,7 +559,7 @@ void Movie_sector_cb(u_char status, u_char *result)
     u_long *src;
     u_long *dst;
 
-    D_80059BB4 = 0x80;
+    Cd_wait = 0x80;
 
     if (status == CdlDataReady)
     {
@@ -560,7 +568,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         if (Movie_sector_wait)
         {
-            if (((STR_SECTOR *)STR_SECTOR_BUF)->hdr.secCount != 0)
+            if (sec->hdr.secCount != 0)
             {
                 return;
             }
@@ -570,6 +578,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         if (Movie_buf_ready[Movie_write_idx])
         {
+            // a full ring makes the callback skip sectors until the start of the next frame
             Movie_sector_wait = status;
             return;
         }
@@ -633,13 +642,13 @@ void Cd_controlb_retry(u_char com, u_char *param, u_char *result)
 
 void Cd_set_mode(u_char mode)
 {
-    D_80059BB4 = 0;
+    Cd_wait = 0;
 
     if (Cd_mode != mode)
     {
-        if ((Cd_mode & 0x80) != (mode & 0x80))
+        if ((Cd_mode & CdlModeSpeed) != (mode & CdlModeSpeed))
         {
-            D_80059BB4 = 2;
+            Cd_wait = 2;
         }
 
         Cd_mode = mode;
@@ -786,7 +795,7 @@ void intro_copyright(void)
 
 void intro_wait_idle(void)
 {
-    RECT rect; // unused, likely copy paste
+    RECT rect; // unused; kept for the frame size (left from copying the screen template)
 
     switch (Intro_routine_1)
     {
@@ -806,13 +815,13 @@ void intro_wait_idle(void)
 
 void intro_play_movie(void)
 {
-    RECT rect; // unused, likely copy paste
+    RECT rect; // unused; kept for the frame size (left from copying the screen template)
 
     switch (Intro_routine_1)
     {
         case 0:
             Disp_env_set(DISP_MODE_320);
-            Cmd_set_movie(0xd0, 0x91, 0x2008);
+            Cmd_set_movie(0xd0, 145, PAD_START | PAD_CIRCLE);
             Intro_routine_1++;
             break;
         case 1:
@@ -876,6 +885,7 @@ void intro_launch_game(void)
             SsQuit();
             StopPAD();
             _96_init();
+            // 0x801fff00: stack pointer for ROCK_NEO.EXE: top of 2 MB RAM, minus 256 bytes.
             LoadExec(rock_neo_path, 0x801fff00, 0);
             break;
     }

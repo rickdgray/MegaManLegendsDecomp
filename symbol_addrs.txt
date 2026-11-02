@@ -691,6 +691,7 @@ intro_play_movie = 0x80012264;
 disp_width_tbl = 0x8001D3D8; // size:0x4
 intro_tbl = 0x8001DF94; // size:0x10
 Movie_slice_count = 0x80059BA0;
+Cd_wait = 0x80059BB4;
 Movie_slice_ptr = 0x80059BB8;
 Disp_env_ptr = 0x80059BCC;
 Movie_buf_ready = 0x80059BD0;

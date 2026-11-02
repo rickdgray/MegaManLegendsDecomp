@@ -15,9 +15,9 @@
 extern uint8 Cd_mode;
 extern u_char Cd_result[8];
 extern uint8 Cd_error_flags; // CD_ERR_* bits
+extern sint32 Cd_wait;
 
 // Unknown (set up by Cd_init)
-extern sint32 D_80059BB4;
 extern uint8 D_80059BC8;
 extern uint8 D_80059BC9;
 extern uint8 D_80059BCA;

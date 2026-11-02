@@ -107,7 +107,7 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
 |---|---|
 | 0 | Stop the drive if needed; clear both display buffers (320×480); build `Movie_rect_tbl`, two sets of twenty 16×240 column rects (y = 0 and y = 256) |
 | 1 | Wait for `D_80059BD4`, then `Cd_set_mode(CdlModeSpeed \| CdlModeRT \| CdlModeSF)`: double speed, XA-ADPCM audio, subheader filter |
-| 2 | Countdown on `D_80059BB4`; then reset the MDEC, `Movie_start(arg1)`, 60 fps (`Vsync_wait = 1`), ramp CD volume 0→127, wait for the first frame (timeout `MOVIE_TIMEOUT`), and start variable-length decoding it into `MOVIE_VLC(Movie_frame_idx)` |
+| 2 | Countdown on `Cd_wait`; then reset the MDEC, `Movie_start(arg1)`, 60 fps (`Vsync_wait = 1`), ramp CD volume 0→127, wait for the first frame (timeout `MOVIE_TIMEOUT`), and start variable-length decoding it into `MOVIE_VLC(Movie_frame_idx)` |
 | 3 | Per frame: wait for the next frame; decide whether this is the last (skip button, `frameCount == Movie_end_frame`, or an error); decode the previous frame's VLC data through the MDEC into `MOVIE_IMG` in 16-pixel columns (`DecDCTout`, `MOVIE_SLICE_WORDS`), uploaded by `Movie_dct_out_callback`; VLC-decode the new frame into the other buffer (`Movie_frame_idx ^= 1`); spin until `Movie_dct_busy` clears |
 | 4 | Remove the MDEC callback, stop the drive |
 | 5 | Dequeue the command, back to 30 fps |
@@ -220,7 +220,7 @@ Parked (group B, `NON_MATCHING`):
 
 Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
 `D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
-(set CD mode; `D_80059BB4 = 2` if bit 7 flips).
+(set CD mode; `Cd_wait = 2` if bit 7 flips).
 
 Group B, parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
 

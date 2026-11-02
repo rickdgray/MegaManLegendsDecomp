@@ -19,8 +19,8 @@
 #define MOVIE_SLOT_SIZE 0x8000    // one ring buffer slot
 #define MOVIE_SLOT_COUNT 4
 #define MOVIE_SLICE_WORDS 0x780 // u_longs of one 320x24 slice of a frame
-#define MOVIE_SLICE_COUNT 20   // slices per frame
-#define MOVIE_IMG_SIZE 0x25800 // u_longs of one 320x240 frame
+#define MOVIE_SLICE_COUNT 20    // slices per frame
+#define MOVIE_IMG_SIZE 0x25800  // u_longs of one 320x240 frame
 #define MOVIE_TIMEOUT 0x3FFFFF
 
 // A ring buffer slot: a table of the frame's sector headers, then the frame data.
