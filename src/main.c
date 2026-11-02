@@ -218,11 +218,11 @@ void Cd_init(void)
     Cmd_exec_ptr  = Cmd_queue;
     Cmd_write_ptr = Cmd_queue;
 
-    D_80059BB4  = 0;
-    Movie_playing  = 0;
-    D_80059C24  = 0;
-    Cmd_routine = 0;
-    D_80059BC9  = 0;
+    D_80059BB4    = 0;
+    Movie_playing = 0;
+    D_80059C24    = 0;
+    Cmd_routine   = 0;
+    D_80059BC9    = 0;
 }
 
 void cmd_nop(void)
@@ -312,7 +312,7 @@ void cmd_play_movie(void)
             timeout = 0;
             Movie_start(Cmd_exec_ptr->args.arg1);
             D_80059BC9      = 3;
-            Movie_playing      = 1;
+            Movie_playing   = 1;
             Movie_buf_idx   = 0;
             Vsync_wait      = VSYNC_60FPS;
             Movie_end_frame = Cmd_exec_ptr->args.arg2;
@@ -418,10 +418,11 @@ void Movie_frame_upload(void)
 
     if (Movie_playing)
     {
+        i    = 0;
         rect = Movie_rect_tbl[Dbl_buff_idx];
-        img  = (u_char *)0x80140000;
+        img  = (u_char *)MOVIE_IMG_BUF;
 
-        for (i = 0; i < 20; i++)
+        for (; i < 20; i++)
         {
             LoadImage(rect, (u_long *)(img + (1 - Movie_frame_idx) * 0x25800));
             rect++;
@@ -519,14 +520,14 @@ void Movie_start(sint32 movie)
 
     D_80059BC8         = 1;
     Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
-    D_80059C74         = 7;
-    Cd_error_flags     = 0;
-    D_80059BD4         = 0;
-    Movie_sector_wait  = 0;
-    D_80059BA4         = 0;
-    Movie_frame_idx    = 0;
-    Movie_write_idx    = 0;
-    Movie_write_ptr    = (u_long *)MOVIE_RING_BUF;
+    D_80059C74                                                                        = 7;
+    Cd_error_flags                                                                    = 0;
+    D_80059BD4                                                                        = 0;
+    Movie_sector_wait                                                                 = 0;
+    D_80059BA4                                                                        = 0;
+    Movie_frame_idx                                                                   = 0;
+    Movie_write_idx                                                                   = 0;
+    Movie_write_ptr = (u_long *)MOVIE_RING_BUF;
     CdIntToPos(Movie_tbl[movie].pos, &loc);
     Movie_end_frame = Movie_tbl[movie].end_frame;
     filter.file = filter.chan = 1;
