@@ -6,11 +6,22 @@
 #include "common.h"
 #include "psyq/libcd.h"
 
+#define CD_FILE_COUNT 248
+
 // Cd_error_flags bits
 #define CD_ERR_READY 0x04   // error reported to the ready callback
 #define CD_ERR_SYNC 0x08    // error reported to the sync callback
 #define CD_ERR_TIMEOUT 0x10 // timed out
 #define CD_VOL_MAX 0x7F
+
+typedef struct
+{
+    sint32 sector;
+    sint32 size;
+    sint32 unk8;
+} CD_FILE;
+
+extern CD_FILE Cd_file_tbl[CD_FILE_COUNT]; // every file on the disc: sector, size, unknown
 
 extern uint8 Cd_mode;
 extern u_char Cd_result[8];

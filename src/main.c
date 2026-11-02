@@ -522,7 +522,7 @@ void Cd_sync_cb(u_char status, u_char *result)
 }
 
 #ifdef NON_MATCHING
-void Movie_start(sint32 movie)
+void Movie_start(sint32 file)
 {
     CdlLOC loc;
     CdlFILTER filter;
@@ -539,8 +539,9 @@ void Movie_start(sint32 movie)
     Movie_frame_idx   = 0;
     Movie_write_idx   = 0;
     Movie_write_ptr   = (u_long *)MOVIE_SLOT(0);
-    CdIntToPos(Movie_tbl[movie].pos, &loc);
-    Movie_end_frame = Movie_tbl[movie].end_frame;
+    CdIntToPos(Cd_file_tbl[file].sector, &loc);
+    // size here is actually a placeholder for end frame until set correctly in cmd_play_movie
+    Movie_end_frame = Cd_file_tbl[file].size;
     filter.file = filter.chan = 1;
     CdReadyCallback(Movie_sector_cb);
     Cd_controlb_retry(CdlSetfilter, (u_char *)&filter, Cd_result);

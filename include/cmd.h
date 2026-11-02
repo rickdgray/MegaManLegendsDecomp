@@ -14,7 +14,7 @@
 // play-movie command (type 5) is seen in the shim: (movie index, last frame, skip buttons).
 typedef struct
 {
-    sint32 arg1; // movie index into Movie_tbl
+    sint32 arg1; // movie index into Cd_file_tbl
     sint32 arg2; // frame number at which playback ends
     uint16 arg3; // pad buttons (matched against Joy1's "on" bits) that skip the movie
 } CMD_ARGS;

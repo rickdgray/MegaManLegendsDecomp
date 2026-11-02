@@ -36,16 +36,6 @@ typedef struct
     u_long data[0x1F8];
 } STR_SECTOR;
 
-// Movie table entry (12 bytes). Proposed name for Movie_tbl: Movie_tbl.
-typedef struct
-{
-    sint32 pos; // disc position, as a sector number
-    sint32 end_frame;
-    sint32 unk8;
-} MOVIE_INFO;
-
-extern MOVIE_INFO Movie_tbl[];
-
 extern volatile sint32 Movie_dct_busy;
 extern uint8 Movie_buf_ready[4];
 extern sint32 Movie_buf_idx;

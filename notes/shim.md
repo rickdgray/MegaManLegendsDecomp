@@ -99,7 +99,7 @@ not decompiled.
 
 ### Movie playback (`cmd_play_movie`, command type 5)
 
-Arguments: `arg1` = index into `Movie_tbl` (disc position, default end frame); `arg2` = last frame
+Arguments: `arg1` = index into `Cd_file_tbl` (disc position, default end frame); `arg2` = last frame
 to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested against Joy1's
 "on" bits). One step per frame, driven by `Cmd_routine`:
 
@@ -246,3 +246,7 @@ Joy1's "on" word)}`. `D_80059C20` is `cmd_play_movie`'s state (the switch index,
 
 - `2MBYTE.OBJ` holds two `0x00200000` words; which is the RAM size and which the stack setting?
 - Meaning of the loader's `_B4` suffix on `2MBYTE_OBJ_B4`.
+
+## CD Info
+
+- `Cd_file_tbl` (`0x8001D3DC`, `CD_FILE[248]`): 248 entries; the last is the CD audio track. See disc.md
