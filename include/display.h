@@ -6,13 +6,14 @@
 
 #define DISP_MODE_320 0
 #define DISP_MODE_640 1
+#define OT_LEN 8
 
 // One of the two double buffers.
 typedef struct
 {
     DISPENV disp;
     DRAWENV draw;
-    u_long ot[8];
+    u_long ot[OT_LEN];
 } DISP_ENV;
 
 extern DISP_ENV Disp_env[2];

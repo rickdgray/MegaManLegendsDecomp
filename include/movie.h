@@ -12,19 +12,22 @@
 #define STR_TYPE_MDEC 0x8001      // StHEADER.type: MDEC movie data
 #define STR_SECTOR_BUF 0x800F0000 // one raw sector, read with CdGetSector
 #define STR_DATA_WORDS 0x1F8      // u_longs of frame data per sector
+#define STR_HEADER_WORDS 8        // u_longs of StHEADER per sector
 #define MOVIE_RING_BUF 0x80100000 // 4 slots of 0x8000 bytes, one frame each
 #define MOVIE_VLC_BUF 0x80120000  // 2 buffers of 0x10000 bytes, DecDCTvlc output
 #define MOVIE_IMG_BUF 0x80140000  // 2 buffers of 0x25800 bytes, decoded 320x240 image
 #define MOVIE_SLOT_SIZE 0x8000    // one ring buffer slot
 #define MOVIE_SLOT_COUNT 4
 #define MOVIE_SLICE_WORDS 0x780 // u_longs of one 320x24 slice of a frame
+#define MOVIE_SLICE_COUNT 20   // slices per frame
+#define MOVIE_IMG_SIZE 0x25800 // u_longs of one 320x240 frame
 #define MOVIE_TIMEOUT 0x3FFFFF
 
 // A ring buffer slot: a table of the frame's sector headers, then the frame data.
 #define MOVIE_SLOT(i) ((StHEADER *)(MOVIE_RING_BUF + (i)*MOVIE_SLOT_SIZE))
 
 #define MOVIE_VLC(i) ((u_long *)(MOVIE_VLC_BUF + (i)*0x10000))
-#define MOVIE_IMG(i) ((u_long *)(MOVIE_IMG_BUF + (i)*0x25800))
+#define MOVIE_IMG(i) ((u_long *)(MOVIE_IMG_BUF + (i)*MOVIE_IMG_SIZE))
 
 // A raw movie sector: the header, then 2016 bytes of frame data.
 typedef struct
@@ -47,7 +50,7 @@ extern volatile sint32 Movie_dct_busy;
 extern uint8 Movie_buf_ready[4];
 extern sint32 Movie_buf_idx;
 extern sint32 Movie_frame_idx;
-extern RECT Movie_rect_tbl[2][20];
+extern RECT Movie_rect_tbl[2][MOVIE_SLICE_COUNT];
 extern sint32 Movie_sector_wait;
 extern uint32 Movie_slice_count;
 extern u_long *Movie_slice_ptr;

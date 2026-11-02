@@ -33,7 +33,7 @@ void main(void)
         Pad_update_all();
         Dbl_buff_idx ^= 1;
         Disp_env_ptr = &Disp_env[Dbl_buff_idx];
-        ClearOTag(Disp_env_ptr->ot, 8);
+        ClearOTag(Disp_env_ptr->ot, OT_LEN);
         Intro_task();
         Cmd_exec();
         DrawSync(0);
@@ -80,7 +80,7 @@ void Disp_env_set(sint32 mode)
 
 void Disp_env_init(DISP_ENV *buf)
 {
-    ClearOTag(buf->ot, 8);
+    ClearOTag(buf->ot, OT_LEN);
     buf->disp.screen.y = 0;
     buf->draw.dtd      = 0;
     buf->draw.dfe      = 0;
@@ -210,9 +210,9 @@ void Cd_init(void)
 
     D_80059BD4 = 1;
 
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < CMD_QUEUE_LEN; i++)
     {
-        Cmd_queue[i].type = 0;
+        Cmd_queue[i].type = CMD_END;
     }
 
     Cmd_exec_ptr  = Cmd_queue;
@@ -277,7 +277,7 @@ void cmd_play_movie(void)
             r0 = Movie_rect_tbl[0];
             r1 = Movie_rect_tbl[1];
 
-            for (i = 0; i < 20; i++)
+            for (i = 0; i < MOVIE_SLICE_COUNT; i++)
             {
                 r0->x = r1->x = i * 16;
 
@@ -317,7 +317,7 @@ void cmd_play_movie(void)
             Vsync_wait      = VSYNC_60FPS;
             Movie_end_frame = Cmd_exec_ptr->args.arg2;
 
-            for (i = 0; i < 0x7F; i++)
+            for (i = 0; i < CD_VOL_MAX; i++)
             {
                 Cd_set_volume(i);
             }
@@ -396,11 +396,11 @@ void cmd_play_movie(void)
 void Movie_dct_out_callback(void)
 {
     Movie_slice_count++;
-    Movie_slice_ptr += 0x780;
+    Movie_slice_ptr += MOVIE_SLICE_WORDS;
 
-    if (Movie_slice_count < 0x14)
+    if (Movie_slice_count < MOVIE_SLICE_COUNT)
     {
-        DecDCTout(Movie_slice_ptr, 0x780);
+        DecDCTout(Movie_slice_ptr, MOVIE_SLICE_WORDS);
     }
     else
     {
@@ -425,11 +425,11 @@ void Movie_frame_upload(void)
         one = 1;
         img     = (u_char *)MOVIE_IMG_BUF;
 
-        for (; i < 20; i++)
+        for (; i < MOVIE_SLICE_COUNT; i++)
         {
-            LoadImage(rect, (u_long *)(img + ((one - Movie_frame_idx) * 0x25800)));
+            LoadImage(rect, (u_long *)(img + ((one - Movie_frame_idx) * MOVIE_IMG_SIZE)));
             rect++;
-            img += 0x1E00;
+            img += MOVIE_SLICE_WORDS * 4;
         }
     }
 }
@@ -488,7 +488,7 @@ void Cd_stop(void)
 {
     sint32 i;
 
-    for (i = 0x7f; i > 0; i--)
+    for (i = CD_VOL_MAX; i > 0; i--)
     {
         Cd_set_volume(i);
     }
@@ -577,7 +577,7 @@ void Movie_sector_cb(u_char status, u_char *result)
         // Header goes into the slot's header table, at this sector's index.
         src = (u_long *)&sec->hdr;
         dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.secCount);
-        for (i = 0; i < 8; i++) // one StHEADER, in u_longs
+        for (i = 0; i < STR_HEADER_WORDS; i++)
         {
             *dst++ = *src++;
         }
@@ -649,7 +649,7 @@ void Cd_set_mode(u_char mode)
 
 void Cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
 {
-    Cmd_write_ptr->type      = 5;
+    Cmd_write_ptr->type      = CMD_PLAY_MOVIE;
     Cmd_write_ptr->args.arg1 = arg1;
     Cmd_write_ptr->args.arg2 = arg2;
     Cmd_write_ptr->args.arg3 = arg3;

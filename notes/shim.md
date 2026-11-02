@@ -194,6 +194,13 @@ Parked (group B, `NON_MATCHING`):
   `img`, then `for (; i < 20; i++)`); with that, all registers match. Remaining: the hoisted
   constant `1` (for `1 - Movie_frame_idx`) loads after the image pointer instead of before. Found
   via ablation of a permuter output whose `do`/`while (0)` around the setup was doing the same job.
+  - `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect`, then a variable
+  holding 1, then `img`, then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`.
+  All registers and instruction order match; only `addu a1,a1,s1` (target) vs `addu a1,s1,a1`
+  (ours) at the image address differs. The variable holding 1 is a marked hack (it makes GCC create
+  the constant before the image pointer). Tried: operand order in the source, the variable before
+  `rect`, declared last. History: ablation of a permuter output showed its `do`/`while (0)` mattered;
+  `i = 0` before the pointer setup fixed all registers.
 - `Movie_sector_cb`: cleaned up (`MOVIE_SLOT`, `StHEADER` table indexing, `sec->data`,
   `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
   (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot

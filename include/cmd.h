@@ -6,6 +6,10 @@
 
 #include "common.h"
 
+#define CMD_QUEUE_LEN 16
+#define CMD_END        0
+#define CMD_PLAY_MOVIE 5
+
 // Arguments are copied as one 12-byte block; possibly a union per command type. Only the
 // play-movie command (type 5) is seen in the shim: (movie index, last frame, skip buttons).
 typedef struct
@@ -17,13 +21,13 @@ typedef struct
 
 typedef struct
 {
-    sint32 type; // 0 = end of queue, 5 = play movie
+    sint32 type; // CMD_END = end of queue, CMD_PLAY_MOVIE = play movie
     CMD_ARGS args;
 } CMD;
 
 typedef void (*CMD_FUNC)(void);
 
-extern CMD Cmd_queue[16];
+extern CMD Cmd_queue[CMD_QUEUE_LEN];
 extern CMD *Cmd_write_ptr; // next free slot
 extern CMD *Cmd_exec_ptr;  // the command being run
 extern CMD_FUNC cmd_tbl[6];
