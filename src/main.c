@@ -412,19 +412,22 @@ void Movie_dct_out_callback(void)
 #ifdef NON_MATCHING
 void Movie_frame_upload(void)
 {
+    // HACK: a variable holding 1 reproduces the target's instruction order; revisit
+    sint32 one;
     sint32 i;
     RECT *rect;
     u_char *img;
 
     if (Movie_playing)
     {
-        i    = 0;
-        rect = Movie_rect_tbl[Dbl_buff_idx];
-        img  = (u_char *)MOVIE_IMG_BUF;
+        i       = 0;
+        rect    = Movie_rect_tbl[Dbl_buff_idx];
+        one = 1;
+        img     = (u_char *)MOVIE_IMG_BUF;
 
         for (; i < 20; i++)
         {
-            LoadImage(rect, (u_long *)(img + (1 - Movie_frame_idx) * 0x25800));
+            LoadImage(rect, (u_long *)(img + ((one - Movie_frame_idx) * 0x25800)));
             rect++;
             img += 0x1E00;
         }

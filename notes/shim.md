@@ -190,6 +190,10 @@ Parked (group B, `NON_MATCHING`):
   `1 - Movie_frame_idx`) is loaded at a different point. Ruled out: indexed form
   (`&Movie_rect_tbl[Dbl_buff_idx][i]`, `MOVIE_IMG(...) + i * ...`), which reloads `Dbl_buff_idx`
   inside the loop (the target loads it once). Register-allocation group: compiler/flag test.
+  - `Movie_frame_upload`: the counter is initialized before the pointer setup (`i = 0;` then `rect`,
+  `img`, then `for (; i < 20; i++)`); with that, all registers match. Remaining: the hoisted
+  constant `1` (for `1 - Movie_frame_idx`) loads after the image pointer instead of before. Found
+  via ablation of a permuter output whose `do`/`while (0)` around the setup was doing the same job.
 - `Movie_sector_cb`: cleaned up (`MOVIE_SLOT`, `StHEADER` table indexing, `sec->data`,
   `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
   (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
@@ -200,12 +204,12 @@ Parked (group B, `NON_MATCHING`):
   `s0`. No source construct controls this; it's GCC's cost choice between rematerializing a
   constant and keeping it in a saved register. Cleanest evidence for a toolchain difference; a
   three-call probe reproduces it (see the compiler/flag test).
-    - Probe results (three calls passing the same buffer): GCC keeps a symbol's address in a saved
-    register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
-    is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
-    symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
-    `-fno-expensive-optimizations` reproduces it but breaks other functions. All gcc 2.6.0–2.7.2.3
-    builds behave alike. Next: permuter.
+  - Probe results (three calls passing the same buffer): GCC keeps a symbol's address in a saved
+  register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
+  is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
+  symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
+  `-fno-expensive-optimizations` reproduces it but breaks other functions. All gcc 2.6.0–2.7.2.3
+  builds behave alike. Next: permuter.
 
 Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `D_80059BD4=1`, else
 `D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
