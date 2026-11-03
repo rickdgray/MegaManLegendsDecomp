@@ -46,6 +46,9 @@ No C yet. Built with `./tools/rebuild.sh rock_neo.exe`.
   (`SsSeqOpen`, MIDI); libgte math; libpad; libcd; and SN host file I/O (`PCopen`, `PCread`), a
   development leftover. `MSC00.OBJ` starts with two data words, then `InitGeom`. libcd's rodata:
   `EVENT` `0x1ED8`, `SYS` `0x202C` (name a guess, as in the shim), `BIOS` `0x20A8`.
+- Some PsyQ objects begin with an 8-byte marker `50 73 xx 15  9C xx 40 00` (seen at MSC00's start,
+  `0x8007A4E8`, and at `0x8007FEA0` after `GPU_cw`, an unlabeled object merged into SYS_2). Purpose
+  unknown; useful for placing unlabeled object boundaries.
 
 ## References outside the image
 
