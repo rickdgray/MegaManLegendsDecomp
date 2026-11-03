@@ -23,7 +23,7 @@ options:
   find_file_boundaries: False
 
   gp_value: 0x80097864
-  ld_gp_expression: 0x80097864
+  ld_gp_expression: "0x80097864"
 
   o_as_suffix: True
   use_legacy_include_asm: False
@@ -35,7 +35,7 @@ options:
 
   undefined_funcs_auto_path: build/rock_neo.exe/undefined_funcs_auto.txt
   undefined_syms_auto_path: build/rock_neo.exe/undefined_syms_auto.txt
-  assets_path: assets/rock_neo.exe
+  asset_path: assets/rock_neo.exe
 
   subalign: 2
 
