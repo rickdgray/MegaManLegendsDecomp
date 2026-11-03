@@ -55,10 +55,22 @@ segments:
     type: code
     start: 0x800
     vram: 0x80010000
-    bss_size: 0x2D530
+    align: 1
     subsegments:
       # .rodata: Capcom's first, then the library
       - [0x800, rodata, 800]
+      - [0x8B4, rodata]
+      - [0x938, rodata]
+      - [0x9E4, rodata]
+      - [0x10C0, rodata]
+      - [0x1294, rodata]
+      - [0x1330, rodata]
+      - [0x136C, rodata]
+      - [0x14D0, rodata]
+      - [0x1514, rodata]
+      - [0x1530, rodata]
+      - [0x156C, rodata]
+      - [0x1BD8, rodata]
       - [0x1CB8, rodata, psyq/SPU]
       - [0x1D00, rodata, psyq/S_GKS]
       - [0x1D3C, rodata, psyq/SSOPENP]
@@ -71,7 +83,8 @@ segments:
       - [0x1E74, rodata, psyq/INTR]
       - [0x1EAC, rodata, psyq/INTR_DMA]
       - [0x1ED8, rodata, psyq/EVENT]
-      - [0x202C, rodata, psyq/BIOS]
+      - [0x202C, rodata, psyq/SYS]
+      - [0x20A8, rodata, psyq/BIOS]
       - [0x2148, rodata, psyq/CDREAD]
       - [0x218C, rodata, psyq/PRIM]
       - [0x2290, rodata, psyq/SYS_2]
@@ -184,10 +197,15 @@ segments:
       - [0x70DA8, asm, psyq/SENDPAD]
       - [0x70E68, asm, psyq/CHCLRPAD]
 
-      # .data, .sdata, then BSS (zeros in the file; NOLOAD, so the image zero-fills it)
-      - [0x70EC4, data, 70EC4]        # starts 4 bytes before the timestamp string
-      - [0x80064, sdata, 80064]       # gp - 0x8000 = 0x8008F864
-      - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }
+      # .data, then .sdata
+      - [0x70EC4, data, 70EC4]  # starts 4 bytes before the timestamp string
+      - [0x80064, sdata, 80064] # gp - 0x8000 = 0x8008F864
+
+      # HACK: this is BSS (0x80098158-0x800C5687, cleared by start), but the file stores it as zeros,
+      # which splat can't express as bss (it counts the file bytes on top of bss_size). Typed sdata so
+      # it's laid out right after the small data. To restore real BSS later (may need a splat change):
+      #   - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }  plus  bss_size: 0x2D530 on main
+      - [0x88958, sdata, 88958]
 
   # Zeros after the BSS, plus one 0x04 at 0x800D8800 (the SHL overlay's load address).
   - name: tail

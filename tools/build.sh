@@ -37,7 +37,7 @@ done
 # 2. Link with splat's linker script (plus its auto-generated symbol files, if present).
 #    splat writes those to the repo root (the yaml doesn't set undefined_*_auto_path).
 LD_SCRIPTS=()
-for f in undefined_syms_auto.txt undefined_funcs_auto.txt; do
+for f in "$BUILD_DIR/undefined_syms_auto.txt" "$BUILD_DIR/undefined_funcs_auto.txt"; do
     [[ -f "$f" ]] && LD_SCRIPTS+=(-T "$f")
 done
 
