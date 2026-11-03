@@ -4,7 +4,11 @@ disc/
 *.cue
 *.iso
 SLUS_*
+ROCK_NEO*
 !slus_006.03.yaml
+!slus_006.03/
+!rock_neo.exe.yaml
+!rock_neo.exe/
 notes/sdk
 
 # Ghidra
@@ -12,6 +16,7 @@ notes/sdk
 *.rep/
 *.lock
 *.lock~
+tools/ghidra/*
 
 #vscode
 .vscode/

@@ -9,27 +9,27 @@
 #include "common.h"
 
 // CdControl command codes.
-#define CdlSetloc 0x02
-#define CdlPause 0x09
-#define CdlSetmode 0x0e
+#define CdlSetloc    0x02
+#define CdlPause     0x09
+#define CdlSetmode   0x0e
 #define CdlSetfilter 0x0d
-#define CdlReadS 0x1b
+#define CdlReadS     0x1b
 
 // CdlSetmode mode bits
-#define CdlModeDA 0x01       // CD-DA playback on
-#define CdlModeAP 0x02       // autopause
-#define CdlModeRept 0x04     // report mode
-#define CdlModeSF 0x08       // subheader filter
-#define CdlModeSize0 0x10    // sector size 2328 bytes
-#define CdlModeSize1 0x20    // sector size 2340 bytes
-#define CdlModeRT 0x40       // XA-ADPCM playback on
-#define CdlModeSpeed 0x80    // double speed
-#define CdlModeStream 0x100  // normal streaming
+#define CdlModeDA      0x01  // CD-DA playback on
+#define CdlModeAP      0x02  // autopause
+#define CdlModeRept    0x04  // report mode
+#define CdlModeSF      0x08  // subheader filter
+#define CdlModeSize0   0x10  // sector size 2328 bytes
+#define CdlModeSize1   0x20  // sector size 2340 bytes
+#define CdlModeRT      0x40  // XA-ADPCM playback on
+#define CdlModeSpeed   0x80  // double speed
+#define CdlModeStream  0x100 // normal streaming
 #define CdlModeStream2 0x120 // streaming, subheader information included
 
 // CdSyncCallback / CdReadyCallback status codes.
 #define CdlDataReady 1
-#define CdlComplete 2
+#define CdlComplete  2
 
 // CD position (minute, second, sector, track), BCD.
 typedef struct

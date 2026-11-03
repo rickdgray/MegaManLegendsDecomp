@@ -1,0 +1,194 @@
+name: ROCK_NEO.EXE
+sha1: ffc08fd2b6113e84dc0e75ba63a4feaca0eb1d46
+
+options:
+  basename: rock_neo.exe
+  target_path: disc/extracted/ROCK_NEO.EXE
+  elf_path: build/rock_neo.exe/rock_neo.exe.elf
+  base_path: .
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/rock_neo.exe
+  src_path: src/rock_neo.exe
+  build_path: build/rock_neo.exe
+
+  ld_script_path: build/rock_neo.exe/rock_neo.exe.ld
+
+  ld_align_section_vram_end: False
+  ld_align_segment_vram_end: False
+
+  ld_bss_is_noload: True
+
+  find_file_boundaries: False
+
+  gp_value: 0x80097864
+  ld_gp_expression: 0x80097864
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+
+  section_order: [".rodata", ".text", ".data", ".sdata", ".bss"]
+
+  symbol_addrs_path:
+  - symbol_addrs_rock_neo.exe.txt
+
+  subalign: 2
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  include_asm_macro_style: maspsx_hack
+
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  - name: main
+    type: code
+    start: 0x800
+    vram: 0x80010000
+    bss_size: 0x2D530
+    subsegments:
+      # .rodata: Capcom's first, then the library
+      - [0x800, rodata, 800]
+      - [0x1CB8, rodata, psyq/SPU]
+      - [0x1D00, rodata, psyq/S_GKS]
+      - [0x1D3C, rodata, psyq/SSOPENP]
+      - [0x1D60, rodata, psyq/SEPINIT]
+      - [0x1D78, rodata, psyq/SSOPENQ]
+      - [0x1D9C, rodata, psyq/SEQINIT]
+      - [0x1DD8, rodata, psyq/S_SCA]
+      - [0x1E18, rodata, psyq/SSTICK]
+      - [0x1E30, rodata, psyq/VSYNC]
+      - [0x1E74, rodata, psyq/INTR]
+      - [0x1EAC, rodata, psyq/INTR_DMA]
+      - [0x1ED8, rodata, psyq/EVENT]
+      - [0x202C, rodata, psyq/BIOS]
+      - [0x2148, rodata, psyq/CDREAD]
+      - [0x218C, rodata, psyq/PRIM]
+      - [0x2290, rodata, psyq/SYS_2]
+
+      # .text
+      - [0x2490, asm, 2490]           # Capcom code, from main (0x80011C90)
+      - [0x587F8, asm, psyq/2MBYTE]   # __main, start, stup1, stup0 (0xC4 bytes, as in the shim)
+      - [0x588BC, asm, 588BC]         # more Capcom code (0x800680BC-0x80069037)
+      - [0x59838, asm, psyq/ADDDF3]
+      - [0x59BB8, asm, psyq/ADDMANT]
+      - [0x59C68, asm, psyq/DBSHIFT]
+      - [0x59D30, asm, psyq/FIXDFSI]
+      - [0x59E30, asm, psyq/FLTSIDF]
+      - [0x59F34, asm, psyq/DBSHIFTU]
+      - [0x5A070, asm, psyq/SUBDF3]
+      - [0x5A0F4, asm, psyq/NEGDF2]
+      - [0x5A12C, asm, psyq/FERR]
+      - [0x5A194, asm, psyq/S_SE]
+      - [0x5A1F8, asm, psyq/S_INI]
+      - [0x5A36C, asm, psyq/SPU]
+      - [0x5AF24, asm, psyq/S_SK]
+      - [0x5B120, asm, psyq/S_GKS]
+      - [0x5B7F4, asm, psyq/S_N2P]
+      - [0x5BAE8, asm, psyq/SSCLOSE]
+      - [0x5BCAC, asm, psyq/SSINIT]
+      - [0x5BE64, asm, psyq/SSOPENP]
+      - [0x5C258, asm, psyq/CC_6]
+      - [0x5C900, asm, psyq/CC_64]
+      - [0x5CA30, asm, psyq/CC_98]
+      - [0x5CB60, asm, psyq/CC_99]
+      - [0x5CEC0, asm, psyq/DE_1]
+      - [0x5D150, asm, psyq/CCADSR]
+      - [0x5D72C, asm, psyq/DE_12]
+      - [0x5DAB0, asm, psyq/MIDICC]
+      - [0x5DCE8, asm, psyq/MIDIMETA]
+      - [0x5DFFC, asm, psyq/MIDITIME]
+      - [0x5E0AC, asm, psyq/SEPINIT]
+      - [0x5E494, asm, psyq/SSOPENQ]
+      - [0x5E7B4, asm, psyq/SEQINIT]
+      - [0x5EC8C, asm, psyq/SSSATTR]
+      - [0x5ED20, asm, psyq/S_SCA]
+      - [0x5F18C, asm, psyq/S_SRD]
+      - [0x5F204, asm, psyq/SSSTART]
+      - [0x5F53C, asm, psyq/SSCALL]
+      - [0x60968, asm, psyq/SSSV]
+      - [0x60A64, asm, psyq/SSTABLE]
+      - [0x60C3C, asm, psyq/SSTICK]
+      - [0x60F54, asm, psyq/TEMPO]
+      - [0x61294, asm, psyq/UT_GPA]
+      - [0x6139C, asm, psyq/UT_GVA]
+      - [0x615D8, asm, psyq/UT_GVAD]
+      - [0x61AD8, asm, psyq/S_SRMP]
+      - [0x61FD0, asm, psyq/S_M_UTIL]
+      - [0x620DC, asm, psyq/S_SRA]
+      - [0x625AC, asm, psyq/S_CRWA]
+      - [0x627E0, asm, psyq/UT_REV]
+      - [0x62894, asm, psyq/S_SR]
+      - [0x629E4, asm, psyq/UT_SVA]
+      - [0x63868, asm, psyq/S_M_INIT]
+      - [0x64384, asm, psyq/VM_N2P]
+      - [0x64A20, asm, psyq/S_SNC]
+      - [0x65354, asm, psyq/VM_PROG]
+      - [0x65BB0, asm, psyq/VM_STAV]
+      - [0x661E0, asm, psyq/VM_VSU]
+      - [0x662C8, asm, psyq/VS_SRV]
+      - [0x662F8, asm, psyq/VS_VAB]
+      - [0x6637C, asm, psyq/S_M_F]
+      - [0x663F8, asm, psyq/S_M_INT]
+      - [0x66700, asm, psyq/VS_VH]
+      - [0x66B6C, asm, psyq/S_M_M]
+      - [0x66E34, asm, psyq/VS_VTBP]
+      - [0x66F94, asm, psyq/S_STSA]
+      - [0x66FEC, asm, psyq/S_STM]
+      - [0x67020, asm, psyq/S_WP]
+      - [0x670D4, asm, psyq/S_ITC]
+      - [0x6717C, asm, psyq/OPEN]
+      - [0x671AC, asm, psyq/READ]
+      - [0x6726C, asm, psyq/SNREAD]
+      - [0x67284, asm, psyq/VSYNC]
+      - [0x67468, asm, psyq/INTR]
+      - [0x67B78, asm, psyq/INTR_VB]
+      - [0x67CA0, asm, psyq/INTR_DMA]
+      - [0x67F70, asm, psyq/EVENT]
+      - [0x68080, asm, psyq/SYS]
+      - [0x6880C, asm, psyq/BIOS]
+      - [0x69FE4, asm, psyq/CDREAD]
+      - [0x6A860, asm, psyq/GEO_00]
+      - [0x6A92C, asm, psyq/GEO_01]
+      - [0x6A9CC, asm, psyq/FOG_01]
+      - [0x6AA30, asm, psyq/COR_02]
+      - [0x6AAF4, asm, psyq/COR_01]
+      - [0x6AC14, asm, psyq/COR_06]
+      - [0x6ACE8, asm, psyq/MSC00]
+      - [0x6AD78, asm, psyq/MSC01]
+      - [0x6AE08, asm, psyq/MSC02]
+      - [0x6B1B8, asm, psyq/MTX_004]
+      - [0x6BDA8, asm, psyq/FGO_01]
+      - [0x6C038, asm, psyq/FGO_02]
+      - [0x6C2C8, asm, psyq/FGO_04]
+      - [0x6C468, asm, psyq/FGO_05]
+      - [0x6C608, asm, psyq/FGO_06]
+      - [0x6C7A8, asm, psyq/RATAN]
+      - [0x6C928, asm, psyq/PATCHGTE]
+      - [0x6C9C8, asm, psyq/EXT]
+      - [0x6CC78, asm, psyq/PRIM]
+      - [0x6D36C, asm, psyq/SYS_2]
+      - [0x70820, asm, psyq/COUNTER]
+      - [0x70998, asm, psyq/PAD]
+      - [0x70D18, asm, psyq/PATCH]
+      - [0x70DA8, asm, psyq/SENDPAD]
+      - [0x70E68, asm, psyq/CHCLRPAD]
+
+      # .data, .sdata, then BSS (zeros in the file; NOLOAD, so the image zero-fills it)
+      - [0x70EC4, data, 70EC4]        # starts 4 bytes before the timestamp string
+      - [0x80064, sdata, 80064]       # gp - 0x8000 = 0x8008F864
+      - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }
+
+  # Zeros after the BSS, plus one 0x04 at 0x800D8800 (the SHL overlay's load address).
+  - name: tail
+    type: bin
+    start: 0xB5E88
+    vram: 0x800C5688
+
+  - [0xC9800]

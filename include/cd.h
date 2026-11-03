@@ -9,10 +9,10 @@
 #define CD_FILE_COUNT 248
 
 // Cd_error_flags bits
-#define CD_ERR_READY 0x04   // error reported to the ready callback
-#define CD_ERR_SYNC 0x08    // error reported to the sync callback
+#define CD_ERR_READY   0x04 // error reported to the ready callback
+#define CD_ERR_SYNC    0x08 // error reported to the sync callback
 #define CD_ERR_TIMEOUT 0x10 // timed out
-#define CD_VOL_MAX 0x7F
+#define CD_VOL_MAX     0x7F
 
 typedef struct
 {

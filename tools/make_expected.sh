@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Snapshot a MATCHING build as the reference for per-function diffs (asm-differ -o).
-# Refuses to run unless build/SLUS_006.03 is byte-identical to the original.
+# Snapshot a MATCHING build of one target as the reference for per-function diffs
+# (asm-differ -o). Refuses to run unless the built binary is byte-identical to the original.
+# asm-differ looks for the reference object at expected/<target>/<object path>, so the
+# snapshot keeps the build's own path: expected/<target>/build/<target>/...
+# Usage: tools/make_expected.sh <target>
 set -euo pipefail
-cd "$(dirname "$0")/.."
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
-TARGET=disc/extracted/SLUS_006.03
-BUILT=build/SLUS_006.03
-
-if ! cmp -s "$TARGET" "$BUILT"; then
-    echo "Refusing: $BUILT does not match $TARGET. Run tools/build.sh and fix it first." >&2
+if ! cmp -s "$ORIGINAL" "$BINARY"; then
+    echo "Refusing: $BINARY does not match $ORIGINAL. Run tools/build.sh $TARGET and fix it first." >&2
     exit 1
 fi
 
-rm -rf expected
-mkdir -p expected
-cp -r build expected/build
-echo "expected/ refreshed from a matching build."
+rm -rf "$EXPECTED_DIR"
+mkdir -p "$EXPECTED_DIR/build"
+cp -r "$BUILD_DIR" "$EXPECTED_DIR/$BUILD_DIR"
+echo "$EXPECTED_DIR/ refreshed from a matching build."

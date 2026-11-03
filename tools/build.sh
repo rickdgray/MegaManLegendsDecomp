@@ -1,68 +1,66 @@
 #!/usr/bin/env bash
-# Practice build: rebuild SLUS_006.03 from splat's split assembly and compare hashes.
-# Run from the repo root (WSL), after: python -m splat split slus_006.03.yaml
+# Rebuild one target from splat's output and C sources, and compare it with the original.
+# Run tools/split.sh <target> first: the object list comes from splat's linker script.
+# Usage: tools/build.sh <target>
 set -euo pipefail
-
-NAME=slus_006.03
-TARGET=disc/extracted/SLUS_006.03
-OBJ_DIR=build          # must match the .o paths in $NAME.ld
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
 AS="mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -G0 -Iinclude"
 LD="mips-linux-gnu-ld -EL"
 OBJCOPY="mips-linux-gnu-objcopy"
 
-# 1. Assemble every .s file splat produced (code, data, header).
-#    Per-function files under asm/nonmatchings/ are pulled into C objects by INCLUDE_ASM.
-find asm -name '*.s' -not -path 'asm/nonmatchings/*' | while read -r src; do
-    obj="$OBJ_DIR/${src%.s}.o"     # asm/foo.s -> build/asm/foo.o (matches $NAME.ld)
+if [[ ! -f "$LD_SCRIPT" ]]; then
+    echo "$LD_SCRIPT not found. Run tools/split.sh $TARGET first." >&2
+    exit 1
+fi
+
+# 1. Build every object the linker script names, from whichever source it comes from:
+#    $BUILD_DIR/<path>.o  <-  <path>.s (asm), <path>.c (C) or <path>.bin (binary blob).
+#    Per-function files under nonmatchings/ are pulled into C objects by INCLUDE_ASM.
+grep -o "$BUILD_DIR/[^ )]*\.o" "$LD_SCRIPT" | sort -u | while read -r obj; do
+    base=${obj#"$BUILD_DIR/"}
+    base=${base%.o}
     mkdir -p "$(dirname "$obj")"
-    $AS -o "$obj" "$src"
+    if [[ -f "$base.s" ]]; then
+        $AS -o "$obj" "$base.s"
+    elif [[ -f "$base.c" ]]; then
+        tools/cc.sh "$TARGET" "$base.c" "$obj"
+    elif [[ -f "$base.bin" ]]; then
+        # The bytes land in a .data section, which is what the linker script pulls in.
+        $OBJCOPY -I binary -O elf32-tradlittlemips -B mips "$base.bin" "$obj"
+    else
+        echo "$obj: no source ($base.s, .c or .bin)" >&2
+        exit 1
+    fi
 done
 
-# 1a. Compile every C file with the matching toolchain (tools/cc.sh).
-if [[ -d src ]]; then
-    find src -name '*.c' | while read -r csrc; do
-        tools/cc.sh "$csrc" "$OBJ_DIR/${csrc%.c}.o"   # src/main.c -> build/src/main.o
-    done
-fi
-
-# 1b. Wrap every binary blob splat extracted (bin segments) into an object file.
-#     The bytes land in a .data section, which is what the linker script pulls in.
-if [[ -d assets ]]; then
-    find assets -name '*.bin' | while read -r bin; do
-        obj="$OBJ_DIR/${bin%.bin}.o"     # assets/foo.bin -> build/assets/foo.o
-        mkdir -p "$(dirname "$obj")"
-        $OBJCOPY -I binary -O elf32-tradlittlemips -B mips "$bin" "$obj"
-    done
-fi
-
 # 2. Link with splat's linker script (plus its auto-generated symbol files, if present).
+#    splat writes those to the repo root (the yaml doesn't set undefined_*_auto_path).
 LD_SCRIPTS=()
 for f in undefined_syms_auto.txt undefined_funcs_auto.txt; do
     [[ -f "$f" ]] && LD_SCRIPTS+=(-T "$f")
 done
 
 # Symbols marked absolute:True (hardware registers, scratchpad) aren't defined by any
-# object file. symbol_addrs lines ("name = 0xADDR; // ...") are valid linker-script
+# object file. Registry lines ("name = 0xADDR; // ...") are valid linker-script
 # assignments once the comment is stripped, so define them that way.
-mkdir -p "$OBJ_DIR"
-grep 'absolute:True' symbol_addrs.txt | sed 's|//.*||' > "$OBJ_DIR/absolute_syms.ld" || true
-LD_SCRIPTS+=(-T "$OBJ_DIR/absolute_syms.ld")
-$LD "${LD_SCRIPTS[@]}" -T "$NAME.ld" -Map "$OBJ_DIR/$NAME.map" -o "$OBJ_DIR/$NAME.elf"
+grep 'absolute:True' "$REGISTRY" | sed 's|//.*||' > "$BUILD_DIR/absolute_syms.ld" || true
+LD_SCRIPTS+=(-T "$BUILD_DIR/absolute_syms.ld")
+$LD "${LD_SCRIPTS[@]}" -T "$LD_SCRIPT" -Map "$MAP" -o "$ELF"
 
 # 3. Convert the ELF to a raw binary.
-$OBJCOPY -O binary "$OBJ_DIR/$NAME.elf" "$OBJ_DIR/SLUS_006.03"
+$OBJCOPY -O binary "$ELF" "$BINARY"
 
 # PS-X EXE files are padded with zeros to a multiple of 2048 bytes (one CD sector).
 # BSS occupies no file space, so the binary ends at the last data byte; pad it back out.
-truncate -s %2048 "$OBJ_DIR/SLUS_006.03"
+truncate -s %2048 "$BINARY"
 
 # 4. Compare.
-sha1sum "$TARGET" "$OBJ_DIR/SLUS_006.03"
-if cmp -s "$TARGET" "$OBJ_DIR/SLUS_006.03"; then
+sha1sum "$ORIGINAL" "$BINARY"
+if cmp -s "$ORIGINAL" "$BINARY"; then
     echo "MATCH"
 else
     echo "MISMATCH"
-    cmp "$TARGET" "$OBJ_DIR/SLUS_006.03" | head -n 1 || true
-    ls -l "$TARGET" "$OBJ_DIR/SLUS_006.03"
+    cmp "$ORIGINAL" "$BINARY" | head -n 1 || true
+    ls -l "$ORIGINAL" "$BINARY"
 fi

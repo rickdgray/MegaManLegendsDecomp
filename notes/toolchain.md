@@ -60,10 +60,11 @@ Settings that took debugging, in `slus_006.03.yaml`:
   aligned properly file-wise" by moving that object's rodata start to the 8-byte boundary right
   after the previous object's last referenced item.
 
-## Symbol registry (`symbol_addrs.txt`)
+## Symbol registry (`symbol_addrs_<target>.txt`)
 
-- The repo is the source of truth for names; `symbol_addrs.txt` is hand-maintained (no comments,
-  just splat attributes). Renaming touches the registry, `src/`, and `include/`; then re-split.
+- The repo is the source of truth for names; each target's `symbol_addrs_<target>.txt` is
+  hand-maintained (no comments, just splat attributes). Renaming touches the registry,
+  `src/<target>/`, and `include/`; then re-split.
 - Names that exist only in C or headers don't exist for the assembly. **PsyQ functions called
   from C need registry entries too** (e.g. `SsQuit`).
 - Addresses below `0x80000000` (scratchpad, hardware registers) take `absolute:True`; `build.sh`
@@ -73,26 +74,37 @@ Settings that took debugging, in `slus_006.03.yaml`:
 
 ## Tools
 
+Every script takes the target as its first argument (`<t>`: `slus_006.03` or `rock_neo.exe`).
+`tools/target.sh` derives the paths from it: `<t>.yaml`, `symbol_addrs_<t>.txt`, `src/<t>/`,
+`asm/<t>/`, `build/<t>/` (linker script, ELF, map, objects), `expected/<t>/`, and the final binary
+`build/<t>/<T>`, named like the disc file (`build/slus_006.03/SLUS_006.03`). Exceptions:
+`fetch_tools.sh` and the PowerShell scripts aren't per-target. splat still writes
+`undefined_*_auto.txt` to the repo root and `bin` segments to `assets/`, since the yamls don't
+set those paths.
+
 | Script | Does |
 |---|---|
-| `tools/split.sh` | Clears `asm/` and re-runs splat |
-| `tools/build.sh` | Builds and compares SHA-1. **The authority on matching** |
-| `tools/make_expected.sh` | Snapshots a matching `build/` into `expected/`; refuses otherwise |
-| `tools/rebuild.sh` | Split + build + refresh `expected/`; use after renames and yaml changes |
-| `tools/diff.sh <Func>` | asm-differ against `expected/`, cut at the function's end |
-| `tools/objdump.sh <Func\|file.o>` | Real-instruction disassembly with relocations |
-| `tools/m2c.sh <Func>` | m2c draft with all headers as context (`--target mipsel-gcc-c`) |
-| `tools/cc.sh <in.c> <out.o>` | Compile one file with the matching toolchain |
-| `tools/permuter_prep.py <Func>` | Builds `permuter/<Func>/` from a parked `NON_MATCHING` block |
+| `tools/split.sh <t>` | Clears `asm/<t>/` and re-runs splat |
+| `tools/build.sh <t>` | Builds the objects the linker script names and compares SHA-1. **The authority on matching** |
+| `tools/make_expected.sh <t>` | Snapshots a matching `build/<t>/` into `expected/<t>/build/<t>/`; refuses otherwise |
+| `tools/rebuild.sh <t>` | Split + build + refresh `expected/<t>/`; use after renames and yaml changes |
+| `tools/diff.sh <t> <Func>` | asm-differ against `expected/<t>/`, cut at the function's end |
+| `tools/objdump.sh <t> <Func\|file.o>` | Real-instruction disassembly with relocations |
+| `tools/m2c.sh <t> <Func>` | m2c draft with all headers as context (`--target mipsel-gcc-c`) |
+| `tools/cc.sh <t> <in.c> <out.o>` | Compile one file with the target's matching toolchain (`rock_neo.exe`: not settled, refuses) |
+| `tools/format.sh <t>` | clang-format on `src/<t>/` and `include/` |
+| `tools/rename.py <t> OLD NEW` / `<t> -f FILE` | Renames in `symbol_addrs_<t>.txt`, `src/<t>/`, `include/`, `notes/` |
+| `tools/permuter_prep.py <t> <Func>` | Builds `permuter/<t>/<Func>/` from a parked `NON_MATCHING` block |
 
-Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<Func> -j N`. Its
-output is preprocessed C; port the *change* into `main.c`, don't paste it. Apply partial
+Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<t>/<Func> -j N`.
+Its output is preprocessed C; port the *change* into `src/<t>/main.c`, don't paste it. Apply partial
 improvements to the draft and re-run `permuter_prep.py` to continue from the better base.
 
 ## Gotchas
 
 - **asm-differ** imports its bundled example `diff_settings.py` (from the script's own folder)
-  ahead of ours; `fetch_tools.sh` deletes it. In `-o` mode it won't take an end address, hence
+  ahead of ours; `fetch_tools.sh` deletes it. Ours reads the target's paths from `DIFF_*`
+  environment variables that `diff.sh` exports, so run asm-differ through `diff.sh`. In `-o` mode it won't take an end address, hence
   `diff.sh`'s cut-off. It shows pseudo-instructions (`li`), which can hide `ori`/`addiu`
   differences; confirm with `build.sh`.
 - **decomp.me's** Compilation tab normalizes pseudo-instructions too; its objdiff tab is byte-level.
@@ -113,7 +125,7 @@ improvements to the draft and re-run `permuter_prep.py` to continue from the bet
   proxy for one cost decision, not Capcom's setting, and not evidence of a separately compiled
   module. It doesn't affect `Movie_frame_upload`, `Cmd_dequeue`, or `Intro_init`.
   Method: build the same source with and without the flag, and compare per-function instruction
-  words in the two objects (pass flags as `CC1_EXTRA=... ./tools/build.sh`, never a bare shell
+  words in the two objects (pass flags as `CC1_EXTRA=... ./tools/build.sh slus_006.03`, never a bare shell
   variable).
 - **Compiler versions (decomp.me, `Movie_start`):** gcc 2.6.0 through 2.7.2.3 give identical output
   (all with the `s0` difference); 2.5.7 is worse, with a different allocation order; 2.8.x and

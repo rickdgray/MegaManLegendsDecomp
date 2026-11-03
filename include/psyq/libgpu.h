@@ -64,14 +64,14 @@ typedef struct
 
 // Ordering-table linking. Suspected to match PsyQ's macros; confirm when a
 // function using addPrim matches.
-#define getaddr(p) (u_long)(((P_TAG *)(p))->addr)
+#define getaddr(p)        (u_long)(((P_TAG *)(p))->addr)
 #define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
-#define addPrim(ot, p) setaddr(p, getaddr(ot)), setaddr(ot, p)
+#define addPrim(ot, p)    setaddr(p, getaddr(ot)), setaddr(ot, p)
 
 // Primitive header setters. Same effect as PsyQ's macros, written from the layouts above.
-#define setlen(p, _len) (((P_TAG *)(p))->len = (u_long)(_len))
+#define setlen(p, _len)   (((P_TAG *)(p))->len = (u_long)(_len))
 #define setcode(p, _code) (((P_TAG *)(p))->code = (u_char)(_code))
-#define setSprt(p) (setlen(p, 4), setcode(p, 0x64))
+#define setSprt(p)        (setlen(p, 4), setcode(p, 0x64))
 
 // Texture page: which 64x256 block of VRAM to texture from, and how.
 //   tp:  color depth (0 = 4-bit, 1 = 8-bit, 2 = 16-bit)

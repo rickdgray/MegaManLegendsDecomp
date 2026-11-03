@@ -3,15 +3,19 @@
 # asm-differ's -o mode doesn't accept an end address, so this cuts its output off at the
 # function's real end (start + size, from the object's symbol table).
 # The header's score still covers everything asm-differ diffed; trust the flagged lines.
-# Usage: tools/diff.sh FunctionName [--whole] [extra asm-differ flags]
+# Usage: tools/diff.sh <target> FunctionName [--whole] [extra asm-differ flags]
 set -euo pipefail
-cd "$(dirname "$0")/.."
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
 if [[ $# -lt 1 ]]; then
-    echo "usage: $0 FunctionName [--whole] [diff.py flags]" >&2
+    echo "usage: $0 <target> FunctionName [--whole] [diff.py flags]" >&2
     exit 2
 fi
 fn=$1; shift
+
+# diff_settings.py (read by asm-differ) takes the target's paths from these.
+export DIFF_MAP=$MAP DIFF_ORIGINAL=$ORIGINAL DIFF_BINARY=$BINARY \
+    DIFF_EXPECTED=$EXPECTED_DIR/ DIFF_SRC=$SRC_DIR
 
 whole=0
 if [[ "${1:-}" == "--whole" ]]; then whole=1; shift; fi
@@ -22,10 +26,10 @@ while read -r obj; do
     # Read all input (no early exit): exiting would SIGPIPE objdump, and pipefail would kill us.
     line=$(mips-linux-gnu-objdump -t "$obj" | awk -v f="$fn" '!hit && $NF == f && $3 == "F" { print $1, $5; hit = 1 }')
     if [[ -n "$line" ]]; then found=$line; break; fi
-done < <(find build -name '*.o')
+done < <(find "$BUILD_DIR" -name '*.o')
 
 if [[ -z "$found" ]]; then
-    echo "$fn: no function symbol in build/ (run tools/build.sh, check the name)" >&2
+    echo "$fn: no function symbol in $BUILD_DIR/ (run tools/build.sh $TARGET, check the name)" >&2
     exit 1
 fi
 

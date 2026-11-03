@@ -6,8 +6,8 @@
 
 #include "common.h"
 
-#define CMD_QUEUE_LEN 16
-#define CMD_END 0
+#define CMD_QUEUE_LEN  16
+#define CMD_END        0
 #define CMD_PLAY_MOVIE 5
 
 // Arguments are copied as one 12-byte block; possibly a union per command type. Only the

@@ -10,8 +10,8 @@ files**: `grep -rn -i "<name>\|<address>" notes/`. Addresses never change, so se
 
 ## The one rule
 
-`./tools/build.sh` must print **MATCH**. Never report a task as done while it prints MISMATCH.
-The build's SHA-1 check is the only authority on whether something matches.
+`./tools/build.sh slus_006.03` must print **MATCH**. Never report a task as done while it prints
+MISMATCH. The build's SHA-1 check is the only authority on whether something matches.
 
 ## Principles
 
@@ -53,18 +53,32 @@ WSL Ubuntu, from the repo root, with the Python venv at `.venv/`. Third-party to
 
 ## Commands
 
+Every script takes the **target** as its first argument: `slus_006.03` (the shim, the current
+target) or `rock_neo.exe` (not split or built yet). Paths derive from it (see `tools/target.sh`):
+
+| Target `<t>` | Path |
+|---|---|
+| splat config | `<t>.yaml` |
+| symbol registry | `symbol_addrs_<t>.txt` |
+| C sources | `src/<t>/` |
+| assembly | `asm/<t>/` |
+| build output, linker script, map | `build/<t>/` |
+| final binary (keeps the disc file's name) | `build/<t>/<T>`, e.g. `build/slus_006.03/SLUS_006.03` |
+| diff reference | `expected/<t>/` |
+
 | Command | What it does |
 |---|---|
-| `./tools/split.sh` | Regenerate `asm/` and the linker script from `slus_006.03.yaml` (clears `asm/` first). |
-| `./tools/build.sh` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH. |
-| `./tools/diff.sh <Func>` | Per-function diff against `expected/`. Flagged lines are what still differs. |
-| `./tools/m2c.sh <Func>` | Draft C for a function with m2c, using all headers as context. |
-| `./tools/objdump.sh <Func>` | Real-instruction disassembly (no pseudo-ops) of a function in `build/`. |
-| `./tools/make_expected.sh` | Refresh `expected/` from a MATCHING build. Refuses otherwise. |
-| `./tools/rebuild.sh` | Split, build, and refresh `expected/` in one step. Use after any rename or yaml change. |
-| `./tools/cc.sh <in.c> <out.o>` | Compile one C file with the matching toolchain. |
+| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `<t>.yaml` (clears `asm/<t>/` first). |
+| `./tools/build.sh <t>` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH. |
+| `./tools/diff.sh <t> <Func>` | Per-function diff against `expected/<t>/`. Flagged lines are what still differs. |
+| `./tools/m2c.sh <t> <Func>` | Draft C for a function with m2c, using all headers as context. |
+| `./tools/objdump.sh <t> <Func>` | Real-instruction disassembly (no pseudo-ops) of a function in `build/<t>/`. |
+| `./tools/make_expected.sh <t>` | Refresh `expected/<t>/` from a MATCHING build. Refuses otherwise. |
+| `./tools/rebuild.sh <t>` | Split, build, and refresh `expected/<t>/` in one step. Use after any rename or yaml change. |
+| `./tools/cc.sh <t> <in.c> <out.o>` | Compile one C file with the target's matching toolchain. |
+| `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/`. |
 
-**After any rename or re-split, refresh `expected/`** (`./tools/rebuild.sh`). Otherwise the
+**After any rename or re-split, refresh `expected/`** (`./tools/rebuild.sh <t>`). Otherwise the
 snapshot still has the old names, and `diff.sh` shows an empty target column.
 
 `diff.sh` notes: the score in the header is approximate (it covers more than the function), so
@@ -73,14 +87,18 @@ differences such as `addiu` vs `ori`. When the diff is clean, confirm with `buil
 
 ## Workflow: decompiling one function
 
-1. Pick a function still written as `INCLUDE_ASM("asm/nonmatchings/main", Func);` in `src/main.c`.
-2. Read its assembly in `asm/nonmatchings/main/Func.s` and search `notes/` for it.
-3. Run `./tools/m2c.sh Func` for a draft. Treat the draft as a starting point, never as an answer:
-   m2c often gets pointer arithmetic in bytes rather than elements, emits `unkXX` fields where a
-   struct is incomplete, and writes `if` + `do/while` where the source was a plain `while`.
+Shown for the shim (`slus_006.03`); for another target, substitute its name.
+
+1. Pick a function still written as `INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Func);` in
+   `src/slus_006.03/main.c`.
+2. Read its assembly in `asm/slus_006.03/nonmatchings/main/Func.s` and search `notes/` for it.
+3. Run `./tools/m2c.sh slus_006.03 Func` for a draft. Treat the draft as a starting point, never
+   as an answer: m2c often gets pointer arithmetic in bytes rather than elements, emits `unkXX`
+   fields where a struct is incomplete, and writes `if` + `do/while` where the source was a plain
+   `while`.
 4. Replace the `INCLUDE_ASM` line with the C, **in place** (function order in the file matters).
-5. `./tools/build.sh`, then `./tools/diff.sh Func`. Iterate on the C until the diff is clean
-   and the build prints MATCH.
+5. `./tools/build.sh slus_006.03`, then `./tools/diff.sh slus_006.03 Func`. Iterate on the C until
+   the diff is clean and the build prints MATCH.
 6. If types were needed, add them to the right header in `include/` (see below), not to `main.c`.
 
 ### Reading a diff
@@ -103,7 +121,7 @@ void Func(void) {
     /* best attempt */
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Func);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Func);
 #endif
 ```
 
@@ -229,8 +247,9 @@ check offsets against the binary.
 
 ## Names
 
-The repo is the source of truth for names. `symbol_addrs.txt` is the hand-maintained registry
-that splat uses when generating assembly.
+The repo is the source of truth for names. Each target's `symbol_addrs_<t>.txt` (e.g.
+`symbol_addrs_slus_006.03.txt`) is the hand-maintained registry that splat uses when generating
+assembly.
 
 **Only the owner renames.** Don't apply names yourself. Write each proposal to `renames.txt` in
 the repo root (create it if needed), one per line, in the format `tools/rename.py` reads:
@@ -242,8 +261,9 @@ D_8001D3DC     Movie_tbl      size:0x24            # MOVIE_INFO[3]
 ```
 
 Give `size:` for data when you know it. The owner edits the file and runs
-`tools/rename.py -f renames.txt`, which updates `symbol_addrs.txt`, `src/`, `include/` and `notes/`
-together (it adds `type:func` and `absolute:True` where needed), then `./tools/rebuild.sh`.
+`tools/rename.py <t> -f renames.txt`, which updates `symbol_addrs_<t>.txt`, `src/<t>/`, `include/`
+and `notes/` together (it adds `type:func` and `absolute:True` where needed), then
+`./tools/rebuild.sh <t>`.
 In your report, just say how many proposals you added to `renames.txt`.
 
 Conventions (Capcom's own, from their source):
@@ -267,11 +287,11 @@ splat default (`func_800110E4`, `D_80059C20`) until their purpose is clear; prop
 ## Do not
 
 - Edit anything under `asm/`, `assets/`, `build/`, or `expected/`, or the generated
-  `slus_006.03.ld` / `undefined_*_auto.txt`. They are regenerated and edits are lost.
-- Change `slus_006.03.yaml`, toolchain flags, or `tools/` scripts without asking first.
+  `build/<t>/<t>.ld` / `undefined_*_auto.txt`. They are regenerated and edits are lost.
+- Change a `<t>.yaml`, toolchain flags, or `tools/` scripts without asking first.
 - Refresh `expected/` from a build that doesn't match.
 - Upload game code anywhere (e.g. decomp.me) without asking.
-- Decompile PsyQ library code (`asm/psyq/`). It is linked as-is.
+- Decompile PsyQ library code (`asm/<t>/psyq/`). It is linked as-is.
 
 ## When you finish a task
 
@@ -280,7 +300,7 @@ Leave everything uncommitted. Keep the report short; the owner reads the diff it
 ```
 Banked: IsBusy, RunIntroSequence
 Parked: DequeueCommand (loop pointer based at p+4, target p+0xc)
-Files:  src/main.c, include/cmd.h, include/screen.h (new)
+Files:  src/slus_006.03/main.c, include/cmd.h, include/screen.h (new)
 Build:  MATCH
 Decisions needed:
 - <only items that need the owner: suspected registry errors, tool bugs, open questions>

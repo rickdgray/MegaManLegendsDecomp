@@ -6,7 +6,7 @@
 
 #define DISP_MODE_320 0
 #define DISP_MODE_640 1
-#define OT_LEN 8
+#define OT_LEN        8
 
 // One of the two double buffers.
 typedef struct

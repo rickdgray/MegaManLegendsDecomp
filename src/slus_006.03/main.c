@@ -438,7 +438,7 @@ void Movie_frame_upload(void)
     }
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Movie_frame_upload);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_frame_upload);
 #endif
 
 void Cmd_exec(void)
@@ -473,7 +473,7 @@ void Cmd_dequeue(void)
     Cmd_write_ptr--;
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Cmd_dequeue);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Cmd_dequeue);
 #endif
 
 void Cd_set_volume(uint8 vol)
@@ -549,7 +549,7 @@ void Movie_start(sint32 file)
     Cd_controlb_retry(CdlReadS, NULL, Cd_result);
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Movie_start);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_start);
 #endif
 
 #ifdef NON_MATCHING
@@ -616,7 +616,7 @@ void Movie_sector_cb(u_char status, u_char *result)
     }
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Movie_sector_cb);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_sector_cb);
 #endif
 
 void Cd_control_retry(u_char com, u_char *param, u_char *result)
@@ -731,7 +731,7 @@ void Intro_init(void)
     }
 }
 #else
-INCLUDE_ASM("asm/nonmatchings/main", Intro_init);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Intro_init);
 #endif
 
 void intro_copyright_draw(uint8 brightness)

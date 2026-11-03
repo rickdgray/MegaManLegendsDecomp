@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """Prepare a decomp-permuter directory for a parked function.
 
-Usage:  tools/permuter_prep.py FunctionName [--src src/main.c]
+Usage:  tools/permuter_prep.py <target> FunctionName [--src src/<target>/main.c]
 
 The function must be parked in the source like this:
 
     #ifdef NON_MATCHING
     <best attempt>
     #else
-    INCLUDE_ASM("asm/nonmatchings/main", FunctionName);
+    INCLUDE_ASM("asm/<target>/nonmatchings/main", FunctionName);
     #endif
 
-Creates permuter/<FunctionName>/ with base.c, target.s, target.o, compile.sh and
+Creates permuter/<target>/<FunctionName>/ with base.c, target.s, target.o, compile.sh and
 settings.toml, then run:
 
-    .venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<FunctionName> -j 8
+    .venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<target>/<FunctionName> -j 8
 """
 
 import argparse
@@ -25,6 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 INCLUDE = ROOT / "include"
+TARGETS = ["slus_006.03", "rock_neo.exe"]
 
 AS = [
     "mips-linux-gnu-as", "-EL", "-march=r3000", "-mtune=r3000",
@@ -43,10 +44,13 @@ ASM_PRELUDE = '.include "macro.inc"\n.set noat\n.set noreorder\n.section .text\n
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("target", choices=TARGETS)
     ap.add_argument("function")
-    ap.add_argument("--src", default="src/main.c", help="C file containing the parked function")
+    ap.add_argument("--src", help="C file containing the parked function (default: src/<target>/main.c)")
     args = ap.parse_args()
     fn = args.function
+    if args.src is None:
+        args.src = f"src/{args.target}/main.c"
 
     src_path = ROOT / args.src
     text = src_path.read_text()
@@ -58,7 +62,7 @@ def main() -> None:
     else:
         sys.exit(f"{fn}: no '#ifdef NON_MATCHING ... INCLUDE_ASM(..., {fn}) ... #endif' block in {args.src}")
 
-    out = ROOT / "permuter" / fn
+    out = ROOT / "permuter" / args.target / fn
     out.mkdir(parents=True, exist_ok=True)
 
     # base.c: the source file's includes plus the draft, fully preprocessed.
@@ -76,7 +80,7 @@ def main() -> None:
     # target.s / target.o: the original assembly, assembled with the build's flags.
     asm_path = ROOT / asm_dir / f"{fn}.s"
     if not asm_path.exists():
-        sys.exit(f"{asm_path} not found (run tools/split.sh?)")
+        sys.exit(f"{asm_path} not found (run tools/split.sh {args.target}?)")
     (out / "target.s").write_text(ASM_PRELUDE + asm_path.read_text())
     subprocess.run(AS + ["-o", str(out / "target.o"), str(out / "target.s")], check=True)
 
@@ -85,7 +89,7 @@ def main() -> None:
     compile_sh.write_text(
         "#!/usr/bin/env bash\n"
         "# Invoked by the permuter as: compile.sh <input.c> -o <output.o>\n"
-        f'exec "{ROOT}/tools/cc.sh" "$1" "$3"\n'
+        f'exec "{ROOT}/tools/cc.sh" {args.target} "$1" "$3"\n'
     )
     compile_sh.chmod(0o755)
 
@@ -101,8 +105,8 @@ def main() -> None:
     if check.returncode != 0:
         sys.exit(f"base.c does not compile:\n{check.stderr}")
 
-    print(f"Ready: permuter/{fn}/")
-    print(f"Run:   .venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/{fn} -j 8")
+    print(f"Ready: permuter/{args.target}/{fn}/")
+    print(f"Run:   .venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/{args.target}/{fn} -j 8")
 
 
 if __name__ == "__main__":

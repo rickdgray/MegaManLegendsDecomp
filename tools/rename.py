@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Rename symbols: updates symbol_addrs.txt, src/, include/ and notes/ in one step.
+"""Rename symbols in one target: updates symbol_addrs_<target>.txt, src/<target>/, include/ and
+notes/ in one step.
 
 Usage:
-    tools/rename.py OLD NEW [attr ...]        one rename, e.g.  func_80011940 Movie_start
-    tools/rename.py -f renames.txt            a batch (one "OLD NEW [attr ...]" per line, # comments)
+    tools/rename.py <target> OLD NEW [attr ...]   one rename, e.g.  slus_006.03 func_80011940 Movie_start
+    tools/rename.py <target> -f renames.txt       a batch (one "OLD NEW [attr ...]" per line, # comments)
     add -n / --dry-run to only show what would change
+
+target: slus_006.03 or rock_neo.exe.
 
 attr: splat attributes for the registry line, e.g. size:0x24 or type:func.
 
@@ -12,7 +15,7 @@ The address comes from the registry line when OLD is already registered, otherwi
 default name (func_XXXXXXXX, D_XXXXXXXX, jtbl_XXXXXXXX). New lines get type:func for func_
 names, and absolute:True for addresses below 0x80000000 (scratchpad, hardware registers).
 
-Afterwards run ./tools/rebuild.sh (split, build, refresh expected/).
+Afterwards run ./tools/rebuild.sh <target> (split, build, refresh expected/).
 """
 
 import argparse
@@ -21,8 +24,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-REGISTRY = ROOT / "symbol_addrs.txt"
-TEXT_GLOBS = ["src/**/*.c", "src/**/*.h", "include/**/*.h", "notes/**/*.md"]
+TARGETS = ["slus_006.03", "rock_neo.exe"]
+REGISTRY = None  # symbol_addrs_<target>.txt, set in main()
 
 LINE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*(?://\s*(.*))?$")
 DEFAULT = re.compile(r"^(func|D|jtbl)_([0-9A-Fa-f]{8})$")
@@ -64,7 +67,7 @@ def rename_registry(lines, entries, old, new, extra):
     """Update or insert the registry line. Returns a description of the change."""
     by_name = {e.name: i for i, e in entries.items()}
     if new in by_name and new != old:
-        sys.exit(f"{new}: already in symbol_addrs.txt (line {by_name[new] + 1})")
+        sys.exit(f"{new}: already in {REGISTRY.name} (line {by_name[new] + 1})")
 
     if old in by_name:
         i = by_name[old]
@@ -76,7 +79,7 @@ def rename_registry(lines, entries, old, new, extra):
 
     m = DEFAULT.match(old)
     if not m:
-        sys.exit(f"{old}: not in symbol_addrs.txt and not a splat default name; add its line by hand")
+        sys.exit(f"{old}: not in {REGISTRY.name} and not a splat default name; add its line by hand")
     addr = int(m.group(2), 16)
 
     for i, e in entries.items():
@@ -110,7 +113,9 @@ def rename_registry(lines, entries, old, new, extra):
 
 
 def main():
+    global REGISTRY
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("target", choices=TARGETS)
     ap.add_argument("old", nargs="?")
     ap.add_argument("new", nargs="?")
     ap.add_argument("attrs", nargs="*")
@@ -136,8 +141,10 @@ def main():
         if not IDENT.match(new):
             sys.exit(f"{new}: not a valid C identifier")
 
+    REGISTRY = ROOT / f"symbol_addrs_{args.target}.txt"
+    text_globs = [f"src/{args.target}/**/*.c", f"src/{args.target}/**/*.h", "include/**/*.h", "notes/**/*.md"]
     lines, entries = load_registry()
-    files = sorted({p for g in TEXT_GLOBS for p in ROOT.glob(g)})
+    files = sorted({p for g in text_globs for p in ROOT.glob(g)})
     texts = {p: p.read_text() for p in files}
 
     for old, new, extra in jobs:
@@ -161,7 +168,7 @@ def main():
     for p in files:
         if texts[p] != p.read_text():
             p.write_text(texts[p])
-    print("\nDone. Next: ./tools/rebuild.sh")
+    print(f"\nDone. Next: ./tools/rebuild.sh {args.target}")
 
 
 if __name__ == "__main__":

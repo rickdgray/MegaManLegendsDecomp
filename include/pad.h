@@ -60,7 +60,7 @@ typedef struct
 #define PAD_RAW(p) (*(uint16 *)(p).raw)
 #define PAD_NOW(p) (*(uint16 *)(p).now)
 #define PAD_OLD(p) (*(uint16 *)(p).old)
-#define PAD_ON(p) (*(uint16 *)(p).on)
+#define PAD_ON(p)  (*(uint16 *)(p).on)
 #define PAD_OFF(p) (*(uint16 *)(p).off)
 
 extern PAD_WORK Joy1; // controller 1

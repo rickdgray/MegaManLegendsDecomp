@@ -18,4 +18,5 @@ AllowShortLoopsOnASingleLine: false
 IndentCaseLabels: true
 AlignTrailingComments: true
 AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveMacros: Consecutive
 ReflowComments: false

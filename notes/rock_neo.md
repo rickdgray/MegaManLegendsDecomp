@@ -11,6 +11,28 @@ Not started. Loaded by the shim with `LoadExec("cdrom:\ROCK_NEO.EXE;1", 0x801fff
   object-split method and PsyQ declarations carry over (see [toolchain.md](toolchain.md)).
 - **Suspected:** the shim's CD command module (`Cmd_*`, `Cd_*`) is shared, with command types 1–4
   implemented here.
+- **Confirmed (header):** load `0x80010000`, `t_size` `0xC9000` (file `0xC9800`, matching the file
+  table), image end `0x800D9000`, entry `0x80068000`, stack `0x801FFFF0` (overridden by the shim's
+  `LoadExec` to `0x801FFF00`). Header data/BSS fields are zero. Ghidra reports PsyQ 4.0.0.
+- **gp** = `0x80097864`. 697 `(gp)` matches in a raw disassembly (noisy; compare with the shim's
+  baseline). Small data would start at gp − 0x8000 = `0x8008F864`, matching ChrisNonyminus's
+  `.sdata` offset, so **suspected `-G8`** (cc1's default; the shim passed `-G0` explicitly).
+- **Confirmed: `-G8`.** Raw `(gp)` count 697 vs the shim's 1 (`-G0`). Small data from
+  gp − 0x8000 = `0x8008F864`.
+- **Build:** timestamp `Aug 16 1998 12:31:28`, 3 min 48 s before the shim's `12:35:16` (same build
+  session). Also `MEGAMAN LEGENDS MASTER VERSION 1998/5/13`.
+- **Startup** (`start`, `0x80068000`, PsyQ `2MBYTE.OBJ`): zeroes `0x80098158`–`0x800C5687`
+  (`0x2D530` bytes: sbss/scommon + bss), then `InitHeap` and `main`. The BSS lies inside the file
+  image (ends `0x800D9000`), followed by `0x13978` bytes of file.
+- **Layout:** rodata + text `0x80010000`–`0x800806C3` (PsyQ from `0x80067FF8`; `start` at
+  `0x80068000`); data from `0x800806C4` (timestamp string at `0x800806C8`, as in the shim); sdata
+  from `0x8008F864`; BSS `0x80098158`–`0x800C5687`, **all zeros in the file**; tail
+  `0x800C5688`–`0x800D8FFF` (heap start), all zeros except one byte.
+- Splat plan: BSS as `NOLOAD` followed by the tail as a `bin` segment, so the raw image zero-fills
+  the gap.
+- The tail's only non-zero byte: `0x04` at `0x800D8800` (file `0xC9000`, the start of the last
+  sector), which is the SHL overlay's load address. Leftover or placeholder; check the SHL
+  overlay's first byte.
 
 ## Prior work: ChrisNonyminus/mml1
 
