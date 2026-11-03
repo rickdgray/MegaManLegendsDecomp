@@ -167,6 +167,12 @@ gcc 2.7.2 is a C89 compiler.
   twice.) Note that Ghidra's pseudocode hides dead stores; the assembly is the truth.
 - **Prefer the natural form when several match.** For example, try `for (i = 0; i < n; i++)`
   before a reversed loop; GCC often reverses loop direction itself.
+- **Hand-written assembly stays assembly.** Some subsegments are Capcom's own assembly, not compiler
+  output; their yaml lines say `HAND-WRITTEN ASSEMBLY`. Never convert them to C, decompile their
+  functions, or park them; they're complete as `asm`. Call them from C with a prototype like any other
+  function. Signs to recognize one: it reads or writes `sp` directly, has no GCC-style prologue, stores
+  `ra` at the bottom of its frame, is unrolled by hand, or uses `break`. If you find another, stop and
+  report it rather than decompiling.
 
 ## Patterns seen in this code
 

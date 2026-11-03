@@ -1,15 +1,11 @@
-# Game data
+# Game data (copies of the disc's files; never commit)
 disc/
 *.bin
 *.cue
 *.iso
-SLUS_*
-ROCK_NEO*
-!slus_006.03.yaml
-!slus_006.03/
-!rock_neo.exe.yaml
-!rock_neo.exe/
-notes/sdk
+/SLUS_006.03
+/ROCK_NEO.EXE
+notes/sdk/
 
 # Ghidra
 *.gpr
