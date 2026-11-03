@@ -21,8 +21,8 @@ fi
 
 # Per-target code-generation flags.
 case "$target" in
-    slus_006.03) GFLAGS="-G0" ;;    # cc1 defaults to -G8; the shim needs -G0
-    rock_neo.exe) GFLAGS="-G8" ;;   # gp-relative small data
+    slus_006.03)  GFLAGS="-G0"; MASPSX_EXTRA="" ;;
+    rock_neo.exe) GFLAGS="-G8"; MASPSX_EXTRA="--dont-force-G0" ;;
     *)
         echo "usage: $0 <target> <in.c> <out.o>   (target: slus_006.03, rock_neo.exe)" >&2
         exit 2
@@ -34,7 +34,7 @@ MASPSX=$ROOT/tools/vendor/maspsx/maspsx.py
 
 CPPFLAGS="-P -undef -nostdinc -I$ROOT/include"
 CC1FLAGS="-quiet -O2 $GFLAGS ${CC1_EXTRA:-}"
-MASPSXFLAGS="--aspsx-version=${ASPSX_VERSION:-2.56} --expand-div"
+MASPSXFLAGS="--aspsx-version=${ASPSX_VERSION:-2.56} --expand-div $MASPSX_EXTRA"
 ASFLAGS="-EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 $GFLAGS -I$ROOT/include"
 
 mkdir -p "$(dirname "$obj")"

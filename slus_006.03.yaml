@@ -30,6 +30,10 @@ options:
   symbol_addrs_path:
     - symbol_addrs_slus_006.03.txt
 
+  undefined_funcs_auto_path: build/slus_006.03/undefined_funcs_auto.txt
+  undefined_syms_auto_path: build/slus_006.03/undefined_syms_auto.txt
+  assets_path: assets/slus_006.03
+
   subalign: 2
 
   string_encoding: ASCII

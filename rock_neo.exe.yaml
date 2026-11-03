@@ -33,6 +33,10 @@ options:
   symbol_addrs_path:
   - symbol_addrs_rock_neo.exe.txt
 
+  undefined_funcs_auto_path: build/rock_neo.exe/undefined_funcs_auto.txt
+  undefined_syms_auto_path: build/rock_neo.exe/undefined_syms_auto.txt
+  assets_path: assets/rock_neo.exe
+
   subalign: 2
 
   string_encoding: ASCII
