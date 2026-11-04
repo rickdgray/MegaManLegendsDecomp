@@ -1,7 +1,6 @@
 #include "common.h"
 #include "system.h"
 #include "display.h"
-#include "cmd.h"
 #include "cd.h"
 #include "movie.h"
 #include "intro.h"
@@ -35,7 +34,7 @@ void main(void)
         Disp_env_ptr = &Disp_env[Dbl_buff_idx];
         ClearOTag(Disp_env_ptr->ot, OT_LEN);
         Intro_task();
-        Cmd_exec();
+        Cd_cmd_exec();
         DrawSync(0);
     }
 }
@@ -210,22 +209,22 @@ void Cd_init(void)
 
     D_80059BD4 = 1;
 
-    for (i = 0; i < CMD_QUEUE_LEN; i++)
+    for (i = 0; i < CD_CMD_QUEUE_LEN; i++)
     {
-        Cmd_queue[i].type = CMD_END;
+        Cd_cmd_queue[i].type = CD_CMD_END;
     }
 
-    Cmd_exec_ptr  = Cmd_queue;
-    Cmd_write_ptr = Cmd_queue;
+    Cd_cmd_exec_ptr  = Cd_cmd_queue;
+    Cd_cmd_write_ptr = Cd_cmd_queue;
 
     Cd_wait       = 0;
     Movie_playing = 0;
     D_80059C24    = 0;
-    Cmd_routine   = 0;
+    Cd_cmd_routine   = 0;
     D_80059BC9    = 0;
 }
 
-void cmd_nop(void)
+void cd_cmd_nop(void)
 {
 }
 
@@ -248,7 +247,7 @@ void Movie_buf_release(void)
     Movie_buf_idx                  = (Movie_buf_idx + 1) & (MOVIE_SLOT_COUNT - 1);
 }
 
-void cmd_play_movie(void)
+void cd_cmd_play_movie(void)
 {
     RECT rect;
     u_long *data;
@@ -258,7 +257,7 @@ void cmd_play_movie(void)
     RECT *r0;
     RECT *r1;
 
-    switch (Cmd_routine)
+    switch (Cd_cmd_routine)
     {
         case 0:
             if (D_80059BD4 == 0)
@@ -273,7 +272,7 @@ void cmd_play_movie(void)
             rect.w = 320;
             rect.h = 480;
 
-            Cmd_routine++;
+            Cd_cmd_routine++;
             ClearImage(&rect, 0, 0, 0);
             DrawSync(0);
 
@@ -301,7 +300,7 @@ void cmd_play_movie(void)
             }
 
             Cd_set_mode(CdlModeSpeed | CdlModeRT | CdlModeSF);
-            Cmd_routine++;
+            Cd_cmd_routine++;
             // fall through
         case 2:
             if (Cd_wait != 0)
@@ -313,12 +312,12 @@ void cmd_play_movie(void)
             Cd_wait = 0xFF;
             DecDCTReset(1);
             timeout = 0;
-            Movie_start(Cmd_exec_ptr->args.arg1);
+            Movie_start(Cd_cmd_exec_ptr->args.arg1);
             D_80059BC9      = 3;
             Movie_playing   = 1;
             Movie_buf_idx   = 0;
             Vsync_wait      = VSYNC_60FPS;
-            Movie_end_frame = Cmd_exec_ptr->args.arg2;
+            Movie_end_frame = Cd_cmd_exec_ptr->args.arg2;
 
             for (i = 0; i < CD_VOL_MAX; i++)
             {
@@ -336,14 +335,14 @@ void cmd_play_movie(void)
                     CdReset(0);
                     // an invalid mode, so the next Cd_set_mode always sends the command
                     Cd_mode     = 0xFF;
-                    Cmd_routine = 0;
+                    Cd_cmd_routine = 0;
                     return;
                 }
             }
 
             DecDCTvlc(data, MOVIE_VLC(Movie_frame_idx));
             Movie_buf_release();
-            Cmd_routine++;
+            Cd_cmd_routine++;
             // fall through
         case 3:
             timeout = 0;
@@ -358,15 +357,15 @@ void cmd_play_movie(void)
                     CdReadyCallback(0);
                     CdReset(0);
                     Cd_mode     = 0xFF;
-                    Cmd_routine = 0;
+                    Cd_cmd_routine = 0;
                     return;
                 }
             }
 
-            if ((Cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame ||
+            if ((Cd_cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame ||
                 (Cd_error_flags | D_80059BA4))
             {
-                Cmd_routine++;
+                Cd_cmd_routine++;
             }
 
             Movie_dct_busy = 1;
@@ -387,11 +386,11 @@ void cmd_play_movie(void)
         case 4:
             DecDCToutCallback(0);
             Cd_stop();
-            Cmd_routine++;
+            Cd_cmd_routine++;
             break;
         case 5:
             Movie_playing = 0;
-            Cmd_dequeue();
+            Cd_cmd_dequeue();
             Vsync_wait = VSYNC_30FPS;
             break;
     }
@@ -441,11 +440,11 @@ void Movie_frame_upload(void)
 INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_frame_upload);
 #endif
 
-void Cmd_exec(void)
+void Cd_cmd_exec(void)
 {
     if (Cd_error_flags)
     {
-        Cmd_dequeue();
+        Cd_cmd_dequeue();
         CdSyncCallback(0);
         CdReadyCallback(0);
         while (CdReset(0) == 0)
@@ -453,15 +452,15 @@ void Cmd_exec(void)
         }
     }
 
-    cmd_tbl[Cmd_exec_ptr->type]();
+    cd_cmd_tbl[Cd_cmd_exec_ptr->type]();
 }
 
 #ifdef NON_MATCHING
-void Cmd_dequeue(void)
+void Cd_cmd_dequeue(void)
 {
-    CMD *p;
+    CD_CMD *p;
 
-    for (p = Cmd_queue; p->type != 0; p++)
+    for (p = Cd_cmd_queue; p->type != 0; p++)
     {
         p->type = p[1].type;
         p->args = p[1].args;
@@ -469,11 +468,11 @@ void Cmd_dequeue(void)
 
     p[1].type   = 0;
     D_80059C24  = 0;
-    Cmd_routine = 0;
-    Cmd_write_ptr--;
+    Cd_cmd_routine = 0;
+    Cd_cmd_write_ptr--;
 }
 #else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Cmd_dequeue);
+INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Cd_cmd_dequeue);
 #endif
 
 void Cd_set_volume(uint8 vol)
@@ -540,7 +539,7 @@ void Movie_start(sint32 file)
     Movie_write_idx   = 0;
     Movie_write_ptr   = (u_long *)MOVIE_SLOT(0);
     CdIntToPos(Cd_file_tbl[file].sector, &loc);
-    // size here is actually a placeholder for end frame until set correctly in cmd_play_movie
+    // size here is actually a placeholder for end frame until set correctly in cd_cmd_play_movie
     Movie_end_frame = Cd_file_tbl[file].size;
     filter.file = filter.chan = 1;
     CdReadyCallback(Movie_sector_cb);
@@ -657,18 +656,18 @@ void Cd_set_mode(u_char mode)
     }
 }
 
-void Cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
+void Cd_cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
 {
-    Cmd_write_ptr->type      = CMD_PLAY_MOVIE;
-    Cmd_write_ptr->args.arg1 = arg1;
-    Cmd_write_ptr->args.arg2 = arg2;
-    Cmd_write_ptr->args.arg3 = arg3;
-    Cmd_write_ptr++;
+    Cd_cmd_write_ptr->type      = CD_CMD_PLAY_MOVIE;
+    Cd_cmd_write_ptr->args.arg1 = arg1;
+    Cd_cmd_write_ptr->args.arg2 = arg2;
+    Cd_cmd_write_ptr->args.arg3 = arg3;
+    Cd_cmd_write_ptr++;
 }
 
-sint32 Cmd_busy_check(void)
+sint32 Cd_read_sync2(void)
 {
-    return Cmd_write_ptr != Cmd_queue;
+    return Cd_cmd_write_ptr != Cd_cmd_queue;
 }
 
 #ifdef NON_MATCHING
@@ -805,7 +804,7 @@ void intro_wait_idle(void)
             Intro_routine_1++;
             break;
         case 1:
-            if (!Cmd_busy_check())
+            if (!Cd_read_sync2())
             {
                 Intro_routine_1 = 0;
                 Intro_routine_0++;
@@ -822,11 +821,11 @@ void intro_play_movie(void)
     {
         case 0:
             Disp_env_set(DISP_MODE_320);
-            Cmd_set_movie(0xd0, 145, PAD_START | PAD_CIRCLE);
+            Cd_cmd_set_movie(0xd0, 145, PAD_START | PAD_CIRCLE);
             Intro_routine_1++;
             break;
         case 1:
-            if (!Cmd_busy_check())
+            if (!Cd_read_sync2())
             {
                 Intro_routine_1 = 0;
                 Intro_routine_0++;

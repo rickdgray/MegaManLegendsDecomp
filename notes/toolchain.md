@@ -6,7 +6,7 @@
 decomp.me's `PSYQ4.0` preset. Every banked shim function matches with it.
 
 Evidence:
-- **GCC version:** on the probe `Cmd_dequeue`, gcc 2.6.0 through 2.7.2 produce identical output and
+- **GCC version:** on the probe `Cd_cmd_dequeue`, gcc 2.6.0 through 2.7.2 produce identical output and
   the closest result; 2.8.x and newer get progressively worse. Consistent with the PsyQ 4.0
   libraries Ghidra identified.
 - **Assembler version:** `li v1,5` must assemble to `addiu v1,zero,5`. Plain maspsx defaults give
@@ -120,10 +120,10 @@ improvements to the draft and re-run `permuter_prep.py` to continue from the bet
 - **`-fno-expensive-optimizations` (tested, rejected as the toolchain setting):** a three-call
   probe showed it makes GCC rebuild a repeated constant address before each call, as the target
   does in `Movie_start`, and `Movie_start` matches with it. But it breaks 8 banked functions across
-  every region (`Disp_env_set`; `cmd_play_movie`, `Movie_dct_out_callback`, `Cd_sync_cb`;
+  every region (`Disp_env_set`; `cd_cmd_play_movie`, `Movie_dct_out_callback`, `Cd_sync_cb`;
   `intro_copyright`, `intro_wait_idle`, `intro_play_movie`, `intro_launch_game`), so it's a
   proxy for one cost decision, not Capcom's setting, and not evidence of a separately compiled
-  module. It doesn't affect `Movie_frame_upload`, `Cmd_dequeue`, or `Intro_init`.
+  module. It doesn't affect `Movie_frame_upload`, `Cd_cmd_dequeue`, or `Intro_init`.
   Method: build the same source with and without the flag, and compare per-function instruction
   words in the two objects (pass flags as `CC1_EXTRA=... ./tools/build.sh slus_006.03`, never a bare shell
   variable).

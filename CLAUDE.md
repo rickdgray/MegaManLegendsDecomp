@@ -281,7 +281,7 @@ Conventions (Capcom's own, from their source):
 | Global variables | `Capitalized_snake_case` | `Player_work`, `Disp_env_ptr`, `System_timer` |
 | `static` variables | `lower_snake_case` | `spd_tbl`, `eve19_check_flag` |
 | Struct types | `ALL_CAPS`, state structs end in `_WORK` | `PL_WORK`, `GAME_WORK`, `MOVE_TBL` |
-| Function-pointer typedefs | `ALL_CAPS` ending in `_FUNC` | `SCREEN_FUNC`, `CMD_FUNC` |
+| Function-pointer typedefs | `ALL_CAPS` ending in `_FUNC` | `SCREEN_FUNC`, `CD_CMD_FUNC` |
 | Constants, macros | `ALL_CAPS` | `R0_END`, `FLG_END` |
 | Tables | `_tbl` suffix | `screen_tbl`, `Rock_buster_parts_tbl` |
 | State fields | `routine_0` … `routine_3` | |

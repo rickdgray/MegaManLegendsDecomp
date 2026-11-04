@@ -33,7 +33,7 @@ not decompiled.
 - `main` (`0x800107e8`): `System_init`, `VSync(0)`, `SetDispMask(1)`, `Intro_init`, then loops
   forever: wait until `Vsync_count` reaches `Vsync_wait`, `PutDispEnv`/`PutDrawEnv`,
   `Movie_frame_upload` (CD module), `DrawOTag`, `Pad_update_all`, swap buffers (`Dbl_buff_idx`, `Disp_env_ptr`), `ClearOTag`, `Intro_task`,
-  `Cmd_exec`, `DrawSync(0)`. GCC inserts the `__main` call itself.
+  `Cd_cmd_exec`, `DrawSync(0)`. GCC inserts the `__main` call itself.
 - `System_init` (`0x800108ec`): `ResetCallback`, `Cd_init`, `SsInit`, `ResetGraph`,
   `DecDCTReset`, `SetVideoMode(MODE_NTSC)`, pads (`InitPAD` with `Joy1`/`Joy2`, `StartPAD`,
   `ChangeClearPAD`), `ClearImage(&Clear_rect, ...)`, `Disp_env_set(1)` (640 wide),
@@ -73,8 +73,8 @@ not decompiled.
 | # | Function | What it does |
 |---|---|---|
 | 0 | `intro_copyright` | Dead. Fade in (+4/frame to 128), hold 100 frames, fade out. `Intro_bright` (`0x80059c54`), `Intro_timer` (`0x80059c55`) |
-| 1 | `intro_wait_idle` | Dead. `Disp_env_set(0)`, then waits for `Cmd_busy_check()` to clear |
-| 2 | `intro_play_movie` | `Cmd_set_movie(0xd0, 0x91, 0x2008)`, waits: the FMV |
+| 1 | `intro_wait_idle` | Dead. `Disp_env_set(0)`, then waits for `Cd_read_sync2()` to clear |
+| 2 | `intro_play_movie` | `Cd_cmd_set_movie(0xd0, 0x91, 0x2008)`, waits: the FMV |
 | 3 | `intro_launch_game` | "now loading...", then `DrawSync`, `SsQuit`, `StopPAD`, `_96_init`, `LoadExec(rock_neo_path, 0x801fff00, 0)` |
 
 - **Screen 0's image** is an anti-piracy warning ("The unauthorised reproduction...", British
@@ -97,11 +97,11 @@ not decompiled.
   `Movie_buf_get(&data, &hdrs)` returns the header table and the start of the data for the
   slot at `Movie_buf_idx`.
 
-### Movie playback (`cmd_play_movie`, command type 5)
+### Movie playback (`cd_cmd_play_movie`, command type 5)
 
 Arguments: `arg1` = index into `Cd_file_tbl` (disc position, default end frame); `arg2` = last frame
 to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested against Joy1's
-"on" bits). One step per frame, driven by `Cmd_routine`:
+"on" bits). One step per frame, driven by `Cd_cmd_routine`:
 
 | State | Does |
 |---|---|
@@ -119,18 +119,18 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
 
 ## CD command queue
 
-- `Cmd_queue` (`0x8005b348`): `CMD[16]`, `0x10` bytes each: `sint32 type` (0 = end of queue,
-  5 = play movie), then `CMD_ARGS` (`arg1`, `arg2`, `sint16 arg3`; copied as one 12-byte block,
-  possibly a union per command type). `Cmd_write_ptr` (`0x80059c08`) is the next free slot;
-  `Cmd_exec_ptr` (`0x80059c38`) the command being run.
+- `Cd_cmd_queue` (`0x8005b348`): `CD_CMD[16]`, `0x10` bytes each: `sint32 type` (0 = end of queue,
+  5 = play movie), then `CD_CMD_ARGS` (`arg1`, `arg2`, `sint16 arg3`; copied as one 12-byte block,
+  possibly a union per command type). `Cd_cmd_write_ptr` (`0x80059c08`) is the next free slot;
+  `Cd_cmd_exec_ptr` (`0x80059c38`) the command being run.
 - `Cd_init`: `CdInit` retry loop, `Cd_control_retry(CdlSetmode, &Cd_mode, Cd_result)`, clears the
   queue. Stores 0 to `D_80059BCA` **twice** (required for the match).
 - `Cd_control_retry(com, param, result)`: waits on `CdSync`, then retries `CdControlB`.
-- `Cmd_set_movie(a1, a2, a3)` appends a type-5 command; `Cmd_dequeue` shifts the queue down one;
-  `Cmd_busy_check` = queue not empty.
-- `Cmd_exec`: if `D_80059BDC` is set, drops the current command and resets the drive; then calls
-  `cmd_tbl[Cmd_exec_ptr->type]()`. `cmd_tbl[6]`: types 0–4 → `cmd_nop`, type 5 →
-  `cmd_play_movie` (a 6-case switch; jump table at `0x80010000`).
+- `Cd_cmd_set_movie(a1, a2, a3)` appends a type-5 command; `Cd_cmd_dequeue` shifts the queue down one;
+  `Cd_read_sync2` = queue not empty.
+- `Cd_cmd_exec`: if `D_80059BDC` is set, drops the current command and resets the drive; then calls
+  `cd_cmd_tbl[Cd_cmd_exec_ptr->type]()`. `cd_cmd_tbl[6]`: types 0–4 → `cd_cmd_nop`, type 5 →
+  `cd_cmd_play_movie` (a 6-case switch; jump table at `0x80010000`).
 - **Suspected:** this module is shared with `ROCK_NEO.EXE`, where types 1–4 do real work.
 - **Open:** `D_80059C20`/`D_80059C24` (per-command progress, cleared on dequeue), `D_80059BDC`
   (abort flag?), the movie arguments `(0xd0, 0x91, 0x2008)`.
@@ -150,10 +150,10 @@ functions called from Capcom code and identified by hand: `SsInit` (`0x8001a864`
 ## Function status
 
 Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `Pad_update_all`,
-`Vsync_handler`, `Disp_adjust`, `Cd_init`, `Cd_control_retry`, `cmd_nop`, `Cmd_exec`,
-`Cmd_set_movie`, `Cmd_busy_check`, `Intro_task`, `intro_copyright`, `intro_copyright_draw`,
+`Vsync_handler`, `Disp_adjust`, `Cd_init`, `Cd_control_retry`, `cd_cmd_nop`, `Cd_cmd_exec`,
+`Cd_cmd_set_movie`, `Cd_read_sync2`, `Intro_task`, `intro_copyright`, `intro_copyright_draw`,
 `intro_wait_idle`, `intro_play_movie`, `intro_launch_game`, `Movie_buf_get`, `Movie_buf_release`,
-`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`, `cmd_play_movie`.
+`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`, `cd_cmd_play_movie`.
 
 Parked (`NON_MATCHING`, on the permuter):
 
@@ -167,9 +167,9 @@ Parked (`NON_MATCHING`, on the permuter):
   - Ruled out: a separate counter for the draw-mode loop (`j`): the target keeps both loops'
     counters in the same register (`s2`), so the original reuses one variable.
   - Remaining: an `s1`/`s2` priority tie between `i` and the constant. Long permuter run; it's
-    slow here (~10 outputs per night vs ~50 for `Cmd_dequeue`), so a good server job.
-- `Cmd_dequeue`: best draft is a single-pointer `for` loop:
-  `for (p = Cmd_queue; p->type != 0; p++) { p->type = p[1].type; p->args = p[1].args; }`,
+    slow here (~10 outputs per night vs ~50 for `Cd_cmd_dequeue`), so a good server job.
+- `Cd_cmd_dequeue`: best draft is a single-pointer `for` loop:
+  `for (p = Cd_cmd_queue; p->type != 0; p++) { p->type = p[1].type; p->args = p[1].args; }`,
   then `p[1].type = 0`. Instruction-for-instruction aligned (asm-differ 530). Remaining: GCC's
   derived loop pointer is based at `p + 4` (target `p + 0xc`), `p++` is scheduled after the args
   stores (target: before), and register numbering.
@@ -179,8 +179,8 @@ Parked (`NON_MATCHING`, on the permuter):
   - Ruled out: two pointers `dst`/`src` (the target stores args through the derived pointer, so
     one source pointer), a `next` pointer (worse), `*p = p[1]`, index form, reversed copy order.
   - **Suspected:** `p + 0xc` is `&p->args.arg3`, so the original may touch `arg3`'s word directly,
-    e.g. through a union view of `CMD_ARGS`. Revisit when group B shows how `CMD_ARGS` is used.
-  - `permuter/Cmd_dequeue/` regenerated from the `for` loop draft.
+    e.g. through a union view of `CD_CMD_ARGS`. Revisit when group B shows how `CD_CMD_ARGS` is used.
+  - `permuter/Cd_cmd_dequeue/` regenerated from the `for` loop draft.
 
 Parked (group B, `NON_MATCHING`):
 
@@ -205,7 +205,7 @@ Parked (group B, `NON_MATCHING`):
   `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
   (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
   as a `nop`, where ours fills it. A delay-slot difference: candidate for the assembler
-  (maspsx `--aspsx-version`) test, along with `cmd_play_movie`'s case 3.
+  (maspsx `--aspsx-version`) test, along with `cd_cmd_play_movie`'s case 3.
 - `Movie_start`: body matches exactly. Only difference: the target rebuilds `Cd_result`'s address
   (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls; our compiler keeps it in
   `s0`. No source construct controls this; it's GCC's cost choice between rematerializing a
@@ -231,10 +231,10 @@ Group B, parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
   `nop` delay slot; ours fills the slot with it. Needs the STR sector header read through a struct
   pointer assigned after `CdGetSector`, and payload source as a literal `0x800F0020`.
 
-Movie command: `CMD_ARGS` = `{movie index into the 12-byte table at 0x8001D3DC, last frame number
+Movie command: `CD_CMD_ARGS` = `{movie index into the 12-byte table at 0x8001D3DC, last frame number
 (compared with word 2 of the frame's first sector header), pad buttons that skip (tested against
-Joy1's "on" word)}`. `D_80059C20` is `cmd_play_movie`'s state (the switch index, 0–5);
-`D_80059C24` is only ever cleared (Cd_init, Cmd_dequeue).
+Joy1's "on" word)}`. `D_80059C20` is `cd_cmd_play_movie`'s state (the switch index, 0–5);
+`D_80059C24` is only ever cleared (Cd_init, Cd_cmd_dequeue).
 
 ## Hacks to revisit
 
