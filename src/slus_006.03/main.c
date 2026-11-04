@@ -199,7 +199,7 @@ void Cd_init(void)
 
     D_80059BCA = 0; // stored twice in the original; both needed for the match
     D_80059C00 = 0;
-    D_80059BC8 = 0;
+    Cd_status  = 0;
     D_80059C74 = 7;
     Cd_mode    = 0;
     D_80059C48 = 0;
@@ -207,7 +207,7 @@ void Cd_init(void)
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
-    D_80059BD4 = 1;
+    Cd_sync_done = 1;
 
     for (i = 0; i < CD_CMD_QUEUE_LEN; i++)
     {
@@ -217,11 +217,11 @@ void Cd_init(void)
     Cd_cmd_exec_ptr  = Cd_cmd_queue;
     Cd_cmd_write_ptr = Cd_cmd_queue;
 
-    Cd_wait       = 0;
-    Movie_playing = 0;
-    D_80059C24    = 0;
-    Cd_cmd_routine   = 0;
-    D_80059BC9    = 0;
+    Cd_wait        = 0;
+    Movie_playing  = 0;
+    D_80059C24     = 0;
+    Cd_cmd_routine = 0;
+    D_80059BC9     = 0;
 }
 
 void cd_cmd_nop(void)
@@ -260,7 +260,7 @@ void cd_cmd_play_movie(void)
     switch (Cd_cmd_routine)
     {
         case 0:
-            if (D_80059BD4 == 0)
+            if (Cd_sync_done == 0)
             {
                 Cd_stop();
             }
@@ -294,7 +294,7 @@ void cd_cmd_play_movie(void)
             }
             // fall through
         case 1:
-            if (D_80059BD4 == 0)
+            if (Cd_sync_done == 0)
             {
                 break;
             }
@@ -334,7 +334,7 @@ void cd_cmd_play_movie(void)
                     CdReadyCallback(0);
                     CdReset(0);
                     // an invalid mode, so the next Cd_set_mode always sends the command
-                    Cd_mode     = 0xFF;
+                    Cd_mode        = 0xFF;
                     Cd_cmd_routine = 0;
                     return;
                 }
@@ -356,14 +356,14 @@ void cd_cmd_play_movie(void)
                     Cd_error_flags |= CD_ERR_TIMEOUT;
                     CdReadyCallback(0);
                     CdReset(0);
-                    Cd_mode     = 0xFF;
+                    Cd_mode        = 0xFF;
                     Cd_cmd_routine = 0;
                     return;
                 }
             }
 
-            if ((Cd_cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame ||
-                (Cd_error_flags | D_80059BA4))
+            if ((Cd_cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) ||
+                hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
             {
                 Cd_cmd_routine++;
             }
@@ -466,8 +466,8 @@ void Cd_cmd_dequeue(void)
         p->args = p[1].args;
     }
 
-    p[1].type   = 0;
-    D_80059C24  = 0;
+    p[1].type      = 0;
+    D_80059C24     = 0;
     Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
@@ -510,12 +510,12 @@ void Cd_sync_cb(u_char status, u_char *result)
 
     if (status == CdlComplete)
     {
-        D_80059BD4 = 1;
-        D_80059BC8 = 0;
+        Cd_sync_done = 1;
+        Cd_status    = 0;
     }
     else
     {
-        D_80059BC8 = 0x80;
+        Cd_status = 0x80;
         Cd_error_flags |= CD_ERR_SYNC;
     }
 }
@@ -526,13 +526,13 @@ void Movie_start(sint32 file)
     CdlLOC loc;
     CdlFILTER filter;
 
-    D_80059BC8 = 1;
+    Cd_status = 1;
 
     Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
 
     D_80059C74        = 7;
     Cd_error_flags    = 0;
-    D_80059BD4        = 0;
+    Cd_sync_done      = 0;
     Movie_sector_wait = 0;
     D_80059BA4        = 0;
     Movie_frame_idx   = 0;
@@ -609,7 +609,7 @@ void Movie_sector_cb(u_char status, u_char *result)
     }
     else
     {
-        D_80059BC8 = 0x80;
+        Cd_status = 0x80;
         Cd_error_flags |= CD_ERR_READY;
         CdReadyCallback(0);
     }

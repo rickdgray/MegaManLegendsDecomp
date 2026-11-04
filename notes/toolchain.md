@@ -131,3 +131,8 @@ improvements to the draft and re-run `permuter_prep.py` to continue from the bet
   (all with the `s0` difference); 2.5.7 is worse, with a different allocation order; 2.8.x and
   later are very different. ASPSX version makes no difference. Confirms the gcc 2.7.2 family and
   rules out a toolchain explanation for the parked functions: their differences are in the source.
+- **Shared CD module (shim ↔ ROCK_NEO `cd` file):** identical compiled code for `Cd_init`, `Cd_sync_cb`,
+  `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`, `Cd_read_sync2`; offsets and constants
+  agree (`find_dupes.py --imm`), so `cd.h` is shared. `Cd_cmd_dequeue` differs in one statement:
+  the shim stores the terminator to `p[1].type`, ROCK_NEO to `p->type`, so Capcom had two versions
+  of this file. Pad structs differ (`Joy1`/`Joy2` are 0x158 apart in the shim, 0x168 in ROCK_NEO).

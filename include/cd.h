@@ -60,10 +60,10 @@ extern sint32 Cd_wait;
 extern sint32 Cd_cmd_routine;
 
 // Unknown (set up by Cd_init)
-extern uint8 D_80059BC8;
+extern uint8 Cd_status;
 extern uint8 D_80059BC9;
 extern uint8 D_80059BCA;
-extern uint8 D_80059BD4;
+extern uint8 Cd_sync_done;
 extern sint32 D_80059C00;
 extern uint8 D_80059C48;
 extern uint8 D_80059C74;
