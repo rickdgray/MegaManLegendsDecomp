@@ -16,14 +16,21 @@ Evidence:
   `cc1` defaults to **`-G 8`**, so `-G0` must always be passed.
 - Flags that made no difference on probes: `-f[no-]schedule-insns`, `-O1`.
 
-`ROCK_NEO.EXE` was built separately and may differ (it has `.sdata`, so likely `-G8`); see
-[rock_neo.md](rock_neo.md).
+`ROCK_NEO.EXE` is compiled with `-G8`; see [rock_neo.md](rock_neo.md).
+
+- **Confirmed: `$gp` only for the file's own small data.** ASPSX addresses a global through `$gp`
+  only if it sits in the same file's `.sdata`/`.sbss`; an `extern` of any size gets `lui` + `%lo`.
+  GNU `as` with `-G8` instead uses `$gp` for every `.extern` cc1 declares at 8 bytes or less, which
+  is wrong. So for ROCK_NEO, `cc.sh` passes `-G8` to cc1 *and maspsx* (maspsx then writes
+  `%gp_rel` itself) and always `-G0` to GNU as. Proven on the first -G8 C, ROCK_NEO's `cd` file:
+  every global it touches is an `extern` and comes out `lui`-based, matching.
 
 ## Pipeline
 
 `tools/cc.sh`: `cpp -P -undef -nostdinc -Iinclude` → `cc1 -quiet -O2 -G0` →
 `maspsx --aspsx-version=2.56 --expand-div` →
 `mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0`.
+For `rock_neo.exe`: `cc1 ... -G8`, `maspsx ... -G8`, `as ... -G0`.
 
 Assembly from splat is assembled with `-EL -march=r3000 -mtune=r3000 -no-pad-sections -G0
 -Iinclude`. Binary blobs (`assets/*.bin`) are wrapped with `objcopy -I binary`. The linked ELF is

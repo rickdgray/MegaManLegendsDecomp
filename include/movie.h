@@ -47,7 +47,6 @@ extern u_long *Movie_slice_ptr;
 extern u_long *Movie_write_ptr;
 extern sint32 Movie_write_idx;
 extern sint32 Movie_end_frame;
-extern sint32 Movie_playing;
 
 // Unknown
 extern sint32 D_80059BA4;

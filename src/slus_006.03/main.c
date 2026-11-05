@@ -217,11 +217,11 @@ void Cd_init(void)
     Cd_cmd_exec_ptr  = Cd_cmd_queue;
     Cd_cmd_write_ptr = Cd_cmd_queue;
 
-    Cd_wait        = 0;
-    Movie_playing  = 0;
-    D_80059C24     = 0;
-    Cd_cmd_routine = 0;
-    D_80059BC9     = 0;
+    Cd_wait          = 0;
+    Cd_movie_playing = 0;
+    D_80059C24       = 0;
+    Cd_cmd_routine   = 0;
+    D_80059BC9       = 0;
 }
 
 void cd_cmd_nop(void)
@@ -313,11 +313,11 @@ void cd_cmd_play_movie(void)
             DecDCTReset(1);
             timeout = 0;
             Movie_start(Cd_cmd_exec_ptr->args.arg1);
-            D_80059BC9      = 3;
-            Movie_playing   = 1;
-            Movie_buf_idx   = 0;
-            Vsync_wait      = VSYNC_60FPS;
-            Movie_end_frame = Cd_cmd_exec_ptr->args.arg2;
+            D_80059BC9       = 3;
+            Cd_movie_playing = 1;
+            Movie_buf_idx    = 0;
+            Vsync_wait       = VSYNC_60FPS;
+            Movie_end_frame  = Cd_cmd_exec_ptr->args.arg2;
 
             for (i = 0; i < CD_VOL_MAX; i++)
             {
@@ -389,7 +389,7 @@ void cd_cmd_play_movie(void)
             Cd_cmd_routine++;
             break;
         case 5:
-            Movie_playing = 0;
+            Cd_movie_playing = 0;
             Cd_cmd_dequeue();
             Vsync_wait = VSYNC_30FPS;
             break;
@@ -421,7 +421,7 @@ void Movie_frame_upload(void)
     RECT *rect;
     u_char *img;
 
-    if (Movie_playing)
+    if (Cd_movie_playing)
     {
         i    = 0;
         rect = Movie_rect_tbl[Dbl_buff_idx];

@@ -55,6 +55,7 @@ extern uint8 Cd_mode;
 extern u_char Cd_result[8];
 extern uint8 Cd_error_flags; // CD_ERR_* bits
 extern sint32 Cd_wait;
+extern sint32 Cd_movie_playing;
 
 // The running command's state (cd_cmd_play_movie's switch index); cleared on dequeue.
 extern sint32 Cd_cmd_routine;

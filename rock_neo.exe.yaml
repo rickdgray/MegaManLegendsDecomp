@@ -62,6 +62,8 @@ segments:
       - [0x8B4, rodata]
       - [0x938, rodata]
       - [0x9E4, rodata]
+      - [0xA44, .rodata, cd]
+      - [0xAB0, rodata]
       - [0x10C0, rodata]
       - [0x1294, rodata]
       - [0x1330, rodata]
@@ -97,7 +99,7 @@ segments:
       - [0x7DD8, asm, asm_fastmem]  # HAND-WRITTEN ASSEMBLY, not compiler output: never decompile
       - [0x806C, asm, code_8001786C]  # low
       - [0xA0C0, asm, sound]
-      - [0xBBE4, asm, cd]  # medium
+      - [0xBBE4, c, cd]  # medium
       - [0xE054, asm, scene]  # medium
       - [0x10028, asm, code_8001F828]  # low
       - [0x17E78, asm, code_80027678]  # low

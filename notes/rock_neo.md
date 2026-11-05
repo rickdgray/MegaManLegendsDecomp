@@ -2,8 +2,8 @@
 
 Loaded by the shim with `LoadExec("cdrom:\ROCK_NEO.EXE;1", 0x801fff00, 0)`.
 
-**Status: byte-identical rebuild from assembly** (SHA-1 `ffc08fd2b6113e84dc0e75ba63a4feaca0eb1d46`).
-No C yet. Built with `./tools/rebuild.sh rock_neo.exe`.
+**Status: byte-identical rebuild** (SHA-1 `ffc08fd2b6113e84dc0e75ba63a4feaca0eb1d46`).
+First C: the `cd` file (`src/rock_neo.exe/cd.c`); see "Function status". Built with `./tools/rebuild.sh rock_neo.exe`.
 
 ## Header and build
 
@@ -14,9 +14,10 @@ No C yet. Built with `./tools/rebuild.sh rock_neo.exe`.
 - **Confirmed:** timestamp `Aug 16 1998 12:31:28`, 3 min 48 s before the shim's `12:35:16`: the same
   build session. Also the string `MEGAMAN LEGENDS MASTER VERSION 1998/5/13`.
 - **Confirmed: `-G8`.** `gp` = `0x80097864`; 697 `(gp)` accesses in a raw disassembly vs the shim's
-  1. Compiled with `-G8` (cc1's default; the shim passes `-G0`), and maspsx needs
-  `--dont-force-G0`. Not yet tested with C; the first function that touches a small global confirms
-  the flags.
+  1. Compiled with `-G8` (cc1's default; the shim passes `-G0`). `cc.sh` passes `-G8` to cc1 and
+  maspsx and `-G0` to GNU as: `extern` globals, even small ones, are `lui`-addressed (the `cd`
+  file's C matches this way); see [toolchain.md](toolchain.md). Still untested: a C file that
+  *defines* small data (maspsx would emit `%gp_rel` for it).
 
 ## Layout
 
@@ -107,10 +108,21 @@ is **suspected** until verified.
 - **Flags guessed (unverified):** `-funsigned-char -fpeephole -ffunction-cse -fpcc-struct-return
   -fcommon`. `-funsigned-char` matters wherever plain `char` appears; test it with the first C.
 
+## Function status
+
+`cd` (`src/rock_neo.exe/cd.c`, ported from the shim with `cd_map.txt`):
+
+- **Banked:** `Cd_init`, `Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`,
+  `Cd_read_sync2`. Same C as the shim, ROCK_NEO's symbol names.
+- **Parked:** `Cd_cmd_dequeue`. The shim's draft with `p->type = 0;` for the terminator. Same
+  difference as in the shim: GCC bases the second loop pointer at `p+4` (target `p+0xC`, with
+  `a2`/`a1` where the draft gets `a3`/`a2`); the tail matches.
+- **The `cd` rodata:** its three jump tables (`0xA44`-`0xAB0`, used by `func_8001BB4C`) sit inside
+  the `9E4` block, between a `sound` table and `scene`'s path strings, so the yaml splits that
+  block at `0xA44` (`.rodata, cd`) and `0xAB0`.
+
 ## To do
 
-- **Shared CD module:** find ROCK_NEO's copies of the shim's matched functions by comparing function
-  bytes (relocations masked); copy their C. Also a second sample for the shim's parked functions.
 - **Names:** enter ChrisNonyminus's and the TCRF source's names into
   `symbol_addrs_rock_neo.exe.txt` before decompiling.
 - **Compiler check:** the first C function confirms `-G8` / `--dont-force-G0`, and tests
