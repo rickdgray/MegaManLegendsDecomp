@@ -60,6 +60,19 @@ def remaining(cfile):
             funcs.append((m.group(2), m.group(1)))
     return funcs
 
+def parked_names(cfile):
+    """Functions whose INCLUDE_ASM sits inside a NON_MATCHING block (i.e. parked)."""
+    names, in_nm = set(), False
+    for line in (ROOT / cfile).read_text().splitlines():
+        s = line.strip()
+        if s.startswith("#ifdef NON_MATCHING"):
+            in_nm = True
+        elif s.startswith("#endif") and in_nm:
+            in_nm = False
+        m = re.match(r'INCLUDE_ASM\("([^"]+)",\s*(\w+)\);', s)
+        if m and in_nm:
+            names.add(m.group(2))
+    return names
 
 def size_of(asm_dir, name):
     """Function size in bytes, from splat's `nonmatching NAME, 0xSIZE` line (else count instructions)."""
@@ -197,8 +210,7 @@ def main():
                 break
             continue
         if ok:
-            parked = [n for n in batch if f"NON_MATCHING" in (ROOT / args.cfile).read_text()
-                      and re.search(rf"#ifdef NON_MATCHING[^#]*?\b{n}\b", (ROOT / args.cfile).read_text())]
+            parked = [n for n in batch if n in parked_names(args.cfile)]
             done = [n for n in banked if n not in parked]
             msg = f"{Path(args.cfile).stem}: batch {batch_no} ({len(done)} banked, {len(parked)} parked)\n\n" + \
                   "\n".join(f"- {n}: {'parked' if n in parked else 'banked'}" for n in batch)
