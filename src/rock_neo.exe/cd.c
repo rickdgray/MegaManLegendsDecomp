@@ -53,13 +53,20 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B6FC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B7B4);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B858);
+void func_8001B858(void)
+{
+    D_80087670[Cd_cmd_exec_ptr->args.arg2]();
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B89C);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001BB4C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001C7F0);
+void func_8001C7F0(void)
+{
+    Cd_cmd_routine++;
+    CdSyncCallback(0);
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001C824);
 
@@ -153,11 +160,28 @@ void Cd_set_mode(u_char mode)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D394);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D414);
+void func_8001D414(sint32 arg1, sint32 arg2)
+{
+    Cd_cmd_write_ptr->type      = 4;
+    Cd_cmd_write_ptr->args.arg1 = arg1;
+    Cd_cmd_write_ptr->args.arg2 = arg2;
+    Cd_cmd_write_ptr++;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_read_comb);
+void Cd_read_comb(sint32 arg1)
+{
+    Cd_cmd_write_ptr->type      = 6;
+    Cd_cmd_write_ptr->args.arg1 = arg1;
+    Cd_cmd_write_ptr++;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D468);
+void func_8001D468(sint32 arg1, sint32 arg2)
+{
+    Cd_cmd_write_ptr->type      = 1;
+    Cd_cmd_write_ptr->args.arg1 = arg1;
+    Cd_cmd_write_ptr->args.arg2 = arg2;
+    Cd_cmd_write_ptr++;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D494);
 
@@ -167,7 +191,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D648);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D6D8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D7AC);
+void func_8001D7AC(sint32 index)
+{
+    func_8001D6D8(D_80082CD0[index].sector);
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D7E4);
 
