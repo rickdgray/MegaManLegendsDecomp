@@ -2,14 +2,6 @@
 #include "cd.h"
 #include "psyq/libcd.h"
 
-// ROCK_NEO-specific: globals with no shared name yet (shim names in comments, from cd_map.txt)
-extern uint8 D_800988D0;  // D_80059BC9
-extern uint8 D_800988DC;  // D_80059BCA
-extern sint32 D_80098998; // D_80059C00
-extern sint32 D_800989C8; // D_80059C24
-extern uint8 D_80098AA0;  // D_80059C48
-extern uint8 D_80098B42;  // D_80059C74
-
 void Cd_init(void)
 {
     sint32 i;

@@ -25,9 +25,21 @@ Evidence:
   `%gp_rel` itself) and always `-G0` to GNU as. Proven on the first -G8 C, ROCK_NEO's `cd` file:
   every global it touches is an `extern` and comes out `lui`-based, matching.
 
+## Header layout
+
+- `include/` holds only headers both programs use with **identical declarations**: `common.h`
+  (+ `include_asm.h`), `psyq/`, `cd.h`, and the assembler includes (`*.inc`).
+- `include/slus_006.03/` and `include/rock_neo.exe/` hold everything else. `cc.sh`, `m2c.sh` and
+  `permuter_prep.py` search `include/<target>/` before `include/`.
+- **Rule: a header is shared only when proven identical in both programs.** Until then it stays in
+  one target's folder.
+- Each target has a `cd_local.h` with its still-unnamed CD variables (different addresses and
+  names per program); the shared `cd.h` includes it at its end, so `src/<t>/cd.c` declares
+  nothing itself. When a variable gets a name in both programs, move it into `cd.h`.
+
 ## Pipeline
 
-`tools/cc.sh`: `cpp -P -undef -nostdinc -Iinclude` → `cc1 -quiet -O2 -G0` →
+`tools/cc.sh`: `cpp -P -undef -nostdinc -Iinclude/<target> -Iinclude` → `cc1 -quiet -O2 -G0` →
 `maspsx --aspsx-version=2.56 --expand-div` →
 `mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0`.
 For `rock_neo.exe`: `cc1 ... -G8`, `maspsx ... -G8`, `as ... -G0`.

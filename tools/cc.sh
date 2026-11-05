@@ -35,7 +35,8 @@ esac
 CC1=${CC1:-$ROOT/tools/vendor/gcc-2.7.2-psx/cc1}
 MASPSX=$ROOT/tools/vendor/maspsx/maspsx.py
 
-CPPFLAGS="-P -undef -nostdinc -I$ROOT/include"
+# Per-target headers first, then the shared ones (only headers proven identical in both programs).
+CPPFLAGS="-P -undef -nostdinc -I$ROOT/include/$target -I$ROOT/include"
 CC1FLAGS="-quiet -O2 $GFLAGS ${CC1_EXTRA:-}"
 MASPSXFLAGS="--aspsx-version=${ASPSX_VERSION:-2.56} --expand-div $MASPSX_EXTRA"
 ASFLAGS="-EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -I$ROOT/include"

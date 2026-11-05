@@ -99,7 +99,7 @@ Shown for the shim (`slus_006.03`); for another target, substitute its name.
 4. Replace the `INCLUDE_ASM` line with the C, **in place** (function order in the file matters).
 5. `./tools/build.sh slus_006.03`, then `./tools/diff.sh slus_006.03 Func`. Iterate on the C until
    the diff is clean and the build prints MATCH.
-6. If types were needed, add them to the right header in `include/` (see below), not to `main.c`.
+6. If types were needed, add them to the right header in `include/<t>/` (or `include/` if shared; see below), not to `main.c`.
 
 ### Reading a diff
 
@@ -241,8 +241,18 @@ What decompilers show vs. what to write:
 |---|---|
 | `include/common.h` | Basic typedefs (`s8`…`u32`, `u_char`…`u_long`); includes `include_asm.h` |
 | `include/psyq/libgpu.h` | Self-written PsyQ GPU types and prototypes (`RECT`, `DRAWENV`, `SPRT`, `addPrim`, …) |
-| `include/display.h` | `DisplayBuffer`, display globals, display functions |
-| `include/cmd.h` | CD command queue: `Command`, `CommandArgs`, queue globals and functions |
+| `include/cd.h` | CD drive and command queue (shared); includes the target's `cd_local.h` at its end |
+| `include/slus_006.03/display.h` | `DisplayBuffer`, display globals, display functions (shim only) |
+| `include/<t>/cd_local.h` | That target's still-unnamed CD variables (names differ per program) |
+
+**Shared vs. per-target headers.** `include/` holds only what both programs use with identical
+declarations: `common.h`, `psyq/`, and `cd.h`. Everything else lives in `include/<t>/`
+(`include/slus_006.03/`, `include/rock_neo.exe/`). **A header is shared only when proven
+identical in both programs**; until then it belongs to one target, even if the other will
+probably need it. `cc.sh`, `m2c.sh` and `permuter_prep.py` search `include/<t>/` before
+`include/`, so a target may shadow nothing by accident: don't reuse a shared header's name.
+Unnamed globals go in the target's `cd_local.h`-style file (included at the end of the shared
+header), never in a `.c` file: a `.c` file declares nothing itself.
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.

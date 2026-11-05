@@ -60,15 +60,8 @@ extern sint32 Cd_movie_playing;
 // The running command's state (cd_cmd_play_movie's switch index); cleared on dequeue.
 extern sint32 Cd_cmd_routine;
 
-// Unknown (set up by Cd_init)
-extern uint8 Cd_status;
-extern uint8 D_80059BC9;
-extern uint8 D_80059BCA;
+extern uint8 Cd_status; // set up by Cd_init
 extern uint8 Cd_sync_done;
-extern sint32 D_80059C00;
-extern uint8 D_80059C48;
-extern uint8 D_80059C74;
-extern sint32 D_80059C24; // cleared with Cd_cmd_routine, not otherwise referenced in the shim
 
 void Cd_init(void);
 void Cd_control_retry(u_char com, u_char *param, u_char *result);
@@ -82,5 +75,7 @@ void Cd_cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3);
 void Cd_cmd_exec(void);
 void Cd_cmd_dequeue(void);
 sint32 Cd_read_sync2(void);
+
+#include "cd_local.h" // per-target CD variables with no name yet
 
 #endif // CD_H

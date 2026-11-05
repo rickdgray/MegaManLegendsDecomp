@@ -31,3 +31,5 @@ undefined_*_auto.txt
 tools/vendor/
 expected/
 permuter/
+*_map.txt
+renames*.txt

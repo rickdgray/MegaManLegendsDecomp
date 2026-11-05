@@ -41,7 +41,7 @@ not decompiled.
   (`SsSetSerialAttr`/`SsSetSerialVol`).
 - `Vsync_handler` increments `Vsync_count` (`0x80059bc0`). **Confirmed:** `Vsync_count` must be
   `volatile` (main spins on it); the scratchpad variables must not be.
-- **Scratchpad** (`include/scratch.h`, literal-address macros): `Dbl_buff_idx` (`0x1F800000`,
+- **Scratchpad** (`include/slus_006.03/scratch.h`, literal-address macros): `Dbl_buff_idx` (`0x1F800000`,
   current buffer 0/1), `Vsync_wait` (`0x1F800001`, vsyncs per frame). They must be literal
   addresses: GCC then shares the `lui 0x1f80` between them, as the target does.
 - **Pads:** `Joy1` (`0x8005b570`) and `Joy2` (`0x8005b6c8`) are separate globals of an all-byte

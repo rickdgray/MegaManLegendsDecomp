@@ -70,7 +70,7 @@ def main() -> None:
     includes = [line for line in text.splitlines() if line.startswith("#include")]
     raw = "\n".join(includes) + "\n\n" + body
     pre = subprocess.run(
-        ["cpp", "-P", "-undef", "-nostdinc", f"-I{INCLUDE}", "-DPERMUTER", "-DNON_MATCHING", "-"],
+        ["cpp", "-P", "-undef", "-nostdinc", f"-I{INCLUDE / args.target}", f"-I{INCLUDE}", "-DPERMUTER", "-DNON_MATCHING", "-"],
         input=raw, text=True, capture_output=True,
     )
     if pre.returncode != 0:

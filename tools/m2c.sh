@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Draft C for one function with m2c. Context is built from every header in include/.
+# Draft C for one function with m2c. Context is built from every shared header in include/ plus include/<target>/.
 # Usage: tools/m2c.sh <target> FunctionName [extra m2c flags]
 set -euo pipefail
 source "$(dirname "$0")/target.sh" "${1:-}"; shift
@@ -20,8 +20,13 @@ fi
 mkdir -p "$BUILD_DIR"
 {
     echo '#include "common.h"'
-    find include -name '*.h' ! -name common.h ! -name include_asm.h | sort | sed 's|^include/|#include "|; s|$|"|'
+    {
+        # shared headers (not the other target's folder), then this target's own
+        find include -name '*.h' ! -path 'include/slus_006.03/*' ! -path 'include/rock_neo.exe/*' \
+            ! -name common.h ! -name include_asm.h
+        find "include/$TARGET" -name '*.h'
+    } | sort | sed -e "s|^include/$TARGET/|#include \"|" -e 's|^include/|#include "|' -e 's|$|"|'
 } > "$BUILD_DIR/ctx_includes.c"
-cpp -P -undef -nostdinc -Iinclude -DM2CTX "$BUILD_DIR/ctx_includes.c" > "$BUILD_DIR/ctx.c"
+cpp -P -undef -nostdinc -Iinclude/$TARGET -Iinclude -DM2CTX "$BUILD_DIR/ctx_includes.c" > "$BUILD_DIR/ctx.c"
 
 exec .venv/bin/python tools/vendor/m2c/m2c.py --target mipsel-gcc-c --context "$BUILD_DIR/ctx.c" "$@" "$asm"
