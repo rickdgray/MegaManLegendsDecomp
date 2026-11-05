@@ -24,7 +24,7 @@
 
 ## The game's file table
 
-`SLUS_006.03` (and probably ROCK_NEO.EXE) carries a table of every file on the disc, `Cd_file_tbl`
+`SLUS_006.03` and `ROCK_NEO.EXE` carries a table of every file on the disc, `Cd_file_tbl`
 (248 entries of 12 bytes: start sector, size, a third word). Files are addressed by index rather
 than by name:
 

@@ -12,7 +12,6 @@ extern sint32 D_80098998;        // D_80059C00
 extern sint32 D_800989C8;        // D_80059C24
 extern uint8 D_80098AA0;         // D_80059C48
 extern uint8 D_80098B42;         // D_80059C74
-extern CD_FILE Cd_file_tbl[];     // 12-byte entries, first field is a sector
 extern CD_CMD_FUNC D_80087670[]; // run by func_8001B858, indexed by the command's arg2
 
 void func_8001D6D8(sint32 sector);
