@@ -753,6 +753,7 @@ _send_pad = 0x800805D0; // type:func
 _remove_ChgclrPAD = 0x80080668; // type:func
 Code800133D8_main_tbl = 0x80080950;
 Game_main_tbl = 0x80082114;
+Cd_file_tbl = 0x80082CD0;
 Rock_buster_parts_tbl = 0x8008FE64;
 Map_screen_work = 0x800987F0;
 Cd_wait = 0x80098828;

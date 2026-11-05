@@ -193,7 +193,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D6D8);
 
 void func_8001D7AC(sint32 index)
 {
-    func_8001D6D8(D_80082CD0[index].sector);
+    func_8001D6D8(Cd_file_tbl[index].sector);
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D7E4);
