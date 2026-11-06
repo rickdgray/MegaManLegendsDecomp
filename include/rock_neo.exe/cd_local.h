@@ -14,6 +14,27 @@ extern uint8 D_80098AA0;         // D_80059C48
 extern uint8 D_80098B42;         // D_80059C74
 extern CD_CMD_FUNC D_80087670[]; // run by func_8001B858, indexed by the command's arg2
 
+typedef struct
+{
+    uint32 offset; // sector offset within the file (low 24 bits)
+    uint32 unk4;
+} CD_POS;
+
+// Unknown
+extern uint16 D_80098994;
+extern uint8 D_80098AB8;
+extern sint32
+    *D_80088F9C[16]; // file index tables, selected by the top nibble of func_8001D648's argument
+extern CD_POS **D_80088EF8[16]; // matching sector offset tables
+
+void Cd_set_volume(uint8 vol);
+void Cd_pause(void);
+void Cd_stop(void);
+void Cd_read_sync(void);
+
+// Unknown
+void func_8001B7B4(void);
+void func_8001D648(uint32 arg);
 void func_8001D6D8(sint32 sector);
 void func_8001D7AC(sint32 index);
 

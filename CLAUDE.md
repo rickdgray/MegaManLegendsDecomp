@@ -234,6 +234,7 @@ What decompilers show vs. what to write:
   calls), is a source bug, and it disturbs instruction order and delay slots elsewhere.
   `cmd_play_movie`'s apparent scheduling difference disappeared once its wrong field and wrong
   macro argument were fixed.
+- A function that parks over a “shared base register” may just be waiting for its variables to be recognized as one struct.
 
 ## Types and headers
 

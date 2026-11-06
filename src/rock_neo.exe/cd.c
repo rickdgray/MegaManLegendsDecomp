@@ -1,4 +1,6 @@
 #include "common.h"
+#include "system.h"
+#include "sound.h"
 #include "cd.h"
 #include "psyq/libcd.h"
 
@@ -51,7 +53,33 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B644);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B6FC);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001B7B4);
+void func_8001B7B4(void)
+{
+    sint32 i;
+    uint16 tmp;
+
+    for (i = CD_VOL_MAX; i > 0; i--)
+    {
+        Cd_set_volume(i);
+    }
+
+    Sound_work.flags |= SOUND_FLAG_CD_OFF;
+
+    if (D_800988DC)
+    {
+        D_800988DC       = 0;
+        Sound_work.unk06 = D_80098994;
+    }
+    else
+    {
+        tmp              = Sound_work.unk06;
+        Sound_work.unk06 = 0;
+        D_800988DC       = 1;
+        D_80098994       = tmp;
+    }
+
+    Cd_cmd_dequeue();
+}
 
 void func_8001B858(void)
 {
@@ -92,9 +120,31 @@ void Cd_cmd_dequeue(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_cmd_dequeue);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001CB30);
+void Cd_pause(void)
+{
+    Cd_error_flags = 0;
+    CdReadyCallback(0);
+    CdSyncCallback(Cd_sync_cb);
+    Cd_control_retry(CdlPause, NULL, Cd_result);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001CB7C);
+void Cd_stop(void)
+{
+    sint32 i;
+
+    for (i = CD_VOL_MAX; i > 0; i--)
+    {
+        Cd_set_volume(i);
+    }
+
+    Sound_work.flags |= SOUND_FLAG_CD_OFF;
+    Cd_error_flags = 0;
+    CdReadyCallback(0);
+    CdSyncCallback(Cd_sync_cb);
+    Cd_control_retry(CdlPause, 0, Cd_result);
+    D_800988D0 = 0;
+    D_80098AB8 = 0;
+}
 
 void Cd_sync_cb(u_char status, u_char *result)
 {
@@ -158,7 +208,29 @@ void Cd_set_mode(u_char mode)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D394);
+void Cd_set_volume(uint8 vol)
+{
+    SOUND_WORK *sw = &Sound_work;
+
+    if (Sound_work.flags & SOUND_FLAG_MONO)
+    {
+        // mono: both inputs to both outputs
+        Sound_work.atv.val0 = vol;
+        Sound_work.atv.val1 = vol;
+        Sound_work.atv.val2 = vol;
+        Sound_work.atv.val3 = vol;
+    }
+    else
+    {
+        // stereo: left to left, right to right
+        Sound_work.atv.val0 = vol;
+        Sound_work.atv.val1 = 0;
+        Sound_work.atv.val2 = vol;
+        Sound_work.atv.val3 = 0;
+    }
+
+    CdMix(&sw->atv);
+}
 
 void func_8001D414(sint32 arg1, sint32 arg2)
 {
@@ -187,7 +259,19 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D494);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D58C);
 
+#ifdef NON_MATCHING
+void func_8001D648(uint32 arg)
+{
+    uint32 hi  = arg >> 28;
+    uint32 mid = (arg << 4) >> 20;
+    uint32 lo  = arg & 0xFFFF;
+
+    func_8001D6D8(Cd_file_tbl[D_80088F9C[hi][mid]].sector +
+                  (D_80088EF8[hi][mid][lo].offset & 0xFFFFFF));
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D648);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D6D8);
 
@@ -196,7 +280,13 @@ void func_8001D7AC(sint32 index)
     func_8001D6D8(Cd_file_tbl[index].sector);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D7E4);
+void Cd_read_sync(void)
+{
+    while (Cd_cmd_write_ptr != Cd_cmd_queue)
+    {
+        Thread_wait(1);
+    }
+}
 
 sint32 Cd_read_sync2(void)
 {

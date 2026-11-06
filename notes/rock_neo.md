@@ -114,12 +114,24 @@ is **suspected** until verified.
 
 - **Banked:** `Cd_init`, `Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`,
   `Cd_read_sync2`. Same C as the shim, ROCK_NEO's symbol names.
+- **Also banked:** `Cd_pause`, `Cd_read_sync`, `Cd_set_volume` (needs a local
+  `uint8 *base = Cd_work;` and `CdMix(base + 0x14)` to hoist the base address; the four
+  `D_800AD154..57` bytes are separate globals).
+- **Parked:** `Cd_stop`, `func_8001B7B4`: target does `D_800AD142 |= 0x8000` through a
+  shared address register (`lui`/`addiu v1`, `sh` reuses it); we emit `lui at` + `sh`. Tried plain
+  global, `uint16 *` local (before/after the loop), `Cd_work + 2` cast; `func_8001B7B4` also
+  has the `li v0,1` hoisted by the target.
 - **Parked:** `Cd_cmd_dequeue`. The shim's draft with `p->type = 0;` for the terminator. Same
   difference as in the shim: GCC bases the second loop pointer at `p+4` (target `p+0xC`, with
   `a2`/`a1` where the draft gets `a3`/`a2`); the tail matches.
 - **The `cd` rodata:** its three jump tables (`0xA44`-`0xAB0`, used by `func_8001BB4C`) sit inside
   the `9E4` block, between a `sound` table and `scene`'s path strings, so the yaml splits that
   block at `0xA44` (`.rodata, cd`) and `0xAB0`.
+- `func_8001D648`: takes a packed file reference (bits 0-15 entry, 16-27 file, 28-31 group;
+  `CD_FILE_ID`) and goes to that entry's sector. The target extracts the middle field and scales
+  it as separate steps (`sll 4`, `srl 20`, `sll 2`); GCC folds both a bit-field and plain shifts
+  into `srl 14` / `andi 0x3FFC`. Ruled out: bit-field by value, union over the `uint32`. 
+  Something in the original hid the chain from combine (a narrower type or cast?). Permuter candidate.
 
 ## To do
 

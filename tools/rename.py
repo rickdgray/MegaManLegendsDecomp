@@ -31,6 +31,12 @@ LINE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*(?://\s*(.*)
 DEFAULT = re.compile(r"^(func|D|jtbl)_([0-9A-Fa-f]{8})$")
 IDENT = re.compile(r"^[A-Za-z_]\w*$")
 
+# Where each executable's image (code, data and BSS) lives; anything outside is absolute.
+IMAGE = {
+    "slus_006.03": (0x80010000, 0x8005DA40),
+    "rock_neo.exe": (0x80010000, 0x800D9000),
+}
+
 
 class Entry:
     def __init__(self, name, addr, attrs):
@@ -63,7 +69,7 @@ def load_registry():
     return lines, entries
 
 
-def rename_registry(lines, entries, old, new, extra):
+def rename_registry(lines, entries, old, new, extra, target="rock_neo.exe"):
     """Update or insert the registry line. Returns a description of the change."""
     by_name = {e.name: i for i, e in entries.items()}
     if new in by_name and new != old:
@@ -89,7 +95,8 @@ def rename_registry(lines, entries, old, new, extra):
     attrs = {}
     if m.group(1) == "func":
         attrs["type"] = "func"
-    if addr < 0x80000000:
+    lo, hi = IMAGE[target]
+    if addr < 0x80000000 or not (lo <= addr < hi):
         attrs["absolute"] = "True"
     attrs.update(extra)
     e = Entry(new, addr, attrs)
@@ -149,7 +156,7 @@ def main():
 
     for old, new, extra in jobs:
         print(f"{old} -> {new}")
-        print("   ", rename_registry(lines, entries, old, new, extra))
+        print("   ", rename_registry(lines, entries, old, new, extra, target=args.target))
         pattern = re.compile(rf"\b{re.escape(old)}\b")
         hits = 0
         for p in files:
