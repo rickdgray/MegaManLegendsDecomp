@@ -140,7 +140,7 @@ different. decomp-permuter will handle these later.
 gcc 2.7.2 is a C89 compiler.
 
 - Comments: `//` is fine and preferred (GCC of this era accepts it as a GNU extension to C89).
-- Declare variables at the top of a block.
+- **Declarations:** all local variables at the top of the function, never block-local, for consistency. (Scope doesn't change GCC 2.7's output; the build is the check.)
 - No `inline`, no `bool`, no designated initializers, no mixed declarations and code.
 - Write the plainest C that produces the bytes. The goal is the source Capcom wrote, not
   "better" code. Some idioms are deliberate and must be preserved; for example,
