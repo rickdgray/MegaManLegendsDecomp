@@ -23,7 +23,7 @@ is for the owner: which model to use, what it costs, how to run batches, and how
 | Group C, main and init (6) | Sonnet | Fresh | 6 banked | $1.07 (~$0.18/function) |
 | First ROCK_NEO port (the `cd` file from the shim) | Opus | Fresh | Ported | $1.76 |
 | Six-function batch | Sonnet | Fresh (batch runner) | | $0.28 |
-| `batch_run.py` on `cd.c` (`logs/batch_20261106_001300/`, 4 batches) | Sonnet | Fresh per batch | 10 banked, 3 parked, `func_8001BB4C` skipped | $2.83 |
+| `batch_run.py` on `cd.c` (`logs/batch_20261106_001300/`, 4 batches) | Sonnet | Fresh per batch | 10 banked, 3 parked, `cd_cmd_read_comb` skipped | $2.83 |
 
 Most cost is **context**, re-sent every turn as cache reads, not output. The group A run cost
 several times more because the session had carried hours of earlier work.

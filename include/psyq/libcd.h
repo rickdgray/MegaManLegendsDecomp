@@ -9,9 +9,13 @@
 #include "common.h"
 
 // CdControl command codes.
+#define CdlNop       0x01
 #define CdlSetloc    0x02
+#define CdlReadN     0x06
 #define CdlPause     0x09
 #define CdlSetmode   0x0e
+#define CdlGetlocP   0x11
+#define CdlSeekL     0x16
 #define CdlSetfilter 0x0d
 #define CdlReadS     0x1b
 
@@ -26,6 +30,15 @@
 #define CdlModeSpeed   0x80  // double speed
 #define CdlModeStream  0x100 // normal streaming
 #define CdlModeStream2 0x120 // streaming, subheader information included
+
+// Status byte bits (Cd_result[0] after most commands)
+#define CdlStatPlay      0x80 // playing CD-DA
+#define CdlStatSeek      0x40 // seeking
+#define CdlStatRead      0x20 // reading data sectors
+#define CdlStatShellOpen 0x10 // lid open (or was opened)
+#define CdlStatSeekError 0x04 // seek error
+#define CdlStatStandby   0x02 // motor spinning
+#define CdlStatError     0x01 // command error
 
 // CdSyncCallback / CdReadyCallback status codes.
 #define CdlDataReady 1
@@ -87,6 +100,7 @@ CdlCB CdSyncCallback(CdlCB func);
 CdlCB CdReadyCallback(CdlCB func);
 int CdMix(CdlATV *vol);
 CdlLOC *CdIntToPos(int i, CdlLOC *p);
+int CdPosToInt(CdlLOC *p);
 int CdGetSector(void *madr, int size);
 
 #endif // PSYQ_LIBCD_H

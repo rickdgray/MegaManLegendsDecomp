@@ -24,7 +24,7 @@ typedef struct
     sint16
         unk0C; // 0x0C: lh; &unk0C passed to func_8001AE6C (read/written as 16-bit) by func_8001AEF0
     sint16
-        unk0E; // 0x0E: lh; &unk0E passed to func_8001AE6C by func_8001AEF0; also written by func_8001B89C
+        unk0E; // 0x0E: lh; &unk0E passed to func_8001AE6C by func_8001AEF0; also written by cd_cmd_xa_play
     sint16 unk10; // 0x10: lh (func_8001A274); &unk10 passed to func_8001AE6C by func_8001AEF0
     sint16
         unk12; // 0x12: lh; &unk12 passed to func_8001AE6C; set to 0x7F by func_8001AA8C/func_8001AC58
