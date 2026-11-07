@@ -123,17 +123,22 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
   5 = play movie), then `CD_CMD_ARGS` (`arg1`, `arg2`, `sint16 arg3`; copied as one 12-byte block,
   possibly a union per command type). `Cd_cmd_write_ptr` (`0x80059c08`) is the next free slot;
   `Cd_cmd_exec_ptr` (`0x80059c38`) the command being run.
-- `Cd_init`: `CdInit` retry loop, `Cd_control_retry(CdlSetmode, &Cd_mode, Cd_result)`, clears the
+- `Cd_file_tbl` (`0x8001D3DC`, `CD_FILE[248]`): the disc's file table; the last entry is the CD
+  audio track. See [disc.md](disc.md).
+- `Cd_init`: `CdInit` retry loop, `Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result)`, clears the
   queue. Stores 0 to `D_80059BCA` **twice** (required for the match).
-- `Cd_control_retry(com, param, result)`: waits on `CdSync`, then retries `CdControlB`.
-- `Cd_cmd_set_movie(a1, a2, a3)` appends a type-5 command; `Cd_cmd_dequeue` shifts the queue down one;
-  `Cd_read_sync2` = queue not empty.
-- `Cd_cmd_exec`: if `D_80059BDC` is set, drops the current command and resets the drive; then calls
-  `cd_cmd_tbl[Cd_cmd_exec_ptr->type]()`. `cd_cmd_tbl[6]`: types 0–4 → `cd_cmd_nop`, type 5 →
-  `cd_cmd_play_movie` (a 6-case switch; jump table at `0x80010000`).
-- **Suspected:** this module is shared with `ROCK_NEO.EXE`, where types 1–4 do real work.
-- **Open:** `D_80059C20`/`D_80059C24` (per-command progress, cleared on dequeue), `D_80059BDC`
-  (abort flag?), the movie arguments `(0xd0, 0x91, 0x2008)`.
+- `Cd_control_retry` / `Cd_controlb_retry(com, param, result)`: wait on `CdSync`, then retry
+  `CdControl` / `CdControlB`. `Cd_set_mode(mode)`: sets `Cd_wait = 2` if the speed bit flips.
+  `Cd_sync_cb`: `CdSync` callback (complete → `Cd_sync_done = 1`, else sets `CD_ERR_SYNC`).
+- `Cd_cmd_set_movie(a1, a2, a3)` appends a type-5 command; `Cd_cmd_dequeue` shifts the queue down
+  one; `Cd_read_sync2` = queue not empty.
+- `Cd_cmd_exec`: if `Cd_error_flags` is set, drops the current command and resets the drive; then
+  calls `cd_cmd_tbl[Cd_cmd_exec_ptr->type]()`. `cd_cmd_tbl[6]`: types 0–4 → `cd_cmd_nop`, type 5 →
+  `cd_cmd_play_movie` (a 6-case switch on `Cd_cmd_routine`; jump table at `0x80010000`).
+- **Confirmed:** this module is shared with `ROCK_NEO.EXE`, where types 1, 2, 4, 6 and 7 do real
+  work; see "Shared code" and "CD module" in [rock_neo.md](rock_neo.md).
+- `D_80059C24` is only ever cleared (`Cd_init`, `Cd_cmd_dequeue`).
+- **Open:** the movie arguments `(0xd0, 0x91, 0x2008)`.
 
 ## PsyQ library
 
@@ -150,12 +155,13 @@ functions called from Capcom code and identified by hand: `SsInit` (`0x8001a864`
 ## Function status
 
 Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `Pad_update_all`,
-`Vsync_handler`, `Disp_adjust`, `Cd_init`, `Cd_control_retry`, `cd_cmd_nop`, `Cd_cmd_exec`,
-`Cd_cmd_set_movie`, `Cd_read_sync2`, `Intro_task`, `intro_copyright`, `intro_copyright_draw`,
-`intro_wait_idle`, `intro_play_movie`, `intro_launch_game`, `Movie_buf_get`, `Movie_buf_release`,
-`Movie_dct_out_callback`, `Cd_set_volume`, `Cd_stop`, `cd_cmd_play_movie`.
+`Vsync_handler`, `Disp_adjust`, `Cd_init`, `cd_cmd_nop`, `Movie_buf_get`, `Movie_buf_release`,
+`cd_cmd_play_movie`, `Movie_dct_out_callback`, `Cd_cmd_exec`, `Cd_set_volume`, `Cd_stop`,
+`Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`, `Cd_cmd_set_movie`,
+`Cd_read_sync2`, `intro_copyright_draw`, `intro_copyright`, `intro_wait_idle`, `intro_play_movie`,
+`intro_launch_game`, `Intro_task`.
 
-Parked (`NON_MATCHING`, on the permuter):
+Parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
 
 - `Intro_init`: best draft uses chained assignments for the two sprite buffers, `getClut(0, 240)`,
   and one counter `i` for both the sprite loop and the draw-mode loop (asm-differ 210). Same length
@@ -172,69 +178,41 @@ Parked (`NON_MATCHING`, on the permuter):
   `for (p = Cd_cmd_queue; p->type != 0; p++) { p->type = p[1].type; p->args = p[1].args; }`,
   then `p[1].type = 0`. Instruction-for-instruction aligned (asm-differ 530). Remaining: GCC's
   derived loop pointer is based at `p + 4` (target `p + 0xc`), `p++` is scheduled after the args
-  stores (target: before), and register numbering.
+  stores (target: before), and register numbering. ROCK_NEO's copy parks with the same difference.
   - Permuter (10 h, from the older `while` draft): best 150 (permuter scale), only via implausible
     disguises (constant index variables, always-true `if`s). All of them make the `type` copy and
     the `args` copy reach `p[1]` through *different* expressions.
   - Ruled out: two pointers `dst`/`src` (the target stores args through the derived pointer, so
     one source pointer), a `next` pointer (worse), `*p = p[1]`, index form, reversed copy order.
   - **Suspected:** `p + 0xc` is `&p->args.arg3`, so the original may touch `arg3`'s word directly,
-    e.g. through a union view of `CD_CMD_ARGS`. Revisit when group B shows how `CD_CMD_ARGS` is used.
-  - `permuter/Cd_cmd_dequeue/` regenerated from the `for` loop draft.
-
-Parked (group B, `NON_MATCHING`):
-
-- `Movie_frame_upload`: right shape (rect pointer computed once from `Dbl_buff_idx` before the
-  loop; walking image pointer stepping one column, `0x1E00` bytes). Only register allocation
-  differs: `i` and the image pointer swap `s1`/`s2`, and the constant `1` (for
-  `1 - Movie_frame_idx`) is loaded at a different point. Ruled out: indexed form
-  (`&Movie_rect_tbl[Dbl_buff_idx][i]`, `MOVIE_IMG(...) + i * ...`), which reloads `Dbl_buff_idx`
-  inside the loop (the target loads it once). Register-allocation group: compiler/flag test.
-  - `Movie_frame_upload`: the counter is initialized before the pointer setup (`i = 0;` then `rect`,
-  `img`, then `for (; i < 20; i++)`); with that, all registers match. Remaining: the hoisted
-  constant `1` (for `1 - Movie_frame_idx`) loads after the image pointer instead of before. Found
-  via ablation of a permuter output whose `do`/`while (0)` around the setup was doing the same job.
-  - `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect`, then a variable
-  holding 1, then `img`, then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`.
-  All registers and instruction order match; only `addu a1,a1,s1` (target) vs `addu a1,s1,a1`
-  (ours) at the image address differs. The variable holding 1 is a marked hack (it makes GCC create
-  the constant before the image pointer). Tried: operand order in the source, the variable before
-  `rect`, declared last. History: ablation of a permuter output showed its `do`/`while (0)` mattered;
-  `i = 0` before the pointer setup fixed all registers.
-- `Movie_sector_cb`: cleaned up (`MOVIE_SLOT`, `StHEADER` table indexing, `sec->data`,
-  `STR_DATA_WORDS`); same diff as before the cleanup. Body matches; in the last `else` arm
-  (the CD error path) the target emits `move a0,zero` first and leaves the branch delay slot
-  as a `nop`, where ours fills it. A delay-slot difference: candidate for the assembler
-  (maspsx `--aspsx-version`) test, along with `cd_cmd_play_movie`'s case 3.
-- `Movie_start`: body matches exactly. Only difference: the target rebuilds `Cd_result`'s address
-  (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls; our compiler keeps it in
-  `s0`. No source construct controls this; it's GCC's cost choice between rematerializing a
-  constant and keeping it in a saved register. Cleanest evidence for a toolchain difference; a
-  three-call probe reproduces it (see the compiler/flag test).
+    e.g. through a union view of `CD_CMD_ARGS`. ROCK_NEO reads that word as 32 bits in several
+    functions (see [rock_neo.md](rock_neo.md)), which supports it.
+- `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect` (computed once from
+  `Dbl_buff_idx`), then a variable holding 1, then `img` (a walking pointer stepping one column,
+  `0x1E00` bytes), then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`. All
+  registers and instruction order match; only `addu a1,a1,s1` (target) vs `addu a1,s1,a1` (ours)
+  at the image address differs. The variable holding 1 is a marked hack (it makes GCC create the
+  constant before the image pointer). Tried: operand order in the source, the variable before
+  `rect`, declared last; the indexed form reloads `Dbl_buff_idx` in the loop. History: ablation of
+  a permuter output showed its `do`/`while (0)` mattered; `i = 0` before the pointer setup fixed
+  all registers.
+- `Movie_sector_cb` (`0x80011A64`): body matches; in the last `else` arm (the CD error path) the
+  target emits `move a0,zero` first and leaves the branch delay slot as a `nop`, where ours fills
+  it. Needs the STR sector header read through a struct pointer assigned after `CdGetSector`, and
+  the payload source as a literal `0x800F0020`. A delay-slot difference: candidate for an
+  assembler (maspsx `--aspsx-version`) test.
+- `Movie_start` (`0x80011940`): body matches exactly. Only difference: the target rebuilds
+  `Cd_result`'s address (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls; our
+  compiler keeps it in `s0`. `Cd_status = 1` must come first (it hoists `li s1,1`); the filter
+  stores follow `Movie_end_frame`. Tried `&Cd_result[0]`. No source construct found that controls
+  this; it's GCC's cost choice between rematerializing a constant and keeping it in a saved
+  register.
   - Probe results (three calls passing the same buffer): GCC keeps a symbol's address in a saved
-  register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
-  is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
-  symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
-  `-fno-expensive-optimizations` reproduces it but breaks other functions. All gcc 2.6.0–2.7.2.3
-  builds behave alike. Next: permuter.
-
-Group B (CD module), banked: `func_800118CC` (CdSync callback: complete → `Cd_sync_done=1`, else
-`D_80059BDC |= 8`), `func_80011C1C` (like `Cd_control_retry` but `CdControl`), `func_80011CEC`
-(set CD mode; `Cd_wait = 2` if bit 7 flips).
-
-Group B, parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
-
-- `func_80011940`: only `Cd_result`'s address differs. The target reloads `lui/addiu` for each of
-  its three `Cd_control_retry` calls; ours shares it in `s0`. Tried `&Cd_result[0]`.
-  `Cd_status = 1` must come first (it hoists `li s1,1`); the filter stores follow `D_80059BB0`.
-- `func_80011A64`: one instruction. The target's last `else` arm has `move a0,zero` first and a
-  `nop` delay slot; ours fills the slot with it. Needs the STR sector header read through a struct
-  pointer assigned after `CdGetSector`, and payload source as a literal `0x800F0020`.
-
-Movie command: `CD_CMD_ARGS` = `{movie index into the 12-byte table at 0x8001D3DC, last frame number
-(compared with word 2 of the frame's first sector header), pad buttons that skip (tested against
-Joy1's "on" word)}`. `D_80059C20` is `cd_cmd_play_movie`'s state (the switch index, 0–5);
-`D_80059C24` is only ever cleared (Cd_init, Cd_cmd_dequeue).
+    register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
+    is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
+    symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
+    `-fno-expensive-optimizations` reproduces it but breaks other functions; all gcc
+    2.6.0–2.7.2.3 builds behave alike ([toolchain.md](toolchain.md)). Next: permuter.
 
 ## Hacks to revisit
 
@@ -246,7 +224,3 @@ Joy1's "on" word)}`. `D_80059C20` is `cd_cmd_play_movie`'s state (the switch ind
 
 - `2MBYTE.OBJ` holds two `0x00200000` words; which is the RAM size and which the stack setting?
 - Meaning of the loader's `_B4` suffix on `2MBYTE_OBJ_B4`.
-
-## CD Info
-
-- `Cd_file_tbl` (`0x8001D3DC`, `CD_FILE[248]`): 248 entries; the last is the CD audio track. See disc.md

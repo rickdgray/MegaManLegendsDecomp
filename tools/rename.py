@@ -13,7 +13,8 @@ attr: splat attributes for the registry line, e.g. size:0x24 or type:func.
 
 The address comes from the registry line when OLD is already registered, otherwise from a splat
 default name (func_XXXXXXXX, D_XXXXXXXX, jtbl_XXXXXXXX). New lines get type:func for func_
-names, and absolute:True for addresses below 0x80000000 (scratchpad, hardware registers).
+names, and absolute:True for addresses outside the target's image (see IMAGE below): scratchpad,
+hardware registers, and RAM no section of the executable covers (e.g. ROCK_NEO's 0x801F8300).
 
 Afterwards run ./tools/rebuild.sh <target> (split, build, refresh expected/).
 """

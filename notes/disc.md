@@ -24,9 +24,9 @@
 
 ## The game's file table
 
-`SLUS_006.03` and `ROCK_NEO.EXE` carries a table of every file on the disc, `Cd_file_tbl`
-(248 entries of 12 bytes: start sector, size, a third word). Files are addressed by index rather
-than by name:
+`SLUS_006.03` and `ROCK_NEO.EXE` each carry the same table of every file on the disc,
+`Cd_file_tbl` (248 entries of 12 bytes: start sector, size, a third word; shim `0x8001D3DC`,
+ROCK_NEO `0x80082CD0`). Files are addressed by index rather than by name:
 
 | Index | File |
 |---|---|
@@ -38,11 +38,12 @@ than by name:
 - **Confirmed:** entries 0–2 match the files' sizes exactly; entry 247 matches the audio track.
 - **Unknown:** the third word for movie and XA entries (flags? interleave/channel settings?). Sizes
   of mixed-mode files (STR, XA) don't follow 2048-byte sectors; their unit is unconfirmed.
-- ROCK_NEO's `Cd_read_comb(id)` (per ChrisNonyminus/mml1) takes these indices.
+- **Confirmed:** commands take these indices: the shim's movie command (`0xD0`), and ROCK_NEO's
+  `Cd_read_comb(id)` and other queue functions ([rock_neo.md](rock_neo.md), "CD module").
 
 ## Code inventory
 
-Counts of `jr ra` per file (`tools/Count-MipsFunctions.ps1`). 53 of 249 extracted files contain
+Counts of `jr ra` per file (from a PowerShell script, `Count-MipsFunctions.ps1`, since removed from `tools/`). 53 of 249 extracted files contain
 code; 12,243 `jr ra` in total, about 10,764 after removing suspected duplicates.
 
 | Group | `jr ra` | Share (deduplicated) |

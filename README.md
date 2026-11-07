@@ -12,7 +12,7 @@ The long-term goal is a *matching* decompilation: C source that compiles to a by
 |---|---|
 | Title | Mega Man Legends (USA) |
 | Serial | SLUS-00603 |
-| Executable | `SLUS_006.03` |
+| Executables | `SLUS_006.03` (boot shim), `ROCK_NEO.EXE` (main game) |
 | Redump entry | <http://redump.org/disc/2773/> |
 | Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
 | Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
@@ -21,13 +21,13 @@ Other regions and disc revisions are not supported.
 
 ## Status
 
-🔍 **Recon.** Mapping the executable, PsyQ library usage, and overlays.
+🛠️ **Decompiling.** Both executables rebuild byte-for-byte; C is replacing the assembly one source file at a time.
 
 - [x] Verified clean disc image against Redump
 - [x] Extracted filesystem and confirmed boot executable
-- [X] Recon: code/data boundaries, PsyQ version, overlay map (`SLUS_006.03` done; `ROCK_NEO.EXE` and overlays next)
-- [X] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` **matches**)
-- [ ] Decompilation passes (m2c, permuter, agent-assisted matching): local toolchain matching; first `SLUS_006.03` functions banked
+- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); overlays not yet
+- [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` and `ROCK_NEO.EXE` **match**)
+- [ ] Decompilation (m2c, permuter, agent-assisted batches): `SLUS_006.03` all in C except 5 parked functions; `ROCK_NEO.EXE` split into Capcom's source files, its `cd` file in C. `tools/progress.py` reports the numbers
 - [ ] Naming and documentation
 
 ## Code style
@@ -58,15 +58,32 @@ This also writes the layout XML (`-s`) used to rebuild the disc.
 sha1sum -c checksums.sha1
 ```
 
+### 4. Build
+
+In WSL Ubuntu, fetch the pinned tools and build each target; each build prints MATCH or MISMATCH:
+
+```bash
+./tools/fetch_tools.sh
+./tools/rebuild.sh slus_006.03
+./tools/rebuild.sh rock_neo.exe
+```
+
+The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolchain.md).
+
 ## Repository layout
 
 ```
-├── checksums.sha1    # SHA-1 of the original executable
-├── layout/           # mkpsxiso disc layout (metadata only)
-├── notes/            # recon findings and research notes
-├── symbols/          # function and data symbols
-├── tools/            # helper scripts
-└── disc/             # (gitignored) your disc image and extracted files
+├── CLAUDE.md                  # rules and patterns for writing matching C (read by agents and people)
+├── checksums.sha1             # SHA-1 of the original executable
+├── <target>.yaml              # splat config per executable (slus_006.03, rock_neo.exe)
+├── symbol_addrs_<target>.txt  # symbol registry per executable
+├── src/<target>/              # decompiled C
+├── include/                   # headers shared by both executables; include/<target>/ for the rest
+├── layout/                    # mkpsxiso disc layout (metadata only)
+├── notes/                     # findings and research notes (start with notes/README.md)
+├── tools/                     # build, diff and helper scripts
+├── disc/                      # (gitignored) your disc image and extracted files
+└── asm/, assets/, build/, expected/   # (gitignored) generated from disc/
 ```
 
 ## Tools
@@ -76,6 +93,8 @@ sha1sum -c checksums.sha1
 | [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | 12.1.4 | Analysis and decompilation reference |
 | [ghidra_psx_ldr](https://github.com/lab313ru/ghidra_psx_ldr) | 2026.10.03 | PS-X EXE loader and PsyQ signatures |
 | [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) | | Disc extraction and rebuilding |
+
+The matching toolchain (gcc 2.7.2-psx, maspsx, splat, m2c, asm-differ, decomp-permuter) is pinned in `tools/fetch_tools.sh`; see [`notes/toolchain.md`](notes/toolchain.md).
 
 ## Legal
 

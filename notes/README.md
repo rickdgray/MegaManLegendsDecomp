@@ -5,14 +5,16 @@ what is known **now**, organized by topic. The discovery history lives in git.
 
 | File | Covers |
 |---|---|
-| [disc.md](disc.md) | The disc: target hashes, layout, file inventory, code counts, overlay chunk format, load addresses |
-| [toolchain.md](toolchain.md) | Compiler and flags (with evidence), build pipeline, splat configuration, tools, gotchas |
+| [disc.md](disc.md) | The disc: target hashes, layout, the file table, code counts, overlay chunk format, load addresses |
+| [toolchain.md](toolchain.md) | Compiler and flags (with evidence, including ROCK_NEO's `-G8`), build pipeline, splat configuration, symbol registry, tools, gotchas |
 | [shim.md](shim.md) | `SLUS_006.03`, the boot shim: layout, subsystems, function status, open questions |
-| [rock_neo.md](rock_neo.md) | `ROCK_NEO.EXE`, the main game: what's known before starting, and the to-dos |
-| [agents.md](agents.md) | Working with Claude Code: model tiers, measured costs, session hygiene, review checklist |
+| [rock_neo.md](rock_neo.md) | `ROCK_NEO.EXE`, the main game: layout, code shared with the shim, sound, threads, the CD module, function status, to-dos |
+| [rock_neo_files.md](rock_neo_files.md) | `ROCK_NEO.EXE`'s split into Capcom's source files: evidence and confidence per file |
+| [agents.md](agents.md) | Working with Claude Code: model tiers, measured costs, the batch runner, session hygiene, review checklist |
+| `sdk/` | Sony's PsyQ SDK documentation (PDFs: library reference, file formats, hardware). Gitignored, local copy only |
 
-Codegen patterns for writing matching C (wide stores, chained assignment, separate symbols vs.
-arrays, `volatile`, ...) live in `CLAUDE.md`, not here.
+Rules for agents, the header layout, and codegen patterns for writing matching C (wide stores,
+chained assignment, separate symbols vs. one struct, `volatile`, ...) live in `CLAUDE.md`, not here.
 
 ## Conventions
 

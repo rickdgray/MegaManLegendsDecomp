@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Prepare a decomp-permuter directory for a parked function.
 
-Usage:  tools/permuter_prep.py <target> FunctionName [--src src/<target>/main.c]
+Usage:  tools/permuter_prep.py <target> FunctionName --src src/<target>/<file>.c
+
+--src is required: the C file that holds the parked function (e.g. src/slus_006.03/main.c,
+src/rock_neo.exe/cd.c).
 
 The function must be parked in the source like this:
 
     #ifdef NON_MATCHING
     <best attempt>
     #else
-    INCLUDE_ASM("asm/<target>/nonmatchings/main", FunctionName);
+    INCLUDE_ASM("asm/<target>/nonmatchings/<file>", FunctionName);
     #endif
 
 Creates permuter/<target>/<FunctionName>/ with base.c, target.s, target.o, compile.sh and
@@ -46,11 +49,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target", choices=TARGETS)
     ap.add_argument("function")
-    ap.add_argument("--src", help="C file containing the parked function (default: src/<target>/main.c)")
+    ap.add_argument("--src", required=True, help="C file containing the parked function, e.g. src/<target>/main.c")
     args = ap.parse_args()
     fn = args.function
-    if args.src is None:
-        args.src = f"src/{args.target}/main.c"
 
     src_path = ROOT / args.src
     text = src_path.read_text()

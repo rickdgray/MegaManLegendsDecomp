@@ -2,9 +2,10 @@
 
 Proposed split of the two Capcom code ranges (`2490`: `0x80011C90`-`0x80067FF7`, `588BC`:
 `0x800680BC`-`0x80069037`) into Capcom's original source files. **Mostly suspected, not verified.**
-Nothing here is in the yaml yet. File offset = address - `0x8000F800`.
+The split is applied in `rock_neo.exe.yaml` (one subsegment per row, all `asm` except `cd`, which is
+C); a row's low/medium mark is a comment on its yaml line. File offset = address - `0x8000F800`.
 
-**Bottom line:** 30 proposed files: 3 high, 10 medium, 17 low confidence. Certain: the range start,
+**Bottom line:** 30 proposed files: 1 confirmed (`cd`), 3 high, 9 medium, 17 low confidence. Certain: the range start,
 both sides of `2MBYTE.OBJ` (`0x80067FF8`/`0x800680BC`) and the end at `ADDDF3`. 12 starts rest on a single piece of
 evidence: 11 of the 17 low rows and row 5 (see the "Single" column). Read each start as "a boundary lies in
 this window"; the table gives a best guess inside it.
@@ -13,18 +14,19 @@ this window"; the table gives a best guess inside it.
 
 - **Rodata blocks are not files.** Block `1BD8` holds jump tables for functions on *both* sides of
   `2MBYTE.OBJ` (`func_8006689C` ... `func_80068DAC`), so one splat block can span objects. Block `9E4`
-  (jump tables + stage-file path strings) spans three files (`0x80017C30`, `0x8001BB4C`, `0x8001F23C`),
-  and block `156C` at least four. So "13 blocks" means *at least* 13 rodata-owning files; a block's
+  (jump tables + stage-file path strings) **holds three files' data** (`0x80017C30`, `0x8001BB4C`,
+  `0x8001F23C`); the yaml splits it at `0xA44` and `0xAB0` so that `cd`'s part travels with its C.
+  Block `156C` holds at least four. So "13 blocks" means *at least* 13 rodata-owning files; a block's
   users give a file's code range only as a lower bound. The table below lists which files own which
   blocks. Files with no switch statements or string literals have no rodata and can't be seen this way.
 - **Rodata block -> file** (users from `jlabel` targets and `%hi` references):
   `800` rows 1 (`D_80010000`, `D_80010040`) and 2 (3 jump tables); `8B4` row 3; `938` row 4; `9E4` rows 6
-  (`func_80017C30`), 8 (`func_8001BB4C`, 3 tables) and 9 (the path strings, reached via `.data` table
+  (`func_80017C30`), 8 (`0xA44`–`0xAAF`: `func_8001BB4C`'s 3 tables, **confirmed**) and 9 (the path strings, reached via `.data` table
   `D_800893BC`); `10C0` row 10; `1294` row 13; `1330` row 15; `136C` row 18; `14D0` row 19;
   `1514` row 21; `1530` row 22; `156C` rows 23, 25, 26, 27; `1BD8` rows 29 and 30.
 - **Padding is not a boundary marker here.** Functions are packed back to back; the only extra `nop`s
   after a function are three hand-written routines (`func_800175D8`, `_800175FC`, `_80017668`, which pad to
-  8 bytes). Those mark one *assembly* file (row 5), not Capcom C-file ends. There are 40 eight-byte
+  8 bytes). Those mark one *assembly* file (row 5, `asm_fastmem`), not Capcom C-file ends. There are 40 eight-byte
   empty functions (`jr ra; nop`); only `func_8001F820` and `func_8003BE38` sit right before a candidate
   boundary, the rest are mid-file, so they are not a reliable end-of-file marker.
 - **`Sound_key_off_voice` is not `SsSetNck`.** It is a 0x24-byte Capcom wrapper (`sll`/`sra` to `short`, then a
@@ -62,10 +64,10 @@ piece of evidence.
 | 2 | `0x800133D8` | `0x3BD8` | `0x80014AC0` | 0x16E8 | `Code800133D8` | medium | no | ChrisNonyminus `Code800133D8` 0x3BD8; zero local links cross the gap; block `800` jump tables (`func_800136B8`, `_8001389C`, `_80013CA0`) start right after the 0x70 bytes main needs. Cannot be proven from rodata alone (block `800` is one splat block). |
 | 3 | `0x80014AC0` | `0x52C0` | `0x800155A4` | 0xAE4 | `code_80014AC0` | medium | no | Rodata block `8B4` (users `func_80014BCC`, `_800150E0`) needs a new file; `func_8001456C` is only called from file 2 and `func_80014AC0` calls `func_800150E0` (file 3), so the gap is one of two candidates. First user of `.data` 0x800820E0. |
 | 4 | `0x800155A4` | `0x5DA4` | `0x800175D8` | 0x2034 | `game` | medium | no | ChrisNonyminus `game` 0x5DA4; sole minimum-cost gap in the block `8B4`/`938` window; `func_800155A4` calls `func_80016BC0`/`_80016BF4` and the helpers `_80016D0C`..`_80017528` are called from `_80015DB4` and the jump-table functions; rodata block `938` (6 jump tables). |
-| 5 | `0x800175D8` | `0x7DD8` | `0x8001786C` | 0x294 | `asm_800175D8` | medium | yes | Hand-written assembly (no stack frames, swaps `sp` with a scratchpad stack, word-copy/clear loops, `break 1,6`). The only extra `nop` padding in the whole range follows `_800175D8`, `_800175FC`, `_80017668`. Single kind of evidence (code style); end at 0x8001786C is the first function that saves `s` registers (compiler output). |
+| 5 | `0x800175D8` | `0x7DD8` | `0x8001786C` | 0x294 | `asm_fastmem` | medium | yes | Hand-written assembly (yaml: `HAND-WRITTEN ASSEMBLY`) (no stack frames, swaps `sp` with a scratchpad stack, word-copy/clear loops, `break 1,6`). The only extra `nop` padding in the whole range follows `_800175D8`, `_800175FC`, `_80017668`. Single kind of evidence (code style); end at 0x8001786C is the first function that saves `s` registers (compiler output). |
 | 6 | `0x8001786C` | `0x806C` | `0x800198C0` | 0x2054 | `code_8001786C` | low | yes | End of the asm file + window of rodata blocks `938` and `9E4` (the `9E4` jump table user `func_80017C30` must be in a different file than block `938`). Start inside 0x8001786C..0x80017C30 is a guess (all gaps cost 0); may begin as late as 0x80017C30. |
 | 7 | `0x800198C0` | `0xA0C0` | `0x8001B3E4` | 0x1B24 | `sound` | high | no | ChrisNonyminus `sound` 0xA0C0; `.data` 0x8008222A is first used exactly at 0x800198C0 (a new data cluster, ten tiny functions each with its own variable); `Sound_call`/`Sound_call2` 0x8001A008/50; gap cost 0. Tail 0x8001B2F0..0x8001B3E4 is three thin libsnd/libspu wrappers (see notes below). |
-| 8 | `0x8001B3E4` | `0xBBE4` | `0x8001D854` | 0x2470 | `cd` | medium | no | ChrisNonyminus `cd` 0xBBE4; `Cd_init` calls `CdInit` and is called only by init; `Cd_read_comb`, `Cd_read_sync2`; rodata block `9E4` jump tables (`func_8001BB4C`). Update: 9E4 turned out to hold three files’ data, as the earlier agent suspected, and one of them is now exact. |
+| 8 | `0x8001B3E4` | `0xBBE4` | `0x8001D854` | 0x2470 | `cd` | **confirmed** | no | ChrisNonyminus `cd` 0xBBE4; `Cd_init` calls `CdInit` and is called only by init; `Cd_read_comb`, `Cd_read_sync2`; the shim's CD module ([rock_neo.md](rock_neo.md), "Shared code") spans it. In C (`src/rock_neo.exe/cd.c`) and matching, with its rodata at `0xA44`–`0xAAF` (`func_8001BB4C`'s three jump tables, inside block `9E4`). |
 | 9 | `0x8001D854` | `0xE054` | `0x8001F828` | 0x1FD4 | `scene` | medium | no | ChrisNonyminus `scene` 0xE054; `Sce_flag_test/on/off` at 0x8001DA58..; the stage-file path strings at the end of rodata block `9E4` are reached through the `.data` table `D_800893BC`, used by `func_8001F23C`/`_3C8`/`_6C4` (this file). |
 | 10 | `0x8001F828` | `0x10028` | `0x80027678` | 0x7E50 | `code_8001F828` | low | yes | Rodata block `10C0` (5 jump-table functions, first user `func_8001F8DC`) starts a new file; window 0x8001F6C4..0x8001F8DC, all gaps cost 0. The 8-byte empty `func_8001F820` is guessed to end the previous file. `.sdata` 0x80097C3C..0x80097C90 run suggests the file extends to ~0x80027678, possibly several files (see split candidates). |
 | 11 | `0x80027678` | `0x17E78` | `0x8002D9A0` | 0x6328 | `code_80027678` | low | yes | Atom edge only: gap cost 0 and `.data` 0x800898D0..0x80089938 first used inside it. Contains `Model_Shadow_Trans` (0x8002C794); `Model_` prefix suggests a model file. |
@@ -91,7 +93,7 @@ piece of evidence.
 
 Row 1's start and row 30's end are fixed by the ranges; `0x80067FF8` (end of row 29) is the start of
 `2MBYTE.OBJ`. Names: ChrisNonyminus's where he has one, `code_<address>` otherwise (renames are the
-owner's call; `asm_800175D8` marks assembly). Names like `Model_`/`Obj_`/`Swing_Camera` are in the
+owner's call; the `asm_` prefix marks hand-written assembly, which `progress.py` excludes). Names like `Model_`/`Obj_`/`Swing_Camera` are in the
 evidence column, not the file names.
 
 ### Open conflicts
@@ -114,45 +116,6 @@ routines sharing `D_80089EAC`), `0x8003C07C`, `0x8003C7B0`, `0x8003C88C`, `0x800
 runs of 0xF4-byte look-alikes), `0x800542FC`-`0x80054424` (row 24, fourteen 0x14-byte accessors),
 `0x80062CF0`..`0x800638D8` (row 28, five 0x2D0-byte look-alikes), `0x80063EF0`/`0x80063F28` (`Game_logo_kill`),
 `0x8006471C`, `0x80067E18` (row 29 tail, before `2MBYTE`), `0x80068120` (row 30).
-
-## Ready-to-paste yaml
-
-Replaces `[0x2490, asm, 2490]` and `[0x588BC, asm, 588BC]` (the `psyq/2MBYTE` line stays between them).
-Low/medium rows are marked; switch a row to `c` when its file is decompiled.
-
-```yaml
-      - [0x2490, asm, main]
-      - [0x3BD8, asm, Code800133D8]  # medium
-      - [0x52C0, asm, code_80014AC0]  # medium
-      - [0x5DA4, asm, game]  # medium
-      - [0x7DD8, asm, asm_800175D8]  # medium
-      - [0x806C, asm, code_8001786C]  # low
-      - [0xA0C0, asm, sound]
-      - [0xBBE4, asm, cd]  # medium
-      - [0xE054, asm, scene]  # medium
-      - [0x10028, asm, code_8001F828]  # low
-      - [0x17E78, asm, code_80027678]  # low
-      - [0x1E1A0, asm, code_8002D9A0]  # low
-      - [0x1EFA8, asm, code_8002E7A8]  # low
-      - [0x27C40, asm, code_80037440]  # low
-      - [0x287B4, asm, code_80037FB4]  # low
-      - [0x2ABB4, asm, code_8003A3B4]  # low
-      - [0x2B424, asm, code_8003AC24]  # low
-      - [0x2C640, asm, player]  # medium
-      - [0x32DFC, asm, code_800425FC]  # low
-      - [0x33A4C, asm, code_8004324C]  # low
-      - [0x34734, asm, code_80043F34]  # low
-      - [0x35ED8, asm, code_800456D8]  # low
-      - [0x38E20, asm, code_80048620]  # low
-      - [0x43F88, asm, moji]  # medium
-      - [0x4CA58, asm, code_8005C258]  # low
-      - [0x4F434, asm, sub_scrn]  # medium
-      - [0x52D9C, asm, map_screen]  # low
-      - [0x531E0, asm, debug]  # medium
-      - [0x54B0C, asm, code_8006430C]  # low
-      - [0x587F8, asm, psyq/2MBYTE]   # unchanged
-      - [0x588BC, asm, code_800680BC]
-```
 
 ## Method and limits
 
