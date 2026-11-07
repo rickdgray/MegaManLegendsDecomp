@@ -12,13 +12,13 @@ void Cd_init(void)
     {
     }
 
-    D_800988DC = 0; // stored twice in the original; both needed for the match
-    D_80098998 = 0;
-    Cd_status  = 0;
+    D_800988DC  = 0; // stored twice in the original; both needed for the match
+    D_80098998  = 0;
+    Cd_status   = 0;
     Cd_xa_state = CD_XA_OFF;
-    Cd_mode    = 0;
-    D_80098AA0 = 0;
-    D_800988DC = 0; // stored twice in the original; both needed for the match
+    Cd_mode     = 0;
+    D_80098AA0  = 0;
+    D_800988DC  = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
@@ -36,7 +36,7 @@ void Cd_init(void)
     Cd_movie_playing = 0;
     D_800989C8       = 0;
     Cd_cmd_routine   = 0;
-    D_800988D0       = 0;
+    Cd_play_mode     = 0;
 }
 
 void cd_cmd_nop(void)
@@ -72,8 +72,8 @@ void cd_cmd_read(void)
             }
 
             Cd_read_start_buf(Cd_cmd_exec_ptr->args.arg1, Cd_cmd_exec_ptr->args.arg2);
-            D_800988D0 = 0;
-            Cd_wait    = 0;
+            Cd_play_mode = 0;
+            Cd_wait      = 0;
             Cd_cmd_routine++;
             // fall through
         case 3:
@@ -112,7 +112,7 @@ void cd_subcmd_xa_stop(void)
 
             Sound_work.flags |= SOUND_FLAG_CD_OFF;
             Cd_stop();
-            D_800988D0 = 1;
+            Cd_play_mode = 1;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -139,7 +139,7 @@ void cd_subcmd_xa_pause(void)
 
             Sound_work.flags |= SOUND_FLAG_CD_OFF;
             Cd_stop();
-            D_800988D0 = 1;
+            Cd_play_mode = 1;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -200,7 +200,7 @@ void cd_cmd_xa_play(void)
                 Cd_stop();
             }
 
-            D_800988D0 = 2;
+            Cd_play_mode = 2;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -226,15 +226,16 @@ void cd_cmd_xa_play(void)
 
             if (Cd_xa_state != CD_XA_PAUSED)
             {
-                cmd = (CD_XA_CMD *)Cd_cmd_exec_ptr;
-                filter.file = CD_XA_FILE_NO;
-                filter.chan = cmd->start.b.chan & CD_XA_CHAN_MASK;
-                D_800989B0  = Cd_file_tbl[cmd->file].sector + (cmd->end & CD_SECTOR_MASK);
-                CdIntToPos(Cd_file_tbl[cmd->file].sector + (cmd->start.offset & CD_SECTOR_MASK), &loc);
+                cmd              = (CD_XA_CMD *)Cd_cmd_exec_ptr;
+                filter.file      = CD_XA_FILE_NO;
+                filter.chan      = cmd->start.b.chan & CD_XA_CHAN_MASK;
+                Cd_xa_end_sector = Cd_file_tbl[cmd->file].sector + (cmd->end & CD_SECTOR_MASK);
+                CdIntToPos(Cd_file_tbl[cmd->file].sector + (cmd->start.offset & CD_SECTOR_MASK),
+                           &loc);
                 Cd_controlb_retry(CdlSetfilter, (u_char *)&filter, Cd_result);
                 Cd_controlb_retry(CdlSetloc, (u_char *)&loc, Cd_result);
                 Cd_controlb_retry(CdlReadS, 0, Cd_result);
-                Cd_wait    = 0;
+                Cd_wait = 0;
                 Cd_stat = Cd_result[0];
             }
 
@@ -290,7 +291,7 @@ void cd_cmd_seek(void)
         case 1:
             if (Cd_sync_done)
             {
-                D_800988D0 = 0;
+                Cd_play_mode = 0;
                 CdSyncCallback(Cd_seek_sync_cb);
                 CdIntToPos(Cd_cmd_exec_ptr->args.arg2, &loc);
                 Cd_control_retry(CdlSeekL, (u_char *)&loc, Cd_result);
@@ -326,15 +327,15 @@ void Cd_cmd_exec(void)
         Cd_error_flags = 0;
         D_800989C8     = 0;
         Cd_cmd_routine = 0;
-        CdSyncCallback(0);
-        CdReadyCallback(0);
+        CdSyncCallback(NULL);
+        CdReadyCallback(NULL);
 
         while (CdReset(0) == 0)
         {
         }
     }
 
-    if (D_800988D0 == 2)
+    if (Cd_play_mode == CD_PLAY_XA)
     {
         Cd_controlb_retry(CdlNop, NULL, Cd_result);
         Cd_stat = Cd_result[0];
@@ -342,13 +343,13 @@ void Cd_cmd_exec(void)
         if (Cd_result[0] & CdlStatRead)
         {
             Cd_controlb_retry(CdlGetlocP, NULL, Cd_result);
-            D_800989D8 = CdPosToInt((CdlLOC *)&Cd_result[5]); // absolute position
+            Cd_xa_sector = CdPosToInt((CdlLOC *)&Cd_result[CD_GETLOCP_ABS]);
 
-            if (D_800989D8 >= D_800989B0)
+            if (Cd_xa_sector >= Cd_xa_end_sector)
             {
-                if (D_800989C0 & 0x40000000)
+                if (Cd_xa_flags & CD_XA_LOOP)
                 {
-                    Cd_xa_play_id(D_800989B8);
+                    Cd_xa_play_id(Cd_xa_id);
                 }
                 else
                 {
@@ -403,8 +404,8 @@ void Cd_stop(void)
     CdReadyCallback(0);
     CdSyncCallback(Cd_sync_cb);
     Cd_control_retry(CdlPause, 0, Cd_result);
-    D_800988D0 = 0;
-    Cd_stat = 0;
+    Cd_play_mode = 0;
+    Cd_stat      = 0;
 }
 
 void Cd_sync_cb(u_char status, u_char *result)
@@ -426,11 +427,11 @@ void Cd_sync_cb(u_char status, u_char *result)
 void Cd_read_start_buf(sint32 file, sint32 arg2)
 {
     Cd_status      = 1;
-    Cd_xa_state     = CD_XA_OFF;
+    Cd_xa_state    = CD_XA_OFF;
     Cd_error_flags = 0;
     Cd_wait        = 0;
     Cd_sync_done   = 0;
-    Cd_file_sector     = Cd_file_tbl[file].sector;
+    Cd_file_sector = Cd_file_tbl[file].sector;
     CdIntToPos(Cd_file_sector, &Cd_loc);
     D_800987A4 = (uint8 *)arg2;
     D_8009881C = Cd_file_tbl[file].size;
@@ -525,12 +526,12 @@ void Cd_read_start_ring(sint32 file)
     }
 
     Cd_status      = 1;
-    Cd_xa_state     = CD_XA_OFF;
+    Cd_xa_state    = CD_XA_OFF;
     Cd_error_flags = 0;
     Cd_wait        = 0;
     Cd_sync_done   = 0;
     D_80098998     = 0;
-    Cd_file_sector     = Cd_file_tbl[file].sector;
+    Cd_file_sector = Cd_file_tbl[file].sector;
     CdIntToPos(Cd_file_sector, &Cd_loc);
     D_8009881C = Cd_file_tbl[file].size;
     CdReadyCallback(Cd_ready_cb_ring);
@@ -726,7 +727,7 @@ void Cd_xa_play_id(uint32 arg)
     uint32 lo  = arg & 0xFFFF;
     CD_POS *pos;
 
-    D_800989B8                              = arg;
+    Cd_xa_id                                = arg;
     Cd_cmd_write_ptr->type                  = CD_CMD_XA_PLAY;
     Cd_cmd_write_ptr->args.arg1             = D_80088F9C[hi][mid];
     pos                                     = &D_80088EF8[hi][mid][lo];
@@ -734,7 +735,7 @@ void Cd_xa_play_id(uint32 arg)
     *(uint32 *)&Cd_cmd_write_ptr->args.arg3 = pos->unk4 | (arg & 0x40000000);
     D_800989BC                              = Cd_cmd_exec_ptr->args.arg2;
     Cd_cmd_write_ptr++;
-    D_800989C0 = *(uint32 *)&Cd_cmd_exec_ptr->args.arg3;
+    Cd_xa_flags = *(uint32 *)&Cd_cmd_exec_ptr->args.arg3;
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_play_id);
@@ -747,8 +748,7 @@ void func_8001D648(uint32 arg)
     uint32 mid = (arg << 4) >> 20;
     uint32 lo  = arg & 0xFFFF;
 
-    Cd_seek(Cd_file_tbl[D_80088F9C[hi][mid]].sector +
-                  (D_80088EF8[hi][mid][lo].offset & 0xFFFFFF));
+    Cd_seek(Cd_file_tbl[D_80088F9C[hi][mid]].sector + (D_80088EF8[hi][mid][lo].offset & 0xFFFFFF));
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", func_8001D648);

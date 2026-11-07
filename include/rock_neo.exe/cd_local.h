@@ -9,12 +9,12 @@
 
 #define CD_CMD_COUNT 8
 
-extern uint8 D_800988D0;         // D_80059BC9
-extern uint8 D_800988DC;         // D_80059BCA
-extern sint32 D_80098998;        // D_80059C00
-extern sint32 D_800989C8;        // D_80059C24
-extern uint8 D_80098AA0;         // D_80059C48
-extern uint8 Cd_xa_state;         // D_80059C74
+extern uint8 Cd_play_mode;          // D_80059BC9
+extern uint8 D_800988DC;            // D_80059BCA
+extern sint32 D_80098998;           // D_80059C00
+extern sint32 D_800989C8;           // D_80059C24
+extern uint8 D_80098AA0;            // D_80059C48
+extern uint8 Cd_xa_state;           // D_80059C74
 extern CD_CMD_FUNC cd_subcmd_tbl[]; // run by cd_cmd_subcmd, indexed by the command's arg2
 
 typedef struct
@@ -23,22 +23,22 @@ typedef struct
     uint32 unk4;
 } CD_POS;
 
-extern CdlLOC Cd_loc; // location buffer passed to CdlSetloc and CdlReadN
+extern CdlLOC Cd_loc;         // location buffer passed to CdlSetloc and CdlReadN
 extern sint32 Cd_file_sector; // file sector
 extern uint8 Cd_ring_ready[10];
 extern uint8 Cd_ring_buf[10][0x800]; // ring of 10 sector buffers filled by Cd_ready_cb_ring
-extern CD_CMD_FUNC cd_cmd_tbl[]; // run by Cd_cmd_exec, indexed by the command's type
+extern CD_CMD_FUNC cd_cmd_tbl[];     // run by Cd_cmd_exec, indexed by the command's type
 extern volatile uint8 Cd_stat;
 
 // Unknown
 extern uint8 *D_800987A4; // destination of the sector data being read (set from the command's arg2)
 extern sint32 D_8009881C; // file size field
-extern uint32 D_800989B8;
+extern uint32 Cd_xa_id;
 extern sint32 D_800989BC;
-extern sint32 D_800989C0;
+extern sint32 Cd_xa_flags;
 extern uint16 D_80098994;
-extern uint32 D_800989B0;        // sector at which Cd_cmd_exec stops or continues the read
-extern uint32 D_800989D8;        // current absolute sector (from CdlGetlocP)
+extern uint32 Cd_xa_end_sector; // sector at which Cd_cmd_exec stops or continues the read
+extern uint32 Cd_xa_sector;     // current absolute sector (from CdlGetlocP)
 extern sint32
     *D_80088F9C[16]; // file index tables, selected by the top nibble of func_8001D648's argument
 extern CD_POS **D_80088EF8[16]; // matching sector offset tables

@@ -139,8 +139,8 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
   (`cd_subcmd_nop`); 1, 2 stop CD audio, wait for `Cd_sync_done`, set `Cd_xa_state` to 1 / 2
   (`cd_subcmd_xa_stop`, `cd_subcmd_xa_pause`); 3 toggle CD audio off/on, saving and restoring
   `Sound_work.unk06` (`func_8001B7B4`).
-- `Cd_cmd_exec` resets on an error; while `D_800988D0 == 2` it polls `CdlNop`/`CdlGetlocP` and
-  calls `Cd_xa_play_id` or `Cd_stop` at sector `D_800989B0`.
+- `Cd_cmd_exec` resets on an error; while `Cd_play_mode == 2` it polls `CdlNop`/`CdlGetlocP` and
+  calls `Cd_xa_play_id` or `Cd_stop` at sector `Cd_xa_end_sector`.
 - Error bits in `Cd_error_flags`: 0x01 ring full, 0x02 timeout, 0x04 `CD_ERR_READY`, 0x20 first
   word mismatch, 0x40 wrong sector.
 - **`CD_FILE_ID`, a packed file reference** (name proposed; not declared yet): bits 0–15 entry,
@@ -185,7 +185,7 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
     hoist the base address.
   - `cd_cmd_read`, `cd_cmd_seek`: unsigned `switch ((uint32)Cd_cmd_routine)` (no `slti`).
   - `cd_cmd_xa_play` needs `Cd_sync_done = *(volatile uint8 *)&Cd_status;` for the original's
-    reload. It reads the command's `+0xC` as a whole word (`D_800989B0` = sector + (word &
+    reload. It reads the command's `+0xC` as a whole word (`Cd_xa_end_sector` = sector + (word &
     0xFFFFFF)), so `CD_CMD_ARGS.arg3` (`uint16` in `cd.h`) is probably 32-bit here; a cast is used
     for now (also in `Cd_subcmd`, `Cd_xa_play_id`).
   - `Cd_read_start_buf`, `Cd_read_start_ring` (read starts; ready callbacks `Cd_ready_cb_buf` copying to

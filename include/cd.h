@@ -6,13 +6,13 @@
 #include "common.h"
 
 // Cd_error_flags (Capcom's; set by the callbacks and command handlers, cleared when a command starts)
-#define CD_ERR_RING_FULL     0x01 // a sector arrived with no free ring slot (Cd_ready_cb_ring)
-#define CD_ERR_CMD_TIMEOUT   0x02 // a read or seek command didn't complete in time
-#define CD_ERR_READY         0x04 // error reported to the ready callback
-#define CD_ERR_SYNC          0x08 // error reported to the sync callback
-#define CD_ERR_TIMEOUT       0x10 // streaming didn't start in time (XA play; the shim's movie)
-#define CD_ERR_BAD_DATA      0x20 // a file's first word doesn't match its file table entry
-#define CD_ERR_WRONG_SECTOR  0x40 // a sector arrived that wasn't the one expected
+#define CD_ERR_RING_FULL    0x01 // a sector arrived with no free ring slot (Cd_ready_cb_ring)
+#define CD_ERR_CMD_TIMEOUT  0x02 // a read or seek command didn't complete in time
+#define CD_ERR_READY        0x04 // error reported to the ready callback
+#define CD_ERR_SYNC         0x08 // error reported to the sync callback
+#define CD_ERR_TIMEOUT      0x10 // streaming didn't start in time (XA play; the shim's movie)
+#define CD_ERR_BAD_DATA     0x20 // a file's first word doesn't match its file table entry
+#define CD_ERR_WRONG_SECTOR 0x40 // a sector arrived that wasn't the one expected
 
 // CD_CMD.type
 #define CD_CMD_END        0
@@ -39,14 +39,24 @@
 #define CD_XA_PAUSED  2 // next play resumes without seeking
 #define CD_XA_OFF     7 // not playing XA (initial; set when a data read starts)
 
-#define CD_XA_FILE_NO 1
-#define CD_XA_CHAN_MASK 0x1F     // XA channel (0-31)
+// Cd_xa_flags
+#define CD_XA_LOOP 0x40000000 // replay the track when it reaches its end
 
-#define CD_SECTOR_MASK  0xFFFFFF // low 24 bits: sector offset within a file
-#define CD_FILE_COUNT 248
-#define CD_VOL_MAX     0x7F
+#define CD_XA_FILE_NO   1
+#define CD_XA_CHAN_MASK 0x1F // XA channel (0-31)
+
+// Cd_play_mode
+#define CD_PLAY_NONE    0 // set by seeks and Cd_stop
+#define CD_PLAY_XA_STOP 1 // set by the XA stop/pause subcommands (meaning provisional)
+#define CD_PLAY_XA      2 // XA playing: Cd_cmd_exec watches for its end
+
+#define CD_SECTOR_MASK    0xFFFFFF // low 24 bits: sector offset within a file
+#define CD_FILE_COUNT     248
+#define CD_VOL_MAX        0x7F
 #define CD_STREAM_TIMEOUT 150
 #define CD_CMD_TIMEOUT    150
+
+#define CD_GETLOCP_ABS 5 // offset of the absolute position in the CdlGetlocP result
 
 typedef struct
 {
@@ -79,7 +89,7 @@ typedef struct
     sint32 type;     // 0x00: CD_CMD_XA_PLAY
     sint32 file;     // 0x04: Cd_file_tbl index
     CD_XA_POS start; // 0x08: sector offset (low 24 bits), channel (top byte)
-    uint32 end;      // 0x0C: sector offset (low 24 bits); saved in D_800989B0 ("end" is a guess)
+    uint32 end; // 0x0C: sector offset (low 24 bits); saved in Cd_xa_end_sector ("end" is a guess)
 } CD_XA_CMD;
 
 typedef struct
