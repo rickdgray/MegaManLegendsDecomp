@@ -34,3 +34,4 @@ permuter/
 *_map.txt
 renames*.txt
 logs/*
+ctx.c

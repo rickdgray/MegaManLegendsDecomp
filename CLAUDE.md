@@ -256,6 +256,10 @@ What decompilers show vs. what to write:
   calls), is a source bug, and it disturbs instruction order and delay slots elsewhere.
   `cd_cmd_play_movie`'s apparent scheduling difference disappeared once its wrong field and wrong
   macro argument were fixed.
+- **Shared error exits.** When several paths set something different and then share a tail whose
+  store order is preserved across all of them, the source had a label there (`goto error;` /
+  `return;` / `error:`): the scheduler can't reorder across a label. A tail that is only a call
+  doesn't need one: duplicate it, and GCC's cross-jumping merges the copies.
 
 ## Types and headers
 

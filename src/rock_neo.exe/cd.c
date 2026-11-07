@@ -456,7 +456,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
         if (pos != Cd_file_sector)
         {
             Cd_error_flags |= CD_ERR_WRONG_SECTOR;
-            goto set_status;
+            goto error;
         }
 
         Cd_file_sector = pos + 1;
@@ -470,7 +470,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
                 if (Cd_file_tbl[Cd_cmd_exec_ptr->args.arg1].head != *(sint32 *)Cd_read_buf)
                 {
                     Cd_error_flags |= CD_ERR_BAD_DATA;
-                    goto set_status;
+                    goto error;
                 }
 
                 Cd_head_checked = status;
@@ -480,7 +480,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
             if (Cd_read_left == 0)
             {
-                CdReadyCallback(0);
+                CdReadyCallback(NULL);
                 CdSyncCallback(Cd_sync_cb);
                 Cd_control_retry(CdlPause, NULL, Cd_result);
             }
@@ -502,17 +502,19 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
             CdSyncCallback(Cd_sync_cb);
             Cd_control_retry(CdlPause, NULL, Cd_result);
-            goto stop;
+            CdReadyCallback(NULL);
         }
     }
     else
     {
         Cd_error_flags |= CD_ERR_READY;
-    set_status:
-        Cd_status = CD_STATUS_ERROR;
-    stop:
-        CdReadyCallback(0);
+        goto error;
     }
+    return;
+
+error:
+    Cd_status = CD_STATUS_ERROR;
+    CdReadyCallback(NULL);
 }
 
 void Cd_read_start_ring(sint32 file)
