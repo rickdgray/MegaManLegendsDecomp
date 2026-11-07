@@ -14,7 +14,7 @@ void Cd_init(void)
 
     D_800988DC  = 0; // stored twice in the original; both needed for the match
     D_80098998  = 0;
-    Cd_status   = 0;
+    Cd_status   = CD_STATUS_IDLE;
     Cd_xa_state = CD_XA_OFF;
     Cd_mode     = 0;
     D_80098AA0  = 0;
@@ -71,7 +71,7 @@ void cd_cmd_read(void)
                 break;
             }
 
-            Cd_read_start_buf(Cd_cmd_exec_ptr->args.arg1, Cd_cmd_exec_ptr->args.arg2);
+            Cd_read_start_buf(Cd_cmd_exec_ptr->args.arg1, (uint8 *)Cd_cmd_exec_ptr->args.arg2);
             Cd_play_mode = 0;
             Cd_wait      = 0;
             Cd_cmd_routine++;
@@ -85,7 +85,7 @@ void cd_cmd_read(void)
                 break;
             }
 
-            if (Cd_status == 0)
+            if (Cd_status == CD_STATUS_IDLE)
             {
                 Cd_cmd_dequeue();
             }
@@ -220,7 +220,7 @@ void cd_cmd_xa_play(void)
                 break;
             }
 
-            Cd_status      = 0;
+            Cd_status      = CD_STATUS_IDLE;
             Cd_error_flags = 0;
             Cd_sync_done   = Cd_status;
 
@@ -415,26 +415,26 @@ void Cd_sync_cb(u_char status, u_char *result)
     if (status == CdlComplete)
     {
         Cd_sync_done = 1;
-        Cd_status    = 0;
+        Cd_status    = CD_STATUS_IDLE;
     }
     else
     {
-        Cd_status = 0x80;
+        Cd_status = CD_STATUS_ERROR;
         Cd_error_flags |= CD_ERR_SYNC;
     }
 }
 
-void Cd_read_start_buf(sint32 file, sint32 arg2)
+void Cd_read_start_buf(sint32 file, uint8 *buf)
 {
-    Cd_status      = 1;
+    Cd_status      = CD_STATUS_BUSY;
     Cd_xa_state    = CD_XA_OFF;
     Cd_error_flags = 0;
     Cd_wait        = 0;
     Cd_sync_done   = 0;
     Cd_file_sector = Cd_file_tbl[file].sector;
     CdIntToPos(Cd_file_sector, &Cd_loc);
-    D_800987A4 = (uint8 *)arg2;
-    D_8009881C = Cd_file_tbl[file].size;
+    Cd_read_buf  = buf;
+    Cd_read_left = Cd_file_tbl[file].size;
     CdReadyCallback(Cd_ready_cb_buf);
     Cd_controlb_retry(CdlSetloc, (u_char *)&Cd_loc, Cd_result);
     Cd_controlb_retry(CdlReadN, NULL, Cd_result);
@@ -461,13 +461,13 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
         Cd_file_sector = pos + 1;
 
-        if (D_8009881C >= 0x800)
+        if (Cd_read_left >= CD_SECTOR_SIZE)
         {
-            CdGetSector(D_800987A4, 0x200);
+            CdGetSector(Cd_read_buf, 0x200);
 
             if (D_800989C8 == 0)
             {
-                if (Cd_file_tbl[Cd_cmd_exec_ptr->args.arg1].unk8 != *(sint32 *)D_800987A4)
+                if (Cd_file_tbl[Cd_cmd_exec_ptr->args.arg1].unk8 != *(sint32 *)Cd_read_buf)
                 {
                     Cd_error_flags |= CD_ERR_BAD_DATA;
                     goto set_status;
@@ -476,9 +476,9 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
                 D_800989C8 = status;
             }
 
-            D_8009881C -= 0x800;
+            Cd_read_left -= CD_SECTOR_SIZE;
 
-            if (D_8009881C == 0)
+            if (Cd_read_left == 0)
             {
                 CdReadyCallback(0);
                 CdSyncCallback(Cd_sync_cb);
@@ -486,7 +486,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
             }
             else
             {
-                D_800987A4 += 0x800;
+                Cd_read_buf += CD_SECTOR_SIZE;
             }
         }
         else
@@ -494,10 +494,10 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
             // last, partial sector: copy the remaining bytes
             CdGetSector(Cd_ring_buf, 0x200);
 
-            for (n = D_8009881C, src = Cd_ring_buf[0]; n != 0; n--)
+            for (n = Cd_read_left, src = Cd_ring_buf[0]; n != 0; n--)
             {
-                *D_800987A4 = *src++;
-                D_800987A4++;
+                *Cd_read_buf = *src++;
+                Cd_read_buf++;
             }
 
             CdSyncCallback(Cd_sync_cb);
@@ -509,7 +509,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
     {
         Cd_error_flags |= CD_ERR_READY;
     set_status:
-        Cd_status = 0x80;
+        Cd_status = CD_STATUS_ERROR;
     stop:
         CdReadyCallback(0);
     }
@@ -525,7 +525,7 @@ void Cd_read_start_ring(sint32 file)
         *p-- = 0;
     }
 
-    Cd_status      = 1;
+    Cd_status      = CD_STATUS_BUSY;
     Cd_xa_state    = CD_XA_OFF;
     Cd_error_flags = 0;
     Cd_wait        = 0;
@@ -533,7 +533,7 @@ void Cd_read_start_ring(sint32 file)
     D_80098998     = 0;
     Cd_file_sector = Cd_file_tbl[file].sector;
     CdIntToPos(Cd_file_sector, &Cd_loc);
-    D_8009881C = Cd_file_tbl[file].size;
+    Cd_read_left = Cd_file_tbl[file].size;
     CdReadyCallback(Cd_ready_cb_ring);
     Cd_controlb_retry(CdlReadN, (u_char *)&Cd_loc, Cd_result);
 }
@@ -568,9 +568,9 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
                     D_80098998 = 0;
                 }
 
-                D_8009881C -= 0x800;
+                Cd_read_left -= CD_SECTOR_SIZE;
 
-                if (D_8009881C <= 0)
+                if (Cd_read_left <= 0)
                 {
                     CdReadyCallback(0);
                     Cd_control_retry(CdlPause, NULL, Cd_result);
@@ -580,7 +580,7 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
         }
         else
         {
-            Cd_status = 0x80;
+            Cd_status = CD_STATUS_ERROR;
             Cd_error_flags |= CD_ERR_RING_FULL;
             goto stop;
         }
@@ -589,7 +589,7 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
     {
         Cd_error_flags |= CD_ERR_READY;
     set_status:
-        Cd_status = 0x80;
+        Cd_status = CD_STATUS_ERROR;
     stop:
         CdReadyCallback(0);
         CdSyncCallback(Cd_sync_cb);

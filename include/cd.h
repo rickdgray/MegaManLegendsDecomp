@@ -5,6 +5,11 @@
 
 #include "common.h"
 
+// Cd_status
+#define CD_STATUS_IDLE  0x00
+#define CD_STATUS_BUSY  0x01 // a read is in progress
+#define CD_STATUS_ERROR 0x80
+
 // Cd_error_flags (Capcom's; set by the callbacks and command handlers, cleared when a command starts)
 #define CD_ERR_RING_FULL    0x01 // a sector arrived with no free ring slot (Cd_ready_cb_ring)
 #define CD_ERR_CMD_TIMEOUT  0x02 // a read or seek command didn't complete in time
@@ -51,6 +56,7 @@
 #define CD_PLAY_XA      2 // XA playing: Cd_cmd_exec watches for its end
 
 #define CD_SECTOR_MASK    0xFFFFFF // low 24 bits: sector offset within a file
+#define CD_SECTOR_SIZE    0x800    // data bytes per CD sector (mode 2 form 1)
 #define CD_FILE_COUNT     248
 #define CD_VOL_MAX        0x7F
 #define CD_STREAM_TIMEOUT 150
@@ -116,6 +122,7 @@ extern u_char Cd_result[8];
 extern uint8 Cd_error_flags;
 extern uint32 Cd_wait;
 extern sint32 Cd_movie_playing;
+extern uint8 Cd_xa_state;
 
 // The running command's state (cd_cmd_play_movie's switch index); cleared on dequeue.
 extern uint32 Cd_cmd_routine;

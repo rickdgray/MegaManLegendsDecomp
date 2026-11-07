@@ -197,13 +197,13 @@ void Cd_init(void)
     {
     }
 
-    D_80059BCA = 0; // stored twice in the original; both needed for the match
-    D_80059C00 = 0;
-    Cd_status  = 0;
-    D_80059C74 = 7;
-    Cd_mode    = 0;
-    D_80059C48 = 0;
-    D_80059BCA = 0; // stored twice in the original; both needed for the match
+    D_80059BCA  = 0; // stored twice in the original; both needed for the match
+    D_80059C00  = 0;
+    Cd_status   = CD_STATUS_IDLE;
+    Cd_xa_state = CD_XA_OFF;
+    Cd_mode     = 0;
+    D_80059C48  = 0;
+    D_80059BCA  = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
@@ -511,11 +511,11 @@ void Cd_sync_cb(u_char status, u_char *result)
     if (status == CdlComplete)
     {
         Cd_sync_done = 1;
-        Cd_status    = 0;
+        Cd_status    = CD_STATUS_IDLE;
     }
     else
     {
-        Cd_status = 0x80;
+        Cd_status = CD_STATUS_ERROR;
         Cd_error_flags |= CD_ERR_SYNC;
     }
 }
@@ -526,11 +526,11 @@ void Movie_start(sint32 file)
     CdlLOC loc;
     CdlFILTER filter;
 
-    Cd_status = 1;
+    Cd_status = CD_STATUS_BUSY;
 
     Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
 
-    D_80059C74        = 7;
+    Cd_xa_state       = CD_XA_OFF;
     Cd_error_flags    = 0;
     Cd_sync_done      = 0;
     Movie_sector_wait = 0;
@@ -609,7 +609,7 @@ void Movie_sector_cb(u_char status, u_char *result)
     }
     else
     {
-        Cd_status = 0x80;
+        Cd_status = CD_STATUS_ERROR;
         Cd_error_flags |= CD_ERR_READY;
         CdReadyCallback(0);
     }

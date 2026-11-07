@@ -189,7 +189,7 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
     0xFFFFFF)), so `CD_CMD_ARGS.arg3` (`uint16` in `cd.h`) is probably 32-bit here; a cast is used
     for now (also in `Cd_subcmd`, `Cd_xa_play_id`).
   - `Cd_read_start_buf`, `Cd_read_start_ring` (read starts; ready callbacks `Cd_ready_cb_buf` copying to
-    `D_800987A4`, and `Cd_ready_cb_ring` filling the 10-sector ring `Cd_ring_buf`): `CdIntToPos` takes
+    `Cd_read_buf`, and `Cd_ready_cb_ring` filling the 10-sector ring `Cd_ring_buf`): `CdIntToPos` takes
     `Cd_file_sector`, not the table again, since the store could alias `Cd_file_tbl`. `Cd_read_start_ring`
     clears `Cd_ring_ready[10]` through a descending pointer
     (`for (i = 9, p = &Cd_ring_ready[9]; i >= 0; i--) *p-- = 0;`). The callbacks share their error
