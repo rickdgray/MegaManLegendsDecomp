@@ -34,7 +34,7 @@ void Cd_init(void)
 
     Cd_wait          = 0;
     Cd_movie_playing = 0;
-    D_800989C8       = 0;
+    Cd_head_checked       = 0;
     Cd_cmd_routine   = 0;
     Cd_play_mode     = 0;
 }
@@ -325,7 +325,7 @@ void Cd_cmd_exec(void)
         Cd_sync_done   = 0;
         Cd_mode        = 0;
         Cd_error_flags = 0;
-        D_800989C8     = 0;
+        Cd_head_checked     = 0;
         Cd_cmd_routine = 0;
         CdSyncCallback(NULL);
         CdReadyCallback(NULL);
@@ -374,7 +374,7 @@ void Cd_cmd_dequeue(void)
     }
 
     p->type        = CD_CMD_END;
-    D_800989C8     = 0;
+    Cd_head_checked     = 0;
     Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
@@ -450,7 +450,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
     if (status == CdlDataReady)
     {
-        CdGetSector(Cd_ring_buf, 3); // sector header
+        CdGetSector(Cd_ring_buf, CD_SECTOR_HEADER_WORDS);
         pos = CdPosToInt((CdlLOC *)Cd_ring_buf);
 
         if (pos != Cd_file_sector)
@@ -463,17 +463,17 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
         if (Cd_read_left >= CD_SECTOR_SIZE)
         {
-            CdGetSector(Cd_read_buf, 0x200);
+            CdGetSector(Cd_read_buf, CD_SECTOR_WORDS);
 
-            if (D_800989C8 == 0)
+            if (Cd_head_checked == 0)
             {
-                if (Cd_file_tbl[Cd_cmd_exec_ptr->args.arg1].unk8 != *(sint32 *)Cd_read_buf)
+                if (Cd_file_tbl[Cd_cmd_exec_ptr->args.arg1].head != *(sint32 *)Cd_read_buf)
                 {
                     Cd_error_flags |= CD_ERR_BAD_DATA;
                     goto set_status;
                 }
 
-                D_800989C8 = status;
+                Cd_head_checked = status;
             }
 
             Cd_read_left -= CD_SECTOR_SIZE;
@@ -492,7 +492,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
         else
         {
             // last, partial sector: copy the remaining bytes
-            CdGetSector(Cd_ring_buf, 0x200);
+            CdGetSector(Cd_ring_buf, CD_SECTOR_WORDS);
 
             for (n = Cd_read_left, src = Cd_ring_buf[0]; n != 0; n--)
             {
@@ -548,7 +548,7 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
     {
         if (Cd_ring_ready[D_80098998] == 0)
         {
-            CdGetSector(Cd_ring_buf[D_80098998], 3); // sector header
+            CdGetSector(Cd_ring_buf[D_80098998], CD_SECTOR_HEADER_WORDS); // sector header
             pos = CdPosToInt((CdlLOC *)Cd_ring_buf[D_80098998]);
 
             if (pos != Cd_file_sector)
@@ -559,7 +559,7 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
             else
             {
                 Cd_file_sector = pos + 1;
-                CdGetSector(Cd_ring_buf[D_80098998], 0x200);
+                CdGetSector(Cd_ring_buf[D_80098998], CD_SECTOR_WORDS);
                 Cd_ring_ready[D_80098998] = 1;
                 D_80098998++;
 

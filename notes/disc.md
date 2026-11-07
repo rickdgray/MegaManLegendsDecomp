@@ -25,21 +25,20 @@
 ## The game's file table
 
 `SLUS_006.03` and `ROCK_NEO.EXE` each carry the same table of every file on the disc,
-`Cd_file_tbl` (248 entries of 12 bytes: start sector, size, a third word; shim `0x8001D3DC`,
+`Cd_file_tbl` (248 entries of 12 bytes: start sector, size, head; shim `0x8001D3DC`,
 ROCK_NEO `0x80082CD0`). Files are addressed by index rather than by name:
 
 | Index | File |
 |---|---|
-| 0–2 | `SLUS_006.03`, `ROCK_NEO.EXE`, `SYSTEM.CNF` (third word = the file's first 4 bytes: `PS-X`, `BOOT`) |
-| 3–237 | `CDDATA` files (third word 0 for ordinary data); `0xD0` = `CAPCOM20.STR` (third word `0x80420100`) |
-| 238–246 | XA audio (third word `0x04640001` or `0x01640001`) |
+| 0–2 | `SLUS_006.03`, `ROCK_NEO.EXE`, `SYSTEM.CNF` (head = the file's first 4 bytes: `PS-X`, `BOOT`) |
+| 3–237 | `CDDATA` files (head 0 for ordinary data); `0xD0` = `CAPCOM20.STR` (head `0x80420100`) |
+| 238–246 | XA audio (head `0x04640001` or `0x01640001`) |
 | 247 | **Track 2, CD audio**: sector 207,295 (= 207,145 + the 150-sector pregap), 37,044,000 bytes (15,750 sectors of 2,352, 3:30) |
 
 - **Confirmed:** entries 0–2 match the files' sizes exactly; entry 247 matches the audio track.
-- **Unknown:** the third word for movie and XA entries (flags? interleave/channel settings?). Sizes
-  of mixed-mode files (STR, XA) don't follow 2048-byte sectors; their unit is unconfirmed.
 - **Confirmed:** commands take these indices: the shim's movie command (`0xD0`), and ROCK_NEO's
   `Cd_read_comb(id)` and other queue functions ([rock_neo.md](rock_neo.md), "CD module").
+- **Confirmed:** head is the value each file is expected to begin with: a cheap check that the drive delivered the right file.
 
 ## Code inventory
 

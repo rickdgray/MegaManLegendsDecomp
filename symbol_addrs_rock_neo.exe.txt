@@ -799,6 +799,7 @@ Cd_xa_end_sector = 0x800989B0;
 Cd_xa_id = 0x800989B8;
 Cd_xa_flags = 0x800989C0;
 Cd_cmd_routine = 0x800989C4;
+Cd_head_checked = 0x800989C8;
 Cd_xa_sector = 0x800989D8;
 p_Player_work = 0x80098A50;
 Moji_flag = 0x80098A58;

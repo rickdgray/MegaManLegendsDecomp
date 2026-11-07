@@ -57,6 +57,8 @@
 
 #define CD_SECTOR_MASK    0xFFFFFF // low 24 bits: sector offset within a file
 #define CD_SECTOR_SIZE    0x800    // data bytes per CD sector (mode 2 form 1)
+#define CD_SECTOR_HEADER_WORDS 3                      // CdGetSector size of a sector's header and subheader
+#define CD_SECTOR_WORDS   (CD_SECTOR_SIZE / 4)   // CdGetSector size of a sector's data
 #define CD_FILE_COUNT     248
 #define CD_VOL_MAX        0x7F
 #define CD_STREAM_TIMEOUT 150
@@ -68,7 +70,7 @@ typedef struct
 {
     sint32 sector;
     sint32 size;
-    sint32 unk8;
+    sint32 head;
 } CD_FILE;
 
 // Arguments are copied as one 12-byte block; possibly a union per command type. Only the

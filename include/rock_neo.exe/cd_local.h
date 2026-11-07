@@ -12,7 +12,7 @@
 extern uint8 Cd_play_mode;          // D_80059BC9
 extern uint8 D_800988DC;            // D_80059BCA
 extern sint32 D_80098998;           // D_80059C00
-extern sint32 D_800989C8;           // D_80059C24
+extern sint32 Cd_head_checked;           // D_80059C24
 extern uint8 D_80098AA0;            // D_80059C48
 extern CD_CMD_FUNC cd_subcmd_tbl[]; // run by cd_cmd_subcmd, indexed by the command's arg2
 
