@@ -22,7 +22,7 @@ void Cd_init(void)
     Cd_status     = CD_STATUS_IDLE;
     Cd_xa_state   = CD_XA_OFF;
     Cd_mode       = 0;
-    D_80098AA0    = 0;
+    Cd_unused    = 0;
     Cd_muted      = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
@@ -1201,7 +1201,7 @@ void Cd_seek(sint32 sector)
     Cd_cmd_write_ptr++;
 }
 
-void func_8001D7AC(sint32 index)
+void Cd_seek_file(sint32 index)
 {
     Cd_seek(Cd_file_tbl[index].sector);
 }

@@ -292,9 +292,7 @@ extern CD_COMB_WORK Cd_comb_work; // the entry being read
 // larger object.
 extern RECT Cd_comb_rect[]; // HACK: needs a size
 
-// Unknown: cleared by Cd_init only. The same variable in both programs.
-extern uint8 D_80059C48; // shim
-extern uint8 D_80098AA0; // ROCK_NEO
+extern uint8 Cd_unused; // cleared by Cd_init; never read in either program
 
 // =============================================================================================
 // Functions
@@ -318,6 +316,7 @@ void Cd_cmd_set_movie(sint32 file, sint32 end_frame, uint16 skip); // shim only
 
 // Reading (ROCK_NEO only)
 void Cd_seek(sint32 sector);
+void Cd_seek_file(sint32 index);
 void Cd_read_start_buf(sint32 file, uint8 *buf);
 void Cd_read_start_ring(sint32 file);
 void Cd_ready_cb_buf(u_char status, u_char *result);
@@ -327,8 +326,5 @@ void Cd_ready_cb_ring(u_char status, u_char *result);
 void Cd_xa_play_id(uint32 id);
 void Cd_xa_seek_id(uint32 id);
 void cd_subcmd_mute(void);
-
-// Unknown (ROCK_NEO only)
-void func_8001D7AC(sint32 index);
 
 #endif // CD_H

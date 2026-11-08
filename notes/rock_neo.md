@@ -193,7 +193,7 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   `cd_cmd_seek`, `Cd_cmd_exec`, `Cd_pause`, `Cd_stop`, `Cd_sync_cb`, `Cd_read_start_buf`,
   `Cd_ready_cb_buf`, `Cd_read_start_ring`, `Cd_ready_cb_ring`, `Cd_control_retry`, `Cd_controlb_retry`,
   `Cd_set_mode`, `Cd_set_volume`, `Cd_xa_play`, `Cd_read_comb`, `Cd_read`,
-  `func_8001D7AC`, `Cd_read_sync`, `Cd_read_sync2`, `Cd_cmd_dequeue`,
+  `Cd_seek_file`, `Cd_read_sync`, `Cd_read_sync2`, `Cd_cmd_dequeue`,
   `Cd_subcmd`.
 - Notes on banked ones:
   - `Cd_stop`, `cd_subcmd_mute`: parked until `Sound_work` existed (the target's shared
