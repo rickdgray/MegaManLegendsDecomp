@@ -761,21 +761,17 @@ void Cd_xa_seek_id(uint32 arg)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_seek_id);
 #endif
 
-#ifdef NON_MATCHING
 void Cd_seek(sint32 sector)
 {
     CD_CMD *p;
-    CD_CMD *end;
     CD_CMD *q;
 
-    // drop any command of type 7 already queued (never the one being run), then queue this one
+    // drop any seek already queued (never the one being run), then queue this one
     for (p = &Cd_cmd_queue[1]; p < Cd_cmd_write_ptr; p++)
     {
         if (p->type == CD_CMD_SEEK)
         {
-            end = Cd_cmd_write_ptr;
-
-            for (q = p; q + 1 < end; q++)
+            for (q = p; q + 1 < Cd_cmd_write_ptr; q++)
             {
                 q->type         = q[1].type;
                 q->args.word[0] = q[1].args.word[0];
@@ -791,9 +787,6 @@ void Cd_seek(sint32 sector)
     Cd_cmd_write_ptr->args.seek.sector = sector;
     Cd_cmd_write_ptr++;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_seek);
-#endif
 
 void func_8001D7AC(sint32 index)
 {
