@@ -261,6 +261,9 @@ What decompilers show vs. what to write:
   `return;` / `error:`): the scheduler can't reorder across a label. A tail that is only calls can be duplicated (cross-jumping merges the copies), unless the
   target sets up the first call's argument in its delay slot at the merge point: then the source
   had a label right before that call.
+- **Struct copies:** `a = b` on a struct compiles as a block move with its own pointer setup.
+  If the target copies a struct's words with plain loads and stores at the fields' own offsets,
+  the source copied field by field.
 
 ## Types and headers
 

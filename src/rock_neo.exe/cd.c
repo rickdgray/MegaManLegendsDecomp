@@ -362,15 +362,17 @@ void Cd_cmd_exec(void)
     cd_cmd_tbl[Cd_cmd_exec_ptr->type]();
 }
 
-#ifdef NON_MATCHING
 void Cd_cmd_dequeue(void)
 {
-    CD_CMD *p;
+    CD_CMD *p = Cd_cmd_queue;
 
-    for (p = Cd_cmd_queue; p->type != CD_CMD_END; p++)
+    while (p->type != CD_CMD_END)
     {
-        p->type = p[1].type;
-        p->args = p[1].args;
+        p->type         = p[1].type;
+        p->args.word[0] = p[1].args.word[0];
+        p->args.word[1] = p[1].args.word[1];
+        p->args.word[2] = p[1].args.word[2];
+        p++;
     }
 
     p->type         = CD_CMD_END;
@@ -378,9 +380,6 @@ void Cd_cmd_dequeue(void)
     Cd_cmd_routine  = 0;
     Cd_cmd_write_ptr--;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_cmd_dequeue);
-#endif
 
 void Cd_pause(void)
 {
@@ -690,7 +689,6 @@ void Cd_read(sint32 file, uint8 *buf)
     Cd_cmd_write_ptr++;
 }
 
-#ifdef NON_MATCHING
 void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
 {
     CD_CMD *p;
@@ -708,8 +706,10 @@ void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
 
                 for (q = p; q + 1 < end; q++)
                 {
-                    q->type = q[1].type;
-                    q->args = q[1].args;
+                    q->type         = q[1].type;
+                    q->args.word[0] = q[1].args.word[0];
+                    q->args.word[1] = q[1].args.word[1];
+                    q->args.word[2] = q[1].args.word[2];
                 }
 
                 Cd_cmd_write_ptr--;
@@ -723,9 +723,6 @@ void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
     Cd_cmd_write_ptr->args.subcmd.arg3 = arg3;
     Cd_cmd_write_ptr++;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_subcmd);
-#endif
 
 #ifdef NON_MATCHING
 void Cd_xa_play_id(uint32 id)
@@ -767,8 +764,8 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_seek_id);
 void Cd_seek(sint32 sector)
 {
     CD_CMD *p;
-    CD_CMD *q;
     CD_CMD *end;
+    CD_CMD *q;
 
     // drop any command of type 7 already queued (never the one being run), then queue this one
     for (p = &Cd_cmd_queue[1]; p < Cd_cmd_write_ptr; p++)
@@ -779,8 +776,10 @@ void Cd_seek(sint32 sector)
 
             for (q = p; q + 1 < end; q++)
             {
-                q->type = q[1].type;
-                q->args = q[1].args;
+                q->type         = q[1].type;
+                q->args.word[0] = q[1].args.word[0];
+                q->args.word[1] = q[1].args.word[1];
+                q->args.word[2] = q[1].args.word[2];
             }
 
             Cd_cmd_write_ptr--;

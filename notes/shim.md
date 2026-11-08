@@ -162,7 +162,7 @@ Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `P
 `cd_cmd_play_movie`, `Movie_dct_out_callback`, `Cd_cmd_exec`, `Cd_set_volume`, `Cd_stop`,
 `Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`, `Cd_cmd_set_movie`,
 `Cd_read_sync2`, `intro_copyright_draw`, `intro_copyright`, `intro_wait_idle`, `intro_play_movie`,
-`intro_launch_game`, `Intro_task`.
+`intro_launch_game`, `Intro_task`, `Cd_cmd_dequeue`.
 
 Parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
 
@@ -177,19 +177,6 @@ Parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
     counters in the same register (`s2`), so the original reuses one variable.
   - Remaining: an `s1`/`s2` priority tie between `i` and the constant. Long permuter run; it's
     slow here (~10 outputs per night vs ~50 for `Cd_cmd_dequeue`), so a good server job.
-- `Cd_cmd_dequeue`: best draft is a single-pointer `for` loop:
-  `for (p = Cd_cmd_queue; p->type != 0; p++) { p->type = p[1].type; p->args = p[1].args; }`,
-  then `p[1].type = 0`. Instruction-for-instruction aligned (asm-differ 530). Remaining: GCC's
-  derived loop pointer is based at `p + 4` (target `p + 0xc`), `p++` is scheduled after the args
-  stores (target: before), and register numbering. ROCK_NEO's copy parks with the same difference.
-  - Permuter (10 h, from the older `while` draft): best 150 (permuter scale), only via implausible
-    disguises (constant index variables, always-true `if`s). All of them make the `type` copy and
-    the `args` copy reach `p[1]` through *different* expressions.
-  - Ruled out: two pointers `dst`/`src` (the target stores args through the derived pointer, so
-    one source pointer), a `next` pointer (worse), `*p = p[1]`, index form, reversed copy order.
-  - `CD_CMD_ARGS` is now a union (`movie` member); the draft's diff is unchanged (score 530), so
-    the union view alone doesn't explain `p + 0xc` (= the `args` word at +0xC, the last of the three).
-    ROCK_NEO reads that word as 32 bits in several functions (see [rock_neo.md](rock_neo.md)).
 - `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect` (computed once from
   `Dbl_buff_idx`), then a variable holding 1, then `img` (a walking pointer stepping one column,
   `0x1E00` bytes), then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`. All

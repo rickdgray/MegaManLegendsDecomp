@@ -177,7 +177,8 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   `cd_cmd_seek`, `Cd_cmd_exec`, `Cd_pause`, `Cd_stop`, `Cd_sync_cb`, `Cd_read_start_buf`,
   `Cd_ready_cb_buf`, `Cd_read_start_ring`, `Cd_ready_cb_ring`, `Cd_control_retry`, `Cd_controlb_retry`,
   `Cd_set_mode`, `Cd_set_volume`, `Cd_xa_play`, `Cd_read_comb`, `Cd_read`,
-  `func_8001D7AC`, `Cd_read_sync`, `Cd_read_sync2`.
+  `func_8001D7AC`, `Cd_read_sync`, `Cd_read_sync2`, `Cd_cmd_dequeue`,
+  `Cd_subcmd`.
 - Notes on banked ones:
   - `Cd_stop`, `func_8001B7B4`: parked until `Sound_work` existed (the target's shared
     `lui`/`addiu` base was the struct; see `CLAUDE.md`, "Revisit parked functions").
@@ -196,9 +197,6 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
     (`for (i = 9, p = &Cd_ring_ready[9]; i >= 0; i--) *p-- = 0;`). The callbacks share their error
     tails with `goto` (no `goto`-free form tried).
 - **Parked:**
-  - `Cd_cmd_dequeue`: the shim's draft with `p->type = 0;` for the terminator. Same difference as
-    in the shim: GCC bases the second loop pointer at `p+4` (target `p+0xC`, with `a2`/`a1` where
-    the draft gets `a3`/`a2`); the tail matches.
   - `Cd_xa_seek_id` (`CD_FILE_ID`): the target extracts the middle field and scales it as separate
     steps (`sll 4`, `srl 20`, `sll 2`); GCC folds a bit-field, plain shifts, and a union over the
     `uint32` alike into `srl 14` / `andi 0x3FFC`. Something in the original hid the chain from
@@ -209,10 +207,6 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   - `Cd_seek` (queue a type-7 command, first deleting type-7 entries after the running one):
     right shape and instructions; only registers differ (target: write pointer `a0`, sector `t1`,
     outer `p` `a3`; ours `v1`, `t3`, `t0`). Tried a bound local `end`, declaration orders.
-  - `Cd_subcmd` (queue type 2, first dropping queued type-2 entries with `arg2 == 1` when the
-    new `arg2` is 1): shape matches; we copy `a1` into `t4` at entry (one extra `move`, shifting
-    `t5`..`t7`). Tried `arg2`/`arg3` types, three declaration orders, comparing against `arg2`,
-    with and without `end`.
 - **Not attempted, blocked:** `cd_cmd_read_comb` (915 lines: ready-sector dispatcher with three jump
   tables). Needs the work struct at `D_800C5604`..`D_800C5638`, `Game_work`'s type
   (`+0x1B8/+0x1BA/+0x1BC/+0x1DA`), `D_80098AD0` (8-byte entries), and registry names for three
