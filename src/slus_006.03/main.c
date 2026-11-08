@@ -455,25 +455,24 @@ void Cd_cmd_exec(void)
     cd_cmd_tbl[Cd_cmd_exec_ptr->type]();
 }
 
-#ifdef NON_MATCHING
 void Cd_cmd_dequeue(void)
 {
-    CD_CMD *p;
+    CD_CMD *p = Cd_cmd_queue;
 
-    for (p = Cd_cmd_queue; p->type != 0; p++)
+    while (p->type != CD_CMD_END)
     {
-        p->type = p[1].type;
-        p->args = p[1].args;
+        p->type         = p[1].type;
+        p->args.word[0] = p[1].args.word[0];
+        p->args.word[1] = p[1].args.word[1];
+        p->args.word[2] = p[1].args.word[2];
+        p++;
     }
 
-    p[1].type      = 0;
+    p[1].type      = CD_CMD_END;
     D_80059C24     = 0;
     Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Cd_cmd_dequeue);
-#endif
 
 void Cd_set_volume(uint8 vol)
 {

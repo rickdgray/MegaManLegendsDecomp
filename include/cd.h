@@ -93,6 +93,7 @@ typedef struct
 // Command arguments are copied as one 12-byte block; the layout depends on CD_CMD.type.
 typedef union
 {
+    sint32 word[3]; // the raw arguments, for code that moves commands without interpreting them
     struct // CD_CMD_PLAY_MOVIE (shim only)
     {
         sint32 file;      // movie index into Cd_file_tbl
