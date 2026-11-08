@@ -14,8 +14,11 @@
 // sharing one variable across uses changes register allocation.
 #define CLUT_BUF_ROW(row, y) ((row) = (y) + (((y)&0x100) >> 4) - 0xF0, (row) -= (y)&0x100)
 
-// Unknown
-extern uint32 Clut_buf_dirty;                                // dirty CLUT_BUF rows, one bit each
-extern uint16 Clut_buf[CLUT_BUF_ROWS * CLUT_BUF_COLS]; // the CLUT buffer
+extern uint32 Clut_buf_dirty;
+
+// func_80017734 copies rows to the same position 0x4000 further on, so a
+// second copy sits right after it (0x800B1168). The two may really be one array,
+// Clut_buf[2][...], double-buffered.
+extern uint16 Clut_buf[CLUT_BUF_ROWS * CLUT_BUF_COLS];
 
 #endif // VRAM_H

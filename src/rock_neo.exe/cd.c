@@ -312,7 +312,7 @@ void cd_cmd_read_comb(void)
 
             Cd_read_start_ring(Cd_cmd_exec_ptr->args.read.file);
             Cd_play_mode = 0;
-            Cd_ring_read   = 0;
+            Cd_ring_read = 0;
             Cd_wait      = 0;
             Cd_cmd_routine++;
             // fall through
@@ -335,7 +335,7 @@ void cd_cmd_read_comb(void)
                         // buf and head are the same sector: the original reads the first
                         // three words and the data through one pointer, the arguments
                         // through another (head lives across calls, buf doesn't)
-                        buf        = Cd_ring_buf[Cd_ring_read];
+                        buf          = Cd_ring_buf[Cd_ring_read];
                         Cd_comb_type = ((CD_COMB_HEAD *)buf)->type;
 
                         if (Cd_comb_type == CD_COMB_END)
@@ -346,7 +346,7 @@ void cd_cmd_read_comb(void)
 
                         Cd_comb_work.size  = ((CD_COMB_HEAD *)buf)->size;
                         Cd_comb_work.count = ((CD_COMB_HEAD *)buf)->count;
-                        head             = (CD_COMB_HEAD *)buf;
+                        head               = (CD_COMB_HEAD *)buf;
 
                         switch (Cd_comb_type)
                         {
@@ -356,7 +356,7 @@ void cd_cmd_read_comb(void)
                                 break;
 
                             case CD_COMB_TIM:
-                                rect                    = &Cd_comb_rect[0];
+                                rect                      = &Cd_comb_rect[0];
                                 Cd_comb_work.u.tim.clut_x = head->arg[0];
                                 Cd_comb_work.u.tim.clut_y = head->arg[1];
                                 Cd_comb_work.u.tim.clut_w = head->arg[2];
@@ -373,8 +373,8 @@ void cd_cmd_read_comb(void)
                                     {
                                         CLUT_BUF_ROW(row, head->arg[1]);
                                         Mem_copy16((u_long *)(buf + 0x100),
-                                                      &Clut_buf[head->arg[0] + (row << 8)],
-                                                      head->arg[3] * head->arg[2] / 16 * 2);
+                                                   &Clut_buf[head->arg[0] + (row << 8)],
+                                                   head->arg[3] * head->arg[2] / 16 * 2);
                                         CLUT_BUF_ROW(bit, head->arg[1]);
                                         Clut_buf_dirty |= 1 << bit;
                                     }
@@ -399,8 +399,8 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.tiles.cols = head->arg[2];
                                 Cd_comb_work.u.tiles.rows = head->arg[3];
                                 Cd_comb_work.u.tiles.col = Cd_comb_work.u.tiles.row = 0;
-                                Cd_comb_rect[0].w                                 = CD_COMB_TILE_SIZE;
-                                Cd_comb_rect[0].h                                 = CD_COMB_TILE_SIZE;
+                                Cd_comb_rect[0].w = CD_COMB_TILE_SIZE;
+                                Cd_comb_rect[0].h = CD_COMB_TILE_SIZE;
                                 break;
 
                             case CD_COMB_IMAGE:
@@ -410,8 +410,8 @@ void cd_cmd_read_comb(void)
                                 {
                                     CLUT_BUF_ROW(row2, head->arg[1]);
                                     Mem_copy16((u_long *)(buf + 0x100),
-                                                  &Clut_buf[head->arg[0] + (row2 << 8)],
-                                                  head->arg[3] * head->arg[2] / 16 * 2);
+                                               &Clut_buf[head->arg[0] + (row2 << 8)],
+                                               head->arg[3] * head->arg[2] / 16 * 2);
                                     CLUT_BUF_ROW(bit2, head->arg[1]);
                                     Clut_buf_dirty |= 1 << bit2;
                                 }
@@ -443,7 +443,8 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.vab.num       = head->arg[1];
                                 Cd_comb_work.u.vab.sbaddr    = head->arg[2];
                                 Cd_comb_work.u.vab.head_size = head->arg[3];
-                                Cd_comb_work.u.vab.dest = VAB_HEAD_BUF + head->arg[0] * VAB_HEAD_SIZE;
+                                Cd_comb_work.u.vab.dest =
+                                    VAB_HEAD_BUF + head->arg[0] * VAB_HEAD_SIZE;
                                 Cd_comb_work.u.vab.load = 1;
 
                                 if (head->arg[0] == 4)
@@ -482,7 +483,7 @@ void cd_cmd_read_comb(void)
                                 if (D_80098AD0[head->arg[0]].unk0 != head->arg[1])
                                 {
                                     D_80098AD0[head->arg[0]].unk0 = head->arg[1];
-                                    Cd_comb_work.u.sound.load       = 1;
+                                    Cd_comb_work.u.sound.load     = 1;
                                 }
                                 break;
 
@@ -495,7 +496,7 @@ void cd_cmd_read_comb(void)
                                 {
                                     D_80098AD0[head->arg[0]].unk0 = head->arg[1];
                                     D_80098AD0[head->arg[0]].unk1 = head->arg[2];
-                                    Cd_comb_work.u.sound2.load      = 1;
+                                    Cd_comb_work.u.sound2.load    = 1;
                                 }
                                 break;
                         }
@@ -507,7 +508,7 @@ void cd_cmd_read_comb(void)
                         if (Cd_comb_work.size >= CD_SECTOR_SIZE)
                         {
                             Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.data.dest,
-                                          CD_SECTOR_SIZE / 32);
+                                       CD_SECTOR_SIZE / 32);
                             Cd_comb_work.size -= CD_SECTOR_SIZE;
                             Cd_comb_work.u.data.dest += CD_SECTOR_SIZE;
                         }
@@ -539,7 +540,8 @@ void cd_cmd_read_comb(void)
                         {
                             Cd_comb_work.u.tim.col = 0;
 
-                            if (++Cd_comb_work.u.tim.row == Cd_comb_work.u.tim.h / CD_COMB_TILE_SIZE)
+                            if (++Cd_comb_work.u.tim.row ==
+                                Cd_comb_work.u.tim.h / CD_COMB_TILE_SIZE)
                             {
                                 Cd_head_checked = 0;
                             }
@@ -547,9 +549,11 @@ void cd_cmd_read_comb(void)
                         break;
 
                     case CD_COMB_TILES + 1: // load one image tile
-                        rect    = &Cd_comb_rect[0];
-                        rect->x = Cd_comb_work.u.tiles.x + Cd_comb_work.u.tiles.col * CD_COMB_TILE_SIZE;
-                        rect->y = Cd_comb_work.u.tiles.y + Cd_comb_work.u.tiles.row * CD_COMB_TILE_SIZE;
+                        rect = &Cd_comb_rect[0];
+                        rect->x =
+                            Cd_comb_work.u.tiles.x + Cd_comb_work.u.tiles.col * CD_COMB_TILE_SIZE;
+                        rect->y =
+                            Cd_comb_work.u.tiles.y + Cd_comb_work.u.tiles.row * CD_COMB_TILE_SIZE;
                         LoadImage(rect, (u_long *)Cd_ring_buf[Cd_ring_read]);
 
                         if (++Cd_comb_work.u.tiles.col == Cd_comb_work.u.tiles.cols)
@@ -574,14 +578,14 @@ void cd_cmd_read_comb(void)
                         else if (Cd_comb_work.u.vab.head_size >= CD_SECTOR_SIZE)
                         {
                             Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.vab.dest,
-                                          CD_SECTOR_SIZE / 32);
+                                       CD_SECTOR_SIZE / 32);
                             Cd_comb_work.u.vab.dest += CD_SECTOR_SIZE;
                             Cd_comb_work.u.vab.head_size -= CD_SECTOR_SIZE;
                         }
                         else if (Cd_comb_work.u.vab.head_size != 0)
                         {
                             Mem_copy4(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.vab.dest,
-                                          Cd_comb_work.u.vab.head_size / 4);
+                                      Cd_comb_work.u.vab.head_size / 4);
                             Cd_comb_work.u.vab.head_size                  = 0;
                             Game_work.vab[Cd_comb_work.u.vab.slot].vab_id = SsVabOpenHeadSticky(
                                 VAB_HEAD_BUF + Cd_comb_work.u.vab.slot * VAB_HEAD_SIZE,
@@ -589,8 +593,9 @@ void cd_cmd_read_comb(void)
                         }
                         else
                         {
-                            if (SsVabTransBodyPartly(Cd_ring_buf[Cd_ring_read], CD_SECTOR_SIZE,
-                                                     Game_work.vab[Cd_comb_work.u.vab.slot].vab_id) ==
+                            if (SsVabTransBodyPartly(
+                                    Cd_ring_buf[Cd_ring_read], CD_SECTOR_SIZE,
+                                    Game_work.vab[Cd_comb_work.u.vab.slot].vab_id) ==
                                 Game_work.vab[Cd_comb_work.u.vab.slot].vab_id)
                             {
                                 Cd_head_checked = 0;
@@ -606,7 +611,7 @@ void cd_cmd_read_comb(void)
                             if (Cd_comb_work.u.sound.load)
                             {
                                 Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.sound.dest,
-                                              CD_SECTOR_SIZE / 32);
+                                           CD_SECTOR_SIZE / 32);
                             }
 
                             Cd_comb_work.size -= CD_SECTOR_SIZE;
@@ -636,7 +641,7 @@ void cd_cmd_read_comb(void)
                             if (Cd_comb_work.u.sound2.load)
                             {
                                 Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.sound2.dest,
-                                              CD_SECTOR_SIZE / 32);
+                                           CD_SECTOR_SIZE / 32);
                             }
 
                             Cd_comb_work.size -= CD_SECTOR_SIZE;

@@ -53,7 +53,7 @@ Pinned in `tools/fetch_tools.sh` (into gitignored `tools/vendor/`): old-gcc rele
 Environment: WSL Ubuntu, GNU binutils 2.38 (`mips-linux-gnu`), splat 0.50.1 / spimdisasm 1.42.4,
 Python venv in `.venv/`.
 
-Header search order (`include/<target>/` before `include/`) and the rule for shared headers are in
+Header search order (`include/<target>/` if any, before `include/`) and the rule for shared headers are in
 `CLAUDE.md` ("Types and headers").
 
 ## splat configuration

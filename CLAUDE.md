@@ -280,15 +280,11 @@ What decompilers show vs. what to write:
 | `include/slus_006.03/` | Shim only: `display.h`, `intro.h`, `movie.h`, `pad.h`, `scratch.h`, `system.h` |
 | `include/rock_neo.exe/` | ROCK_NEO only: `sound.h` (`SOUND_WORK`), `system.h` (`Thread_wait`) |
 
-**Shared vs. per-target headers.** `include/` holds only what both programs use with identical
-declarations: `common.h`, `psyq/`, `cd.h`, and the assembler includes (`*.inc`). Everything else
-lives in `include/<t>/`. **A header is shared only when proven identical in both programs**;
-until then it belongs to one target, even if the other will probably need it. `cc.sh`, `m2c.sh`
-and `permuter_prep.py` search `include/<t>/` before `include/`, so never give a per-target header
-the name of a shared one: it would silently shadow it. Unnamed globals go in the target's
-`cd_local.h`-style file (included at the end of the shared header), never in a `.c` file: a `.c`
-file declares nothing itself. When a variable gets a name in both programs, move it into the
-shared header.
+**Headers are shared unless their definitions conflict.** A declaration a program doesn't use
+  compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
+  both programs' declarations; label program-only sections. Use a per-target header
+  (include/<target>/) only when the same name has different definitions in each program, as
+  pad.h's struct layouts do.
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.
