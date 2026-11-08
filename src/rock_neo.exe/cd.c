@@ -22,7 +22,7 @@ void Cd_init(void)
     Cd_status     = CD_STATUS_IDLE;
     Cd_xa_state   = CD_XA_OFF;
     Cd_mode       = 0;
-    Cd_unused    = 0;
+    Cd_unused     = 0;
     Cd_muted      = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);

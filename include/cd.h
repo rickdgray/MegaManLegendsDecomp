@@ -251,10 +251,10 @@ extern CD_FILE Cd_file_tbl[CD_FILE_COUNT];
 
 // The command queue
 extern CD_CMD Cd_cmd_queue[CD_CMD_QUEUE_LEN];
-extern CD_CMD *Cd_cmd_write_ptr; // next free slot
-extern CD_CMD *Cd_cmd_exec_ptr;  // the command being run
-extern uint32 Cd_cmd_routine;    // the running command's current step; cleared on dequeue
-extern CD_CMD_FUNC cd_cmd_tbl[]; // handlers by CD_CMD.type (6 in the shim, 8 in ROCK_NEO)
+extern CD_CMD *Cd_cmd_write_ptr;    // next free slot
+extern CD_CMD *Cd_cmd_exec_ptr;     // the command being run
+extern uint32 Cd_cmd_routine;       // the running command's current step; cleared on dequeue
+extern CD_CMD_FUNC cd_cmd_tbl[];    // handlers by CD_CMD.type (6 in the shim, 8 in ROCK_NEO)
 extern CD_CMD_FUNC cd_subcmd_tbl[]; // handlers by args.subcmd.sub (ROCK_NEO only)
 
 // Reading: position, the read buffer and the sector ring
