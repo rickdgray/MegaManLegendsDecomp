@@ -226,3 +226,8 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
 - **Ghidra:** create the function at `0x800680BC` (code not disassembled); define `MSC00`'s first
   two words as data.
 - Where the stage overlays are loaded from (ties to the SHL byte and the BSS-in-file question).
+- **`Cd_ring_buf` (0x800B5DB0, 0x5000) is shared memory.** The CD ring uses all of it (10 slots of
+  0x800), but other files keep data at fixed offsets inside it: `code_8006430C` (many fields, words
+  and bytes from +0x100 to +0x1EE0), `player`, `scene`, `code_8003AC24`, `code_8005C258`. Since C
+  variables can't overlap, the original had one buffer used for different things at different
+  times (a union, or casts). Its real owner, and its name, are open until those users are decompiled.

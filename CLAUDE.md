@@ -258,8 +258,9 @@ What decompilers show vs. what to write:
   macro argument were fixed.
 - **Shared error exits.** When several paths set something different and then share a tail whose
   store order is preserved across all of them, the source had a label there (`goto error;` /
-  `return;` / `error:`): the scheduler can't reorder across a label. A tail that is only a call
-  doesn't need one: duplicate it, and GCC's cross-jumping merges the copies.
+  `return;` / `error:`): the scheduler can't reorder across a label. A tail that is only calls can be duplicated (cross-jumping merges the copies), unless the
+  target sets up the first call's argument in its delay slot at the merge point: then the source
+  had a label right before that call.
 
 ## Types and headers
 

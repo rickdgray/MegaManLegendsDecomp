@@ -794,6 +794,7 @@ Cd_mode = 0x800988EC;
 Cd_sync_done = 0x80098964;
 Cd_movie_playing = 0x80098968;
 Cd_error_flags = 0x8009896C;
+Cd_ring_write = 0x80098998;
 Cd_cmd_write_ptr = 0x800989A4;
 Cd_xa_end_sector = 0x800989B0;
 Cd_xa_id = 0x800989B8;

@@ -13,7 +13,7 @@ void Cd_init(void)
     }
 
     D_800988DC  = 0; // stored twice in the original; both needed for the match
-    D_80098998  = 0;
+    Cd_ring_write  = 0;
     Cd_status   = CD_STATUS_IDLE;
     Cd_xa_state = CD_XA_OFF;
     Cd_mode     = 0;
@@ -440,6 +440,8 @@ void Cd_read_start_buf(sint32 file, uint8 *buf)
     Cd_controlb_retry(CdlReadN, NULL, Cd_result);
 }
 
+// Same shape as Cd_ready_cb_ring, whose bytes require both labels: error: marks the read failed,
+// stop: stops receiving sectors. (This function also matches without stop:.)
 void Cd_ready_cb_buf(u_char status, u_char *result)
 {
     sint32 pos;
@@ -502,7 +504,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
 
             CdSyncCallback(Cd_sync_cb);
             Cd_control_retry(CdlPause, NULL, Cd_result);
-            CdReadyCallback(NULL);
+            goto stop;
         }
     }
     else
@@ -510,10 +512,12 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
         Cd_error_flags |= CD_ERR_READY;
         goto error;
     }
+
     return;
 
 error:
     Cd_status = CD_STATUS_ERROR;
+stop:
     CdReadyCallback(NULL);
 }
 
@@ -522,7 +526,7 @@ void Cd_read_start_ring(sint32 file)
     uint8 *p;
     sint32 i;
 
-    for (i = 9, p = &Cd_ring_ready[9]; i >= 0; i--)
+    for (i = CD_RING_SLOTS - 1, p = &Cd_ring_ready[CD_RING_SLOTS - 1]; i >= 0; i--)
     {
         *p-- = 0;
     }
@@ -532,7 +536,7 @@ void Cd_read_start_ring(sint32 file)
     Cd_error_flags = 0;
     Cd_wait        = 0;
     Cd_sync_done   = 0;
-    D_80098998     = 0;
+    Cd_ring_write     = 0;
     Cd_file_sector = Cd_file_tbl[file].sector;
     CdIntToPos(Cd_file_sector, &Cd_loc);
     Cd_read_left = Cd_file_tbl[file].size;
@@ -548,39 +552,37 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
 
     if (status == CdlDataReady)
     {
-        if (Cd_ring_ready[D_80098998] == 0)
+        if (Cd_ring_ready[Cd_ring_write] == 0)
         {
-            CdGetSector(Cd_ring_buf[D_80098998], CD_SECTOR_HEADER_WORDS); // sector header
-            pos = CdPosToInt((CdlLOC *)Cd_ring_buf[D_80098998]);
+            CdGetSector(Cd_ring_buf[Cd_ring_write], CD_SECTOR_HEADER_WORDS);
+            pos = CdPosToInt((CdlLOC *)Cd_ring_buf[Cd_ring_write]);
 
             if (pos != Cd_file_sector)
             {
                 Cd_error_flags |= CD_ERR_WRONG_SECTOR;
-                goto set_status;
+                goto error;
             }
-            else
+
+            Cd_file_sector = pos + 1;
+            CdGetSector(Cd_ring_buf[Cd_ring_write], CD_SECTOR_WORDS);
+            Cd_ring_ready[Cd_ring_write] = 1;
+            Cd_ring_write++;
+
+            if (Cd_ring_write == CD_RING_SLOTS)
             {
-                Cd_file_sector = pos + 1;
-                CdGetSector(Cd_ring_buf[D_80098998], CD_SECTOR_WORDS);
-                Cd_ring_ready[D_80098998] = 1;
-                D_80098998++;
+                Cd_ring_write = 0;
+            }
 
-                if (D_80098998 == 10)
-                {
-                    D_80098998 = 0;
-                }
+            Cd_read_left -= CD_SECTOR_SIZE;
 
-                Cd_read_left -= CD_SECTOR_SIZE;
-
-                if (Cd_read_left <= 0)
-                {
-                    CdReadyCallback(0);
-                    Cd_control_retry(CdlPause, NULL, Cd_result);
-                    CdSyncCallback(Cd_sync_cb);
-                }
+            if (Cd_read_left <= 0)
+            {
+                CdReadyCallback(NULL);
+                Cd_control_retry(CdlPause, NULL, Cd_result);
+                CdSyncCallback(Cd_sync_cb);
             }
         }
-        else
+        else // every slot is still waiting to be read
         {
             Cd_status = CD_STATUS_ERROR;
             Cd_error_flags |= CD_ERR_RING_FULL;
@@ -590,13 +592,17 @@ void Cd_ready_cb_ring(u_char status, u_char *result)
     else
     {
         Cd_error_flags |= CD_ERR_READY;
-    set_status:
-        Cd_status = CD_STATUS_ERROR;
-    stop:
-        CdReadyCallback(0);
-        CdSyncCallback(Cd_sync_cb);
-        Cd_control_retry(CdlPause, NULL, Cd_result);
+        goto error;
     }
+
+    return;
+
+error:
+    Cd_status = CD_STATUS_ERROR;
+stop:
+    CdReadyCallback(NULL);
+    CdSyncCallback(Cd_sync_cb);
+    Cd_control_retry(CdlPause, NULL, Cd_result);
 }
 
 void Cd_control_retry(u_char com, u_char *param, u_char *result)

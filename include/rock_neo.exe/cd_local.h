@@ -8,10 +8,11 @@
 #include "psyq/libcd.h"
 
 #define CD_CMD_COUNT 8
+#define CD_RING_SLOTS 10
 
 extern uint8 Cd_play_mode;          // D_80059BC9
 extern uint8 D_800988DC;            // D_80059BCA
-extern sint32 D_80098998;           // D_80059C00
+extern sint32 Cd_ring_write;           // D_80059C00
 extern sint32 Cd_head_checked;           // D_80059C24
 extern uint8 D_80098AA0;            // D_80059C48
 extern CD_CMD_FUNC cd_subcmd_tbl[]; // run by cd_cmd_subcmd, indexed by the command's arg2
@@ -24,8 +25,8 @@ typedef struct
 
 extern CdlLOC Cd_loc;
 extern sint32 Cd_file_sector;
-extern uint8 Cd_ring_ready[10];
-extern uint8 Cd_ring_buf[10][CD_SECTOR_SIZE];
+extern uint8 Cd_ring_ready[CD_RING_SLOTS];
+extern uint8 Cd_ring_buf[CD_RING_SLOTS][CD_SECTOR_SIZE];
 extern CD_CMD_FUNC cd_cmd_tbl[];
 extern volatile uint8 Cd_stat;
 extern uint8 *Cd_read_buf;
