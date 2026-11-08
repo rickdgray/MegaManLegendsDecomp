@@ -94,7 +94,7 @@ typedef struct
 typedef union
 {
     sint32 word[3]; // the raw arguments, for code that moves commands without interpreting them
-    struct // CD_CMD_PLAY_MOVIE (shim only)
+    struct          // CD_CMD_PLAY_MOVIE (shim only)
     {
         sint32 file;      // movie index into Cd_file_tbl
         sint32 end_frame; // frame number at which playback ends

@@ -7,17 +7,17 @@
 #include "common.h"
 #include "psyq/libcd.h"
 
-#define CD_CMD_COUNT 8
+#define CD_CMD_COUNT  8
 #define CD_RING_SLOTS 10
 
-#define CD_XA_GROUP(id) (((id) >> 28) & 3)       // bits 28-29
-#define CD_XA_FILE(id)  (((id) << 4) >> 20)      // bits 16-27
-#define CD_XA_NUM(id)   ((id) & 0xFFFF)          // bits 0-15
+#define CD_XA_GROUP(id) (((id) >> 28) & 3)  // bits 28-29
+#define CD_XA_FILE(id)  (((id) << 4) >> 20) // bits 16-27
+#define CD_XA_NUM(id)   ((id)&0xFFFF)       // bits 0-15
 
 extern uint8 Cd_play_mode;          // D_80059BC9
 extern uint8 D_800988DC;            // D_80059BCA
-extern sint32 Cd_ring_write;           // D_80059C00
-extern sint32 Cd_head_checked;           // D_80059C24
+extern sint32 Cd_ring_write;        // D_80059C00
+extern sint32 Cd_head_checked;      // D_80059C24
 extern uint8 D_80098AA0;            // D_80059C48
 extern CD_CMD_FUNC cd_subcmd_tbl[]; // run by cd_cmd_subcmd, indexed by the command's arg2
 

@@ -727,19 +727,19 @@ void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
 #ifdef NON_MATCHING
 void Cd_xa_play_id(uint32 id)
 {
-    uint32 file = CD_XA_FILE(id);
-    uint32 num = CD_XA_NUM(id);
+    uint32 file  = CD_XA_FILE(id);
+    uint32 num   = CD_XA_NUM(id);
     uint32 group = CD_XA_GROUP(id);
     CD_XA_TRACK *track;
 
-    Cd_xa_id                               = id;
-    Cd_cmd_write_ptr->type                 = CD_CMD_XA_PLAY;
-    Cd_cmd_write_ptr->args.xa.file         = Cd_xa_file_tbl[group][file];
-    track                                  = &Cd_xa_track_tbl[group][file][num];
-    Cd_cmd_write_ptr->args.xa.start        = track->start;
-    Cd_cmd_write_ptr->args.xa.end          = track->end | (id & CD_XA_LOOP);
+    Cd_xa_id                        = id;
+    Cd_cmd_write_ptr->type          = CD_CMD_XA_PLAY;
+    Cd_cmd_write_ptr->args.xa.file  = Cd_xa_file_tbl[group][file];
+    track                           = &Cd_xa_track_tbl[group][file][num];
+    Cd_cmd_write_ptr->args.xa.start = track->start;
+    Cd_cmd_write_ptr->args.xa.end   = track->end | (id & CD_XA_LOOP);
     // reads the running command, not the one just queued (bug in the original)
-    Cd_xa_start                            = Cd_cmd_exec_ptr->args.xa.start.offset;
+    Cd_xa_start = Cd_cmd_exec_ptr->args.xa.start.offset;
     Cd_cmd_write_ptr++;
     Cd_xa_flags = Cd_cmd_exec_ptr->args.xa.end;
 }
@@ -754,7 +754,8 @@ void Cd_xa_seek_id(uint32 arg)
     uint32 mid = (arg << 4) >> 20;
     uint32 lo  = arg & 0xFFFF;
 
-    Cd_seek(Cd_file_tbl[Cd_xa_file_tbl[hi][mid]].sector + (Cd_xa_track_tbl[hi][mid][lo].start & 0xFFFFFF));
+    Cd_seek(Cd_file_tbl[Cd_xa_file_tbl[hi][mid]].sector +
+            (Cd_xa_track_tbl[hi][mid][lo].start & 0xFFFFFF));
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_seek_id);
