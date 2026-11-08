@@ -264,6 +264,10 @@ What decompilers show vs. what to write:
 - **Struct copies:** `a = b` on a struct compiles as a block move with its own pointer setup.
   If the target copies a struct's words with plain loads and stores at the fields' own offsets,
   the source copied field by field.
+- **Locals that copy a global.** GCC keeps a global it can see is unchanged in a loop in a register
+  by itself, loading it where it's first needed. A source local (`end = Cd_cmd_write_ptr;`) fixes
+  the copy at its assignment instead. If the target copies a global later than your version, or
+  moves arguments out of their registers earlier, use the global directly.
 
 ## Types and headers
 

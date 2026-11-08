@@ -692,7 +692,6 @@ void Cd_read(sint32 file, uint8 *buf)
 void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
 {
     CD_CMD *p;
-    CD_CMD *end;
     CD_CMD *q;
 
     // with arg2 == 1: drop any queued type-2 command with arg2 == 1 (never the one being run)
@@ -702,9 +701,7 @@ void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
         {
             if (p->type == CD_CMD_SUBCMD && p->args.subcmd.sub == CD_SUBCMD_XA_STOP)
             {
-                end = Cd_cmd_write_ptr;
-
-                for (q = p; q + 1 < end; q++)
+                for (q = p; q + 1 < Cd_cmd_write_ptr; q++)
                 {
                     q->type         = q[1].type;
                     q->args.word[0] = q[1].args.word[0];
