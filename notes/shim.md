@@ -140,7 +140,7 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
   `cd_cmd_play_movie` (a 6-case switch on `Cd_cmd_routine`; jump table at `0x80010000`).
 - **Confirmed:** this module is shared with `ROCK_NEO.EXE`, where types 1, 2, 4, 6 and 7 do real
   work; see "Shared code" and "CD module" in [rock_neo.md](rock_neo.md).
-- `Cd_head_checked` is only ever cleared (`Cd_init`, `Cd_cmd_dequeue`).
+- `Cd_head_state` is only ever cleared (`Cd_init`, `Cd_cmd_dequeue`).
 - **Open:** the movie arguments `(0xd0, 0x91, 0x2008)`.
 
 ## PsyQ library

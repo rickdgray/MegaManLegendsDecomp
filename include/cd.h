@@ -97,6 +97,7 @@
 #define CD_COMB_IMAGE3 10 // as CD_COMB_IMAGE, but 64 wide, arg[2] x arg[3] / 64 high
 // Types 2 and 6 only set the state; their sectors are dropped.
 
+#define CD_COMB_IMAGE3_W  64
 #define CD_COMB_TILE_SIZE 32 // width and height of the tiles of CD_COMB_TIM and CD_COMB_TILES
 
 // =============================================================================================
@@ -259,10 +260,10 @@ extern CD_CMD_FUNC cd_subcmd_tbl[]; // handlers by args.subcmd.sub (ROCK_NEO onl
 
 // Reading: position, the read buffer and the sector ring
 extern CdlLOC Cd_loc;
-extern sint32 Cd_file_sector;  // next expected sector of the file being read
-extern sint32 Cd_head_checked; // set once the first sector's head has been checked
-extern uint8 *Cd_read_buf;     // where Cd_ready_cb_buf puts the next sector
-extern sint32 Cd_read_left;    // bytes still to read
+extern sint32 Cd_file_sector; // next expected sector of the file being read
+extern sint32 Cd_head_state;  // 0: the next sector is a header; nonzero: past it
+extern uint8 *Cd_read_buf;    // where Cd_ready_cb_buf puts the next sector
+extern sint32 Cd_read_left;   // bytes still to read
 
 extern uint8 Cd_ring_ready[CD_RING_SLOTS];               // 1 while a slot holds an unread sector
 extern uint8 Cd_ring_buf[CD_RING_SLOTS][CD_SECTOR_SIZE]; // shared memory: see notes/rock_neo.md

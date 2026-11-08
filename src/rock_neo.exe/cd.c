@@ -39,9 +39,9 @@ void Cd_init(void)
 
     Cd_wait          = 0;
     Cd_movie_playing = 0;
-    Cd_head_checked  = 0;
+    Cd_head_state    = 0;
     Cd_cmd_routine   = 0;
-    Cd_play_mode     = 0;
+    Cd_play_mode     = CD_PLAY_NONE;
 }
 
 void cd_cmd_nop(void)
@@ -77,7 +77,7 @@ void cd_cmd_read(void)
             }
 
             Cd_read_start_buf(Cd_cmd_exec_ptr->args.read.file, Cd_cmd_exec_ptr->args.read.buf);
-            Cd_play_mode = 0;
+            Cd_play_mode = CD_PLAY_NONE;
             Cd_wait      = 0;
             Cd_cmd_routine++;
             // fall through
@@ -117,7 +117,7 @@ void cd_subcmd_xa_stop(void)
 
             Sound_work.flags |= SOUND_FLAG_CD_OFF;
             Cd_stop();
-            Cd_play_mode = 1;
+            Cd_play_mode = CD_PLAY_XA_STOP;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -144,7 +144,7 @@ void cd_subcmd_xa_pause(void)
 
             Sound_work.flags |= SOUND_FLAG_CD_OFF;
             Cd_stop();
-            Cd_play_mode = 1;
+            Cd_play_mode = CD_PLAY_XA_STOP;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -205,7 +205,7 @@ void cd_cmd_xa_play(void)
                 Cd_stop();
             }
 
-            Cd_play_mode = 2;
+            Cd_play_mode = CD_PLAY_XA;
             Cd_cmd_routine++;
             // fall through
         case 1:
@@ -311,7 +311,7 @@ void cd_cmd_read_comb(void)
             }
 
             Cd_read_start_ring(Cd_cmd_exec_ptr->args.read.file);
-            Cd_play_mode = 0;
+            Cd_play_mode = CD_PLAY_NONE;
             Cd_ring_read = 0;
             Cd_wait      = 0;
             Cd_cmd_routine++;
@@ -325,13 +325,14 @@ void cd_cmd_read_comb(void)
                 break;
             }
 
-            // Read every filled ring slot. Cd_head_checked is 0 while a header sector is
+            // Read every filled ring slot. Cd_head_state is 0 while a header sector is
             // expected, then the entry's type + 1 while its data sectors arrive.
             while (Cd_ring_ready[Cd_ring_read] == 1)
             {
-                switch ((uint32)Cd_head_checked)
+                switch ((uint32)Cd_head_state)
                 {
-                    case 0: // a header sector: start an entry
+                    case 0:
+                        // a header sector: start an entry
                         // buf and head are the same sector: the original reads the first
                         // three words and the data through one pointer, the arguments
                         // through another (head lives across calls, buf doesn't)
@@ -340,7 +341,7 @@ void cd_cmd_read_comb(void)
 
                         if (Cd_comb_type == CD_COMB_END)
                         {
-                            Cd_cmd_routine = 4;
+                            Cd_cmd_routine = 4; // go to case 4: dequeue
                             return;
                         }
 
@@ -428,14 +429,18 @@ void cd_cmd_read_comb(void)
                                     }
                                     else
                                     {
-                                        rect->w = 64;
-                                        rect->h = head->arg[2] * head->arg[3] / 64;
+                                        rect->w = CD_COMB_IMAGE3_W;
+                                        rect->h = head->arg[2] * head->arg[3] / CD_COMB_IMAGE3_W;
                                     }
 
                                     LoadImage(rect, (u_long *)(buf + 0x100));
                                 }
 
-                                Cd_head_checked = 0;
+                                Cd_head_state = 0;
+
+                                // Image entries are a single sector with no data sectors, so
+                                // the state goes straight back to “expecting a header,” skipping
+                                // the type + 1 assignment after the switch.
                                 goto next;
 
                             case CD_COMB_VAB:
@@ -449,7 +454,7 @@ void cd_cmd_read_comb(void)
 
                                 if (head->arg[0] == 4)
                                 {
-                                    if (Game_work.vab[4].unk2 == head->arg[1])
+                                    if (Game_work.vab[4].num == head->arg[1])
                                     {
                                         Cd_comb_work.u.vab.load = 0;
                                     }
@@ -463,8 +468,8 @@ void cd_cmd_read_comb(void)
 
                                 if (Cd_comb_work.u.vab.load == 1)
                                 {
-                                    Game_work.vab[head->arg[0]].unk2 = head->arg[1];
-                                    Game_work.vab[head->arg[0]].unk4 = head->arg[2];
+                                    Game_work.vab[head->arg[0]].num    = head->arg[1];
+                                    Game_work.vab[head->arg[0]].sbaddr = head->arg[2];
 
                                     if (Game_work.vab[head->arg[0]].vab_id != -1)
                                     {
@@ -480,10 +485,10 @@ void cd_cmd_read_comb(void)
                                     SOUND_DATA_BUF + head->arg[2];
                                 Cd_comb_work.u.sound.load = 0;
 
-                                if (D_80098AD0[head->arg[0]].unk0 != head->arg[1])
+                                if (D_80098AD0[head->arg[0]].num != head->arg[1])
                                 {
-                                    D_80098AD0[head->arg[0]].unk0 = head->arg[1];
-                                    Cd_comb_work.u.sound.load     = 1;
+                                    D_80098AD0[head->arg[0]].num = head->arg[1];
+                                    Cd_comb_work.u.sound.load    = 1;
                                 }
                                 break;
 
@@ -492,16 +497,16 @@ void cd_cmd_read_comb(void)
                                     SOUND_DATA_BUF + head->arg[3];
                                 Cd_comb_work.u.sound2.load = 0;
 
-                                if (D_80098AD0[head->arg[0]].unk0 != head->arg[1])
+                                if (D_80098AD0[head->arg[0]].num != head->arg[1])
                                 {
-                                    D_80098AD0[head->arg[0]].unk0 = head->arg[1];
+                                    D_80098AD0[head->arg[0]].num  = head->arg[1];
                                     D_80098AD0[head->arg[0]].unk1 = head->arg[2];
                                     Cd_comb_work.u.sound2.load    = 1;
                                 }
                                 break;
                         }
 
-                        Cd_head_checked = Cd_comb_type + 1;
+                        Cd_head_state = Cd_comb_type + 1;
                         break;
 
                     case CD_COMB_DATA + 1: // copy to memory
@@ -526,7 +531,7 @@ void cd_cmd_read_comb(void)
 
                         if (--Cd_comb_work.count == 0)
                         {
-                            Cd_head_checked = 0;
+                            Cd_head_state = 0;
                         }
                         break;
 
@@ -543,7 +548,7 @@ void cd_cmd_read_comb(void)
                             if (++Cd_comb_work.u.tim.row ==
                                 Cd_comb_work.u.tim.h / CD_COMB_TILE_SIZE)
                             {
-                                Cd_head_checked = 0;
+                                Cd_head_state = 0;
                             }
                         }
                         break;
@@ -562,7 +567,7 @@ void cd_cmd_read_comb(void)
 
                             if (++Cd_comb_work.u.tiles.row == Cd_comb_work.u.tiles.rows)
                             {
-                                Cd_head_checked = 0;
+                                Cd_head_state = 0;
                             }
                         }
                         break;
@@ -572,7 +577,7 @@ void cd_cmd_read_comb(void)
                         {
                             if (--Cd_comb_work.count == 0)
                             {
-                                Cd_head_checked = 0;
+                                Cd_head_state = 0;
                             }
                         }
                         else if (Cd_comb_work.u.vab.head_size >= CD_SECTOR_SIZE)
@@ -598,7 +603,7 @@ void cd_cmd_read_comb(void)
                                     Game_work.vab[Cd_comb_work.u.vab.slot].vab_id) ==
                                 Game_work.vab[Cd_comb_work.u.vab.slot].vab_id)
                             {
-                                Cd_head_checked = 0;
+                                Cd_head_state = 0;
                             }
 
                             SsVabTransCompleted(SS_WAIT_COMPLETED);
@@ -631,7 +636,7 @@ void cd_cmd_read_comb(void)
                                 }
                             }
 
-                            Cd_head_checked = 0;
+                            Cd_head_state = 0;
                         }
                         break;
 
@@ -661,7 +666,7 @@ void cd_cmd_read_comb(void)
                                 }
                             }
 
-                            Cd_head_checked = 0;
+                            Cd_head_state = 0;
                         }
                         break;
                 }
@@ -707,7 +712,7 @@ void cd_cmd_seek(void)
         case 1:
             if (Cd_sync_done)
             {
-                Cd_play_mode = 0;
+                Cd_play_mode = CD_PLAY_NONE;
                 CdSyncCallback(Cd_seek_sync_cb);
                 CdIntToPos(Cd_cmd_exec_ptr->args.seek.sector, &loc);
                 Cd_control_retry(CdlSeekL, (u_char *)&loc, Cd_result);
@@ -738,11 +743,11 @@ void Cd_cmd_exec(void)
 {
     if (Cd_error_flags)
     {
-        Cd_sync_done    = 0;
-        Cd_mode         = 0;
-        Cd_error_flags  = 0;
-        Cd_head_checked = 0;
-        Cd_cmd_routine  = 0;
+        Cd_sync_done   = 0;
+        Cd_mode        = 0;
+        Cd_error_flags = 0;
+        Cd_head_state  = 0;
+        Cd_cmd_routine = 0;
         CdSyncCallback(NULL);
         CdReadyCallback(NULL);
 
@@ -791,9 +796,9 @@ void Cd_cmd_dequeue(void)
         p++;
     }
 
-    p->type         = CD_CMD_END;
-    Cd_head_checked = 0;
-    Cd_cmd_routine  = 0;
+    p->type        = CD_CMD_END;
+    Cd_head_state  = 0;
+    Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
 
@@ -819,7 +824,7 @@ void Cd_stop(void)
     CdReadyCallback(0);
     CdSyncCallback(Cd_sync_cb);
     Cd_control_retry(CdlPause, 0, Cd_result);
-    Cd_play_mode = 0;
+    Cd_play_mode = CD_PLAY_NONE;
     Cd_stat      = 0;
 }
 
@@ -882,7 +887,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
         {
             CdGetSector(Cd_read_buf, CD_SECTOR_WORDS);
 
-            if (Cd_head_checked == 0)
+            if (Cd_head_state == 0)
             {
                 if (Cd_file_tbl[Cd_cmd_exec_ptr->args.read.file].head != *(sint32 *)Cd_read_buf)
                 {
@@ -890,7 +895,7 @@ void Cd_ready_cb_buf(u_char status, u_char *result)
                     goto error;
                 }
 
-                Cd_head_checked = status;
+                Cd_head_state = status;
             }
 
             Cd_read_left -= CD_SECTOR_SIZE;

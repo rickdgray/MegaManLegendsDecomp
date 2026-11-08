@@ -139,7 +139,7 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
   header sector (`CD_COMB_HEAD`: type, byte size, sector count, then per-type arguments; image
   data at +0x100) followed by its data sectors. Ring slots are consumed from `Cd_ring_read`
   (proposed `Cd_ring_read`; `Cd_ready_cb_ring` fills from `Cd_ring_write`), and the slot's flag
-  is cleared after each. `Cd_head_checked` is 0 while a header is expected, else the entry's type
+  is cleared after each. `Cd_head_state` is 0 while a header is expected, else the entry's type
   + 1; the current type is in `Cd_comb_type`, the entry's state in `Cd_comb_work` (`CD_COMB_WORK`, a
   union by type). Types (`CD_COMB_*` in `cd_local.h`): -1 end (routine 4 dequeues); 0 bytes to
   an address (`asm_fastmem` 32-byte-block copy, then a byte loop for the tail); 1 CLUT in the

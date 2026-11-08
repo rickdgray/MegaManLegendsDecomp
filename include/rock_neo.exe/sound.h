@@ -45,7 +45,7 @@ typedef struct
 // An entry of D_80098AD0, filled by cd_cmd_read_comb's types 7 and 8.
 typedef struct
 {
-    uint8 unk0; // 0x0: number of the data loaded; a new number reloads it
+    uint8 num;  // 0x0: number of the data loaded; a new number reloads it
     uint8 unk1; // 0x1: type 8 only
     uint8 pad2[2];
     uint8 *data; // 0x4: in SOUND_DATA_BUF
