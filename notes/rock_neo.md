@@ -186,8 +186,9 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   - `cd_cmd_read`, `cd_cmd_seek`: unsigned `switch ((uint32)Cd_cmd_routine)` (no `slti`).
   - `cd_cmd_xa_play` needs `Cd_sync_done = *(volatile uint8 *)&Cd_status;` for the original's
     reload. It reads the command's `+0xC` as a whole word (`Cd_xa_end_sector` = sector + (word &
-    0xFFFFFF)), so `CD_CMD_ARGS.arg3` (`uint16` in `cd.h`) is probably 32-bit here; a cast is used
-    for now (also in `Cd_subcmd`, `Cd_xa_play_id`).
+    0xFFFFFF)), so it is `xa.end` (`uint32`) in the `CD_CMD_ARGS` union in `cd.h`, as is `subcmd.arg3`
+    (`Cd_subcmd`, `Cd_xa_play_id`). Each command type has its own argument layout; the shim's movie
+    command stores a 16-bit skip mask at +0xC instead.
   - `Cd_read_start_buf`, `Cd_read_start_ring` (read starts; ready callbacks `Cd_ready_cb_buf` copying to
     `Cd_read_buf`, and `Cd_ready_cb_ring` filling the 10-sector ring `Cd_ring_buf`): `CdIntToPos` takes
     `Cd_file_sector`, not the table again, since the store could alias `Cd_file_tbl`. `Cd_read_start_ring`

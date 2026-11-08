@@ -22,7 +22,7 @@
 // CD_CMD.type
 #define CD_CMD_END        0
 #define CD_CMD_READ       1 // read a file into a buffer
-#define CD_CMD_SUBCMD     2 // args.arg2 selects a CD_SUBCMD_*
+#define CD_CMD_SUBCMD     2 // args.subcmd.sub selects a CD_SUBCMD_*
 #define CD_CMD_XA_PLAY    4
 #define CD_CMD_PLAY_MOVIE 5 // implemented in the shim only
 #define CD_CMD_READ_COMB  6 // queued by Cd_read_comb
@@ -33,7 +33,7 @@
 #define CD_CMD_END        0
 #define CD_CMD_PLAY_MOVIE 5
 
-// CD_CMD.args.arg2 for CD_CMD_SUBCMD
+// CD_CMD.args.subcmd.sub for CD_CMD_SUBCMD
 #define CD_SUBCMD_NOP      0
 #define CD_SUBCMD_XA_STOP  1
 #define CD_SUBCMD_XA_PAUSE 2
@@ -55,14 +55,14 @@
 #define CD_PLAY_XA_STOP 1 // set by the XA stop/pause subcommands (meaning provisional)
 #define CD_PLAY_XA      2 // XA playing: Cd_cmd_exec watches for its end
 
-#define CD_SECTOR_MASK    0xFFFFFF // low 24 bits: sector offset within a file
-#define CD_SECTOR_SIZE    0x800    // data bytes per CD sector (mode 2 form 1)
-#define CD_SECTOR_HEADER_WORDS 3                      // CdGetSector size of a sector's header and subheader
-#define CD_SECTOR_WORDS   (CD_SECTOR_SIZE / 4)   // CdGetSector size of a sector's data
-#define CD_FILE_COUNT     248
-#define CD_VOL_MAX        0x7F
-#define CD_STREAM_TIMEOUT 150
-#define CD_CMD_TIMEOUT    150
+#define CD_SECTOR_MASK         0xFFFFFF // low 24 bits: sector offset within a file
+#define CD_SECTOR_SIZE         0x800    // data bytes per CD sector (mode 2 form 1)
+#define CD_SECTOR_HEADER_WORDS 3        // CdGetSector size of a sector's header and subheader
+#define CD_SECTOR_WORDS        (CD_SECTOR_SIZE / 4) // CdGetSector size of a sector's data
+#define CD_FILE_COUNT          248
+#define CD_VOL_MAX             0x7F
+#define CD_STREAM_TIMEOUT      150
+#define CD_CMD_TIMEOUT         150
 
 #define CD_GETLOCP_ABS 5 // offset of the absolute position in the CdlGetlocP result
 
@@ -72,15 +72,6 @@ typedef struct
     sint32 size;
     sint32 head;
 } CD_FILE;
-
-// Arguments are copied as one 12-byte block; possibly a union per command type. Only the
-// play-movie command (type 5) is seen in the shim: (movie index, last frame, skip buttons).
-typedef struct
-{
-    sint32 arg1; // movie index into Cd_file_tbl
-    sint32 arg2; // frame number at which playback ends
-    uint16 arg3; // pad buttons (matched against Joy1's "on" bits) that skip the movie
-} CD_CMD_ARGS;
 
 typedef union
 {
@@ -94,11 +85,38 @@ typedef union
 
 typedef struct
 {
-    sint32 type;     // 0x00: CD_CMD_XA_PLAY
-    sint32 file;     // 0x04: Cd_file_tbl index
-    CD_XA_POS start; // 0x08: sector offset (low 24 bits), channel (top byte)
-    uint32 end; // 0x0C: sector offset (low 24 bits); saved in Cd_xa_end_sector ("end" is a guess)
-} CD_XA_CMD;
+    sint32 file;     // Cd_file_tbl index
+    CD_XA_POS start; // sector offset (low 24 bits), channel (top byte)
+    uint32 end;      // sector offset (low 24 bits); saved in Cd_xa_end_sector ("end" is a guess)
+} CD_XA_ARGS;
+
+// Command arguments are copied as one 12-byte block; the layout depends on CD_CMD.type.
+typedef union
+{
+    struct // CD_CMD_PLAY_MOVIE (shim only)
+    {
+        sint32 file;      // movie index into Cd_file_tbl
+        sint32 end_frame; // frame number at which playback ends
+        uint16 skip;      // pad buttons (matched against Joy1's "on" bits) that skip the movie
+    } movie;
+    CD_XA_ARGS xa; // CD_CMD_XA_PLAY
+    struct         // CD_CMD_SUBCMD
+    {
+        sint32 arg1;
+        sint32 sub; // CD_SUBCMD_*
+        uint32 arg3;
+    } subcmd;
+    struct // CD_CMD_READ, CD_CMD_READ_COMB (file only)
+    {
+        sint32 file; // Cd_file_tbl index
+        uint8 *buf;
+    } read;
+    struct // CD_CMD_SEEK
+    {
+        sint32 unused;
+        sint32 sector;
+    } seek;
+} CD_CMD_ARGS;
 
 typedef struct
 {

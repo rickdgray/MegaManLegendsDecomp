@@ -120,8 +120,8 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
 ## CD command queue
 
 - `Cd_cmd_queue` (`0x8005b348`): `CD_CMD[16]`, `0x10` bytes each: `sint32 type` (0 = end of queue,
-  5 = play movie), then `CD_CMD_ARGS` (`arg1`, `arg2`, `sint16 arg3`; copied as one 12-byte block,
-  possibly a union per command type). `Cd_cmd_write_ptr` (`0x80059c08`) is the next free slot;
+  5 = play movie), then `CD_CMD_ARGS`, a union with one layout per command type, copied as one 12-byte block (the shim
+  only uses `movie`: `file`, `end_frame`, `uint16 skip`). `Cd_cmd_write_ptr` (`0x80059c08`) is the next free slot;
   `Cd_cmd_exec_ptr` (`0x80059c38`) the command being run.
 - `Cd_file_tbl` (`0x8001D3DC`, `CD_FILE[248]`): the disc's file table; the last entry is the CD
   audio track. See [disc.md](disc.md).
@@ -130,6 +130,9 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
 - `Cd_control_retry` / `Cd_controlb_retry(com, param, result)`: wait on `CdSync`, then retry
   `CdControl` / `CdControlB`. `Cd_set_mode(mode)`: sets `Cd_wait = 2` if the speed bit flips.
   `Cd_sync_cb`: `CdSync` callback (complete → `Cd_sync_done = 1`, else sets `CD_ERR_SYNC`).
+- **Each command type has its own argument layout.** The shim's movie command stores a 16-bit skip
+  mask at +0xC (`movie.skip`), where ROCK_NEO's commands store 32-bit values there (`xa.end`,
+  `subcmd.arg3`).
 - `Cd_cmd_set_movie(a1, a2, a3)` appends a type-5 command; `Cd_cmd_dequeue` shifts the queue down
   one; `Cd_read_sync2` = queue not empty.
 - `Cd_cmd_exec`: if `Cd_error_flags` is set, drops the current command and resets the drive; then
@@ -184,9 +187,9 @@ Parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
     the `args` copy reach `p[1]` through *different* expressions.
   - Ruled out: two pointers `dst`/`src` (the target stores args through the derived pointer, so
     one source pointer), a `next` pointer (worse), `*p = p[1]`, index form, reversed copy order.
-  - **Suspected:** `p + 0xc` is `&p->args.arg3`, so the original may touch `arg3`'s word directly,
-    e.g. through a union view of `CD_CMD_ARGS`. ROCK_NEO reads that word as 32 bits in several
-    functions (see [rock_neo.md](rock_neo.md)), which supports it.
+  - `CD_CMD_ARGS` is now a union (`movie` member); the draft's diff is unchanged (score 530), so
+    the union view alone doesn't explain `p + 0xc` (= the `args` word at +0xC, the last of the three).
+    ROCK_NEO reads that word as 32 bits in several functions (see [rock_neo.md](rock_neo.md)).
 - `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect` (computed once from
   `Dbl_buff_idx`), then a variable holding 1, then `img` (a walking pointer stepping one column,
   `0x1E00` bytes), then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`. All

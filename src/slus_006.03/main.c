@@ -312,12 +312,12 @@ void cd_cmd_play_movie(void)
             Cd_wait = 0xFF;
             DecDCTReset(1);
             timeout = 0;
-            Movie_start(Cd_cmd_exec_ptr->args.arg1);
+            Movie_start(Cd_cmd_exec_ptr->args.movie.file);
             D_80059BC9       = 3;
             Cd_movie_playing = 1;
             Movie_buf_idx    = 0;
             Vsync_wait       = VSYNC_60FPS;
-            Movie_end_frame  = Cd_cmd_exec_ptr->args.arg2;
+            Movie_end_frame  = Cd_cmd_exec_ptr->args.movie.end_frame;
 
             for (i = 0; i < CD_VOL_MAX; i++)
             {
@@ -362,7 +362,7 @@ void cd_cmd_play_movie(void)
                 }
             }
 
-            if ((Cd_cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) ||
+            if ((Cd_cmd_exec_ptr->args.movie.skip & PAD_ON(Joy1)) ||
                 hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
             {
                 Cd_cmd_routine++;
@@ -658,10 +658,10 @@ void Cd_set_mode(u_char mode)
 
 void Cd_cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
 {
-    Cd_cmd_write_ptr->type      = CD_CMD_PLAY_MOVIE;
-    Cd_cmd_write_ptr->args.arg1 = arg1;
-    Cd_cmd_write_ptr->args.arg2 = arg2;
-    Cd_cmd_write_ptr->args.arg3 = arg3;
+    Cd_cmd_write_ptr->type                 = CD_CMD_PLAY_MOVIE;
+    Cd_cmd_write_ptr->args.movie.file      = arg1;
+    Cd_cmd_write_ptr->args.movie.end_frame = arg2;
+    Cd_cmd_write_ptr->args.movie.skip      = arg3;
     Cd_cmd_write_ptr++;
 }
 
