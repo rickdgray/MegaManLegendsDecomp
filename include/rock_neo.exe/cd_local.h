@@ -10,6 +10,10 @@
 #define CD_CMD_COUNT 8
 #define CD_RING_SLOTS 10
 
+#define CD_XA_GROUP(id) (((id) >> 28) & 3)       // bits 28-29
+#define CD_XA_FILE(id)  (((id) << 4) >> 20)      // bits 16-27
+#define CD_XA_NUM(id)   ((id) & 0xFFFF)          // bits 0-15
+
 extern uint8 Cd_play_mode;          // D_80059BC9
 extern uint8 D_800988DC;            // D_80059BCA
 extern sint32 Cd_ring_write;           // D_80059C00
@@ -19,9 +23,9 @@ extern CD_CMD_FUNC cd_subcmd_tbl[]; // run by cd_cmd_subcmd, indexed by the comm
 
 typedef struct
 {
-    uint32 offset; // sector offset within the file (low 24 bits)
-    uint32 unk4;
-} CD_POS;
+    CD_XA_POS start;
+    uint32 end;
+} CD_XA_TRACK;
 
 extern CdlLOC Cd_loc;
 extern sint32 Cd_file_sector;
@@ -35,13 +39,12 @@ extern sint32 Cd_xa_flags;
 extern uint32 Cd_xa_end_sector; // sector at which Cd_cmd_exec stops or continues the read
 extern uint32 Cd_xa_sector;     // current absolute sector (from CdlGetlocP)
 extern sint32 Cd_read_left;
+extern sint32 *Cd_xa_file_tbl[16];
+extern CD_XA_TRACK **Cd_xa_track_tbl[16];
+extern sint32 Cd_xa_start;
 
 // Unknown
-extern sint32 D_800989BC;
 extern uint16 D_80098994;
-extern sint32
-    *D_80088F9C[16]; // file index tables, selected by the top nibble of func_8001D648's argument
-extern CD_POS **D_80088EF8[16]; // matching sector offset tables
 
 void Cd_set_volume(uint8 vol);
 void Cd_pause(void);
@@ -50,13 +53,13 @@ void Cd_read_sync(void);
 void Cd_seek(sint32 sector);
 void Cd_read_start_buf(sint32 file, uint8 *buf);
 void Cd_read_start_ring(sint32 file);
-void Cd_xa_play_id(uint32 arg);
+void Cd_xa_play_id(uint32 id);
 void Cd_ready_cb_buf(u_char status, u_char *result);
 void Cd_ready_cb_ring(u_char status, u_char *result);
+void Cd_xa_seek_id(uint32 arg);
 
 // Unknown
 void func_8001B7B4(void);
-void func_8001D648(uint32 arg);
 void func_8001D7AC(sint32 index);
 
 #endif // CD_LOCAL_H

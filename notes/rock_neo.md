@@ -144,9 +144,9 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 - Error bits in `Cd_error_flags`: 0x01 ring full, 0x02 timeout, 0x04 `CD_ERR_READY`, 0x20 first
   word mismatch, 0x40 wrong sector.
 - **`CD_FILE_ID`, a packed file reference** (name proposed; not declared yet): bits 0–15 entry,
-  16–27 file, 28–31 group (`Cd_xa_play_id` uses bits 28–29 and passes bit 30 on). Taken by `func_8001D648` (go to that entry's sector) and
+  16–27 file, 28–31 group (`Cd_xa_play_id` uses bits 28–29 and passes bit 30 on). Taken by `Cd_xa_seek_id` (go to that entry's sector) and
   `Cd_xa_play_id` (queue a type-4 read of it); the group selects one of the tables
-  `D_80088F9C[16]` (file indices) and `D_80088EF8[16]` (`CD_POS` sector offsets).
+  `Cd_xa_file_tbl[16]` (file indices) and `Cd_xa_track_tbl[16]` (`CD_POS` sector offsets).
 
 ## Prior work: ChrisNonyminus/mml1
 
@@ -199,13 +199,13 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   - `Cd_cmd_dequeue`: the shim's draft with `p->type = 0;` for the terminator. Same difference as
     in the shim: GCC bases the second loop pointer at `p+4` (target `p+0xC`, with `a2`/`a1` where
     the draft gets `a3`/`a2`); the tail matches.
-  - `func_8001D648` (`CD_FILE_ID`): the target extracts the middle field and scales it as separate
+  - `Cd_xa_seek_id` (`CD_FILE_ID`): the target extracts the middle field and scales it as separate
     steps (`sll 4`, `srl 20`, `sll 2`); GCC folds a bit-field, plain shifts, and a union over the
     `uint32` alike into `srl 14` / `andi 0x3FFC`. Something in the original hid the chain from
     combine (a narrower type or cast?). **Permuter candidate.**
   - `Cd_xa_play_id`: same family. The target keeps `srl 28; andi 3; sll 2` and
     `sll 4; srl 20; sll 2` unfolded, and computes `arg & 0x40000000` early; we fold to
-    `srl 26; andi 0xc`. Tried `uint32`, `sint32`, `uint8`/`uint16` temporaries, no temporaries.
+    `srl 26; andi 0xc`. Tried `uint32`, `sint32`, `uint8`/`uint16` temporaries, no temporaries. The target extracts group and file, then scales each separately (srl 28 andi 3 / sll 2; sll 4 / srl 20 / sll 2); GCC's combiner folds both. Same as Cd_xa_seek_id. Ruled out: bit-fields, a union over the id, uint16/uint8 locals, and the flags -fno-expensive-optimizations, -fno-strength-reduce, -fno-rerun-cse-after-loop, -fno-cse-follow-jumps. Also a store-order difference after that.
   - `Cd_seek` (queue a type-7 command, first deleting type-7 entries after the running one):
     right shape and instructions; only registers differ (target: write pointer `a0`, sector `t1`,
     outer `p` `a3`; ours `v1`, `t3`, `t0`). Tried a bound local `end`, declaration orders.
