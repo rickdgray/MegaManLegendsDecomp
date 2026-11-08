@@ -14,11 +14,10 @@
 typedef struct
 {
     uint8 unk00[2]; // 0x00: never accessed
-    uint16 flags;   // 0x02: bit 0 = mono (see Cd_set_volume); bit 15 set by Cd_stop/func_8001B7B4.
+    uint16 flags;   // 0x02: bit 0 = mono (see Cd_set_volume); bit 15 set by Cd_stop/cd_subcmd_mute.
         //       lhu/andi 0x8000 in func_8001AEF0, B644/B6FC/B89C/B7B4/CB7C, Cd_set_volume
     sint16 unk04; // 0x04: lh (func_8001AEF0, master volume factor); init in func_80019DE0
-    sint16 unk06; // 0x06: lh (func_8001AEF0, serial volume factor); also read as lhu / saved and
-                  //       cleared by func_8001B7B4 (D_800AD146); init in func_80019DE0
+    sint16 serial_vol;
     sint16 unk08; // 0x08: lh (func_8001A274); init 0x40 in func_80019DE0
     sint16 unk0A; // 0x0A: lh (func_8001AEF0); init 0x64 in func_80019DE0
     sint16

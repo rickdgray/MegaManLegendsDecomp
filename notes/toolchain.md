@@ -123,7 +123,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/find_dupes.py [--src S] [--dst D] [--min 0.85]` | Finds functions of one program that are compiled copies of the other's (default shim → ROCK_NEO), by opcode/register shape; immediates and targets ignored. Needs both ELFs built |
 | `tools/find_dupes.py --imm` | For each identical-shape pair, lists differing non-address immediates (offsets, sizes, constants). None means the data layouts agree |
 | `tools/find_dupes.py --names FILE` | Proposes SRC's names for DST's still-default symbols (functions, globals, callees), as `rename.py` batch lines |
-| `tools/find_dupes.py --map FILE` | Every SRC → DST symbol correspondence, unnamed ones included (`D_80059BCA -> D_800988EA`); for porting C between the programs |
+| `tools/find_dupes.py --map FILE` | Every SRC → DST symbol correspondence, unnamed ones included (`Cd_muted -> D_800988EA`); for porting C between the programs |
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
 | `tools/batch_run.py <t> <file.c>` | Unattended decompilation batches; see [agents.md](agents.md) |
 

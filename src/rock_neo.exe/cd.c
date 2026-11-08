@@ -12,13 +12,13 @@ void Cd_init(void)
     {
     }
 
-    D_800988DC    = 0; // stored twice in the original; both needed for the match
+    Cd_muted      = 0; // stored twice in the original; both needed for the match
     Cd_ring_write = 0;
     Cd_status     = CD_STATUS_IDLE;
     Cd_xa_state   = CD_XA_OFF;
     Cd_mode       = 0;
     D_80098AA0    = 0;
-    D_800988DC    = 0; // stored twice in the original; both needed for the match
+    Cd_muted      = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
@@ -152,7 +152,7 @@ void cd_subcmd_xa_pause(void)
     }
 }
 
-void func_8001B7B4(void)
+void cd_subcmd_mute(void)
 {
     sint32 i;
     uint16 tmp;
@@ -164,17 +164,17 @@ void func_8001B7B4(void)
 
     Sound_work.flags |= SOUND_FLAG_CD_OFF;
 
-    if (D_800988DC)
+    if (Cd_muted)
     {
-        D_800988DC       = 0;
-        Sound_work.unk06 = D_80098994;
+        Cd_muted              = 0;
+        Sound_work.serial_vol = Cd_mute_save;
     }
     else
     {
-        tmp              = Sound_work.unk06;
-        Sound_work.unk06 = 0;
-        D_800988DC       = 1;
-        D_80098994       = tmp;
+        tmp                   = Sound_work.serial_vol;
+        Sound_work.serial_vol = 0;
+        Cd_muted              = 1;
+        Cd_mute_save          = tmp;
     }
 
     Cd_cmd_dequeue();

@@ -37,6 +37,7 @@
 #define CD_SUBCMD_NOP      0
 #define CD_SUBCMD_XA_STOP  1
 #define CD_SUBCMD_XA_PAUSE 2
+#define CD_SUBCMD_MUTE     3
 
 // Cd_xa_state: XA audio playback
 #define CD_XA_PLAYING 0
@@ -54,6 +55,7 @@
 #define CD_PLAY_NONE    0 // set by seeks and Cd_stop
 #define CD_PLAY_XA_STOP 1 // set by the XA stop/pause subcommands (meaning provisional)
 #define CD_PLAY_XA      2 // XA playing: Cd_cmd_exec watches for its end
+#define CD_PLAY_MOVIE   3 // a movie is streaming (shim only)
 
 #define CD_SECTOR_MASK         0xFFFFFF // low 24 bits: sector offset within a file
 #define CD_SECTOR_SIZE         0x800    // data bytes per CD sector (mode 2 form 1)
@@ -144,6 +146,10 @@ extern uint8 Cd_error_flags;
 extern uint32 Cd_wait;
 extern sint32 Cd_movie_playing;
 extern uint8 Cd_xa_state;
+extern uint8 Cd_play_mode;
+extern sint32 Cd_ring_write;
+extern sint32 Cd_head_checked;
+extern uint8 Cd_muted;
 
 // The running command's state (cd_cmd_play_movie's switch index); cleared on dequeue.
 extern uint32 Cd_cmd_routine;

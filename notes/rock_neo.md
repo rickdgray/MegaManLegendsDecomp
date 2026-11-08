@@ -107,7 +107,7 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
   header lists their users). The CD audio volume (`CdlATV atv`, `+0x14`) lives here.
 - Flag bits in `flags` (`+0x02`): `SOUND_FLAG_MONO` (`0x0001`, `Cd_set_volume` mixes both inputs to
   both outputs) and `SOUND_FLAG_CD_OFF` (`0x8000`, set when CD audio is stopped: `Cd_stop`,
-  `cd_subcmd_xa_stop`, `cd_subcmd_xa_pause`, `func_8001B7B4`; cleared when `cd_cmd_xa_play` starts XA).
+  `cd_subcmd_xa_stop`, `cd_subcmd_xa_pause`, `cd_subcmd_mute`; cleared when `cd_cmd_xa_play` starts XA).
 
 ## Threads
 
@@ -138,7 +138,7 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 - **`cd_subcmd_tbl`** is a second-level dispatch table for type 2, indexed by `args.arg2`: 0 empty
   (`cd_subcmd_nop`); 1, 2 stop CD audio, wait for `Cd_sync_done`, set `Cd_xa_state` to 1 / 2
   (`cd_subcmd_xa_stop`, `cd_subcmd_xa_pause`); 3 toggle CD audio off/on, saving and restoring
-  `Sound_work.unk06` (`func_8001B7B4`).
+  `Sound_work.unk06` (`cd_subcmd_mute`).
 - `Cd_cmd_exec` resets on an error; while `Cd_play_mode == 2` it polls `CdlNop`/`CdlGetlocP` and
   calls `Cd_xa_play_id` or `Cd_stop` at sector `Cd_xa_end_sector`.
 - Error bits in `Cd_error_flags`: 0x01 ring full, 0x02 timeout, 0x04 `CD_ERR_READY`, 0x20 first
@@ -173,14 +173,14 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
 `cd` (`src/rock_neo.exe/cd.c`):
 
 - **Banked:** `Cd_init`, `cd_cmd_nop`, `cd_cmd_read`, `cd_subcmd_nop`, `cd_subcmd_xa_stop`,
-  `cd_subcmd_xa_pause`, `func_8001B7B4`, `cd_cmd_subcmd`, `cd_cmd_xa_play`, `Cd_seek_sync_cb`,
+  `cd_subcmd_xa_pause`, `cd_subcmd_mute`, `cd_cmd_subcmd`, `cd_cmd_xa_play`, `Cd_seek_sync_cb`,
   `cd_cmd_seek`, `Cd_cmd_exec`, `Cd_pause`, `Cd_stop`, `Cd_sync_cb`, `Cd_read_start_buf`,
   `Cd_ready_cb_buf`, `Cd_read_start_ring`, `Cd_ready_cb_ring`, `Cd_control_retry`, `Cd_controlb_retry`,
   `Cd_set_mode`, `Cd_set_volume`, `Cd_xa_play`, `Cd_read_comb`, `Cd_read`,
   `func_8001D7AC`, `Cd_read_sync`, `Cd_read_sync2`, `Cd_cmd_dequeue`,
   `Cd_subcmd`.
 - Notes on banked ones:
-  - `Cd_stop`, `func_8001B7B4`: parked until `Sound_work` existed (the target's shared
+  - `Cd_stop`, `cd_subcmd_mute`: parked until `Sound_work` existed (the target's shared
     `lui`/`addiu` base was the struct; see `CLAUDE.md`, "Revisit parked functions").
   - `Cd_set_volume` needs the local `SOUND_WORK *sw = &Sound_work;` and `CdMix(&sw->atv)` to
     hoist the base address.

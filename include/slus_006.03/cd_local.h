@@ -8,10 +8,6 @@
 
 #define CD_CMD_COUNT 6
 
-extern uint8 D_80059BC9;
-extern uint8 D_80059BCA;
-extern sint32 D_80059C00;
 extern uint8 D_80059C48;
-extern sint32 D_80059C24; // cleared with Cd_cmd_routine, not otherwise referenced in the shim
 
 #endif // CD_LOCAL_H

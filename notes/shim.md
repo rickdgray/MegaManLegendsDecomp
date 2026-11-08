@@ -126,7 +126,7 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
 - `Cd_file_tbl` (`0x8001D3DC`, `CD_FILE[248]`): the disc's file table; the last entry is the CD
   audio track. See [disc.md](disc.md).
 - `Cd_init`: `CdInit` retry loop, `Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result)`, clears the
-  queue. Stores 0 to `D_80059BCA` **twice** (required for the match).
+  queue. Stores 0 to `Cd_muted` **twice** (required for the match).
 - `Cd_control_retry` / `Cd_controlb_retry(com, param, result)`: wait on `CdSync`, then retry
   `CdControl` / `CdControlB`. `Cd_set_mode(mode)`: sets `Cd_wait = 2` if the speed bit flips.
   `Cd_sync_cb`: `CdSync` callback (complete → `Cd_sync_done = 1`, else sets `CD_ERR_SYNC`).
@@ -140,7 +140,7 @@ to play (`Movie_end_frame`); `arg3` = pad buttons that skip the movie (tested ag
   `cd_cmd_play_movie` (a 6-case switch on `Cd_cmd_routine`; jump table at `0x80010000`).
 - **Confirmed:** this module is shared with `ROCK_NEO.EXE`, where types 1, 2, 4, 6 and 7 do real
   work; see "Shared code" and "CD module" in [rock_neo.md](rock_neo.md).
-- `D_80059C24` is only ever cleared (`Cd_init`, `Cd_cmd_dequeue`).
+- `Cd_head_checked` is only ever cleared (`Cd_init`, `Cd_cmd_dequeue`).
 - **Open:** the movie arguments `(0xd0, 0x91, 0x2008)`.
 
 ## PsyQ library
