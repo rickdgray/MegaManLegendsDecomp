@@ -7,6 +7,10 @@
 #define SOUND_FLAG_MONO   0x0001
 #define SOUND_FLAG_CD_OFF 0x8000
 
+#define SOUND_DATA_BUF ((uint8 *)0x8013B000) // sound data loaded by comb reads (types 7, 8)
+#define VAB_HEAD_BUF   ((uint8 *)0x8014B000) // VAB headers, one per Game_work.vab slot
+#define VAB_HEAD_SIZE  0x1820
+
 // CD/sound mixer state at 0x800AD140..0x800AD163 (0x24 bytes; 0x800AD164..67 is never accessed,
 // and 0x800AD168 starts an unrelated buffer). Widths and signedness are from the load/store
 // instructions. Most fields are touched through D_800AD1xx labels (see "Unknown" below); only
@@ -38,6 +42,21 @@ typedef struct
     uint8 *unk20; // 0x20: lw/sw (func_8001AEF0: last applied unk1C); cleared in func_80019DE0
 } SOUND_WORK;
 
+// An entry of D_80098AD0, filled by cd_cmd_read_comb's types 7 and 8.
+typedef struct
+{
+    uint8 unk0; // 0x0: number of the data loaded; a new number reloads it
+    uint8 unk1; // 0x1: type 8 only
+    uint8 pad2[2];
+    uint8 *data; // 0x4: in SOUND_DATA_BUF
+} SOUND_DATA;
+
 extern SOUND_WORK Sound_work; // 0x800AD140
+
+// Unknown
+extern uint32 D_80098958; // flags; 0x800 forces cd_cmd_read_comb to reload VAB bank 4
+extern SOUND_DATA D_80098AD0[4];
+
+void func_8001B33C(void);
 
 #endif // SOUND_H

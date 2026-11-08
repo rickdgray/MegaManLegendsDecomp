@@ -132,9 +132,25 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 | 1 | `cd_cmd_read` | `Cd_read(file, dest)` | Read file `arg1` into the buffer at `arg2` (`Cd_read_start_buf`), 150-tick timeout |
 | 2 | `cd_cmd_subcmd` | `Cd_subcmd` | Second-level dispatch: `cd_subcmd_tbl[args.arg2]()` (below) |
 | 4 | `cd_cmd_xa_play` | `Cd_xa_play`, `Cd_xa_play_id` | XA read: `CdlSetfilter` (file 1, channel `arg2 >> 24 & 0x1F`), `CdlSetloc`, `CdlReadS`, wait for status bit 0x20, ramp volume up |
-| 6 | `cd_cmd_read_comb` | `Cd_read_comb(file)` | Read sectors and dispatch them by type (`LoadImage`, VAB upload, ...); not decompiled |
+| 6 | `cd_cmd_read_comb` | `Cd_read_comb(file)` | Read a combined file through the ring and send each entry where its type says (below); parked |
 | 7 | `cd_cmd_seek` | `Cd_seek(sector)` | `CdlSeekL` to sector `arg2`; timeout sets error bit 0x02 |
 
+- **Combined ("comb") files** (`cd_cmd_read_comb`, type 6): one file packs several entries, each a
+  header sector (`CD_COMB_HEAD`: type, byte size, sector count, then per-type arguments; image
+  data at +0x100) followed by its data sectors. Ring slots are consumed from `Cd_ring_read`
+  (proposed `Cd_ring_read`; `Cd_ready_cb_ring` fills from `Cd_ring_write`), and the slot's flag
+  is cleared after each. `Cd_head_checked` is 0 while a header is expected, else the entry's type
+  + 1; the current type is in `Cd_comb_type`, the entry's state in `Cd_comb_work` (`CD_COMB_WORK`, a
+  union by type). Types (`CD_COMB_*` in `cd_local.h`): -1 end (routine 4 dequeues); 0 bytes to
+  an address (`asm_fastmem` 32-byte-block copy, then a byte loop for the tail); 1 CLUT in the
+  header, then 32x32 image tiles; 3 tiles only; 4, 9, 10 one image in the header (10: 64 wide);
+  5 a VAB (header copied to `0x8014B000 + slot * 0x1820`, `SsVabOpenHeadSticky`, then the body
+  with `SsVabTransBodyPartly`), skipped when slot 4 already holds that bank unless
+  `D_80098958 & 0x800`; 7, 8 sound data into `0x8013B000 + offset`, copied only when the number
+  in `D_80098AD0[i]` changes. 2 and 6 only set the state; their sectors are dropped. Images with
+  x < 0x140 (type 1 CLUTs) or < 0x100 (types 4, 9, 10) go to the RAM CLUT copy `Clut_buf`
+  (rows 0xF0-0xFF and 0x1F0-0x1FF, 256 colors each) and set the row's bit in `Clut_buf_dirty`;
+  `func_80017734` (asm_fastmem): for each row whose bit is set in 0x80098868, it copies that 0x200-byte row from 0x800AD168 to the same position 0x4000 bytes later, which is still ordinary RAM, then clears the bits. So it maintains a second copy of the CLUT buffer, perhaps one per frame (double buffering), with the actual upload to video memory done by some other code.
 - **`cd_subcmd_tbl`** is a second-level dispatch table for type 2, indexed by `args.arg2`: 0 empty
   (`cd_subcmd_nop`); 1, 2 stop CD audio, wait for `Cd_sync_done`, set `Cd_xa_state` to 1 / 2
   (`cd_subcmd_xa_stop`, `cd_subcmd_xa_pause`); 3 toggle CD audio off/on, saving and restoring
@@ -207,17 +223,25 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
   - `Cd_seek` (queue a type-7 command, first deleting type-7 entries after the running one):
     right shape and instructions; only registers differ (target: write pointer `a0`, sector `t1`,
     outer `p` `a3`; ours `v1`, `t3`, `t0`). Tried a bound local `end`, declaration orders.
-- **Not attempted, blocked:** `cd_cmd_read_comb` (915 lines: ready-sector dispatcher with three jump
-  tables). Needs the work struct at `D_800C5604`..`D_800C5638`, `Game_work`'s type
-  (`+0x1B8/+0x1BA/+0x1BC/+0x1DA`), `D_80098AD0` (8-byte entries), and registry names for three
-  `jal` targets inside `asm_fastmem` (`.L80017684` word copy, `.L800176A4` copy to a VRAM staging
-  buffer, `.L800176DC` 0x40-word scratchpad copy). The batch runner skips it.
+  - `cd_cmd_read_comb`: same instructions and arithmetic as the target, 77 differing lines in a
+    normalized diff, all register choice plus one scheduling spot. Left: (1) the header sector
+    pointer is in `a3` (target `a2`) and arg 0 (`x`) in `a2` (target `a3`), in all four
+    CLUT/image paths; (2) in the type-10 path the target stores `w = 64` after issuing the
+    `mult` (its arg loads come before the store), ours before; (3) in states 1, 8, 9 the target
+    keeps the size in `a0` and the byte-loop destination in `a2`, ours `a1` and `a0`. Tried:
+    declaration orders (no effect), a local `x`, a temporary for the type-10 height (breaks the
+    shared `sh h` tail). Found on the way: the CLUT row must be two statements with a separate
+    variable per use (`CLUT_BUF_ROW`); `Cd_comb_rect` must not be an 8-byte object (see
+    `cd_local.h`); a local `RECT *rect`; and separate `buf`/`head` pointers. **Testing it needs
+    the three `asm_fastmem` labels registered** (`renames.txt`): they are local labels now, so
+    the C can't link. While developing, a top-level
+    `__asm__(".set Mem_copy16, 0x800176A4")` (etc.) stood in for them.
 
 ## To do
 
 - **Compiler:** test `-funsigned-char` with the first plain `char`; test `-G8` with the first C
   file that defines its own small data.
-- **`cd_cmd_read_comb`:** declare what it needs (above), then decompile.
+- **`cd_cmd_read_comb`:** register the `asm_fastmem` labels, then permute (parked above).
 - **Ghidra:** create the function at `0x800680BC` (code not disassembled); define `MSC00`'s first
   two words as data.
 - Where the stage overlays are loaded from (ties to the SHL byte and the BSS-in-file question).

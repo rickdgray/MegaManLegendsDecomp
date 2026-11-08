@@ -2,6 +2,11 @@
 #include "system.h"
 #include "sound.h"
 #include "cd.h"
+#include "game.h"
+#include "vram.h"
+#include "fastmem.h"
+#include "psyq/libgpu.h"
+#include "psyq/libsnd.h"
 #include "psyq/libcd.h"
 
 void Cd_init(void)
@@ -266,7 +271,413 @@ void cd_cmd_xa_play(void)
     }
 }
 
+#ifdef NON_MATCHING
+void cd_cmd_read_comb(void)
+{
+    CD_COMB_HEAD *head;
+    RECT *rect;
+    uint8 *buf;
+    uint8 *src;
+    uint8 *dst;
+    uint32 row;
+    uint32 bit;
+    uint32 row2;
+    uint32 bit2;
+
+    switch (Cd_cmd_routine)
+    {
+        case 0: // stop the drive if busy
+            if (Cd_sync_done == 0)
+            {
+                Cd_stop();
+            }
+
+            Cd_cmd_routine++;
+            // fall through
+        case 1: // double speed, whole sectors
+            if (Cd_sync_done == 0)
+            {
+                break;
+            }
+
+            Cd_set_mode(CdlModeSpeed | CdlModeSize1);
+            Cd_cmd_routine++;
+            // fall through
+        case 2: // start the read into the ring
+            if (Cd_wait != 0)
+            {
+                Cd_wait--;
+                break;
+            }
+
+            Cd_read_start_ring(Cd_cmd_exec_ptr->args.read.file);
+            Cd_play_mode = 0;
+            Cd_ring_read   = 0;
+            Cd_wait      = 0;
+            Cd_cmd_routine++;
+            // fall through
+        case 3: // take the sectors that have arrived
+            Cd_wait++;
+
+            if (Cd_wait == CD_CMD_TIMEOUT)
+            {
+                Cd_error_flags |= CD_ERR_CMD_TIMEOUT;
+                break;
+            }
+
+            // Read every filled ring slot. Cd_head_checked is 0 while a header sector is
+            // expected, then the entry's type + 1 while its data sectors arrive.
+            while (Cd_ring_ready[Cd_ring_read] == 1)
+            {
+                switch ((uint32)Cd_head_checked)
+                {
+                    case 0: // a header sector: start an entry
+                        // buf and head are the same sector: the original reads the first
+                        // three words and the data through one pointer, the arguments
+                        // through another (head lives across calls, buf doesn't)
+                        buf        = Cd_ring_buf[Cd_ring_read];
+                        Cd_comb_type = ((CD_COMB_HEAD *)buf)->type;
+
+                        if (Cd_comb_type == CD_COMB_END)
+                        {
+                            Cd_cmd_routine = 4;
+                            return;
+                        }
+
+                        Cd_comb_work.size  = ((CD_COMB_HEAD *)buf)->size;
+                        Cd_comb_work.count = ((CD_COMB_HEAD *)buf)->count;
+                        head             = (CD_COMB_HEAD *)buf;
+
+                        switch (Cd_comb_type)
+                        {
+                            case CD_COMB_DATA:
+                                Cd_comb_work.u.data.dest = (uint8 *)head->arg[0];
+                                Cd_comb_work.count--;
+                                break;
+
+                            case CD_COMB_TIM:
+                                rect                    = &Cd_comb_rect[0];
+                                Cd_comb_work.u.tim.clut_x = head->arg[0];
+                                Cd_comb_work.u.tim.clut_y = head->arg[1];
+                                Cd_comb_work.u.tim.clut_w = head->arg[2];
+                                Cd_comb_work.u.tim.clut_h = head->arg[3];
+                                Cd_comb_work.u.tim.x      = head->arg[4];
+                                Cd_comb_work.u.tim.y      = head->arg[5];
+                                Cd_comb_work.u.tim.w      = head->arg[6];
+                                Cd_comb_work.u.tim.h      = head->arg[7];
+                                Cd_comb_work.u.tim.col = Cd_comb_work.u.tim.row = 0;
+
+                                if (Cd_comb_work.u.tim.clut_x != -1)
+                                {
+                                    if (head->arg[0] < 0x140)
+                                    {
+                                        CLUT_BUF_ROW(row, head->arg[1]);
+                                        Mem_copy16((u_long *)(buf + 0x100),
+                                                      &Clut_buf[head->arg[0] + (row << 8)],
+                                                      head->arg[3] * head->arg[2] / 16 * 2);
+                                        CLUT_BUF_ROW(bit, head->arg[1]);
+                                        Clut_buf_dirty |= 1 << bit;
+                                    }
+                                    else
+                                    {
+                                        rect->x = head->arg[0];
+                                        rect->y = head->arg[1];
+                                        rect->w = head->arg[2];
+                                        rect->h = head->arg[3];
+                                        LoadImage(rect, (u_long *)(buf + 0x100));
+                                    }
+                                }
+
+                                rect->w = CD_COMB_TILE_SIZE;
+                                rect->h = CD_COMB_TILE_SIZE;
+                                Cd_comb_work.count--;
+                                break;
+
+                            case CD_COMB_TILES:
+                                Cd_comb_work.u.tiles.x    = head->arg[0];
+                                Cd_comb_work.u.tiles.y    = head->arg[1];
+                                Cd_comb_work.u.tiles.cols = head->arg[2];
+                                Cd_comb_work.u.tiles.rows = head->arg[3];
+                                Cd_comb_work.u.tiles.col = Cd_comb_work.u.tiles.row = 0;
+                                Cd_comb_rect[0].w                                 = CD_COMB_TILE_SIZE;
+                                Cd_comb_rect[0].h                                 = CD_COMB_TILE_SIZE;
+                                break;
+
+                            case CD_COMB_IMAGE:
+                            case CD_COMB_IMAGE2:
+                            case CD_COMB_IMAGE3:
+                                if (head->arg[0] < 0x100)
+                                {
+                                    CLUT_BUF_ROW(row2, head->arg[1]);
+                                    Mem_copy16((u_long *)(buf + 0x100),
+                                                  &Clut_buf[head->arg[0] + (row2 << 8)],
+                                                  head->arg[3] * head->arg[2] / 16 * 2);
+                                    CLUT_BUF_ROW(bit2, head->arg[1]);
+                                    Clut_buf_dirty |= 1 << bit2;
+                                }
+                                else
+                                {
+                                    rect    = &Cd_comb_rect[0];
+                                    rect->x = head->arg[0];
+                                    rect->y = head->arg[1];
+
+                                    if (Cd_comb_type != CD_COMB_IMAGE3)
+                                    {
+                                        rect->w = head->arg[2];
+                                        rect->h = head->arg[3];
+                                    }
+                                    else
+                                    {
+                                        rect->w = 64;
+                                        rect->h = head->arg[2] * head->arg[3] / 64;
+                                    }
+
+                                    LoadImage(rect, (u_long *)(buf + 0x100));
+                                }
+
+                                Cd_head_checked = 0;
+                                goto next;
+
+                            case CD_COMB_VAB:
+                                Cd_comb_work.u.vab.slot      = head->arg[0];
+                                Cd_comb_work.u.vab.num       = head->arg[1];
+                                Cd_comb_work.u.vab.sbaddr    = head->arg[2];
+                                Cd_comb_work.u.vab.head_size = head->arg[3];
+                                Cd_comb_work.u.vab.dest = VAB_HEAD_BUF + head->arg[0] * VAB_HEAD_SIZE;
+                                Cd_comb_work.u.vab.load = 1;
+
+                                if (head->arg[0] == 4)
+                                {
+                                    if (Game_work.vab[4].unk2 == head->arg[1])
+                                    {
+                                        Cd_comb_work.u.vab.load = 0;
+                                    }
+
+                                    if (D_80098958 & 0x800)
+                                    {
+                                        Cd_comb_work.u.vab.load = 1;
+                                        func_8001B33C();
+                                    }
+                                }
+
+                                if (Cd_comb_work.u.vab.load == 1)
+                                {
+                                    Game_work.vab[head->arg[0]].unk2 = head->arg[1];
+                                    Game_work.vab[head->arg[0]].unk4 = head->arg[2];
+
+                                    if (Game_work.vab[head->arg[0]].vab_id != -1)
+                                    {
+                                        SsVabClose(Game_work.vab[head->arg[0]].vab_id);
+                                    }
+                                }
+
+                                Cd_comb_work.count--;
+                                break;
+
+                            case CD_COMB_SOUND:
+                                Cd_comb_work.u.sound.dest = D_80098AD0[head->arg[0]].data =
+                                    SOUND_DATA_BUF + head->arg[2];
+                                Cd_comb_work.u.sound.load = 0;
+
+                                if (D_80098AD0[head->arg[0]].unk0 != head->arg[1])
+                                {
+                                    D_80098AD0[head->arg[0]].unk0 = head->arg[1];
+                                    Cd_comb_work.u.sound.load       = 1;
+                                }
+                                break;
+
+                            case CD_COMB_SOUND2:
+                                Cd_comb_work.u.sound2.dest = D_80098AD0[head->arg[0]].data =
+                                    SOUND_DATA_BUF + head->arg[3];
+                                Cd_comb_work.u.sound2.load = 0;
+
+                                if (D_80098AD0[head->arg[0]].unk0 != head->arg[1])
+                                {
+                                    D_80098AD0[head->arg[0]].unk0 = head->arg[1];
+                                    D_80098AD0[head->arg[0]].unk1 = head->arg[2];
+                                    Cd_comb_work.u.sound2.load      = 1;
+                                }
+                                break;
+                        }
+
+                        Cd_head_checked = Cd_comb_type + 1;
+                        break;
+
+                    case CD_COMB_DATA + 1: // copy to memory
+                        if (Cd_comb_work.size >= CD_SECTOR_SIZE)
+                        {
+                            Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.data.dest,
+                                          CD_SECTOR_SIZE / 32);
+                            Cd_comb_work.size -= CD_SECTOR_SIZE;
+                            Cd_comb_work.u.data.dest += CD_SECTOR_SIZE;
+                        }
+                        else
+                        {
+                            src = Cd_ring_buf[Cd_ring_read];
+                            dst = Cd_comb_work.u.data.dest;
+
+                            while (Cd_comb_work.size != 0)
+                            {
+                                *dst++ = *src++;
+                                Cd_comb_work.size--;
+                            }
+                        }
+
+                        if (--Cd_comb_work.count == 0)
+                        {
+                            Cd_head_checked = 0;
+                        }
+                        break;
+
+                    case CD_COMB_TIM + 1: // load one image tile
+                        rect    = &Cd_comb_rect[0];
+                        rect->x = Cd_comb_work.u.tim.x + Cd_comb_work.u.tim.col * CD_COMB_TILE_SIZE;
+                        rect->y = Cd_comb_work.u.tim.y + Cd_comb_work.u.tim.row * CD_COMB_TILE_SIZE;
+                        LoadImage(rect, (u_long *)Cd_ring_buf[Cd_ring_read]);
+
+                        if (++Cd_comb_work.u.tim.col == Cd_comb_work.u.tim.w / CD_COMB_TILE_SIZE)
+                        {
+                            Cd_comb_work.u.tim.col = 0;
+
+                            if (++Cd_comb_work.u.tim.row == Cd_comb_work.u.tim.h / CD_COMB_TILE_SIZE)
+                            {
+                                Cd_head_checked = 0;
+                            }
+                        }
+                        break;
+
+                    case CD_COMB_TILES + 1: // load one image tile
+                        rect    = &Cd_comb_rect[0];
+                        rect->x = Cd_comb_work.u.tiles.x + Cd_comb_work.u.tiles.col * CD_COMB_TILE_SIZE;
+                        rect->y = Cd_comb_work.u.tiles.y + Cd_comb_work.u.tiles.row * CD_COMB_TILE_SIZE;
+                        LoadImage(rect, (u_long *)Cd_ring_buf[Cd_ring_read]);
+
+                        if (++Cd_comb_work.u.tiles.col == Cd_comb_work.u.tiles.cols)
+                        {
+                            Cd_comb_work.u.tiles.col = 0;
+
+                            if (++Cd_comb_work.u.tiles.row == Cd_comb_work.u.tiles.rows)
+                            {
+                                Cd_head_checked = 0;
+                            }
+                        }
+                        break;
+
+                    case CD_COMB_VAB + 1: // VAB header, then body
+                        if (Cd_comb_work.u.vab.load == 0)
+                        {
+                            if (--Cd_comb_work.count == 0)
+                            {
+                                Cd_head_checked = 0;
+                            }
+                        }
+                        else if (Cd_comb_work.u.vab.head_size >= CD_SECTOR_SIZE)
+                        {
+                            Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.vab.dest,
+                                          CD_SECTOR_SIZE / 32);
+                            Cd_comb_work.u.vab.dest += CD_SECTOR_SIZE;
+                            Cd_comb_work.u.vab.head_size -= CD_SECTOR_SIZE;
+                        }
+                        else if (Cd_comb_work.u.vab.head_size != 0)
+                        {
+                            Mem_copy4(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.vab.dest,
+                                          Cd_comb_work.u.vab.head_size / 4);
+                            Cd_comb_work.u.vab.head_size                  = 0;
+                            Game_work.vab[Cd_comb_work.u.vab.slot].vab_id = SsVabOpenHeadSticky(
+                                VAB_HEAD_BUF + Cd_comb_work.u.vab.slot * VAB_HEAD_SIZE,
+                                Cd_comb_work.u.vab.slot, Cd_comb_work.u.vab.sbaddr);
+                        }
+                        else
+                        {
+                            if (SsVabTransBodyPartly(Cd_ring_buf[Cd_ring_read], CD_SECTOR_SIZE,
+                                                     Game_work.vab[Cd_comb_work.u.vab.slot].vab_id) ==
+                                Game_work.vab[Cd_comb_work.u.vab.slot].vab_id)
+                            {
+                                Cd_head_checked = 0;
+                            }
+
+                            SsVabTransCompleted(SS_WAIT_COMPLETED);
+                        }
+                        break;
+
+                    case CD_COMB_SOUND + 1: // copy if loading
+                        if (Cd_comb_work.size >= CD_SECTOR_SIZE)
+                        {
+                            if (Cd_comb_work.u.sound.load)
+                            {
+                                Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.sound.dest,
+                                              CD_SECTOR_SIZE / 32);
+                            }
+
+                            Cd_comb_work.size -= CD_SECTOR_SIZE;
+                            Cd_comb_work.u.sound.dest += CD_SECTOR_SIZE;
+                        }
+                        else
+                        {
+                            if (Cd_comb_work.u.sound.load)
+                            {
+                                src = Cd_ring_buf[Cd_ring_read];
+                                dst = Cd_comb_work.u.sound.dest;
+
+                                while (Cd_comb_work.size != 0)
+                                {
+                                    *dst++ = *src++;
+                                    Cd_comb_work.size--;
+                                }
+                            }
+
+                            Cd_head_checked = 0;
+                        }
+                        break;
+
+                    case CD_COMB_SOUND2 + 1: // copy if loading
+                        if (Cd_comb_work.size >= CD_SECTOR_SIZE)
+                        {
+                            if (Cd_comb_work.u.sound2.load)
+                            {
+                                Mem_copy32(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.sound2.dest,
+                                              CD_SECTOR_SIZE / 32);
+                            }
+
+                            Cd_comb_work.size -= CD_SECTOR_SIZE;
+                            Cd_comb_work.u.sound2.dest += CD_SECTOR_SIZE;
+                        }
+                        else
+                        {
+                            if (Cd_comb_work.u.sound2.load)
+                            {
+                                src = Cd_ring_buf[Cd_ring_read];
+                                dst = Cd_comb_work.u.sound2.dest;
+
+                                while (Cd_comb_work.size != 0)
+                                {
+                                    *dst++ = *src++;
+                                    Cd_comb_work.size--;
+                                }
+                            }
+
+                            Cd_head_checked = 0;
+                        }
+                        break;
+                }
+            next:
+                Cd_ring_ready[Cd_ring_read] = 0;
+
+                if (++Cd_ring_read == CD_RING_SLOTS)
+                {
+                    Cd_ring_read = 0;
+                }
+            }
+            break;
+
+        case 4: // CD_COMB_END reached
+            Cd_cmd_dequeue();
+            break;
+    }
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", cd_cmd_read_comb);
+#endif
 
 void Cd_seek_sync_cb(u_char status, u_char *result)
 {
@@ -745,14 +1156,14 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_play_id);
 #endif
 
 #ifdef NON_MATCHING
-void Cd_xa_seek_id(uint32 arg)
+void Cd_xa_seek_id(uint32 id)
 {
-    uint32 hi  = arg >> 28;
-    uint32 mid = (arg << 4) >> 20;
-    uint32 lo  = arg & 0xFFFF;
+    uint32 group = CD_XA_GROUP(id);
+    uint32 file  = CD_XA_FILE(id);
+    uint32 num   = CD_XA_NUM(id);
 
-    Cd_seek(Cd_file_tbl[Cd_xa_file_tbl[hi][mid]].sector +
-            (Cd_xa_track_tbl[hi][mid][lo].start & 0xFFFFFF));
+    Cd_seek(Cd_file_tbl[Cd_xa_file_tbl[group][file]].sector +
+            (Cd_xa_track_tbl[group][file][num].start.offset & CD_SECTOR_MASK));
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_seek_id);
