@@ -86,7 +86,7 @@ Every script takes the **target** as its first argument: `slus_006.03` (the shim
 | `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/`. |
 
 The owner's tools (`find_dupes.py`, `progress.py`, `batch_run.py`, `rename.py`,
-`permuter_prep.py`) are described in `notes/toolchain.md`.
+`permuter_prep.py`, `ctx.sh` and `permute.sh`) are described in `notes/toolchain.md`.
 
 **After any rename or re-split, refresh `expected/`** (`./tools/rebuild.sh <t>`). Otherwise the
 snapshot still has the old names, and `diff.sh` shows an empty target column.
@@ -182,7 +182,7 @@ gcc 2.7.2 is a C89 compiler.
 - **No redundant statements**, unless the build needs them. Try removing anything that looks
   redundant; if the build still matches, leave it out. If removing it breaks the match, it was in
   the original source: keep it, with a short comment. (Example: `Cd_init` stores to
-  `D_80059BCA` twice.) Note that Ghidra's pseudocode hides dead stores; the assembly is the truth.
+  `Cd_muted` twice.) Note that Ghidra's pseudocode hides dead stores; the assembly is the truth.
 - **Prefer the natural form when several match.** For example, try `for (i = 0; i < n; i++)`
   before a reversed loop; GCC often reverses loop direction itself.
 - **Hand-written assembly stays assembly.** Some subsegments are Capcom's own assembly, not
@@ -203,8 +203,8 @@ What decompilers show vs. what to write:
   compile identically. Use the `while` form.
 - **Small `switch` statements** compile to a compare chain (`beq`/`bne`), not a jump table. If an
   `if`/`else` chain gets the branch layout wrong, try a `switch` with `break`s. If the target has
-  no `slti` range check before a jump table, the switch value is unsigned
-  (`switch ((uint32)Cd_cmd_routine)`).
+  no `slti` range check before a jump table, the switch value is unsigned: declare the variable
+  `uint32` (as `Cd_cmd_routine`, `Cd_head_state`).
 - **A stack frame larger than the locals explain** usually means an *unused* local; GCC 2.7
   reserves space for unused aggregates. Ghidra and m2c both hide it. Match the size with the
   most plausible type. Screens 1 and 2 have an unused `RECT rect;` (8 bytes), left over from the
@@ -223,7 +223,7 @@ What decompilers show vs. what to write:
   screen's two `DR_MODE`s.
 - **Revisit parked functions when a struct gets defined.** The reverse case: while the fields of
   a struct are still separate `D_` symbols, GCC emits a `lui` per access where the target shares
-  one base, and the function parks. ROCK_NEO's `Cd_stop` and `func_8001B7B4` matched once
+  one base, and the function parks. ROCK_NEO's `Cd_stop` and `cd_subcmd_mute` matched once
   `D_800AD142` became `Sound_work.flags` (`SOUND_WORK`). After defining a struct, re-try the
   functions parked over its fields.
 - **Chained assignment stores right to left:** `p->r0 = p->g0 = p->b0 = v;` emits `b0`, then
@@ -268,6 +268,9 @@ What decompilers show vs. what to write:
   by itself, loading it where it's first needed. A source local (`end = Cd_cmd_write_ptr;`) fixes
   the copy at its assignment instead. If the target copies a global later than your version, or
   moves arguments out of their registers earlier, use the global directly.
+- **Macros re-read, inline functions don't.** A macro's arguments are re-evaluated at each use,
+  so a field it names is loaded again each time; an inline function evaluates them once. If the
+  target reloads a field at each use, keep the macro (`CLUT_BUF_ROW` in `cd_cmd_read_comb`).
 
 ## Types and headers
 
@@ -275,10 +278,9 @@ What decompilers show vs. what to write:
 |---|---|
 | `include/common.h` | Basic typedefs (`s8`…`u32`, `u_char`…`u_long`, Capcom's `uint8`…`sint32`); includes `include_asm.h` |
 | `include/psyq/*.h` | Self-written PsyQ declarations (`libgpu.h`: `RECT`, `DRAWENV`, `SPRT`, `addPrim`, …; `libcd.h`, `libsnd.h`, …) |
-| `include/cd.h` | CD drive, file table and command queue (shared); includes the target's `cd_local.h` at its end |
-| `include/<t>/cd_local.h` | That target's still-unnamed CD variables (names and addresses differ per program) |
+| `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/slus_006.03/` | Shim only: `display.h`, `intro.h`, `movie.h`, `pad.h`, `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h` (`SOUND_WORK`), `system.h` (`Thread_wait`) |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h`, `game.h` (GAME_WORK, partial), `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
@@ -330,7 +332,7 @@ Conventions (Capcom's own, from their source):
 
 Module prefixes follow Capcom's too: the CD module is `Cd_` in both programs. Acronyms stay
 uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the splat default
-(`func_8001D648`, `D_80059C24`) until their purpose is clear; propose a name in `renames.txt`
+(`func_8001D648`, `D_80098958`) until their purpose is clear; propose a name in `renames.txt`
 rather than guessing. Names from other projects (ChrisNonyminus/mml1) are hints, not authority.
 
 ## Do not

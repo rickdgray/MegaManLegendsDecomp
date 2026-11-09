@@ -29,9 +29,9 @@ this window"; the table gives a best guess inside it.
   8 bytes). Those mark one *assembly* file (row 5, `asm_fastmem`), not Capcom C-file ends. There are 40 eight-byte
   empty functions (`jr ra; nop`); only `func_8001F820` and `func_8003BE38` sit right before a candidate
   boundary, the rest are mid-file, so they are not a reliable end-of-file marker.
-- **`Sound_key_off_voice` is not `SsSetNck`.** It is a 0x24-byte Capcom wrapper (`sll`/`sra` to `short`, then a
-  tail into `SsUtKeyOffV`, which is a libsnd reverb-type setter inside `UT_GVAD`: it range-checks the
-  argument against 0x18). Its neighbours `func_8001B314` (calls `SpuSetKey`) and `func_8001B33C` (calls
+- **`Sound_key_off_voice` (`0x8001B2F0`) is not `SsSetNck`.** It is a 0x24-byte Capcom wrapper
+  (`sll`/`sra` to `short`, then a tail into `SsUtKeyOffV`, which keys off one SPU voice: it
+  range-checks the argument against 24, the voice count). Its neighbours `func_8001B314` (calls `SpuSetKey`) and `func_8001B33C` (calls
   `func_80070114`/`_8007013C`) are the same kind. I found **no library-like function inside the Capcom
   range**; these three are the tail of `sound` (row 7), right before `cd`.
 - **Names** (`Sound_`, `Cd_`, `Sce_`, `Moji`, `Sub_screen_`, `Map_screen_`, `Pl00_`) all fall inside the

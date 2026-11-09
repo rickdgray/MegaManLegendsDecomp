@@ -25,8 +25,9 @@
 ## The game's file table
 
 `SLUS_006.03` and `ROCK_NEO.EXE` each carry the same table of every file on the disc,
-`Cd_file_tbl` (248 entries of 12 bytes: start sector, size, head; shim `0x8001D3DC`,
-ROCK_NEO `0x80082CD0`). Files are addressed by index rather than by name:
+`Cd_file_tbl` (248 entries of 12 bytes: start sector, size, and head, the value the
+file must begin with (checked on reads).; shim `0x8001D3DC`, ROCK_NEO `0x80082CD0`).
+Files are addressed by index rather than by name:
 
 | Index | File |
 |---|---|
@@ -38,7 +39,6 @@ ROCK_NEO `0x80082CD0`). Files are addressed by index rather than by name:
 - **Confirmed:** entries 0–2 match the files' sizes exactly; entry 247 matches the audio track.
 - **Confirmed:** commands take these indices: the shim's movie command (`0xD0`), and ROCK_NEO's
   `Cd_read_comb(id)` and other queue functions ([rock_neo.md](rock_neo.md), "CD module").
-- **Confirmed:** head is the value each file is expected to begin with: a cheap check that the drive delivered the right file.
 
 ## Code inventory
 
@@ -65,7 +65,9 @@ code; 12,243 `jr ra` in total, about 10,764 after removing suspected duplicates.
 
 ## Overlay chunk format
 
-Source: ChrisNonyminus/mml1 (see [rock_neo.md](rock_neo.md)); **suspected** until verified here.
+Source: ChrisNonyminus/mml1 (see [rock_neo.md](rock_neo.md)); **Very likely the comb format** of
+ROCK_NEO’s cd_cmd_read_comb (rock_neo.md): the field at 0x8 is the sector count, and type 0 copies
+the contents to the address at 0xC.
 
 The `CDDATA/DAT/*.BIN` files are archives of chunks, with no archive-level header:
 
