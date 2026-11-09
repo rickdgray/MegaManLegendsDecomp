@@ -824,6 +824,7 @@ Cd_result = 0x80098A98;
 Cd_unused = 0x80098AA0;
 Code800133D8_work = 0x80098AA8; // size:0x10
 Cd_stat = 0x80098AB8;
+Sound_seq_tbl = 0x80098AD0;
 Moji_flag3 = 0x80098B30;
 Cd_ring_ready = 0x80098B38; // size:0xA
 Cd_xa_state = 0x80098B42;

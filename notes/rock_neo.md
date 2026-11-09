@@ -161,12 +161,12 @@ Constants, types and variables: `include/cd.h` (shared with the shim). This sect
   sector (`CD_COMB_HEAD`: type, byte size, sector count, per-type arguments, image data at
   +0x100) and its data sectors. `Cd_head_state` is 0 while a header is expected, else the entry's
   type + 1; `Cd_comb_type` and `Cd_comb_work` (`CD_COMB_WORK`, a union by type) hold the entry.
-  Types (`CD_COMB_*`): -1 end; 0 bytes to an address; 1 a CLUT in the header, then 32x32 tiles;
-  3 tiles only; 4, 9, 10 one image in the header (10: 64 wide); 5 a VAB (header to the VAB
+  Types (`CD_COMB_*`): -1 end; 0 bytes to an address; 1 backgrounds and object textures, CLUT plus tiles;
+  3 tiles only; 4, 9 palettes, 10 one image in the header (10: 64 wide); 5 a VAB (header to the VAB
   header buffer and `SsVabOpenHeadSticky`, body with `SsVabTransBodyPartly`; slot 4 is skipped
-  if it already holds that bank, unless `D_80098958 & 0x800`); 7, 8 sound data, copied only when
-  the number in `D_80098AD0[i]` changes; 2 and 6 only set the state. **Very likely the format of
-  the `CDDATA/DAT/*.BIN` archives** ([disc.md](disc.md), "Overlay chunk format").
+  if it already holds that bank, unless `D_80098958 & 0x800`); 7, 8 SEPs sound data, copied only when
+  the number in `Sound_seq_tbl[i]` changes; 2 and 6 only set the state. **Very likely the format of
+  the `CDDATA/DAT/*.BIN` archives** ([disc.md](disc.md), "Overlay chunk format"). 2, 4, 6, 7 never appear
 - **CLUT buffer.** Images with x < 0x140 (type 1 CLUTs) or < `CLUT_BUF_COLS` (types 4, 9, 10) go to
   `Clut_buf`, a RAM copy of VRAM rows 0xF0-0xFF and 0x1F0-0x1FF, setting the row's bit in
   `Clut_buf_dirty`. `func_80017734` (asm_fastmem) copies the dirty rows to a second copy

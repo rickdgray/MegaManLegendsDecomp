@@ -65,9 +65,7 @@ code; 12,243 `jr ra` in total, about 10,764 after removing suspected duplicates.
 
 ## Overlay chunk format
 
-Source: ChrisNonyminus/mml1 (see [rock_neo.md](rock_neo.md)); **Very likely the comb format** of
-ROCK_NEO’s cd_cmd_read_comb (rock_neo.md): the field at 0x8 is the sector count, and type 0 copies
-the contents to the address at 0xC.
+Source: ChrisNonyminus/mml1 (see [rock_neo.md](rock_neo.md)); **confirmed** as the comb format. Note the packing tool's habit: a group's first header (seen with type 9) carries the size and sector count of the whole group, so a reader stepping by count skips the group, and the in-group entries each have their own header.
 
 The `CDDATA/DAT/*.BIN` files are archives of chunks, with no archive-level header:
 

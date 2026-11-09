@@ -413,7 +413,7 @@ void cd_cmd_read_comb(void)
                                 break;
 
                             case CD_COMB_IMAGE:
-                            case CD_COMB_IMAGE2:
+                            case CD_COMB_CLUT:
                             case CD_COMB_IMAGE3:
                                 if (head->arg[0] < CLUT_BUF_COLS)
                                 {
@@ -490,28 +490,28 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.count--;
                                 break;
 
-                            case CD_COMB_SOUND:
-                                Cd_comb_work.u.sound.dest = D_80098AD0[head->arg[0]].data = SOUND_DATA_BUF + head->arg[2];
+                            case CD_COMB_SEQ:
+                                Cd_comb_work.u.sound.dest = Sound_seq_tbl[head->arg[0]].data = SOUND_DATA_BUF + head->arg[2];
 
                                 Cd_comb_work.u.sound.load = 0;
 
-                                if (D_80098AD0[head->arg[0]].num != head->arg[1])
+                                if (Sound_seq_tbl[head->arg[0]].num != head->arg[1])
                                 {
-                                    D_80098AD0[head->arg[0]].num = head->arg[1];
-                                    Cd_comb_work.u.sound.load    = 1;
+                                    Sound_seq_tbl[head->arg[0]].num = head->arg[1];
+                                    Cd_comb_work.u.sound.load       = 1;
                                 }
                                 break;
 
-                            case CD_COMB_SOUND2:
-                                Cd_comb_work.u.sound2.dest = D_80098AD0[head->arg[0]].data = SOUND_DATA_BUF + head->arg[3];
+                            case CD_COMB_SEP:
+                                Cd_comb_work.u.sound2.dest = Sound_seq_tbl[head->arg[0]].data = SOUND_DATA_BUF + head->arg[3];
 
                                 Cd_comb_work.u.sound2.load = 0;
 
-                                if (D_80098AD0[head->arg[0]].num != head->arg[1])
+                                if (Sound_seq_tbl[head->arg[0]].num != head->arg[1])
                                 {
-                                    D_80098AD0[head->arg[0]].num  = head->arg[1];
-                                    D_80098AD0[head->arg[0]].unk1 = head->arg[2];
-                                    Cd_comb_work.u.sound2.load    = 1;
+                                    Sound_seq_tbl[head->arg[0]].num  = head->arg[1];
+                                    Sound_seq_tbl[head->arg[0]].unk1 = head->arg[2];
+                                    Cd_comb_work.u.sound2.load       = 1;
                                 }
                                 break;
                         }
@@ -614,7 +614,7 @@ void cd_cmd_read_comb(void)
                         }
                         break;
 
-                    case CD_COMB_SOUND + 1: // copy if loading
+                    case CD_COMB_SEQ + 1: // copy if loading
                         if (Cd_comb_work.size >= CD_SECTOR_SIZE)
                         {
                             if (Cd_comb_work.u.sound.load)
@@ -643,7 +643,7 @@ void cd_cmd_read_comb(void)
                         }
                         break;
 
-                    case CD_COMB_SOUND2 + 1: // copy if loading
+                    case CD_COMB_SEP + 1: // copy if loading
                         if (Cd_comb_work.size >= CD_SECTOR_SIZE)
                         {
                             if (Cd_comb_work.u.sound2.load)

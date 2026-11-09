@@ -38,7 +38,7 @@ typedef struct
     uint8 *unk20; // 0x20: lw/sw (func_8001AEF0: last applied unk1C); cleared in func_80019DE0
 } SOUND_WORK;
 
-// An entry of D_80098AD0, filled by cd_cmd_read_comb's types 7 and 8.
+// An entry of Sound_seq_tbl, filled by cd_cmd_read_comb's types 7 and 8.
 typedef struct
 {
     uint8 num;  // 0x0: number of the data loaded; a new number reloads it
@@ -47,11 +47,11 @@ typedef struct
     uint8 *data; // 0x4: in SOUND_DATA_BUF
 } SOUND_DATA;
 
-extern SOUND_WORK Sound_work; // 0x800AD140
+extern SOUND_WORK Sound_work;
+extern SOUND_DATA Sound_seq_tbl[4];
 
 // Unknown
 extern uint32 D_80098958; // flags; 0x800 forces cd_cmd_read_comb to reload VAB bank 4
-extern SOUND_DATA D_80098AD0[4];
 
 void func_8001B33C(void);
 

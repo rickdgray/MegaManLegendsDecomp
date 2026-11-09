@@ -89,11 +89,11 @@
 #define CD_COMB_DATA   0  // bytes to arg[0]
 #define CD_COMB_TIM    1  // CLUT (header) at arg[0..3], image tiles at arg[4..7]
 #define CD_COMB_TILES  3  // image tiles at arg[0], arg[1]; arg[2] x arg[3] tiles
-#define CD_COMB_IMAGE  4  // one image in the header, at arg[0..3]
+#define CD_COMB_IMAGE  4  // one image in the header (unused in the shipped data)
 #define CD_COMB_VAB    5  // VAB header, then body, into Game_work.vab[arg[0]]
-#define CD_COMB_SOUND  7  // sound data into D_80098AD0[arg[0]]
-#define CD_COMB_SOUND2 8  // sound data into D_80098AD0[arg[0]], with a second number
-#define CD_COMB_IMAGE2 9  // as CD_COMB_IMAGE
+#define CD_COMB_SEQ    7  // presumably a single sequence (unused in the shipped data)
+#define CD_COMB_SEP    8  // a SEP sequence package, into a sequence slot (the files' .sep)
+#define CD_COMB_CLUT   9  // a small image in the header; in the data, palette sets (to Clut_buf when x < CLUT_BUF_COLS)
 #define CD_COMB_IMAGE3 10 // as CD_COMB_IMAGE, but 64 wide, arg[2] x arg[3] / 64 high
 // Types 2 and 6 only set the state; their sectors are dropped.
 
@@ -218,13 +218,13 @@ typedef struct
             uint8 *dest;      // where the header is copied
             uint8 load;       // 0: already loaded, skip the sectors
         } vab;
-        struct // CD_COMB_SOUND
+        struct // CD_COMB_SEQ
         {
             sint32 pad[2];
             uint8 *dest;
             uint8 load; // 0: already loaded, skip the data
         } sound;
-        struct // CD_COMB_SOUND2
+        struct // CD_COMB_SEP
         {
             sint32 pad[3];
             uint8 *dest;
