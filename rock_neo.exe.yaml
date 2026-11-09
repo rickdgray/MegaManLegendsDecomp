@@ -98,7 +98,7 @@ segments:
       - [0x5DA4, asm, game]  # medium
       - [0x7DD8, asm, asm_fastmem]  # HAND-WRITTEN ASSEMBLY, not compiler output: never decompile
       - [0x806C, asm, code_8001786C]  # low
-      - [0xA0C0, asm, sound]
+      - [0xA0C0, c, sound]
       - [0xBBE4, c, cd]  # medium
       - [0xE054, asm, scene]  # medium
       - [0x10028, asm, code_8001F828]  # low

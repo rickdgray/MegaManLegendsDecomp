@@ -34,9 +34,9 @@ TRACKED = ["src", "include", "notes", "symbol_addrs_slus_006.03.txt", "symbol_ad
 
 PROMPT = """Decompile these functions in `{cfile}`, in this order: {funcs}.
 Follow `CLAUDE.md`. Search `notes/` for each function's address and the globals it touches;
-`notes/rock_neo.md` and `notes/rock_neo_files.md` describe this executable. The shim's version of
-the CD module, already decompiled, is in `src/slus_006.03/main.c`, and its shared declarations are
-in `include/cd.h`: reuse its names, types and idioms where this code matches it.
+`notes/rock_neo.md` and `notes/rock_neo_files.md` describe this executable. Shared declarations
+are in `include/` (e.g. `include/rock_neo.exe/sound.h` has SOUND_WORK, whose fields are mostly still
+unkXX: propose field names in renames.txt as their uses become clear).
 Don't work on any other function. Park anything that doesn't match within its budget, as
 `CLAUDE.md` describes. Append name proposals to `renames.txt` in the repo root (don't apply them).
 Don't run git commands. Finish with the usual summary."""
