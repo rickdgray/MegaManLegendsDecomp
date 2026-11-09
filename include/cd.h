@@ -15,11 +15,11 @@
 // Sectors and files
 #define CD_SECTOR_SIZE         0x800                // data bytes per CD sector (mode 2 form 1)
 #define CD_SECTOR_WORDS        (CD_SECTOR_SIZE / 4) // CdGetSector size of a sector's data
-#define CD_SECTOR_HEADER_WORDS 3        // CdGetSector size of a sector's header and subheader
-#define CD_SECTOR_MASK         0xFFFFFF // low 24 bits: sector offset within a file
-#define CD_FILE_COUNT          248      // entries in Cd_file_tbl
-#define CD_GETLOCP_ABS         5        // offset of the absolute position in the CdlGetlocP result
-#define CD_RING_SLOTS          10       // sectors in Cd_ring_buf (ROCK_NEO only)
+#define CD_SECTOR_HEADER_WORDS 3                    // CdGetSector size of a sector's header and subheader
+#define CD_SECTOR_MASK         0xFFFFFF             // low 24 bits: sector offset within a file
+#define CD_FILE_COUNT          248                  // entries in Cd_file_tbl
+#define CD_GETLOCP_ABS         5                    // offset of the absolute position in the CdlGetlocP result
+#define CD_RING_SLOTS          10                   // sectors in Cd_ring_buf (ROCK_NEO only)
 
 // Timing and volume
 #define CD_CMD_TIMEOUT    150  // frames to wait for a read or seek to finish (CD_ERR_CMD_TIMEOUT)
@@ -176,10 +176,10 @@ typedef void (*CD_CMD_FUNC)(void);
 // A comb entry's header sector.
 typedef struct
 {
-    uint32 type;    // 0x00: CD_COMB_*
-    uint32 size;    // 0x04: bytes of data
-    sint32 count;   // 0x08: sectors (the header's own included, for some types)
-    uint32 arg[61]; // 0x0C: depends on the type
+    uint32 type;                               // 0x00: CD_COMB_*
+    uint32 size;                               // 0x04: bytes of data
+    sint32 count;                              // 0x08: sectors (the header's own included, for some types)
+    uint32 arg[61];                            // 0x0C: depends on the type
     u_long data[(CD_SECTOR_SIZE - 0x100) / 4]; // 0x100: image or CLUT data, for image types
 } CD_COMB_HEAD;
 
@@ -261,7 +261,7 @@ extern CD_CMD_FUNC cd_subcmd_tbl[]; // handlers by args.subcmd.sub (ROCK_NEO onl
 // Reading: position, the read buffer and the sector ring
 extern CdlLOC Cd_loc;
 extern sint32 Cd_file_sector; // next expected sector of the file being read
-extern sint32 Cd_head_state;  // 0: the next sector is a header; nonzero: past it
+extern uint32 Cd_head_state;  // 0: the next sector is a header; nonzero: past it
 extern uint8 *Cd_read_buf;    // where Cd_ready_cb_buf puts the next sector
 extern sint32 Cd_read_left;   // bytes still to read
 
@@ -311,8 +311,8 @@ void Cd_sync_cb(u_char status, u_char *result);
 // The command queue
 void Cd_cmd_exec(void);
 void Cd_cmd_dequeue(void);
-sint32 Cd_read_sync2(void); // nonzero while commands are queued
-void Cd_read_sync(void);    // wait until the queue is empty (ROCK_NEO only)
+sint32 Cd_read_sync2(void);                                        // nonzero while commands are queued
+void Cd_read_sync(void);                                           // wait until the queue is empty (ROCK_NEO only)
 void Cd_cmd_set_movie(sint32 file, sint32 end_frame, uint16 skip); // shim only
 
 // Reading (ROCK_NEO only)

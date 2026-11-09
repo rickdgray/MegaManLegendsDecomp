@@ -4,7 +4,8 @@
 #include "common.h"
 
 // A RAM copy of the CLUT rows of VRAM: rows 0xF0-0xFF and 0x1F0-0x1FF, 256 colors each.
-// Writers set the row's bit in Clut_buf_dirty; func_80017734 uploads the dirty rows.
+// Writers set the row's bit in Clut_buf_dirty; func_80017734 copies the dirty rows to
+// the second copy, 0x4000 bytes on.
 #define CLUT_BUF_ROWS 32
 #define CLUT_BUF_COLS 256
 

@@ -219,7 +219,7 @@ void Cd_init(void)
 
     Cd_wait          = 0;
     Cd_movie_playing = 0;
-    Cd_head_checked  = 0;
+    Cd_head_state    = 0;
     Cd_cmd_routine   = 0;
     Cd_play_mode     = 0;
 }
@@ -362,8 +362,7 @@ void cd_cmd_play_movie(void)
                 }
             }
 
-            if ((Cd_cmd_exec_ptr->args.movie.skip & PAD_ON(Joy1)) ||
-                hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
+            if ((Cd_cmd_exec_ptr->args.movie.skip & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
             {
                 Cd_cmd_routine++;
             }
@@ -468,9 +467,9 @@ void Cd_cmd_dequeue(void)
         p++;
     }
 
-    p[1].type       = CD_CMD_END;
-    Cd_head_checked = 0;
-    Cd_cmd_routine  = 0;
+    p[1].type      = CD_CMD_END;
+    Cd_head_state  = 0;
+    Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
 
@@ -592,8 +591,7 @@ void Movie_sector_cb(u_char status, u_char *result)
 
         // Frame data goes after the table, one sector's worth per sector.
         src = sec->data;
-        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) +
-              sec->hdr.secCount * STR_DATA_WORDS;
+        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) + sec->hdr.secCount * STR_DATA_WORDS;
         for (i = 0; i < STR_DATA_WORDS; i++)
         {
             *dst++ = *src++;
