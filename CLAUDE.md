@@ -166,8 +166,9 @@ gcc 2.7.2 is a C89 compiler.
   `intro_copyright_draw` passes `ot[0]` rather than `ot` to `addPrim` (see `notes/shim.md`).
 - **Brace style is Allman** (braces on their own line), 4-space indent, `case` labels indented
   one level inside their `switch`, and **always use braces**, even for a one-line `if`, loop, or
-  `else` body. After editing, run `clang-format-15 -i` on the C and header files you changed
-  (config: `.clang-format`). Never run it on generated files such as `include/include_asm.h`.
+  `else` body. After editing, run `./tools/format.sh <t>` (config: `.clang-format`); it formats
+  `src/<t>/` and `include/`. Never run clang-format on generated files such as
+  `include/include_asm.h`.
 - **Types:** use Capcom's `uint8`, `sint8`, `uint16`, `sint16`, `uint32`, `sint32` in game code,
   and PsyQ's types (`u_char`, `u_long`, `RECT`, `SVECTOR`, …) for PsyQ structures and prototypes.
   Convert m2c's `s32`/`u8`/etc. when banking.

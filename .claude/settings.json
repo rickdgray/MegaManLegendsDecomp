@@ -6,7 +6,8 @@
       "Bash(./tools/format.sh:*)", "Bash(.venv/bin/python tools/:*)",
       "Bash(grep:*)", "Bash(sed -n:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)",
       "Bash(ls:*)", "Bash(wc:*)", "Bash(awk:*)", "Bash(find:*)", "Bash(diff:*)",
-      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)"
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+      "Bash(clang-format-15 -i:*)"
     ],
     "deny": [
       "Bash(git add:*)",
