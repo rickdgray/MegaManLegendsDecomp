@@ -49,19 +49,24 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target", choices=TARGETS)
     ap.add_argument("function")
-    ap.add_argument("--src", required=True, help="C file containing the parked function, e.g. src/<target>/main.c")
+    ap.add_argument("--src", help="C file containing the parked function (default: search src/<target>/)")
     args = ap.parse_args()
     fn = args.function
 
-    src_path = ROOT / args.src
-    text = src_path.read_text()
+    if args.src:
+        candidates = [ROOT / args.src]
+    else:
+        candidates = sorted((ROOT / "src" / args.target).glob("**/*.c"))
 
-    for m in BLOCK.finditer(text):
-        if m.group(3) == fn:
+    for src_path in candidates:
+        text = src_path.read_text()
+        m = next((m for m in BLOCK.finditer(text) if m.group(3) == fn), None)
+        if m:
             body, asm_dir = m.group(1), m.group(2)
             break
     else:
-        sys.exit(f"{fn}: no '#ifdef NON_MATCHING ... INCLUDE_ASM(..., {fn}) ... #endif' block in {args.src}")
+        where = args.src or f"src/{args.target}/"
+        sys.exit(f"{fn}: no '#ifdef NON_MATCHING ... INCLUDE_ASM(..., {fn}) ... #endif' block in {where}")
 
     out = ROOT / "permuter" / args.target / fn
     out.mkdir(parents=True, exist_ok=True)

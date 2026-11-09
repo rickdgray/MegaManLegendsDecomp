@@ -46,4 +46,4 @@ if [ ! -d "$dir" ]; then
 fi
 
 echo "permuting $target/$func with $jobs jobs (log: $dir/run.log); Ctrl+C to stop"
-exec .venv/bin/python tools/vendor/decomp-permuter/permuter.py "$dir" -j "$jobs" --stop-on-zero "$@" 2>&1 | tee -a "$dir/run.log"
+.venv/bin/python tools/vendor/decomp-permuter/permuter.py "$dir" -j "$jobs" --stop-on-zero "$@" 2>&1 | tee -a "$dir/run.log"
