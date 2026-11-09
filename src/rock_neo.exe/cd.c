@@ -293,6 +293,7 @@ void cd_cmd_read_comb(void)
 
             Cd_cmd_routine++;
             // fall through
+
         case 1: // double speed, whole sectors
             if (Cd_sync_done == 0)
             {
@@ -302,6 +303,7 @@ void cd_cmd_read_comb(void)
             Cd_set_mode(CdlModeSpeed | CdlModeSize1);
             Cd_cmd_routine++;
             // fall through
+
         case 2: // start the read into the ring
             if (Cd_wait != 0)
             {
@@ -315,6 +317,7 @@ void cd_cmd_read_comb(void)
             Cd_wait      = 0;
             Cd_cmd_routine++;
             // fall through
+
         case 3: // take the sectors that have arrived
             Cd_wait++;
 
@@ -367,13 +370,19 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.tim.h      = head->arg[7];
                                 Cd_comb_work.u.tim.col = Cd_comb_work.u.tim.row = 0;
 
-                                if (Cd_comb_work.u.tim.clut_x != -1)
+                                if (Cd_comb_work.u.tim.clut_x != -1) // -1: no CLUT
                                 {
+                                    // not CLUT_BUF_COLS: x 0x100-0x13F would spill into the next row (as in the original)
                                     if (head->arg[0] < 0x140)
                                     {
                                         CLUT_BUF_ROW(row, head->arg[1]);
-                                        Mem_copy16((u_long *)(buf + 0x100), &Clut_buf[head->arg[0] + (row << 8)],
-                                                   head->arg[3] * head->arg[2] / 16 * 2);
+
+                                        Mem_copy16(
+                                            ((CD_COMB_HEAD *)buf)->data,
+                                            &Clut_buf[head->arg[0] + (row * CLUT_BUF_COLS)],
+                                            // CLUT's size in Mem_copy16 blocks (width × height halfwords, at 2 bytes each, in 16-byte blocks)
+                                            head->arg[3] * head->arg[2] / 16 * 2);
+
                                         CLUT_BUF_ROW(bit, head->arg[1]);
                                         Clut_buf_dirty |= 1 << bit;
                                     }
@@ -383,7 +392,7 @@ void cd_cmd_read_comb(void)
                                         rect->y = head->arg[1];
                                         rect->w = head->arg[2];
                                         rect->h = head->arg[3];
-                                        LoadImage(rect, (u_long *)(buf + 0x100));
+                                        LoadImage(rect, ((CD_COMB_HEAD *)buf)->data);
                                     }
                                 }
 
@@ -397,7 +406,9 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.tiles.y    = head->arg[1];
                                 Cd_comb_work.u.tiles.cols = head->arg[2];
                                 Cd_comb_work.u.tiles.rows = head->arg[3];
+
                                 Cd_comb_work.u.tiles.col = Cd_comb_work.u.tiles.row = 0;
+
                                 Cd_comb_rect[0].w                                   = CD_COMB_TILE_SIZE;
                                 Cd_comb_rect[0].h                                   = CD_COMB_TILE_SIZE;
                                 break;
@@ -408,8 +419,13 @@ void cd_cmd_read_comb(void)
                                 if (head->arg[0] < CLUT_BUF_COLS)
                                 {
                                     CLUT_BUF_ROW(row2, head->arg[1]);
-                                    Mem_copy16((u_long *)(buf + 0x100), &Clut_buf[head->arg[0] + (row2 << 8)],
-                                               head->arg[3] * head->arg[2] / 16 * 2);
+
+                                    Mem_copy16(
+                                        ((CD_COMB_HEAD *)buf)->data,
+                                        &Clut_buf[head->arg[0] + (row2 * CLUT_BUF_COLS)],
+                                        // CLUT's size in Mem_copy16 blocks (width × height halfwords, at 2 bytes each, in 16-byte blocks)
+                                        head->arg[3] * head->arg[2] / 16 * 2);
+
                                     CLUT_BUF_ROW(bit2, head->arg[1]);
                                     Clut_buf_dirty |= 1 << bit2;
                                 }
@@ -430,14 +446,13 @@ void cd_cmd_read_comb(void)
                                         rect->h = head->arg[2] * head->arg[3] / CD_COMB_IMAGE3_W;
                                     }
 
-                                    LoadImage(rect, (u_long *)(buf + 0x100));
+                                    LoadImage(rect, ((CD_COMB_HEAD *)buf)->data);
                                 }
 
-                                Cd_head_state = 0;
-
                                 // Image entries are a single sector with no data sectors, so
-                                // the state goes straight back to “expecting a header,” skipping
+                                // the state goes straight back to "expecting a header," skipping
                                 // the type + 1 assignment after the switch.
+                                Cd_head_state = 0;
                                 goto next;
 
                             case CD_COMB_VAB:
@@ -448,6 +463,7 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.vab.dest      = VAB_HEAD_BUF + head->arg[0] * VAB_HEAD_SIZE;
                                 Cd_comb_work.u.vab.load      = 1;
 
+                                // VAB slot 4: kept loaded between files (purpose to be named)
                                 if (head->arg[0] == 4)
                                 {
                                     if (Game_work.vab[4].num == head->arg[1])
@@ -478,6 +494,7 @@ void cd_cmd_read_comb(void)
 
                             case CD_COMB_SOUND:
                                 Cd_comb_work.u.sound.dest = D_80098AD0[head->arg[0]].data = SOUND_DATA_BUF + head->arg[2];
+
                                 Cd_comb_work.u.sound.load                                 = 0;
 
                                 if (D_80098AD0[head->arg[0]].num != head->arg[1])
@@ -489,6 +506,7 @@ void cd_cmd_read_comb(void)
 
                             case CD_COMB_SOUND2:
                                 Cd_comb_work.u.sound2.dest = D_80098AD0[head->arg[0]].data = SOUND_DATA_BUF + head->arg[3];
+
                                 Cd_comb_work.u.sound2.load                                 = 0;
 
                                 if (D_80098AD0[head->arg[0]].num != head->arg[1])
@@ -579,15 +597,22 @@ void cd_cmd_read_comb(void)
                         else if (Cd_comb_work.u.vab.head_size != 0)
                         {
                             Mem_copy4(Cd_ring_buf[Cd_ring_read], Cd_comb_work.u.vab.dest, Cd_comb_work.u.vab.head_size / 4);
+
                             Cd_comb_work.u.vab.head_size                  = 0;
-                            Game_work.vab[Cd_comb_work.u.vab.slot].vab_id = SsVabOpenHeadSticky(
-                                VAB_HEAD_BUF + Cd_comb_work.u.vab.slot * VAB_HEAD_SIZE, Cd_comb_work.u.vab.slot, Cd_comb_work.u.vab.sbaddr);
+
+                            Game_work.vab[Cd_comb_work.u.vab.slot].vab_id =SsVabOpenHeadSticky(
+                                VAB_HEAD_BUF + Cd_comb_work.u.vab.slot * VAB_HEAD_SIZE,
+                                Cd_comb_work.u.vab.slot,
+                                Cd_comb_work.u.vab.sbaddr
+                            );
                         }
                         else
                         {
-                            if (SsVabTransBodyPartly(Cd_ring_buf[Cd_ring_read], CD_SECTOR_SIZE,
-                                                     Game_work.vab[Cd_comb_work.u.vab.slot].vab_id) ==
-                                Game_work.vab[Cd_comb_work.u.vab.slot].vab_id)
+                            if (SsVabTransBodyPartly(
+                                    Cd_ring_buf[Cd_ring_read],
+                                    CD_SECTOR_SIZE,
+                                    Game_work.vab[Cd_comb_work.u.vab.slot].vab_id
+                                ) == Game_work.vab[Cd_comb_work.u.vab.slot].vab_id)
                             {
                                 Cd_head_state = 0;
                             }
