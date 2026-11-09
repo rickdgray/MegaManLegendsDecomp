@@ -442,8 +442,8 @@ void cd_cmd_read_comb(void)
                                     }
                                     else
                                     {
-                                        rect->w = CD_COMB_IMAGE3_W;
                                         rect->h = head->arg[2] * head->arg[3] / CD_COMB_IMAGE3_W;
+                                        rect->w = CD_COMB_IMAGE3_W;
                                     }
 
                                     LoadImage(rect, ((CD_COMB_HEAD *)buf)->data);

@@ -206,7 +206,7 @@ typedef struct
         {
             sint32 x, y;
             sint32 cols, rows;
-            sint32 pad[4];
+            sint32 pad[6];
             sint32 col, row; // the next tile
         } tiles;
         struct // CD_COMB_VAB
