@@ -123,6 +123,9 @@ clean, confirm with `build.sh`.
   statement order, declaration order, or temporaries. These are the hardest; see "Parking".
 - A frame pointer, stack spills, and a global reloaded before every statement: the build isn't
   optimizing. Check flags before touching the code.
+- Same instructions, different registers or order: register allocation or scheduling. Try
+  statement order, merging or splitting locals (see "Reused locals"), or temporaries.
+  Declaration order has never changed GCC 2.7's output in this project.
 
 ### Parking a function
 
@@ -272,6 +275,18 @@ What decompilers show vs. what to write:
 - **Macros re-read, inline functions don't.** A macro's arguments are re-evaluated at each use,
   so a field it names is loaded again each time; an inline function evaluates them once. If the
   target reloads a field at each use, keep the macro (`CLUT_BUF_ROW` in `cd_cmd_read_comb`).
+- **Reused locals.** GCC 2.7 allocates each variable once for its whole life, so one variable used
+  for two unrelated jobs gets one register choice, two variables get two. Code of the period often
+  reused a generic local (`p`, `i`, `tmp`). If a register-only difference involves two of your
+  locals whose lifetimes don't overlap, merge them (`cd_cmd_read_comb`: one `uint8 *p` for the
+  header sector and the copy destinations).
+- **Commutative operand order follows registers, not source.** `a + b` and `b + a` compile the
+  same; if an `addu`'s operands are swapped against the target, look for a register-allocation
+  difference, not an expression to reorder.
+- **A pointer stepping by a constant each pass may be the compiler's.** GCC turns `base + i * step`
+  inside a loop into a walking pointer itself (strength reduction). If a register tie involves
+  your pointer variable and the loop counter, write the address in terms of the counter
+  (`Movie_frame_upload`: no `img` local).
 
 ## Types and headers
 

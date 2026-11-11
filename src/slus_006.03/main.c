@@ -411,33 +411,23 @@ void Movie_dct_out_callback(void)
     }
 }
 
-#ifdef NON_MATCHING
 void Movie_frame_upload(void)
 {
-    // HACK: a variable holding 1 reproduces the target's instruction order; revisit
-    sint32 one;
     sint32 i;
     RECT *rect;
-    u_char *img;
 
     if (Cd_movie_playing)
     {
-        i    = 0;
         rect = Movie_rect_tbl[Dbl_buff_idx];
-        one  = 1;
-        img  = (u_char *)MOVIE_IMG_BUF;
 
-        for (; i < MOVIE_SLICE_COUNT; i++)
+        for (i = 0; i < MOVIE_SLICE_COUNT; i++)
         {
-            LoadImage(rect, (u_long *)(img + ((one - Movie_frame_idx) * MOVIE_IMG_SIZE)));
+            // slice i of the other buffer: the frame that finished decoding while this one was shown
+            LoadImage(rect, (u_long *)(MOVIE_IMG_BUF + (1 - Movie_frame_idx) * MOVIE_IMG_SIZE + i * MOVIE_SLICE_WORDS * 4));
             rect++;
-            img += MOVIE_SLICE_WORDS * 4;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_frame_upload);
-#endif
 
 void Cd_cmd_exec(void)
 {
