@@ -108,16 +108,14 @@ void SsSetTableSize(char *table, short s_max, short t_max);
 void SsSetTickMode(long tick_mode);
 long SsUtGetVagAddr(short vab_id, short vag_num);
 short SsIsEos(short access_num, short seq_num);
-
-// Identified from their bodies; registry renames proposed in renames.txt
-void func_8006B594(void);                                                        // SsInit
-void func_80070114(short seq_access_num);                                        // SsSeqStop
-void func_8007013C(short sep_access_num, short seq_num);                         // SsSepStop
-void func_80070634(short seq_access_num, short voll, short volr);                // SsSeqSetVol
-void func_80070694(short sep_access_num, short seq_num, short voll, short volr); // SsSepSetVol
-void func_80070974(short mode);                                                  // SsUtAllKeyOff
-void func_800721C4(void);                                                        // SsUtReverbOn
-void func_80075AA4(void);                                                        // SsSetMono
-void func_80075AB8(void);                                                        // SsSetStereo
+void SsInit(void);
+void SsSeqStop(short seq_access_num);
+void SsSepStop(short sep_access_num, short seq_num);
+void SsSeqSetVol(short seq_access_num, short voll, short volr);
+void SsSepSetVol(short sep_access_num, short seq_num, short voll, short volr);
+void SsUtAllKeyOff(short mode);
+void SsUtReverbOn(void);
+void SsSetMono(void);
+void SsSetStereo(void);
 
 #endif // PSYQ_LIBSND_H

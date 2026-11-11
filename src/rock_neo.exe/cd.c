@@ -472,7 +472,7 @@ void cd_cmd_read_comb(void)
                                     if (D_80098958 & 0x800) // forces slot 4 to reload (flag set by sound/sub_scrn code)
                                     {
                                         Cd_comb_work.u.vab.load = 1;
-                                        func_8001B33C(); // stops sound slots using the bank? (named with the sound file)
+                                        Sound_seq_stop_all();
                                     }
                                 }
 

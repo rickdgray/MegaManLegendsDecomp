@@ -149,7 +149,7 @@ void func_80019AE0(void)
     }
 }
 
-void func_80019B14(sint32 which)
+void Sound_stage_slot_set(sint32 which)
 {
     sint8 stage;
 
@@ -164,34 +164,34 @@ void func_80019B14(sint32 which)
     switch (stage % 3)
     {
         case 0:
-            D_80082314[stage] = Sce_flag_test(0x616) ? 0xFFFF : 0x3A;
+            Sound_stage_slot_tbl[stage] = Sce_flag_test(0x616) ? 0xFFFF : 0x3A;
             break;
         case 1:
-            D_80082314[stage] = Sce_flag_test(0x617) ? 0xFFFF : 0x3B;
+            Sound_stage_slot_tbl[stage] = Sce_flag_test(0x617) ? 0xFFFF : 0x3B;
             break;
         case 2:
-            D_80082314[stage] = Sce_flag_test(0x68) ? 0xFFFF : 0x3C;
+            Sound_stage_slot_tbl[stage] = Sce_flag_test(0x68) ? 0xFFFF : 0x3C;
             break;
     }
 }
 
 #ifdef NON_MATCHING
-void func_80019C20(void)
+void Sound_stage_check(void)
 {
     sint32 changed;
     uint16 *list;
     uint16 id;
 
-    if (D_800823A0[D_800C356E] != 0)
+    if (Sound_stage_func_tbl[D_800C356E] != 0)
     {
-        D_800823A0[D_800C356E](1);
+        Sound_stage_func_tbl[D_800C356E](1);
     }
-    list    = D_80082320[D_800C356E];
+    list    = Sound_stage_id_tbl[D_800C356E];
     changed = 0;
     if (list != 0)
     {
         id = list[D_800C356F];
-        if (id == 0xFFFF || D_80082320[Game_work.unk050][Game_work.unk051] != id)
+        if (id == 0xFFFF || Sound_stage_id_tbl[Game_work.unk050][Game_work.unk051] != id)
         {
             changed = 1;
         }
@@ -207,7 +207,7 @@ void func_80019C20(void)
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_80019C20);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_stage_check);
 #endif
 
 #ifdef NON_MATCHING
@@ -217,11 +217,11 @@ void func_80019D18(void)
     sint32 ok;
     sint16 id;
 
-    if (D_800823A0[Game_work.unk050] != 0)
+    if (Sound_stage_func_tbl[Game_work.unk050] != 0)
     {
-        D_800823A0[Game_work.unk050](0);
+        Sound_stage_func_tbl[Game_work.unk050](0);
     }
-    list = D_80082320[Game_work.unk050];
+    list = Sound_stage_id_tbl[Game_work.unk050];
     id   = 0;
     ok   = 0;
     if (list != 0)
@@ -235,7 +235,7 @@ void func_80019D18(void)
     }
     else
     {
-        func_8001B33C();
+        Sound_seq_stop_all();
     }
     D_80098958 &= ~0x800;
 }
@@ -244,18 +244,18 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_80019D18);
 #endif
 
 #ifdef NON_MATCHING
-void func_80019DE0(void)
+void Sound_init(void)
 {
     SpuEnv env;
     sint32 i;
 
-    func_8006B594();
+    SsInit();
     SsSetTableSize(D_800C1010, 4, 4);
     SsSetTickMode(SS_TICK60);
-    D_80098938            = D_800BE4F8;
+    Sound_call_ptr            = Sound_call_queue;
     Sound_work.unk08      = 0x40;
     Sound_work.unk0A      = 0x64;
-    D_80098840            = 4;
+    Sound_fade_step_size            = 4;
     Sound_work.unk04      = SS_VOL_MAX;
     Sound_work.serial_vol = SS_VOL_MAX;
     Sound_work.unk12      = SS_VOL_MAX;
@@ -270,7 +270,7 @@ void func_80019DE0(void)
     SsSetSerialVol(SS_SERIAL_A, SS_VOL_MAX, SS_VOL_MAX);
     Sound_work.unk1A = 0;
     Sound_work.unk20 = 0;
-    Sound_work.unk1C = D_800821F8[0];
+    Sound_work.unk1C = Sound_reverb_tbl[0];
     for (i = 0; i < 5; i++)
     {
         Game_work.vab[i].vab_id = -1;
@@ -278,7 +278,7 @@ void func_80019DE0(void)
     }
     for (i = 0; i < 4; i++)
     {
-        D_80098AF8[i].unk2   = -1;
+        Sound_seq_chan_tbl[i].unk2   = -1;
         Sound_seq_tbl[i].num = 0xFF;
     }
     p_Player_work = &Player_work;
@@ -289,88 +289,88 @@ void func_80019DE0(void)
     D_80098958 |= 1;
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_80019DE0);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_init);
 #endif
 
 void func_80019F94(sint32 idx)
 {
-    Sound_work.unk1C = D_800821F8[idx];
+    Sound_work.unk1C = Sound_reverb_tbl[idx];
 }
 
 void func_80019FB4(void)
 {
     D_80098958 |= 0x800;
-    if (D_800823A0[Game_work.unk050] != 0)
+    if (Sound_stage_func_tbl[Game_work.unk050] != 0)
     {
-        D_800823A0[Game_work.unk050](0);
+        Sound_stage_func_tbl[Game_work.unk050](0);
     }
 }
 
 void Sound_call(sint16 id, sint32 arg1, sint32 arg2)
 {
-    if (D_80098938 != &D_800BE4F8[SOUND_CALL_MAX])
+    if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {
-        D_80098938->busy = 0;
-        D_80098938->id   = id;
-        D_80098938->arg1 = arg1;
-        D_80098938->arg2 = arg2;
-        D_80098938++;
+        Sound_call_ptr->busy = 0;
+        Sound_call_ptr->id   = id;
+        Sound_call_ptr->arg1 = arg1;
+        Sound_call_ptr->arg2 = arg2;
+        Sound_call_ptr++;
     }
 }
 
 #ifdef NON_MATCHING
 void Sound_call2(sint16 id, sint32 *args)
 {
-    if (D_80098938 != &D_800BE4F8[SOUND_CALL_MAX])
+    if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {
-        D_80098938->busy = 1;
-        D_80098938->id   = id;
-        D_80098938->arg1 = args[0];
-        D_80098938->arg2 = args[1];
-        D_80098938++;
+        Sound_call_ptr->busy = 1;
+        Sound_call_ptr->id   = id;
+        Sound_call_ptr->arg1 = args[0];
+        Sound_call_ptr->arg2 = args[1];
+        Sound_call_ptr++;
     }
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_call2);
 #endif
 
-sint32 func_8001A0A8(sint32 idx)
+sint32 Sound_seq_is_eos(sint32 idx)
 {
     sint32 ret;
 
     ret = 0;
-    if (D_80098AF8[idx].unk2 != -1 && D_80098AF8[idx].unk0 != -1)
+    if (Sound_seq_chan_tbl[idx].unk2 != -1 && Sound_seq_chan_tbl[idx].unk0 != -1)
     {
-        ret = SsIsEos(D_80098AF8[idx].unk0, D_80098AF8[idx].unk4);
+        ret = SsIsEos(Sound_seq_chan_tbl[idx].unk0, Sound_seq_chan_tbl[idx].unk4);
     }
     return ret;
 }
 
 #ifdef NON_MATCHING
-void func_8001A110(void)
+void Sound_update(void)
 {
     SOUND_CALL *call;
     sint32 i;
 
     if (D_80098958 != 0)
     {
-        func_8001AEF0();
+        volume_update();
         for (i = 0; i < 4; i++)
         {
-            D_80098AF8[i].unk5 = func_8001A0A8(i);
+            Sound_seq_chan_tbl[i].unk5 = Sound_seq_is_eos(i);
         }
-        for (call = D_800BE4F8; call != D_80098938; call++)
+        for (call = Sound_call_queue; call != Sound_call_ptr; call++)
         {
-            D_80082C64[D_8008241C[call->id].type >> 6](call);
+            Sound_call_func_tbl[Sound_call_info_tbl[call->id].type >> 6](call);
         }
-        D_80098938 = D_800BE4F8;
+        Sound_call_ptr = Sound_call_queue;
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_8001A110);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_update);
 #endif
 
-sint32 func_8001A1FC(sint32 num)
+sint32 vab_find(sint32 num)
 {
     sint32 i;
 
@@ -384,7 +384,7 @@ sint32 func_8001A1FC(sint32 num)
     return -1;
 }
 
-sint32 func_8001A238(sint32 num)
+sint32 seq_find(sint32 num)
 {
     sint32 i;
 
@@ -398,7 +398,7 @@ sint32 func_8001A238(sint32 num)
     return -1;
 }
 
-void func_8001A274(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 dist)
+void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 dist)
 {
     sint32 angle;
     uint16 v;
@@ -479,7 +479,7 @@ void func_8001A274(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, si
     *right = (*right * Sound_work.unk10) / 127;
 }
 
-sint32 func_8001A63C(sint32 x)
+sint32 pitch_scale(sint32 x)
 {
     sint32 scale;
     sint32 mul;
@@ -488,12 +488,12 @@ sint32 func_8001A63C(sint32 x)
     if (x >= 0)
     {
         scale <<= x / 12;
-        mul = D_80082C70[x % 12];
+        mul = Sound_pitch_tbl_up[x % 12];
     }
     else
     {
         x   = -x;
-        mul = D_80082CA0[x % 12];
+        mul = Sound_pitch_tbl_down[x % 12];
         scale >>= x / 12;
     }
     scale *= mul;
@@ -501,35 +501,35 @@ sint32 func_8001A63C(sint32 x)
 }
 
 #ifdef NON_MATCHING
-sint32 func_8001A6DC(sint32 x, sint32 frac)
+sint32 pitch_interp(sint32 x, sint32 frac)
 {
     sint32 a;
 
-    a = func_8001A63C(x);
-    return a + ((func_8001A63C(x + 1) - a) * frac) / 128;
+    a = pitch_scale(x);
+    return a + ((pitch_scale(x + 1) - a) * frac) / 128;
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_8001A6DC);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", pitch_interp);
 #endif
 
-void func_8001A744(uint16 vab_id, SOUND_CALL_INFO *info, VagAtr *tone, SOUND_CALL *call)
+void key_on_tone(uint16 vab_id, SOUND_CALL_INFO *info, VagAtr *tone, SOUND_CALL *call)
 {
     SpuVoiceAttr attr;
     uint32 voice;
 
     voice = info->unk3 & 0x1F;
-    func_8001A274(call, tone->vol, &attr.volume.left, &attr.volume.right, Game_work.unk1E0[voice]);
+    calc_vol(call, tone->vol, &attr.volume.left, &attr.volume.right, Game_work.unk1E0[voice]);
     attr.voice        = 1 << voice;
     attr.mask         = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_PITCH | SPU_VOICE_WDSA | SPU_VOICE_ADSR_ADSR1 | SPU_VOICE_ADSR_ADSR2;
     attr.addr         = SsUtGetVagAddr(vab_id, tone->vag);
-    attr.pitch        = func_8001A6DC(tone->min - tone->center, tone->shift);
+    attr.pitch        = pitch_interp(tone->min - tone->center, tone->shift);
     attr.adsr1        = tone->adsr1;
     attr.adsr2        = tone->adsr2;
-    D_80098B48[voice] = info->unk2 & 0xF;
+    Sound_voice_priority[voice] = info->unk2 & 0xF;
     SpuSetKeyOnWithAttr(&attr);
 }
 
-sint32 func_8001A834(SOUND_CALL_INFO *info, SOUND_CALL *call)
+sint32 voice_check(SOUND_CALL_INFO *info, SOUND_CALL *call)
 {
     uint32 voice;
     sint32 status;
@@ -539,7 +539,7 @@ sint32 func_8001A834(SOUND_CALL_INFO *info, SOUND_CALL *call)
 
     voice  = info->unk3 & 0x1F;
     status = SpuGetKeyStatus(1 << voice);
-    if (status == 1 && (info->unk2 & 0xF) < D_80098B48[voice])
+    if (status == 1 && (info->unk2 & 0xF) < Sound_voice_priority[voice])
     {
         return 0;
     }
@@ -550,7 +550,7 @@ sint32 func_8001A834(SOUND_CALL_INFO *info, SOUND_CALL *call)
         dz   = p_Player_work->unk18 - (sint16)call->arg2;
         dz   = dz * dz;
         dist = SquareRoot0(dx + dz);
-        if (dist >= 5000 || (status == 1 && D_80098B48[voice] >= (info->unk2 & 0xF) && dist >= 3001))
+        if (dist >= 5000 || (status == 1 && Sound_voice_priority[voice] >= (info->unk2 & 0xF) && dist >= 3001))
         {
             return 0;
         }
@@ -560,7 +560,7 @@ sint32 func_8001A834(SOUND_CALL_INFO *info, SOUND_CALL *call)
 }
 
 #ifdef NON_MATCHING
-void func_8001A968(SOUND_CALL *call)
+void Sound_call_play(SOUND_CALL *call)
 {
     SOUND_CALL_INFO *info;
     VagAtr *tone;
@@ -569,8 +569,8 @@ void func_8001A968(SOUND_CALL *call)
     uint16 voice;
     uint16 vab_id;
 
-    info = &D_8008241C[call->id];
-    bank = func_8001A1FC(info->type & 0x3F);
+    info = &Sound_call_info_tbl[call->id];
+    bank = vab_find(info->type & 0x3F);
     if (bank == -1)
     {
         return;
@@ -581,9 +581,9 @@ void func_8001A968(SOUND_CALL *call)
     vab_id = Game_work.vab[bank].vab_id;
     while (count >= 0 && voice < 0x18)
     {
-        if (func_8001A834(info, call) != 0)
+        if (voice_check(info, call) != 0)
         {
-            func_8001A744(vab_id, info, tone, call);
+            key_on_tone(vab_id, info, tone, call);
         }
         tone++;
         count--;
@@ -591,10 +591,10 @@ void func_8001A968(SOUND_CALL *call)
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_8001A968);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_call_play);
 #endif
 
-void func_8001AA8C(SOUND_CALL *call)
+void Sound_seq_play(SOUND_CALL *call)
 {
     SOUND_WORK *work;
     SOUND_CALL_INFO *info;
@@ -602,18 +602,18 @@ void func_8001AA8C(SOUND_CALL *call)
     sint32 bank;
     sint32 seq;
 
-    info = &D_8008241C[call->id];
-    bank = func_8001A1FC(info->type & 0x3F);
+    info = &Sound_call_info_tbl[call->id];
+    bank = vab_find(info->type & 0x3F);
     if (bank == -1)
     {
         return;
     }
-    seq = func_8001A238(info->unk1 & 0x7F);
+    seq = seq_find(info->unk1 & 0x7F);
     if (seq == -1)
     {
         return;
     }
-    chan = &D_80098AF8[info->unk2 >> 4];
+    chan = &Sound_seq_chan_tbl[info->unk2 >> 4];
     if (call->arg1 == 0 && chan->unk5 != 0 && chan->unk6 == call->id)
     {
         return;
@@ -626,12 +626,12 @@ void func_8001AA8C(SOUND_CALL *call)
     {
         if (chan->unk2 == 0)
         {
-            func_80070114(chan->unk0);
+            SsSeqStop(chan->unk0);
             SsSeqClose(chan->unk0);
         }
         else
         {
-            func_8007013C(chan->unk0, chan->unk4);
+            SsSepStop(chan->unk0, chan->unk4);
             SsSepClose(chan->unk0);
         }
     }
@@ -654,7 +654,7 @@ void func_8001AA8C(SOUND_CALL *call)
     }
 }
 
-void func_8001AC58(SOUND_CALL *call)
+void Sound_sep_play(SOUND_CALL *call)
 {
     SOUND_CALL_INFO *info;
     SOUND_SEQ_CHAN *chan;
@@ -662,19 +662,19 @@ void func_8001AC58(SOUND_CALL *call)
     sint32 bank;
     sint32 seq;
 
-    info = &D_8008241C[call->id];
+    info = &Sound_call_info_tbl[call->id];
     work = &Sound_work;
-    bank = func_8001A1FC(info->type & 0x3F);
+    bank = vab_find(info->type & 0x3F);
     if (bank == -1)
     {
         return;
     }
-    seq = func_8001A238(info->unk1 & 0x7F);
+    seq = seq_find(info->unk1 & 0x7F);
     if (seq == -1)
     {
         return;
     }
-    chan = &D_80098AF8[info->unk2 >> 4];
+    chan = &Sound_seq_chan_tbl[info->unk2 >> 4];
     if (call->arg1 == 0 && chan->unk5 != 0 && chan->unk6 == call->id)
     {
         Sound_work.unk12 = 0x7F;
@@ -688,12 +688,12 @@ void func_8001AC58(SOUND_CALL *call)
     {
         if (chan->unk2 == 0)
         {
-            func_80070114(chan->unk0);
+            SsSeqStop(chan->unk0);
             SsSeqClose(chan->unk0);
         }
         else
         {
-            func_8007013C(chan->unk0, chan->unk4);
+            SsSepStop(chan->unk0, chan->unk4);
             SsSepClose(chan->unk0);
         }
     }
@@ -716,7 +716,7 @@ void func_8001AC58(SOUND_CALL *call)
     }
 }
 
-sint32 func_8001AE6C(sint32 flags, sint16 *queueing)
+sint32 fade_step(sint32 flags, sint16 *queueing)
 {
     sint32 ret;
 
@@ -726,7 +726,7 @@ sint32 func_8001AE6C(sint32 flags, sint16 *queueing)
         ret = 1;
         if (flags & 1)
         {
-            *queueing -= D_80098840;
+            *queueing -= Sound_fade_step_size;
             if (*queueing <= 0)
             {
                 *queueing = 0;
@@ -735,7 +735,7 @@ sint32 func_8001AE6C(sint32 flags, sint16 *queueing)
         }
         else
         {
-            *queueing += D_80098840;
+            *queueing += Sound_fade_step_size;
             if (*queueing >= 0x7F)
             {
                 *queueing = 0x7F;
@@ -747,7 +747,7 @@ sint32 func_8001AE6C(sint32 flags, sint16 *queueing)
 }
 
 #ifdef NON_MATCHING
-void func_8001AEF0(void)
+void volume_update(void)
 {
     SOUND_WORK *work = &Sound_work;
     sint32 i;
@@ -755,20 +755,20 @@ void func_8001AEF0(void)
     sint16 vol;
     uint8 *rev;
 
-    if (func_8001AE6C(D_80098788 & 3, &work->unk0C) == 0)
+    if (fade_step(D_80098788 & 3, &work->unk0C) == 0)
     {
         D_80098788 &= 0xFC;
     }
-    if (func_8001AE6C((D_80098788 & 0xC) >> 2, &work->unk10) == 0)
+    if (fade_step((D_80098788 & 0xC) >> 2, &work->unk10) == 0)
     {
         D_80098788 &= 0xF3;
     }
-    if (func_8001AE6C((D_80098788 & 0x30) >> 4, &work->unk12) == 0)
+    if (fade_step((D_80098788 & 0x30) >> 4, &work->unk12) == 0)
     {
         D_80098788 &= 0xCF;
     }
     D_80098958 |= 0x400;
-    if (func_8001AE6C(D_80098788 >> 6, &work->unk0E) == 0)
+    if (fade_step(D_80098788 >> 6, &work->unk0E) == 0)
     {
         if (D_80098788 & 0x40)
         {
@@ -800,13 +800,13 @@ void func_8001AEF0(void)
     }
     if (Game_work.unk058 != 0)
     {
-        func_80075AA4();
+        SsSetMono();
     }
     else
     {
-        func_80075AB8();
+        SsSetStereo();
     }
-    chan = D_80098AF8;
+    chan = Sound_seq_chan_tbl;
     for (i = 0; i < 4; i++)
     {
         if (chan->unk0 != -1 && chan->unk2 != -1)
@@ -814,11 +814,11 @@ void func_8001AEF0(void)
             vol = (work->unk0A * work->unk12) / 127;
             if (chan->unk2 == 0)
             {
-                func_80070634(chan->unk0, vol, vol);
+                SsSeqSetVol(chan->unk0, vol, vol);
             }
             else
             {
-                func_80070694(chan->unk0, chan->unk4, vol, vol);
+                SsSepSetVol(chan->unk0, chan->unk4, vol, vol);
             }
         }
         chan++;
@@ -826,7 +826,7 @@ void func_8001AEF0(void)
     D_80098958 &= ~0x400;
     if (work->unk18 != work->unk19)
     {
-        func_80070974(0);
+        SsUtAllKeyOff(0);
         SsSetReservedVoice(work->unk18);
     }
     work->unk19 = work->unk18;
@@ -837,7 +837,7 @@ void func_8001AEF0(void)
             if (rev != work->unk20)
             {
                 SsUtSetReverbType(rev[0]);
-                func_800721C4();
+                SsUtReverbOn();
                 work->unk1B = 0x1E;
                 work->unk1A++;
             }
@@ -858,7 +858,7 @@ void func_8001AEF0(void)
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_8001AEF0);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", volume_update);
 #endif
 
 void Sound_key_off_voice(sint16 voice)
@@ -872,27 +872,27 @@ void func_8001B314(void)
 }
 
 #ifdef NON_MATCHING
-void func_8001B33C(void)
+void Sound_seq_stop_all(void)
 {
     SOUND_SEQ_CHAN *chan;
     sint32 i;
 
-    chan = D_80098AF8;
+    chan = Sound_seq_chan_tbl;
     for (i = 0; i < 4; i++, chan++)
     {
         if (chan->unk0 != -1 && chan->unk2 != -1)
         {
             if (chan->unk2 == 0)
             {
-                func_80070114(chan->unk0);
+                SsSeqStop(chan->unk0);
             }
             else
             {
-                func_8007013C(chan->unk0, chan->unk4);
+                SsSepStop(chan->unk0, chan->unk4);
             }
         }
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_8001B33C);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_seq_stop_all);
 #endif
