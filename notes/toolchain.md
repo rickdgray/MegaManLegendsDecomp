@@ -112,7 +112,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/split.sh <t>` | Clears `asm/<t>/` and re-runs splat |
 | `tools/build.sh <t>` | Builds the objects the linker script names and compares SHA-1. **The authority on matching** |
 | `tools/make_expected.sh <t>` | Snapshots a matching `build/<t>/` into `expected/<t>/build/<t>/`; refuses otherwise |
-| `tools/rebuild.sh <t>` | Split + build + refresh `expected/<t>/`; use after renames and yaml changes |
+| `tools/rebuild.sh <t>` | Split + build + refresh `expected/<t>/`, then regenerate `functions.csv` (if both ELFs exist); use after renames and yaml changes |
 | `tools/diff.sh <t> <Func>` | asm-differ against `expected/<t>/`, cut at the function's end |
 | `tools/objdump.sh <t> <Func\|file.o>` | Real-instruction disassembly with relocations |
 | `tools/m2c.sh <t> <Func>` | m2c draft with all headers as context (`--target mipsel-gcc-c`) |
@@ -126,6 +126,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/find_dupes.py --map FILE` | Every SRC → DST symbol correspondence, unnamed ones included (`Cd_muted -> D_800988EA`); for porting C between the programs |
 | `tools/extract_overlays.py [--tsv FILE]` | Writes each `CDDATA/DAT/*.BIN` archive's code chunk to `disc/overlays/<ARCHIVE>.BIN` and lists load address, size, `jr ra` count, SHA-1 and identical groups ([disc.md](disc.md), "Code overlays"). Not per-target |
 | `tools/dupe_scan.py [--tsv FILE] [--runs] [--list N]` | Duplicate functions across both executables and every overlay (splits the overlays into functions itself): exact and shape groups, savings in functions and bytes, runs shared between programs; `--tsv` writes one row per function ([overlays.md](overlays.md)). Build both targets and run `extract_overlays.py` first |
+| `tools/function_list.py [-o FILE]` | Every Capcom function in the game (both executables and every distinct overlay) as a CSV: File, Function (default `func_` name), Name (blank if not renamed), Decompiled (has C, matching or parked), Matched. File is the yaml subsegment, or the whole overlay until overlays are split. Build both targets and run `extract_overlays.py` first |
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
 | `tools/batch_run.py <t> <file.c>` | Unattended decompilation batches; see [agents.md](agents.md) |
 
