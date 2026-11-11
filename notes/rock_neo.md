@@ -14,8 +14,8 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
   reports PsyQ 4.0.0.
 - **Confirmed:** timestamp `Aug 16 1998 12:31:28`, 3 min 48 s before the shim's `12:35:16`: the same
   build session. Also the string `MEGAMAN LEGENDS MASTER VERSION 1998/5/13`.
-- **Confirmed: `-G8`** (`gp` = `0x80097864`). How the build reproduces it (`-G8` to `cc1` and
-  maspsx, `-G0` to GNU `as`) and what is still untested: [toolchain.md](toolchain.md).
+- **Confirmed: `-G32`** (`gp` = `0x80097864`; the limit is pinned by string literals). How the
+  build reproduces it (`-G32` to `cc1` and maspsx, `-G0` to GNU `as`): [toolchain.md](toolchain.md).
 
 ## Layout
 
@@ -49,7 +49,7 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
   C itself. Unmigrated rodata uses `INCLUDE_RODATA` (`scene.c`: the path strings `D_800102B0`).
   Each file's small data (`.sdata`, `.sbss`) is defined at the top of its C file, so its `$gp`
   accesses come out right; small commons use tentative definitions (rock_neo_files.md, "Small data
-  in C"). **Open:** `main`'s small data stays assembly (it needs a larger `-G`).
+  in C").
 - **The tail's one byte:** `0x04` at `0x800D8800`, the SHL overlay's load address, at the start of
   the file's last sector. **Suspected:** connected to why the BSS is in the file (a link that laid
   out overlay/heap regions after BSS); check the SHL overlay's first byte.
@@ -275,8 +275,7 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
 
 ## To do
 
-- **Compiler:** test `-funsigned-char` with the first plain `char`; test `-G8` with the first C
-  file that defines its own small data.
+- **Compiler:** test `-funsigned-char` with the first plain `char`.
 - **Ghidra:** create the function at `0x800680BC` (code not disassembled); define `MSC00`'s first
   two words as data.
 - Where the stage overlays are loaded from (ties to the SHL byte and the BSS-in-file question).

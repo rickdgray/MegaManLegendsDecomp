@@ -3,7 +3,7 @@
 ## Compiler and flags
 
 **Confirmed for both executables:** gcc 2.7.2 (PSX build) + ASPSX 2.56, `-O2`. Equivalent to
-decomp.me's `PSYQ4.0` preset. The shim is compiled with `-G0`, `ROCK_NEO.EXE` with `-G8` (below).
+decomp.me's `PSYQ4.0` preset. The shim is compiled with `-G0`, `ROCK_NEO.EXE` with `-G32` (below).
 
 Evidence:
 - **GCC version:** on the probe `Cd_cmd_dequeue`, gcc 2.6.0 through 2.7.2 produce identical output
@@ -19,17 +19,25 @@ Evidence:
   -ffunction-cse -fpcc-struct-return -fcommon`). `-funsigned-char` matters wherever plain `char`
   appears; nothing banked so far uses plain `char`.
 
-### ROCK_NEO's `-G8`
+### ROCK_NEO's `-G32`
 
-- **Confirmed: `-G8`.** `gp` = `0x80097864`, and a raw disassembly has 697 `(gp)` accesses (the
-  shim has 1). See [rock_neo.md](rock_neo.md) for the layout.
+- **Confirmed: `$gp` is used.** `gp` = `0x80097864`, and a raw disassembly has 697 `(gp)` accesses
+  (the shim has 1). See [rock_neo.md](rock_neo.md) for the layout.
+- **Confirmed: the limit is between 28 and 32 bytes; the build uses `-G32`.** GCC puts a string
+  literal no larger than the limit in `.sdata`, and a larger one in `.rodata`:
+  - `main`: literals up to 28 bytes in `.sdata` (`"%08x %04x %04x %04x %04x"`), a 45-byte one
+    in `.rodata`.
+  - `code_8006430C`: the 20-byte memory-card names in `.sdata`.
+  - `scene`: the 33-byte stage paths in `.rodata`.
+  `main` also reaches a 24-byte object through `$gp` (`D_80097864`). One value for every file fits
+  all of it. (`-G8` was assumed at first, from `cc1`'s default; nothing had tested the value.)
 - **Confirmed: ASPSX used `$gp` only for small data defined in the same file.** A global sits in
   `.sdata`/`.sbss` and is reached through `$gp` only from the file that defines it; an `extern` of
-  any size gets `lui` + `%lo`. GNU `as` given `-G8` instead uses `$gp` for every `.extern` that
-  `cc1` declares at 8 bytes or less, which is wrong.
-- **So `cc.sh` passes `-G8` to `cc1` and to maspsx, and always `-G0` to GNU `as`.** maspsx, knowing
+  any size gets `lui` + `%lo`. GNU `as` given `-G` instead uses `$gp` for every `.extern` that
+  `cc1` declares within the limit, which is wrong.
+- **So `cc.sh` passes `-G32` to `cc1` and to maspsx, and always `-G0` to GNU `as`.** maspsx, knowing
   the limit, writes `%gp_rel` itself for the file's own small data; GNU `as` then adds nothing.
-  Proven on the first `-G8` C, ROCK_NEO's `cd` file: every global it touches is an `extern` and
+  Proven on the first ROCK_NEO C, the `cd` file: every global it touches is an `extern` and
   comes out `lui`-based, matching.
 - maspsx's `--dont-force-G0` is **not** passed. It only matters when maspsx runs the assembler
   itself (`--run-assembler`, where it otherwise forces `-G0`); `cc.sh` runs GNU `as` separately.
@@ -39,20 +47,18 @@ Evidence:
     with an offset too.
   - Taking an address (`la`) and indexing stay `lui`-based.
   - A common with an offset is `lui`-based.
-  - Small string literals (8 bytes or less) go to `.sdata`.
+  - String literals up to 32 bytes go to `.sdata`, larger ones to `.rodata`.
   All checked on probe files and in the real build (rock_neo_files.md, "Small data in C").
 - **maspsx `--use-comm-section` (ROCK_NEO).** It keeps a tentative definition (`sint32 x;`) a common,
   as ASPSX left it for the linker's pool. Without it, maspsx defines the symbol locally in the
   file's `.sbss`.
-- **Suspected: `main.c` used a larger `-G`** (its `.sdata` holds literals up to 28 bytes, and it
-  reaches a 24-byte object through `$gp`). Not set up yet; it needs a per-file flag.
 
 ## Pipeline
 
 `tools/cc.sh`: `cpp -P -undef -nostdinc -Iinclude/<target> -Iinclude` → `cc1 -quiet -O2 -G0` →
 `maspsx --aspsx-version=2.56 --expand-div` →
 `mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0`.
-For `rock_neo.exe`: `cc1 ... -G8`, `maspsx ... -G8 --use-comm-section`, `as ... -G0`. Overrides for experiments only:
+For `rock_neo.exe`: `cc1 ... -G32`, `maspsx ... -G32 --use-comm-section`, `as ... -G0`. Overrides for experiments only:
 `CC1_EXTRA`, `CC1`, `ASPSX_VERSION` (see the script's header).
 
 Assembly from splat is assembled with `-EL -march=r3000 -mtune=r3000 -no-pad-sections -G0

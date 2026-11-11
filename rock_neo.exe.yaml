@@ -235,8 +235,9 @@ segments:
       - [0x70EC4, data, 70EC4]  # starts 4 bytes before the timestamp string
       # .sdata starts at gp (0x80097864): no $gp access has a negative offset. Each file's piece
       # (`.sdata`, defined in its C file) runs from its first to its last $gp variable; the
-      # stretches between stay assembly. main's stays assembly too (main.c used a larger -G).
-      - [0x88064, sdata, 88064]
+      # stretches between stay assembly.
+      - [0x88064, .sdata, main]
+      - [0x881DC, sdata, 881DC]
       - [0x8843C, .sdata, code_8001F828]
       - [0x88444, sdata, 88444]
       - [0x884FC, .sdata, code_8002E7A8]
@@ -256,7 +257,8 @@ segments:
       # it's laid out right after the small data. To restore real BSS later (may need a splat change):
       #   - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }  plus  bss_size: 0x2D530 on main
       # .sbss (statics, in file order), as typed sdata: each file's piece is its C file's .sbss.
-      - [0x88958, sdata, 88958]
+      - { start: 0x88958, type: .sdata, name: main, linker_section: .sbss }
+      - [0x88960, sdata, 88960]
       - { start: 0x88998, type: .sdata, name: scene, linker_section: .sbss }
       - [0x889A0, sdata, 889A0]
       - { start: 0x889BC, type: .sdata, name: code_8001F828, linker_section: .sbss }

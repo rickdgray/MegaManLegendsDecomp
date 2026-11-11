@@ -40,7 +40,7 @@ per-object data from the relocations of the built objects (variables only one ob
 
 ## Small data ownership (`$gp`)
 
-Under ASPSX's `-G8`, a file reaches its own small variables through `$gp`, so every function with a
+Under `-G32` (toolchain.md), a file reaches its own small variables through `$gp`, so every function with a
 `$gp` access to a variable is in the file that defines it. From the relocations of the built
 objects: **185 `$gp` variables, 46 groups of functions** (functions sharing a variable merged).
 
@@ -88,7 +88,7 @@ its own rows.
 
 ## Small data in C
 
-Done for every file in the table except `main`. The layout and what it rests on:
+Done for every file in the table. The layout and what it rests on:
 
 - **Each file's piece runs from its first to its last `$gp` variable**, in `.sdata` and in the
   ordered `.sbss`. The piece is defined at the top of the C file, and the yaml places it: `.sdata` as
@@ -113,11 +113,10 @@ Done for every file in the table except `main`. The layout and what it rests on:
   `cc.sh` passes maspsx `--use-comm-section`, so that stays a common, and the assembly's definition
   wins at link time. A common with an offset (`D_80098A58[1]`) is `lui`-based under 2.56, as in the
   original (`0x80098B2D`, `moji`). Tested in the real build.
-- **`main` is left out (open):** its `.sdata` (`0x80097864`–`0x800979DC`) holds string literals of
-  9–28 bytes (`"%08x %08x %08x"`, the exception handler's) and a 24-byte object reached through
-  `$gp` (`D_80097864`). GCC 2.7 with `-G8` puts literals over 8 bytes in `.rdata`, so `main.c` was
-  compiled with a larger `-G` (32?). That needs a per-file flag. Until then, the `$gp` functions in
-  `main` (`D_80097864`, `D_800979D8`, `D_80098158`) can't match.
+- **`main`'s piece** (`0x80097864`–`0x800979DC`) holds the exception handler's strings, as
+  `char` arrays, up to 28 bytes. Under `-G32`, a literal that size would also land in `.sdata`.
+  It also holds `D_80097864`, a 24-byte object reached through `$gp`. Its `.sbss` static
+  `D_80098158` is also where 2MBYTE.OBJ's startup starts clearing the BSS, so it's made global.
 
 ## Data order (`.data`, by pointer-linked units)
 
@@ -147,7 +146,7 @@ address.
   - **A tail of small tables** at `0x8008FD3C`–`0x8008FF64`, after `code_8006430C`'s data, used by
     `moji` (`0x80056D10`–`0x80057574`), `sub_scrn` (`Rock_buster_parts_tbl`) and `code_8006430C`.
     `sub_scrn.c`'s own source declares such tables `extern`, and these are in `.data` though as
-    small as 4 bytes: a `-G8` C file defining them would put them in `.sdata` and use `$gp`.
+    small as 4 bytes: a `-G32` C file defining them would put them in `.sdata` and use `$gp`.
     **Suspected:** one file (or assembly) defines them, linked last before `2MBYTE.OBJ`.
 - **Confirmed (Capcom's source): `map_screen` (row 27) is the end of `sub_scrn.c`**, which ends at
   `0x800629E0` with `map_cursor_set`. The data test flagged this pair (all 4 of `map_screen`'s units

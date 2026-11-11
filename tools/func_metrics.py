@@ -9,9 +9,8 @@ each thing that makes matching harder":
     instructions + 4 per conditional branch + 12 per loop (backward branch)
     + 15 per jump table (`jr` on a register other than `ra`) + 6 per indirect call (`jalr`)
     + 2 per direct call + 3 per GTE instruction (cop2, lwc2, swc2) + 2 per mult/div
-    + 20 if it reads or writes small data through `$gp` and that data isn't in C yet (ROCK_NEO:
-      only `main`, whose small data stays assembly; see rock_neo_files.md, "Small data in C";
-      overlays: all, untested)
+    + 20 if it reads or writes small data through `$gp` and that data isn't in C yet (ROCK_NEO's
+      is, see rock_neo_files.md, "Small data in C"; overlays: all, untested)
 
 The weights are a first guess, checked only against the functions done so far (parked ones score
 higher than matched ones; --top prints the comparison).
@@ -92,7 +91,7 @@ def metrics():
                 sub = next((s for s in subs if s[0] <= addr < s[1]), None)
                 hand = sub is None or sub[2].startswith(("psyq/", "asm_"))
             c, calls = counts(ws, base, f, e)
-            if target and sub is not None and sub[2] != "main":
+            if target:
                 c["gp"] = 0  # its file defines its small data in C (or it's in the common pool)
             info[(prog, addr)] = {"score": score(c), "features": c, "hand": hand,
                                   "done": hand or matched or name in attempts}

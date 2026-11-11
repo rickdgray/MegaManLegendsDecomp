@@ -6,7 +6,7 @@ what is known **now**, organized by topic. The discovery history lives in git.
 | File | Covers |
 |---|---|
 | [disc.md](disc.md) | The disc: target hashes, layout, the file table, code counts, overlay chunk format, load addresses |
-| [toolchain.md](toolchain.md) | Compiler and flags (with evidence, including ROCK_NEO's `-G8`), build pipeline, splat configuration, symbol registry, tools, gotchas |
+| [toolchain.md](toolchain.md) | Compiler and flags (with evidence, including ROCK_NEO's `-G32`), build pipeline, splat configuration, symbol registry, tools, gotchas |
 | [shim.md](shim.md) | `SLUS_006.03`, the boot shim: layout, subsystems, function status, open questions |
 | [rock_neo.md](rock_neo.md) | `ROCK_NEO.EXE`, the main game: layout, code shared with the shim, sound, threads, the CD module, function status, to-dos |
 | [overlays.md](overlays.md) | The code overlays (`ST*`, `ARM*R`, `SUPPORT`): layout, splitting into functions, duplicates across the whole game, shared source files |

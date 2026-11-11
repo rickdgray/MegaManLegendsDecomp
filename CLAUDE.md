@@ -151,7 +151,7 @@ with what remains different. decomp-permuter will handle these later.
   Equivalent to decomp.me's `PSYQ4.0` preset (gcc 2.7.2 + aspsx 2.56).
 - `slus_006.03`: `-G0`. `cc1` defaults to `-G 8`, so `-G0` must always be passed. The shim never
   addresses globals through `$gp`.
-- `rock_neo.exe`: `-G8` to `cc1`, `-G8 --use-comm-section` to maspsx, and `-G0` to GNU `as`.
+- `rock_neo.exe`: `-G32` to `cc1`, `-G32 --use-comm-section` to maspsx, and `-G0` to GNU `as`.
   `extern` globals of any size are still addressed with `lui` + `%lo`; only small data *defined in
   the same file* uses `$gp`. Details and evidence: `notes/toolchain.md`.
 
@@ -169,8 +169,9 @@ variable defined in its own C file. The layout is in `notes/rock_neo_files.md`, 
 - **The alias block at the end of the file** (`.globl`/`.set`) keeps splat's labels inside those
   objects working for the assembly. When you replace the last `INCLUDE_ASM` that names a label,
   drop its line. Keep the lines for statics that `.data` tables point to.
-- **`main`'s small data is still assembly** (it needs a larger `-G`). Park `main` functions that
-  use `$gp`.
+- **String literals of 32 bytes or less go to `.sdata`** (larger ones to `.rodata`). If the string
+  the target uses is already defined (`char D_800979A4[] = "%08x";` in `main.c`), use that name, not
+  a literal: a literal would add a second copy and shift every address after it.
 
 ## Writing C for this compiler
 
@@ -359,7 +360,7 @@ Before adding a proposal:
 - **Pick global or `static` style from the callers.** Search `asm/<t>/` and `src/<t>/` outside the
   function's own file: no outside callers means a file-local helper, named `lower_snake_case` with
   no module prefix. Functions called from other files, or reached only through a data table, stay
-  `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G8` means it's defined in another
+  `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G32` means it's defined in another
   file, so it's global.
 - **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
   an upper bound, from the next `dlabel` in the data file.
