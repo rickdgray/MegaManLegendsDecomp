@@ -33,15 +33,26 @@ Evidence:
   comes out `lui`-based, matching.
 - maspsx's `--dont-force-G0` is **not** passed. It only matters when maspsx runs the assembler
   itself (`--run-assembler`, where it otherwise forces `-G0`); `cc.sh` runs GNU `as` separately.
-- **Still untested:** a C file that *defines* its own small data (maspsx would emit `%gp_rel` for
-  it). The first such file confirms or breaks the setup.
+- **Confirmed: a C file that defines its own small data gets `$gp`**, with maspsx doing for ASPSX
+  2.56 what the original shows:
+  - Initialized small globals (`.sdata`) and `static`s (`.lcomm` → `.sbss`) are `$gp`-relative,
+    with an offset too.
+  - Taking an address (`la`) and indexing stay `lui`-based.
+  - A common with an offset is `lui`-based.
+  - Small string literals (8 bytes or less) go to `.sdata`.
+  All checked on probe files and in the real build (rock_neo_files.md, "Small data in C").
+- **maspsx `--use-comm-section` (ROCK_NEO).** It keeps a tentative definition (`sint32 x;`) a common,
+  as ASPSX left it for the linker's pool. Without it, maspsx defines the symbol locally in the
+  file's `.sbss`.
+- **Suspected: `main.c` used a larger `-G`** (its `.sdata` holds literals up to 28 bytes, and it
+  reaches a 24-byte object through `$gp`). Not set up yet; it needs a per-file flag.
 
 ## Pipeline
 
 `tools/cc.sh`: `cpp -P -undef -nostdinc -Iinclude/<target> -Iinclude` → `cc1 -quiet -O2 -G0` →
 `maspsx --aspsx-version=2.56 --expand-div` →
 `mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0`.
-For `rock_neo.exe`: `cc1 ... -G8`, `maspsx ... -G8`, `as ... -G0`. Overrides for experiments only:
+For `rock_neo.exe`: `cc1 ... -G8`, `maspsx ... -G8 --use-comm-section`, `as ... -G0`. Overrides for experiments only:
 `CC1_EXTRA`, `CC1`, `ASPSX_VERSION` (see the script's header).
 
 Assembly from splat is assembled with `-EL -march=r3000 -mtune=r3000 -no-pad-sections -G0

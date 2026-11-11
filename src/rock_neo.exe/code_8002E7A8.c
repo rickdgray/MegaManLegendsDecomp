@@ -1,5 +1,59 @@
 #include "common.h"
 
+// Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
+sint32 D_80097CFC = 0x200;
+uint8 D_80097D00  = 0x5f;
+uint8 D_80097D01  = 0xaf;
+uint8 D_80097D02  = 0x49;
+uint8 D_80097D03  = 0x89;
+sint32 D_80097D04 = -0x363e05;
+sint32 D_80097D08 = 0;
+
+// Small uninitialized statics (.sbss 0x80098560-0x8009865C).
+static sint32 D_80098560;
+static sint32 D_80098564;
+static sint32 D_80098568;
+static uint8 D_8009856C[4];
+static sint32 D_80098570;
+static sint32 D_80098574;
+static sint32 D_80098578;
+static sint16 D_8009857C[2];
+static sint16 D_80098580[2];
+static sint16 D_80098584[2];
+static sint16 D_80098588[2];
+static sint16 D_8009858C[4];
+static sint32 D_80098594[2];
+static sint32 D_8009859C[2];
+static sint32 D_800985A4[2];
+static sint32 D_800985AC[2];
+static sint32 D_800985B4[2];
+static sint32 D_800985BC[2];
+static sint32 D_800985C4[2];
+static sint32 D_800985CC[2];
+static sint32 D_800985D4[2];
+static sint32 D_800985DC[2];
+static sint32 D_800985E4[2];
+static sint32 D_800985EC[2];
+static sint32 D_800985F4[2];
+static sint16 D_800985FC[2];
+static sint16 D_80098600[2];
+static sint16 D_80098604[2];
+static sint16 D_80098608[2];
+static sint32 D_8009860C;
+static sint32 D_80098610;
+static sint32 D_80098614[2];
+static sint32 D_8009861C;
+static sint32 D_80098620;
+static sint32 D_80098624[2];
+static sint32 D_8009862C[2];
+static sint32 D_80098634[2];
+static sint32 D_8009863C;
+static sint32 D_80098640;
+static sint32 D_80098644[2];
+static sint32 D_8009864C;
+static sint32 D_80098650;
+static sint32 D_80098654[2];
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002E7A8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
@@ -233,3 +287,14 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036D40);
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800371A0);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80037440);
+
+// For the code and data still in assembly: splat's labels inside the statics above (aliases),
+// and statics that .data tables or other files point to (made global). Drop each once no
+// assembly names it.
+__asm__(".text\n"
+        ".globl D_8009857E\n.set D_8009857E, D_8009857C+2\n"
+        ".globl D_80098582\n.set D_80098582, D_80098580+2\n"
+        ".globl D_80098586\n.set D_80098586, D_80098584+2\n"
+        ".globl D_8009858A\n.set D_8009858A, D_80098588+2\n"
+        ".globl D_800985FE\n.set D_800985FE, D_800985FC+2\n"
+        ".globl D_80098606\n.set D_80098606, D_80098604+2\n");

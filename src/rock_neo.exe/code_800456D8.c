@@ -1,5 +1,8 @@
 #include "common.h"
 
+// Small uninitialized statics (.sbss 0x800986D0-0x800986D8).
+static sint32 D_800986D0[2];
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_800456D8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80045750);

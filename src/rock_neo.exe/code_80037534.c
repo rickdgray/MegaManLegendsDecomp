@@ -1,5 +1,9 @@
 #include "common.h"
 
+// Small data (.sdata 0x80097D24-0x80097D28): reached through $gp in this file.
+uint16 D_80097D24 = 0;
+sint16 D_80097D26 = 0;
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037534", func_80037534);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037534", func_80037594);

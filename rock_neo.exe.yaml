@@ -233,13 +233,48 @@ segments:
 
       # .data, then .sdata
       - [0x70EC4, data, 70EC4]  # starts 4 bytes before the timestamp string
-      - [0x88064, sdata, 88064] # starts at gp (0x80097864): no $gp access has a negative offset
+      # .sdata starts at gp (0x80097864): no $gp access has a negative offset. Each file's piece
+      # (`.sdata`, defined in its C file) runs from its first to its last $gp variable; the
+      # stretches between stay assembly. main's stays assembly too (main.c used a larger -G).
+      - [0x88064, sdata, 88064]
+      - [0x8843C, .sdata, code_8001F828]
+      - [0x88444, sdata, 88444]
+      - [0x884FC, .sdata, code_8002E7A8]
+      - [0x8850C, sdata, 8850C]
+      - [0x88524, .sdata, code_80037534]
+      - [0x88528, .sdata, code_80037FB4]
+      - [0x88574, sdata, 88574]
+      - [0x885E4, .sdata, code_80043F34]
+      - [0x885F0, sdata, 885F0]
+      - [0x88804, .sdata, code_8005C258]
+      - [0x88838, sdata, 88838]
+      - [0x8888C, .sdata, code_8006430C]
+      - [0x8889C, sdata, 8889C]
 
       # HACK: this is BSS (0x80098158-0x800C5687, cleared by start), but the file stores it as zeros,
       # which splat can't express as bss (it counts the file bytes on top of bss_size). Typed sdata so
       # it's laid out right after the small data. To restore real BSS later (may need a splat change):
       #   - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }  plus  bss_size: 0x2D530 on main
+      # .sbss (statics, in file order), as typed sdata: each file's piece is its C file's .sbss.
       - [0x88958, sdata, 88958]
+      - { start: 0x88998, type: .sdata, name: scene, linker_section: .sbss }
+      - [0x889A0, sdata, 889A0]
+      - { start: 0x889BC, type: .sdata, name: code_8001F828, linker_section: .sbss }
+      - [0x88B54, sdata, 88B54]
+      - { start: 0x88D50, type: .sdata, name: code_80027678, linker_section: .sbss }
+      - [0x88D5C, sdata, 88D5C]
+      - { start: 0x88D60, type: .sdata, name: code_8002E7A8, linker_section: .sbss }
+      - [0x88E5C, sdata, 88E5C]
+      - { start: 0x88E60, type: .sdata, name: code_80037FB4, linker_section: .sbss }
+      - [0x88E9C, sdata, 88E9C]
+      - { start: 0x88ED0, type: .sdata, name: code_800456D8, linker_section: .sbss }
+      - [0x88ED8, sdata, 88ED8]
+      - { start: 0x88EE0, type: .sdata, name: moji, linker_section: .sbss }
+      - { start: 0x88EF8, type: .sdata, name: code_8005C258, linker_section: .sbss }
+      - { start: 0x88F00, type: .sdata, name: debug, linker_section: .sbss }
+      - { start: 0x88F08, type: .sdata, name: code_8006430C, linker_section: .sbss }
+      # The rest: PsyQ's small data, the pool of small common symbols (0x80098788-), then .bss.
+      - [0x88F30, sdata, 88F30]
 
   # Zeros after the BSS, plus one 0x04 at 0x800D8800 (the SHL overlay's load address).
   - name: tail

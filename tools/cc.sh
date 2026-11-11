@@ -23,9 +23,12 @@ fi
 # gets -G0: ASPSX addresses $gp only for symbols in the file's own .sdata/.sbss (maspsx, given
 # -G8, emits those as explicit %gp_rel), never for .extern symbols. GNU as with -G8 would also
 # use $gp for every small .extern, which ROCK_NEO's code does not do.
+# --use-comm-section: a tentative definition (`sint32 x;`, no `extern`) stays a common symbol, as
+# ASPSX left it for the linker's pool (0x80098788-); without it maspsx defines it locally in the
+# file's .sbss. The pool itself stays assembly, and its definition wins over the common.
 case "$target" in
     slus_006.03)  GFLAGS="-G0"; MASPSX_EXTRA="" ;;
-    rock_neo.exe) GFLAGS="-G8"; MASPSX_EXTRA="-G8" ;;
+    rock_neo.exe) GFLAGS="-G8"; MASPSX_EXTRA="-G8 --use-comm-section" ;;
     *)
         echo "usage: $0 <target> <in.c> <out.o>   (target: slus_006.03, rock_neo.exe)" >&2
         exit 2

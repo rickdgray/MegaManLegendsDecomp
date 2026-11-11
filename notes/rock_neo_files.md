@@ -86,6 +86,39 @@ objects: **185 `$gp` variables, 46 groups of functions** (functions sharing a va
 Counts are `$gp` variables. This is also the map for moving small data into C: each file defines
 its own rows.
 
+## Small data in C
+
+Done for every file in the table except `main`. The layout and what it rests on:
+
+- **Each file's piece runs from its first to its last `$gp` variable**, in `.sdata` and in the
+  ordered `.sbss`. The piece is defined at the top of the C file, and the yaml places it: `.sdata` as
+  `[off, .sdata, <file>]`, `.sbss` as `{ type: .sdata, linker_section: .sbss }` (loaded, so it stays
+  inside the BSS hack). The stretches between pieces stay assembly (`88064`, `88444`, ...), along with
+  everything after `0x80098730`.
+- **What a piece may hold.** Every `$gp` variable of its file, and nothing its own file reads
+  directly with `lui` + `%lo` (that would turn into `$gp`). Indexed reads (`lui`, `addu $at`) and
+  address-taking (`lui`/`addiu`) come out the same either way, so data used only that way may sit in
+  any piece or in assembly. Checked by script: every piece passes, and no piece holds a pointer.
+- **Types are placeholders**, from the access widths (`lw` → `sint32`, `lbu` → `uint8`, ...).
+  Retyping one is free as long as its size and alignment stay the same.
+  - `.sdata`: one initialized global per label.
+  - `.sbss`: `static`s. ASPSX 2.56 (maspsx `LcommAlignment.WORD`) aligns each `.lcomm` to 4 and pads
+    it to a multiple of 4, so objects start at 4-aligned addresses and are 4 or 8 bytes.
+- **Labels inside an object** (splat names every referenced address, e.g. `D_800981BE` =
+  `D_800981BC+2`) are kept for the assembly by a `.globl`/`.set` alias block at the end of the C
+  file. The same block makes global any static that `.data` tables or other files point to.
+- **The pool** (`0x80098788`–): small non-`static` uninitialized globals. ASPSX left them as commons,
+  for the linker to allocate, interleaved across files. They stay assembly. A C file whose code
+  reaches one through `$gp` writes a tentative definition (`sint32 D_80098A58[2];`, no `extern`).
+  `cc.sh` passes maspsx `--use-comm-section`, so that stays a common, and the assembly's definition
+  wins at link time. A common with an offset (`D_80098A58[1]`) is `lui`-based under 2.56, as in the
+  original (`0x80098B2D`, `moji`). Tested in the real build.
+- **`main` is left out (open):** its `.sdata` (`0x80097864`–`0x800979DC`) holds string literals of
+  9–28 bytes (`"%08x %08x %08x"`, the exception handler's) and a 24-byte object reached through
+  `$gp` (`D_80097864`). GCC 2.7 with `-G8` puts literals over 8 bytes in `.rdata`, so `main.c` was
+  compiled with a larger `-G` (32?). That needs a per-file flag. Until then, the `$gp` functions in
+  `main` (`D_80097864`, `D_800979D8`, `D_80098158`) can't match.
+
 ## Data order (`.data`, by pointer-linked units)
 
 Each file's `.data` is contiguous and in link order (calibrated on PsyQ above), so the data a

@@ -1,5 +1,28 @@
 #include "common.h"
 
+// Small data (.sdata 0x80098004-0x80098038): reached through $gp in this file.
+sint32 D_80098004 = 0;
+sint32 D_80098008 = 0;
+sint32 D_8009800C = 0;
+sint32 D_80098010 = 0;
+sint32 D_80098014 = 8;
+sint32 D_80098018 = 0x60;
+sint32 D_8009801C = 0;
+uint8 D_80098020  = 0;
+uint8 D_80098021  = 0;
+sint16 D_80098022 = 0x101;
+sint32 D_80098024 = 0x3030202;
+sint32 D_80098028 = 0x5050404;
+uint8 D_8009802C  = 0;
+uint8 D_8009802D  = 1;
+sint16 D_8009802E = 0x201;
+sint32 D_80098030 = 0x4030302;
+sint32 D_80098034 = 6;
+
+// Small uninitialized statics (.sbss 0x800986F8-0x80098700).
+static sint16 D_800986F8[2];
+static sint16 D_800986FC[2];
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C258);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C2B8);

@@ -7,7 +7,8 @@ There are two targets, and both rebuild byte-identical:
 - `slus_006.03`: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
   One C file, `src/slus_006.03/main.c`; every function is banked or parked.
 - `rock_neo.exe`: `ROCK_NEO.EXE`, the main game. Split into Capcom's source files (see
-  `notes/rock_neo_files.md`); the first one in C is `src/rock_neo.exe/cd.c`, the rest is assembly.
+  `notes/rock_neo_files.md`); every Capcom file is C (`src/rock_neo.exe/<file>.c`), with
+  `INCLUDE_ASM` stubs for the functions not yet decompiled. `asm_fastmem` stays assembly.
 
 Background, findings, and open questions live in `notes/` (start with `notes/README.md`; each
 executable has its own file: `notes/shim.md`, `notes/rock_neo.md`). **Search, don't read whole
@@ -150,9 +151,26 @@ with what remains different. decomp-permuter will handle these later.
   Equivalent to decomp.me's `PSYQ4.0` preset (gcc 2.7.2 + aspsx 2.56).
 - `slus_006.03`: `-G0`. `cc1` defaults to `-G 8`, so `-G0` must always be passed. The shim never
   addresses globals through `$gp`.
-- `rock_neo.exe`: `-G8` to `cc1` and maspsx, `-G0` to GNU `as`. `extern` globals of any size are
-  still addressed with `lui` + `%lo`; only small data *defined in the same file* would use `$gp`.
-  Details and evidence: `notes/toolchain.md`.
+- `rock_neo.exe`: `-G8` to `cc1`, `-G8 --use-comm-section` to maspsx, and `-G0` to GNU `as`.
+  `extern` globals of any size are still addressed with `lui` + `%lo`; only small data *defined in
+  the same file* uses `$gp`. Details and evidence: `notes/toolchain.md`.
+
+### Small data (`$gp`) in ROCK_NEO
+
+A function that reaches a variable through `$gp` (`%gp_rel(D_...)` in its assembly) needs that
+variable defined in its own C file. The layout is in `notes/rock_neo_files.md`, "Small data in C".
+
+- **`.sdata` and `.sbss` variables are already defined** at the top of their file (placeholder
+  types from the access widths). Use them, and retype them freely if the size and alignment stay
+  the same. Don't move, add or remove one: the layout is fixed by address.
+- **Pool variables (`0x80098788`–`0x80098B6F`)** stay in assembly. Write a tentative definition in
+  the file whose code uses `$gp` on it (`sint32 D_80098A58[2];`, no `extern`, no initializer), and
+  `extern` everywhere else.
+- **The alias block at the end of the file** (`.globl`/`.set`) keeps splat's labels inside those
+  objects working for the assembly. When you replace the last `INCLUDE_ASM` that names a label,
+  drop its line. Keep the lines for statics that `.data` tables point to.
+- **`main`'s small data is still assembly** (it needs a larger `-G`). Park `main` functions that
+  use `$gp`.
 
 ## Writing C for this compiler
 

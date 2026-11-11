@@ -47,8 +47,9 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
 - **Every Capcom file is C** (`src/rock_neo.exe/<file>.c`), with an `INCLUDE_ASM` stub per function
   not yet decompiled (1,040). splat wrote the stubs, and wrote the 35 empty functions (`jr ra; nop`) as
   C itself. Unmigrated rodata uses `INCLUDE_RODATA` (`scene.c`: the path strings `D_800102B0`).
-  **Open:** small data still lives in `88064.sdata.s`/`88958.sdata.s`, so functions that reach their
-  file's own small variables through `$gp` (rock_neo_files.md, "Small data ownership") can't match yet.
+  Each file's small data (`.sdata`, `.sbss`) is defined at the top of its C file, so its `$gp`
+  accesses come out right; small commons use tentative definitions (rock_neo_files.md, "Small data
+  in C"). **Open:** `main`'s small data stays assembly (it needs a larger `-G`).
 - **The tail's one byte:** `0x04` at `0x800D8800`, the SHL overlay's load address, at the start of
   the file's last sector. **Suspected:** connected to why the BSS is in the file (a link that laid
   out overlay/heap regions after BSS); check the SHL overlay's first byte.

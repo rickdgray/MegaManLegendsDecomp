@@ -1,5 +1,8 @@
 #include "common.h"
 
+// Small uninitialized statics (.sbss 0x80098198-0x800981A0).
+static uint8 D_80098198[8];
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001D854);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001D878);
@@ -95,3 +98,9 @@ void func_8001F820(void)
 }
 
 INCLUDE_RODATA("asm/rock_neo.exe/nonmatchings/scene", D_800102B0);
+
+// For the code and data still in assembly: splat's labels inside the statics above (aliases),
+// and statics that .data tables or other files point to (made global). Drop each once no
+// assembly names it.
+__asm__(".text\n"
+        ".globl D_80098199\n.set D_80098199, D_80098198+1\n");

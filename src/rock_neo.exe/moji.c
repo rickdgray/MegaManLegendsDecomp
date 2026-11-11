@@ -1,5 +1,12 @@
 #include "common.h"
 
+// Small uninitialized statics (.sbss 0x800986E0-0x800986F8).
+static uint8 D_800986E0[4];
+static uint8 D_800986E4[4];
+static uint8 D_800986E8[4];
+static uint8 D_800986EC[4];
+static sint32 D_800986F0[2];
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80053788);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", MojiTaskExec);
