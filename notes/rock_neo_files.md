@@ -2,8 +2,10 @@
 
 Proposed split of the two Capcom code ranges (`2490`: `0x80011C90`-`0x80067FF7`, `588BC`:
 `0x800680BC`-`0x80069037`) into Capcom's original source files. **Mostly suspected, not verified.**
-The split is applied in `rock_neo.exe.yaml` (one subsegment per row, all `asm` except `cd`, which is
-C); a row's low/medium mark is a comment on its yaml line. File offset = address - `0x8000F800`.
+The split is applied in `rock_neo.exe.yaml` (one subsegment per row; every file is `c`, with `INCLUDE_ASM`
+stubs for what isn't decompiled yet, except the hand-written `asm_fastmem`); a row's confidence is the
+first word of the comment on its yaml line. Each file's rodata is assigned to it too (`.rodata` rows,
+split where the owning file changes: `0x870`, `0x19E4`, `0x1A4C`, `0x1CA0`). File offset = address - `0x8000F800`.
 
 **Bottom line:** 29 files in the yaml (30 proposed; row 27 merged into 26, confirmed by Capcom's source;
 row 14 moved to `0x80037534`): 1 confirmed (`cd`), 3 high, 9 medium, 16 low confidence; `sub_scrn`'s end and
