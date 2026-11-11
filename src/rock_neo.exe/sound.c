@@ -252,10 +252,10 @@ void Sound_init(void)
     SsInit();
     SsSetTableSize(D_800C1010, 4, 4);
     SsSetTickMode(SS_TICK60);
-    Sound_call_ptr            = Sound_call_queue;
+    Sound_call_ptr        = Sound_call_queue;
     Sound_work.unk08      = 0x40;
     Sound_work.unk0A      = 0x64;
-    Sound_fade_step_size            = 4;
+    Sound_fade_step_size  = 4;
     Sound_work.unk04      = SS_VOL_MAX;
     Sound_work.serial_vol = SS_VOL_MAX;
     Sound_work.unk12      = SS_VOL_MAX;
@@ -278,8 +278,8 @@ void Sound_init(void)
     }
     for (i = 0; i < 4; i++)
     {
-        Sound_seq_chan_tbl[i].unk2   = -1;
-        Sound_seq_tbl[i].num = 0xFF;
+        Sound_seq_chan_tbl[i].unk2 = -1;
+        Sound_seq_tbl[i].num       = 0xFF;
     }
     p_Player_work = &Player_work;
     env.mask      = SPU_ENV_EVENT_QUEUEING;
@@ -519,12 +519,12 @@ void key_on_tone(uint16 vab_id, SOUND_CALL_INFO *info, VagAtr *tone, SOUND_CALL 
 
     voice = info->unk3 & 0x1F;
     calc_vol(call, tone->vol, &attr.volume.left, &attr.volume.right, Game_work.unk1E0[voice]);
-    attr.voice        = 1 << voice;
-    attr.mask         = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_PITCH | SPU_VOICE_WDSA | SPU_VOICE_ADSR_ADSR1 | SPU_VOICE_ADSR_ADSR2;
-    attr.addr         = SsUtGetVagAddr(vab_id, tone->vag);
-    attr.pitch        = pitch_interp(tone->min - tone->center, tone->shift);
-    attr.adsr1        = tone->adsr1;
-    attr.adsr2        = tone->adsr2;
+    attr.voice = 1 << voice;
+    attr.mask  = SPU_VOICE_VOLL | SPU_VOICE_VOLR | SPU_VOICE_PITCH | SPU_VOICE_WDSA | SPU_VOICE_ADSR_ADSR1 | SPU_VOICE_ADSR_ADSR2;
+    attr.addr  = SsUtGetVagAddr(vab_id, tone->vag);
+    attr.pitch = pitch_interp(tone->min - tone->center, tone->shift);
+    attr.adsr1 = tone->adsr1;
+    attr.adsr2 = tone->adsr2;
     Sound_voice_priority[voice] = info->unk2 & 0xF;
     SpuSetKeyOnWithAttr(&attr);
 }

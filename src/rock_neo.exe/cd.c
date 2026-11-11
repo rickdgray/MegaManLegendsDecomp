@@ -270,14 +270,12 @@ void cd_cmd_xa_play(void)
     }
 }
 
-#ifdef NON_MATCHING
 void cd_cmd_read_comb(void)
 {
     CD_COMB_HEAD *head;
     RECT *rect;
-    uint8 *buf;
+    uint8 *p;
     uint8 *src;
-    uint8 *dst;
     uint32 row;
     uint32 bit;
     uint32 row2;
@@ -335,11 +333,11 @@ void cd_cmd_read_comb(void)
                 {
                     case 0:
                         // a header sector: start an entry
-                        // buf and head are the same sector: the original reads the first
+                        // p and head are the same sector: the original reads the first
                         // three words and the data through one pointer, the arguments
-                        // through another (head lives across calls, buf doesn't)
-                        buf          = Cd_ring_buf[Cd_ring_read];
-                        Cd_comb_type = ((CD_COMB_HEAD *)buf)->type;
+                        // through another (head lives across calls, p doesn't)
+                        p            = Cd_ring_buf[Cd_ring_read];
+                        Cd_comb_type = ((CD_COMB_HEAD *)p)->type;
 
                         if (Cd_comb_type == CD_COMB_END)
                         {
@@ -347,9 +345,9 @@ void cd_cmd_read_comb(void)
                             return;
                         }
 
-                        Cd_comb_work.size  = ((CD_COMB_HEAD *)buf)->size;
-                        Cd_comb_work.count = ((CD_COMB_HEAD *)buf)->count;
-                        head               = (CD_COMB_HEAD *)buf;
+                        Cd_comb_work.size  = ((CD_COMB_HEAD *)p)->size;
+                        Cd_comb_work.count = ((CD_COMB_HEAD *)p)->count;
+                        head               = (CD_COMB_HEAD *)p;
 
                         switch (Cd_comb_type)
                         {
@@ -378,8 +376,8 @@ void cd_cmd_read_comb(void)
                                         CLUT_BUF_ROW(row, head->arg[1]);
 
                                         Mem_copy16(
-                                            ((CD_COMB_HEAD *)buf)->data, &Clut_buf[head->arg[0] + (row * CLUT_BUF_COLS)],
-                                            // CLUT's size in Mem_copy16 blocks (width × height halfwords, at 2 bytes each, in 16-byte blocks)
+                                            ((CD_COMB_HEAD *)p)->data, &Clut_buf[head->arg[0] + (row * CLUT_BUF_COLS)],
+                                            // CLUT's size in Mem_copy16 blocks (width x height halfwords, at 2 bytes each, in 16-byte blocks)
                                             head->arg[3] * head->arg[2] / 16 * 2);
 
                                         CLUT_BUF_ROW(bit, head->arg[1]);
@@ -391,7 +389,7 @@ void cd_cmd_read_comb(void)
                                         rect->y = head->arg[1];
                                         rect->w = head->arg[2];
                                         rect->h = head->arg[3];
-                                        LoadImage(rect, ((CD_COMB_HEAD *)buf)->data);
+                                        LoadImage(rect, ((CD_COMB_HEAD *)p)->data);
                                     }
                                 }
 
@@ -420,8 +418,8 @@ void cd_cmd_read_comb(void)
                                     CLUT_BUF_ROW(row2, head->arg[1]);
 
                                     Mem_copy16(
-                                        ((CD_COMB_HEAD *)buf)->data, &Clut_buf[head->arg[0] + (row2 * CLUT_BUF_COLS)],
-                                        // CLUT's size in Mem_copy16 blocks (width × height halfwords, at 2 bytes each, in 16-byte blocks)
+                                        ((CD_COMB_HEAD *)p)->data, &Clut_buf[head->arg[0] + (row2 * CLUT_BUF_COLS)],
+                                        // CLUT's size in Mem_copy16 blocks (width x height halfwords, at 2 bytes each, in 16-byte blocks)
                                         head->arg[3] * head->arg[2] / 16 * 2);
 
                                     CLUT_BUF_ROW(bit2, head->arg[1]);
@@ -444,7 +442,7 @@ void cd_cmd_read_comb(void)
                                         rect->w = CD_COMB_IMAGE3_W;
                                     }
 
-                                    LoadImage(rect, ((CD_COMB_HEAD *)buf)->data);
+                                    LoadImage(rect, ((CD_COMB_HEAD *)p)->data);
                                 }
 
                                 // Image entries are a single sector with no data sectors, so
@@ -461,7 +459,6 @@ void cd_cmd_read_comb(void)
                                 Cd_comb_work.u.vab.dest      = VAB_HEAD_BUF + head->arg[0] * VAB_HEAD_SIZE;
                                 Cd_comb_work.u.vab.load      = 1;
 
-                                // VAB slot 4: kept loaded between files (purpose to be named)
                                 if (head->arg[0] == 4)
                                 {
                                     if (Game_work.vab[4].num == head->arg[1])
@@ -529,11 +526,11 @@ void cd_cmd_read_comb(void)
                         else
                         {
                             src = Cd_ring_buf[Cd_ring_read];
-                            dst = Cd_comb_work.u.data.dest;
+                            p   = Cd_comb_work.u.data.dest;
 
                             while (Cd_comb_work.size != 0)
                             {
-                                *dst++ = *src++;
+                                *p++ = *src++;
                                 Cd_comb_work.size--;
                             }
                         }
@@ -630,11 +627,11 @@ void cd_cmd_read_comb(void)
                             if (Cd_comb_work.u.sound.load)
                             {
                                 src = Cd_ring_buf[Cd_ring_read];
-                                dst = Cd_comb_work.u.sound.dest;
+                                p   = Cd_comb_work.u.sound.dest;
 
                                 while (Cd_comb_work.size != 0)
                                 {
-                                    *dst++ = *src++;
+                                    *p++ = *src++;
                                     Cd_comb_work.size--;
                                 }
                             }
@@ -659,11 +656,11 @@ void cd_cmd_read_comb(void)
                             if (Cd_comb_work.u.sound2.load)
                             {
                                 src = Cd_ring_buf[Cd_ring_read];
-                                dst = Cd_comb_work.u.sound2.dest;
+                                p   = Cd_comb_work.u.sound2.dest;
 
                                 while (Cd_comb_work.size != 0)
                                 {
-                                    *dst++ = *src++;
+                                    *p++ = *src++;
                                     Cd_comb_work.size--;
                                 }
                             }
@@ -687,9 +684,6 @@ void cd_cmd_read_comb(void)
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", cd_cmd_read_comb);
-#endif
 
 void Cd_seek_sync_cb(u_char status, u_char *result)
 {

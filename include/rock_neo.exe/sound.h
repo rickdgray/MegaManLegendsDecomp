@@ -97,13 +97,13 @@ extern SOUND_DATA Sound_seq_tbl[5];
 extern uint8 Sound_reverb_tbl[][4]; // reverb entries (3 bytes + pad) selected by func_80019F94
 extern SOUND_FUNC Sound_stage_func_tbl[];
 extern SOUND_SEQ_CHAN Sound_seq_chan_tbl[];
-extern SOUND_CALL *Sound_call_ptr;                // next free sound call entry
+extern SOUND_CALL *Sound_call_ptr;                  // next free sound call entry
 extern SOUND_CALL Sound_call_queue[SOUND_CALL_MAX]; // the queue; Sound_call_ptr points into it
-extern sint32 Sound_pitch_tbl_up[12];                 // pitch_scale: scale table, positive exponents
-extern sint32 Sound_pitch_tbl_down[12];                 // pitch_scale: scale table, negative exponents
-extern uint8 Sound_fade_step_size;                      // step used by fade_step
-extern uint16 *Sound_stage_id_tbl[];                  // per-stage sound call id lists, indexed by Game_work.unk051
-extern SOUND_CALL_INFO Sound_call_info_tbl[];          // per-call-id info, indexed by SOUND_CALL.id
+extern sint32 Sound_pitch_tbl_up[12];               // pitch_scale: scale table, positive exponents
+extern sint32 Sound_pitch_tbl_down[12];             // pitch_scale: scale table, negative exponents
+extern uint8 Sound_fade_step_size;                  // step used by fade_step
+extern uint16 *Sound_stage_id_tbl[];                // per-stage sound call id lists, indexed by Game_work.unk051
+extern SOUND_CALL_INFO Sound_call_info_tbl[];       // per-call-id info, indexed by SOUND_CALL.id
 extern SOUND_CALL_FUNC Sound_call_func_tbl[3];
 extern uint8 Sound_voice_priority[24]; // per-voice priority of the sound playing (low nibble of SOUND_CALL_INFO.unk2)
 extern uint16 Sound_stage_slot_tbl[];  // Sound_stage_slot_set: per-stage sound ids
@@ -120,8 +120,8 @@ extern sint16 D_8008229C[6];
 extern sint16 D_800822A8[5];
 extern uint16 D_800822F2;
 extern uint16 D_800822F4;
-extern uint8 D_800C356E;     // like Game_work.unk050; stage whose sound is loaded?
-extern uint8 D_800C356F;     // like Game_work.unk051
+extern uint8 D_800C356E;  // like Game_work.unk050; stage whose sound is loaded?
+extern uint8 D_800C356F;  // like Game_work.unk051
 extern char D_800C1010[]; // SsSetTableSize work area
 extern uint8 D_80098788;
 
@@ -139,7 +139,7 @@ sint32 pitch_scale(sint32 x);
 sint32 Sound_seq_is_eos(sint32 idx);
 
 // Unknown
-void func_8001D854(sint32 arg); // not sound code; called with 0x10 when the stage's sound list changes
+void func_8001D854(sint32 arg);                                 // not sound code; called with 0x10 when the stage's sound list changes
 sint32 func_8001E83C(sint16 x, sint16 z, sint16 dx, sint16 dz); // not sound code; angle to a point
 
 #endif // SOUND_H
