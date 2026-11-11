@@ -74,8 +74,8 @@ archive, type 0, named `progbin\r3_*.bin`. No other chunk type contains a `jr ra
   equals the stage + SUPPORT/ARM total in "Code inventory" (8,708 + 134), so the earlier
   deduplication was right. Overlays have no BIOS stubs and GCC 2.7 does no tail calls, so this is
   close to the real overlay function count, before function-level duplicates.
-- **Near-duplicate candidates** (not yet compared): `ST0C`/`ST0D` (both 219 `jr ra`, sizes
-  `0x129C0`/`0x124F0`) and `ST11`/`ST12` (both 162, `0xE284`/`0xE57C`).
+- **Not near-copies:** `ST0C`/`ST0D` and `ST11`/`ST12` (equal `jr ra` counts) share only a
+  quarter to a third of their functions; see [overlays.md](overlays.md), "Duplicates".
 - `ST1E` (103 `jr ra`, `0x9918` bytes) is the overlay whose source is on TCRF.
 
 | Archive | Chunk | Load | Size | `jr ra` | Same as |

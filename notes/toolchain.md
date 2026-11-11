@@ -125,6 +125,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/find_dupes.py --names FILE` | Proposes SRC's names for DST's still-default symbols (functions, globals, callees), as `rename.py` batch lines |
 | `tools/find_dupes.py --map FILE` | Every SRC → DST symbol correspondence, unnamed ones included (`Cd_muted -> D_800988EA`); for porting C between the programs |
 | `tools/extract_overlays.py [--tsv FILE]` | Writes each `CDDATA/DAT/*.BIN` archive's code chunk to `disc/overlays/<ARCHIVE>.BIN` and lists load address, size, `jr ra` count, SHA-1 and identical groups ([disc.md](disc.md), "Code overlays"). Not per-target |
+| `tools/dupe_scan.py [--tsv FILE] [--runs] [--list N]` | Duplicate functions across both executables and every overlay (splits the overlays into functions itself): exact and shape groups, savings in functions and bytes, runs shared between programs; `--tsv` writes one row per function ([overlays.md](overlays.md)). Build both targets and run `extract_overlays.py` first |
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
 | `tools/batch_run.py <t> <file.c>` | Unattended decompilation batches; see [agents.md](agents.md) |
 

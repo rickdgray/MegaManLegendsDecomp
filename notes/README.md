@@ -9,6 +9,7 @@ what is known **now**, organized by topic. The discovery history lives in git.
 | [toolchain.md](toolchain.md) | Compiler and flags (with evidence, including ROCK_NEO's `-G8`), build pipeline, splat configuration, symbol registry, tools, gotchas |
 | [shim.md](shim.md) | `SLUS_006.03`, the boot shim: layout, subsystems, function status, open questions |
 | [rock_neo.md](rock_neo.md) | `ROCK_NEO.EXE`, the main game: layout, code shared with the shim, sound, threads, the CD module, function status, to-dos |
+| [overlays.md](overlays.md) | The code overlays (`ST*`, `ARM*R`, `SUPPORT`): layout, splitting into functions, duplicates across the whole game, shared source files |
 | [rock_neo_files.md](rock_neo_files.md) | `ROCK_NEO.EXE`'s split into Capcom's source files: evidence and confidence per file |
 | [agents.md](agents.md) | Working with Claude Code: model tiers, measured costs, the batch runner, session hygiene, review checklist |
 | `sdk/` | Sony's PsyQ SDK documentation (PDFs: library reference, file formats, hardware). Gitignored, local copy only |
