@@ -71,3 +71,51 @@ Results (2026-11-10; empty `jr ra; nop` functions, 363 of them, left out):
   `jr ra` counts were a coincidence.
 - The shim's addresses mean nothing elsewhere, so here a shim function only matches when it
   uses no addresses; `find_dupes.py` covers shim ↔ ROCK_NEO with relocations.
+
+## Source files
+
+Boundaries inside the overlays, from two kinds of evidence. `tools/overlay_files.py` computes the
+split (method in its docstring) and `functions.csv` carries it (Program, File, Confidence). With the
+current thresholds: 344 shared segments, 263 regions without evidence, 2 files from source.
+
+### Confirmed by Capcom's source (TCRF)
+
+The source fragments on TCRF (from the Japanese `ST1E.BIN`, where they are leftover text, not
+code) are compiled into US overlays:
+
+- **`eve19.c` = `ST1A` `0x8012B8E4`–`0x8012C2EC`**, both edges. Found by its `eve19_main_tbl`
+  (`0x801396CC`: 10 pointers in the source's pattern A B C D D E F D D G) and `eve19_move_tbl`
+  just before it (`eve19_main` `0x8012B920`, `eve19_end` `0x8012B95C`). The file's 12 functions, in
+  source order, are exactly the 12 there: `StXX_eve19_move` `0x8012B8E4`, `eve19_main`, `eve19_end`,
+  `eve19_main_area_00`/`01`/`02`/`05`/`06`/`09` (`0x8012B97C` ... `0x8012C03C`), `eve19_main_dummy`
+  `0x8012C1B4`, `check_block` `0x8012C1C0`, `check_swing_camera` `0x8012C228`.
+- **`EM09_49.C` ends at `ST1E` `0x80101AF0`.** Its last functions, by size and calls:
+  `StXX_em26_49_move` `0x80101554`, `StXX_em2d_49_move` `0x80101600`, `StXX_em34_49_move` `0x801016EC`,
+  `StXX_em38_49_move` `0x80101798`, `StXX_em5c_49_move` `0x80101844` (each calls `Model_Shadow_Trans` `0x8002C8CC` with
+  `50, 683`), `StXX_set_shl38` `0x80101930` (calls `0x80031518`, so that is `Open_SHL_WORK`),
+  `StXX_shl38_move` `0x801019C0` (calls `0x8002F9C4` = `Model_work_init`, `rsin`, `rcos`,
+  `ScaleMatrix`, as in the source). Its start is before `0x80101350` (the fragment starts mid-file).
+- **Confirmed: `Model_Shadow_Trans` is `0x8002C8CC`** (fixed in the registry, which had it at
+  `0x8002C794`). The source calls `Model_Shadow_Trans(wk_p, 50, 683, 0)`, and in `ST1E` those calls go to
+  `0x8002C8CC`; overlays call it 268 times. `func_8002C794`, a sibling with the same prologue, is
+  called once, from ROCK_NEO, and never from an overlay.
+- The 0x3C-byte shape found in 35 programs is the `StXX_*_move` dispatcher
+  (`tbl[wp->routine_0](wp)`), one per event or enemy object. Not one per file: `EM09_49.C` has five.
+
+### Common files (shared between overlays)
+
+For each overlay function: the set of other overlays holding its shape (`dupe_scan.py`'s shape key),
+with generic shapes (in more than 20 programs, such as the dispatcher) neutral. Each overlay is cut
+where that set changes; segments with the same member set are one common file, and it should
+appear once in each member, with about the same size.
+
+- **58 common files** of 3+ functions and 0x200+ bytes, each in 2–18 overlays, cover **51% of all
+  overlay code** (`0xFEA5C` of `0x1F225C` bytes). Their edges are file boundaries (or a run of files
+  always linked together).
+- The largest: 66–67 functions, `0x29D4`–`0x2A10` bytes, in 18 stages (`ST03` `0x80107BC0`–`0x8010A594`;
+  `ST03`–`ST06`, `ST08`, `ST0A`–`ST0D`, `ST0F`, `ST10`–`ST13`, `ST19`, `ST1A`–`ST1C`). It holds about a
+  dozen dispatchers, so it is probably a group of small object files (`StXX_*`) always linked together.
+- The other 49% is code found in one overlay only, where this method sees no boundaries.
+- **Not evidence:** identical non-trivial functions within one overlay (585 functions in 28
+  overlays). The largest pairs are neighbours (`ST09` `0x80113F64`/`0x8011417C`), copy-paste inside
+  one file, not a static helper per file.

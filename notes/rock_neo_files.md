@@ -5,7 +5,9 @@ Proposed split of the two Capcom code ranges (`2490`: `0x80011C90`-`0x80067FF7`,
 The split is applied in `rock_neo.exe.yaml` (one subsegment per row, all `asm` except `cd`, which is
 C); a row's low/medium mark is a comment on its yaml line. File offset = address - `0x8000F800`.
 
-**Bottom line:** 30 proposed files: 1 confirmed (`cd`), 3 high, 9 medium, 17 low confidence. Certain: the range start,
+**Bottom line:** 29 files in the yaml (30 proposed; row 27 merged into 26, confirmed by Capcom's source;
+row 14 moved to `0x80037534`): 1 confirmed (`cd`), 3 high, 9 medium, 16 low confidence; `sub_scrn`'s end and
+`debug`'s start confirmed. Certain: the range start,
 both sides of `2MBYTE.OBJ` (`0x80067FF8`/`0x800680BC`) and the end at `ADDDF3`. 12 starts rest on a single piece of
 evidence: 11 of the 17 low rows and row 5 (see the "Single" column). Read each start as "a boundary lies in
 this window"; the table gives a best guess inside it.
@@ -33,6 +35,88 @@ per-object data from the relocations of the built objects (variables only one ob
 - **Small data starts at `gp`**, not `gp` − `0x8000` ([rock_neo.md](rock_neo.md)): `.sdata`
   `0x80097864`–`0x80098157`, `.sbss` from `0x80098158`. PsyQ never uses `$gp`, so the `$gp` rule
   (small data defined in the same file) can only be checked on Capcom code (step 2).
+
+## Small data ownership (`$gp`)
+
+Under ASPSX's `-G8`, a file reaches its own small variables through `$gp`, so every function with a
+`$gp` access to a variable is in the file that defines it. From the relocations of the built
+objects: **185 `$gp` variables, 46 groups of functions** (functions sharing a variable merged).
+
+- **Confirmed: no group crosses a yaml file boundary.** The current split never separates two
+  functions that share a `$gp` variable.
+- **Confirmed: `.sdata` (`0x80097864`–`0x80098157`) is in file order**: `main` `0x80097864`,
+  `code_8001F828` `0x80097C3C`, `code_8002E7A8` `0x80097CFC`, `code_80037534` `0x80097D24`,
+  `code_80037FB4` `0x80097D28`, `code_80043F34` `0x80097DE4`, `code_8005C258` `0x80098004`,
+  `code_8006430C` `0x8009808C`. No inversions.
+- **Confirmed: `.sbss` is in file order from `0x80098158` to `0x80098728`**, then a pool from about
+  `0x8009878C` to `0x80098B6C` where files alternate (`moji`, `code_8005C258`, `code_8006430C`, `main`
+  ...): presumably small non-`static` uninitialized globals, allocated like `.bss`'s pool.
+- **One inversion, row 14:** in the ordered `.sbss`, `func_80037440`'s variables
+  (`0x8009856C`–`0x80098578`) sit inside `code_8002E7A8`'s (`0x80098560`–`0x80098568`,
+  `0x8009857C`–`0x80098654`), and its `.data` variable `0x800899E0` sits between `code_8002E7A8`'s
+  (`0x800899AC`, `0x80089A8B`). Every other file's variables are contiguous, so `func_80037440` is
+  in the same file as `0x80033EBC`–`0x80036D40`, and row 14's start is wrong.
+- **`lui` + `%lo` on a `$gp` variable means another file only for direct loads and stores.**
+  Taking the address (`lui`/`addiu`, e.g. `Map_screen_work` in `Map_screen_task`) and indexing a
+  small array (`lui`, `addu $at, $at, ...`, load `%lo`: `D_8009856C` in `func_80037440`) use `lui` in
+  the defining file too. The 42 direct `lui` accesses from other functions are all in other yaml
+  files, but each is far from the owner, so none narrows a boundary.
+
+| File | `.sdata` | Ordered `.sbss` | Pool (`.sbss`) |
+|---|---|---|---|
+| `main` | `0x80097864`–`0x800979D8` (2) | `0x80098158` (1) | 3 |
+| `scene` | | `0x80098198`–`0x80098199` (2) | |
+| `code_8001F828` | `0x80097C3C`–`0x80097C40` (2) | `0x800981BC`–`0x8009834C` (32) | 2 |
+| `code_80027678` | | `0x80098550`–`0x80098554` (2) | |
+| `code_8002E7A8` (with `func_80037440`) | `0x80097CFC`–`0x80097D08` (4) | `0x80098560`–`0x80098654` (34) | 1 |
+| `code_80037534` | `0x80097D24` (1) | | |
+| `code_80037FB4` | `0x80097D28`–`0x80097D70` (14) | `0x80098660`–`0x80098698` (15) | |
+| `code_8003A3B4` | | | 3 |
+| `code_80043F34` | `0x80097DE4`–`0x80097DEC` (3) | | |
+| `code_800456D8` | | `0x800986D0` (1) | |
+| `code_80048620` | | | 1 |
+| `moji` | | `0x800986E0`–`0x800986F0` (5) | 18 |
+| `code_8005C258` | `0x80098004`–`0x80098034` (8) | `0x800986F8`–`0x800986FC` (2) | 5 |
+| `map_screen` | | | 1 |
+| `debug` | | `0x80098700` (1) | |
+| `code_8006430C` | `0x8009808C`–`0x8009809A` (6) | `0x80098708`–`0x80098728` (9) | 7 |
+
+Counts are `$gp` variables. This is also the map for moving small data into C: each file defines
+its own rows.
+
+## Data order (`.data`, by pointer-linked units)
+
+Each file's `.data` is contiguous and in link order (calibrated on PsyQ above), so the data a
+file's code uses should sit between its neighbours' data. Units: data symbols joined by
+data-to-data pointers (a table and the strings or sub-tables it points to), attributed to a file
+when all their code users are in that file (326 units; 9 used from several files). For each pair
+of adjacent yaml files: the fewest units that must be misplaced for the two to separate at one
+address.
+
+- **Rows 1–23 (`main` ... `code_80048620`) are in order.** Most adjacent pairs separate cleanly; the
+  rest have 1–3 strays each: `game`'s `0x80089820`–`0x80089858` (after `scene`'s), the byte variables
+  `0x80089A84`–`0x80089A8C` (used by `player`, `code_800425FC`, `code_8002E7A8`, `code_8005C258`), one
+  `moji` variable at `0x8008A91C`, one `code_80043F34` variable at `0x8008A358`, and `code_8001786C`'s
+  `0x8008F168`. These read as globals defined in one file and used by another, not as boundary errors;
+  no stray pins a boundary.
+- **Row 14** fails again (`func_80037440`'s `0x800899E0` among `code_8002E7A8`'s); see the
+  small-data section.
+- **Rows 24–29 (`moji` ... `code_8006430C`) interleave**, for two identified reasons:
+  - **Shared message data.** Pointer tables of `moji` and of `code_8006430C`'s code point to the same
+    encoded text (`D_8008AF90` from both `D_8008CAD4` and `D_8008CAD8`), and `code_8006430C`'s
+    `0x8008CAD8`–`0x8008D198` tables sit among `moji`'s data. **Suspected:** `moji.c` defines them and the
+    later code uses them as `extern`. With them counted as `moji`'s, the order is `moji`
+    (`0x8008AAC0`–`0x8008D198`), `code_8005C258` (`0x8008D19C`–`0x8008D7C8`), `sub_scrn` (`0x8008D7E8`–
+    `0x8008DBB0`, `map_screen` included), `debug` (`0x8008DBD4`–`0x8008ECE0`), `code_8006430C`
+    (`0x8008EDC4`–`0x8008FD20`), `code_800680BC` (`0x8008FF88`–): every boundary consistent.
+  - **A tail of small tables** at `0x8008FD3C`–`0x8008FF64`, after `code_8006430C`'s data, used by
+    `moji` (`0x80056D10`–`0x80057574`), `sub_scrn` (`Rock_buster_parts_tbl`) and `code_8006430C`.
+    `sub_scrn.c`'s own source declares such tables `extern`, and these are in `.data` though as
+    small as 4 bytes: a `-G8` C file defining them would put them in `.sdata` and use `$gp`.
+    **Suspected:** one file (or assembly) defines them, linked last before `2MBYTE.OBJ`.
+- **Confirmed (Capcom's source): `map_screen` (row 27) is the end of `sub_scrn.c`**, which ends at
+  `0x800629E0` with `map_cursor_set`. The data test flagged this pair (all 4 of `map_screen`'s units
+  inside `sub_scrn`'s), which supports the method.
 
 ## What the evidence showed
 
@@ -94,10 +178,10 @@ piece of evidence.
 | 8 | `0x8001B3E4` | `0xBBE4` | `0x8001D854` | 0x2470 | `cd` | **confirmed** | no | ChrisNonyminus `cd` 0xBBE4; `Cd_init` calls `CdInit` and is called only by init; `Cd_read_comb`, `Cd_read_sync2`; the shim's CD module ([rock_neo.md](rock_neo.md), "Shared code") spans it. In C (`src/rock_neo.exe/cd.c`) and matching, with its rodata at `0xA44`–`0xAAF` (`cd_cmd_read_comb`'s three jump tables, inside block `9E4`). |
 | 9 | `0x8001D854` | `0xE054` | `0x8001F828` | 0x1FD4 | `scene` | medium | no | ChrisNonyminus `scene` 0xE054; `Sce_flag_test/on/off` at 0x8001DA58..; the stage-file path strings at the end of rodata block `9E4` are reached through the `.data` table `D_800893BC`, used by `func_8001F23C`/`_3C8`/`_6C4` (this file). |
 | 10 | `0x8001F828` | `0x10028` | `0x80027678` | 0x7E50 | `code_8001F828` | low | yes | Rodata block `10C0` (5 jump-table functions, first user `func_8001F8DC`) starts a new file; window 0x8001F6C4..0x8001F8DC, all gaps cost 0. The 8-byte empty `func_8001F820` is guessed to end the previous file. `.sdata` 0x80097C3C..0x80097C90 run suggests the file extends to ~0x80027678, possibly several files (see split candidates). |
-| 11 | `0x80027678` | `0x17E78` | `0x8002D9A0` | 0x6328 | `code_80027678` | low | yes | Atom edge only: gap cost 0 and `.data` 0x800898D0..0x80089938 first used inside it. Contains `Model_Shadow_Trans` (0x8002C794); `Model_` prefix suggests a model file. |
+| 11 | `0x80027678` | `0x17E78` | `0x8002D9A0` | 0x6328 | `code_80027678` | low | yes | Atom edge only: gap cost 0 and `.data` 0x800898D0..0x80089938 first used inside it. Contains `Model_Shadow_Trans` (0x8002C8CC); `Model_` prefix suggests a model file. |
 | 12 | `0x8002D9A0` | `0x1E1A0` | `0x8002E7A8` | 0xE08 | `code_8002D9A0` | low | yes | Atom edge only: gap cost 0; first user of `.sdata` 0x80097CD4; a run of small cost-0 functions up to 0x8002E7A8. |
-| 13 | `0x8002E7A8` | `0x1EFA8` | `0x80037440` | 0x8C98 | `code_8002E7A8` | low | yes | Rodata block `1294` (3 jump-table functions at 0x800320B8..0x800329D4) is inside; names `Obj_work_flag_change`, `Close_EVE_WORK` (an `Obj_`/`EVE` file). Both ends are atom edges only; likely several files. |
-| 14 | `0x80037440` | `0x27C40` | `0x80037FB4` | 0xB74 | `code_80037440` | low | yes | Atom edge + new `.data` cluster (0x800899E0, 0x80089EAC table used by six tiny 0x30-byte functions). No rodata. |
+| 13 | `0x8002E7A8` | `0x1EFA8` | `0x80037534` | 0x8D8C | `code_8002E7A8` | low | yes | Rodata block `1294` (3 jump-table functions at 0x800320B8..0x800329D4) is inside; names `Obj_work_flag_change`, `Close_EVE_WORK` (an `Obj_`/`EVE` file). Both ends are atom edges only; likely several files. |
+| 14 | `0x80037534` | `0x27D34` | `0x80037FB4` | 0xA80 | `code_80037534` | low | yes | **Start moved** from `0x80037440`: `func_80037440` is in row 13's file, by both its `.sbss` and its `.data` (`0x800899E0`, the cluster this row was first based on; see "Small data ownership"). `0x80037534` is the earliest possible start; the boundary lies in `0x80037534`–`0x80037FB4`, or the row merges into 13. Left: the `0x80089EAC` table used by six tiny 0x30-byte functions. No rodata. |
 | 15 | `0x80037FB4` | `0x287B4` | `0x8003A3B4` | 0x2400 | `code_80037FB4` | low | no | Rodata block `1330` (users `func_80038894`, `_80039A60`) + `.sdata` 0x80097D28..0x80097D70 cluster (`func_80038648`..); contains `Swing_Camera2` (0x800398F8), so possibly a camera file. |
 | 16 | `0x8003A3B4` | `0x2ABB4` | `0x8003AC24` | 0x870 | `code_8003A3B4` | low | yes | Atom edges only (both gaps cost 0); no data of its own except bss. Could be merged with neighbours. |
 | 17 | `0x8003AC24` | `0x2B424` | `0x8003BE40` | 0x121C | `code_8003AC24` | low | yes | Atom edge + `.data` 0x80089F04..0x80089F90 cluster; ends at the 8-byte stub `func_8003BE38`. |
@@ -109,9 +193,9 @@ piece of evidence.
 | 23 | `0x80048620` | `0x38E20` | `0x80053788` | 0xB168 | `code_80048620` | low | no | Rodata block `156C` first five tables (users 0x80048704..0x80051BE4); `.data` jumps from 0x8008A778 to 0x8008A9D4 exactly here (first user 0x80048620). End = Chris `moji`. |
 | 24 | `0x80053788` | `0x43F88` | `0x8005C258` | 0x8AD0 | `moji` | medium | no | ChrisNonyminus `moji` 0x43F88; `MojiTaskExec/Exec2/Kill` at 0x8005382C..0x80053A30; gap cost 0. No rodata of its own. End 0x8005C258: cost-0 gap with data/sdata/bss separation; the 0xC-byte setter `func_8005C24C` writes `D_800989D4`, used only by `moji` code, so it stays in this file. |
 | 25 | `0x8005C258` | `0x4CA58` | `0x8005EC34` | 0x29DC | `code_8005C258` | low | no | Cost-0 gap (`.data`, `.sdata` and bss clusters all separate there); rodata block `156C` tables for `func_8005C2B8` and `_8005E144`. Chris has no boundary here (he runs `moji` on to 0x4F434). |
-| 26 | `0x8005EC34` | `0x4F434` | `0x8006259C` | 0x3968 | `sub_scrn` | medium | no | ChrisNonyminus `sub_scrn` 0x4F434; rodata block `156C` tables for `func_8005ECE0`..`_80060618`; `Sub_screen_*` names (0x80060E64..0x80062490). Conflict: call graph prefers 0x8005EBA4 (two 0x10-byte accessors only called from `_8005ED9C`). |
-| 27 | `0x8006259C` | `0x52D9C` | `0x800629E0` | 0x444 | `map_screen` | low | yes | Name prefix changes from `Sub_screen_` to `Map_screen_` (`Map_screen_init` 0x8006259C, `map_screen_set`, `map_cursor_set`); one jump table (`map_cursor_set`). May be one file with `sub_scrn` (Chris has no split). |
-| 28 | `0x800629E0` | `0x531E0` | `0x8006430C` | 0x192C | `debug` | medium | no | ChrisNonyminus `debug` 0x531E0; the last named function (`map_cursor_set`) ends exactly at 0x800629E0; gap cost 0; new `.data` cluster 0x8008DBD4..0x8008ECE0 (17 variables). Holds `Game_logo_kill`. |
+| 26 | `0x8005EC34` | `0x4F434` | `0x800629E0` | 0x3DAC | `sub_scrn` | medium | no | **End confirmed** (Capcom's source: `sub_scrn.c` ends with `map_cursor_set`; row 27 merged in). ChrisNonyminus `sub_scrn` 0x4F434; rodata block `156C` tables for `func_8005ECE0`..`_80060618`; `Sub_screen_*` names (0x80060E64..0x80062490). Conflict: call graph prefers 0x8005EBA4 (two 0x10-byte accessors only called from `_8005ED9C`). |
+| 27 | `0x8006259C` | `0x52D9C` | `0x800629E0` | 0x444 | `map_screen` | **not a file** | | **Confirmed part of `sub_scrn.c`** by Capcom's source (TCRF, `ST1E.BIN`): `Map_screen_init`, `Map_screen_task`, `map_screen_set` and `map_cursor_set` are its last four functions, then "End of File". Its `.data` interleaves with `sub_scrn`'s (step 3). Merged into row 26 in the yaml. |
+| 28 | `0x800629E0` | `0x531E0` | `0x8006430C` | 0x192C | `debug` | **start confirmed** | no | `sub_scrn.c` ends at `map_cursor_set`, i.e. at 0x800629E0 (Capcom's source); ChrisNonyminus `debug` 0x531E0; the last named function (`map_cursor_set`) ends exactly at 0x800629E0; gap cost 0; new `.data` cluster 0x8008DBD4..0x8008ECE0 (17 variables). Holds `Game_logo_kill`. |
 | 29 | `0x8006430C` | `0x54B0C` | `0x80067FF8` | 0x3CEC | `code_8006430C` | low | yes | Rodata block `1BD8` (first user `func_8006430C`) is a new rodata-owning file; the gap lies in 0x800629E0..0x8006430C. Might be the same file as `debug`. Ends at `2MBYTE.OBJ` (0x80067FF8, certain). |
 | 30 | `0x800680BC` | `0x588BC` | `0x80069038` | 0xF7C | `code_800680BC` | high | no | `2MBYTE.OBJ` sits between Capcom objects, so a new file starts here; rodata block `1BD8` last table (`func_80068DAC`). Ends at the first libgcc object `ADDDF3` (0x80069038). `func_800680BC` (0x64 bytes) is probably a separate tiny file from `func_80068120` on. |
 
@@ -126,6 +210,9 @@ evidence column, not the file names.
   The two functions at `0x8005EBA4`/`0x8005EBB4` are tiny accessors only called from `func_8005ED9C`.
   The boundary lies in `0x8005EAA8`-`0x8005ECE0` (`0x8005EAA8` is called from `moji` code).
 - **`debug` vs `code_8006430C`:** the rodata window allows both to be one file starting at `0x800629E0`.
+  `.data` doesn't settle it: `debug`'s 17 variables (`0x8008DBD4`–`0x8008ECE0`) lie inside the range of
+  variables `code_8006430C`'s code uses, but the earlier of those sit in `moji`'s data and are probably
+  `moji.c`'s (step 3); without them the two are in order.
 - **`code_800680BC` vs `0x80068120`:** `func_800680BC` initialises a handful of bss bytes and ends 0x64
   bytes in; `0x80068120` starts GPU-primitive code. Likely two objects.
 - **Rows 10-17** (0x8001F828-0x8003BE40, 0x1C000 bytes) have rodata for only three files; the rest is

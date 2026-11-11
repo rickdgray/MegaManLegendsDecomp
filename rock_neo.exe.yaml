@@ -92,20 +92,20 @@ segments:
       - [0x2290, rodata, psyq/SYS_2]
 
       # .text
-      - [0x2490, asm, main]
+      - [0x2490, asm, main]  # high
       - [0x3BD8, asm, Code800133D8]  # medium
       - [0x52C0, asm, code_80014AC0]  # medium
       - [0x5DA4, asm, game]  # medium
       - [0x7DD8, asm, asm_fastmem]  # HAND-WRITTEN ASSEMBLY, not compiler output: never decompile
       - [0x806C, asm, code_8001786C]  # low
-      - [0xA0C0, c, sound]
-      - [0xBBE4, c, cd]  # medium
+      - [0xA0C0, c, sound]  # high
+      - [0xBBE4, c, cd]  # confirmed
       - [0xE054, asm, scene]  # medium
       - [0x10028, asm, code_8001F828]  # low
       - [0x17E78, asm, code_80027678]  # low
       - [0x1E1A0, asm, code_8002D9A0]  # low
       - [0x1EFA8, asm, code_8002E7A8]  # low
-      - [0x27C40, asm, code_80037440]  # low
+      - [0x27D34, asm, code_80037534]  # low; func_80037440 belongs to the file before (.sbss and .data order)
       - [0x287B4, asm, code_80037FB4]  # low
       - [0x2ABB4, asm, code_8003A3B4]  # low
       - [0x2B424, asm, code_8003AC24]  # low
@@ -117,12 +117,11 @@ segments:
       - [0x38E20, asm, code_80048620]  # low
       - [0x43F88, asm, moji]  # medium
       - [0x4CA58, asm, code_8005C258]  # low
-      - [0x4F434, asm, sub_scrn]  # medium
-      - [0x52D9C, asm, map_screen]  # low
+      - [0x4F434, asm, sub_scrn]  # medium; ends with Map_screen_* (Capcom's source, TCRF)
       - [0x531E0, asm, debug]  # medium
       - [0x54B0C, asm, code_8006430C]  # low
       - [0x587F8, asm, psyq/2MBYTE]   # unchanged
-      - [0x588BC, asm, code_800680BC]
+      - [0x588BC, asm, code_800680BC]  # high
       - [0x59838, asm, psyq/ADDDF3]
       - [0x59BB8, asm, psyq/ADDMANT]
       - [0x59C68, asm, psyq/DBSHIFT]

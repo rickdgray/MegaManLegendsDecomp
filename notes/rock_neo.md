@@ -41,7 +41,7 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
   now has one `data` subsegment from `0x70EC4` and `sdata` from `0x88064`.
 - **Link order:** Capcom's link placed `2MBYTE.OBJ` among its own objects: a second Capcom block
   follows it (uses `Player_work`, `Map_prim_ptr`; Ghidra hadn't disassembled all of it).
-- **Capcom source files:** the two code ranges are split into 30 files in the yaml, one of them
+- **Capcom source files:** the two code ranges are split into 29 files in the yaml, one of them
   Capcom's hand-written assembly (`asm_fastmem`); evidence and confidence per file in
   [rock_neo_files.md](rock_neo_files.md).
 - **The tail's one byte:** `0x04` at `0x800D8800`, the SHL overlay's load address, at the start of
@@ -191,9 +191,9 @@ when the code supports it, and prefer the TCRF source's and the evidence here. H
 checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** until verified.
 
 - **Names** (~330), many matched to the TCRF source: all `Sub_screen_*` functions
-  (`Sub_screen_cancel_check` `0x80060E64` …), `Map_screen_init` `0x8006259C`, `Map_screen_task`
+  (`sub_screen_cancel_check` `0x80060E64` …), `Map_screen_init` `0x8006259C`, `Map_screen_task`
   `0x800625DC`, `Sound_call` `0x8001A008`, `Cd_read_comb` `0x8001D440`, `Cd_read_sync2`
-  `0x8001D838`, `Sce_flag_test` `0x8001DA58`, `Model_Shadow_Trans` `0x8002C794`, `MojiTaskKill`
+  `0x8001D838`, `Sce_flag_test` `0x8001DA58`, `Model_Shadow_Trans` `0x8002C8CC`, `MojiTaskKill`
   `0x80053A30`, `main` `0x80011C90`, init `0x80011F04`, vsync callback `0x800123FC`.
 - **Globals:** `Player_work` `0x800B51B0` (`0x5F4` bytes, a second at `0x800B57A4`), `Game_work`
   `0x800C1B10` (`0x210`), `Moji_work` `0x800BB6B8`, `Map_screen_work` `0x800987F0`, `Moji_flag`
