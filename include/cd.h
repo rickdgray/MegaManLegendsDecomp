@@ -305,7 +305,8 @@ void Cd_controlb_retry(u_char com, u_char *param, u_char *result);
 void Cd_set_mode(u_char mode);
 void Cd_set_volume(uint8 vol);
 void Cd_stop(void);
-void Cd_pause(void); // ROCK_NEO only
+void Cd_pause(void);                                   // ROCK_NEO only
+void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3); // ROCK_NEO only
 void Cd_sync_cb(u_char status, u_char *result);
 
 // The command queue

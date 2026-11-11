@@ -311,11 +311,32 @@ func_80011940  Movie_start                         # starts playback of Cd_file_
 D_8001D3DC     Cd_file_tbl    size:0xBA0           # CD_FILE[248]
 ```
 
-Give `size:` for data when you know it. The owner edits the file and runs
-`tools/rename.py <t> -f renames.txt`, which updates `symbol_addrs_<t>.txt`, `src/<t>/`, `include/`
-and `notes/` together (it adds `type:func` and `absolute:True` where needed), then
-`./tools/rebuild.sh <t>`.
-In your report, just say how many proposals you added to `renames.txt`.
+The file is per target: `renames.txt` for `rock_neo.exe`, `renames_slus.txt` for `slus_006.03`.
+The owner edits it and runs `tools/rename.py <t> -f <file>`, which updates `symbol_addrs_<t>.txt`,
+`src/<t>/`, `include/` and `notes/` together (it adds `type:func` and `absolute:True` where
+needed), then `./tools/rebuild.sh <t>`.
+
+Before adding a proposal:
+
+- **Propose only names you understand.** If you can't say what a symbol is for, leave it as the
+  splat default. No placeholders (`Sound_unk_82274`), no guesses about other modules' symbols,
+  and nothing named after one side effect when the job is still unclear.
+- **Check for duplicates.** `grep -w` the NEW name in the rename file and in
+  `symbol_addrs_<t>.txt`. If it's taken, give one of the two a different name (usually the more
+  specific one) and say so in its comment. `rename.py` stops at the first clash, after applying the
+  lines before it. Also don't propose an OLD name that's already in the file.
+- **Pick global or `static` style from the callers.** Search `asm/<t>/` and `src/<t>/` outside the
+  function's own file: no outside callers means a file-local helper, named `lower_snake_case` with
+  no module prefix. Functions called from other files, or reached only through a data table, stay
+  `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G8` means it's defined in another
+  file, so it's global.
+- **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
+  an upper bound, from the next `dlabel` in the data file.
+- **Order dependent renames.** If NEW is currently another symbol's name (a registry fix), put that
+  symbol's rename first and say so in a `#` comment.
+- **Dry-run the file:** `tools/rename.py <t> -n -f <file>` must finish without errors.
+
+In your report, just say how many proposals you added.
 
 Conventions (Capcom's own, from their source):
 

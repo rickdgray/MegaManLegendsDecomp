@@ -225,6 +225,41 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
     `head->arg[1]` at each use; an inline function is worse). Ruled out: declaration orders.
     Permuter running.
 
+`sound` (`src/rock_neo.exe/sound.c`), parked: `Sound_call2` (8-register difference only): the
+target keeps the queue pointer in `v0` and the loaded `args[0]` in `v1`, and stores `args[1]`
+before the pointer increment (`nop; sw v1,8(v0)`); ours puts the pointer in `v1` and hoists the
+`arg2` store to after the global store. Tried: local pointer, `args++`, `&p[1]`, `+= 1`.
+
+`sound`, more parked (banked this round: `func_8001A63C`, `func_8001AE6C`):
+- `func_80019D18`: body is right except that the target reloads `Game_work+0x50`/`+0x51` with a
+  fresh `lui` each (we keep the base in `s0`, +1 saved reg), and keeps the `id != 0xFFFF` test as
+  a value in `v0` (ours: `a1`). `sint16 id` removes the extra `sll/sra`. Tried: local func
+  pointer, `ok` flag, `&&` form, `uint16`/`sint32` id.
+- `func_8001A110`: target hoists both table bases (`D_8008241C`, `D_80082C64`) into `s2`/`s1`
+  after the loop pre-test; ours hoists only `D_80082C64` and folds `D_8008241C` as `lui at`.
+  Tried: sized array, local `uint8 (*)[4]`, `SOUND_CALL_INFO` struct (the current attempt).
+- `func_8001A6DC`: target copies `a` (`func_8001A63C(x)`) into `s2` right after call 1, keeping `x`
+  live in `s0`; ours sinks the copy and reuses `s0`. Signed `/ 128` is right.
+- `func_8001B33C`: target has two separately-based induction pointers (`D_80098AF8` and
+  `D_80098AFC`) and `-1` in `s3`; ours derives `+4` from one base. Registry has `D_80098AFC`
+  as its own symbol: maybe the source indexed two arrays.
+
+`sound`, this round: banked `func_8001A744` (key on one tone: `SpuSetKeyOnWithAttr`), `func_80019B14`
+(per-stage sound id slots by Sce flags), `func_8001A834` (voice priority / distance check against
+the player). `func_8001A744`'s first parameter is `uint16` (the caller zero-extends). Parked:
+- `func_80019C20`: same shape as `func_80019D18` but with `D_800C356E/F` as the "old" stage. Body
+  is right; target keeps `list` in `a0`, `changed` in `a1`, the table base in `v1` (ours `v1`,
+  `a0`, `a1`) and loads `Game_work+0x50`, then (after the `addu`) `+0x51`. Tried: declaration
+  orders, local for the inner list (hoists the loads: worse), operand order of `!=`, if/else flip.
+- `func_8001A968`: loop is right (`uint16 voice` even reproduces the `andi 0xff`). Target
+  computes `bank * VAB_HEAD_SIZE` first and adds it last to `&base[idx]` (`a2 = 0x8014B820`);
+  ours folds it into the base. Tried: `VAB_HEAD` struct indexing, local `vab`, two-step pointer,
+  `uint32` cast with an `off` local; target also assigns `info`=s2, `tone`=s1, `voice`=s3.
+- `func_80019DE0`: all stores right, but the scheduler order differs: target emits `li v1,0x7f`
+  before the first store and `li v0,0xf` before the `D_80098788` store, with the `D_80098788` /
+  `D_80098958` stores ahead of the `0x7F` stores; ours hoists the `0x7F` stores above them and
+  loads `0xf` late. Source order of the stores makes no difference; a `vol` local is folded away.
+
 ## To do
 
 - **Compiler:** test `-funsigned-char` with the first plain `char`; test `-G8` with the first C
@@ -240,3 +275,11 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
 - Verify the .BIN archives against the comb format; the sound file next (Sound_work’s fields,
   func_8001B33C and the two other sound wrappers, D_80098958’s bits); Clut_buf’s second copy and
   where the VRAM upload happens
+
+### sound.c: seq/pan/update (func_8001AA8C, func_8001AC58, func_8001A274 banked)
+- `func_8001AA8C`/`func_8001AC58` (SEQ/SEP start) tail-call-merge two `SsSeqPlay`/`SsSepPlay` calls
+  in an if/else (loop flag 0/1); both use a `SOUND_WORK *work = &Sound_work;` local (AC58 assigns it before `func_8001A1FC`).
+- `func_8001A274` angle needs `angle = a - f(); angle &= 0xFFF;` as two statements; `Game_work.unk058` is sint8 at 0x58.
+- `func_8001AEF0` PARKED (NON_MATCHING in sound.c): only the sequence-volume loop differs. Target
+  strength-reduces into two pointers from separate `lui`s (s3 = D_80098AF8, s0 = D_80098AFC, s4 = -1, s2 = i, s1 = work);
+  our pointer/indexed variants give different register assignment.
