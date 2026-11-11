@@ -119,8 +119,6 @@ clean, confirm with `build.sh`.
 
 - Missing or extra instructions: the source *shape* is wrong (statements, loops, types).
 - Different store or load width (`sb`/`sh`/`sw`, `lb`/`lbu`): a field or variable type is wrong.
-- Same instructions, different registers or order: register allocation or scheduling. Try
-  statement order, declaration order, or temporaries. These are the hardest; see "Parking".
 - A frame pointer, stack spills, and a global reloaded before every statement: the build isn't
   optimizing. Check flags before touching the code.
 - Same instructions, different registers or order: register allocation or scheduling. Try
