@@ -27,11 +27,18 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
 | `0x587F8` | `0x80067FF8` | PsyQ `2MBYTE.OBJ` (`__main`, `start`, `stup1`, `stup0`; `0xC4` bytes) |
 | `0x588BC` | `0x800680BC` | **More Capcom code**, to `0x80069037` |
 | `0x59838` | `0x80069038` | PsyQ libraries (from `ADDDF3`; 105 objects), to `0x800806C3` |
-| `0x70EC4` | `0x800806C4` | Data (timestamp string at `0x800806C8`, as in the shim) |
-| `0x80064` | `0x8008F864` | Small data (`gp` − `0x8000`) |
+| `0x70EC4` | `0x800806C4` | Data (timestamp string at `0x800806C8`, as in the shim): Capcom's to about `0x8009039C`, PsyQ's from `0x80090454` |
+| `0x88064` | `0x80097864` | Small data (`.sdata`), starting **at** `gp` (see below) |
 | `0x88958` | `0x80098158` | BSS, `0x2D530` bytes, cleared by `start`; **stored as zeros in the file** |
 | `0xB5E88` | `0x800C5688` | Tail, to `0x800D8FFF`: heap start; zeros except `0x04` at `0x800D8800` |
 
+- **Confirmed: `.sdata` starts at `gp` (`0x80097864`), not at `gp` − `0x8000`.** All 182 variables
+  reached through `$gp` lie in `0x80097864`–`0x80098B6C`, the lowest exactly at `gp` (offset 0; no
+  negative offsets anywhere). `0x8008F864`–`0x80097863`, once typed `sdata` in the yaml, is ordinary
+  `.data`: PsyQ, which never uses `$gp`, has 190 variables there. Initialized small data is
+  `0x80097864`–`0x80098157` (40 `$gp` variables), `.sbss` follows from `0x80098158` (142). The bytes
+  are the same either way, so matching is unaffected; it matters once data moves into C. The yaml
+  now has one `data` subsegment from `0x70EC4` and `sdata` from `0x88064`.
 - **Link order:** Capcom's link placed `2MBYTE.OBJ` among its own objects: a second Capcom block
   follows it (uses `Player_work`, `Map_prim_ptr`; Ghidra hadn't disassembled all of it).
 - **Capcom source files:** the two code ranges are split into 30 files in the yaml, one of them

@@ -10,6 +10,30 @@ both sides of `2MBYTE.OBJ` (`0x80067FF8`/`0x800680BC`) and the end at `ADDDF3`. 
 evidence: 11 of the 17 low rows and row 5 (see the "Single" column). Read each start as "a boundary lies in
 this window"; the table gives a best guess inside it.
 
+## Object edges, calibrated on PsyQ (confirmed)
+
+PsyQ's objects have exact edges in the yaml (`.text`, and `.rodata` per object), so they show what
+PSYLINK leaves at an object boundary. Measured over 132 `.text` edges and 16 `.rodata` edges;
+per-object data from the relocations of the built objects (variables only one object uses):
+
+- **No marks in any section.** `.text` and `.rodata` sections start at 4-byte alignment (all four
+  values mod 16 occur); 119 of 132 `.text` edges have no gap after the last function, and the rest
+  have the same 4-16 byte gaps as function ends inside objects. Each object's first `.data`
+  variable is likewise only 4-byte aligned. So padding and alignment can't locate a boundary;
+  references and ordering are the evidence.
+- **`.data` follows link order.** Each PsyQ object's own `.data` variables form one cluster, and
+  the clusters ascend in the objects' `.text` order (`FERR` `0x80090454` ... `CDREAD` `0x8009230C`).
+  Capcom's `.data` (335 variables used only by Capcom code, up to `0x8009039C`) all lies before
+  PsyQ's (190, from `0x80090454`), with no variable shared and none out of order. So a Capcom
+  file's own `.data` cluster should sit between its neighbours' clusters, in code order.
+- **`.bss` does not follow link order for globals.** `cd`'s 32 `.bss` variables spread over
+  `0x800987A4`–`0x800C5604`. Uninitialized non-`static` globals are presumably allocated from a
+  common pool, not per object. Only `static` `.bss` (and `.sbss` through `$gp`) can be
+  ordering evidence.
+- **Small data starts at `gp`**, not `gp` − `0x8000` ([rock_neo.md](rock_neo.md)): `.sdata`
+  `0x80097864`–`0x80098157`, `.sbss` from `0x80098158`. PsyQ never uses `$gp`, so the `$gp` rule
+  (small data defined in the same file) can only be checked on Capcom code (step 2).
+
 ## What the evidence showed
 
 - **Rodata blocks are not files.** Block `1BD8` holds jump tables for functions on *both* sides of

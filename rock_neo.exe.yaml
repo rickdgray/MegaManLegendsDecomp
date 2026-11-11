@@ -229,7 +229,7 @@ segments:
 
       # .data, then .sdata
       - [0x70EC4, data, 70EC4]  # starts 4 bytes before the timestamp string
-      - [0x80064, sdata, 80064] # gp - 0x8000 = 0x8008F864
+      - [0x88064, sdata, 88064] # starts at gp (0x80097864): no $gp access has a negative offset
 
       # HACK: this is BSS (0x80098158-0x800C5687, cleared by start), but the file stores it as zeros,
       # which splat can't express as bss (it counts the file bytes on top of bss_size). Typed sdata so
