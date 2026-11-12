@@ -63,11 +63,28 @@ typedef struct
 #define PAD_ON(p)  (*(uint16 *)(p).on)
 #define PAD_OFF(p) (*(uint16 *)(p).off)
 
+// ROCK_NEO only: the per-controller block goes past PAD_WORK, with auto-repeat state per button.
+typedef struct
+{
+    PAD_WORK pad;
+    uint8 rep_state[8]; // 0x38 0 idle, 1 first press, 2 repeating
+    uint8 rep_count[8]; // 0x40 frames held
+} PAD_REP;
+
+#define PAD_REP_OUT(p) (*(uint16 *)(p)->pad.unk2E) // repeat output bits
+
+// Both programs (0x158 apart in each: shim 0x8005B570, ROCK_NEO 0x800C0C00).
 extern PAD_WORK Joy1; // controller 1
 extern PAD_WORK Joy2; // controller 2
 
 void Pad_update(PAD_WORK *pad);
 void Pad_update_all(void);
+
+// Shim only.
 void Disp_adjust(void);
+
+// ROCK_NEO only.
+void func_800122D0(PAD_REP *pad);
+void func_80012350(PAD_REP *pad, sint32 mask, sint32 i);
 
 #endif // PAD_H

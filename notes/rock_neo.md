@@ -130,6 +130,9 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
   calls `ChangeTh(0xFF000000)`: yields to the main thread.
 - `Thread_current` (`0x801F8300`, `absolute:True`) points at the running thread's record; the
   `0x801F8xxx` area below it is thread data.
+- In C, `Thread_current` and `THREAD_TBL` (`0x801F8100`, 4 records of 0x80) are literal-address
+  macros (`system.h`): the target builds them with `lui 0x801f` / `ori 0x8300` and accesses at offset
+  0, which only a constant gives. Using the `extern` symbol in `func_80012ECC` gives `%hi`/`%lo`.
 - `Cd_read_sync` waits for the CD queue to drain, calling `Thread_wait(1)` on each pass;
   `Cd_read_sync2` only tests whether the queue is empty.
 
@@ -273,6 +276,17 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
   `D_80098958` stores ahead of the `0x7F` stores; ours hoists the `0x7F` stores above them and
   loads `0xf` late. Source order of the stores makes no difference; a `vol` local is folded away.
 
+`main` (`src/rock_neo.exe/main.c`), this round: banked `func_800120A8` (display buffers at `0x800C0C48`,
+`extern DISP_ENV D_800C0C48[2]`: the extern symbol is needed, an absolute-address cast loses the shared
+base), `func_800122D0`/`func_80012350` (auto-repeat on `PAD_REP`, which extends `PAD_WORK` with
+`rep_state[8]` at +0x38 and `rep_count[8]` at +0x40; `mask` is `sint32`), `func_80012E10`
+(`OpenTh` from the thread record's `sp`/`gp`), `func_800131FC` (thread entry: dispatch through
+`D_80080894[D_80098B1C]`, then `Thread_wait(1)`). Parked: `func_80012BC4` (thread table init). The
+table base `*(TCB **)0x110` must be written via a `TCB **kp = (TCB **)0x100` local (`kp[4]`) to get
+the `li t2,0x100` / `lw 0x10(t2)` split, and `gp` read into a local before the loop. Still different:
+target reloads `THREAD_TBL[i].tcb` from memory before storing `->sr` (ours reuses the register), and the
+loop counter/giv are scheduled differently. Tried: `uint32` field with a cast, `[0x25]` word index.
+
 ## To do
 
 - **Compiler:** test `-funsigned-char` with the first plain `char`.
@@ -295,3 +309,47 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
 - `volume_update` PARKED (NON_MATCHING in sound.c): only the sequence-volume loop differs. Target
   strength-reduces into two pointers from separate `lui`s (s3 = Sound_seq_chan_tbl, s0 = D_80098AFC, s4 = -1, s2 = i, s1 = work);
   our pointer/indexed variants give different register assignment.
+
+`code_80037534` (`src/rock_neo.exe/code_80037534.c`): banked `func_800375D4`, `_80037604`,
+`_80037634`, `_80037664` (four field readers of `D_80089EAC[n][owner->rec[n].idx[k]].val[k]`).
+`func_8003786C`, `func_80037C14` and `func_80037BB4` were parked over the `addu at,v0,at` operand
+order; all three matched once the table was addressed by literal address (see the third pass).
+
+`code_80037534` (second pass): banked `func_80037534` (clears the 16 `TBL_IDX` records of an owner, then
+reloads each `val`), `func_80037738`, `func_80037F60` (pops `D_8009A376[D_80097D24]` into `func_80037CD8`
+until `D_80097D24` is 0). Parked: `func_80037594` (target reads `Player_work+0x172` with its own `lui`,
+then builds `&Player_work` again; ours folds both into one base), `func_80037818` (target keeps arg in a2,
+`li a0,4` in the delay slot, then `move a0,zero` on the fall-through; the address, `&Stage_idx_tbl[arg0].val`,
+matches. Also tried `?:` (becomes `sltu`/`sll`) and an if/else with two calls).
+`PL_WORK` gained `tbl_sel` (0x172) and `rec[16]` (0x4F4); `TBL_IDX` gained `val` (0x06). The functions
+that take the record owner are passed `&Player_work`, so their parameter is `PL_WORK *`.
+
+`code_80037534` (third pass): banked `func_80037C50`, `func_8003777C`, `func_80037694`, `func_80037CD8`,
+`func_80037890` (3 args: `kind`, count exponent, table index; `func_80037818` passes its `arg0` as the third).
+- **`addu at,idx,at` operand order = literal address.** maspsx only emits `addu $at,reg,$at` when the
+  operand is a numeric constant > 32767 (`maspsx/__init__.py`, "lhu $2,49344($2)" case); an `extern`
+  symbol gives `addu $at,$at,reg`. So the 12-byte table at `0x8015C000` is accessed as
+  `((IDX_ENT *)0x8015C000)[n]` (`Stage_idx_tbl` in `stage.h`): the stage's `IDX` file, loaded there
+  (`notes/disc.md`). The "table at `0x8015C006`" is the same entries' `val` field: `&Stage_idx_tbl[n].val`
+  gives the target's literal `lui`/`ori 0x8015C006` (taking `&Stage_idx_tbl[n]` and adding 6 later does not).
+- Scratchpad map window (`Map_org_x/y` 0x40/0x41, `Map_w/h` 0x44/0x46, `Map_cells` 0x48) in `stage.h`.
+- `func_80037CD8` needs an unused 8-byte local (frame 0x20).
+- `func_80039A38` (`code_80037FB4`) takes one argument and passes it on to `func_800399EC`: its callers
+  load an address into `a0`, and nothing in between touches `a0`, so the call has no argument setup. `func_80037890` angle `j * step` is
+  strength-reduced by GCC (a separate `ang` accumulator puts its init before the zero-trip test).
+- `Cell_stack` (`D_8009A378`) / `Cell_stack_idx` (`D_80097D24`): stack of packed cells, see `renames.txt`.
+
+`code_80037FB4`: `func_80039BBC/C08/C54/CA0/CEC` each copy a `VECTOR` (struct assignment) to one of
+`D_800A39A0/B0/C0/D0/E0` and store three ints beside it (`D_800A3964..` / `3970..` / `397C..` /
+`3988..` / `3994..`): five slots of a table. `func_8003A218` (parked, `NON_MATCHING`): shortest
+distance mod 0x1000 from arg0 to `D_800A3968`; GCC inverts the `a < b` test and swaps the two
+branch bodies, `>=`, swapped names and `-=` forms were also tried.
+
+`code_8005C258.c` (small functions): banked `func_8005DCB4` (calls `func_8005DCDC`, `func_8005DE28`),
+`func_8005D9EC` (`Player_work+0x6E = +0xB0`, then `func_8005D9C4`), `func_8005D844` (arms slot
+`D_800BBE2C`..`E46`), `func_8005D98C`, `func_8005C720` (dispatch through `D_8008D7B4[wp[4]]`).
+Parked `func_8005D4F8` (`NON_MATCHING`): the target loads and stores `D_800BBD85` through one `lui`+`addiu`
+base register (`$v1`), but GCC folds `&D_800BBD85` into `lui`+`%lo` on each access; a pointer local and
+a `volatile` pointer both fold the same way. The store to `D_800BBD81` uses its own `lui`. So `D_800BBD81`, `D_800BBD85`, ... are separate globals,
+not fields of one struct (declared in `code_8005C258.h`). `func_8005C720`'s `wp` is the 9-byte object at
+`D_800BBD78` (byte +4 indexes `D_8008D7B4`); it stays `uint8 *` until that object's layout is known.

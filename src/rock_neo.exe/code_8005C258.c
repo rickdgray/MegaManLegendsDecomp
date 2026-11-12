@@ -1,4 +1,6 @@
 #include "common.h"
+#include "code_8005C258.h"
+#include "player.h"
 
 // Small data (.sdata 0x80098004-0x80098038): reached through $gp in this file.
 sint32 D_80098004 = 0;
@@ -23,11 +25,19 @@ sint32 D_80098034 = 6;
 static sint16 D_800986F8[2];
 static sint16 D_800986FC[2];
 
+// Called only from this file, ahead of their definitions.
+void func_8005D4F8(void);
+void func_8005DCDC(void);
+void func_8005DE28(void);
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C258);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C2B8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C720);
+void func_8005C720(uint8 *wp)
+{
+    D_8008D7B4[wp[4]](wp);
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005C75C);
 
@@ -61,13 +71,33 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D298);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D39C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D4C0);
+void func_8005D4C0(void)
+{
+    D_800BBD84 = 1;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D4D4);
+void func_8005D4D4(void)
+{
+    D_800BBD84 = 2;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D4E8);
+void func_8005D4E8(void)
+{
+    D_800BBD84 = 0;
+}
 
+#ifdef NON_MATCHING
+void func_8005D4F8(void)
+{
+    if (D_800BBD85 == 0)
+    {
+        D_800BBD85 = 2;
+        D_800BBD81 = 0x1C;
+    }
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D4F8);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D528);
 
@@ -79,15 +109,32 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D6E8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D7C0);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D844);
+void func_8005D844(sint16 a, sint16 b, uint8 c)
+{
+    D_800BBE2C = 3;
+    D_800BBE44 = a;
+    D_800BBE46 = b;
+    D_800BBE38 = c;
+    D_800BBE39 = 1;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D87C);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D8C4);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D938);
+uint8 func_8005D938(void)
+{
+    if (D_800BBD94 > 0)
+    {
+        return 0;
+    }
+    return D_800BBD87;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D95C);
+uint8 func_8005D95C(void)
+{
+    return D_800BBD87;
+}
 
 void func_8005D96C(void)
 {
@@ -97,13 +144,31 @@ void func_8005D974(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D97C);
+void func_8005D97C(void)
+{
+    D_800BBDAB = 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D98C);
+void func_8005D98C(void)
+{
+    if (D_800BBD94 <= 0)
+    {
+        D_800BBD87 = 1;
+        func_8005D4F8();
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D9C4);
+void func_8005D9C4(void)
+{
+    D_800BBD87 = 0;
+    func_8005D528();
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005D9EC);
+void func_8005D9EC(void)
+{
+    Player_work.unk6E = Player_work.unkB0;
+    func_8005D9C4();
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DA1C);
 
@@ -115,13 +180,21 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DBB4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DC10);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DCB4);
+void func_8005DCB4(void)
+{
+    func_8005DCDC();
+    func_8005DE28();
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DCDC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DE28);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DF3C);
+void func_8005DF3C(void)
+{
+    D_800986F8[0] = 0;
+    D_800986FC[0] = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005DF4C);
 
@@ -131,12 +204,24 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005E9F8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EAA8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EBA4);
+void func_8005EBA4(sint16 value)
+{
+    D_800BBD94 = value;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EBB4);
+void func_8005EBB4(sint16 value)
+{
+    D_800BBD96 = value;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EBC4);
+sint16 func_8005EBC4(void)
+{
+    return D_800BBD94;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EBD4);
+sint16 func_8005EBD4(void)
+{
+    return D_800BBD96;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8005C258", func_8005EBE4);

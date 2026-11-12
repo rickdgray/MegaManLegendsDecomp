@@ -86,6 +86,24 @@ Every script takes the **target** as its first argument: `slus_006.03` (the shim
 | `./tools/cc.sh <t> <in.c> <out.o>` | Compile one C file with the target's matching toolchain. |
 | `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/`. |
 
+### Tool use (unattended runs)
+
+Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command outside
+`.claude/settings.json`'s allowlist is denied, and the turn is wasted. So:
+
+- **One command per Bash call**, from the repo root (where you start). No `cd`, no `;` or `&&`
+  chains, no `for`/`while` loops. Pipes into `grep`, `head`, `tail`, `awk`, `wc` are fine. For
+  several functions, make several calls (in parallel when they're independent).
+- **Change files only with Edit and Write**, never with `sed -i`, `python3 -`/heredocs, `cat >`,
+  `>>` or `printf >`. That includes `renames.txt`.
+- **Scratch files** (test C, objects, notes to self) go in `logs/scratch/` (gitignored), never
+  `/tmp`: `./tools/cc.sh rock_neo.exe logs/scratch/t.c logs/scratch/t.o`, then
+  `mips-linux-gnu-objdump -dr logs/scratch/t.o`.
+- `diff.sh` prints plain text when its output isn't a terminal: there are no colour codes to strip.
+- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py <t> -n` (dry run),
+  `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
+  `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
+
 The owner's tools (`find_dupes.py`, `progress.py`, `batch_run.py`, `rename.py`,
 `permuter_prep.py`, `ctx.sh` and `permute.sh`) are described in `notes/toolchain.md`.
 
@@ -249,6 +267,18 @@ What decompilers show vs. what to write:
   functions parked over its fields.
 - **Chained assignment stores right to left:** `p->r0 = p->g0 = p->b0 = v;` emits `b0`, then
   `g0`, then `r0`. Use it when the target's store order is reversed like that.
+- **Literal addresses.** Memory outside the program's image (scratchpad `0x1F80xxxx`, BIOS RAM
+  `0x100`, ROCK_NEO's thread area `0x801F8xxx`, the stage files loaded at `0x8013xxxx`–`0x801Fxxxx`)
+  was addressed by constant in Capcom's source. Signs: the address is built with `lui`/`ori`
+  (`li`) and accessed at offset 0, or an indexed access comes out as `addu $at,reg,$at`; a symbol
+  gives `lui %hi(sym)` + `%lo(sym)` and `addu $at,$at,reg`. Write a macro named like a variable in
+  the subsystem's header (`#define Thread_current (*(THREAD_WORK **)0x801F8300)`,
+  `#define Stage_idx_tbl ((IDX_ENT *)0x8015C000)`), not an `extern`. A field's address is a
+  field of the same macro (`&Stage_idx_tbl[n].val` gives the literal `0x8015C006`). Addresses
+  inside the image stay `extern` symbols. More in `notes/toolchain.md`.
+- **A call with no argument setup** may pass an argument through: if the caller's own callers
+  load `a0` and nothing in between changes it, the caller takes that argument and forwards it
+  (`func_80039A38(arg0)` → `func_800399EC(arg0)`). Write that, not an old-style (K&R) definition.
 - **Embedded TIM images:** image data in the binary is often a whole TIM file, read at fixed
   offsets (CLUT pixels at +0x14). Name the symbol `*_tim`.
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
@@ -312,21 +342,33 @@ What decompilers show vs. what to write:
 | `include/common.h` | Basic typedefs (`s8`…`u32`, `u_char`…`u_long`, Capcom's `uint8`…`sint32`); includes `include_asm.h` |
 | `include/psyq/*.h` | Self-written PsyQ declarations (`libgpu.h`: `RECT`, `DRAWENV`, `SPRT`, `addPrim`, …; `libcd.h`, `libsnd.h`, …) |
 | `include/cd.h` | CD drive, file table and command queue (shared) |
-| `include/slus_006.03/` | Shim only: `display.h`, `intro.h`, `movie.h`, `pad.h`, `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h`, `game.h` (GAME_WORK, partial), `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines) |
+| `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_WORK`, `PAD_*` buttons (one layout in both programs) |
+| `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `scratch.h`, `system.h` |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `effect.h`, `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8005C258.h`, `code_80037FB4.h` (files not yet identified; such headers take the file's name and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
-  both programs' declarations; label program-only sections. Use a per-target header
-  (include/<target>/) only when the same name has different definitions in each program, as
-  pad.h's struct layouts do.
+  both programs' declarations; label program-only sections (`pad.h`, `display.h`). Use a
+  per-target header (include/<target>/) for a subsystem only one program has, or when the same
+  name has different definitions in each program. Before writing a new type, check the other
+  program's headers: if its layout is the same, move it to a shared header instead of copying it.
+
+**Declarations live in headers.** A `.c` file holds only definitions, plus two kinds of
+declaration: its own small data (see "Small data"), and prototypes for functions called only from
+that file, ahead of their definitions, under a `// Called only from this file` comment. Any
+`extern`, typedef, `#define` or prototype that another file could use goes in a header. Include
+headers by bare name (`#include "stage.h"`, not `"rock_neo.exe/stage.h"`): the include path
+searches the target's folder first.
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.
 
 Put each declaration in the header for its subsystem. Create a new subsystem header rather than
 growing an unrelated one. **Never copy Sony's PsyQ headers**; write declarations yourself and
-check offsets against the binary.
+check offsets against the binary. Take each PsyQ prototype from the Library Reference (text copies of the PDFs
+are in `notes/sdk/`, gitignored): `grep -n -A8 "^ *OpenTh" notes/sdk/Libref.txt` shows its
+"Syntax" block. Where the game's use differs from the document, say so in a comment (`InitPAD`,
+`OpenEvent`'s handler type).
 
 ## Names
 
@@ -334,8 +376,22 @@ The repo is the source of truth for names. Each target's `symbol_addrs_<t>.txt` 
 `symbol_addrs_slus_006.03.txt`) is the hand-maintained registry that splat uses when generating
 assembly.
 
-**Only the owner renames.** Don't apply names yourself. Write each proposal to `renames.txt` in
-the repo root (create it if needed), one per line, in the format `tools/rename.py` reads:
+**Apply a name when you're sure of it; otherwise leave the splat default.** Sure means you can
+state the symbol's job in one line from code you have read (its body, and its callers or uses),
+and the name follows the conventions below. The owner reviews every applied name afterwards (the
+batch runner logs them in `logs/renames_applied.txt`), so a wrong name costs a revert.
+
+- Rename only splat defaults (`func_`, `D_`, `jtbl_`). A symbol that already has a name, or a
+  suspected registry error, is the owner's: write it to `renames.txt` (format below) and say why.
+- Apply names **after** the task's functions are banked or parked, one call per name:
+  `tools/rename.py <t> OLD NEW [attrs]` (e.g. `tools/rename.py rock_neo.exe func_80012E10
+  Thread_open`). It updates `symbol_addrs_<t>.txt`, `src/<t>/`, `include/` and `notes/` together
+  and adds `type:func` / `absolute:True` where needed. Then run `./tools/rebuild.sh <t>` once
+  (re-split, build, refresh `expected/`); it must print MATCH.
+- Struct fields aren't symbols: name them in the header as their uses become clear.
+
+`renames.txt` (repo root; `renames_slus.txt` for the shim) holds only what needs the owner, in
+the format `tools/rename.py <t> -f <file>` reads:
 
 ```
 # OLD          NEW            [splat attributes]   # why
@@ -343,20 +399,13 @@ func_80011940  Movie_start                         # starts playback of Cd_file_
 D_8001D3DC     Cd_file_tbl    size:0xBA0           # CD_FILE[248]
 ```
 
-The file is per target: `renames.txt` for `rock_neo.exe`, `renames_slus.txt` for `slus_006.03`.
-The owner edits it and runs `tools/rename.py <t> -f <file>`, which updates `symbol_addrs_<t>.txt`,
-`src/<t>/`, `include/` and `notes/` together (it adds `type:func` and `absolute:True` where
-needed), then `./tools/rebuild.sh <t>`.
+Before applying a name:
 
-Before adding a proposal:
-
-- **Propose only names you understand.** If you can't say what a symbol is for, leave it as the
+- **Name only what you understand.** If you can't say what a symbol is for, leave it as the
   splat default. No placeholders (`Sound_unk_82274`), no guesses about other modules' symbols,
   and nothing named after one side effect when the job is still unclear.
-- **Check for duplicates.** `grep -w` the NEW name in the rename file and in
-  `symbol_addrs_<t>.txt`. If it's taken, give one of the two a different name (usually the more
-  specific one) and say so in its comment. `rename.py` stops at the first clash, after applying the
-  lines before it. Also don't propose an OLD name that's already in the file.
+- **Check for duplicates.** `grep -w` the NEW name in `symbol_addrs_<t>.txt` and `renames.txt`.
+  If it's taken, pick a more specific name; `rename.py` refuses a clash.
 - **Pick global or `static` style from the callers.** Search `asm/<t>/` and `src/<t>/` outside the
   function's own file: no outside callers means a file-local helper, named `lower_snake_case` with
   no module prefix. Functions called from other files, or reached only through a data table, stay
@@ -364,11 +413,11 @@ Before adding a proposal:
   file, so it's global.
 - **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
   an upper bound, from the next `dlabel` in the data file.
-- **Order dependent renames.** If NEW is currently another symbol's name (a registry fix), put that
-  symbol's rename first and say so in a `#` comment.
-- **Dry-run the file:** `tools/rename.py <t> -n -f <file>` must finish without errors.
+- **Follow the other program's names** for shared code: the CD module and anything the shim also
+  has (`Disp_env`, `Pad_update`).
 
-In your report, just say how many proposals you added.
+In your report, list each applied name with its one-line reason, and say how many lines you added
+to `renames.txt`.
 
 Conventions (Capcom's own, from their source):
 
@@ -409,7 +458,7 @@ Files:  src/rock_neo.exe/cd.c, include/rock_neo.exe/cd_local.h, include/rock_neo
 Build:  slus_006.03 MATCH, rock_neo.exe MATCH
 Decisions needed:
 - <only items that need the owner: suspected registry errors, tool bugs, open questions>
-Names:  <N> proposals added to renames.txt
+Names:  func_80012E10 -> Thread_open (OpenTh for THREAD_TBL[n]); 0 added to renames.txt
 ```
 
 Don't restate the code or narrate each step.

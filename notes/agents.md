@@ -24,6 +24,7 @@ is for the owner: which model to use, what it costs, how to run batches, and how
 | First ROCK_NEO port (the `cd` file from the shim) | Opus | Fresh | Ported | $1.76 |
 | Six-function batch | Sonnet | Fresh (batch runner) | | $0.28 |
 | `batch_run.py` on `cd.c` (`logs/batch_20261106_001300/`, 4 batches) | Sonnet | Fresh per batch | 10 banked, 3 parked, `cd_cmd_read_comb` skipped | $2.83 |
+| ROCK_NEO pilot: `code_80037534`, `code_80037FB4`, `main`, `code_8005C258` (`logs/batch_20261111_*`, 13 batches) | Sonnet | Fresh per batch | 63 banked, 8 parked (3 banked later by hand) | $7.55 (~$0.11/function); up to 135 turns / 15 min per batch |
 
 Most cost is **context**, re-sent every turn as cache reads, not output. The group A run cost
 several times more because the session had carried hours of earlier work.
@@ -31,13 +32,18 @@ several times more because the session had carried hours of earlier work.
 ## Batch runner (`tools/batch_run.py`)
 
 ```bash
-.venv/bin/python tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [--batch 6] [--model sonnet] \
-    [--cap 15] [--max-batches 0] [--dry-run]
+.venv/bin/python tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [more.c ...] [--batch 6] \
+    [--model sonnet] [--cap 15] [--max-batches 0] [--timeout 30] [--dry-run]
+.venv/bin/python tools/batch_run.py rock_neo.exe --all ...     # every C file of the target
 ```
 
-- Works through a C file's remaining `INCLUDE_ASM` functions, **smallest first**, `--batch` at a
-  time, skipping parked ones and ones a previous batch made no progress on (recorded in
-  `logs/batch_state.json`).
+- Works through the given C files' remaining `INCLUDE_ASM` functions, `--batch` at a time,
+  skipping parked ones and ones a previous batch made no progress on (recorded in
+  `logs/batch_state.json`). **Order: Depth, then Score**, from a `functions.csv` regenerated (into
+  the log folder) after every kept batch, so callees come before their callers. A batch stays in
+  one file: the best function overall, then that file's next best at the same depth.
+- `--timeout` (minutes) stops a batch's session (the whole process group); its leftovers are
+  still built, and kept if they match. A killed session reports no cost.
 - Each batch is a **fresh headless session** (`claude -p ... --permission-mode acceptEdits`) with
   a fixed prompt pointing at `CLAUDE.md`, `notes/`, and the shim's C.
 - After each batch it **builds both targets**. If both MATCH, the changes stay in the working tree
@@ -49,7 +55,11 @@ several times more because the session had carried hours of earlier work.
   `--max-batches`. Per batch, `logs/` keeps the prompt, raw JSON, report and summary.
 - Headless sessions can't answer permission prompts, so the commands they need are on the
   **allow list in `.claude/settings.json`** (the `tools/` scripts, `.venv/bin/python tools/`,
-  read-only shell commands, and read-only git); git writes are on its deny list.
+  `cc.sh`, `rename.py -n`, `mips-linux-gnu-objdump`, `xxd`, read-only shell commands, and
+  read-only git); git writes are on its deny list. Anything else is denied, so `CLAUDE.md`'s "Tool
+  use (unattended runs)" tells agents how to work inside it: one command per call (the pilot's
+  denials were mostly `cd …;` prefixes and `for` loops), Edit/Write for every file change (not
+  `sed -i` or python heredocs), and `logs/scratch/` instead of `/tmp`.
 - Start from a clean, committed tree so the per-batch changes are easy to review.
 
 ## Session hygiene
@@ -68,7 +78,10 @@ several times more because the session had carried hours of earlier work.
 - Put helpers before the functions that call them.
 - Add hints for traps you already know (e.g. GCC inserts `__main` itself; an older name the
   notes use for a function; the other program's C for a shared function).
-- "Propose names but don't apply them" keeps naming decisions with the owner.
+- Agents apply names they're sure of (splat defaults only) with `rename.py`, after the
+  functions; the batch runner re-splits when a registry changed, and logs each kept batch's names
+  to `NNN_renames.txt` and `logs/renames_applied.txt` for review. Already-named symbols and
+  registry fixes still go to `renames.txt` for the owner.
 
 ## Reviewing a run
 

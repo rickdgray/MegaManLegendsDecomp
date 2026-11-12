@@ -17,4 +17,18 @@ void StopPAD(void);
 void _96_init(void);
 void LoadExec(char *name, u_long stack, u_long size);
 
+// Threads and events. The Library Reference types both start functions as `long (*func)()` /
+// `unsigned long (*func)()`; the game's handlers return nothing, so these typedefs (ours, not
+// PsyQ's) return void.
+typedef void (*TH_FUNC)(void);
+typedef void (*EVENT_FUNC)(void);
+
+u_long OpenTh(TH_FUNC func, u_long sp, u_long gp);
+long CloseTh(u_long thread);
+long ChangeTh(u_long thread);
+long OpenEvent(u_long desc, long spec, long mode, EVENT_FUNC func);
+long EnableEvent(u_long event);
+void func_8007FF70(void); // EnterCriticalSection (proposed in renames.txt)
+void func_8007FF80(void); // ExitCriticalSection (proposed in renames.txt)
+
 #endif // PSYQ_LIBAPI_H

@@ -7,7 +7,9 @@
       "Bash(grep:*)", "Bash(sed -n:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)",
       "Bash(ls:*)", "Bash(wc:*)", "Bash(awk:*)", "Bash(find:*)", "Bash(diff:*)",
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-      "Bash(clang-format-15 -i:*)"
+      "Bash(clang-format-15 -i:*)",
+      "Bash(./tools/cc.sh:*)", "Bash(mips-linux-gnu-objdump:*)", "Bash(xxd:*)",
+      "Bash(tools/rename.py:*)", "Bash(./tools/rename.py:*)"
     ],
     "deny": [
       "Bash(git add:*)",

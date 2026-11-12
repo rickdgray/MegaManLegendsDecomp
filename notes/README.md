@@ -12,7 +12,7 @@ what is known **now**, organized by topic. The discovery history lives in git.
 | [overlays.md](overlays.md) | The code overlays (`ST*`, `ARM*R`, `SUPPORT`): layout, splitting into functions, duplicates across the whole game, shared source files |
 | [rock_neo_files.md](rock_neo_files.md) | `ROCK_NEO.EXE`'s split into Capcom's source files: evidence and confidence per file |
 | [agents.md](agents.md) | Working with Claude Code: model tiers, measured costs, the batch runner, session hygiene, review checklist |
-| `sdk/` | Sony's PsyQ SDK documentation (PDFs: library reference, file formats, hardware). Gitignored, local copy only |
+| `sdk/` | Sony's PsyQ SDK documentation (PDFs: library reference, file formats, hardware; `Libref.txt` and `Libovr.txt` are `pdftotext -layout` copies to grep). Gitignored, local copy only |
 
 Rules for agents, the header layout, and codegen patterns for writing matching C (wide stores,
 chained assignment, separate symbols vs. one struct, `volatile`, ...) live in `CLAUDE.md`, not here.

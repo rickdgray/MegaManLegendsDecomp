@@ -83,6 +83,7 @@ typedef struct
 #define getClut(x, y) (((y) << 6) | (((x) >> 4) & 0x3f))
 
 u_long *ClearOTag(u_long *ot, int n);
+void ClearOTagR(u_long *ot, long n);
 void DrawOTag(u_long *p);
 int DrawSync(int mode);
 DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);

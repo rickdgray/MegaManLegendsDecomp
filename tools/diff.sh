@@ -20,6 +20,10 @@ export DIFF_MAP=$MAP DIFF_ORIGINAL=$ORIGINAL DIFF_BINARY=$BINARY \
 whole=0
 if [[ "${1:-}" == "--whole" ]]; then whole=1; shift; fi
 
+# Plain text when the output isn't a terminal (piped, or an agent reading it): no colour codes
+# to strip. A --format given on the command line comes later and wins.
+if [[ ! -t 1 ]]; then set -- --format plain "$@"; fi
+
 # Find the function's offset and size in the object that defines it ("F" = function symbol).
 found=""
 while read -r obj; do

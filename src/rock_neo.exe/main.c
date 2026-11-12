@@ -1,4 +1,7 @@
 #include "common.h"
+#include "system.h"
+#include "pad.h"
+#include "display.h"
 
 // Small data (.sdata 0x80097864-0x800979DC): reached through $gp in this file. The strings
 // are the exception handler's (names, then the register dump's labels and formats).
@@ -67,59 +70,214 @@ sint32 D_800979D8    = 0;
 // Small uninitialized statics (.sbss 0x80098158-0x80098160).
 static sint32 D_80098158[2];
 
+// Pool variable (0x800988D8): the event handle func_80012938 opens.
+sint32 D_800988D8;
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", main);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80011F04);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_800120A8);
+void func_800120A8(void)
+{
+    SetDefDrawEnv(&D_800C0C48[0].draw, 0, 0, 320, 240);
+    SetDefDispEnv(&D_800C0C48[0].disp, 0, 256, 320, 240);
+    SetDefDrawEnv(&D_800C0C48[1].draw, 0, 256, 320, 240);
+    SetDefDispEnv(&D_800C0C48[1].disp, 0, 0, 320, 240);
+    Disp_env_init(&D_800C0C48[0]);
+    Disp_env_init(&D_800C0C48[1]);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", Disp_env_init);
+void Disp_env_init(DISP_ENV *buf)
+{
+    ClearOTagR(buf->ot, OT_LEN);
+    buf->disp.screen.y = 0;
+    buf->draw.dtd      = 0;
+    buf->draw.dfe      = 0;
+    buf->draw.isbg     = 1;
+    buf->draw.r0       = 0;
+    buf->draw.g0       = 0;
+    buf->draw.b0       = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", Pad_update);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", Pad_update_all);
+void Pad_update_all(void)
+{
+    Pad_update(&Joy1);
+    Pad_update(&Joy2);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_800122D0);
+void func_800122D0(PAD_REP *pad)
+{
+    func_80012350(pad, PAD_UP, 0);
+    func_80012350(pad, PAD_DOWN, 1);
+    func_80012350(pad, PAD_LEFT, 2);
+    func_80012350(pad, PAD_RIGHT, 3);
+    func_80012350(pad, PAD_L1, 4);
+    func_80012350(pad, PAD_R1, 5);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012350);
+void func_80012350(PAD_REP *pad, sint32 mask, sint32 i)
+{
+    if (!(PAD_REP_OUT(pad) & mask) && (PAD_ON(pad->pad) & mask) == mask)
+    {
+        pad->rep_count[i] = 0;
+        if (pad->rep_state[i] == 0)
+        {
+            pad->rep_state[i] = 1;
+        }
+        else
+        {
+            pad->rep_state[i] = 2;
+            PAD_REP_OUT(pad) |= mask;
+        }
+    }
+    else if (pad->rep_state[i] != 0)
+    {
+        if (pad->rep_state[i] == 2 || pad->rep_count[i]++ >= 6)
+        {
+            pad->rep_state[i] = 0;
+            PAD_REP_OUT(pad) &= ~mask;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", Vsync_handler);
+void Vsync_handler(void)
+{
+    Vsync_count++;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012424);
+void func_80012424(void)
+{
+    if ((PAD_NOW(Joy1) & (PAD_L2 | PAD_R2 | PAD_L1 | PAD_R1)) == (PAD_L2 | PAD_R2 | PAD_L1 | PAD_R1) && (PAD_NOW(Joy2) & PAD_CIRCLE))
+    {
+        D_80097864[0] ^= 1;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_8001246C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012938);
+void func_80012938(void)
+{
+    func_8007FF70();
+    D_800988D8 = OpenEvent(0xF0000010, 0x1000, 0x1000, func_8001246C);
+    EnableEvent(D_800988D8);
+    func_8007FF80();
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012988);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012A5C);
 
+// Best attempt: the table base and gp now match; the target reloads THREAD_TBL[i].tcb from memory
+// before storing ->sr (mine reuses the register) and schedules the loop counter/giv differently.
+#ifdef NON_MATCHING
+void func_80012BC4(void)
+{
+    sint32 i;
+    uint32 gp;
+    TCB **kp;
+
+    kp = (TCB **)0x100;
+    gp = kp[4]->reg[28];
+    for (i = 0; i < 4; i++)
+    {
+        THREAD_TBL[i].flags   = 0;
+        THREAD_TBL[i].sp      = 0x801FEC00 + i * 0x400;
+        THREAD_TBL[i].gp      = gp;
+        THREAD_TBL[i].tcb     = &kp[4][i + 1];
+        THREAD_TBL[i].tcb->sr = 0x40000404;
+        THREAD_TBL[i].unk70   = 0;
+    }
+    for (i = 0; i < 9; i++)
+    {
+        ((uint32 *)0x801F8000)[i] = ((uint32 *)0x80080870)[i];
+    }
+    Thread_current = THREAD_TBL;
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012BC4);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012C80);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012E10);
+void func_80012E10(sint32 n, TH_FUNC func)
+{
+    func_8007FF70();
+    THREAD_TBL[n].th = OpenTh(func, THREAD_TBL[n].sp, THREAD_TBL[n].gp);
+    func_8007FF80();
+    THREAD_TBL[n].flags = 2;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", Thread_wait);
+void Thread_wait(sint32 arg)
+{
+    Thread_current->wait  = arg;
+    Thread_current->flags = 1;
+    ChangeTh(0xFF000000);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012ECC);
+void func_80012ECC(void)
+{
+    Thread_current->flags = 0;
+    func_8007FF70();
+    CloseTh(Thread_current->th);
+    func_8007FF80();
+    ChangeTh(0xFF000000);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012F24);
+void func_80012F24(sint32 n)
+{
+    THREAD_TBL[n].flags = 0;
+    func_8007FF70();
+    CloseTh(THREAD_TBL[n].th);
+    func_8007FF80();
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012F78);
+void func_80012F78(sint32 arg)
+{
+    D_80098158[0] = arg;
+    D_800979D8    = 1;
+    ChangeTh(0xFF000000);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012FA4);
+void func_80012FA4(sint32 n)
+{
+    THREAD_TBL[n].flags |= THREAD_FLAG_40;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012FC8);
+void func_80012FC8(sint32 n)
+{
+    THREAD_TBL[n].flags &= ~THREAD_FLAG_40;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012FEC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_800130D0);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_8001319C);
+void func_8001319C(void)
+{
+    sint32 i;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_800131FC);
+    for (i = 0; i < 8; i++)
+    {
+        Thread_current->unk60[i] = 0;
+    }
+    for (i = 0; i < 16; i++)
+    {
+        Thread_current->unk71[i] = 0;
+    }
+}
+
+void func_800131FC(void)
+{
+    D_80098B1C = 0;
+    D_80098B1D = 0;
+    while (1)
+    {
+        D_80080894[D_80098B1C](&D_80098B1C);
+        Thread_wait(1);
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_8001326C);
 

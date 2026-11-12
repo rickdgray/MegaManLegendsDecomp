@@ -112,6 +112,14 @@ Settings that took debugging, in `slus_006.03.yaml` (ROCK_NEO's own are in
   registers, and RAM no executable section covers (ROCK_NEO's `Thread_current` `0x801F8300`).
   `build.sh` turns those lines into linker definitions; `rename.py` adds the attribute itself
   for such addresses.
+- **Literal addresses in C.** For those addresses the original source used constants, not symbols:
+  the shim's scratchpad (`scratch.h`), ROCK_NEO's threads (`system.h`), the stage `IDX` table at
+  `0x8015C000` and the scratchpad map window (`stage.h`). Two signs in the assembly: the address
+  is built with `lui`/`ori` (a symbol gives `lui %hi` + `%lo(sym)`), and indexed accesses come out
+  as `addu $at,reg,$at` (maspsx's order for a constant; a symbol gives `addu $at,$at,reg`).
+  Write them as macros named like variables (`#define Thread_current (*(THREAD_WORK **)0x801F8300)`).
+  The registry entry stays, for the code still in assembly. Addresses inside the image (`.data`,
+  `.bss`) stay `extern` symbols.
 - `size:` matters for data (where a variable ends), rarely for functions (`stup0` ends in `break`,
   so it needs `size:0xC`).
 
@@ -147,7 +155,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/func_metrics.py [--top N]` | Score (estimated difficulty: weighted instruction features, formula in its docstring) and Depth (longest chain of calls into functions with no C yet; 0 = ready) for every Capcom function; prints a summary and how the score separates parked from matched functions |
 | `tools/overlay_files.py [--overlay ST03]` | Proposed split of the overlays into source files: confirmed by Capcom's source, common files shared between overlays, and regions with no evidence yet ([overlays.md](overlays.md), "Source files") |
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
-| `tools/batch_run.py <t> <file.c>` | Unattended decompilation batches; see [agents.md](agents.md) |
+| `tools/batch_run.py <t> <file.c ...> | --all` | Unattended decompilation batches; see [agents.md](agents.md) |
 
 Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<t>/<Func> -j N`.
 Its output is preprocessed C; port the *change* into `src/<t>/<file>.c`, don't paste it. Apply

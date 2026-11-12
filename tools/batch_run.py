@@ -1,43 +1,64 @@
 #!/usr/bin/env python3
-"""Decompile a C file's remaining INCLUDE_ASM functions in unattended batches.
+"""Decompile C files' remaining INCLUDE_ASM functions in unattended batches.
 
 Usage:
-    tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [--batch 6] [--model sonnet]
-                       [--cap 15] [--max-batches 0] [--dry-run]
+    tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [more .c files...]
+    tools/batch_run.py rock_neo.exe --all
+                       [--batch 6] [--model sonnet] [--cap 15] [--max-batches 0]
+                       [--timeout 30] [--dry-run]
 
-Each batch: pick the next functions (smallest first; skipping parked ones and ones a previous batch
-failed on), snapshot the files an agent can change, run Claude Code headless in a fresh session,
-then build BOTH targets. If both MATCH, the batch's changes stay in the working tree and a patch of
-them is saved in the log folder; otherwise the snapshot is restored and its functions are recorded
-as failed. Stops when nothing is left, when the cost cap (USD) is reached, after two failed batches
-in a row, or after --max-batches. Logs go to logs/batch_<timestamp>/.
+Each batch: pick the next functions, snapshot the files an agent can change, run Claude Code
+headless in a fresh session, then build BOTH targets. If both MATCH, the batch's changes stay in
+the working tree and a patch of them is saved in the log folder; otherwise the snapshot is
+restored and its functions are recorded as failed.
+
+Order: by Depth, then Score, from a functions.csv regenerated before each batch (see
+func_metrics.py: Depth 0 = every callee already has C), so each function's callees come first.
+A batch never spans files: it takes the best function among all the given files, then the next
+best ones in that same file. Functions missing from the CSV go last, smallest first.
+
+Agents may apply names they're sure of (CLAUDE.md, "Names"). When a batch changed a registry, the
+runner re-splits that target (rebuild.sh) before building, and again after reverting the batch.
+A kept batch's names go to NNN_renames.txt and logs/renames_applied.txt (registry lines - / +).
+
+Stops when nothing is left, when the cost cap (USD) is reached, after two failed batches in a row,
+or after --max-batches. A batch that runs past --timeout minutes is stopped; what it left is still
+built and kept if it matches. Logs go to logs/batch_<timestamp>/.
 
 The runner never runs git: you review the working tree (and the per-batch patches) and commit
 yourself. Start from a clean tree so the changes are easy to review.
 """
 
 import argparse
+import csv
 import datetime
 import json
+import os
 import re
 import shutil
+import signal
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = ["slus_006.03", "rock_neo.exe"]
 STATE = ROOT / "logs" / "batch_state.json"
+SCRATCH = ROOT / "logs" / "scratch"     # agents' scratch files (CLAUDE.md, "Tool use")
 # Everything an agent may change; snapshotted before each batch and restored if it fails.
 TRACKED = ["src", "include", "notes", "symbol_addrs_slus_006.03.txt", "symbol_addrs_rock_neo.exe.txt",
            "slus_006.03.yaml", "rock_neo.exe.yaml", "CLAUDE.md", "renames.txt"]
+NO_RANK = (1 << 30, 1 << 30)
 
 PROMPT = """Decompile these functions in `{cfile}`, in this order: {funcs}.
-Follow `CLAUDE.md`. Search `notes/` for each function's address and the globals it touches
+Follow `CLAUDE.md`, including "Tool use (unattended runs)": one command per Bash call, file
+changes only through Edit and Write, scratch files in `logs/scratch/`.
+Search `notes/` for each function's address and the globals it touches
 (`notes/README.md` lists which notes file covers what). Reuse the types and prototypes already in
-`include/`, and add new ones to the right header there. Where a struct's fields are still unkXX,
-propose names in renames.txt as their uses become clear.
+`include/`, and add new ones to the right header there. Name struct fields as their uses become
+clear.
 Don't work on any other function. Park anything that doesn't match within its budget, as
-`CLAUDE.md` describes. Append name proposals to `renames.txt` in the repo root (don't apply them).
+`CLAUDE.md` describes. Then apply the names you're sure of, as `CLAUDE.md`'s "Names" section
+describes (one `tools/rename.py` call per name, then one `./tools/rebuild.sh`).
 Don't run git commands. Finish with the usual summary."""
 
 
@@ -45,8 +66,8 @@ def run(cmd, **kw):
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, **kw)
 
 
-def remaining(cfile):
-    """INCLUDE_ASM functions in file order, excluding those inside a NON_MATCHING block."""
+def asm_funcs(cfile, parked):
+    """INCLUDE_ASM functions in file order: outside NON_MATCHING blocks, or (parked=True) inside."""
     funcs, in_nm = [], False
     for line in (ROOT / cfile).read_text().splitlines():
         s = line.strip()
@@ -55,23 +76,18 @@ def remaining(cfile):
         elif s.startswith("#endif") and in_nm:
             in_nm = False
         m = re.match(r'INCLUDE_ASM\("([^"]+)",\s*(\w+)\);', s)
-        if m and not in_nm:
+        if m and in_nm == parked:
             funcs.append((m.group(2), m.group(1)))
     return funcs
 
+
+def remaining(cfile):
+    return asm_funcs(cfile, parked=False)
+
+
 def parked_names(cfile):
-    """Functions whose INCLUDE_ASM sits inside a NON_MATCHING block (i.e. parked)."""
-    names, in_nm = set(), False
-    for line in (ROOT / cfile).read_text().splitlines():
-        s = line.strip()
-        if s.startswith("#ifdef NON_MATCHING"):
-            in_nm = True
-        elif s.startswith("#endif") and in_nm:
-            in_nm = False
-        m = re.match(r'INCLUDE_ASM\("([^"]+)",\s*(\w+)\);', s)
-        if m and in_nm:
-            names.add(m.group(2))
-    return names
+    return {n for n, _ in asm_funcs(cfile, parked=True)}
+
 
 def size_of(asm_dir, name):
     """Function size in bytes, from splat's `nonmatching NAME, 0xSIZE` line (else count instructions)."""
@@ -83,6 +99,82 @@ def size_of(asm_dir, name):
     if m:
         return int(m.group(1), 16)
     return 4 * len(re.findall(r"^\s*/\* [0-9A-F]+ [0-9A-F]{8} [0-9A-F]{8} \*/", text, re.M))
+
+
+def ranks(target, out):
+    """{name: (depth, score)} for the target's pending functions, from a fresh functions.csv.
+
+    Written to `out` (the log folder), not the tracked functions.csv. Needs both builds, which the
+    runner has just done (or the tree was clean). Empty if the list can't be made."""
+    r = run([".venv/bin/python", "tools/function_list.py", "-o", str(out)])
+    if r.returncode != 0 or not out.exists():
+        print(f"warning: function_list.py failed, ordering by size: {r.stderr.strip()[-200:]}", flush=True)
+        return {}
+    result = {}
+    with out.open(newline="") as fh:
+        for row in csv.DictReader(fh):
+            if row["Program"] != target or not row["Depth"]:
+                continue
+            key = (int(row["Depth"]), int(row["Score"] or 0))
+            result[row["Name"] or row["Function"]] = key
+    return result
+
+
+def pick(cfiles, failed, rank, size):
+    """(cfile, [names]) for the next batch, or (None, []) when nothing is left."""
+    todo = []      # (rank, size, file order, name, cfile)
+    for i, cf in enumerate(cfiles):
+        for n, d in remaining(cf):
+            if n not in failed:
+                todo.append((rank.get(n, NO_RANK), size_of(d, n), i, n, cf))
+    if not todo:
+        return None, []
+    todo.sort()
+    best = todo[0]
+    cfile = best[4]
+    # Same file, and no deeper than the best one: a deeper function waits for its callees.
+    return cfile, [t[3] for t in todo if t[4] == cfile and t[0][0] <= best[0][0]][:size]
+
+
+def registry_changes(snap):
+    """{target: [(old line, new line)...]} for registries that differ from the snapshot."""
+    out = {}
+    for t in TARGETS:
+        name = f"symbol_addrs_{t}.txt"
+        before = (snap / name).read_text().splitlines() if (snap / name).exists() else []
+        after = (ROOT / name).read_text().splitlines()
+        if before != after:
+            gone = [l for l in before if l not in set(after)]
+            new = [l for l in after if l not in set(before)]
+            out[t] = (gone, new)
+    return out
+
+
+def rename_map(renamed):
+    """{old name: new name} from registry changes, paired by address."""
+    def parse(lines):
+        out = {}
+        for l in lines:
+            m = re.match(r"\s*(\w+)\s*=\s*(0x[0-9A-Fa-f]+)", l)
+            if m:
+                out[int(m.group(2), 16)] = m.group(1)
+        return out
+    result = {}
+    for gone, new in renamed.values():
+        old_at, new_at = parse(gone), parse(new)
+        for addr, name in new_at.items():
+            old = old_at.get(addr, f"func_{addr:08X}")     # a new line renames splat's default
+            if old != name:
+                result[old] = name
+    return result
+
+
+def resplit(targets):
+    """rebuild.sh each target whose registry changed: asm/ and expected/ must carry its names."""
+    for t in targets:
+        r = run(["./tools/rebuild.sh", t])
+        if r.returncode != 0:
+            print(f"warning: rebuild.sh {t} failed: {r.stderr.strip()[-300:]}", flush=True)
 
 
 def build_ok():
@@ -130,101 +222,151 @@ def patch(snap, out):
     out.write_text("".join(chunks))
 
 
-def load_state():
-    return json.loads(STATE.read_text()) if STATE.exists() else {"failed": []}
+def agent(prompt, model, timeout_min):
+    """Run Claude Code headless. Returns (stdout, stderr, timed_out). On timeout the whole process
+    group is killed (claude and the builds it started)."""
+    p = subprocess.Popen(["claude", "-p", prompt, "--model", model, "--output-format", "json",
+                          "--permission-mode", "acceptEdits"],
+                         cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                         start_new_session=True)
+    try:
+        out, err = p.communicate(timeout=timeout_min * 60 if timeout_min else None)
+        return out, err, False
+    except subprocess.TimeoutExpired:
+        os.killpg(p.pid, signal.SIGTERM)
+        try:
+            out, err = p.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            os.killpg(p.pid, signal.SIGKILL)
+            out, err = p.communicate()
+        return out or "", err or "", True
+
+
+def save_state(state):
+    STATE.parent.mkdir(exist_ok=True)
+    STATE.write_text(json.dumps(state, indent=2))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target")
-    ap.add_argument("cfile", help="C file to work through, e.g. src/rock_neo.exe/cd.c")
+    ap.add_argument("cfiles", nargs="*", help="C files to work through, e.g. src/rock_neo.exe/cd.c")
+    ap.add_argument("--all", action="store_true", help="every C file of the target")
     ap.add_argument("--batch", type=int, default=6, help="functions per batch")
     ap.add_argument("--model", default="sonnet")
     ap.add_argument("--cap", type=float, default=15.0, help="stop once total cost reaches this (USD)")
     ap.add_argument("--max-batches", type=int, default=0, help="0 = no limit")
+    ap.add_argument("--timeout", type=float, default=30.0, help="minutes per batch (0 = no limit)")
     ap.add_argument("--dry-run", action="store_true", help="show the batches, run nothing")
     args = ap.parse_args()
+
+    if args.all:
+        cfiles = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "src" / args.target).glob("*.c"))
+    else:
+        cfiles = args.cfiles
+    if not cfiles:
+        ap.error("give C files, or --all")
+    for cf in cfiles:
+        if not (ROOT / cf).is_file():
+            ap.error(f"{cf}: no such file")
 
     if not args.dry_run:
         r = run(["git", "status", "--porcelain"])     # read-only check
         if r.stdout.strip():
             print("warning: the working tree has uncommitted changes; they'll be mixed into the batch "
                   "results (and restored with a failed batch's snapshot, not lost)", flush=True)
+    SCRATCH.mkdir(parents=True, exist_ok=True)
 
-    state = load_state()
-    logdir = ROOT / "logs" / f"batch_{datetime.datetime.now():%Y%m%d_%H%M%S}"
+    state = json.loads(STATE.read_text()) if STATE.exists() else {"failed": []}
+    # A dry run keeps nothing: its function list goes to the scratch folder.
+    logdir = SCRATCH / "dry_run" if args.dry_run else \
+        ROOT / "logs" / f"batch_{datetime.datetime.now():%Y%m%d_%H%M%S}"
     logdir.mkdir(parents=True, exist_ok=True)
     total_cost, failures_in_row, batch_no = 0.0, 0, 0
     summary = []
+    failed = set(state["failed"])
+    rank = ranks(args.target, logdir / "functions.csv")
 
     while True:
-        todo = [(n, d) for n, d in remaining(args.cfile) if n not in state["failed"]]
-        if not todo:
+        cfile, batch = pick(cfiles, failed, rank, args.batch)
+        if not batch:
             summary.append("nothing left to do")
             break
-        todo.sort(key=lambda nd: size_of(nd[1], nd[0]))
-        batch = [n for n, _ in todo[:args.batch]]
         batch_no += 1
-        prompt = PROMPT.format(cfile=args.cfile, funcs=", ".join(f"`{n}`" for n in batch))
+        prompt = PROMPT.format(cfile=cfile, funcs=", ".join(f"`{n}`" for n in batch))
 
         if args.dry_run:
-            print(f"batch {batch_no}: {', '.join(batch)}")
-            state["failed"].extend(batch)      # only to advance the dry-run listing
+            print(f"batch {batch_no} ({Path(cfile).stem}): "
+                  + ", ".join(f"{n} {rank.get(n, ('-', '-'))}" for n in batch))
+            failed.update(batch)      # only to advance the dry-run listing
             if args.max_batches and batch_no >= args.max_batches:
                 break
             continue
 
-        print(f"[batch {batch_no}] {', '.join(batch)}", flush=True)
+        print(f"[batch {batch_no}] {Path(cfile).stem}: {', '.join(batch)}", flush=True)
         snap = logdir / "snapshot"
         snapshot(snap)
         (logdir / f"{batch_no:03}_prompt.txt").write_text(prompt)
-        r = run(["claude", "-p", prompt, "--model", args.model, "--output-format", "json",
-                 "--permission-mode", "acceptEdits"])
-        (logdir / f"{batch_no:03}_raw.json").write_text(r.stdout + "\n--- stderr ---\n" + r.stderr)
-        cost, report = 0.0, r.stdout
+        start = datetime.datetime.now()
+        out, err, timed_out = agent(prompt, args.model, args.timeout)
+        minutes = (datetime.datetime.now() - start).total_seconds() / 60
+        (logdir / f"{batch_no:03}_raw.json").write_text(out + "\n--- stderr ---\n" + err)
+        cost, report = 0.0, out
         try:
-            out = json.loads(r.stdout)
-            cost = float(out.get("total_cost_usd", 0.0))
-            report = out.get("result", "")
+            res = json.loads(out)
+            cost = float(res.get("total_cost_usd", 0.0))
+            report = res.get("result", "")
         except json.JSONDecodeError:
-            pass
+            pass        # a killed run has no JSON (and its cost is unknown)
         total_cost += cost
         (logdir / f"{batch_no:03}_report.md").write_text(report)
+        tag = f", TIMEOUT after {args.timeout:g} min (cost unknown)" if timed_out else ""
 
+        renamed = registry_changes(snap)
+        resplit(renamed)      # renames need a fresh split before the build can match
         ok, results = build_ok()
-        after = {n for n, _ in remaining(args.cfile)}
-        banked = [n for n in batch if n not in after]   # banked or parked: no longer plain INCLUDE_ASM
-        if ok and not banked:
-            # Nothing happened to this batch: don't pick the same functions again.
-            state["failed"].extend(batch)
-            STATE.parent.mkdir(exist_ok=True)
-            STATE.write_text(json.dumps(state, indent=2))
-            restore(snap)
-            failures_in_row += 1
-            line = f"batch {batch_no}: NO PROGRESS (functions skipped from now on), ${cost:.2f}"
-            print("   " + line, flush=True)
-            summary.append(line)
-            if failures_in_row >= 2 or total_cost >= args.cap:
-                summary.append("stopping")
-                break
-            continue
         if ok:
-            parked = [n for n in batch if n in parked_names(args.cfile)]
-            done = [n for n in banked if n not in parked]
-            msg = f"{Path(args.cfile).stem}: batch {batch_no} ({len(done)} banked, {len(parked)} parked)\n\n" + \
-                  "\n".join(f"- {n}: {'parked' if n in parked else 'banked'}" for n in batch)
+            batch = [rename_map(renamed).get(n, n) for n in batch]   # follow renamed batch functions
+        after = {n for n, _ in remaining(cfile)}
+        changed = [n for n in batch if n not in after]   # banked or parked: no longer plain INCLUDE_ASM
+        if ok and not changed:
+            # Nothing happened to this batch: don't pick the same functions again.
+            failed.update(batch)
+            state["failed"] = sorted(failed)
+            save_state(state)
+            restore(snap)
+            resplit(renamed)
+            failures_in_row += 1
+            line = f"batch {batch_no}: NO PROGRESS (functions skipped from now on), ${cost:.2f}, {minutes:.0f} min{tag}"
+        elif ok:
+            parked = [n for n in batch if n in parked_names(cfile)]
+            done = [n for n in changed if n not in parked]
+            msg = f"{Path(cfile).stem}: batch {batch_no} ({len(done)} banked, {len(parked)} parked)\n\n" + \
+                  "\n".join(f"- {n}: {'parked' if n in parked else 'banked' if n in done else 'untouched'}"
+                            for n in batch)
             patch(snap, logdir / f"{batch_no:03}_changes.patch")
+            if renamed:
+                # The names this batch applied, for review: registry lines removed and added.
+                text = "".join(f"## {t}\n" + "".join(f"- {l}\n" for l in gone) + "".join(f"+ {l}\n" for l in new)
+                               for t, (gone, new) in renamed.items())
+                (logdir / f"{batch_no:03}_renames.txt").write_text(text)
+                with (ROOT / "logs" / "renames_applied.txt").open("a") as fh:
+                    fh.write(f"# {logdir.name} batch {batch_no} ({Path(cfile).stem})\n{text}")
             (logdir / f"{batch_no:03}_summary.txt").write_text(msg + "\n")
+            # Untouched functions of a kept batch (e.g. after a timeout) stay available.
             failures_in_row = 0
-            line = (f"batch {batch_no}: KEPT, {len(done)} banked, {len(parked)} parked, "
-                    f"${cost:.2f}")
+            n_ren = sum(len(new) for _, new in renamed.values())
+            line = (f"batch {batch_no}: KEPT ({Path(cfile).stem}), {len(done)} banked, {len(parked)} parked, "
+                    f"{n_ren} renamed, ${cost:.2f}, {minutes:.0f} min{tag}")
+            rank = ranks(args.target, logdir / "functions.csv")    # depths change as functions get C
         else:
             restore(snap)
-            state["failed"].extend(batch)
-            STATE.parent.mkdir(exist_ok=True)
-            STATE.write_text(json.dumps(state, indent=2))
+            resplit(renamed)
+            failed.update(batch)
+            state["failed"] = sorted(failed)
+            save_state(state)
             failures_in_row += 1
-            line = f"batch {batch_no}: REVERTED (build {results}), ${cost:.2f}"
+            line = f"batch {batch_no}: REVERTED (build {results}), ${cost:.2f}, {minutes:.0f} min{tag}"
         print("   " + line, flush=True)
         summary.append(line)
 
@@ -238,8 +380,11 @@ def main():
             summary.append("max batches reached")
             break
 
+    if args.dry_run:
+        shutil.rmtree(logdir, ignore_errors=True)
+        return
     shutil.rmtree(logdir / "snapshot", ignore_errors=True)
-    summary.append(f"total cost ${total_cost:.2f}")
+    summary.append(f"total cost ${total_cost:.2f} (timed-out batches not counted)")
     (logdir / "summary.txt").write_text("\n".join(summary) + "\n")
     print("\n".join(summary))
     print(f"logs: {logdir.relative_to(ROOT)}")
