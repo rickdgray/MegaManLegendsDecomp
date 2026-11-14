@@ -365,8 +365,9 @@ then copy the vector or the midpoint into `D_800BE478[slot] + 0xBC` for each slo
 `&D_800BC818` in s0 from the start (also the copy end pointer) while ours rebuilds `D_800BC818-0x20`.
 Parked `func_80035724` (`NON_MATCHING`; spawns an `OBJ_10C` from `PL_WORK`, claims a slot with
 `func_8003545C`): the target computes `pl + sel * 8` at the end of each branch, ours once after the merge.
-`func_80035508` stays assembly for now: GTE code (`ctc2`, `lwc2`, `rtps`, `mfc2`, `swc2`), no GTE
-macros or inline-asm convention exists in the repo yet (needs a decision).
+`func_80035508` (GTE: projects each claimed slot's position at +0xBC through `Scratch_view_mtx`, then
+clears it) banked with `psyq/inline_c.h`; its screen XY local is 8 bytes (frame 0x10), and `mask <<= 1`
+sits at the end of the body.
 
 `code_8002E7A8.c` (batch 4): banked `func_80036294` (id byte -> pointer into one of eight work pools,
 kind from `func_8002FE74`; `kind` must be `sint32` for the `slti` switch), `func_80030D30` (launch

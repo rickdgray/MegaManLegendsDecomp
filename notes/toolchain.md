@@ -161,6 +161,24 @@ Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<t
 Its output is preprocessed C; port the *change* into `src/<t>/<file>.c`, don't paste it. Apply
 partial improvements to the draft and re-run `permuter_prep.py` to continue from the better base.
 
+## GTE (coprocessor 2) code
+
+GCC can't emit GTE instructions; Capcom's C used PsyQ's inline macros (`inline_c.h`: `gte_ldv0`,
+`gte_rtps`, ...; volatile inline asm, which DMPSX patched into real opcodes at the time). Ours are
+self-written in `include/psyq/inline_c.h`, under Sony's names, each with the exact sequence found in
+the game (registers, nops, order), and added only as a function needs one. GNU `as` assembles the
+COP2 mnemonics directly (`ctc2`, `lwc2`, `mfc2`, `swc2`, and commands as `cop2 0x...`, e.g. RTPS =
+`cop2 0x0180001`). Since the macros are volatile, their order in C is their order in the binary;
+plain loads and stores between them can still move. First user: `func_80035508`.
+
+## `$at` and `.set noat`
+
+`$at` (register 1) is the assembler's scratch register for expanding pseudo-instructions. Under
+`.set at` (the default) GNU `as` warns when code names it; `.set noat` says the code manages it.
+maspsx writes ASPSX's `li $at,K` + `sltu rd,rs,$at` (for `sltu` with a negative constant) without
+`.set noat`, unlike its other `$at` expansions; `cc.sh` wraps such pairs with an `awk` filter. The
+bytes don't change; the build has no assembler warnings.
+
 ## Gotchas
 
 - **Scores are line edit distances, not closeness.** asm-differ's header score (and the

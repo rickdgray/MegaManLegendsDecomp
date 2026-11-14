@@ -4,7 +4,7 @@
 Usage:
     tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [more .c files...]
     tools/batch_run.py rock_neo.exe --all
-                       [--batch 6] [--model sonnet] [--cap 15] [--max-batches 0]
+                       [--batch 6] [--model opus] [--cap 15] [--max-batches 0]
                        [--timeout 30] [--dry-run]
 
 Each batch: pick the next functions, snapshot the files an agent can change, run Claude Code
@@ -169,6 +169,50 @@ def rename_map(renamed):
     return result
 
 
+def home_file(target, name):
+    """The file that defines function `name`: its C definition, else its splat asm folder."""
+    for c in (ROOT / "src" / target).glob("*.c"):
+        if re.search(rf"^\w[^;\n]*\b{re.escape(name)}\s*\([^;]*$", c.read_text(), re.M):
+            return c.stem
+    hits = list((ROOT / "asm" / target / "nonmatchings").glob(f"*/{name}.s"))
+    return hits[0].parent.name if hits else None
+
+
+def outside_users(target, name, home):
+    """Files other than `home` that name `name`: C sources, other files' assembly, data tables."""
+    users = set()
+    word = re.compile(rf"\b{re.escape(name)}\b")
+    for c in (ROOT / "src" / target).glob("*.c"):
+        if c.stem != home and word.search(c.read_text()):
+            users.add(c.stem)
+    for s_ in (ROOT / "asm" / target).rglob("*.s"):
+        owner = s_.parent.name if "nonmatchings" in s_.parts else "data"
+        if owner != home and word.search(s_.read_text()):
+            users.add(owner)
+    return users
+
+
+def naming_warnings(renamed):
+    """CLAUDE.md's global vs static rule for applied function names: no callers outside the
+    defining file -> lower_snake_case; callers outside (or a data table) -> Capitalized."""
+    out = []
+    for t, (_, new) in renamed.items():
+        for l in new:
+            m = re.match(r"\s*(\w+)\s*=.*type:func", l)
+            if not m:
+                continue
+            name = m.group(1)
+            home = home_file(t, name)
+            if home is None:
+                continue
+            users = outside_users(t, name, home)
+            if name[0].isupper() and not users:
+                out.append(f"{name}: only {home} uses it, so static style: {name[0].lower() + name[1:]}?")
+            elif name[0].islower() and users:
+                out.append(f"{name}: used outside {home} ({', '.join(sorted(users))}), so global style")
+    return out
+
+
 def resplit(targets):
     """rebuild.sh each target whose registry changed: asm/ and expected/ must carry its names."""
     for t in targets:
@@ -253,7 +297,7 @@ def main():
     ap.add_argument("cfiles", nargs="*", help="C files to work through, e.g. src/rock_neo.exe/cd.c")
     ap.add_argument("--all", action="store_true", help="every C file of the target")
     ap.add_argument("--batch", type=int, default=6, help="functions per batch")
-    ap.add_argument("--model", default="sonnet")
+    ap.add_argument("--model", default="opus")
     ap.add_argument("--cap", type=float, default=15.0, help="stop once total cost reaches this (USD)")
     ap.add_argument("--max-batches", type=int, default=0, help="0 = no limit")
     ap.add_argument("--timeout", type=float, default=30.0, help="minutes per batch (0 = no limit)")
@@ -349,6 +393,9 @@ def main():
                 # The names this batch applied, for review: registry lines removed and added.
                 text = "".join(f"## {t}\n" + "".join(f"- {l}\n" for l in gone) + "".join(f"+ {l}\n" for l in new)
                                for t, (gone, new) in renamed.items())
+                warnings = naming_warnings(renamed)
+                if warnings:
+                    text += "## naming warnings\n" + "".join(f"! {w}\n" for w in warnings)
                 (logdir / f"{batch_no:03}_renames.txt").write_text(text)
                 with (ROOT / "logs" / "renames_applied.txt").open("a") as fh:
                     fh.write(f"# {logdir.name} batch {batch_no} ({Path(cfile).stem})\n{text}")
@@ -362,8 +409,10 @@ def main():
                 save_state(state)
             failures_in_row = 0
             n_ren = sum(len(new) for _, new in renamed.values())
+            n_warn = len(naming_warnings(renamed)) if renamed else 0
+            warn = f" ({n_warn} naming warnings, see {batch_no:03}_renames.txt)" if n_warn else ""
             line = (f"batch {batch_no}: KEPT ({Path(cfile).stem}), {len(done)} banked, {len(parked)} parked, "
-                    f"{n_ren} renamed, ${cost:.2f}, {minutes:.0f} min{tag}")
+                    f"{n_ren} renamed{warn}, ${cost:.2f}, {minutes:.0f} min{tag}")
             rank = ranks(args.target, logdir / "functions.csv")    # depths change as functions get C
         else:
             restore(snap)

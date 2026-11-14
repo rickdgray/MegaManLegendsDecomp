@@ -6,23 +6,7 @@
 
 #include "common.h"
 #include "psyq/libgte.h"
-
-// Scratchpad scene scale and fog parameters (written by func_8003697C / func_800369C0).
-#define Scratch_scale_shift                                                                                                                \
-    (*(uint8 *)0x1F800074) // 0 normal, 1 = coordinates doubled, fog distances halved (func_800369C0); also a table index (0-2)
-
-#define Scratch_fog_0 (*(uint16 *)0x1F800006)
-#define Scratch_fog_1 (*(uint16 *)0x1F800076)
-#define Scratch_fog_2 (*(uint8 *)0x1F800078) // byte +0x23 of the fog block (func_800371A0)
-
-// Scratchpad working matrix (func_80033D80).
-#define Scratch_mtx (*(MATRIX *)0x1F8000C0)
-
-// Scratchpad pose unpacking (func_80033A28): 0x20 packed words at 0x1F800180 become 25 SVECTORs
-// of 12-bit values at 0x1F800120.
-#define Scratch_pose_packed ((uint32 *)0x1F800180)
-
-#define Scratch_pose_vtx ((sint16 *)0x1F800120)
+#include "scratch.h"
 
 // Keyframe table sets, loaded at fixed addresses (indexed by set number).
 #define Key_tbl_a ((KEY_ENT **)0x800D9D00)
@@ -125,18 +109,8 @@ typedef struct
     sint16 field_32;
     sint16 field_34;
     sint16 field_36;
-    union
-    {
-        sint32 args;  // argument block passed to Sound_call2
-        uint16 hw[2]; // hw[1] (0x3A) is also an accumulator (func_800459C0)
-        struct
-        {
-            sint16 x;
-            sint16 y;
-        } pos; // position tested against the players (func_80045BC8)
-    } args_38;
-    sint16 z_3C;
-    uint16 field_3E; // scale of the diagonal of the matrix at 0x18 (func_800469A4)
+    SVECTOR pos_38;  // 0x38: position (x, y = height, z); pad: scale of the diagonal of the matrix at
+                     // 0x18 (func_800469A4). Copied as 8 bytes, passed to Sound_call2 as the source.
     uint32 field_40; // packed colour (code in the top byte of some users)
     union
     {
@@ -545,7 +519,7 @@ SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint3
 void Model_work_init(ATTACH_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
-WORK_48 *func_80031618(void); // effect.h declares it as EFFECT_WORK *; never include both
+WORK_48 *func_80031618(void); // claims a free slot of D_800A3B40, or 0
 uint32 func_8002FE74(uint32 a);
 sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8);
 

@@ -279,6 +279,10 @@ What decompilers show vs. what to write:
 - **A call with no argument setup** may pass an argument through: if the caller's own callers
   load `a0` and nothing in between changes it, the caller takes that argument and forwards it
   (`func_80039A38(arg0)` → `func_800399EC(arg0)`). Write that, not an old-style (K&R) definition.
+- **GTE (coprocessor 2) instructions** (`ctc2`, `lwc2`, `rtps`/`cop2`, `mfc2`, `swc2`) inside an
+  ordinary GCC function are PsyQ's inline macros: write them with `include/psyq/inline_c.h`
+  (`gte_ldv0(v); gte_rtps();`). If a sequence has no macro yet, add one with that exact sequence
+  (see `notes/toolchain.md`, "GTE"), named after PsyQ's macro for it.
 - **Embedded TIM images:** image data in the binary is often a whole TIM file, read at fixed
   offsets (CLUT pixels at +0x14). Name the symbol `*_tim`.
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
@@ -340,11 +344,11 @@ What decompilers show vs. what to write:
 | Header | Contents |
 |---|---|
 | `include/common.h` | Basic typedefs (`s8`…`u32`, `u_char`…`u_long`, Capcom's `uint8`…`sint32`); includes `include_asm.h` |
-| `include/psyq/*.h` | Self-written PsyQ declarations (`libgpu.h`: `RECT`, `DRAWENV`, `SPRT`, `addPrim`, …; `libcd.h`, `libsnd.h`, …) |
+| `include/psyq/*.h` | Self-written PsyQ declarations (`libgpu.h`: `RECT`, `DRAWENV`, `SPRT`, `addPrim`, …; `libcd.h`, `libsnd.h`, …; `inline_c.h`: GTE macros) |
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_WORK`, `PAD_*` buttons (one layout in both programs) |
 | `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `effect.h`, `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8002E7A8.h` (work pools, scene scale and fog), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8002E7A8.h` (the work pools and their slot types, keyframe tables), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
@@ -361,6 +365,21 @@ header of the file that *defines* the function or *owns* the type, not the heade
 that happens to use it first. Include
 headers by bare name (`#include "stage.h"`, not `"rock_neo.exe/stage.h"`): the include path
 searches the target's folder first.
+
+**One struct per object, not one per view.** Before defining a struct for a pointer a function
+takes, find where the object comes from: the function that returns it (`func_80031618` hands out
+`WORK_48` slots), the array it indexes (`&D_800A3B40[i]`), or the global it is. If that already
+has a type, use it, and grow it: replace the `pad`/`unk` bytes with the field you found. So:
+
+- Same allocator or same pool array means the same type, whatever the function does with it.
+- Don't add a partial struct (`POS_WORK`, `FLAG_WORK`) for an object whose type exists or can be
+  found. If the origin really is unknown, say so in the struct's comment ("passed in by
+  func_X; probably a pool slot") so it can be merged later.
+- Give a field its natural type before reaching for a union. Bytes that are copied as 8, passed
+  as an `SVECTOR *` and moved as x/y/z are one `SVECTOR` (`WORK_48.pos_38`), not a union of the
+  views each function needed. A union is for bytes that hold different things at different times.
+- The type goes in the header of the file that owns the object (its allocator or pool), not the
+  header of the first file that uses it.
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.

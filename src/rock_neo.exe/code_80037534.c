@@ -1,6 +1,6 @@
 #include "common.h"
 #include "psyq/libc.h"
-#include "effect.h"
+#include "code_8002E7A8.h"
 #include "player.h"
 #include "code_80037FB4.h"
 #include "stage.h"
@@ -148,7 +148,7 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
     SVECTOR pos;
     SVECTOR ofs;
     IDX_SHAPE *shape;
-    EFFECT_WORK *e;
+    WORK_48 *e;
     uint32 width;
     uint32 spread;
     uint32 cnt0;
@@ -183,17 +183,17 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             if (e != 0)
             {
                 e->routine_0 = 5;
-                e->routine_2 = 0x80;
-                e->routine_3 = 2;
+                e->field_2   = 0x80;
+                e->flag_3    = 2;
                 r            = rand();
                 a            = j * step0 - (r & 0x1F);
                 if (cnt0 == 1)
                 {
                     spread = 0;
                 }
-                e->pos_38[0] = pos.vx + ((rcos(a) * spread) >> 12);
-                e->pos_38[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->pos_38[2] = pos.vz + ((rsin(a) * spread) >> 12);
+                e->pos_38.vx = pos.vx + ((rcos(a) * spread) >> 12);
+                e->pos_38.vy = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->pos_38.vz = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }
@@ -205,9 +205,9 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             e = func_80031618();
             if (e != 0)
             {
-                e->routine_2 = 0x83;
+                e->field_2   = 0x83;
                 e->routine_0 = 1;
-                e->routine_3 = 2;
+                e->flag_3    = 2;
                 r            = rand();
                 a            = j * step1 - (r & 0x1F);
                 if (cnt1 == 1)

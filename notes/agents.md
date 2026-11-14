@@ -7,7 +7,7 @@ is for the owner: which model to use, what it costs, how to run batches, and how
 
 | Model | Use for | Observed |
 |---|---|---|
-| **Sonnet** | The default for decompiling batches (and `batch_run.py`'s default) | Banks most functions; parks sensibly within the cycle budget; short, accurate reports |
+| **Sonnet** | Was the batch default until the 2026-11-12 comparison (below) | Banks most functions; parks sensibly within the cycle budget; short, accurate reports |
 | **Haiku** | Mechanical work: renames, doc edits, rename plans | Reliable on explicit instructions; stops and reports when a step breaks the build |
 | **Opus** | Hard functions that Sonnet parks, alongside the permuter; porting work | Easy shim functions, and the first ROCK_NEO port (below) |
 
@@ -24,6 +24,7 @@ is for the owner: which model to use, what it costs, how to run batches, and how
 | First ROCK_NEO port (the `cd` file from the shim) | Opus | Fresh | Ported | $1.76 |
 | Six-function batch | Sonnet | Fresh (batch runner) | | $0.28 |
 | `batch_run.py` on `cd.c` (`logs/batch_20261106_001300/`, 4 batches) | Sonnet | Fresh per batch | 10 banked, 3 parked, `cd_cmd_read_comb` skipped | $2.83 |
+| Opus vs Sonnet, one file each (`logs/batch_20261112_105004`, `_131130`) | Opus / Sonnet | Fresh per batch | Opus 68 banked of 91 ($0.16/function, 11 of 22 at Score 100+); Sonnet 34 of 48 ($0.20, 3 of 11). Sonnet's headers needed far more cleanup. **Opus is the batch default since.** | $15.16 / $9.58 |
 | ROCK_NEO pilot: `code_80037534`, `code_80037FB4`, `main`, `code_8005C258` (`logs/batch_20261111_*`, 13 batches) | Sonnet | Fresh per batch | 63 banked, 8 parked (3 banked later by hand) | $7.55 (~$0.11/function); up to 135 turns / 15 min per batch |
 
 Most cost is **context**, re-sent every turn as cache reads, not output. The group A run cost
@@ -80,7 +81,8 @@ several times more because the session had carried hours of earlier work.
   notes use for a function; the other program's C for a shared function).
 - Agents apply names they're sure of (splat defaults only) with `rename.py`, after the
   functions; the batch runner re-splits when a registry changed, and logs each kept batch's names
-  to `NNN_renames.txt` and `logs/renames_applied.txt` for review. Already-named symbols and
+  to `NNN_renames.txt` and `logs/renames_applied.txt` for review, with a warning for any function
+  name whose style doesn't fit its callers (global vs static; both models got this wrong). Already-named symbols and
   registry fixes still go to `renames.txt` for the owner.
 
 ## Reviewing a run

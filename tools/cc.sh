@@ -46,8 +46,15 @@ CC1FLAGS="-quiet -O2 $GFLAGS ${CC1_EXTRA:-}"
 MASPSXFLAGS="--aspsx-version=${ASPSX_VERSION:-2.56} --expand-div $MASPSX_EXTRA"
 ASFLAGS="-EL -march=r3000 -mtune=r3000 -no-pad-sections -O1 -G0 -I$ROOT/include"
 
+# maspsx (ASPSX 2.56 emulation) writes `sltu rd,rs,<negative constant>` as `li $at,K` +
+# `sltu rd,rs,$at`, as ASPSX did, but unlike its other $at expansions without `.set noat`, so GNU as
+# warns "used $at without .set noat". Wrap the pair; the bytes are the same. (cc1 never names $at,
+# so a `li $at,` line can only come from maspsx.)
+NOAT_FIX='/^li\t\$at,/ { print ".set\tnoat"; print; getline; print; print ".set\tat"; next } { print }'
+
 mkdir -p "$(dirname "$obj")"
 cpp $CPPFLAGS "$src" \
     | "$CC1" $CC1FLAGS \
     | python3 "$MASPSX" $MASPSXFLAGS \
+    | awk "$NOAT_FIX" \
     | mips-linux-gnu-as $ASFLAGS -o "$obj"

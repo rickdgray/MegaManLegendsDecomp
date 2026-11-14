@@ -1,6 +1,7 @@
 #include "common.h"
 #include "code_8002E7A8.h"
 #include "fastmem.h"
+#include "psyq/inline_c.h"
 #include "player.h"
 
 // Called only from this file, ahead of their definitions.
@@ -1879,7 +1880,35 @@ void func_800354E0(uint32 n)
     D_80098798 &= ~(0x80000000 >> n);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80035508);
+// Projects the position (+0xBC) of every claimed slot of D_800BE478 through the view matrix and
+// clears it. The screen XY and depth go to locals and are never used (left over, or a debug aid).
+void func_80035508(void)
+{
+    SVECTOR sxy; // only the first word is written (screen x, y); 8 bytes in the frame
+    long otz;
+    uint32 mask;
+    sint32 i;
+
+    gte_SetRotMatrix(&Scratch_view_mtx);
+    gte_SetTransMatrix(&Scratch_view_mtx);
+    mask = D_80098798 & 0xFFFFFF00;
+    if (mask != 0)
+    {
+        for (i = 0; i < 0x18; i++)
+        {
+            if (mask >= 0x80000000)
+            {
+                gte_ldv0((SVECTOR *)(D_800BE478[i] + 0xBC));
+                gte_rtps();
+                *(uint32 *)(D_800BE478[i] + 0xBC) = 0;
+                *(uint32 *)(D_800BE478[i] + 0xC0) = 0;
+                gte_stszotz(&otz);
+                gte_stsxy(&sxy);
+            }
+            mask <<= 1;
+        }
+    }
+}
 
 MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
 {
