@@ -19,6 +19,9 @@ best ones in that same file. Functions missing from the CSV go last, smallest fi
 
 Agents may apply names they're sure of (CLAUDE.md, "Names"). When a batch changed a registry, the
 runner re-splits that target (rebuild.sh) before building, and again after reverting the batch.
+--consolidate runs one cleanup session per file instead (merge view structs, fix header placement,
+retry parked functions), with the same snapshot / build / keep-or-revert handling.
+
 A kept batch's names go to NNN_renames.txt and logs/renames_applied.txt (registry lines - / +).
 
 Stops when nothing is left, when the cost cap (USD) is reached, after two failed batches in a row,
@@ -60,6 +63,32 @@ Don't work on any other function. Park anything that doesn't match within its bu
 `CLAUDE.md` describes. Then apply the names you're sure of, as `CLAUDE.md`'s "Names" section
 describes (one `tools/rename.py` call per name, then one `./tools/rebuild.sh`).
 Don't run git commands. Finish with the usual summary."""
+
+CONSOLIDATE_PROMPT = """Consolidation pass for `{cfile}`, after its functions were decompiled in batches.
+Don't decompile new functions. Follow `CLAUDE.md`, including "Tool use (unattended runs)", and
+above all "Types and headers" ("One struct per object, not one per view", "Declarations live in
+headers") and "Names". The build must print MATCH for both targets after every step; revert a step
+that doesn't match rather than forcing it.
+
+1. Structs. For each struct the file's code uses that was written for one function's view of an
+   object (a partial struct, mostly padding, a comment like "object with ..."), find where the
+   object comes from: the function that returns it, the pool array it indexes, the global it is,
+   or what the callers pass (search the callers' assembly too). If it is an existing type, merge
+   the view into it: move its fields into that type's padding, switch every user over, delete the
+   view. Merge two views of the same object the same way. Leave a view whose origin you can't
+   establish, with a comment saying what you checked.
+2. Fields: give fields their natural type (an 8-byte position copied as a unit is an SVECTOR, not a
+   union of views). Name fields whose job is now clear.
+3. Headers: every declaration in the header of the file that defines or owns it; prototypes of
+   functions called only from this file in the .c file; header order (defines, types, externs,
+   prototypes). Use existing literal-address macros instead of raw addresses, and add macros for
+   raw addresses outside the image.
+4. Parked functions (`#ifdef NON_MATCHING`) in `{cfile}` whose types you changed: retry each, up to
+   5 build-and-diff cycles; bank the ones that match, update the note of the ones that don't.
+5. Apply function names you're now sure of, as `CLAUDE.md`'s "Names" section describes.
+
+Don't run git commands. Report: structs merged (view -> type), views kept and why, parked functions
+retried (banked or not), names applied, anything that needs the owner."""
 
 
 def run(cmd, **kw):
@@ -291,6 +320,68 @@ def save_state(state):
     STATE.write_text(json.dumps(state, indent=2))
 
 
+def consolidate(args, cfiles, logdir):
+    """One session per file with CONSOLIDATE_PROMPT; kept if both builds match, else reverted."""
+    summary, total_cost = [], 0.0
+    for n, cfile in enumerate(cfiles, 1):
+        prompt = CONSOLIDATE_PROMPT.format(cfile=cfile)
+        if args.dry_run:
+            print(f"consolidate {n}: {cfile}")
+            continue
+        print(f"[consolidate {n}] {Path(cfile).stem}", flush=True)
+        snap = logdir / "snapshot"
+        snapshot(snap)
+        tag = f"{n:03}_consolidate"
+        (logdir / f"{tag}_prompt.txt").write_text(prompt)
+        start = datetime.datetime.now()
+        out, err, timed_out = agent(prompt, args.model, args.timeout)
+        minutes = (datetime.datetime.now() - start).total_seconds() / 60
+        (logdir / f"{tag}_raw.json").write_text(out + "\n--- stderr ---\n" + err)
+        cost, report = 0.0, out
+        try:
+            res = json.loads(out)
+            cost = float(res.get("total_cost_usd", 0.0))
+            report = res.get("result", "")
+        except json.JSONDecodeError:
+            pass
+        total_cost += cost
+        (logdir / f"{tag}_report.md").write_text(report)
+        renamed = registry_changes(snap)
+        resplit(renamed)
+        ok, results = build_ok()
+        before = len(asm_funcs(cfile, parked=True))
+        if ok:
+            patch(snap, logdir / f"{tag}_changes.patch")
+            if renamed:
+                text = "".join(f"## {t}\n" + "".join(f"- {l}\n" for l in gone) + "".join(f"+ {l}\n" for l in new)
+                               for t, (gone, new) in renamed.items())
+                warnings = naming_warnings(renamed)
+                if warnings:
+                    text += "## naming warnings\n" + "".join(f"! {w}\n" for w in warnings)
+                (logdir / f"{tag}_renames.txt").write_text(text)
+                with (ROOT / "logs" / "renames_applied.txt").open("a") as fh:
+                    fh.write(f"# {logdir.name} consolidate {n} ({Path(cfile).stem})\n{text}")
+            line = (f"consolidate {n}: KEPT ({Path(cfile).stem}), {before} still parked, "
+                    f"${cost:.2f}, {minutes:.0f} min" + (" TIMEOUT" if timed_out else ""))
+        else:
+            restore(snap)
+            resplit(renamed)
+            line = f"consolidate {n}: REVERTED ({Path(cfile).stem}, build {results}), ${cost:.2f}, {minutes:.0f} min"
+        print("   " + line, flush=True)
+        summary.append(line)
+        if total_cost >= args.cap:
+            summary.append(f"cost cap reached (${total_cost:.2f})")
+            break
+    shutil.rmtree(logdir / "snapshot", ignore_errors=True)
+    if args.dry_run:
+        shutil.rmtree(logdir, ignore_errors=True)
+        return
+    summary.append(f"total cost ${total_cost:.2f}")
+    (logdir / "summary.txt").write_text("\n".join(summary) + "\n")
+    print("\n".join(summary))
+    print(f"logs: {logdir.relative_to(ROOT)}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target")
@@ -302,6 +393,8 @@ def main():
     ap.add_argument("--max-batches", type=int, default=0, help="0 = no limit")
     ap.add_argument("--timeout", type=float, default=30.0, help="minutes per batch (0 = no limit)")
     ap.add_argument("--dry-run", action="store_true", help="show the batches, run nothing")
+    ap.add_argument("--consolidate", action="store_true",
+                    help="one consolidation session per file instead of decompiling (see CONSOLIDATE_PROMPT)")
     args = ap.parse_args()
 
     if args.all:
@@ -329,6 +422,9 @@ def main():
     total_cost, failures_in_row, batch_no = 0.0, 0, 0
     summary = []
     failed = set(state["failed"])
+    if args.consolidate:
+        consolidate(args, cfiles, logdir)
+        return
     rank = ranks(args.target, logdir / "functions.csv")
 
     while True:

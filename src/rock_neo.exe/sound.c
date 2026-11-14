@@ -7,6 +7,9 @@
 #include "psyq/libgte.h"
 #include "player.h"
 
+// Called only from this file, ahead of their definitions.
+sint32 pitch_interp(sint32 x, sint32 frac); // parked: only the NON_MATCHING branch defines it in C
+
 void func_800198C0(void)
 {
     sint32 i;

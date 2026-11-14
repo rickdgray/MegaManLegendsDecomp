@@ -43,6 +43,10 @@ several times more because the session had carried hours of earlier work.
   `logs/batch_state.json`). **Order: Depth, then Score**, from a `functions.csv` regenerated (into
   the log folder) after every kept batch, so callees come before their callers. A batch stays in
   one file: the best function overall, then that file's next best at the same depth.
+- `--consolidate`: after a file's batches, one cleanup session per file (merge per-function view
+  structs into the objects' real types, fix header placement and raw addresses, retry parked
+  functions whose types changed, apply names). Same snapshot / build / keep-or-revert handling.
+  Run one after every file; give it `--timeout 60`.
 - `--timeout` (minutes) stops a batch's session (the whole process group); its leftovers are
   still built, and kept if they match. A killed session reports no cost.
 - Each batch is a **fresh headless session** (`claude -p ... --permission-mode acceptEdits`) with
