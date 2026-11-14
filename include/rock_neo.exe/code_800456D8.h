@@ -57,13 +57,10 @@ extern sint16 D_80097E9C[];      // indexed by WORK_48.field_A (func_80045CE8)
 extern uint16 D_80097EA8[];      // indexed by WORK_48.field_A (func_80045CE8)
 extern uint8 D_8008A2B0[][16];   // field_A choices per kind (func_80045CE8)
 extern WORK48_FUNC D_8008A6A8[]; // routine_8 dispatch table of func_8004602C
-extern uint16 D_80097EC0[];      // four halfwords per entry, indexed by field_9 * 4 (func_8004602C);
-extern uint16 D_80097EC2[];      // each column is its own symbol in the registry
-extern uint16 D_80097EC4[];
-extern uint16 D_80097EC6[];
-extern uint8 D_80097EE8[];     // indexed by field_A (func_8004602C)
-extern uint16 D_80097EEC[][4]; // [flag_3][field_A]: hit radius (func_80046A0C)
-extern uint16 D_8008A678[][8]; // [Game_work 0x5B][field_A] (func_80046A0C)
+extern uint16 D_80097EC0[][4];   // four halfwords per entry, indexed by field_9 (func_8004602C)
+extern uint8 D_80097EE8[];       // indexed by field_A (func_8004602C)
+extern uint16 D_80097EEC[][4];   // [flag_3][field_A]: hit radius (func_80046A0C)
+extern uint16 D_8008A678[][8];   // [Game_work 0x5B][field_A] (func_80046A0C)
 extern uint16 D_8008A680[][8];
 extern uint16 D_80097EFA[];    // angle step per spawn count (func_80046B34)
 extern sint16 D_80097F1C[];    // indexed by WORK_48.field_A (func_80046B34)

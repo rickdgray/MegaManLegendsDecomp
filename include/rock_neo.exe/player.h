@@ -61,8 +61,7 @@ typedef struct
 } PL_WORK;
 
 extern TBL_ROW *D_80089EAC[];  // 16 tables, one per Player_work.rec[n]
-extern PL_WORK Player_work[];  // 0x800B51B0 (a second at 0x800B57A4)
-extern PL_WORK Player_work2;   // 0x800B57A4, the second player (addressed as its own symbol)
+extern PL_WORK Player_work[];  // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *p_Player_work; // 0x80098A50
 
 #endif // PLAYER_H

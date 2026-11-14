@@ -172,9 +172,9 @@ void func_80045BC8(WORK_48 *wp)
     {
         wp->routine_8 = 5;
     }
-    if ((uint32)(Player_work2.pos.vx - wp->pos_38.vx + r + 0x32) <= r * 2 + 0x64 &&
-        (uint32)(Player_work2.pos.vz - wp->pos_38.vz + r + 0x32) <= r * 2 + 0x64 &&
-        (uint32)(Player_work2.pos.vy - wp->pos_38.vy + r) <= r * 2 + 0x96)
+    if ((uint32)(Player_work[1].pos.vx - wp->pos_38.vx + r + 0x32) <= r * 2 + 0x64 &&
+        (uint32)(Player_work[1].pos.vz - wp->pos_38.vz + r + 0x32) <= r * 2 + 0x64 &&
+        (uint32)(Player_work[1].pos.vy - wp->pos_38.vy + r) <= r * 2 + 0x96)
     {
         wp->routine_8 = 5;
     }
@@ -334,10 +334,10 @@ void func_8004602C(WORK_48 *wp)
         {
             wp->field_9 = 0;
         }
-        a    = D_80097EC0[wp->field_9 * 4];
-        b    = D_80097EC2[wp->field_9 * 4];
-        c    = D_80097EC4[wp->field_9 * 4];
-        d    = D_80097EC6[wp->field_9 * 4];
+        a    = D_80097EC0[wp->field_9][0];
+        b    = D_80097EC0[wp->field_9][1];
+        c    = D_80097EC0[wp->field_9][2];
+        d    = D_80097EC0[wp->field_9][3];
         p    = func_8002D464();
         p[1] = 0x2C808080;
         p[2] = *(sint32 *)&wp->pos_38;

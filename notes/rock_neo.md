@@ -434,7 +434,7 @@ not fields of one struct (declared in `code_8005C258.h`). `func_8005C720`'s `wp`
 `D_800BBD78` (byte +4 indexes `D_8008D7B4`); it stays `uint8 *` until that object's layout is known.
 
 `code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.timer_B` countdown, then `routine_8`
-+= 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->args_38)` then `func_80031988`), `func_80047318`
++= 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->pos_38)` then `func_80031988`), `func_80047318`
 (`D_8008A708[wp->routine_8](wp)`). Parked `func_80045FE4` and `func_80046008` (identical, `NON_MATCHING`):
 the target is `func_8002FE74(wp->kind_1)` followed by `move v1,v0`; GCC drops the dead copy for a
 `void` function with a local, and a `return` form emits no move either (also tried `register`).
@@ -449,7 +449,7 @@ and keeps the `sub = 4/5/6` arms as three separate stubs; ours inverts the 0x80 
 flat if/else, nested, `goto init`, `sub = flag_3 & 0xF` vs constants.
 Banked: `func_800469A4` (matrix at `WORK_48+0x18` with diagonal `field_3E`, `RotMatrixY(field_C.angle)`, angle
 += 0x100; chained store `m00 = m11 = m22`), `func_800459C0`/`func_8004678C` (same matrix with the diagonal
-`(sint16)field_3E >> 1` for m00/m22; `field_2E += field_34`, `args_38.hw[1] += field_2E`,
+`pos_38.pad >> 1` for m00/m22; `field_2E += field_34`, `pos_38.vy += field_2E`,
 `field_3E -= D_80097E64/D_80097EE0[field_A] >> 3`, `routine_8++` once `field_2E >= 0`), `Svec_distance`
 (distance of two SVECTORs via `SquareRoot0`), `func_80047CD8` (steps through the 8-byte records at
 `D_8008A6C8`; separate symbols indexed by `i * 8`). Parked `func_800482A8` (`NON_MATCHING`; Player_work
@@ -467,9 +467,8 @@ angle `- 0x100 + rand` becomes `li 0xff00; addu` (as in `func_80047DD8`), the `y
 `addu s0` has swapped operands.
 
 Batch (`func_80047DD8`, `_80045BC8`, `_80046F38`, `_80045CE8`, `_800477A0`, `_80046B34`): banked
-`func_80045BC8` (proximity test of the effect at `args_38.pos.x`/`z_3C`/`args_38.pos.y` against both players:
-`(uint32)(dx + r + 0x32) <= 2r + 0x64` with `r = D_80097E64[field_A + 6]` as `uint32`; the second player is the
-separate symbol `Player_work2`). Parked, all `NON_MATCHING` with the best attempt kept:
+`func_80045BC8` (proximity test of the effect at `pos_38` against both players:
+`(uint32)(dx + r + 0x32) <= 2r + 0x64` with `r = D_80097E64[field_A + 6]` as `uint32`; the second player is `Player_work[1]`). Parked, all `NON_MATCHING` with the best attempt kept:
 - `func_80047DD8`: only `- 0x100 + (rand() & 0xFF)` differs (GCC folds it into `ori 0xff00`; the target does `addiu -0x100`
   then `addu`) and one `addu` operand order. The `Player_work` base is hoisted by taking the result of
   `func_800482A8` in a `uint8` local first, then `pl = Player_work`.
@@ -490,7 +489,7 @@ separate symbol `Player_work2`). Parked, all `NON_MATCHING` with the best attemp
   spills the second burst's count and kind and both table pointers (frame 0x70), ours keeps `count2` in a register.
 - `func_80047228` (picks `D_800988xx[kind pool][field_2][n].spec`, calls `func_80046B34`): only the last add differs
   (`addu v1,v1,v0` in the target, `addu v0,v0,v1` here). `func_80047148` (same with n = 0) and `func_800456D8` are banked.
-`WORK_48` gained `field_2C`..`field_36`, `z_3C`, `field_40`, the `u_44` union (`ptr` / `hw[2]`) and `args_38.pos`;
+`WORK_48` gained `field_2C`..`field_36`, `field_40`, the `u_44` union (`ptr` / `hw[2]`) and `pos_38` (an `SVECTOR`; its `pad` was `field_3E`);
 `BYTES8` is the type of the 8-byte unaligned (`lwl`/`lwr`) position copy.
 
 Bouncing-debris routines of `WORK_48` (`code_800456D8.c`): banked `func_80045750` and `func_8004622C` (move by
