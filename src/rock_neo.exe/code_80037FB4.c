@@ -88,11 +88,11 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037FB4", func_80039630);
 
 void func_800397E8(void)
 {
-    D_800A396C         = 0x30;
-    D_80097D2C         = 0x200;
-    D_800A3964         = 0x200;
-    D_800A3962         = -1;
-    Player_work.unk44D = 0;
+    D_800A396C            = 0x30;
+    D_80097D2C            = 0x200;
+    D_800A3964            = 0x200;
+    D_800A3962            = -1;
+    Player_work[0].unk44D = 0;
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037FB4", func_80039820);
@@ -185,10 +185,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037FB4", func_80039D38);
 
 void func_80039DE8(void)
 {
-    D_80097D2C         = 0x200;
-    Player_work.unk44D = 0;
-    Scene_work.unk01   = D_80098674;
-    Scene_work.unk00   = D_80098670;
+    D_80097D2C            = 0x200;
+    Player_work[0].unk44D = 0;
+    Scene_work.unk01      = D_80098674;
+    Scene_work.unk00      = D_80098670;
 }
 
 void func_80039E18(void)

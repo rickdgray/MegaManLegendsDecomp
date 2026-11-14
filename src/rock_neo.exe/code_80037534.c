@@ -37,8 +37,8 @@ void func_80037594(void)
 {
     // best attempt: target loads tbl_sel via its own lui, then builds &Player_work with a
     // second lui/addiu and uses 0x4F5/0x4FA offsets from it; ours folds +0x172/+0x382 into one base
-    sint32 sel   = Player_work.tbl_sel;
-    TBL_IDX *rec = &Player_work.rec[sel];
+    sint32 sel   = Player_work[0].tbl_sel;
+    TBL_IDX *rec = &Player_work[0].rec[sel];
 
     rec->val = D_80089EAC[sel][rec->idx[1]].val[1];
 }

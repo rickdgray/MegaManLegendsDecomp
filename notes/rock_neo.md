@@ -345,6 +345,84 @@ that take the record owner are passed `&Player_work`, so their parameter is `PL_
 distance mod 0x1000 from arg0 to `D_800A3968`; GCC inverts the `a < b` test and swaps the two
 branch bodies, `>=`, swapped names and `-=` forms were also tried.
 
+`code_8002E7A8.c` (batch 2): banked `func_800355F0` (view matrix from `Player_work[n]`; `Player_work` is
+now an array, the target indexes it by symbol; `unk56` read as `(uint16)` for `lhu`), `func_80033D80`
+(scratchpad matrix `0x1F8000C0` + `ApplyMatrix`/`RotMatrix`/`MulMatrix`), `func_80037440` (counts
+`D_800BFB20[n]` by id into `D_8009856C[16]`; `D_800BFB22` is declared as a second `WORK_10C` array so
+the access keeps its own `lui`), `Angle_xz_vector`, `Angle_xz_svector` (`catan` of the x/z delta).
+Parked `func_80036C50` (`NON_MATCHING`; 4-entry table at `D_8009A306`, stride 0x14): the target keeps
+`&D_8009A306` in a3 for the first compare and the loop; ours folds the first compare to `lui`+`%lo` and
+rebuilds the base for the loop (local pointer, `e++`/flag pointer, index forms tried).
+
+`code_8002E7A8.c` (batch 3): banked `func_800331A0` (joint matrix/position update on `SKEL_WORK`: scratchpad
+matrix + `ApplyMatrix`/`RotMatrix`/`MulMatrix`/`ScaleMatrix`; the byte at `0x1F800074` is a shift count,
+also written as `Scratch_scale_shift`; needs an unused 8-byte local), `func_800341BC` and `func_8003430C`
+(queue one/two `SLOT_REQ` entries in `D_800A2F48[0x40]`, count in `D_800988E0`, value in `D_800A32E0[n]`,
+then copy the vector or the midpoint into `D_800BE478[slot] + 0xBC` for each slot bit of
+`owner->mask_4 & D_80098798`; the register match needs a separate `mask` local and `i` used as the
+`owner->mask_4` temp). Parked `func_80036B40` (`NON_MATCHING`): copies the 0x28-byte block at
+`D_800BC7F8` to `D_8009A350` after `SetFarColor`/`SetFogNear`; the copy is right, but the target keeps
+`&D_800BC818` in s0 from the start (also the copy end pointer) while ours rebuilds `D_800BC818-0x20`.
+Parked `func_80035724` (`NON_MATCHING`; spawns an `OBJ_10C` from `PL_WORK`, claims a slot with
+`func_8003545C`): the target computes `pl + sel * 8` at the end of each branch, ours once after the merge.
+`func_80035508` stays assembly for now: GTE code (`ctc2`, `lwc2`, `rtps`, `mfc2`, `swc2`), no GTE
+macros or inline-asm convention exists in the repo yet (needs a decision).
+
+`code_8002E7A8.c` (batch 4): banked `func_80036294` (id byte -> pointer into one of eight work pools,
+kind from `func_8002FE74`; `kind` must be `sint32` for the `slti` switch), `func_80030D30` (launch
+angle from a delta, with an unused 8-byte `SVECTOR` local; `to->vy > from->vy` fixes the reg order),
+`func_80030418` and `func_80030628` (view-cone flags: same body, the first reads positions at 0xC4 and
+the angle at 0x56, the second takes positions at 0x14 and the angle as the 5th argument). Both need
+`m[0] = 0x1000` written after `sv.vz`, and each `|=` test written as `(x >= 0 && ...) || (x < 0 && ...)`,
+which gives the shared `ori`; this probably also fixes parked `func_8003081C`. Parked `func_8002FA38`
+(`NON_MATCHING`; binds a table entry (kind, id, sub) to an object): only the entry pointer / counter
+registers (a1/a2) are swapped. `func_80035508` stays assembly (GTE, same decision as above).
+
+`code_8002E7A8.c` (small functions): banked `func_8002FE74`, `func_80030150` (16.16 vector rounded to
+`SVECTOR`), `func_80031268` (`ratan2` of the x/z delta + 0x800), `func_80033EBC`, `func_8003697C`
+(scratchpad fog setup, `SetFogNear(D_800BC81C, 0x180)`). Parked `func_80036B00` (`NON_MATCHING`): copies
+`D_8009A370..74` into an `SVECTOR`; the target does load/store pair by pair, GCC hoists the later loads
+above the earlier stores (struct, `sint16 *`, `*v++` and `volatile` forms tried).
+Banked `Angle_diff_clamp` (signed angle difference on a 0x1000 circle, clamped to +-limit; `r = limit`
+first, and the else-branch test written `limit > 0x1000 - d`). Parked (`NON_MATCHING`): `func_800323FC`
+(steps a `KEY_ENT` table; target loads `lbu 0x101` before `lw 0xFC` and keeps `ctl` in a2 with a copy in a1)
+and the four slot allocators `func_80031418`, `Open_SHL_WORK`, `func_800316BC`, `func_80031734` (pool
+bitmask scan; only the store order differs: the target keeps the stores in source order around the mask
+update). A scratch test with the mask as a struct member (`MEM_IN_STRUCT_P`, so the store aliases the
+`wp->` stores) gave exactly the target order, so the mask words (`D_800987CC/E8/EC`, `D_800989CC`) are
+probably members of a pool struct; a scalar `uint32` lets the scheduler hoist the `wp->` stores.
+
+Banked `func_80031324` (initialises a child object from slot n of a parent: copies the 32-byte block at
+parent+0x240+n*32, position from parent+0x180+n*8, takes and clears the id at parent+0xF9+n*4; the id
+field is `sint8` so the `-1` store is `li -1`) and `func_8003545C` (claims a free bit of `D_80098798`,
+24 slots, records it in owner+4 and stores the value in `D_800BE478[slot]`). Parked (`NON_MATCHING`):
+`func_80031498` and `func_80031598` (two more pool allocators with the same store-order issue as above),
+`func_80031CA4` (clamped angle step toward a target; target keeps the `limit` parameter in s2 and a copy
+in s1, GCC merges them) and `func_80030058` (rotates an offset (x, y, z) by an angle into a VECTOR; same
+param/copy pair issue for x and z). Also parked (`NON_MATCHING`): `func_80031DCC`, `func_80031E60`,
+`func_80031EF0` (two-sector angle test, 1 if within +-half1 of center1 and +-half2 of center2; target
+keeps the result in v0 and a copy of the angle in v1, GCC uses a scratch register), `func_80031BEC`
+(`func_80031CA4` on `Angle_xz_svector`, same s2/s1 issue), `func_8003081C` (GTE view-cone test:
+RotMatrixY/RotTrans, returns 0x10 behind, 2 inside; target stores `m[0]` late and shares one `ori 2`
+between the x >= 0 / x < 0 paths) and `func_80031F84` (direction quantizer vs a base angle, returns
+angle | side << 16; only the prologue order differs).
+
+`code_8002E7A8.c` (batch 5): banked `func_80030CB8` (`func_80030CF0` with arc 0x100), `func_80030EE8`
+(velocity (+0x44..0x4A) toward a target at speed `s`: `d * s << 8 / dist`, time = dist / s; the three stores
+must be written vx, vy, vz, time) and `func_80033F04` (rotates unit vector `a` toward `b`: two
+`OuterProduct12`, a scratchpad-like static matrix, `ApplyMatrix` twice, `VectorNormalS` of the closer result;
+`angle` must be `sint32` and the `>> 16` chained `D_800985FC.vz = D_80098604.vz = ...`, else GCC keeps `limit`
+in an extra s-register). The `D_8009857C`..`D_80098654` statics are now `MATRIX`/`SVECTOR`/`VECTOR` objects.
+`Player_work.pos` is an `SVECTOR` (the 8-byte copy in `func_8003606C` only compiles with the unaligned
+`lwl`/`lwr` per-access form from a struct member, not from a cast pointer). Parked (`NON_MATCHING`):
+`func_8003606C` (squared xz distance, `<< 2`, of every object in three pools to each of the two players, -1 when
+over 0x10000000, stored at +0x80/+0x84; the target keeps `D_8009F108` in t6 across the outer loop, computes the
+next-object pointer first (`a3 = a1 + size`) with the counter increment in the branch delay slot; ours moves the
+pointer add into the delay slot and the counter to the loop tail; needs an unused 8-byte `SVECTOR` local) and
+`func_80033A28` (unpacks 75 twelve-bit values from the 0x20-word block at `0x1F800180` into 25 `SVECTOR`s at
+`0x1F800120`; the code is identical, only the register assignment differs: target d=a1, s=a2, counter=t0, ours
+d=a3, s=t0, counter=a2). `func_80035508` stays assembly (GTE; needs the repo-wide GTE decision above).
+
 `code_8005C258.c` (small functions): banked `func_8005DCB4` (calls `func_8005DCDC`, `func_8005DE28`),
 `func_8005D9EC` (`Player_work+0x6E = +0xB0`, then `func_8005D9C4`), `func_8005D844` (arms slot
 `D_800BBE2C`..`E46`), `func_8005D98C`, `func_8005C720` (dispatch through `D_8008D7B4[wp[4]]`).
@@ -353,3 +431,71 @@ base register (`$v1`), but GCC folds `&D_800BBD85` into `lui`+`%lo` on each acce
 a `volatile` pointer both fold the same way. The store to `D_800BBD81` uses its own `lui`. So `D_800BBD81`, `D_800BBD85`, ... are separate globals,
 not fields of one struct (declared in `code_8005C258.h`). `func_8005C720`'s `wp` is the 9-byte object at
 `D_800BBD78` (byte +4 indexes `D_8008D7B4`); it stays `uint8 *` until that object's layout is known.
+
+`code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.timer_B` countdown, then `routine_8`
++= 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->args_38)` then `func_80031988`), `func_80047318`
+(`D_8008A708[wp->routine_8](wp)`). Parked `func_80045FE4` and `func_80046008` (identical, `NON_MATCHING`):
+the target is `func_8002FE74(wp->kind_1)` followed by `move v1,v0`; GCC drops the dead copy for a
+`void` function with a local, and a `return` form emits no move either (also tried `register`).
+Also banked: `func_80047D9C`/`func_80048354` (`D_8008A724`/`D_8008A76C[wp->routine_8](wp)`), `func_800485E4`
+(`D_8008A778[wp->flag_4](wp)`), `func_80048268`, `func_80046848` (`WORK_48.flag_3` picks sound 0x9E/0x9D).
+Parked `func_80047C84` (`NON_MATCHING`): copies `D_8008A6C8..CF` into `WORK_48`; the target does the
+`field_14` word load/store third, GCC always delays the `lw`/`sw` to the end (v1), whatever the
+statement order or the type of `field_14` (`uint32`, `sint16[2]`, cast).
+Parked `func_80047354` (`NON_MATCHING`, spawn/init of a `WORK_48` by `flag_3`): all instructions match except the
+tail layout. The target tests `flag_3 & 0x80` with `beqz` (`sub = 0` store, then `j` to the shared `Model_work_init`)
+and keeps the `sub = 4/5/6` arms as three separate stubs; ours inverts the 0x80 test and merges the arms. Tried
+flat if/else, nested, `goto init`, `sub = flag_3 & 0xF` vs constants.
+Banked: `func_800469A4` (matrix at `WORK_48+0x18` with diagonal `field_3E`, `RotMatrixY(field_C.angle)`, angle
++= 0x100; chained store `m00 = m11 = m22`), `func_800459C0`/`func_8004678C` (same matrix with the diagonal
+`(sint16)field_3E >> 1` for m00/m22; `field_2E += field_34`, `args_38.hw[1] += field_2E`,
+`field_3E -= D_80097E64/D_80097EE0[field_A] >> 3`, `routine_8++` once `field_2E >= 0`), `Svec_distance`
+(distance of two SVECTORs via `SquareRoot0`), `func_80047CD8` (steps through the 8-byte records at
+`D_8008A6C8`; separate symbols indexed by `i * 8`). Parked `func_800482A8` (`NON_MATCHING`; Player_work
+`unk09 == 3` and `unk11C & unk128/unk12A` pad test, else `routine_8 = 2`; returns 1/0): the target ends the
+two AND tests with `beqz`/`li 1`/`move 0`, GCC emits `sltu` for `hit != 0` (tried nested returns, a `hit`
+local with `goto fail`, and `== 0` forms).
+
+Batch (`func_80046A0C`, `_8004602C`, `_80047EC8`): banked `func_80046A0C` (proximity test like `func_80045BC8`, then
+calls `func_80043294`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][field_A]`; `field_A` is kept in a
+local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_8]`, then one `func_8002D464` primitive
+filled from the four columns `D_80097EC0/C2/C4/C6`, each its own symbol). Parked `func_80047EC8` (`NON_MATCHING`;
+eight spark lines around the player's position at `Player_work+0x400`/`+0x418`): structure matches; the else-branch
+angle `- 0x100 + rand` becomes `li 0xff00; addu` (as in `func_80047DD8`), the `y - (sin - 0x10)` is folded to
+`y + 0x10 - sin` where the target keeps the `- 0x10` on the sine term, the primitive pointer is copied to `a2`, and one
+`addu s0` has swapped operands.
+
+Batch (`func_80047DD8`, `_80045BC8`, `_80046F38`, `_80045CE8`, `_800477A0`, `_80046B34`): banked
+`func_80045BC8` (proximity test of the effect at `args_38.pos.x`/`z_3C`/`args_38.pos.y` against both players:
+`(uint32)(dx + r + 0x32) <= 2r + 0x64` with `r = D_80097E64[field_A + 6]` as `uint32`; the second player is the
+separate symbol `Player_work2`). Parked, all `NON_MATCHING` with the best attempt kept:
+- `func_80047DD8`: only `- 0x100 + (rand() & 0xFF)` differs (GCC folds it into `ori 0xff00`; the target does `addiu -0x100`
+  then `addu`) and one `addu` operand order. The `Player_work` base is hoisted by taking the result of
+  `func_800482A8` in a `uint8` local first, then `pl = Player_work`.
+- `func_80046F38` (samples four 32-word tables `D_8008A378` at `(t + 10 * j) & 0x1F` into four rows of five words at
+  `D_8009A6C0`, `t` = scratchpad half-word `0x1F800002`, then copies each word of `D_8008A578[6]` into four words of
+  `D_8009A710[6][4]`): the table reads match as plain 2D indexing; the target keeps `&D_8009A6C0` in a register
+  (+0x14 per row) for column 0 but reaches columns 1-4 with a `lui` each, and keeps loads and stores strictly
+  alternating. Scalar externs for those columns let the scheduler reorder (non-struct stores do not alias the
+  array loads); `volatile` made it worse.
+- `func_80045CE8` (spawns `count` effects round a circle; `weights` bytes pick one of five tables, `kind` picks a row of
+  `D_8008A2B0`): whole body matches; only the prologue move order (a2, a3, a1 vs a1, a2, a3) differs. What made the
+  body match: `for (...; i++, ang += step)`, signed `switch` value, `(rnd & 3)` written inline (no local), stores
+  in the order `field_A`, `field_3E`, `field_C`, `field_C+2`.
+- `func_800477A0` (per-frame colour/scale fade of a `WORK_48`, `switch (flag_3 & 0xF)` with cases 0/3/default sharing
+  code): prologue, sums and jump table match; the target keeps the five colour tails separate (each ends in a jump
+  to one shared `or; sw`) with the channel in a2, GCC cross-jumps them. Separate locals per case did not help.
+- `func_80046B34` (two bursts of effects, `spec` packs count/kind of each): only register allocation; the target
+  spills the second burst's count and kind and both table pointers (frame 0x70), ours keeps `count2` in a register.
+- `func_80047228` (picks `D_800988xx[kind pool][field_2][n].spec`, calls `func_80046B34`): only the last add differs
+  (`addu v1,v1,v0` in the target, `addu v0,v0,v1` here). `func_80047148` (same with n = 0) and `func_800456D8` are banked.
+`WORK_48` gained `field_2C`..`field_36`, `z_3C`, `field_40`, the `u_44` union (`ptr` / `hw[2]`) and `args_38.pos`;
+`BYTES8` is the type of the 8-byte unaligned (`lwl`/`lwr`) position copy.
+
+Bouncing-debris routines of `WORK_48` (`code_800456D8.c`): banked `func_80045750` and `func_8004622C` (move by
+`field_2C/2E/30`, collide with `func_8004B5CC(&pos, &old, 1, HIT_ENT *)`, halve the vertical speed on a floor hit
+(`0x1000`) and restart the matrix with `RotMatrixY(field_C.angle)`). Parked, `NON_MATCHING`: `func_800465C8` and
+`func_80046438` (same shape, ground-follow variant; `D_8008A622` is the +0xA halfword of `D_8008A618`'s 12-byte
+records, read through its own symbol). Only a register differs: the target leaves `ground - (D + 1)` in v0 (copy
+of the 8 bytes scheduled between the `D` load and the `addiu 1`); this build puts it in v1. `ground - (D + 1)`
+written inline folds to `(ground - 1) - D`, so a local `h = D + 1` is needed to get the separate `addiu`.

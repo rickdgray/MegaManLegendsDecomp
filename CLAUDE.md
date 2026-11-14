@@ -100,7 +100,7 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `/tmp`: `./tools/cc.sh rock_neo.exe logs/scratch/t.c logs/scratch/t.o`, then
   `mips-linux-gnu-objdump -dr logs/scratch/t.o`.
 - `diff.sh` prints plain text when its output isn't a terminal: there are no colour codes to strip.
-- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py <t> -n` (dry run),
+- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py` (see "Names"),
   `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
   `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
 
@@ -344,7 +344,7 @@ What decompilers show vs. what to write:
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_WORK`, `PAD_*` buttons (one layout in both programs) |
 | `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `effect.h`, `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8005C258.h`, `code_80037FB4.h` (files not yet identified; such headers take the file's name and are renamed with it) |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `effect.h`, `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8002E7A8.h` (work pools, scene scale and fog), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
@@ -356,7 +356,9 @@ What decompilers show vs. what to write:
 **Declarations live in headers.** A `.c` file holds only definitions, plus two kinds of
 declaration: its own small data (see "Small data"), and prototypes for functions called only from
 that file, ahead of their definitions, under a `// Called only from this file` comment. Any
-`extern`, typedef, `#define` or prototype that another file could use goes in a header. Include
+`extern`, typedef, `#define` or prototype that another file could use goes in a header: the
+header of the file that *defines* the function or *owns* the type, not the header of the file
+that happens to use it first. Include
 headers by bare name (`#include "stage.h"`, not `"rock_neo.exe/stage.h"`): the include path
 searches the target's folder first.
 
@@ -435,8 +437,7 @@ Conventions (Capcom's own, from their source):
 
 Module prefixes follow Capcom's too: the CD module is `Cd_` in both programs. Acronyms stay
 uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the splat default
-(`func_8001D648`, `D_80098958`) until their purpose is clear; propose a name in `renames.txt`
-rather than guessing. Names from other projects (ChrisNonyminus/mml1) are hints, not authority.
+(`func_8001D648`, `D_80098958`) until their purpose is clear; never guess. Names from other projects (ChrisNonyminus/mml1) are hints, not authority.
 
 ## Do not
 

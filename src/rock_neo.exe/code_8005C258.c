@@ -166,7 +166,7 @@ void func_8005D9C4(void)
 
 void func_8005D9EC(void)
 {
-    Player_work.unk6E = Player_work.unkB0;
+    Player_work[0].unk6E = Player_work[0].unkB0;
     func_8005D9C4();
 }
 

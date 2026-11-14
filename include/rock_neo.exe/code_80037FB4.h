@@ -46,6 +46,7 @@ void func_80039CA0(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_80039CEC(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 sint32 func_8003A218(sint32 arg0);
 void func_80039E50(void);
+void func_800398E0(sint32 arg0);
 void Swing_Camera2(sint32 arg0, sint32 arg1, sint32 arg2, SVECTOR *pos);
 sint32 func_800399EC(sint32 arg0);
 void func_80039A38(sint32 arg0); // callers pass an address; forwarded to func_800399EC

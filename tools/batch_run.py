@@ -353,7 +353,13 @@ def main():
                 with (ROOT / "logs" / "renames_applied.txt").open("a") as fh:
                     fh.write(f"# {logdir.name} batch {batch_no} ({Path(cfile).stem})\n{text}")
             (logdir / f"{batch_no:03}_summary.txt").write_text(msg + "\n")
-            # Untouched functions of a kept batch (e.g. after a timeout) stay available.
+            # A function the agent left untouched was skipped on purpose (its report says why):
+            # don't offer it again. After a timeout it may just not have been reached, so keep it.
+            untouched = [n for n in batch if n not in changed]
+            if untouched and not timed_out:
+                failed.update(untouched)
+                state["failed"] = sorted(failed)
+                save_state(state)
             failures_in_row = 0
             n_ren = sum(len(new) for _, new in renamed.values())
             line = (f"batch {batch_no}: KEPT ({Path(cfile).stem}), {len(done)} banked, {len(parked)} parked, "

@@ -440,7 +440,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 return;
             }
             angle =
-                p_Player_work->unk56 - func_8001E83C(p_Player_work->unk14, p_Player_work->unk18, (sint16)call->arg1, (sint16)call->arg2);
+                p_Player_work->unk56 - func_8001E83C(p_Player_work->pos.vx, p_Player_work->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
             angle &= 0xFFF;
             pan = (ccos(angle) << 7) >> 12;
             if (pan < 0)
@@ -545,9 +545,9 @@ sint32 voice_check(SOUND_CALL_INFO *info, SOUND_CALL *call)
     }
     if (call->busy == 1)
     {
-        dx   = p_Player_work->unk14 - (sint16)call->arg1;
+        dx   = p_Player_work->pos.vx - (sint16)call->arg1;
         dx   = dx * dx;
-        dz   = p_Player_work->unk18 - (sint16)call->arg2;
+        dz   = p_Player_work->pos.vz - (sint16)call->arg2;
         dz   = dz * dz;
         dist = SquareRoot0(dx + dz);
         if (dist >= 5000 || (status == 1 && Sound_voice_priority[voice] >= (info->unk2 & 0xF) && dist >= 3001))

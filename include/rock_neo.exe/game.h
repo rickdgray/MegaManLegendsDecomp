@@ -22,7 +22,9 @@ typedef struct
     sint8 unk053; // 0x53: lb; 1 selects a different value in func_8001997C
     uint8 unk054[4];
     sint8 unk058; // 0x58: lb; nonzero makes calc_vol use the louder channel for both
-    uint8 unk059[0x1B8 - 0x59];
+    uint8 unk059[2];
+    sint8 unk05B; // 0x5B: lb; row of D_8008A678/D_8008A680 (func_80046A0C)
+    uint8 unk05C[0x1B8 - 0x5C];
     GAME_VAB vab[5];   // 0x1B8 (at least 5: cd_cmd_read_comb reads vab[4].num)
     sint16 unk1E0[24]; // 0x1E0: per-SPU-voice distance to the player, stored by voice_check
 } GAME_WORK;

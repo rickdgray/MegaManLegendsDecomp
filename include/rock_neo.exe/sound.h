@@ -134,6 +134,7 @@ void Sound_init(void);
 void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 dist);
 void Sound_seq_stop_all(void);
 void Sound_call(sint16 id, sint32 arg1, sint32 arg2);
+void Sound_call2(sint16 id, sint32 *args);
 void volume_update(void);
 sint32 pitch_scale(sint32 x);
 sint32 Sound_seq_is_eos(sint32 idx);

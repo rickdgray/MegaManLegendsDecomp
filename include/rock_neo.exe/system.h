@@ -41,6 +41,9 @@ typedef void (*TASK_FUNC)(sint8 *routine);
 
 #define THREAD_FLAG_40 0x0040
 
+// Scratchpad frame counter (also in symbol_addrs, absolute, for the assembly).
+#define System_timer (*(uint16 *)0x1F800002)
+
 // Literal addresses, not symbols: the target builds them with lui/ori (`li`), which only a
 // constant gives (a symbol gives lui %hi / %lo). Thread_current is also in symbol_addrs
 // (absolute) for the code still in assembly.
