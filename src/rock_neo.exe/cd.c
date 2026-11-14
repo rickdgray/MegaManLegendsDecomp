@@ -214,7 +214,7 @@ void cd_cmd_xa_play(void)
                 break;
             }
 
-            Sound_work.unk0E = CD_VOL_MAX;
+            Sound_work.serial_fade = CD_VOL_MAX;
             Cd_set_mode(CdlModeSpeed | CdlModeRT | CdlModeSF);
             Cd_cmd_routine++;
             // fall through
@@ -506,9 +506,9 @@ void cd_cmd_read_comb(void)
 
                                 if (Sound_seq_tbl[head->arg[0]].num != head->arg[1])
                                 {
-                                    Sound_seq_tbl[head->arg[0]].num  = head->arg[1];
-                                    Sound_seq_tbl[head->arg[0]].unk1 = head->arg[2];
-                                    Cd_comb_work.u.sound2.load       = 1;
+                                    Sound_seq_tbl[head->arg[0]].num       = head->arg[1];
+                                    Sound_seq_tbl[head->arg[0]].sep_count = head->arg[2];
+                                    Cd_comb_work.u.sound2.load            = 1;
                                 }
                                 break;
                         }

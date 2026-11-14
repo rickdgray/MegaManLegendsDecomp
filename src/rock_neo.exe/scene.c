@@ -3,7 +3,7 @@
 // Small uninitialized statics (.sbss 0x80098198-0x800981A0).
 static uint8 D_80098198[8];
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001D854);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", Sound_fade_start);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001D878);
 

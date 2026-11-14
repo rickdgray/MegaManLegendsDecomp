@@ -247,7 +247,7 @@ before the pointer increment (`nop; sw v1,8(v0)`); ours puts the pointer in `v1`
 `arg2` store to after the global store. Tried: local pointer, `args++`, `&p[1]`, `+= 1`.
 
 `sound`, more parked (banked this round: `pitch_scale`, `fade_step`):
-- `func_80019D18`: body is right except that the target reloads `Game_work+0x50`/`+0x51` with a
+- `Sound_stage_play`: body is right except that the target reloads `Game_work+0x50`/`+0x51` with a
   fresh `lui` each (we keep the base in `s0`, +1 saved reg), and keeps the `id != 0xFFFF` test as
   a value in `v0` (ours: `a1`). `sint16 id` removes the extra `sll/sra`. Tried: local func
   pointer, `ok` flag, `&&` form, `uint16`/`sint32` id.
@@ -256,14 +256,12 @@ before the pointer increment (`nop; sw v1,8(v0)`); ours puts the pointer in `v1`
   Tried: sized array, local `uint8 (*)[4]`, `SOUND_CALL_INFO` struct (the current attempt).
 - `pitch_interp`: target copies `a` (`pitch_scale(x)`) into `s2` right after call 1, keeping `x`
   live in `s0`; ours sinks the copy and reuses `s0`. Signed `/ 128` is right.
-- `Sound_seq_stop_all`: target has two separately-based induction pointers (`Sound_seq_chan_tbl` and
-  `D_80098AFC`) and `-1` in `s3`; ours derives `+4` from one base. Registry has `D_80098AFC`
-  as its own symbol: maybe the source indexed two arrays.
+- `Sound_seq_stop_all`: banked in the consolidation pass (see `volume_update` below).
 
 `sound`, this round: banked `key_on_tone` (key on one tone: `SpuSetKeyOnWithAttr`), `Sound_stage_slot_set`
 (per-stage sound id slots by Sce flags), `voice_check` (voice priority / distance check against
 the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extends). Parked:
-- `Sound_stage_check`: same shape as `func_80019D18` but with `D_800C356E/F` as the "old" stage. Body
+- `Sound_stage_check`: same shape as `Sound_stage_play` but with `D_800C356E/F` as the "old" stage. Body
   is right; target keeps `list` in `a0`, `changed` in `a1`, the table base in `v1` (ours `v1`,
   `a0`, `a1`) and loads `Game_work+0x50`, then (after the `addu`) `+0x51`. Tried: declaration
   orders, local for the inner list (hoists the loads: worse), operand order of `!=`, if/else flip.
@@ -272,9 +270,11 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
   ours folds it into the base. Tried: `VAB_HEAD` struct indexing, local `vab`, two-step pointer,
   `uint32` cast with an `off` local; target also assigns `info`=s2, `tone`=s1, `voice`=s3.
 - `Sound_init`: all stores right, but the scheduler order differs: target emits `li v1,0x7f`
-  before the first store and `li v0,0xf` before the `D_80098788` store, with the `D_80098788` /
+  before the first store and `li v0,0xf` before the `Sound_fade_flags` store, with the `Sound_fade_flags` /
   `D_80098958` stores ahead of the `0x7F` stores; ours hoists the `0x7F` stores above them and
   loads `0xf` late. Source order of the stores makes no difference; a `vol` local is folded away.
+  Also tried (consolidation pass): one chained assignment for the six `0x7F` stores (right order,
+  same hoisting).
 
 `main` (`src/rock_neo.exe/main.c`), this round: banked `Disp_env_setup` (display buffers at `0x800C0C48`,
 `extern DISP_ENV Disp_env[2]`: the extern symbol is needed, an absolute-address cast loses the shared
@@ -305,10 +305,12 @@ loop counter/giv are scheduled differently. Tried: `uint32` field with a cast, `
 ### sound.c: seq/pan/update (Sound_seq_play, Sound_sep_play, calc_vol banked)
 - `Sound_seq_play`/`Sound_sep_play` (SEQ/SEP start) tail-call-merge two `SsSeqPlay`/`SsSepPlay` calls
   in an if/else (loop flag 0/1); both use a `SOUND_WORK *work = &Sound_work;` local (AC58 assigns it before `vab_find`).
-- `calc_vol` angle needs `angle = a - f(); angle &= 0xFFF;` as two statements; `Game_work.unk058` is sint8 at 0x58.
-- `volume_update` PARKED (NON_MATCHING in sound.c): only the sequence-volume loop differs. Target
-  strength-reduces into two pointers from separate `lui`s (s3 = Sound_seq_chan_tbl, s0 = D_80098AFC, s4 = -1, s2 = i, s1 = work);
-  our pointer/indexed variants give different register assignment.
+- `calc_vol` angle needs `angle = a - f(); angle &= 0xFFF;` as two statements; `Game_work.mono` is sint8 at 0x58.
+- `volume_update` and `Sound_seq_stop_all` banked (consolidation pass): the sequence-channel loop is
+  `chan = Sound_seq_chan_tbl; for (i = 0; i < 4; chan++, i++)`. The pointer increment must come
+  *before* `i++` in the for's step; with `i++, chan++` (or `chan++` at the end of the body) the
+  delay slot after `SsSeqSetVol` gets `i++` instead. `D_80098AFC` is GCC's second giv
+  (`&chan->seq_num`), not a separate array.
 
 `code_80037534` (`src/rock_neo.exe/code_80037534.c`): banked `func_800375D4`, `_80037604`,
 `_80037634`, `_80037664` (four field readers of `D_80089EAC[n][owner->rec[n].idx[k]].val[k]`).

@@ -34,7 +34,7 @@ void func_800456D8(WORK_48 *wp)
     }
     Model_work_init((ATTACH_WORK *)wp, &wp->flag_3);
     wp->routine_8++;
-    Sound_call2(0x9B, (sint32 *)&wp->pos_38);
+    Sound_call2(0x9B, &wp->pos_38);
     func_80045AB4(wp);
     func_80045BC8(wp);
 }
@@ -139,7 +139,7 @@ void func_800459C0(WORK_48 *wp)
 
 void func_80045A7C(WORK_48 *wp)
 {
-    Sound_call2(0xCF, (sint32 *)&wp->pos_38);
+    Sound_call2(0xCF, &wp->pos_38);
     func_80031988(wp);
 }
 
@@ -358,7 +358,7 @@ void func_800461A4(WORK_48 *wp)
     wp->routine_0 |= 2;
     Model_work_init((ATTACH_WORK *)wp, &wp->flag_3);
     wp->routine_8++;
-    Sound_call2(0x9B, (sint32 *)&wp->pos_38);
+    Sound_call2(0x9B, &wp->pos_38);
     if (wp->flag_3 != 0)
     {
         func_80046890(wp);
@@ -538,7 +538,7 @@ void func_80046848(WORK_48 *wp)
     {
         id = 0x9D;
     }
-    Sound_call2(id, (sint32 *)&wp->pos_38);
+    Sound_call2(id, &wp->pos_38);
     func_80031988(wp);
 }
 
@@ -950,7 +950,7 @@ void func_80047354(WORK_48 *wp)
     sub = svec_distance(pos, &Player_work[0].pos);
     if (wp->field_C.rec.b0 != 0)
     {
-        Sound_call2(0xA1, (sint32 *)pos);
+        Sound_call2(0xA1, pos);
     }
 }
 #else

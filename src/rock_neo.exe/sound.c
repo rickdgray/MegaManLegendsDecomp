@@ -6,113 +6,115 @@
 #include "psyq/libspu.h"
 #include "psyq/libgte.h"
 #include "player.h"
+#include "scene.h"
 
-// Called only from this file, ahead of their definitions.
+// Called only from this file
 sint32 pitch_interp(sint32 x, sint32 frac); // parked: only the NON_MATCHING branch defines it in C
+void volume_update(void);
 
 void func_800198C0(void)
 {
     sint32 i;
-    sint16 queueing;
+    sint16 id;
 
     if (Sce_flag_test(6) != 0 && Sce_flag_test(0x2C) == 0)
     {
-        queueing = 2;
+        id = 2;
     }
     else
     {
-        queueing = 7;
+        id = 7;
     }
     for (i = 5; i >= 0; i--)
     {
-        D_80082220[i] = queueing;
+        D_80082220[i] = id;
     }
 }
 
 void func_80019918(void)
 {
-    sint16 queueing;
+    sint16 id;
 
     if ((Sce_flag_test(0x204) != 0 && Sce_flag_test(0x206) == 0) || (Sce_flag_test(0x212) != 0 && Sce_flag_test(0x213) == 0))
     {
-        queueing = 0x39;
+        id = 0x39;
     }
     else
     {
-        queueing = 7;
+        id = 7;
     }
-    D_8008222C = queueing;
+    D_8008222C[0] = id;
 }
 
 void func_8001997C(void)
 {
     if (Game_work.unk053 == 1)
     {
-        D_80082274 = 0x29;
+        D_80082274[0] = 0x29;
     }
     else
     {
-        D_80082274 = 0x108;
+        D_80082274[0] = 0x108;
     }
 }
 
 void func_800199A4(void)
 {
-    sint16 queueing;
+    sint16 id;
 
     if (Game_work.unk053 < 4)
     {
         if (Game_work.unk053 > 0 && Sce_flag_test(0x30) == 0)
         {
-            queueing = 0x16;
+            id = 0x16;
         }
         else
         {
-            queueing = 0x108;
+            id = 0x108;
         }
     }
     else
     {
-        queueing = 0x108;
+        id = 0x108;
     }
-    D_80082278 = queueing;
+    D_80082278[0] = id;
 }
 
 void func_800199F8(void)
 {
     sint32 i;
-    sint16 queueing;
+    sint16 id;
 
     if (Game_work.unk053 == 1)
     {
-        queueing = 0x17;
+        id = 0x17;
     }
     else
     {
-        queueing = 0x108;
+        id = 0x108;
     }
     for (i = 5; i >= 0; i--)
     {
-        D_8008229C[i] = queueing;
+        D_8008229C[i] = id;
     }
 }
 
 void func_80019A34(void)
 {
     sint32 i;
-    sint16 queueing;
+    sint16 id;
 
     if (Game_work.unk053 == 1)
     {
-        queueing = 0x17;
+        id = 0x17;
     }
     else
     {
-        queueing = 0x108;
+        id = 0x108;
     }
     for (i = 4; i >= 0; i--)
     {
-        D_800822A8[i] = queueing;
+        D_800822A8[i] = id;
     }
 }
 
@@ -120,11 +122,11 @@ void func_80019A70(void)
 {
     if (Sce_flag_test(0x1E1) != 0)
     {
-        D_800822D6 = 0x25;
+        D_800822C0[11] = 0x25;
     }
     else
     {
-        D_800822D6 = 0x30;
+        D_800822C0[11] = 0x30;
     }
 }
 
@@ -132,11 +134,11 @@ void func_80019AA4(void)
 {
     if (Sce_flag_test(0x35) == 0)
     {
-        D_800822F4 = D_800822F2 = 0xFFFF;
+        D_800822F0[2] = D_800822F0[1] = 0xFFFF;
     }
     else
     {
-        D_800822F4 = D_800822F2 = 0x2D;
+        D_800822F0[2] = D_800822F0[1] = 0x2D;
     }
 }
 
@@ -144,11 +146,11 @@ void func_80019AE0(void)
 {
     if (Sce_flag_test(0x1E1) != 0)
     {
-        D_80082218 = 0x25;
+        D_8008220C[6] = 0x25;
     }
     else
     {
-        D_80082218 = 0x30;
+        D_8008220C[6] = 0x30;
     }
 }
 
@@ -205,7 +207,7 @@ void Sound_stage_check(void)
     }
     if (changed)
     {
-        func_8001D854(0x10);
+        Sound_fade_start(0x10);
         D_80098958 |= 0x800;
     }
 }
@@ -214,7 +216,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_stage_check);
 #endif
 
 #ifdef NON_MATCHING
-void func_80019D18(void)
+void Sound_stage_play(void)
 {
     uint16 *list;
     sint32 ok;
@@ -243,7 +245,7 @@ void func_80019D18(void)
     D_80098958 &= ~0x800;
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", func_80019D18);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_stage_play);
 #endif
 
 #ifdef NON_MATCHING
@@ -255,25 +257,25 @@ void Sound_init(void)
     SsInit();
     SsSetTableSize(D_800C1010, 4, 4);
     SsSetTickMode(SS_TICK60);
-    Sound_call_ptr        = Sound_call_queue;
-    Sound_work.unk08      = 0x40;
-    Sound_work.unk0A      = 0x64;
-    Sound_fade_step_size  = 4;
-    Sound_work.unk04      = SS_VOL_MAX;
-    Sound_work.serial_vol = SS_VOL_MAX;
-    Sound_work.unk12      = SS_VOL_MAX;
-    Sound_work.unk10      = SS_VOL_MAX;
-    Sound_work.unk0E      = SS_VOL_MAX;
-    Sound_work.unk0C      = SS_VOL_MAX;
-    D_80098788            = 0;
-    D_80098958            = 0;
-    Sound_work.unk18      = 0xF;
-    Sound_work.unk19      = 0;
+    Sound_call_ptr                = Sound_call_queue;
+    Sound_work.se_vol             = 0x40;
+    Sound_work.seq_vol            = 0x64;
+    Sound_fade_step_size          = 4;
+    Sound_work.mvol               = SS_VOL_MAX;
+    Sound_work.serial_vol         = SS_VOL_MAX;
+    Sound_work.seq_fade           = SS_VOL_MAX;
+    Sound_work.se_fade            = SS_VOL_MAX;
+    Sound_work.serial_fade        = SS_VOL_MAX;
+    Sound_work.mvol_fade          = SS_VOL_MAX;
+    Sound_fade_flags              = 0;
+    D_80098958                    = 0;
+    Sound_work.reserved_voice     = 0xF;
+    Sound_work.reserved_voice_set = 0;
     SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
     SsSetSerialVol(SS_SERIAL_A, SS_VOL_MAX, SS_VOL_MAX);
-    Sound_work.unk1A = 0;
-    Sound_work.unk20 = 0;
-    Sound_work.unk1C = Sound_reverb_tbl[0];
+    Sound_work.reverb_state = 0;
+    Sound_work.reverb_set   = 0;
+    Sound_work.reverb       = &Sound_reverb_tbl[0];
     for (i = 0; i < 5; i++)
     {
         Game_work.vab[i].vab_id = -1;
@@ -281,7 +283,7 @@ void Sound_init(void)
     }
     for (i = 0; i < 4; i++)
     {
-        Sound_seq_chan_tbl[i].unk2 = -1;
+        Sound_seq_chan_tbl[i].kind = -1;
         Sound_seq_tbl[i].num       = 0xFF;
     }
     p_Player_work = &Player_work;
@@ -295,9 +297,9 @@ void Sound_init(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_init);
 #endif
 
-void func_80019F94(sint32 idx)
+void Sound_reverb_set(sint32 idx)
 {
-    Sound_work.unk1C = Sound_reverb_tbl[idx];
+    Sound_work.reverb = &Sound_reverb_tbl[idx];
 }
 
 void func_80019FB4(void)
@@ -313,7 +315,7 @@ void Sound_call(sint16 id, sint32 arg1, sint32 arg2)
 {
     if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {
-        Sound_call_ptr->busy = 0;
+        Sound_call_ptr->mode = SOUND_MODE_PAN;
         Sound_call_ptr->id   = id;
         Sound_call_ptr->arg1 = arg1;
         Sound_call_ptr->arg2 = arg2;
@@ -322,14 +324,14 @@ void Sound_call(sint16 id, sint32 arg1, sint32 arg2)
 }
 
 #ifdef NON_MATCHING
-void Sound_call2(sint16 id, sint32 *args)
+void Sound_call2(sint16 id, SVECTOR *pos)
 {
     if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {
-        Sound_call_ptr->busy = 1;
+        Sound_call_ptr->mode = SOUND_MODE_POS;
         Sound_call_ptr->id   = id;
-        Sound_call_ptr->arg1 = args[0];
-        Sound_call_ptr->arg2 = args[1];
+        Sound_call_ptr->arg1 = ((sint32 *)pos)[0]; // vx (vy in the high half)
+        Sound_call_ptr->arg2 = ((sint32 *)pos)[1]; // vz (pad in the high half)
         Sound_call_ptr++;
     }
 }
@@ -342,9 +344,9 @@ sint32 Sound_seq_is_eos(sint32 idx)
     sint32 ret;
 
     ret = 0;
-    if (Sound_seq_chan_tbl[idx].unk2 != -1 && Sound_seq_chan_tbl[idx].unk0 != -1)
+    if (Sound_seq_chan_tbl[idx].kind != -1 && Sound_seq_chan_tbl[idx].access != -1)
     {
-        ret = SsIsEos(Sound_seq_chan_tbl[idx].unk0, Sound_seq_chan_tbl[idx].unk4);
+        ret = SsIsEos(Sound_seq_chan_tbl[idx].access, Sound_seq_chan_tbl[idx].seq_num);
     }
     return ret;
 }
@@ -360,7 +362,7 @@ void Sound_update(void)
         volume_update();
         for (i = 0; i < 4; i++)
         {
-            Sound_seq_chan_tbl[i].unk5 = Sound_seq_is_eos(i);
+            Sound_seq_chan_tbl[i].playing = Sound_seq_is_eos(i);
         }
         for (call = Sound_call_queue; call != Sound_call_ptr; call++)
         {
@@ -409,9 +411,9 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
     sint32 scale;
 
     v = vol * 0x81;
-    switch (call->busy)
+    switch (call->mode)
     {
-        case 0:
+        case SOUND_MODE_PAN:
             if (call->arg1 > 0)
             {
                 *left  = (v * (0x80 - (uint16)call->arg1)) / 128;
@@ -422,7 +424,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 *left  = v;
                 *right = (v * (uint16)(call->arg1 + 0x80)) / 128;
             }
-            if (Game_work.unk058 != 0)
+            if (Game_work.mono != 0)
             {
                 if (*left > *right)
                 {
@@ -436,7 +438,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
             *left  = (*left * (0x80 - call->arg2)) / 128;
             *right = (*right * (0x80 - call->arg2)) / 128;
             break;
-        case 1:
+        case SOUND_MODE_POS:
             if (dist == 0)
             {
                 *left = *right = v;
@@ -460,7 +462,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 *left  = (v * pan) / 128;
                 *right = v;
             }
-            if (Game_work.unk058 != 0)
+            if (Game_work.mono != 0)
             {
                 if (*left > *right)
                 {
@@ -476,10 +478,10 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
             *right = (*right * scale) / 5000;
             break;
     }
-    *left  = (*left * Sound_work.unk08) / 127;
-    *right = (*right * Sound_work.unk08) / 127;
-    *left  = (*left * Sound_work.unk10) / 127;
-    *right = (*right * Sound_work.unk10) / 127;
+    *left  = (*left * Sound_work.se_vol) / 127;
+    *right = (*right * Sound_work.se_vol) / 127;
+    *left  = (*left * Sound_work.se_fade) / 127;
+    *right = (*right * Sound_work.se_fade) / 127;
 }
 
 sint32 pitch_scale(sint32 x)
@@ -546,7 +548,7 @@ sint32 voice_check(SOUND_CALL_INFO *info, SOUND_CALL *call)
     {
         return 0;
     }
-    if (call->busy == 1)
+    if (call->mode == SOUND_MODE_POS)
     {
         dx   = p_Player_work->pos.vx - (sint16)call->arg1;
         dx   = dx * dx;
@@ -617,43 +619,43 @@ void Sound_seq_play(SOUND_CALL *call)
         return;
     }
     chan = &Sound_seq_chan_tbl[info->unk2 >> 4];
-    if (call->arg1 == 0 && chan->unk5 != 0 && chan->unk6 == call->id)
+    if (call->arg1 == 0 && chan->playing != 0 && chan->id == call->id)
     {
         return;
     }
-    if ((info->unk2 & 0xF) < chan->unk3)
+    if ((info->unk2 & 0xF) < chan->priority)
     {
         return;
     }
-    if (chan->unk0 != -1 && chan->unk2 != -1)
+    if (chan->access != -1 && chan->kind != -1)
     {
-        if (chan->unk2 == 0)
+        if (chan->kind == 0)
         {
-            SsSeqStop(chan->unk0);
-            SsSeqClose(chan->unk0);
+            SsSeqStop(chan->access);
+            SsSeqClose(chan->access);
         }
         else
         {
-            SsSepStop(chan->unk0, chan->unk4);
-            SsSepClose(chan->unk0);
+            SsSepStop(chan->access, chan->seq_num);
+            SsSepClose(chan->access);
         }
     }
-    chan->unk0 = SsSeqOpen((unsigned long *)Sound_seq_tbl[seq].data, Game_work.vab[bank].vab_id);
-    chan->unk3 = info->unk2 & 0xF;
-    chan->unk2 = 0;
-    if (chan->unk0 != -1)
+    chan->access   = SsSeqOpen((unsigned long *)Sound_seq_tbl[seq].data, Game_work.vab[bank].vab_id);
+    chan->priority = info->unk2 & 0xF;
+    chan->kind     = 0;
+    if (chan->access != -1)
     {
         work = &Sound_work;
         if (info->unk1 != 0)
         {
-            SsSeqPlay(chan->unk0, SSPLAY_PLAY, SSPLAY_INFINITY);
+            SsSeqPlay(chan->access, SSPLAY_PLAY, SSPLAY_INFINITY);
         }
         else
         {
-            SsSeqPlay(chan->unk0, SSPLAY_PLAY, 1);
+            SsSeqPlay(chan->access, SSPLAY_PLAY, 1);
         }
-        work->unk12 = 0x7F;
-        chan->unk6  = call->id;
+        work->seq_fade = 0x7F;
+        chan->id       = call->id;
     }
 }
 
@@ -678,48 +680,48 @@ void Sound_sep_play(SOUND_CALL *call)
         return;
     }
     chan = &Sound_seq_chan_tbl[info->unk2 >> 4];
-    if (call->arg1 == 0 && chan->unk5 != 0 && chan->unk6 == call->id)
+    if (call->arg1 == 0 && chan->playing != 0 && chan->id == call->id)
     {
-        Sound_work.unk12 = 0x7F;
+        Sound_work.seq_fade = 0x7F;
         return;
     }
-    if ((info->unk2 & 0xF) < chan->unk3)
+    if ((info->unk2 & 0xF) < chan->priority)
     {
         return;
     }
-    if (chan->unk0 != -1 && chan->unk2 != -1)
+    if (chan->access != -1 && chan->kind != -1)
     {
-        if (chan->unk2 == 0)
+        if (chan->kind == 0)
         {
-            SsSeqStop(chan->unk0);
-            SsSeqClose(chan->unk0);
+            SsSeqStop(chan->access);
+            SsSeqClose(chan->access);
         }
         else
         {
-            SsSepStop(chan->unk0, chan->unk4);
-            SsSepClose(chan->unk0);
+            SsSepStop(chan->access, chan->seq_num);
+            SsSepClose(chan->access);
         }
     }
-    chan->unk0 = SsSepOpen((unsigned long *)Sound_seq_tbl[seq].data, Game_work.vab[bank].vab_id, Sound_seq_tbl[seq].unk1);
-    chan->unk3 = info->unk2 & 0xF;
-    chan->unk2 = 1;
-    if (chan->unk0 != -1)
+    chan->access   = SsSepOpen((unsigned long *)Sound_seq_tbl[seq].data, Game_work.vab[bank].vab_id, Sound_seq_tbl[seq].sep_count);
+    chan->priority = info->unk2 & 0xF;
+    chan->kind     = 1;
+    if (chan->access != -1)
     {
-        chan->unk4 = info->unk3 & 0x1F;
+        chan->seq_num = info->unk3 & 0x1F;
         if (info->unk1 & 0x80)
         {
-            SsSepPlay(chan->unk0, chan->unk4, SSPLAY_PLAY, SSPLAY_INFINITY);
+            SsSepPlay(chan->access, chan->seq_num, SSPLAY_PLAY, SSPLAY_INFINITY);
         }
         else
         {
-            SsSepPlay(chan->unk0, chan->unk4, SSPLAY_PLAY, 1);
+            SsSepPlay(chan->access, chan->seq_num, SSPLAY_PLAY, 1);
         }
-        work->unk12 = 0x7F;
-        chan->unk6  = call->id;
+        work->seq_fade = 0x7F;
+        chan->id       = call->id;
     }
 }
 
-sint32 fade_step(sint32 flags, sint16 *queueing)
+sint32 fade_step(sint32 flags, sint16 *fade)
 {
     sint32 ret;
 
@@ -729,63 +731,62 @@ sint32 fade_step(sint32 flags, sint16 *queueing)
         ret = 1;
         if (flags & 1)
         {
-            *queueing -= Sound_fade_step_size;
-            if (*queueing <= 0)
+            *fade -= Sound_fade_step_size;
+            if (*fade <= 0)
             {
-                *queueing = 0;
-                ret       = 0;
+                *fade = 0;
+                ret   = 0;
             }
         }
         else
         {
-            *queueing += Sound_fade_step_size;
-            if (*queueing >= 0x7F)
+            *fade += Sound_fade_step_size;
+            if (*fade >= 0x7F)
             {
-                *queueing = 0x7F;
-                ret       = 0;
+                *fade = 0x7F;
+                ret   = 0;
             }
         }
     }
     return ret;
 }
 
-#ifdef NON_MATCHING
 void volume_update(void)
 {
     SOUND_WORK *work = &Sound_work;
     sint32 i;
     SOUND_SEQ_CHAN *chan;
     sint16 vol;
-    uint8 *rev;
+    SOUND_REVERB *rev;
 
-    if (fade_step(D_80098788 & 3, &work->unk0C) == 0)
+    if (fade_step(Sound_fade_flags & SOUND_FADE_MVOL, &work->mvol_fade) == 0)
     {
-        D_80098788 &= 0xFC;
+        Sound_fade_flags &= ~SOUND_FADE_MVOL;
     }
-    if (fade_step((D_80098788 & 0xC) >> 2, &work->unk10) == 0)
+    if (fade_step((Sound_fade_flags & SOUND_FADE_SE) >> 2, &work->se_fade) == 0)
     {
-        D_80098788 &= 0xF3;
+        Sound_fade_flags &= ~SOUND_FADE_SE;
     }
-    if (fade_step((D_80098788 & 0x30) >> 4, &work->unk12) == 0)
+    if (fade_step((Sound_fade_flags & SOUND_FADE_SEQ) >> 4, &work->seq_fade) == 0)
     {
-        D_80098788 &= 0xCF;
+        Sound_fade_flags &= ~SOUND_FADE_SEQ;
     }
     D_80098958 |= 0x400;
-    if (fade_step(D_80098788 >> 6, &work->unk0E) == 0)
+    if (fade_step(Sound_fade_flags >> 6, &work->serial_fade) == 0)
     {
-        if (D_80098788 & 0x40)
+        if (Sound_fade_flags & 0x40) // serial fade out
         {
             Cd_subcmd(0, 1, 0);
         }
-        D_80098788 &= 0x3F;
+        Sound_fade_flags &= ~SOUND_FADE_SERIAL;
     }
-    vol = (work->unk04 * work->unk0C) / 127;
+    vol = (work->mvol * work->mvol_fade) / 127;
     SsSetMVol(vol, vol);
     if (!(work->flags & SOUND_FLAG_CD_OFF))
     {
-        vol = (work->serial_vol * work->unk0E) / 127;
+        vol = (work->serial_vol * work->serial_fade) / 127;
         SsSetSerialVol(SS_SERIAL_A, vol, vol);
-        if (Game_work.unk058 != 0)
+        if (Game_work.mono != 0)
         {
             work->atv.val0 = 0x7F;
             work->atv.val1 = 0x7F;
@@ -801,7 +802,7 @@ void volume_update(void)
         }
         CdMix(&work->atv);
     }
-    if (Game_work.unk058 != 0)
+    if (Game_work.mono != 0)
     {
         SsSetMono();
     }
@@ -810,59 +811,55 @@ void volume_update(void)
         SsSetStereo();
     }
     chan = Sound_seq_chan_tbl;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; chan++, i++)
     {
-        if (chan->unk0 != -1 && chan->unk2 != -1)
+        if (chan->access != -1 && chan->kind != -1)
         {
-            vol = (work->unk0A * work->unk12) / 127;
-            if (chan->unk2 == 0)
+            vol = (work->seq_vol * work->seq_fade) / 127;
+            if (chan->kind == 0)
             {
-                SsSeqSetVol(chan->unk0, vol, vol);
+                SsSeqSetVol(chan->access, vol, vol);
             }
             else
             {
-                SsSepSetVol(chan->unk0, chan->unk4, vol, vol);
+                SsSepSetVol(chan->access, chan->seq_num, vol, vol);
             }
         }
-        chan++;
     }
     D_80098958 &= ~0x400;
-    if (work->unk18 != work->unk19)
+    if (work->reserved_voice != work->reserved_voice_set)
     {
         SsUtAllKeyOff(0);
-        SsSetReservedVoice(work->unk18);
+        SsSetReservedVoice(work->reserved_voice);
     }
-    work->unk19 = work->unk18;
-    rev         = work->unk1C;
-    switch (work->unk1A)
+    work->reserved_voice_set = work->reserved_voice;
+    rev                      = work->reverb;
+    switch (work->reverb_state)
     {
         case 0:
-            if (rev != work->unk20)
+            if (rev != work->reverb_set)
             {
-                SsUtSetReverbType(rev[0]);
+                SsUtSetReverbType(rev->type);
                 SsUtReverbOn();
-                work->unk1B = 0x1E;
-                work->unk1A++;
+                work->reverb_timer = 0x1E;
+                work->reverb_state++;
             }
             break;
         case 1:
-            work->unk1B--;
-            if (work->unk1B == 0)
+            work->reverb_timer--;
+            if (work->reverb_timer == 0)
             {
-                if (rev[0] != 0)
+                if (rev->type != 0)
                 {
-                    SsUtSetReverbDepth(rev[2], rev[2]);
-                    SsSetRVol(rev[1], rev[1]);
+                    SsUtSetReverbDepth(rev->depth, rev->depth);
+                    SsSetRVol(rev->vol, rev->vol);
                 }
-                work->unk1A = 0;
-                work->unk20 = rev;
+                work->reverb_state = 0;
+                work->reverb_set   = rev;
             }
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", volume_update);
-#endif
 
 void Sound_key_off_voice(sint16 voice)
 {
@@ -874,28 +871,24 @@ void func_8001B314(void)
     SpuSetKey(SPU_OFF, 0xFF8000);
 }
 
-#ifdef NON_MATCHING
 void Sound_seq_stop_all(void)
 {
     SOUND_SEQ_CHAN *chan;
     sint32 i;
 
     chan = Sound_seq_chan_tbl;
-    for (i = 0; i < 4; i++, chan++)
+    for (i = 0; i < 4; chan++, i++)
     {
-        if (chan->unk0 != -1 && chan->unk2 != -1)
+        if (chan->access != -1 && chan->kind != -1)
         {
-            if (chan->unk2 == 0)
+            if (chan->kind == 0)
             {
-                SsSeqStop(chan->unk0);
+                SsSeqStop(chan->access);
             }
             else
             {
-                SsSepStop(chan->unk0, chan->unk4);
+                SsSepStop(chan->access, chan->seq_num);
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_seq_stop_all);
-#endif

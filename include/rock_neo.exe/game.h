@@ -17,11 +17,11 @@ typedef struct
 {
     uint8 unk000[0x50];
     sint8 unk050; // 0x50: lb; indexes Sound_stage_func_tbl in func_80019FB4
-    sint8 unk051; // 0x51: lb; indexes the list at Sound_stage_id_tbl[unk050] in func_80019D18
+    sint8 unk051; // 0x51: lb; indexes the list at Sound_stage_id_tbl[unk050] in Sound_stage_play
     uint8 unk052;
     sint8 unk053; // 0x53: lb; 1 selects a different value in func_8001997C
     uint8 unk054[4];
-    sint8 unk058; // 0x58: lb; nonzero makes calc_vol use the louder channel for both
+    sint8 mono; // 0x58: mono sound output (volume_update: SsSetMono, CD mixed to both sides; calc_vol)
     uint8 unk059[2];
     sint8 unk05B; // 0x5B: lb; row of D_8008A678/D_8008A680 (func_80046A0C)
     uint8 unk05C[0x1B8 - 0x5C];
