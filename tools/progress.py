@@ -107,6 +107,12 @@ def report(target):
     for what, (size, n) in excluded.items():
         if n:
             print(f"  {'(excluded) ' + what:22} {size:>17}           {n:>11} functions")
+    import review  # tools/review.py: the owner's reviews
+
+    st = review.status(target)
+    rev = sum(v == "Yes" for v in st.values())
+    chg = len(st) - rev
+    print(f"  reviewed: {rev}/{tot['fdone']} functions with C" + (f", {chg} changed since review" if chg else ""))
     return tot
 
 

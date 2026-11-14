@@ -156,6 +156,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/overlay_files.py [--overlay ST03]` | Proposed split of the overlays into source files: confirmed by Capcom's source, common files shared between overlays, and regions with no evidence yet ([overlays.md](overlays.md), "Source files") |
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
 | `tools/batch_run.py <t> <file.c ...> | --all` | Unattended decompilation batches; see [agents.md](agents.md) |
+| `tools/review.py <t> NAME...` | The owner marks functions reviewed (`reviewed.txt`, keyed by address); `--changed` lists reviewed functions whose C was edited since, `--remove` drops reviews. Feeds `functions.csv`'s Reviewed column (Yes / Changed) and `progress.py`. Agents may not run it |
 | `tools/callers.py <t> NAME...` | Who uses a function (other files, data tables, and for ROCK_NEO the stage overlays), and so global or static naming |
 
 Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<t>/<Func> -j N`.

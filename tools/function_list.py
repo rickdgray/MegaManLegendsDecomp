@@ -3,7 +3,7 @@
 
 Usage:  tools/function_list.py [-o functions.csv]
 
-Columns: Program, File, Confidence, Function, Name, Decompiled, Matched, Score, Depth. One row per
+Columns: Program, File, Confidence, Function, Name, Decompiled, Matched, Reviewed, Score, Depth. One row per
 Capcom function, in address order per program.
 
 - Program: `slus_006.03`, `rock_neo.exe`, or an overlay (`ST03`, `ARM05R`, `SUPPORT`). Byte-identical
@@ -18,6 +18,8 @@ Capcom function, in address order per program.
 - Function: splat's default name (`func_<ADDRESS>`); Name: the name it was given, blank if none.
 - Decompiled: the function has C, matching or parked in a `#ifdef NON_MATCHING` block.
 - Matched: its C builds byte-identical (no NAME.NON_MATCHING symbol in the ELF).
+- Reviewed: the owner has read and approved its C (tools/review.py, reviewed.txt): Yes, or
+  Changed when the C was edited after the review; blank otherwise.
 - Score, Depth: estimated difficulty, and call order (blank once the function has C); see
   func_metrics.py. Sorting by Depth, then Score, gives a decompiling order.
 
@@ -34,6 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dupe_scan  # noqa: E402
 import overlay_files  # noqa: E402
 import progress  # noqa: E402
+import review  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGET_OF = {"SLUS": "slus_006.03", "ROCK_NEO": "rock_neo.exe"}
@@ -76,6 +79,7 @@ def main():
     subs = {t: progress.subsegments(t) for t in TARGET_OF.values()}
     conf = {t: confidence(t) for t in TARGET_OF.values()}
     attempts = {t: parked(t) for t in TARGET_OF.values()}
+    reviewed = {t: review.status(t) for t in TARGET_OF.values()}
     yn = lambda b: "Yes" if b else "No"
     rows = []
     for r in funcs:
@@ -86,25 +90,28 @@ def main():
         extra = (m["score"], m.get("depth", ""))
         if target is None:
             file, how, _shared = overlay[(prog, addr)]
-            rows.append((prog, file, how, default, "", "No", "No") + extra)
+            rows.append((prog, file, how, default, "", "No", "No", "") + extra)
             continue
         sub = next((s for s in subs[target] if s[0] <= addr < s[1]), None)
         if sub is None or sub[2].startswith(("psyq/", "asm_")):
             continue
         rows.append((target, sub[2], conf[target].get(sub[2], ""), default,
                      "" if name == default else name, yn(matched or name in attempts[target]),
-                     yn(matched)) + extra)
+                     yn(matched), reviewed[target].get(addr, "")) + extra)
 
     with open(ROOT / args.out if not Path(args.out).is_absolute() else args.out, "w",
               newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["Program", "File", "Confidence", "Function", "Name", "Decompiled", "Matched",
-                    "Score", "Depth"])
+                    "Reviewed", "Score", "Depth"])
         w.writerows(rows)
 
     dec = sum(r[5] == "Yes" for r in rows)
     mat = sum(r[6] == "Yes" for r in rows)
+    rev = sum(r[7] == "Yes" for r in rows)
+    chg = sum(r[7] == "Changed" for r in rows)
     print(f"wrote {args.out}: {len(rows)} functions, {dec} decompiled, {mat} matched, "
+          f"{rev} reviewed{f' ({chg} changed since review)' if chg else ''}, "
           f"{len({(r[0], r[1]) for r in rows})} files")
 
 

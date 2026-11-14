@@ -105,7 +105,7 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
   `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
 
-The owner's tools (`find_dupes.py`, `progress.py`, `batch_run.py`, `rename.py`,
+The owner's tools (`find_dupes.py`, `progress.py`, `batch_run.py`, `rename.py`, `review.py`,
 `permuter_prep.py`, `ctx.sh` and `permute.sh`) are described in `notes/toolchain.md`.
 
 **After any rename or re-split, refresh `expected/`** (`./tools/rebuild.sh <t>`). Otherwise the
@@ -473,6 +473,9 @@ uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the
 - Refresh `expected/` from a build that doesn't match.
 - Upload game code anywhere (e.g. decomp.me) without asking.
 - Decompile PsyQ library code (`asm/<t>/psyq/`). It is linked as-is.
+- Mark functions reviewed. `reviewed.txt` and `tools/review.py` are the owner's: a review means a
+  person has read the C. If you change a function listed in `reviewed.txt` (it then shows as
+  Changed in `functions.csv`), name it in your report so the owner can look again.
 
 ## When you finish a task
 

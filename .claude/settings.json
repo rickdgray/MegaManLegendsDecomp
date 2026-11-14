@@ -42,7 +42,12 @@
       "Bash(git update-ref:*)",
       "Bash(git -C:*)",
       "Bash(git --git-dir:*)",
-      "Bash(git --work-tree:*)"
+      "Bash(git --work-tree:*)",
+      "Edit(reviewed.txt)",
+      "Write(reviewed.txt)",
+      "Bash(tools/review.py:*)",
+      "Bash(./tools/review.py:*)",
+      "Bash(.venv/bin/python tools/review.py:*)"
     ]
   }
 }
