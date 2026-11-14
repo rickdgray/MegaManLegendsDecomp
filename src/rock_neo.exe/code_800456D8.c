@@ -17,7 +17,7 @@ void func_80046F38(void);
 void func_80045CE8(BYTES8 *pos, uint32 count, uint32 weights, uint32 kind);
 void func_80046B34(BYTES8 *pos, uint32 spec);
 sint32 func_800482A8(WORK_48 *wp);
-sint32 Svec_distance(SVECTOR *a, SVECTOR *b);
+sint32 svec_distance(SVECTOR *a, SVECTOR *b);
 void func_80045AB4(WORK_48 *wp);
 void func_80045BC8(WORK_48 *wp);
 void func_80046890(WORK_48 *wp);
@@ -949,7 +949,7 @@ void func_80047354(WORK_48 *wp)
     pos         = &wp->pos_38;
     wp->timer_B = 0;
     wp->routine_8++;
-    sub = Svec_distance(pos, &Player_work[0].pos);
+    sub = svec_distance(pos, &Player_work[0].pos);
     if (wp->field_C.rec.b0 != 0)
     {
         Sound_call2(0xA1, (sint32 *)pos);
@@ -1144,7 +1144,7 @@ void func_80047BD8(WORK_48 *wp)
     func_80031988(wp);
 }
 
-sint32 Svec_distance(SVECTOR *a, SVECTOR *b)
+sint32 svec_distance(SVECTOR *a, SVECTOR *b)
 {
     sint32 dx;
     sint32 dy;

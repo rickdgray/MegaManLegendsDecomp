@@ -65,14 +65,14 @@ void Work_pools_init(sint32 players)
     if (players)
     {
         kind = 0;
-        func_800177CC(Player_work, (uint8 *)Player_work + 0xBE4);
+        Mem_clear(Player_work, (uint8 *)Player_work + 0xBE4);
         for (i = 0; i < 2; i++)
         {
             Player_work[i].unk01 = kind | i;
         }
     }
     kind = 0x10;
-    func_800177CC(D_800BFB20, (uint8 *)D_800BFB20 + 0x10BC);
+    Mem_clear(D_800BFB20, (uint8 *)D_800BFB20 + 0x10BC);
     D_800989F0 = 0;
     D_80098A60 = 0;
     for (i = 0; i < 0x10; i++)
@@ -80,7 +80,7 @@ void Work_pools_init(sint32 players)
         D_800BFB20[i].kind_1 = kind | i;
     }
     kind = 0x20;
-    func_800177CC(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
+    Mem_clear(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
     D_800987E8 = 0;
     D_8009880C = 0;
     for (i = 0; i < 0x10; i++)
@@ -88,7 +88,7 @@ void Work_pools_init(sint32 players)
         D_8009F108[i].kind_1 = kind | i;
     }
     kind = 0x40;
-    func_800177CC(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
+    Mem_clear(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
     D_80098B20 = 0;
     D_80098B64 = 0;
     for (i = 0; i < 4; i++)
@@ -96,7 +96,7 @@ void Work_pools_init(sint32 players)
         D_800C3580[i].kind_1 = kind | i;
     }
     kind = 0x60;
-    func_800177CC(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
+    Mem_clear(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
     D_800987CC = 0;
     D_80098808 = 0;
     for (i = 0; i < 0x20; i++)
@@ -104,7 +104,7 @@ void Work_pools_init(sint32 players)
         D_8009CF88[i].kind_1 = kind | i;
     }
     kind = 0x80;
-    func_800177CC(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
+    Mem_clear(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
     D_80098838 = 0;
     D_8009883C = 0;
     D_800988C8 = 0;
@@ -114,7 +114,7 @@ void Work_pools_init(sint32 players)
         D_800A3B40[i].kind_1 = kind | i;
     }
     kind = 0xC0;
-    func_800177CC(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
+    Mem_clear(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
     D_800987EC = 0;
     D_80098818 = 0;
     for (i = 0; i < 0x10; i++)
@@ -122,15 +122,15 @@ void Work_pools_init(sint32 players)
         D_800A2D08[i].kind_1 = kind | i;
     }
     kind = 0xE0;
-    func_800177CC(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
+    Mem_clear(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
     D_800989CC = 0;
     D_80098A4C = 0;
     for (i = 0; i < 0x20; i++)
     {
         D_800BF118[i].kind_1 = kind | i;
     }
-    func_800177CC(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
-    func_800177CC((void *)0x8015BC00, (void *)0x8015BFFC);
+    Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
+    Mem_clear((void *)0x8015BC00, (void *)0x8015BFFC);
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
@@ -380,7 +380,7 @@ long func_80030254(uint16 *a, uint16 *b)
     return SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
 }
 
-long Distance_xyz(SVECTOR *a, SVECTOR *b)
+long distance_xyz(SVECTOR *a, SVECTOR *b)
 {
     SVECTOR d;
 
@@ -400,7 +400,7 @@ long Distance_xz(SVECTOR *a, SVECTOR *b)
 }
 
 // Squared XZ distance between two points.
-sint32 Dist_xz_sq(SVECTOR *from, SVECTOR *to)
+sint32 dist_xz_sq(SVECTOR *from, SVECTOR *to)
 {
     sint32 d[3];
 
@@ -743,7 +743,7 @@ void func_80030EE8(POS14_WORK *wp, SVECTOR *target, sint16 speed)
     wp->az_50 = 0;
 }
 
-sint32 Angle_xz_vector(VECTOR *from, VECTOR *to)
+sint32 angle_xz_vector(VECTOR *from, VECTOR *to)
 {
     sint32 dx;
     sint32 dz;
@@ -1230,7 +1230,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031CA4);
 #endif
 
 // Signed angle difference (a - b) on a 0x1000 circle, limited to +-limit.
-sint16 Angle_diff_clamp(sint16 a, sint16 b, sint16 limit)
+sint16 angle_diff_clamp(sint16 a, sint16 b, sint16 limit)
 {
     sint16 d;
     sint16 r;
@@ -1273,7 +1273,7 @@ sint32 func_80031DCC(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sin
     sint32 d1;
     sint32 d2;
 
-    angle = Angle_xz_vector(from, to);
+    angle = angle_xz_vector(from, to);
     d2    = (half2 + (angle - (center2 - 0x800))) & 0xFFF;
     d1    = (half1 + (angle - center1)) & 0xFFF;
     if ((sint16)half1 * 2 < d1)
@@ -1294,7 +1294,7 @@ sint32 func_80031E60(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sin
     sint32 d1;
     sint32 d2;
 
-    angle = Angle_xz_vector(from, to);
+    angle = angle_xz_vector(from, to);
     d2    = (half2 + (angle - center2)) & 0xFFF;
     d1    = (half1 + (angle - center1)) & 0xFFF;
     if ((sint16)half1 * 2 < d1)
@@ -1571,13 +1571,13 @@ void func_800333A0(void)
 }
 
 // Pushes a matrix onto the matrix stack at D_80098A80.
-void Matrix_push(MATRIX *src)
+void matrix_push(MATRIX *src)
 {
     *--D_80098A80 = *src;
 }
 
 // Pops a matrix from the matrix stack at D_80098A80.
-void Matrix_pop(MATRIX *dst)
+void matrix_pop(MATRIX *dst)
 {
     *dst = *D_80098A80;
     D_80098A80++;

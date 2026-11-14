@@ -84,7 +84,7 @@ void Pad_update_all(void);
 void Disp_adjust(void);
 
 // ROCK_NEO only.
-void func_800122D0(PAD_REP *pad);
+void Pad_repeat_update(PAD_REP *pad);
 void func_80012350(PAD_REP *pad, sint32 mask, sint32 i);
 
 #endif // PAD_H

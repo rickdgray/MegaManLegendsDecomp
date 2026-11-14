@@ -63,7 +63,7 @@ void func_80012F24(sint32 n);
 void func_8001319C(void);
 void func_8001246C(void);
 void func_80012BC4(void);
-void func_80012E10(sint32 n, TH_FUNC func);
+void Thread_open(sint32 n, TH_FUNC func);
 void func_800131FC(void);
 
 #endif // SYSTEM_H

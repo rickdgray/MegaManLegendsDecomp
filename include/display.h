@@ -31,8 +31,8 @@ extern sint32 D_80059BBC; // zeroed at init
 void Disp_env_set(sint32 mode);
 
 // ROCK_NEO only.
-extern DISP_ENV D_800C0C48[2]; // the double buffer (the shim's Disp_env)
+extern DISP_ENV Disp_env[2]; // the double buffer (the shim's Disp_env)
 
-void func_800120A8(void); // the shim's Disp_env_set, fixed at 320 wide
+void Disp_env_setup(void); // the shim's Disp_env_set, fixed at 320 wide
 
 #endif // DISPLAY_H

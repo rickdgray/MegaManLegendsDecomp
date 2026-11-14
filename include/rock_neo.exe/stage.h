@@ -54,9 +54,9 @@ typedef struct
     uint8 pad_0[12];
 } HIT_ENT;
 
-// Stack of packed map cells (x | y << 8); D_80097D24 (code_80037534's .sdata) is the count.
+// Stack of packed map cells (x | y << 8); Cell_stack_idx (code_80037534's .sdata) is the count.
 extern uint16 D_8009A376[];
-extern uint16 D_8009A378[];
+extern uint16 Cell_stack[];
 
 // Neighbour offsets for func_80037CD8: 8 around a cell (x, y), then 4 edge-adjacent (x, y).
 extern sint8 D_80089EEC[8];

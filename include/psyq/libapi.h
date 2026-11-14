@@ -28,7 +28,7 @@ long CloseTh(u_long thread);
 long ChangeTh(u_long thread);
 long OpenEvent(u_long desc, long spec, long mode, EVENT_FUNC func);
 long EnableEvent(u_long event);
-void func_8007FF70(void); // EnterCriticalSection (proposed in renames.txt)
-void func_8007FF80(void); // ExitCriticalSection (proposed in renames.txt)
+void EnterCriticalSection(void);
+void ExitCriticalSection(void);
 
 #endif // PSYQ_LIBAPI_H

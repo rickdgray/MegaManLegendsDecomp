@@ -77,14 +77,14 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", main);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80011F04);
 
-void func_800120A8(void)
+void Disp_env_setup(void)
 {
-    SetDefDrawEnv(&D_800C0C48[0].draw, 0, 0, 320, 240);
-    SetDefDispEnv(&D_800C0C48[0].disp, 0, 256, 320, 240);
-    SetDefDrawEnv(&D_800C0C48[1].draw, 0, 256, 320, 240);
-    SetDefDispEnv(&D_800C0C48[1].disp, 0, 0, 320, 240);
-    Disp_env_init(&D_800C0C48[0]);
-    Disp_env_init(&D_800C0C48[1]);
+    SetDefDrawEnv(&Disp_env[0].draw, 0, 0, 320, 240);
+    SetDefDispEnv(&Disp_env[0].disp, 0, 256, 320, 240);
+    SetDefDrawEnv(&Disp_env[1].draw, 0, 256, 320, 240);
+    SetDefDispEnv(&Disp_env[1].disp, 0, 0, 320, 240);
+    Disp_env_init(&Disp_env[0]);
+    Disp_env_init(&Disp_env[1]);
 }
 
 void Disp_env_init(DISP_ENV *buf)
@@ -107,7 +107,7 @@ void Pad_update_all(void)
     Pad_update(&Joy2);
 }
 
-void func_800122D0(PAD_REP *pad)
+void Pad_repeat_update(PAD_REP *pad)
 {
     func_80012350(pad, PAD_UP, 0);
     func_80012350(pad, PAD_DOWN, 1);
@@ -159,10 +159,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_8001246C);
 
 void func_80012938(void)
 {
-    func_8007FF70();
+    EnterCriticalSection();
     D_800988D8 = OpenEvent(0xF0000010, 0x1000, 0x1000, func_8001246C);
     EnableEvent(D_800988D8);
-    func_8007FF80();
+    ExitCriticalSection();
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012988);
@@ -201,11 +201,11 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012BC4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012C80);
 
-void func_80012E10(sint32 n, TH_FUNC func)
+void Thread_open(sint32 n, TH_FUNC func)
 {
-    func_8007FF70();
+    EnterCriticalSection();
     THREAD_TBL[n].th = OpenTh(func, THREAD_TBL[n].sp, THREAD_TBL[n].gp);
-    func_8007FF80();
+    ExitCriticalSection();
     THREAD_TBL[n].flags = 2;
 }
 
@@ -219,18 +219,18 @@ void Thread_wait(sint32 arg)
 void func_80012ECC(void)
 {
     Thread_current->flags = 0;
-    func_8007FF70();
+    EnterCriticalSection();
     CloseTh(Thread_current->th);
-    func_8007FF80();
+    ExitCriticalSection();
     ChangeTh(0xFF000000);
 }
 
 void func_80012F24(sint32 n)
 {
     THREAD_TBL[n].flags = 0;
-    func_8007FF70();
+    EnterCriticalSection();
     CloseTh(THREAD_TBL[n].th);
-    func_8007FF80();
+    ExitCriticalSection();
 }
 
 void func_80012F78(sint32 arg)

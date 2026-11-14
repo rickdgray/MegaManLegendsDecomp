@@ -276,10 +276,10 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
   `D_80098958` stores ahead of the `0x7F` stores; ours hoists the `0x7F` stores above them and
   loads `0xf` late. Source order of the stores makes no difference; a `vol` local is folded away.
 
-`main` (`src/rock_neo.exe/main.c`), this round: banked `func_800120A8` (display buffers at `0x800C0C48`,
-`extern DISP_ENV D_800C0C48[2]`: the extern symbol is needed, an absolute-address cast loses the shared
-base), `func_800122D0`/`func_80012350` (auto-repeat on `PAD_REP`, which extends `PAD_WORK` with
-`rep_state[8]` at +0x38 and `rep_count[8]` at +0x40; `mask` is `sint32`), `func_80012E10`
+`main` (`src/rock_neo.exe/main.c`), this round: banked `Disp_env_setup` (display buffers at `0x800C0C48`,
+`extern DISP_ENV Disp_env[2]`: the extern symbol is needed, an absolute-address cast loses the shared
+base), `Pad_repeat_update`/`func_80012350` (auto-repeat on `PAD_REP`, which extends `PAD_WORK` with
+`rep_state[8]` at +0x38 and `rep_count[8]` at +0x40; `mask` is `sint32`), `Thread_open`
 (`OpenTh` from the thread record's `sp`/`gp`), `func_800131FC` (thread entry: dispatch through
 `D_80080894[D_80098B1C]`, then `Thread_wait(1)`). Parked: `func_80012BC4` (thread table init). The
 table base `*(TCB **)0x110` must be written via a `TCB **kp = (TCB **)0x100` local (`kp[4]`) to get
@@ -316,8 +316,8 @@ loop counter/giv are scheduled differently. Tried: `uint32` field with a cast, `
 order; all three matched once the table was addressed by literal address (see the third pass).
 
 `code_80037534` (second pass): banked `func_80037534` (clears the 16 `TBL_IDX` records of an owner, then
-reloads each `val`), `func_80037738`, `func_80037F60` (pops `D_8009A376[D_80097D24]` into `func_80037CD8`
-until `D_80097D24` is 0). Parked: `func_80037594` (target reads `Player_work+0x172` with its own `lui`,
+reloads each `val`), `func_80037738`, `func_80037F60` (pops `D_8009A376[Cell_stack_idx]` into `func_80037CD8`
+until `Cell_stack_idx` is 0). Parked: `func_80037594` (target reads `Player_work+0x172` with its own `lui`,
 then builds `&Player_work` again; ours folds both into one base), `func_80037818` (target keeps arg in a2,
 `li a0,4` in the delay slot, then `move a0,zero` on the fall-through; the address, `&Stage_idx_tbl[arg0].val`,
 matches. Also tried `?:` (becomes `sltu`/`sll`) and an if/else with two calls).
@@ -337,7 +337,7 @@ that take the record owner are passed `&Player_work`, so their parameter is `PL_
 - `func_80039A38` (`code_80037FB4`) takes one argument and passes it on to `func_800399EC`: its callers
   load an address into `a0`, and nothing in between touches `a0`, so the call has no argument setup. `func_80037890` angle `j * step` is
   strength-reduced by GCC (a separate `ang` accumulator puts its init before the zero-trip test).
-- `Cell_stack` (`D_8009A378`) / `Cell_stack_idx` (`D_80097D24`): stack of packed cells, see `renames.txt`.
+- `Cell_stack` (`Cell_stack`) / `Cell_stack_idx` (`Cell_stack_idx`): stack of packed cells, see `renames.txt`.
 
 `code_80037FB4`: `func_80039BBC/C08/C54/CA0/CEC` each copy a `VECTOR` (struct assignment) to one of
 `D_800A39A0/B0/C0/D0/E0` and store three ints beside it (`D_800A3964..` / `3970..` / `397C..` /
@@ -349,7 +349,7 @@ branch bodies, `>=`, swapped names and `-=` forms were also tried.
 now an array, the target indexes it by symbol; `unk56` read as `(uint16)` for `lhu`), `func_80033D80`
 (scratchpad matrix `0x1F8000C0` + `ApplyMatrix`/`RotMatrix`/`MulMatrix`), `func_80037440` (counts
 `D_800BFB20[n]` by id into `D_8009856C[16]`; `D_800BFB22` is declared as a second `WORK_10C` array so
-the access keeps its own `lui`), `Angle_xz_vector`, `Angle_xz_svector` (`catan` of the x/z delta).
+the access keeps its own `lui`), `angle_xz_vector`, `Angle_xz_svector` (`catan` of the x/z delta).
 Parked `func_80036C50` (`NON_MATCHING`; 4-entry table at `D_8009A306`, stride 0x14): the target keeps
 `&D_8009A306` in a3 for the first compare and the loop; ours folds the first compare to `lui`+`%lo` and
 rebuilds the base for the loop (local pointer, `e++`/flag pointer, index forms tried).
@@ -384,7 +384,7 @@ registers (a1/a2) are swapped. `func_80035508` stays assembly (GTE, same decisio
 (scratchpad fog setup, `SetFogNear(D_800BC81C, 0x180)`). Parked `func_80036B00` (`NON_MATCHING`): copies
 `D_8009A370..74` into an `SVECTOR`; the target does load/store pair by pair, GCC hoists the later loads
 above the earlier stores (struct, `sint16 *`, `*v++` and `volatile` forms tried).
-Banked `Angle_diff_clamp` (signed angle difference on a 0x1000 circle, clamped to +-limit; `r = limit`
+Banked `angle_diff_clamp` (signed angle difference on a 0x1000 circle, clamped to +-limit; `r = limit`
 first, and the else-branch test written `limit > 0x1000 - d`). Parked (`NON_MATCHING`): `func_800323FC`
 (steps a `KEY_ENT` table; target loads `lbu 0x101` before `lw 0xFC` and keeps `ctl` in a2 with a copy in a1)
 and the four slot allocators `func_80031418`, `Open_SHL_WORK`, `func_800316BC`, `func_80031734` (pool
@@ -450,7 +450,7 @@ flat if/else, nested, `goto init`, `sub = flag_3 & 0xF` vs constants.
 Banked: `func_800469A4` (matrix at `WORK_48+0x18` with diagonal `field_3E`, `RotMatrixY(field_C.angle)`, angle
 += 0x100; chained store `m00 = m11 = m22`), `func_800459C0`/`func_8004678C` (same matrix with the diagonal
 `pos_38.pad >> 1` for m00/m22; `field_2E += field_34`, `pos_38.vy += field_2E`,
-`field_3E -= D_80097E64/D_80097EE0[field_A] >> 3`, `routine_8++` once `field_2E >= 0`), `Svec_distance`
+`field_3E -= D_80097E64/D_80097EE0[field_A] >> 3`, `routine_8++` once `field_2E >= 0`), `svec_distance`
 (distance of two SVECTORs via `SquareRoot0`), `func_80047CD8` (steps through the 8-byte records at
 `D_8008A6C8`; separate symbols indexed by `i * 8`). Parked `func_800482A8` (`NON_MATCHING`; Player_work
 `unk09 == 3` and `unk11C & unk128/unk12A` pad test, else `routine_8 = 2`; returns 1/0): the target ends the

@@ -13,7 +13,7 @@ void func_80037C50(uint16 arg0);
 void func_80037CD8(uint16 arg0);
 
 // Small data (.sdata 0x80097D24-0x80097D28): reached through $gp in this file.
-uint16 D_80097D24 = 0;
+uint16 Cell_stack_idx = 0;
 sint16 D_80097D26 = 0;
 
 void func_80037534(PL_WORK *pl)
@@ -254,9 +254,9 @@ void func_80037C50(uint16 arg0)
 {
     if (arg0 < 0x800)
     {
-        D_8009A378[D_80097D24] =
+        Cell_stack[Cell_stack_idx] =
             (((Stage_idx_tbl[arg0].x + 0x8000) >> 9) - Map_org_x) + ((((Stage_idx_tbl[arg0].y + 0x8000) >> 9) - Map_org_y) << 8);
-        D_80097D24++;
+        Cell_stack_idx++;
     }
 }
 
@@ -282,8 +282,8 @@ void func_80037CD8(uint16 arg0)
                 c = (Map_cells + x)[y * Map_w];
                 if ((uint32)(c - 1) < 0x7FF && c == id)
                 {
-                    D_8009A378[D_80097D24] = x + (y << 8);
-                    D_80097D24++;
+                    Cell_stack[Cell_stack_idx] = x + (y << 8);
+                    Cell_stack_idx++;
                 }
             }
         }
@@ -291,7 +291,7 @@ void func_80037CD8(uint16 arg0)
     }
     else
     {
-        D_80097D24--;
+        Cell_stack_idx--;
         for (i = 0; i < 4; i++)
         {
             x = cx + D_80089EFC[i];
@@ -302,8 +302,8 @@ void func_80037CD8(uint16 arg0)
                 if ((uint32)(c - 1) < 0x7FF && c != id && ((uint16 *)Stage_idx_tbl[c].ptr)[1] == ((uint16 *)Stage_idx_tbl[id].ptr)[1] &&
                     (Stage_idx_tbl[c].val & 0xFFF) != 0)
                 {
-                    D_8009A378[D_80097D24] = x + (y << 8);
-                    D_80097D24++;
+                    Cell_stack[Cell_stack_idx] = x + (y << 8);
+                    Cell_stack_idx++;
                 }
             }
         }
@@ -312,8 +312,8 @@ void func_80037CD8(uint16 arg0)
 
 void func_80037F60(void)
 {
-    while (D_80097D24 != 0)
+    while (Cell_stack_idx != 0)
     {
-        func_80037CD8(D_8009A376[D_80097D24]);
+        func_80037CD8(D_8009A376[Cell_stack_idx]);
     }
 }
