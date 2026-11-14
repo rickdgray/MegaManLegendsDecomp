@@ -436,7 +436,8 @@ Before applying a name:
   overlay (overlays call into ROCK_NEO, and nothing in `asm/` shows it). No outside users means a
   file-local helper, named `lower_snake_case` with no module prefix; any outside user (including
   an overlay or a data table) means `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G32` means it's defined in another
-  file, so it's global.
+  file, so it's global. **Not in the shim:** it is one C file with no overlays, so the test would
+  make everything static. Its names follow the shared modules and Capcom's conventions instead.
 - **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
   an upper bound, from the next `dlabel` in the data file.
 - **Follow the other program's names** for shared code: the CD module and anything the shim also

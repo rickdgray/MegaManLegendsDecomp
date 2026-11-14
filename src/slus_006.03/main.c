@@ -872,8 +872,7 @@ void intro_launch_game(void)
             SsQuit();
             StopPAD();
             _96_init();
-            // 0x801fff00: stack pointer for ROCK_NEO.EXE: top of 2 MB RAM, minus 256 bytes.
-            LoadExec(rock_neo_path, 0x801fff00, 0);
+            LoadExec(rock_neo_path, ROCK_NEO_STACK, 0);
             break;
     }
 
