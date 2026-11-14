@@ -125,7 +125,7 @@ Settings that took debugging, in `slus_006.03.yaml` (ROCK_NEO's own are in
 
 ## Tools
 
-Every script takes the target as its first argument (`<t>`: `slus_006.03` or `rock_neo.exe`).
+Every script takes the target as an optional first argument (`<t>`: `rock_neo.exe`, the default when left out, or `slus_006.03`). `progress.py` without one reports both programs.
 `tools/target.sh` derives the paths from it: `<t>.yaml`, `symbol_addrs_<t>.txt`, `src/<t>/`,
 `asm/<t>/`, `build/<t>/` (linker script, ELF, map, objects, `undefined_*_auto.txt`),
 `assets/<t>/`, `expected/<t>/`, and the final binary `build/<t>/<T>`, named like the disc file

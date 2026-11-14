@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Rebuild one target from splat's output and C sources, and compare it with the original.
-# Run tools/split.sh <target> first: the object list comes from splat's linker script.
-# Usage: tools/build.sh <target>
+# Run tools/split.sh [target] first: the object list comes from splat's linker script.
+# Usage: tools/build.sh [target]
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "${1:-}"; shift
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
 
 AS="mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -G0 -Iinclude"
 LD="mips-linux-gnu-ld -EL"

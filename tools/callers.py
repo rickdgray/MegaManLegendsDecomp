@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Who calls or references a function: which files, and so whether its name is global or static.
 
-Usage:  .venv/bin/python tools/callers.py <target> NAME [NAME ...]
+Usage:  .venv/bin/python tools/callers.py [target] NAME [NAME ...]
 
 NAME is a registered name or a splat default (func_XXXXXXXX). Looks in:
   - src/<target>/*.c and asm/<target>/nonmatchings/<file>/ (other files' code),
@@ -17,6 +17,9 @@ import re
 import struct
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402  (tools/targets.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 OVERLAYS = ROOT / "disc" / "overlays"
@@ -75,6 +78,7 @@ def outside_users(target, name, home=None):
 
 
 def main():
+    targets.default_target()
     if len(sys.argv) < 3:
         sys.exit(__doc__)
     target = sys.argv[1]

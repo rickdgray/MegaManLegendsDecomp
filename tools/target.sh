@@ -1,16 +1,20 @@
-# Shared by the tools/ scripts: source it with the target name as $1.
-#   source "$(dirname "$0")/target.sh" "$1"; shift
-# Changes to the repo root and derives every per-target path from the target name.
+# Shared by the tools/ scripts: source it with the script's arguments, then drop the target:
+#   source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+# The target is optional: when the first argument isn't a target name, it's rock_neo.exe and
+# TARGET_ARGC is 0 (nothing to drop). Changes to the repo root and derives every per-target path.
 # Targets are named after their disc file in lower case: slus_006.03, rock_neo.exe.
 
 TARGETS="slus_006.03 rock_neo.exe"
+DEFAULT_TARGET=rock_neo.exe
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-TARGET=${1:-}
-if [[ -z "$TARGET" ]] || [[ " $TARGETS " != *" $TARGET "* ]]; then
-    echo "usage: $0 <target> ...   (target: ${TARGETS// /, })" >&2
-    exit 2
+if [[ -n "${1:-}" ]] && [[ " $TARGETS " == *" $1 "* ]]; then
+    TARGET=$1
+    TARGET_ARGC=1
+else
+    TARGET=$DEFAULT_TARGET
+    TARGET_ARGC=0
 fi
 
 YAML=$TARGET.yaml                       # splat config

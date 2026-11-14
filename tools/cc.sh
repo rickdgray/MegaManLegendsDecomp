@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Compile one C file with the PsyQ 4.0-equivalent toolchain:
 #   cpp -> gcc 2.7.2-psx cc1 -> maspsx (ASPSX 2.56) -> GNU as
-# Usage: tools/cc.sh <target> src/<target>/foo.c build/<target>/src/<target>/foo.o
+# Usage: tools/cc.sh [target] src/<target>/foo.c build/<target>/src/<target>/foo.o
 #
 # Optional overrides, for toolchain experiments only (the matching build uses none):
 #   CC1_EXTRA="-fno-foo"      extra cc1 flags, appended after the defaults
@@ -9,13 +9,17 @@
 #   ASPSX_VERSION=2.67        a different assembler version for maspsx to emulate
 set -euo pipefail
 
-target=${1:-}
-src=${2:-}
-obj=${3:-}
+# The target is optional (rock_neo.exe when the first argument isn't a target name).
+case "${1:-}" in
+    slus_006.03 | rock_neo.exe) target=$1; shift ;;
+    *) target=rock_neo.exe ;;
+esac
+src=${1:-}
+obj=${2:-}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 
 if [[ -z "$src" || -z "$obj" ]]; then
-    echo "usage: $0 <target> <in.c> <out.o>" >&2
+    echo "usage: $0 [target] <in.c> <out.o>" >&2
     exit 2
 fi
 

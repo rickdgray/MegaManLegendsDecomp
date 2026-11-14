@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Prepare a decomp-permuter directory for a parked function.
 
-Usage:  tools/permuter_prep.py <target> FunctionName --src src/<target>/<file>.c
+Usage:  tools/permuter_prep.py [target] FunctionName --src src/<target>/<file>.c
 
 --src is required: the C file that holds the parked function (e.g. src/slus_006.03/main.c,
 src/rock_neo.exe/cd.c).
@@ -26,6 +26,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402  (tools/targets.py)
+
 ROOT = Path(__file__).resolve().parent.parent
 INCLUDE = ROOT / "include"
 TARGETS = ["slus_006.03", "rock_neo.exe"]
@@ -46,6 +49,7 @@ ASM_PRELUDE = '.include "macro.inc"\n.set noat\n.set noreorder\n.section .text\n
 
 
 def main() -> None:
+    targets.default_target()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target", choices=TARGETS)
     ap.add_argument("function")

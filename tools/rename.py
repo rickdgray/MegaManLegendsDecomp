@@ -3,8 +3,8 @@
 notes/ in one step.
 
 Usage:
-    tools/rename.py <target> OLD NEW [attr ...]   one rename, e.g.  slus_006.03 func_80011940 Movie_start
-    tools/rename.py <target> -f renames.txt       a batch (one "OLD NEW [attr ...]" per line, # comments)
+    tools/rename.py [target] OLD NEW [attr ...]   one rename, e.g.  slus_006.03 func_80011940 Movie_start
+    tools/rename.py [target] -f renames.txt       a batch (one "OLD NEW [attr ...]" per line, # comments)
     add -n / --dry-run to only show what would change
 
 target: slus_006.03 or rock_neo.exe.
@@ -23,6 +23,9 @@ import argparse
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402  (tools/targets.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = ["slus_006.03", "rock_neo.exe"]
@@ -122,6 +125,7 @@ def rename_registry(lines, entries, old, new, extra, target="rock_neo.exe"):
 
 def main():
     global REGISTRY
+    targets.default_target()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target", choices=TARGETS)
     ap.add_argument("old", nargs="?")
@@ -129,7 +133,7 @@ def main():
     ap.add_argument("attrs", nargs="*")
     ap.add_argument("-f", "--file", help="batch file: one 'OLD NEW [attr ...]' per line")
     ap.add_argument("-n", "--dry-run", action="store_true")
-    args = ap.parse_args()
+    args = ap.parse_intermixed_args()  # flags may sit between OLD and NEW (rename.py -n OLD NEW)
 
     jobs = []
     if args.file:

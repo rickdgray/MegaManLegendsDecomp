@@ -2,10 +2,10 @@
 """Record that a person has reviewed a function's C, and notice when it changes afterwards.
 
 Usage:
-    tools/review.py <target> NAME [NAME ...]    mark functions reviewed (or re-approve changed ones)
-    tools/review.py <target> --remove NAME ...  drop reviews
-    tools/review.py <target> --changed          list reviewed functions whose C changed since
-    tools/review.py <target> --list             list every review
+    tools/review.py [target] NAME [NAME ...]    mark functions reviewed (or re-approve changed ones)
+    tools/review.py [target] --remove NAME ...  drop reviews
+    tools/review.py [target] --changed          list reviewed functions whose C changed since
+    tools/review.py [target] --list             list every review
 
 The owner's tool: agents never mark reviews (CLAUDE.md, .claude/settings.json).
 
@@ -23,6 +23,9 @@ import hashlib
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402  (tools/targets.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 REVIEWED = ROOT / "reviewed.txt"
@@ -109,6 +112,7 @@ def status(target):
 
 
 def main():
+    targets.default_target()
     args = sys.argv[1:]
     if len(args) < 2:
         sys.exit(__doc__)

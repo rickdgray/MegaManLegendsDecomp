@@ -61,8 +61,9 @@ WSL Ubuntu, from the repo root, with the Python venv at `.venv/`. Third-party to
 
 ## Commands
 
-Every script takes the **target** as its first argument: `slus_006.03` (the shim) or
-`rock_neo.exe` (the main game). Paths derive from it (see `tools/target.sh`):
+Every script takes the **target** as an optional first argument: `rock_neo.exe` (the main game,
+the default when it's left out) or `slus_006.03` (the shim, always named). `./tools/build.sh` builds
+ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (see `tools/target.sh`):
 
 | Target `<t>` | Path |
 |---|---|

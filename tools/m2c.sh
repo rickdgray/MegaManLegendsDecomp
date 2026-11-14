@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Draft C for one function with m2c. Context is built from every shared header in include/ plus include/<target>/.
-# Usage: tools/m2c.sh <target> FunctionName [extra m2c flags]
+# Draft C for one function with m2c. Context is built from every shared header in include/ plus include/[target]/.
+# Usage: tools/m2c.sh [target] FunctionName [extra m2c flags]
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "${1:-}"; shift
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
 
 if [[ $# -lt 1 ]]; then
-    echo "usage: $0 <target> FunctionName [m2c flags]" >&2
+    echo "usage: $0 [target] FunctionName [m2c flags]" >&2
     exit 2
 fi
 fn=$1; shift

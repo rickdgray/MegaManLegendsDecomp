@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build a decomp.me context file: every declaration and constant a C file's headers provide.
 #
-# Usage: tools/ctx.sh <target> <file.c> [out]     (out defaults to ctx.c in the repo root)
+# Usage: tools/ctx.sh [target] <file.c> [out]     (out defaults to ctx.c in the repo root)
 #   e.g. tools/ctx.sh rock_neo.exe src/rock_neo.exe/cd.c
 #
 # Only the file's #include lines are preprocessed (its function bodies and INCLUDE_ASM lines would
@@ -12,14 +12,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [ $# -lt 2 ]; then
-    echo "usage: $0 <target> <file.c> [out]" >&2
+# The target is optional (rock_neo.exe when the first argument isn't a target name).
+case "${1:-}" in
+    slus_006.03 | rock_neo.exe) target=$1; shift ;;
+    *) target=rock_neo.exe ;;
+esac
+
+if [ $# -lt 1 ]; then
+    echo "usage: $0 [target] <file.c> [out]" >&2
     exit 1
 fi
 
-target=$1
-src=$2
-out=${3:-ctx.c}
+src=$1
+out=${2:-ctx.c}
 
 case "$target" in
     slus_006.03 | rock_neo.exe) ;;

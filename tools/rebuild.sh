@@ -2,9 +2,9 @@
 # Split, build, and refresh expected/ for one target. Use after any rename or yaml change.
 # make_expected.sh refuses if the build doesn't match.
 # Then regenerates functions.csv (tools/function_list.py), which needs both targets' ELFs.
-# Usage: tools/rebuild.sh <target>
+# Usage: tools/rebuild.sh [target]
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "${1:-}"; shift
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
 
 rm -rf "$BUILD_DIR"
 ./tools/split.sh "$TARGET"

@@ -53,6 +53,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402  (tools/targets.py)
 import callers  # noqa: E402  (tools/callers.py)
 
 try:
@@ -448,6 +449,7 @@ def consolidate(args, cfiles, logdir):
 
 
 def main():
+    targets.default_target()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("target")
     ap.add_argument("cfiles", nargs="*", help="C files to work through, e.g. src/rock_neo.exe/cd.c")

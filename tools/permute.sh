@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run decomp-permuter on one parked function.
 #
-# Usage: tools/permute.sh <target> <function> [jobs] [-- extra permuter options]
+# Usage: tools/permute.sh [target] <function> [jobs] [-- extra permuter options]
 #   e.g. tools/permute.sh rock_neo.exe Cd_seek
 #        tools/permute.sh rock_neo.exe Cd_xa_play_id 2
 #        tools/permute.sh rock_neo.exe Cd_seek 4 -- --show-errors
@@ -15,14 +15,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [ $# -lt 2 ]; then
+# The target is optional (rock_neo.exe when the first argument isn't a target name).
+case "${1:-}" in
+    slus_006.03 | rock_neo.exe) target=$1; shift ;;
+    *) target=rock_neo.exe ;;
+esac
+
+if [ $# -lt 1 ]; then
     sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
 fi
 
-target=$1
-func=$2
-shift 2
+func=$1
+shift
 
 jobs=$(nproc)
 if [ $# -gt 0 ] && [ "$1" != "--" ]; then
