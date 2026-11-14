@@ -3,6 +3,7 @@
 #include "fastmem.h"
 #include "psyq/inline_c.h"
 #include "player.h"
+#include "stage.h"
 
 // Called only from this file, ahead of their definitions.
 void func_80033A28(ATTACH_WORK *wp);
@@ -54,6 +55,9 @@ static sint32 D_8009862C[2];
 static sint32 D_80098634[2];
 static VECTOR D_8009863C;
 static VECTOR D_8009864C;
+
+// Pool variable (tentative definition): top of the matrix stack in D_800BC728.
+MATRIX *D_80098A80;
 
 // Clears the work pools and tags each slot with its pool kind (0x10 * pool) ORed with its index.
 // The player pool is only reset when `players` is set.
@@ -130,7 +134,7 @@ void Work_pools_init(sint32 players)
         D_800BF118[i].kind_1 = kind | i;
     }
     Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
-    Mem_clear((void *)0x8015BC00, (void *)0x8015BFFC);
+    Mem_clear((void *)0x8015BC00, (void *)0x8015BFFC); // the 0x400 bytes below Stage_idx_tbl (use unknown)
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
@@ -185,25 +189,25 @@ void func_8002F928(POS_WORK *wp, uint16 *d)
     }
 }
 
-void func_8002F998(uint16 *dst, uint16 *src)
+void func_8002F998(EVE_WORK *wp, SVECTOR *d)
 {
-    dst[10] += src[0];
-    dst[12] += src[2];
+    wp->x_14 += d->vx;
+    wp->z_18 += d->vz;
 }
 
 void Model_work_init(ATTACH_WORK *wp, uint8 *sub)
 {
-    func_8002FA38(wp, (sint32 *)0x8016C000, sub);
+    func_8002FA38(wp, Stage_ebd_0, sub);
 }
 
 void func_8002F9EC(ATTACH_WORK *wp, uint8 *sub)
 {
-    func_8002FA38(wp, (sint32 *)0x80190000, sub);
+    func_8002FA38(wp, Stage_ebd_1, sub);
 }
 
 void func_8002FA10(ATTACH_WORK *wp, uint8 *sub)
 {
-    func_8002FA38(wp, (sint32 *)0x801F2000, sub);
+    func_8002FA38(wp, Support_ebd, sub);
 }
 
 #ifdef NON_MATCHING
@@ -380,7 +384,7 @@ long func_80030254(uint16 *a, uint16 *b)
     return SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
 }
 
-long distance_xyz(SVECTOR *a, SVECTOR *b)
+long Distance_xyz(SVECTOR *a, SVECTOR *b)
 {
     SVECTOR d;
 
@@ -400,7 +404,7 @@ long Distance_xz(SVECTOR *a, SVECTOR *b)
 }
 
 // Squared XZ distance between two points.
-sint32 dist_xz_sq(SVECTOR *from, SVECTOR *to)
+sint32 Dist_xz_sq(SVECTOR *from, SVECTOR *to)
 {
     sint32 d[3];
 
@@ -743,7 +747,7 @@ void func_80030EE8(POS14_WORK *wp, SVECTOR *target, sint16 speed)
     wp->az_50 = 0;
 }
 
-sint32 angle_xz_vector(VECTOR *from, VECTOR *to)
+sint32 Angle_xz_vector(VECTOR *from, VECTOR *to)
 {
     sint32 dx;
     sint32 dz;
@@ -829,7 +833,7 @@ void func_80031324(CHILD_PARENT *parent, CHILD_WORK *child, sint16 n)
 }
 
 #ifdef NON_MATCHING
-// Only the store order differs (see func_800316BC).
+// Only the store order differs (see Open_EVE_WORK).
 WORK_3C0 *func_80031418(void)
 {
     sint32 i;
@@ -861,7 +865,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031418);
 #endif
 
 #ifdef NON_MATCHING
-// Only the store order differs (see func_800316BC).
+// Only the store order differs (see Open_EVE_WORK).
 WORK_5A4 *func_80031498(void)
 {
     sint32 i;
@@ -893,7 +897,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031498);
 #endif
 
 #ifdef NON_MATCHING
-// Only the store order differs (see func_800316BC).
+// Only the store order differs (see Open_EVE_WORK).
 WORK_10C *Open_SHL_WORK(void)
 {
     sint32 i;
@@ -909,12 +913,12 @@ WORK_10C *Open_SHL_WORK(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_800987CC |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->routine_6          = 3;
-            wp->field_74           = 0;
+            *(uint16 *)&wp->field_2 = 0;
+            *(uint32 *)&wp->flag_4  = 0;
+            *(uint32 *)&wp->field_C = 0;
+            wp->field_8             = 0;
+            wp->flags               = 3;
+            wp->field_74            = 0;
             return wp;
         }
     }
@@ -925,7 +929,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Open_SHL_WORK);
 #endif
 
 #ifdef NON_MATCHING
-// Only the store order differs (see func_800316BC).
+// Only the store order differs (see Open_EVE_WORK).
 WORK_10C *func_80031598(void)
 {
     sint32 i;
@@ -941,12 +945,12 @@ WORK_10C *func_80031598(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_800989F0 |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->routine_6          = 3;
-            wp->field_74           = 0;
+            *(uint16 *)&wp->field_2 = 0;
+            *(uint32 *)&wp->flag_4  = 0;
+            *(uint32 *)&wp->field_C = 0;
+            wp->field_8             = 0;
+            wp->flags               = 3;
+            wp->field_74            = 0;
             return wp;
         }
     }
@@ -976,7 +980,7 @@ WORK_48 *func_80031618(void)
                 *(uint32 *)&wp->flag_4    = 0;
                 wp->field_C.word          = 0;
                 *(uint32 *)&wp->routine_8 = 0;
-                wp->routine_6             = 3;
+                wp->flags                 = 3;
                 wp->field_10              = 0;
                 return wp;
             }
@@ -990,7 +994,7 @@ WORK_48 *func_80031618(void)
 // D_800987EC update. A test with the mask as a struct member (MEM_IN_STRUCT_P) gave the
 // target order, so the mask words probably belong to a pool struct. Same for the other
 // allocators (func_80031418, Open_SHL_WORK, func_80031734); func_800317AC matches as is.
-EVE_WORK *func_800316BC(void)
+EVE_WORK *Open_EVE_WORK(void)
 {
     sint32 i;
     EVE_WORK *wp;
@@ -1008,18 +1012,18 @@ EVE_WORK *func_800316BC(void)
             *(uint32 *)&wp->flag_4 = 0;
             wp->field_C            = 0;
             wp->field_8            = 0;
-            wp->routine_6          = 3;
+            wp->flags              = 3;
             return wp;
         }
     }
     return 0;
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800316BC);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Open_EVE_WORK);
 #endif
 
 #ifdef NON_MATCHING
-// Only the store order differs (see func_800316BC).
+// Only the store order differs (see Open_EVE_WORK).
 WORK_50 *func_80031734(void)
 {
     sint32 i;
@@ -1038,7 +1042,7 @@ WORK_50 *func_80031734(void)
             *(uint32 *)&wp->flag_4 = 0;
             wp->field_C            = 0;
             wp->field_8            = 0;
-            wp->routine_6          = 3;
+            wp->flags              = 3;
             return wp;
         }
     }
@@ -1062,7 +1066,7 @@ WORK_50 *func_800317AC(sint32 i)
             *(uint32 *)&wp->flag_4 = 0;
             wp->field_C            = 0;
             wp->field_8            = 0;
-            wp->routine_6          = 3;
+            wp->flags              = 3;
             wp->field_10           = 0;
             return wp;
         }
@@ -1085,7 +1089,7 @@ void func_8003187C(WORK_5A4 *wp)
     wp->routine_0 = 0;
 }
 
-void func_800318D8(WORK_10C *wp)
+void Close_SHL_WORK(WORK_10C *wp)
 {
     D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(WORK_10C));
     D_80098808 &= D_800987CC;
@@ -1230,7 +1234,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031CA4);
 #endif
 
 // Signed angle difference (a - b) on a 0x1000 circle, limited to +-limit.
-sint16 angle_diff_clamp(sint16 a, sint16 b, sint16 limit)
+sint16 Angle_diff_clamp(sint16 a, sint16 b, sint16 limit)
 {
     sint16 d;
     sint16 r;
@@ -1273,7 +1277,7 @@ sint32 func_80031DCC(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sin
     sint32 d1;
     sint32 d2;
 
-    angle = angle_xz_vector(from, to);
+    angle = Angle_xz_vector(from, to);
     d2    = (half2 + (angle - (center2 - 0x800))) & 0xFFF;
     d1    = (half1 + (angle - center1)) & 0xFFF;
     if ((sint16)half1 * 2 < d1)
@@ -1294,7 +1298,7 @@ sint32 func_80031E60(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sin
     sint32 d1;
     sint32 d2;
 
-    angle = angle_xz_vector(from, to);
+    angle = Angle_xz_vector(from, to);
     d2    = (half2 + (angle - center2)) & 0xFFF;
     d1    = (half1 + (angle - center1)) & 0xFFF;
     if ((sint16)half1 * 2 < d1)
@@ -1386,7 +1390,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031F84);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800320B8);
 
-void func_800321C8(KEY_WORK *wp, sint32 unused, uint32 set, sint32 idx)
+void func_800321C8(PL_WORK *wp, sint32 unused, uint32 set, sint32 idx)
 {
     KEY_ENT *base;
     KEY_ENT *ent;
@@ -1401,7 +1405,7 @@ void func_800321C8(KEY_WORK *wp, sint32 unused, uint32 set, sint32 idx)
             break;
         case 4:
         case 5:
-            if (wp->alt_170 != 0)
+            if (wp->unk170 != 0)
             {
                 base = Key_tbl_c_alt[set];
             }
@@ -1412,7 +1416,7 @@ void func_800321C8(KEY_WORK *wp, sint32 unused, uint32 set, sint32 idx)
             break;
         case 6:
         case 7:
-            if (wp->alt_171 != 0)
+            if (wp->unk171 != 0)
             {
                 base = Key_tbl_d_alt[set];
             }
@@ -1451,18 +1455,21 @@ void func_80032304(ATTACH_WORK *wp, sint32 idx, sint32 step)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003234C);
 
 #ifdef NON_MATCHING
-// Differs: lw/lbu order at entry, and the target keeps ctl in a2 with a copy in a1.
-void func_800323FC(KEY_WORK *wp, sint16 a)
+// Only the first two loads differ: the target loads cmd_100.b.time (lbu) before ent_FC (lw).
+// Reusing the parameter `a` (sint32) as the copy of ctl fixed the registers; moving the ent_FC
+// load before the `sh` or after a separate decrement did not change the order (or broke more).
+void func_800323FC(PL_WORK *wp, sint32 a)
 {
     KEY_ENT *ent;
     sint32 ctl;
     uint32 pad[2];
 
-    wp->field_106 = a;
-    ent           = wp->ent_FC;
+    wp->unk106 = a;
+    ent        = wp->ent_FC;
     if (--wp->cmd_100.b.time == 0)
     {
         ctl = ent->cmd.b.ctl;
+        a   = ctl;
         if (ctl < 0)
         {
             if (ctl == -1)
@@ -1471,7 +1478,7 @@ void func_800323FC(KEY_WORK *wp, sint16 a)
             }
             else
             {
-                ent              = wp->tbl_F8 + (ctl & 0x7F);
+                ent              = wp->tbl_F8 + (a & 0x7F);
                 wp->ent_FC       = ent;
                 wp->cmd_100.word = ent->cmd.word;
             }
@@ -1532,7 +1539,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800325D4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800329D4);
 
-void func_800331A0(SKEL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off)
+void func_800331A0(PL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off)
 {
     VECTOR tmp;
     VECTOR scale;
@@ -1549,21 +1556,18 @@ void func_800331A0(SKEL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off)
     Scratch_mtx.t[0] += tmp.vx;
     Scratch_mtx.t[1] += tmp.vy;
     Scratch_mtx.t[2] += tmp.vz;
-    v.vx          = wp->x_14 << Scratch_scale_shift;
-    v.vy          = wp->y_16 << Scratch_scale_shift;
-    v.vz          = wp->z_18 << Scratch_scale_shift;
-    wp->pos[n].vx = (Scratch_mtx.t[0] + v.vx * 7 + 4) >> 3;
-    wp->pos[n].vy = (Scratch_mtx.t[1] + v.vy * 7 + 4) >> 3;
-    wp->pos[n].vz = (Scratch_mtx.t[2] + v.vz * 7 + 4) >> 3;
-    wp->mtx[n]    = Scratch_mtx;
-    scale.vx      = D_80097CFC << Scratch_scale_shift;
-    scale.vy      = scale.vx;
-    scale.vz      = scale.vx;
-    ScaleMatrix(&wp->mtx[n], &scale);
+    v.vx                = wp->pos.vx << Scratch_scale_shift;
+    v.vy                = wp->pos.vy << Scratch_scale_shift;
+    v.vz                = wp->pos.vz << Scratch_scale_shift;
+    wp->joint_pos[n].vx = (Scratch_mtx.t[0] + v.vx * 7 + 4) >> 3;
+    wp->joint_pos[n].vy = (Scratch_mtx.t[1] + v.vy * 7 + 4) >> 3;
+    wp->joint_pos[n].vz = (Scratch_mtx.t[2] + v.vz * 7 + 4) >> 3;
+    wp->joint_mtx[n]    = Scratch_mtx;
+    scale.vx            = D_80097CFC << Scratch_scale_shift;
+    scale.vy            = scale.vx;
+    scale.vz            = scale.vx;
+    ScaleMatrix(&wp->joint_mtx[n], &scale);
 }
-
-MATRIX *D_80098A80;
-extern MATRIX D_800BC728[];
 
 void func_800333A0(void)
 {
@@ -1933,13 +1937,15 @@ MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
 #ifdef NON_MATCHING
 // best attempt: target computes pl + sel * 8 at the end of each branch (after the last position
 // store) and reaches the record through it; ours computes it once after the merge, hoisted early.
+// Retyping to WORK_10C / PL_WORK.joint_pos changed nothing; a TBL_IDX pointer set in each branch
+// moves the computation there but adds 0x4F4 to the pointer (the target folds it into the offset).
 void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint32 flag)
 {
-    OBJ_10C *wp;
+    WORK_10C *wp;
     sint32 sel;
     SVECTOR unused; // GCC reserves its 8 bytes; the target frame has them
 
-    wp = (OBJ_10C *)func_80031598();
+    wp = func_80031598();
     if (wp != 0)
     {
         wp->flag_3 = 0;
@@ -1956,17 +1962,17 @@ void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint
         {
             sel         = pl->unk170;
             wp->field_2 = D_80089A8B[sel * 12];
-            wp->x_14    = pl->unk3C8[0];
-            wp->y_16    = pl->unk3C8[1];
-            wp->z_18    = pl->unk3C8[2];
+            wp->x_14    = pl->joint_pos[4].vx;
+            wp->y_16    = pl->joint_pos[4].vy;
+            wp->z_18    = pl->joint_pos[4].vz;
         }
         else
         {
             sel         = pl->unk171;
             wp->field_2 = D_80089A8B[sel * 12];
-            wp->x_14    = pl->unk3E0[0];
-            wp->y_16    = pl->unk3E0[1];
-            wp->z_18    = pl->unk3E0[2];
+            wp->x_14    = pl->joint_pos[7].vx;
+            wp->y_16    = pl->joint_pos[7].vy;
+            wp->z_18    = pl->joint_pos[7].vz;
         }
         if (pl->rec[sel].val != 0x7FFF && sel != 4 && sel != 7 && (uint32)(sel - 0xC) >= 2)
         {

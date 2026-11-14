@@ -16,6 +16,12 @@
 // lui/ori, and maspsx gives `addu at,idx,at` only for a constant (notes/rock_neo.md).
 #define Stage_idx_tbl ((IDX_ENT *)0x8015C000)
 
+// EBD files (notes/disc.md): a count word, then that many 16-byte entries that bind an object's
+// kind and id to its model data (searched by func_8002FA38). The stage has two, SUPPORT one.
+#define Stage_ebd_0 ((sint32 *)0x8016C000)
+#define Stage_ebd_1 ((sint32 *)0x80190000)
+#define Support_ebd ((sint32 *)0x801F2000)
+
 // Shape data an entry points to (partial).
 typedef struct
 {
@@ -41,17 +47,17 @@ typedef struct
     uint32 unkC4; // top byte nonzero: skip
 } STAGE_OBJ;
 
-// Eight bytes copied unaligned (a position record, SVECTOR-sized).
+// Collision box passed to func_8004B5CC/func_80048EA4: three (min, max) halfword pairs, each
+// -n, +n in the tables (D_8008A310, D_8008A618). max_A is the half-height kept clear above the
+// ground (func_80046438).
 typedef struct
 {
-    uint8 b[8];
-} BYTES8;
-
-// Collision records, 12 bytes each, [flag_3][field_A] (func_800465C8). The halfword at +0xA is
-// read through its own symbol, D_8008A622.
-typedef struct
-{
-    uint8 pad_0[12];
+    sint16 min_0;
+    sint16 max_2;
+    sint16 min_4;
+    sint16 max_6;
+    sint16 min_8;
+    sint16 max_A;
 } HIT_ENT;
 
 // Stack of packed map cells (x | y << 8); Cell_stack_idx (code_80037534's .sdata) is the count.
@@ -69,9 +75,9 @@ sint32 func_80049C24(STAGE_OBJ *obj); // the IDX entry obj touches, or 0
 void func_8004B414(STAGE_OBJ *obj);
 sint32 func_8004920C(SVECTOR *v); // defined in code_80048620.c
 // Moves pos along the ground; returns the height of the surface below it.
-sint32 func_80048EA4(void *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
+sint32 func_80048EA4(SVECTOR *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
 // Collides the move old -> pos against ent; returns hit flags (0x1000 = floor).
-sint32 func_8004B5CC(void *pos, BYTES8 *old, sint32 n, HIT_ENT *ent);
+sint32 func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
 void func_8004AC8C(void *vel, sint32 hit);
 
 #endif // STAGE_H

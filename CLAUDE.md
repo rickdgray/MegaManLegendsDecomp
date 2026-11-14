@@ -100,7 +100,8 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `/tmp`: `./tools/cc.sh rock_neo.exe logs/scratch/t.c logs/scratch/t.o`, then
   `mips-linux-gnu-objdump -dr logs/scratch/t.o`.
 - `diff.sh` prints plain text when its output isn't a terminal: there are no colour codes to strip.
-- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py` (see "Names"),
+- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py` and
+  `.venv/bin/python tools/callers.py` (see "Names"),
   `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
   `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
 
@@ -427,10 +428,11 @@ Before applying a name:
   and nothing named after one side effect when the job is still unclear.
 - **Check for duplicates.** `grep -w` the NEW name in `symbol_addrs_<t>.txt` and `renames.txt`.
   If it's taken, pick a more specific name; `rename.py` refuses a clash.
-- **Pick global or `static` style from the callers.** Search `asm/<t>/` and `src/<t>/` outside the
-  function's own file: no outside callers means a file-local helper, named `lower_snake_case` with
-  no module prefix. Functions called from other files, or reached only through a data table, stay
-  `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G32` means it's defined in another
+- **Pick global or `static` style from the callers:** run `.venv/bin/python tools/callers.py <t>
+  NAME`. It checks the other C files, their assembly, data tables and, for ROCK_NEO, every stage
+  overlay (overlays call into ROCK_NEO, and nothing in `asm/` shows it). No outside users means a
+  file-local helper, named `lower_snake_case` with no module prefix; any outside user (including
+  an overlay or a data table) means `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G32` means it's defined in another
   file, so it's global.
 - **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
   an upper bound, from the next `dlabel` in the data file.

@@ -13,8 +13,8 @@ typedef void (*WORK48_FUNC)(WORK_48 *wp);
 // 6-byte records stepped by func_80048390 / func_80048484.
 typedef struct
 {
-    uint16 val_0; // low byte copied to WORK_48.field_22
-    uint16 val_2; // low byte copied to WORK_48.field_23
+    uint16 val_0; // low byte copied to WORK_48.u_18.s.field_22
+    uint16 val_2; // low byte copied to WORK_48.u_18.s.field_23
     uint8 time_4; // copied to field_C.rec.timer
     uint8 pad_5;
 } WORK48_REC;
@@ -75,8 +75,7 @@ extern SPEC_ENT **D_80098844;
 extern SPEC_ENT **D_8009884C;
 extern SPEC_ENT **D_80098928;
 extern SPEC_ENT **D_8009892C;
-extern HIT_ENT D_8008A618[][4];
-extern sint16 D_8008A622[][4][6];
-extern HIT_ENT D_8008A310[]; // indexed by field_A (func_80045750)
+extern HIT_ENT D_8008A618[][4]; // [flag_3][field_A] (func_8004622C); splat's D_8008A622 is [0][0].max_A
+extern HIT_ENT D_8008A310[];    // indexed by field_A (func_80045750)
 
 #endif // CODE_800456D8_H

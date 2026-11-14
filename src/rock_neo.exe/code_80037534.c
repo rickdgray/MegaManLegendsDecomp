@@ -14,7 +14,7 @@ void func_80037CD8(uint16 arg0);
 
 // Small data (.sdata 0x80097D24-0x80097D28): reached through $gp in this file.
 uint16 Cell_stack_idx = 0;
-sint16 D_80097D26 = 0;
+sint16 D_80097D26     = 0;
 
 void func_80037534(PL_WORK *pl)
 {
@@ -214,9 +214,9 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
                 {
                     spread = 0;
                 }
-                e->pos_1C[0] = pos.vx + ((rcos(a) * spread) >> 12);
-                e->pos_1C[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->pos_1C[2] = pos.vz + ((rsin(a) * spread) >> 12);
+                e->u_18.s.pos_1C[0] = pos.vx + ((rcos(a) * spread) >> 12);
+                e->u_18.s.pos_1C[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->u_18.s.pos_1C[2] = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }

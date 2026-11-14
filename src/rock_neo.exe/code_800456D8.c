@@ -14,8 +14,8 @@ static sint32 D_800986D0[2];
 
 // Called only from this file, ahead of their definitions.
 void func_80046F38(void);
-void func_80045CE8(BYTES8 *pos, uint32 count, uint32 weights, uint32 kind);
-void func_80046B34(BYTES8 *pos, uint32 spec);
+void func_80045CE8(SVECTOR *pos, uint32 count, uint32 weights, uint32 kind);
+void func_80046B34(SVECTOR *pos, uint32 spec);
 sint32 func_800482A8(WORK_48 *wp);
 sint32 svec_distance(SVECTOR *a, SVECTOR *b);
 void func_80045AB4(WORK_48 *wp);
@@ -23,6 +23,8 @@ void func_80045BC8(WORK_48 *wp);
 void func_80046890(WORK_48 *wp);
 void func_800469A4(WORK_48 *wp);
 void func_80046A0C(WORK_48 *wp);
+void func_80047C84(WORK_48 *wp);
+void func_80047CD8(WORK_48 *wp);
 
 void func_800456D8(WORK_48 *wp)
 {
@@ -40,18 +42,18 @@ void func_800456D8(WORK_48 *wp)
 void func_80045750(WORK_48 *wp)
 {
     SVECTOR pos;
-    BYTES8 old;
+    SVECTOR old;
     MATRIX *m;
     sint32 hit;
 
-    old = *(BYTES8 *)&wp->pos_38;
-    wp->field_2C += wp->field_32;
-    wp->pos_38.vx += wp->field_2C;
-    wp->field_2E += wp->field_34;
-    wp->pos_38.vy += wp->field_2E;
-    wp->field_30 += wp->field_36;
-    wp->pos_38.vz += wp->field_30;
-    pos = *&wp->pos_38;
+    old = wp->pos_38;
+    wp->u_18.s.vx_2C += wp->u_18.s.ax_32;
+    wp->pos_38.vx += wp->u_18.s.vx_2C;
+    wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+    wp->pos_38.vy += wp->u_18.s.vy_2E;
+    wp->u_18.s.vz_30 += wp->u_18.s.az_36;
+    wp->pos_38.vz += wp->u_18.s.vz_30;
+    pos = wp->pos_38;
     func_80045AB4(wp);
     hit = func_8004B5CC(&pos, &old, 1, &D_8008A310[wp->field_A]);
     if (hit != 0)
@@ -62,24 +64,24 @@ void func_80045750(WORK_48 *wp)
         if (hit & 0x1000)
         {
             wp->pos_38.pad = wp->pos_38.pad >> 1;
-            if ((sint16)wp->field_2E >> 1 < 2)
+            if ((sint16)wp->u_18.s.vy_2E >> 1 < 2)
             {
-                m            = (MATRIX *)&wp->field_18;
-                wp->timer_B  = 1;
-                wp->field_2E = 0;
-                m->m[2][1]   = 0;
-                m->m[2][0]   = 0;
-                m->m[1][2]   = 0;
-                m->m[1][0]   = 0;
-                m->m[0][2]   = 0;
-                m->m[0][1]   = 0;
+                m                = &wp->u_18.mtx;
+                wp->timer_B      = 1;
+                wp->u_18.s.vy_2E = 0;
+                m->m[2][1]       = 0;
+                m->m[2][0]       = 0;
+                m->m[1][2]       = 0;
+                m->m[1][0]       = 0;
+                m->m[0][2]       = 0;
+                m->m[0][1]       = 0;
                 wp->routine_8++;
                 m->m[0][0] = m->m[1][1] = m->m[2][2] = wp->pos_38.pad;
                 RotMatrixY(wp->field_C.angle, m);
             }
-            wp->field_2E = (sint16)wp->field_2E >> 1;
+            wp->u_18.s.vy_2E = (sint16)wp->u_18.s.vy_2E >> 1;
         }
-        func_8004AC8C(&wp->field_2C, hit);
+        func_8004AC8C(&wp->u_18.s.vx_2C, hit);
     }
     func_80045BC8(wp);
 }
@@ -107,8 +109,8 @@ void func_80045980(WORK_48 *wp)
 
 void func_800459A0(WORK_48 *wp)
 {
-    wp->field_2E = -0x28;
-    wp->field_34 = 5;
+    wp->u_18.s.vy_2E = -0x28;
+    wp->u_18.s.ay_34 = 5;
     wp->routine_8++;
 }
 
@@ -116,7 +118,7 @@ void func_800459C0(WORK_48 *wp)
 {
     MATRIX *m;
 
-    m          = (MATRIX *)&wp->field_18; // the matrix overlays the 0x18..0x37 fields
+    m          = &wp->u_18.mtx;
     m->m[2][1] = 0;
     m->m[2][0] = 0;
     m->m[1][2] = 0;
@@ -126,10 +128,10 @@ void func_800459C0(WORK_48 *wp)
     m->m[0][0] = m->m[2][2] = wp->pos_38.pad >> 1;
     m->m[1][1]              = wp->pos_38.pad;
     RotMatrixY(0x180, m);
-    wp->field_2E += wp->field_34;
-    wp->pos_38.vy += wp->field_2E;
+    wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+    wp->pos_38.vy += wp->u_18.s.vy_2E;
     wp->pos_38.pad -= D_80097E64[wp->field_A] >> 3;
-    if (wp->field_2E >= 0)
+    if (wp->u_18.s.vy_2E >= 0)
     {
         wp->routine_8++;
     }
@@ -148,7 +150,7 @@ void func_80045AB4(WORK_48 *wp)
     VECTOR scale;
     sint32 r;
 
-    m = *(MATRIX *)&wp->field_18;
+    m = wp->u_18.mtx;
     r = rand();
     wp->field_C.hw[1] += 0x80 + (r & 0x7F);
     rot.vx = wp->field_C.hw[1];
@@ -158,7 +160,7 @@ void func_80045AB4(WORK_48 *wp)
     RotMatrix(&rot, &m);
     scale.vx = scale.vy = scale.vz = wp->pos_38.pad;
     ScaleMatrix(&m, &scale);
-    *(MATRIX *)&wp->field_18 = m;
+    wp->u_18.mtx = m;
 }
 
 void func_80045BC8(WORK_48 *wp)
@@ -185,7 +187,7 @@ void func_80045BC8(WORK_48 *wp)
 // Whole body matches; only the prologue differs: the target saves/moves the arguments in the
 // order a2 (s5), a3 (s0), a1 (s7), this build does a1, a2, a3.
 #ifdef NON_MATCHING
-void func_80045CE8(BYTES8 *pos, uint32 count, uint32 weights, uint32 kind)
+void func_80045CE8(SVECTOR *pos, uint32 count, uint32 weights, uint32 kind)
 {
     WORK_48 *wp;
     uint32 i;
@@ -255,20 +257,20 @@ void func_80045CE8(BYTES8 *pos, uint32 count, uint32 weights, uint32 kind)
                     }
                 }
             }
-            *(BYTES8 *)&wp->pos_38 = *pos;
-            rnd                    = rand();
-            idx                    = D_8008A2B0[kind][rnd & 0xF];
-            wp->field_A            = idx;
-            wp->pos_38.pad         = D_80097E64[idx];
-            wp->field_C.hw[0]      = rnd & 0xFFF;
-            wp->field_C.hw[1]      = (uint32)rnd >> 4;
-            wp->field_2C           = (uint32)(rcos(ang) * (D_80097E9C[idx] + (rnd & 3))) >> 12;
-            wp->field_2E           = D_80097EA8[idx] + (rnd & 3);
-            wp->field_30           = (uint32)(rsin(ang) * (D_80097E9C[idx] + (rnd & 3))) >> 12;
-            wp->field_32           = 0;
-            wp->field_36           = 0;
-            wp->field_34           = 5;
-            sel                    = rand() & 3;
+            wp->pos_38        = *pos;
+            rnd               = rand();
+            idx               = D_8008A2B0[kind][rnd & 0xF];
+            wp->field_A       = idx;
+            wp->pos_38.pad    = D_80097E64[idx];
+            wp->field_C.hw[0] = rnd & 0xFFF;
+            wp->field_C.hw[1] = (uint32)rnd >> 4;
+            wp->u_18.s.vx_2C  = (uint32)(rcos(ang) * (D_80097E9C[idx] + (rnd & 3))) >> 12;
+            wp->u_18.s.vy_2E  = D_80097EA8[idx] + (rnd & 3);
+            wp->u_18.s.vz_30  = (uint32)(rsin(ang) * (D_80097E9C[idx] + (rnd & 3))) >> 12;
+            wp->u_18.s.ax_32  = 0;
+            wp->u_18.s.az_36  = 0;
+            wp->u_18.s.ay_34  = 5;
+            sel               = rand() & 3;
             switch (sel)
             {
                 case 0:
@@ -372,18 +374,18 @@ void func_800461A4(WORK_48 *wp)
 void func_8004622C(WORK_48 *wp)
 {
     SVECTOR pos;
-    BYTES8 old;
+    SVECTOR old;
     MATRIX *m;
     sint32 hit;
 
-    old = *(BYTES8 *)&wp->pos_38;
-    wp->field_2C += wp->field_32;
-    wp->pos_38.vx += wp->field_2C;
-    wp->field_2E += wp->field_34;
-    wp->pos_38.vy += wp->field_2E;
-    wp->field_30 += wp->field_36;
-    wp->pos_38.vz += wp->field_30;
-    pos = *&wp->pos_38;
+    old = wp->pos_38;
+    wp->u_18.s.vx_2C += wp->u_18.s.ax_32;
+    wp->pos_38.vx += wp->u_18.s.vx_2C;
+    wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+    wp->pos_38.vy += wp->u_18.s.vy_2E;
+    wp->u_18.s.vz_30 += wp->u_18.s.az_36;
+    wp->pos_38.vz += wp->u_18.s.vz_30;
+    pos = wp->pos_38;
     if (wp->flag_3 != 0)
     {
         func_80046890(wp);
@@ -400,24 +402,24 @@ void func_8004622C(WORK_48 *wp)
         wp->pos_38.vz = pos.vz;
         if ((hit & 0x1000) || --wp->timer_B == 0)
         {
-            if ((sint16)wp->field_2E >> 1 < 2)
+            if ((sint16)wp->u_18.s.vy_2E >> 1 < 2)
             {
-                m            = (MATRIX *)&wp->field_18;
-                wp->timer_B  = 0x96;
-                wp->field_2E = 0;
-                m->m[2][1]   = 0;
-                m->m[2][0]   = 0;
-                m->m[1][2]   = 0;
-                m->m[1][0]   = 0;
-                m->m[0][2]   = 0;
-                m->m[0][1]   = 0;
+                m                = &wp->u_18.mtx;
+                wp->timer_B      = 0x96;
+                wp->u_18.s.vy_2E = 0;
+                m->m[2][1]       = 0;
+                m->m[2][0]       = 0;
+                m->m[1][2]       = 0;
+                m->m[1][0]       = 0;
+                m->m[0][2]       = 0;
+                m->m[0][1]       = 0;
                 wp->routine_8++;
                 m->m[0][0] = m->m[1][1] = m->m[2][2] = wp->pos_38.pad;
                 RotMatrixY(wp->field_C.angle, m);
             }
-            wp->field_2E = (sint16)wp->field_2E >> 1;
+            wp->u_18.s.vy_2E = (sint16)wp->u_18.s.vy_2E >> 1;
         }
-        func_8004AC8C(&wp->field_2C, hit);
+        func_8004AC8C(&wp->u_18.s.vx_2C, hit);
     }
     func_80046A0C(wp);
 }
@@ -427,7 +429,7 @@ void func_8004622C(WORK_48 *wp)
 #ifdef NON_MATCHING
 void func_80046438(WORK_48 *wp)
 {
-    BYTES8 old;
+    SVECTOR old;
     sint32 ground;
     sint32 h;
 
@@ -436,16 +438,16 @@ void func_80046438(WORK_48 *wp)
         wp->routine_8++;
         wp->timer_B = (rand() & 7) + 0x1E;
     }
-    ground = func_80048EA4((sint32 *)&wp->pos_38, &D_8008A618[wp->flag_3][wp->field_A], wp->field_2E, 0xFFFF);
-    h      = D_8008A622[wp->flag_3][wp->field_A][0] + 1;
+    ground = func_80048EA4(&wp->pos_38, &D_8008A618[wp->flag_3][wp->field_A], wp->u_18.s.vy_2E, 0xFFFF);
+    h      = D_8008A618[wp->flag_3][wp->field_A].max_A + 1;
     ground -= h;
-    old = *(BYTES8 *)&wp->pos_38;
+    old = wp->pos_38;
     if (wp->pos_38.vy < ground)
     {
-        wp->field_2E += wp->field_34;
-        wp->pos_38.vy += wp->field_2E;
+        wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+        wp->pos_38.vy += wp->u_18.s.vy_2E;
     }
-    func_8004B5CC((sint32 *)&wp->pos_38, &old, 1, &D_8008A618[wp->flag_3][wp->field_A]);
+    func_8004B5CC(&wp->pos_38, &old, 1, &D_8008A618[wp->flag_3][wp->field_A]);
     func_80046A0C(wp);
     if (wp->flag_3 == 0)
     {
@@ -460,7 +462,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80046438);
 #ifdef NON_MATCHING
 void func_800465C8(WORK_48 *wp)
 {
-    BYTES8 old;
+    SVECTOR old;
     sint32 ground;
     sint32 h;
 
@@ -469,16 +471,16 @@ void func_800465C8(WORK_48 *wp)
     {
         wp->routine_8++;
     }
-    ground = func_80048EA4((sint32 *)&wp->pos_38, &D_8008A618[wp->flag_3][wp->field_A], wp->field_2E, 0xFFFF);
-    h      = D_8008A622[wp->flag_3][wp->field_A][0] + 1;
+    ground = func_80048EA4(&wp->pos_38, &D_8008A618[wp->flag_3][wp->field_A], wp->u_18.s.vy_2E, 0xFFFF);
+    h      = D_8008A618[wp->flag_3][wp->field_A].max_A + 1;
     ground -= h;
-    old = *(BYTES8 *)&wp->pos_38;
+    old = wp->pos_38;
     if (wp->pos_38.vy < ground)
     {
-        wp->field_2E += wp->field_34;
-        wp->pos_38.vy += wp->field_2E;
+        wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+        wp->pos_38.vy += wp->u_18.s.vy_2E;
     }
-    func_8004B5CC((sint32 *)&wp->pos_38, &old, 1, &D_8008A618[wp->flag_3][wp->field_A]);
+    func_8004B5CC(&wp->pos_38, &old, 1, &D_8008A618[wp->flag_3][wp->field_A]);
     func_80046A0C(wp);
     if (wp->flag_3 == 0)
     {
@@ -496,8 +498,8 @@ void func_8004674C(WORK_48 *wp)
 
 void func_8004676C(WORK_48 *wp)
 {
-    wp->field_2E = -0x28;
-    wp->field_34 = 5;
+    wp->u_18.s.vy_2E = -0x28;
+    wp->u_18.s.ay_34 = 5;
     wp->routine_8++;
 }
 
@@ -505,7 +507,7 @@ void func_8004678C(WORK_48 *wp)
 {
     MATRIX *m;
 
-    m          = (MATRIX *)&wp->field_18; // the matrix overlays the 0x18..0x37 fields
+    m          = &wp->u_18.mtx;
     m->m[2][1] = 0;
     m->m[2][0] = 0;
     m->m[1][2] = 0;
@@ -515,10 +517,10 @@ void func_8004678C(WORK_48 *wp)
     m->m[0][0] = m->m[2][2] = wp->pos_38.pad >> 1;
     m->m[1][1]              = wp->pos_38.pad;
     RotMatrixY(0x180, m);
-    wp->field_2E += wp->field_34;
-    wp->pos_38.vy += wp->field_2E;
+    wp->u_18.s.vy_2E += wp->u_18.s.ay_34;
+    wp->pos_38.vy += wp->u_18.s.vy_2E;
     wp->pos_38.pad -= D_80097EE0[wp->field_A] >> 3;
-    if (wp->field_2E >= 0)
+    if (wp->u_18.s.vy_2E >= 0)
     {
         wp->routine_8++;
     }
@@ -547,7 +549,7 @@ void func_80046890(WORK_48 *wp)
     VECTOR scale;
     sint32 r;
 
-    m = *(MATRIX *)&wp->field_18;
+    m = wp->u_18.mtx;
     r = rand();
     wp->field_C.hw[1] += 0x80 + (r & 0x7F);
     rot.vx = wp->field_C.hw[1];
@@ -557,14 +559,14 @@ void func_80046890(WORK_48 *wp)
     RotMatrix(&rot, &m);
     scale.vx = scale.vy = scale.vz = wp->pos_38.pad;
     ScaleMatrix(&m, &scale);
-    *(MATRIX *)&wp->field_18 = m;
+    wp->u_18.mtx = m;
 }
 
 void func_800469A4(WORK_48 *wp)
 {
     MATRIX *m;
 
-    m          = (MATRIX *)&wp->field_18; // the matrix overlays the 0x18..0x37 fields
+    m          = &wp->u_18.mtx;
     m->m[2][1] = 0;
     m->m[2][0] = 0;
     m->m[1][2] = 0;
@@ -605,7 +607,7 @@ void func_80046A0C(WORK_48 *wp)
 // second burst's (sp18, sp20) plus both table pointers (sp28, sp30); here count2 lands in a
 // register, so the frame is 0x60 instead of 0x70.
 #ifdef NON_MATCHING
-void func_80046B34(BYTES8 *pos, uint32 spec)
+void func_80046B34(SVECTOR *pos, uint32 spec)
 {
     WORK_48 *wp;
     MATRIX *m;
@@ -638,8 +640,8 @@ void func_80046B34(BYTES8 *pos, uint32 spec)
             wp->flag_3    = 0;
             wp->field_2   = 0x87;
             rand();
-            wp->field_9            = 0;
-            *(BYTES8 *)&wp->pos_38 = *pos;
+            wp->field_9 = 0;
+            wp->pos_38  = *pos;
             wp->pos_38.vy -= 0x14;
             rnd = rand();
             idx = D_8008A5A8[kind][rnd & 0xF];
@@ -654,14 +656,14 @@ void func_80046B34(BYTES8 *pos, uint32 spec)
                 wp->pos_38.pad    = D_80097EE0[idx];
                 wp->field_C.hw[0] = rnd & 0xFFF;
                 wp->field_C.hw[1] = (uint32)rnd >> 4;
-                wp->field_2C      = (uint32)(rcos(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
-                wp->field_2E      = D_80097F24[idx] + (rnd & 3);
-                wp->field_30      = (uint32)(rsin(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
-                wp->field_32      = 0;
-                wp->field_36      = 0;
-                wp->field_34      = 5;
+                wp->u_18.s.vx_2C  = (uint32)(rcos(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
+                wp->u_18.s.vy_2E  = D_80097F24[idx] + (rnd & 3);
+                wp->u_18.s.vz_30  = (uint32)(rsin(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
+                wp->u_18.s.ax_32  = 0;
+                wp->u_18.s.az_36  = 0;
+                wp->u_18.s.ay_34  = 5;
                 wp->field_40      = 0x02808080;
-                m                 = (MATRIX *)&wp->field_18;
+                m                 = &wp->u_18.mtx;
                 m->m[2][1]        = 0;
                 m->m[2][0]        = 0;
                 m->m[1][2]        = 0;
@@ -687,11 +689,11 @@ void func_80046B34(BYTES8 *pos, uint32 spec)
             wp->flag_3    = 1;
             wp->field_2   = 0x87;
             rand();
-            wp->u_44.ptr           = D_8009A710;
-            wp->field_9            = 0;
-            *(BYTES8 *)&wp->pos_38 = *pos;
-            rnd                    = rand();
-            idx                    = D_8008A5A8[kind2][rnd & 0xF];
+            wp->u_44.ptr = D_8009A710;
+            wp->field_9  = 0;
+            wp->pos_38   = *pos;
+            rnd          = rand();
+            idx          = D_8008A5A8[kind2][rnd & 0xF];
             if (idx >= 5)
             {
                 func_80031988(wp);
@@ -702,12 +704,12 @@ void func_80046B34(BYTES8 *pos, uint32 spec)
                 wp->pos_38.pad    = D_80097EE0[idx];
                 wp->field_C.hw[0] = rnd & 0xFFF;
                 wp->field_C.hw[1] = (uint32)rnd >> 4;
-                wp->field_2C      = (uint32)(rcos(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
-                wp->field_2E      = D_80097F24[idx] + (rnd & 3);
-                wp->field_30      = (uint32)(rsin(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
-                wp->field_32      = 0;
-                wp->field_36      = 0;
-                wp->field_34      = 5;
+                wp->u_18.s.vx_2C  = (uint32)(rcos(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
+                wp->u_18.s.vy_2E  = D_80097F24[idx] + (rnd & 3);
+                wp->u_18.s.vz_30  = (uint32)(rsin(ang) * (D_80097F1C[idx] + (rnd & 3))) >> 12;
+                wp->u_18.s.ax_32  = 0;
+                wp->u_18.s.az_36  = 0;
+                wp->u_18.s.ay_34  = 5;
                 wp->field_40      = 0x02202020;
             }
         }
@@ -750,7 +752,7 @@ void func_80046F38(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80046F38);
 #endif
 
-void func_80047148(WORK_48 *wp, BYTES8 *pos)
+void func_80047148(WORK_48 *wp, SVECTOR *pos)
 {
     switch (func_8002FE74(wp->kind_1))
     {
@@ -773,7 +775,7 @@ void func_80047148(WORK_48 *wp, BYTES8 *pos)
 // ours `addu v0,v0,v1`. Tried: 2D array, n[tbl], SPEC_ENT index, byte-offset cast, local pointer
 // with shared call, signed/unsigned n.
 #ifdef NON_MATCHING
-void func_80047228(WORK_48 *wp, BYTES8 *pos, sint32 n)
+void func_80047228(WORK_48 *wp, SVECTOR *pos, sint32 n)
 {
     SPEC_ENT *e;
 
@@ -805,10 +807,6 @@ void func_80047318(WORK_48 *wp)
     D_8008A708[wp->routine_8](wp);
 }
 
-// Called only from this file, ahead of their definitions.
-void func_80047C84(WORK_48 *wp);
-void func_80047CD8(WORK_48 *wp);
-
 // Close: everything matches except the tail's branch layout. The target tests flag_3 & 0x80 with
 // `beqz` (the `sub = 0` store sits before a jump to the shared Model_work_init call) and keeps the
 // three `sub = 4/5/6` arms as separate `j; sw v1` stubs; ours inverts the 0x80 test and merges them.
@@ -823,13 +821,13 @@ void func_80047354(WORK_48 *wp)
 
     if (wp->flag_3 == 0xFF)
     {
-        wp->routine_0             = 3;
-        wp->field_18              = 0x2C808080;
-        *(uint32 *)&wp->pos_1C[0] = *(sint32 *)&wp->pos_38;
-        wp->pos_1C[2]             = wp->pos_38.vz;
-        wp->routine_8             = 3;
+        wp->routine_0                    = 3;
+        wp->u_18.s.field_18              = 0x2C808080;
+        *(uint32 *)&wp->u_18.s.pos_1C[0] = *(sint32 *)&wp->pos_38;
+        wp->u_18.s.pos_1C[2]             = wp->pos_38.vz;
+        wp->routine_8                    = 3;
         func_80047C84(wp);
-        func_80045CE8((BYTES8 *)&wp->pos_38, 3, 0x40404040, 1);
+        func_80045CE8(&wp->pos_38, 3, 0x40404040, 1);
         return;
     }
     if (wp->flag_3 == 0xFE)
@@ -880,18 +878,18 @@ void func_80047354(WORK_48 *wp)
     }
     wp->field_A    = 0;
     wp->pos_38.pad = 0;
-    // Matrix at 0x18: identity words, then the three diagonal halfwords cleared
-    ((uint32 *)wp)[6]    = 0x1000;
-    ((uint32 *)wp)[7]    = 0;
-    ((uint32 *)wp)[8]    = 0x1000;
-    ((uint32 *)wp)[9]    = 0;
-    ((uint32 *)wp)[10]   = 0x1000;
-    ((uint32 *)wp)[11]   = 0;
-    ((uint32 *)wp)[12]   = 0;
-    ((uint32 *)wp)[13]   = 0;
-    ((uint16 *)wp)[0x14] = 0;
-    ((uint16 *)wp)[0x10] = 0;
-    ((uint16 *)wp)[0xC]  = 0;
+    // Identity matrix by words, then the diagonal cleared
+    *(uint32 *)&wp->u_18.mtx.m[0][0] = 0x1000;
+    *(uint32 *)&wp->u_18.mtx.m[0][2] = 0;
+    *(uint32 *)&wp->u_18.mtx.m[1][1] = 0x1000;
+    *(uint32 *)&wp->u_18.mtx.m[2][0] = 0;
+    *(uint32 *)&wp->u_18.mtx.m[2][2] = 0x1000;
+    wp->u_18.mtx.t[0]                = 0;
+    wp->u_18.mtx.t[1]                = 0;
+    wp->u_18.mtx.t[2]                = 0;
+    wp->u_18.mtx.m[2][2]             = 0;
+    wp->u_18.mtx.m[1][1]             = 0;
+    wp->u_18.mtx.m[0][0]             = 0;
     if (wp->flag_3 & 0x80)
     {
         sub = 0;
@@ -905,18 +903,18 @@ void func_80047354(WORK_48 *wp)
         e = func_80031618();
         if (e != NULL)
         {
-            e->routine_0          = 5;
-            e->field_2            = 0x80;
-            e->flag_3             = 5;
-            *(BYTES8 *)&e->pos_38 = *(BYTES8 *)&wp->pos_38;
+            e->routine_0 = 5;
+            e->field_2   = 0x80;
+            e->flag_3    = 5;
+            e->pos_38    = wp->pos_38;
         }
         e2 = func_80031618();
         if (e2 != NULL)
         {
-            e2->routine_0          = 5;
-            e2->field_2            = 0x80;
-            e2->flag_3             = 6;
-            *(BYTES8 *)&e2->pos_38 = *(BYTES8 *)&wp->pos_38;
+            e2->routine_0 = 5;
+            e2->field_2   = 0x80;
+            e2->flag_3    = 6;
+            e2->pos_38    = wp->pos_38;
         }
     }
     else
@@ -1114,7 +1112,7 @@ void func_800477A0(WORK_48 *wp)
             }
             break;
     }
-    m                      = (MATRIX *)&wp->field_18;
+    m                      = &wp->u_18.mtx;
     *(sint32 *)&m->m[0][0] = 0x1000;
     *(sint32 *)&m->m[1][1] = 0x1000;
     *(sint32 *)&m->m[2][2] = 0x1000;
@@ -1166,12 +1164,12 @@ void func_80047C64(WORK_48 *wp)
 #ifdef NON_MATCHING
 void func_80047C84(WORK_48 *wp)
 {
-    wp->field_9  = 0;
-    wp->field_A  = D_8008A6CD[0];
-    wp->field_14 = D_8008A6C8[0];
-    wp->field_22 = D_8008A6CE[0];
-    wp->field_23 = D_8008A6CF[0];
-    wp->field_24 = D_8008A6CC[0];
+    wp->field_9         = 0;
+    wp->field_A         = D_8008A6CD[0];
+    wp->field_14        = D_8008A6C8[0];
+    wp->u_18.s.field_22 = D_8008A6CE[0];
+    wp->u_18.s.field_23 = D_8008A6CF[0];
+    wp->u_18.s.field_24 = D_8008A6CC[0];
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80047C84);
@@ -1193,10 +1191,10 @@ void func_80047CD8(WORK_48 *wp)
         }
         else
         {
-            wp->field_14 = D_8008A6C8[i * 2];
-            wp->field_22 = D_8008A6CE[i * 8];
-            wp->field_23 = D_8008A6CF[i * 8];
-            wp->field_24 = D_8008A6CC[i * 8];
+            wp->field_14        = D_8008A6C8[i * 2];
+            wp->u_18.s.field_22 = D_8008A6CE[i * 8];
+            wp->u_18.s.field_23 = D_8008A6CF[i * 8];
+            wp->u_18.s.field_24 = D_8008A6CC[i * 8];
         }
     }
 }
@@ -1221,8 +1219,8 @@ void func_80047DD8(WORK_48 *wp)
     pl   = Player_work;
     if (!busy)
     {
-        wp->routine_6 |= 0x20;
-        base = (sint16 *)&wp->pad_26[2];
+        wp->flags |= 0x20;
+        base = (sint16 *)&wp->u_18.s.pad_26[2];
         for (i = 0; i < 8; i++)
         {
             p    = &base[i];
@@ -1267,20 +1265,20 @@ void func_80047EC8(WORK_48 *wp)
     SVECTOR v1;
 
     busy = func_800482A8(wp);
-    base = (sint16 *)&wp->pad_26[2];
+    base = (sint16 *)&wp->u_18.s.pad_26[2];
     if (!busy)
     {
         if (wp->flag_3)
         {
-            wp->pos_1C[0] = Player_work[0].unk400[0];
-            wp->pos_1C[1] = Player_work[0].unk400[1];
-            wp->pos_1C[2] = Player_work[0].unk400[2];
+            wp->u_18.s.pos_1C[0] = Player_work[0].joint_pos[11].vx;
+            wp->u_18.s.pos_1C[1] = Player_work[0].joint_pos[11].vy;
+            wp->u_18.s.pos_1C[2] = Player_work[0].joint_pos[11].vz;
         }
         else
         {
-            wp->pos_1C[0] = Player_work[0].unk418[0];
-            wp->pos_1C[1] = Player_work[0].unk418[1];
-            wp->pos_1C[2] = Player_work[0].unk418[2];
+            wp->u_18.s.pos_1C[0] = Player_work[0].joint_pos[14].vx;
+            wp->u_18.s.pos_1C[1] = Player_work[0].joint_pos[14].vy;
+            wp->u_18.s.pos_1C[2] = Player_work[0].joint_pos[14].vz;
         }
         for (i = 0; i < 8; i++)
         {
@@ -1305,16 +1303,16 @@ void func_80047EC8(WORK_48 *wp)
             }
             for (j = 0; j < base[8 + i] * 2; j++)
             {
-                v0.vx = wp->pos_1C[0] + ((rsin((uint16)base[i]) * r) >> 12);
-                v0.vz = wp->pos_1C[2] + ((rcos((uint16)base[i]) * r) >> 12);
+                v0.vx = wp->u_18.s.pos_1C[0] + ((rsin((uint16)base[i]) * r) >> 12);
+                v0.vz = wp->u_18.s.pos_1C[2] + ((rcos((uint16)base[i]) * r) >> 12);
                 t     = (rsin(s) * h) >> 12;
-                v0.vy = wp->pos_1C[1] - (t - 0x10);
+                v0.vy = wp->u_18.s.pos_1C[1] - (t - 0x10);
                 r += step;
                 s     = (j + 1) << 6;
-                v1.vx = wp->pos_1C[0] + ((rsin((uint16)base[i]) * r) >> 12);
-                v1.vz = wp->pos_1C[2] + ((rcos((uint16)base[i]) * r) >> 12);
+                v1.vx = wp->u_18.s.pos_1C[0] + ((rsin((uint16)base[i]) * r) >> 12);
+                v1.vz = wp->u_18.s.pos_1C[2] + ((rcos((uint16)base[i]) * r) >> 12);
                 t     = (rsin(s) * h) >> 12;
-                v1.vy = wp->pos_1C[1] - (t - 0x10);
+                v1.vy = wp->u_18.s.pos_1C[1] - (t - 0x10);
                 if (rand() & 1)
                 {
                     prim    = func_8002D4B8();
@@ -1399,23 +1397,23 @@ void func_80048354(WORK_48 *wp)
 
 void func_80048390(WORK_48 *wp)
 {
-    wp->field_24        = 0x20;
+    wp->u_18.s.field_24 = 0x20;
     wp->field_C.rec.b0  = 0x80;
     wp->field_14        = 0x3D48002C;
-    wp->field_18        = 0x2EC06060;
+    wp->u_18.s.field_18 = 0x2EC06060;
     wp->field_C.rec.idx = 0;
     wp->routine_0 |= 0x22;
     if (wp->flag_3 != 0)
     {
         wp->field_C.rec.timer = D_8008A748[0].time_4;
-        wp->field_22          = D_8008A748[wp->field_C.rec.idx].val_0;
-        wp->field_23          = D_8008A748[wp->field_C.rec.idx].val_2;
+        wp->u_18.s.field_22   = D_8008A748[wp->field_C.rec.idx].val_0;
+        wp->u_18.s.field_23   = D_8008A748[wp->field_C.rec.idx].val_2;
     }
     else
     {
         wp->field_C.rec.timer = D_8008A730[0].time_4;
-        wp->field_22          = D_8008A730[wp->field_C.rec.idx].val_0;
-        wp->field_23          = D_8008A730[wp->field_C.rec.idx].val_2;
+        wp->u_18.s.field_22   = D_8008A730[wp->field_C.rec.idx].val_0;
+        wp->u_18.s.field_23   = D_8008A730[wp->field_C.rec.idx].val_2;
     }
     wp->routine_8 = 1;
     wp->timer_B   = 0;
@@ -1428,18 +1426,18 @@ void func_80048484(WORK_48 *wp)
     {
         if (wp->flag_3 != 0)
         {
-            wp->field_24 += 8;
+            wp->u_18.s.field_24 += 8;
             wp->field_C.rec.idx++;
             wp->field_C.rec.timer = D_8008A748[wp->field_C.rec.idx].time_4;
-            wp->field_22          = D_8008A748[wp->field_C.rec.idx].val_0;
-            wp->field_23          = D_8008A748[wp->field_C.rec.idx].val_2;
+            wp->u_18.s.field_22   = D_8008A748[wp->field_C.rec.idx].val_0;
+            wp->u_18.s.field_23   = D_8008A748[wp->field_C.rec.idx].val_2;
         }
         else
         {
             wp->field_C.rec.idx++;
             wp->field_C.rec.timer = D_8008A730[wp->field_C.rec.idx].time_4;
-            wp->field_22          = D_8008A730[wp->field_C.rec.idx].val_0;
-            wp->field_23          = D_8008A730[wp->field_C.rec.idx].val_2;
+            wp->u_18.s.field_22   = D_8008A730[wp->field_C.rec.idx].val_0;
+            wp->u_18.s.field_23   = D_8008A730[wp->field_C.rec.idx].val_2;
         }
     }
     if (wp->field_C.rec.timer == 0x80)

@@ -41,7 +41,11 @@ import re
 import shutil
 import signal
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import callers  # noqa: E402  (tools/callers.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = ["slus_006.03", "rock_neo.exe"]
@@ -198,29 +202,6 @@ def rename_map(renamed):
     return result
 
 
-def home_file(target, name):
-    """The file that defines function `name`: its C definition, else its splat asm folder."""
-    for c in (ROOT / "src" / target).glob("*.c"):
-        if re.search(rf"^\w[^;\n]*\b{re.escape(name)}\s*\([^;]*$", c.read_text(), re.M):
-            return c.stem
-    hits = list((ROOT / "asm" / target / "nonmatchings").glob(f"*/{name}.s"))
-    return hits[0].parent.name if hits else None
-
-
-def outside_users(target, name, home):
-    """Files other than `home` that name `name`: C sources, other files' assembly, data tables."""
-    users = set()
-    word = re.compile(rf"\b{re.escape(name)}\b")
-    for c in (ROOT / "src" / target).glob("*.c"):
-        if c.stem != home and word.search(c.read_text()):
-            users.add(c.stem)
-    for s_ in (ROOT / "asm" / target).rglob("*.s"):
-        owner = s_.parent.name if "nonmatchings" in s_.parts else "data"
-        if owner != home and word.search(s_.read_text()):
-            users.add(owner)
-    return users
-
-
 def naming_warnings(renamed):
     """CLAUDE.md's global vs static rule for applied function names: no callers outside the
     defining file -> lower_snake_case; callers outside (or a data table) -> Capitalized."""
@@ -231,14 +212,15 @@ def naming_warnings(renamed):
             if not m:
                 continue
             name = m.group(1)
-            home = home_file(t, name)
+            home = callers.home_file(t, name)
             if home is None:
                 continue
-            users = outside_users(t, name, home)
+            users = callers.outside_users(t, name, home)   # includes the stage overlays
             if name[0].isupper() and not users:
                 out.append(f"{name}: only {home} uses it, so static style: {name[0].lower() + name[1:]}?")
             elif name[0].islower() and users:
-                out.append(f"{name}: used outside {home} ({', '.join(sorted(users))}), so global style")
+                shown = ", ".join(sorted(users)[:6]) + (" ..." if len(users) > 6 else "")
+                out.append(f"{name}: used outside {home} ({shown}), so global style")
     return out
 
 
@@ -413,6 +395,17 @@ def main():
             print("warning: the working tree has uncommitted changes; they'll be mixed into the batch "
                   "results (and restored with a failed batch's snapshot, not lost)", flush=True)
     SCRATCH.mkdir(parents=True, exist_ok=True)
+
+    if not args.dry_run:
+        # Start from a matching tree: a batch is judged by whether both builds still match. After a
+        # rename (rename.py without rebuild.sh) asm/ is stale, so re-split once before giving up.
+        ok, results = build_ok()
+        if not ok:
+            print(f"the tree doesn't build ({results}); re-splitting", flush=True)
+            resplit([t for t, good in results.items() if not good])
+            ok, results = build_ok()
+            if not ok:
+                sys.exit(f"the tree still doesn't build ({results}); fix that before a batch run")
 
     state = json.loads(STATE.read_text()) if STATE.exists() else {"failed": []}
     # A dry run keeps nothing: its function list goes to the scratch folder.
