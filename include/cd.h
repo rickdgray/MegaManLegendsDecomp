@@ -290,7 +290,8 @@ extern CD_COMB_WORK Cd_comb_work; // the entry being read
 // LoadImage rectangle of comb reads. Declared without a size on purpose: as an 8-byte RECT,
 // GCC treats it as small data, rates its address as cheap as a register, and stops
 // addressing rect->x through the RECT pointer as the original does. Probably part of a
-// larger object.
+// larger object, but its origin is unknown: only cd.c touches it, and nothing (code, data
+// tables) accesses the rest of the 0x140 bytes up to D_8009BF88.
 extern RECT Cd_comb_rect[]; // HACK: needs a size
 
 extern uint8 Cd_unused; // cleared by Cd_init; never read in either program
@@ -305,8 +306,8 @@ void Cd_controlb_retry(u_char com, u_char *param, u_char *result);
 void Cd_set_mode(u_char mode);
 void Cd_set_volume(uint8 vol);
 void Cd_stop(void);
-void Cd_pause(void);                                   // ROCK_NEO only
-void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3); // ROCK_NEO only
+void Cd_pause(void);                                  // ROCK_NEO only
+void Cd_subcmd(sint32 arg1, sint32 sub, uint32 arg3); // ROCK_NEO only; sub: CD_SUBCMD_*
 void Cd_sync_cb(u_char status, u_char *result);
 
 // The command queue
@@ -317,16 +318,18 @@ void Cd_read_sync(void);                                           // wait until
 void Cd_cmd_set_movie(sint32 file, sint32 end_frame, uint16 skip); // shim only
 
 // Reading (ROCK_NEO only)
-void Cd_seek(sint32 sector);
+void Cd_read(sint32 file, uint8 *buf);
+void Cd_read_comb(sint32 file);
 void Cd_seek_file(sint32 index);
+void Cd_seek(sint32 sector);
 void Cd_read_start_buf(sint32 file, uint8 *buf);
 void Cd_read_start_ring(sint32 file);
 void Cd_ready_cb_buf(u_char status, u_char *result);
 void Cd_ready_cb_ring(u_char status, u_char *result);
 
 // XA audio (ROCK_NEO only)
+void Cd_xa_play(sint32 file, uint32 start);
 void Cd_xa_play_id(uint32 id);
 void Cd_xa_seek_id(uint32 id);
-void cd_subcmd_mute(void);
 
 #endif // CD_H

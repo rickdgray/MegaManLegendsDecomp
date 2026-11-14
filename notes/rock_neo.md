@@ -152,7 +152,7 @@ Constants, types and variables: `include/cd.h` (shared with the shim). This sect
 | 2 | `CD_CMD_SUBCMD` | `cd_cmd_subcmd` | `Cd_subcmd` | `cd_subcmd_tbl[args.subcmd.sub]()` (below) |
 | 4 | `CD_CMD_XA_PLAY` | `cd_cmd_xa_play` | `Cd_xa_play`, `Cd_xa_play_id` | Play an XA track (below) |
 | 5 | `CD_CMD_PLAY_MOVIE` | `cd_cmd_nop` | | The shim's movie command; unused here |
-| 6 | `CD_CMD_READ_COMB` | `cd_cmd_read_comb` | `Cd_read_comb(file)` | Read a combined file through the ring (below); parked |
+| 6 | `CD_CMD_READ_COMB` | `cd_cmd_read_comb` | `Cd_read_comb(file)` | Read a combined file through the ring (below) |
 | 7 | `CD_CMD_SEEK` | `cd_cmd_seek` | `Cd_seek(sector)`, `Cd_seek_file`, `Cd_xa_seek_id` | `CdlSeekL`; `Cd_seek` first drops queued seeks |
 
 - **Subcommands** (`cd_subcmd_tbl`, by `args.subcmd.sub`): 0 `cd_subcmd_nop`; 1, 2 stop CD audio,
@@ -213,7 +213,7 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
 
 ## Function status
 
-`cd` (`src/rock_neo.exe/cd.c`): every function is banked except three parked ones.
+`cd` (`src/rock_neo.exe/cd.c`): every function is banked except two parked ones.
 
 - **Notes on banked ones:**
   - `Cd_cmd_dequeue`, `Cd_subcmd`, `Cd_seek`: queue entries are copied word by word
@@ -233,13 +233,11 @@ checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** unt
     Ruled out: bit-fields, a union over the id, `uint16`/`uint8` locals, and the flags
     `-fno-expensive-optimizations`, `-fno-strength-reduce`, `-fno-rerun-cse-after-loop`,
     `-fno-cse-follow-jumps`. `Cd_xa_play_id` also has a store-order difference after that.
-    Permuter queue.
-  - `cd_cmd_read_comb`: score 330, register allocation only: `buf`/`x` swapped (`a2`/`a3`) in the
-    header case, and size/destination (`a0`/`a2`) in the three byte-copy loops. Found on the way:
-    `tiles` keeps `col`/`row` at the same offsets as `tim` (`pad[6]`); type 10 computes the
-    height before the width; the CLUT row must be the `CLUT_BUF_ROW` macro (it re-reads
-    `head->arg[1]` at each use; an inline function is worse). Ruled out: declaration orders.
-    Permuter running.
+    Permuter queue. Note: the parked `Cd_xa_seek_id` attempt uses `CD_XA_GROUP` (masked `& 3`),
+    but the target shifts the group without a mask (`srl 28; sll 2`); use `id >> 28` there.
+  - `cd_cmd_read_comb` (banked): `tiles` keeps `col`/`row` at the same offsets as `tim`
+    (`pad[6]`); type 10 computes the height before the width; the CLUT row must be the
+    `CLUT_BUF_ROW` macro (it re-reads `head->arg[1]` at each use).
 
 `sound` (`src/rock_neo.exe/sound.c`), parked: `Sound_call2` (8-register difference only): the
 target keeps the queue pointer in `v0` and the loaded `args[0]` in `v1`, and stores `args[1]`

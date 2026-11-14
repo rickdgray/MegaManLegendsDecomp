@@ -43,6 +43,10 @@ several times more because the session had carried hours of earlier work.
   `logs/batch_state.json`). **Order: Depth, then Score**, from a `functions.csv` regenerated (into
   the log folder) after every kept batch, so callees come before their callers. A batch stays in
   one file: the best function overall, then that file's next best at the same depth.
+- **Progress and notifications.** Run it with `.venv/bin/python` (tqdm is in the venv) for a bar
+  of functions (or files) done, cost so far, and the running session's time. When a run ends,
+  crashes, is interrupted or refuses to start, it sends a pushover.net notification if
+  `.pushover.json` exists in the repo root (gitignored): `{"token": "<app token>", "user": "<user key>"}`.
 - `--consolidate`: after a file's batches, one cleanup session per file (merge per-function view
   structs into the objects' real types, fix header placement and raw addresses, retry parked
   functions whose types changed, apply names). Same snapshot / build / keep-or-revert handling.

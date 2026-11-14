@@ -1083,18 +1083,18 @@ void Cd_set_volume(uint8 vol)
     CdMix(&sw->atv);
 }
 
-void Cd_xa_play(sint32 arg1, sint32 arg2)
+void Cd_xa_play(sint32 file, uint32 start)
 {
     Cd_cmd_write_ptr->type                 = CD_CMD_XA_PLAY;
-    Cd_cmd_write_ptr->args.xa.file         = arg1;
-    Cd_cmd_write_ptr->args.xa.start.offset = arg2;
+    Cd_cmd_write_ptr->args.xa.file         = file;
+    Cd_cmd_write_ptr->args.xa.start.offset = start;
     Cd_cmd_write_ptr++;
 }
 
-void Cd_read_comb(sint32 arg1)
+void Cd_read_comb(sint32 file)
 {
     Cd_cmd_write_ptr->type           = CD_CMD_READ_COMB;
-    Cd_cmd_write_ptr->args.read.file = arg1;
+    Cd_cmd_write_ptr->args.read.file = file;
     Cd_cmd_write_ptr++;
 }
 
@@ -1106,13 +1106,13 @@ void Cd_read(sint32 file, uint8 *buf)
     Cd_cmd_write_ptr++;
 }
 
-void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
+void Cd_subcmd(sint32 arg1, sint32 sub, uint32 arg3)
 {
     CD_CMD *p;
     CD_CMD *q;
 
-    // with arg2 == 1: drop any queued type-2 command with arg2 == 1 (never the one being run)
-    if (arg2 == CD_SUBCMD_XA_STOP)
+    // a new XA stop replaces any queued one (never the one being run)
+    if (sub == CD_SUBCMD_XA_STOP)
     {
         for (p = &Cd_cmd_queue[1]; p < Cd_cmd_write_ptr; p++)
         {
@@ -1133,7 +1133,7 @@ void Cd_subcmd(sint32 arg1, sint32 arg2, uint32 arg3)
 
     Cd_cmd_write_ptr->type             = CD_CMD_SUBCMD;
     Cd_cmd_write_ptr->args.subcmd.arg1 = arg1;
-    Cd_cmd_write_ptr->args.subcmd.sub  = arg2;
+    Cd_cmd_write_ptr->args.subcmd.sub  = sub;
     Cd_cmd_write_ptr->args.subcmd.arg3 = arg3;
     Cd_cmd_write_ptr++;
 }
@@ -1164,7 +1164,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_play_id);
 #ifdef NON_MATCHING
 void Cd_xa_seek_id(uint32 id)
 {
-    uint32 group = CD_XA_GROUP(id);
+    // best attempt: the group needs no mask (the target has a bare `srl 28`, not CD_XA_GROUP's
+    // `& 3`); still different: the target shifts the file index (sll 4, srl 20, sll 2) where GCC
+    // folds it into `srl 14` + `andi 0x3ffc`
+    uint32 group = id >> 28;
     uint32 file  = CD_XA_FILE(id);
     uint32 num   = CD_XA_NUM(id);
 

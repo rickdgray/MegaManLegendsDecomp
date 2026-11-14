@@ -35,3 +35,6 @@ permuter/
 renames*.txt
 logs/*
 ctx.c
+
+# pushover credentials
+.pushover.json

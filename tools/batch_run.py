@@ -24,6 +24,10 @@ retry parked functions), with the same snapshot / build / keep-or-revert handlin
 
 A kept batch's names go to NNN_renames.txt and logs/renames_applied.txt (registry lines - / +).
 
+Progress: a tqdm bar (functions or files done, cost, the running session's time) when run with the
+venv's python in a terminal. When the run ends, crashes or is interrupted, a pushover.net
+notification goes out if .pushover.json exists (gitignored): {"token": "...", "user": "..."}.
+
 Stops when nothing is left, when the cost cap (USD) is reached, after two failed batches in a row,
 or after --max-batches. A batch that runs past --timeout minutes is stopped; what it left is still
 built and kept if it matches. Logs go to logs/batch_<timestamp>/.
@@ -42,12 +46,22 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
+import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import callers  # noqa: E402  (tools/callers.py)
 
+try:
+    from tqdm import tqdm
+except ImportError:      # run with the venv's python (.venv/bin/python) to get the progress bar
+    tqdm = None
+
 ROOT = Path(__file__).resolve().parent.parent
+PUSHOVER = ROOT / ".pushover.json"     # {"token": "<app token>", "user": "<user key>"}; gitignored
 TARGETS = ["slus_006.03", "rock_neo.exe"]
 STATE = ROOT / "logs" / "batch_state.json"
 SCRATCH = ROOT / "logs" / "scratch"     # agents' scratch files (CLAUDE.md, "Tool use")
@@ -302,15 +316,81 @@ def save_state(state):
     STATE.write_text(json.dumps(state, indent=2))
 
 
+class Progress:
+    """A tqdm bar (functions or files done), with the running session's elapsed time refreshed
+    every few seconds. Without tqdm, or when stderr isn't a terminal, it only prints lines."""
+
+    def __init__(self, total, unit, enabled=True):
+        self.bar = None
+        if enabled and tqdm is not None and sys.stderr.isatty():
+            self.bar = tqdm(total=total, unit=unit, dynamic_ncols=True,
+                            bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} {unit} [{elapsed}<{remaining}]{postfix}")
+        self.status, self.started, self.cost = "", None, 0.0
+        self._stop = threading.Event()
+        if self.bar:
+            threading.Thread(target=self._tick, daemon=True).start()
+
+    def _postfix(self):
+        running = ""
+        if self.started is not None:
+            sec = int(time.monotonic() - self.started)
+            running = f" ({sec // 60}m{sec % 60:02d}s)"
+        return f"${self.cost:.2f} | {self.status}{running}"
+
+    def _tick(self):
+        while not self._stop.wait(5):
+            self.bar.set_postfix_str(self._postfix())
+
+    def write(self, line):
+        if self.bar:
+            self.bar.write(line)
+        else:
+            print(line, flush=True)
+
+    def task(self, status):
+        """A session starts: show what's running and time it."""
+        self.status, self.started = status, time.monotonic()
+        if self.bar:
+            self.bar.set_postfix_str(self._postfix())
+
+    def done(self, n_done, cost):
+        """A session ended: n_done items finished so far in total, cost so far."""
+        self.started, self.cost = None, cost
+        if self.bar:
+            self.bar.n = min(n_done, self.bar.total)
+            self.bar.set_postfix_str(self._postfix())
+            self.bar.refresh()
+
+    def close(self):
+        self._stop.set()
+        if self.bar:
+            self.bar.close()
+
+
+def notify(title, message):
+    """Push a notification through pushover.net, if .pushover.json exists (else do nothing)."""
+    if not PUSHOVER.exists():
+        return
+    try:
+        cfg = json.loads(PUSHOVER.read_text())
+        data = urllib.parse.urlencode({"token": cfg["token"], "user": cfg["user"],
+                                       "title": title[:250], "message": message[-1000:]}).encode()
+        urllib.request.urlopen("https://api.pushover.net/1/messages.json", data=data, timeout=15).read()
+    except Exception as e:      # a failed notification must not lose the run's result
+        print(f"warning: pushover notification failed: {e}", flush=True)
+
+
 def consolidate(args, cfiles, logdir):
     """One session per file with CONSOLIDATE_PROMPT; kept if both builds match, else reverted."""
     summary, total_cost = [], 0.0
+    progress = Progress(len(cfiles), "files", enabled=not args.dry_run)
     for n, cfile in enumerate(cfiles, 1):
         prompt = CONSOLIDATE_PROMPT.format(cfile=cfile)
         if args.dry_run:
             print(f"consolidate {n}: {cfile}")
             continue
-        print(f"[consolidate {n}] {Path(cfile).stem}", flush=True)
+        progress.write(f"[consolidate {n}] {Path(cfile).stem}")
+        progress.task(f"consolidating {Path(cfile).stem}")
         snap = logdir / "snapshot"
         snapshot(snap)
         tag = f"{n:03}_consolidate"
@@ -349,11 +429,13 @@ def consolidate(args, cfiles, logdir):
             restore(snap)
             resplit(renamed)
             line = f"consolidate {n}: REVERTED ({Path(cfile).stem}, build {results}), ${cost:.2f}, {minutes:.0f} min"
-        print("   " + line, flush=True)
+        progress.write("   " + line)
+        progress.done(n, total_cost)
         summary.append(line)
         if total_cost >= args.cap:
             summary.append(f"cost cap reached (${total_cost:.2f})")
             break
+    progress.close()
     shutil.rmtree(logdir / "snapshot", ignore_errors=True)
     if args.dry_run:
         shutil.rmtree(logdir, ignore_errors=True)
@@ -362,6 +444,7 @@ def consolidate(args, cfiles, logdir):
     (logdir / "summary.txt").write_text("\n".join(summary) + "\n")
     print("\n".join(summary))
     print(f"logs: {logdir.relative_to(ROOT)}")
+    notify(f"Consolidation done: {len(summary) - 1} file(s), ${total_cost:.2f}", "\n".join(summary))
 
 
 def main():
@@ -420,6 +503,12 @@ def main():
         return
     rank = ranks(args.target, logdir / "functions.csv")
 
+    def pending():
+        return sum(1 for cf in cfiles for n, _ in remaining(cf) if n not in failed)
+
+    total = pending()
+    progress = Progress(total, "functions", enabled=not args.dry_run)
+
     while True:
         cfile, batch = pick(cfiles, failed, rank, args.batch)
         if not batch:
@@ -436,7 +525,8 @@ def main():
                 break
             continue
 
-        print(f"[batch {batch_no}] {Path(cfile).stem}: {', '.join(batch)}", flush=True)
+        progress.write(f"[batch {batch_no}] {Path(cfile).stem}: {', '.join(batch)}")
+        progress.task(f"batch {batch_no} ({Path(cfile).stem})")
         snap = logdir / "snapshot"
         snapshot(snap)
         (logdir / f"{batch_no:03}_prompt.txt").write_text(prompt)
@@ -511,7 +601,8 @@ def main():
             save_state(state)
             failures_in_row += 1
             line = f"batch {batch_no}: REVERTED (build {results}), ${cost:.2f}, {minutes:.0f} min{tag}"
-        print("   " + line, flush=True)
+        progress.write("   " + line)
+        progress.done(total - pending(), total_cost)
         summary.append(line)
 
         if total_cost >= args.cap:
@@ -524,6 +615,7 @@ def main():
             summary.append("max batches reached")
             break
 
+    progress.close()
     if args.dry_run:
         shutil.rmtree(logdir, ignore_errors=True)
         return
@@ -532,7 +624,21 @@ def main():
     (logdir / "summary.txt").write_text("\n".join(summary) + "\n")
     print("\n".join(summary))
     print(f"logs: {logdir.relative_to(ROOT)}")
+    kept = sum(1 for l in summary if ": KEPT" in l)
+    notify(f"Batch run done: {kept}/{batch_no} batches kept, ${total_cost:.2f}",
+           f"{summary[-2] if len(summary) > 1 else ''}\n" + "\n".join(summary[:-1][-12:]))
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        notify("Batch run interrupted", "stopped with Ctrl-C; the working tree has the last kept batch")
+        raise
+    except SystemExit as e:
+        if e.code not in (0, None) and not isinstance(e.code, int):
+            notify("Batch run stopped", str(e.code))      # e.g. the tree doesn't build
+        raise
+    except Exception as e:
+        notify("Batch run crashed", f"{type(e).__name__}: {e}")
+        raise

@@ -363,7 +363,10 @@ declaration: its own small data (see "Small data"), and prototypes for functions
 that file, ahead of their definitions, under a `// Called only from this file` comment. Any
 `extern`, typedef, `#define` or prototype that another file could use goes in a header: the
 header of the file that *defines* the function or *owns* the type, not the header of the file
-that happens to use it first. Include
+that happens to use it first. **Exception, shared modules:** a module compiled into both programs
+(the CD module, `cd.h`) keeps its whole interface in its shared header, every function's prototype
+included, even one only its own file calls; label the program-only items. One header serves both
+copies, instead of a prototype block in each program's `.c`. Include
 headers by bare name (`#include "stage.h"`, not `"rock_neo.exe/stage.h"`): the include path
 searches the target's folder first.
 
@@ -437,7 +440,8 @@ Before applying a name:
 - **Give `size:` for data when you know it:** from the type (`SOUND_CALL[24]` is `size:0x1E0`), or as
   an upper bound, from the next `dlabel` in the data file.
 - **Follow the other program's names** for shared code: the CD module and anything the shim also
-  has (`Disp_env`, `Pad_update`).
+  has (`Disp_env`, `Pad_update`). A shared module keeps its existing names in both programs, even
+  where `callers.py` would say static style for one of them: one module, one set of names.
 
 In your report, list each applied name with its one-line reason, and say how many lines you added
 to `renames.txt`.
