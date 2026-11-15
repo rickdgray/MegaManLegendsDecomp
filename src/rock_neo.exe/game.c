@@ -1,4 +1,5 @@
 #include "common.h"
+#include "game.h"
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_800155A4);
 
@@ -34,9 +35,23 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016BC0);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016BF4);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016D0C);
+// Same code as func_80013F60, on Game_work.
+void func_80016D0C(GAME_WORK *gw)
+{
+    if (D_80098A72 == 0)
+    {
+        gw->routine_1++;
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016D38);
+// Same code as func_80013F60, on Game_work.
+void func_80016D38(GAME_WORK *gw)
+{
+    if (D_80098A72 == 0)
+    {
+        gw->routine_1++;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016D64);
 

@@ -19,7 +19,7 @@ typedef struct
                      // func_800546B0 sets it with unk_3F
     sint16 no_6;     // 0x06: the entry's own index in Moji_work (set by Moji_init)
     uint16 base_x_8; // 0x08: line start x; func_8005459C (new line) resets pos_x_10 to it
-    uint16 unk_A;    // 0x0A: set with base_x_8 from a command's second 16-bit argument (func_80054798)
+    sint16 unk_A;    // 0x0A: lh (func_8005A874); set with base_x_8 from a command's second 16-bit argument (func_80054798)
     uint8 pad_C[0x4];
     uint16 pos_x_10;       // 0x10: text cursor x; func_8005A858 adds 12 (one character's width?)
     uint16 pos_y_12;       // 0x12: text cursor y; func_8005459C (new line) adds 12
@@ -52,15 +52,18 @@ typedef struct
     uint8 pad_74[0x4];
     uint8 unk_78; // 0x78: set from a control code's argument byte (func_80056180)
     uint8 pad_79[0x3];
-    uint8 unk_7C; // 0x7C: index into D_8008AB08 (func_80054B4C) and D_8008AAC0 (func_80054ADC sets
-                  // it from a command's argument byte, func_80055BB0)
-    uint8 unk_7D; // 0x7D: state of func_8005AB78 (0 opens, 2 closes); cleared by func_80054ADC
-                  // with flags_0 bit 0x02000000
-    uint8 unk_7E; // 0x7E: set from a command's argument byte (func_80054798); width in 12-pixel
-                  // characters (func_8005AB78)
-    uint8 unk_7F; // 0x7F: set from a command's argument byte (func_80054798); height in 12-pixel
-                  // lines (func_8005AB78)
-    uint8 pad_80[0x8];
+    uint8 unk_7C;  // 0x7C: index into D_8008AB08 (func_80054B4C) and D_8008AAC0 (func_80054ADC sets
+                   // it from a command's argument byte, func_80055BB0)
+    uint8 unk_7D;  // 0x7D: state of func_8005AB78 (0 opens, 2 closes); cleared by func_80054ADC
+                   // with flags_0 bit 0x02000000
+    uint8 unk_7E;  // 0x7E: set from a command's argument byte (func_80054798); width in 12-pixel
+                   // characters (func_8005AB78)
+    uint8 unk_7F;  // 0x7F: set from a command's argument byte (func_80054798); height in 12-pixel
+                   // lines (func_8005AB78)
+    uint32 unk_80; // 0x80: flags_0 bit 0x08000000 saved by func_8005A874 while its window opens
+    uint8 pad_84;
+    uint8 unk_85; // 0x85: func_8005A874's opening/closing step per frame (8)
+    uint8 pad_86[0x2];
     sint16 corner_88[4][2]; // 0x88: window corners (x, y) relative to the text origin, set by
                             // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12
     uint8 pad_98[0x1C];

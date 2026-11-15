@@ -365,7 +365,7 @@ What decompilers show vs. what to write:
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_WORK`, `PAD_*` buttons (one layout in both programs) |
 | `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8002E7A8.h` (the work pools and their slot types, keyframe tables), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `fastmem.h` (the hand-written copy routines), `code_8002E7A8.h` (the work pools and their slot types, keyframe tables), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h`, `Code800133D8.h`, `code_8001786C.h`, `code_8001F828.h`, `code_8006430C.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold

@@ -10,6 +10,8 @@
 #define Map_w     (*(uint16 *)0x1F800044)
 #define Map_h     (*(uint16 *)0x1F800046)
 #define Map_cells (*(uint16 **)0x1F800048)
+// The block grid: 0x40 rows of 0x20 MAP_BLOCKs (func_80024BAC draws the rows' set bits).
+#define Map_blocks (*(MAP_BLOCK **)0x1F80004C)
 
 // The stage's IDX file, loaded at 0x8015C000 (notes/disc.md): 12-byte entries, position in
 // 1/512 units. Addressed by literal address, like the scratchpad: the target builds it with
@@ -21,6 +23,14 @@
 #define Stage_ebd_0 ((sint32 *)0x8016C000)
 #define Stage_ebd_1 ((sint32 *)0x80190000)
 #define Support_ebd ((sint32 *)0x801F2000)
+
+// One block of the map grid (Map_blocks): its position, and its model data pointer in the low 24
+// bits; bit 31 picks the draw function's column in D_80089890.
+typedef struct
+{
+    SVECTOR pos;  // 0x0
+    uint32 model; // 0x8
+} MAP_BLOCK;
 
 // Shape data an entry points to (partial).
 typedef struct

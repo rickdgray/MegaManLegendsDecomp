@@ -1165,7 +1165,64 @@ void func_8005A858(MOJI_WORK *mp)
     mp->mes_ptr_14 += 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005A874);
+// Window kind 0 (D_8008AAC0[0]): opens the window from a flat line, unk_85 pixels a frame each way
+// (state 0 sets it up, state 1 opens), and state 2 closes it.
+void func_8005A874(MOJI_WORK *wp)
+{
+    switch (wp->unk_7D)
+    {
+        case 0:
+            wp->unk_85 = 8;
+            wp->flags_0 |= 0x14000000;
+            wp->unk_80 = wp->flags_0 & 0x08000000;
+            wp->flags_0 |= 0x08000000;
+            wp->unk_B6 = wp->unk_B4 = wp->cmd_ptr_6C[2];
+            wp->unk_7D++;
+            wp->corner_88[0][1] = wp->unk_7F * 6;
+            wp->corner_88[1][1] = wp->unk_7F * 6;
+            wp->corner_88[2][1] = wp->unk_7F * 6;
+            wp->corner_88[3][1] = wp->unk_7F * 6;
+            wp->corner_88[0][0] = -wp->unk_B4;
+            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[2][0] = -wp->unk_B4;
+            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+            break;
+        case 1:
+            wp->flags_0 |= 0x10000000;
+            wp->corner_88[0][1] -= wp->unk_85;
+            wp->corner_88[1][1] -= wp->unk_85;
+            wp->corner_88[2][1] += wp->unk_85;
+            wp->corner_88[3][1] += wp->unk_85;
+            if (wp->unk_A + wp->corner_88[0][1] <= wp->unk_A - wp->unk_B6)
+            {
+                Moji_flag |= 0x200000;
+                wp->corner_88[0][0] = -wp->unk_B4;
+                wp->corner_88[0][1] = -wp->unk_B6;
+                wp->corner_88[1][1] = -wp->unk_B6;
+                wp->corner_88[2][0] = -wp->unk_B4;
+                wp->flags_0 |= 0x12000000;
+                wp->flags_0 = (wp->flags_0 & ~0x08000000) | wp->unk_80;
+                wp->cmd_ptr_6C += 3;
+                wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->unk_7D++;
+            }
+            break;
+        case 2:
+            wp->flags_0 |= 0x10000000;
+            wp->corner_88[0][1] += wp->unk_85;
+            wp->corner_88[1][1] += wp->unk_85;
+            wp->corner_88[2][1] -= wp->unk_85;
+            wp->corner_88[3][1] -= wp->unk_85;
+            if (wp->corner_88[0][1] > wp->corner_88[2][1])
+            {
+                wp->flags_0 &= ~0x06000000;
+            }
+            break;
+    }
+}
 
 void func_8005AB78(MOJI_WORK *wp)
 {
@@ -1224,7 +1281,63 @@ void func_8005B85C(MOJI_WORK *wp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B98C);
+// Same code as func_8005A874.
+void func_8005B98C(MOJI_WORK *wp)
+{
+    switch (wp->unk_7D)
+    {
+        case 0:
+            wp->unk_85 = 8;
+            wp->flags_0 |= 0x14000000;
+            wp->unk_80 = wp->flags_0 & 0x08000000;
+            wp->flags_0 |= 0x08000000;
+            wp->unk_B6 = wp->unk_B4 = wp->cmd_ptr_6C[2];
+            wp->unk_7D++;
+            wp->corner_88[0][1] = wp->unk_7F * 6;
+            wp->corner_88[1][1] = wp->unk_7F * 6;
+            wp->corner_88[2][1] = wp->unk_7F * 6;
+            wp->corner_88[3][1] = wp->unk_7F * 6;
+            wp->corner_88[0][0] = -wp->unk_B4;
+            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[2][0] = -wp->unk_B4;
+            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+            break;
+        case 1:
+            wp->flags_0 |= 0x10000000;
+            wp->corner_88[0][1] -= wp->unk_85;
+            wp->corner_88[1][1] -= wp->unk_85;
+            wp->corner_88[2][1] += wp->unk_85;
+            wp->corner_88[3][1] += wp->unk_85;
+            if (wp->unk_A + wp->corner_88[0][1] <= wp->unk_A - wp->unk_B6)
+            {
+                Moji_flag |= 0x200000;
+                wp->corner_88[0][0] = -wp->unk_B4;
+                wp->corner_88[0][1] = -wp->unk_B6;
+                wp->corner_88[1][1] = -wp->unk_B6;
+                wp->corner_88[2][0] = -wp->unk_B4;
+                wp->flags_0 |= 0x12000000;
+                wp->flags_0 = (wp->flags_0 & ~0x08000000) | wp->unk_80;
+                wp->cmd_ptr_6C += 3;
+                wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->unk_7D++;
+            }
+            break;
+        case 2:
+            wp->flags_0 |= 0x10000000;
+            wp->corner_88[0][1] += wp->unk_85;
+            wp->corner_88[1][1] += wp->unk_85;
+            wp->corner_88[2][1] -= wp->unk_85;
+            wp->corner_88[3][1] -= wp->unk_85;
+            if (wp->corner_88[0][1] > wp->corner_88[2][1])
+            {
+                wp->flags_0 &= ~0x06000000;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005BC90);
 

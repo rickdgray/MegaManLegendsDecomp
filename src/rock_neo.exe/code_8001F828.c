@@ -1,4 +1,8 @@
 #include "common.h"
+#include "code_8001F828.h"
+#include "psyq/inline_c.h"
+#include "scratch.h"
+#include "stage.h"
 
 // Small data (.sdata 0x80097C3C-0x80097C44): reached through $gp in this file.
 sint32 D_80097C3C = 0;
@@ -147,7 +151,75 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80023EA8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002466C);
 
+// Draws the map blocks whose bits are set in rows[] (one word per row of 0x20 blocks, MSB first;
+// the first row's bit 31 is cleared first), choosing the model's level of detail by depth.
+// Remaining difference: the prologue copies rows (a0) into s4 before setting up sxy (0x1F800100) in
+// s3; the target sets sxy first. Everything else matches.
+#ifdef NON_MATCHING
+void func_80024BAC(uint32 *rows, sint32 kind)
+{
+    MAP_BLOCK *b;
+    MAP_BLOCK *row_end;
+    MAP_BLOCK *end;
+    sint32 bits;
+    long *sxy;
+    uint32 *model;
+    uint32 *lod;
+    VECTOR pos;
+
+    sxy = Scratch_sxy;
+    b   = Map_blocks;
+    end = b + 0x800;
+    *rows &= 0x7FFFFFFF;
+    do
+    {
+        bits = *rows;
+        if (bits != 0)
+        {
+            *rows = 0;
+            for (row_end = b + 0x20; b < row_end; bits <<= 1, b++)
+            {
+
+                if (bits < 0)
+                {
+                    model     = (uint32 *)(b->model & 0xFFFFFF);
+                    sxy[0x10] = *(long *)&b->pos.vx;
+                    sxy[0x11] = *(long *)&b->pos.vz;
+                    gte_ldv0(&sxy[0x10]);
+                    gte_rt();
+                    gte_stlvnl(&pos);
+                    pos.vz >>= Scratch_scale_shift;
+                    if (pos.vz > 0x1C20)
+                    {
+                        lod = &model[8];
+                    }
+                    else if (pos.vz > 0xAF0)
+                    {
+                        lod = &model[7];
+                    }
+                    else
+                    {
+                        lod = &model[6];
+                    }
+                    if (((sint16 *)sxy)[0x23] == 0)
+                    {
+                        lod += 3;
+                    }
+                    lod = (uint32 *)*lod;
+                    D_80089890[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
+                }
+            }
+        }
+        else
+        {
+            b += 0x20;
+        }
+        rows++;
+    } while (b < end);
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80024BAC);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80024D4C);
 
@@ -163,7 +235,72 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80025900);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002626C);
 
+// Same code as func_80024BAC (parked the same way).
+#ifdef NON_MATCHING
+void func_800267AC(uint32 *rows, sint32 kind)
+{
+    MAP_BLOCK *b;
+    MAP_BLOCK *row_end;
+    MAP_BLOCK *end;
+    sint32 bits;
+    long *sxy;
+    uint32 *model;
+    uint32 *lod;
+    VECTOR pos;
+
+    sxy = Scratch_sxy;
+    b   = Map_blocks;
+    end = b + 0x800;
+    *rows &= 0x7FFFFFFF;
+    do
+    {
+        bits = *rows;
+        if (bits != 0)
+        {
+            *rows = 0;
+            for (row_end = b + 0x20; b < row_end; bits <<= 1, b++)
+            {
+
+                if (bits < 0)
+                {
+                    model     = (uint32 *)(b->model & 0xFFFFFF);
+                    sxy[0x10] = *(long *)&b->pos.vx;
+                    sxy[0x11] = *(long *)&b->pos.vz;
+                    gte_ldv0(&sxy[0x10]);
+                    gte_rt();
+                    gte_stlvnl(&pos);
+                    pos.vz >>= Scratch_scale_shift;
+                    if (pos.vz > 0x1C20)
+                    {
+                        lod = &model[8];
+                    }
+                    else if (pos.vz > 0xAF0)
+                    {
+                        lod = &model[7];
+                    }
+                    else
+                    {
+                        lod = &model[6];
+                    }
+                    if (((sint16 *)sxy)[0x23] == 0)
+                    {
+                        lod += 3;
+                    }
+                    lod = (uint32 *)*lod;
+                    D_80089890[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
+                }
+            }
+        }
+        else
+        {
+            b += 0x20;
+        }
+        rows++;
+    } while (b < end);
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_800267AC);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002694C);
 

@@ -7,6 +7,11 @@
 #include "common.h"
 #include "psyq/libgte.h"
 
+// Same names and layout as the shim's: the current double buffer (0/1; moji indexes D_80097F50's
+// draw areas by it) and vsyncs per frame (Code800133D8's func_80013420 sets 2).
+#define Dbl_buff_idx (*(uint8 *)0x1F800000)
+#define Vsync_wait   (*(uint8 *)0x1F800001)
+
 // Frame counter (also in symbol_addrs, absolute, for the assembly).
 #define System_timer (*(uint16 *)0x1F800002)
 

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "Code800133D8.h"
+#include "game.h"
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/Code800133D8", func_800133D8);
 
@@ -24,7 +26,13 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/Code800133D8", func_80013CA0);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/Code800133D8", func_80013E0C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/Code800133D8", func_80013F60);
+void func_80013F60(CODE800133D8_WORK *wp)
+{
+    if (D_80098A72 == 0)
+    {
+        wp->routine_1++;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/Code800133D8", func_80013F8C);
 

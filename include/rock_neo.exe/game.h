@@ -17,7 +17,9 @@ typedef struct
 // Global game state, 0x210 bytes. Only the fields decompiled code uses are named.
 typedef struct
 {
-    uint8 unk000[0x1C];
+    sint8 routine_0; // 0x00: lb; index of Game_main_tbl (func_800155A4)
+    uint8 routine_1; // 0x01
+    uint8 unk002[0x1A];
     uint32 money;  // 0x1C: zenny, capped at MONEY_MAX (Money_add)
     uint32 unk020; // 0x20: Money_add adds the amount of a payment here (c == 0) ...
     uint32 unk024; // 0x24: ... or here (c != 0)
@@ -58,7 +60,10 @@ typedef struct
 } GAME_WORK;
 
 extern GAME_WORK Game_work; // 0x800C1B10
-extern uint8 Sce_flag[];    // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)
+// Pool sint16 (lh) read by Code800133D8, game, code_80014AC0, code_8001786C: while nonzero,
+// func_80013F60 and func_80016D0C/D38 hold their routine_1 step. Owner unknown.
+extern sint16 D_80098A72;
+extern uint8 Sce_flag[]; // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)
 
 sint32 Sce_flag_test(sint32 flag);
 void Sce_flag_on(sint32 flag);

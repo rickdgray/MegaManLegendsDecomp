@@ -1,4 +1,5 @@
 #include "common.h"
+#include "code_8006430C.h"
 
 // Small data (.sdata 0x8009808C-0x8009809C): reached through $gp in this file.
 sint32 D_8009808C = 0x30307562;
@@ -69,9 +70,18 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800665FC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066664);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800666D8);
+sint32 func_800666D8(CODE8006430C_WORK *wp)
+{
+    D_8008FD20[wp->routine_1](wp);
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066714);
+// Same code as func_800666D8.
+sint32 func_80066714(CODE8006430C_WORK *wp)
+{
+    D_8008FD20[wp->routine_1](wp);
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066750);
 

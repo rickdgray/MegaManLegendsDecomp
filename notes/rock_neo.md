@@ -722,11 +722,32 @@ register (t6); the target hoists `0x07000000`, `0xFFFFFF` and the OT address int
 registers, frame 0x38, `otz` at sp+0x14); loop 1 walks copies of the sxy/sz bases; and the face pointer
 is a plain `f` with offsets 0/2/4/8 where ours strength-reduces it to `&f->uv[2]`.
 Banked by `tools/twins.py` (byte-identical to a matched function; C copied, build-checked):
-`func_8004E488` (same code as `func_80054BAC`: `return 0;`) and `func_8005B85C` (same code as
-`func_8005AB78`). Still all in assembly, twin groups to decompile together (`twins.py --unsolved`):
-`func_80023EA8`/`func_80026B04`, `func_8002466C`/`func_8002626C`, `func_8005A874`/`func_8005B98C`,
-`func_80024BAC`/`func_800267AC`, `func_800180D4`/`func_800181D4`, `func_800666D8`/`func_80066714`,
-`func_80013F60`/`func_80016D0C`/`func_80016D38`.
+`func_8004E488` (same code as `func_80054BAC`: `return 0;`), `func_8005B85C` (same code as
+`func_8005AB78`), and after the twins run below `func_800181D4`, `func_8005B98C`, `func_80066714`.
 Named `func_8001D888` -> `Sce_read_sync`: waits a frame at a time (`Thread_wait(1)`) until
 `Cd_read_sync2()` reports the CD queue empty. Same purpose as `Cd_read_sync`, different code (it calls
-`Cd_read_sync2` instead of comparing the queue pointers); its caller is in `Code800133D8`.
+`Cd_read_sync2` instead of comparing the queue pointers); its caller is in `Code800133D8`
+(`func_80013420`), which loads `a0 = 1` in the call's delay slot, so Capcom's version probably took an
+argument it never used.
+
+Twins run (one of each all-assembly twin group, then `twins.py --apply`):
+- `func_80013F60` (`Code800133D8`; `routine_1++` of `Code800133D8_work` unless `D_80098A72`) and its
+  game.c copies `func_80016D0C`/`func_80016D38`, the same bytes on `Game_work` (`GAME_WORK.routine_0`/`_1`,
+  `func_800155A4` runs `Game_main_tbl[routine_0]` on it). Written by hand, since the types differ.
+- `func_800666D8` (`code_8006430C`; runs `D_8008FD20[routine_1]` of its module state `D_80098910`,
+  `CODE8006430C_WORK`); routines 1 and 2 of `D_8008FD10` are the same code.
+- `func_800180D4` (`code_8001786C`, `D_800821BC[0]`): once `Dbl_buff_idx` is 1, zeroes both buffers'
+  vertical offsets, clip y and the isbg/dfe flags, `MojiTaskKill`, sets three pool words, calls
+  `func_800196A0`. `Dbl_buff_idx`/`Vsync_wait` added to ROCK_NEO's `scratch.h` (the shim's names).
+- `func_8005A874` (moji window kind 0): opens a window from a flat line `unk_85` (8) pixels a frame, then
+  closes it. New `MOJI_WORK.unk_80`/`unk_85`; `unk_A` is `sint16` (`lh`). Matching needed `unk_7D++` at the
+  end of state 1's block and `c[0][1] > c[2][1]` (not `<` swapped) in state 2.
+- Parked `func_80024BAC` and its twin `func_800267AC` (`NON_MATCHING`, same attempt): draws the map
+  blocks (`Map_blocks`, `MAP_BLOCK`) whose bits are set in a row mask, LOD by depth, through
+  `D_80089890[kind][bit 31]`. Only the prologue differs: ours copies `rows` (a0) to s4 before setting
+  `sxy = 0x1F800100` in s3. Needed: the first row's `&= 0x7FFFFFFF` before the loop, `row_end` set
+  inside the `if`, the inner loop as `for (...; bits <<= 1, b++)`, the table indexed inline, and the
+  drawn word read back into the `lod` local. Permuter candidate.
+- Not attempted: `func_8002466C`/`func_8002626C` (0x540 bytes) and `func_80023EA8`/`func_80026B04`
+  (0x7C4): scratchpad polygon subdivision with GTE, every access off one 0x1F800100 base register, the
+  same pattern that parks `func_8002E3D0`.
