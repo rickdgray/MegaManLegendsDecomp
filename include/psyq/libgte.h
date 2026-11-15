@@ -20,6 +20,16 @@ typedef struct
 
 typedef struct
 {
+    short vx, vy;
+} DVECTOR;
+
+typedef struct
+{
+    u_char r, g, b, cd;
+} CVECTOR;
+
+typedef struct
+{
     short m[3][3];
     long t[3];
 } MATRIX;

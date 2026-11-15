@@ -913,12 +913,12 @@ WORK_10C *Open_SHL_WORK(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_800987CC |= 0x80000000 >> i;
-            *(uint16 *)&wp->field_2 = 0;
-            *(uint32 *)&wp->flag_4  = 0;
-            *(uint32 *)&wp->field_C = 0;
-            wp->field_8             = 0;
-            wp->flags               = 3;
-            wp->field_74            = 0;
+            *(uint16 *)&wp->field_2   = 0;
+            *(uint32 *)&wp->flag_4    = 0;
+            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->routine_8 = 0;
+            wp->flags                 = 3;
+            wp->field_74              = 0;
             return wp;
         }
     }
@@ -945,12 +945,12 @@ WORK_10C *func_80031598(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_800989F0 |= 0x80000000 >> i;
-            *(uint16 *)&wp->field_2 = 0;
-            *(uint32 *)&wp->flag_4  = 0;
-            *(uint32 *)&wp->field_C = 0;
-            wp->field_8             = 0;
-            wp->flags               = 3;
-            wp->field_74            = 0;
+            *(uint16 *)&wp->field_2   = 0;
+            *(uint32 *)&wp->flag_4    = 0;
+            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->routine_8 = 0;
+            wp->flags                 = 3;
+            wp->field_74              = 0;
             return wp;
         }
     }

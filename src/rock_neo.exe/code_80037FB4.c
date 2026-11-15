@@ -50,7 +50,7 @@ void func_80038324(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037FB4", func_80038370);
 
-void func_800384A4(VECTOR *arg0, sint32 arg1)
+void func_800384A4(VECTOR *arg0, VECTOR *arg1)
 {
     D_800A39A0 = *arg0;
     func_80038370(arg0, arg1);
@@ -191,7 +191,7 @@ void func_80039DE8(void)
     Scene_work.unk00      = D_80098670;
 }
 
-void func_80039E18(void)
+sint32 func_80039E18(void)
 {
     Scene_work.unk01 = D_80098674;
     Scene_work.unk00 = D_80098670;

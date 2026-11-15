@@ -592,7 +592,7 @@ void func_80046A0C(WORK_48 *wp)
         wp->routine_8 = 5;
         if (wp->flag_3 == 0)
         {
-            func_80043294(D_8008A678[Game_work.unk05B][i], 0, 0);
+            Money_add(D_8008A678[Game_work.unk05B][i], 0, 0);
         }
         else
         {
@@ -1220,7 +1220,7 @@ void func_80047DD8(WORK_48 *wp)
     if (!busy)
     {
         wp->flags |= 0x20;
-        base = (sint16 *)&wp->u_18.s.pad_26[2];
+        base = &wp->u_18.s.field_28;
         for (i = 0; i < 8; i++)
         {
             p    = &base[i];
@@ -1265,7 +1265,7 @@ void func_80047EC8(WORK_48 *wp)
     SVECTOR v1;
 
     busy = func_800482A8(wp);
-    base = (sint16 *)&wp->u_18.s.pad_26[2];
+    base = &wp->u_18.s.field_28;
     if (!busy)
     {
         if (wp->flag_3)

@@ -58,20 +58,65 @@ typedef struct
 
 typedef struct
 {
+    u_long tag;              // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    short w, h;              // 0x0c
+} TILE;                      // 0x10
+
+typedef struct
+{
     u_long tag;
     u_long code[2];
 } DR_MODE; // 0x0c
 
-// Ordering-table linking. Suspected to match PsyQ's macros; confirm when a
-// function using addPrim matches.
+typedef struct
+{
+    u_long tag;              // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    u_char u0, v0;           // 0x0c
+    u_short clut;            // 0x0e
+    short x1, y1;            // 0x10
+    u_char u1, v1;           // 0x14
+    u_short tpage;           // 0x16
+    short x2, y2;            // 0x18
+    u_char u2, v2;           // 0x1c
+    u_short pad1;            // 0x1e
+} POLY_FT3;                  // 0x20
+
+typedef struct
+{
+    u_long tag;              // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    u_char u0, v0;           // 0x0c
+    u_short clut;            // 0x0e
+    short x1, y1;            // 0x10
+    u_char u1, v1;           // 0x14
+    u_short tpage;           // 0x16
+    short x2, y2;            // 0x18
+    u_char u2, v2;           // 0x1c
+    u_short pad1;            // 0x1e
+    short x3, y3;            // 0x20
+    u_char u3, v3;           // 0x24
+    u_short pad2;            // 0x26
+} POLY_FT4;                  // 0x28
+
+// Ordering-table linking. Confirmed by ROCK_NEO's screen_tile_draw.
 #define getaddr(p)        (u_long)(((P_TAG *)(p))->addr)
 #define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
 #define addPrim(ot, p)    setaddr(p, getaddr(ot)), setaddr(ot, p)
 
 // Primitive header setters. Same effect as PsyQ's macros, written from the layouts above.
-#define setlen(p, _len)   (((P_TAG *)(p))->len = (u_long)(_len))
-#define setcode(p, _code) (((P_TAG *)(p))->code = (u_char)(_code))
-#define setSprt(p)        (setlen(p, 4), setcode(p, 0x64))
+#define setlen(p, _len)           (((P_TAG *)(p))->len = (u_long)(_len))
+#define setcode(p, _code)         (((P_TAG *)(p))->code = (u_char)(_code))
+#define getcode(p)                (u_char)(((P_TAG *)(p))->code)
+#define setSprt(p)                (setlen(p, 4), setcode(p, 0x64))
+#define setTile(p)                (setlen(p, 3), setcode(p, 0x60))
+#define setSemiTrans(p, abe)      ((abe) ? setcode(p, getcode(p) | 0x02) : setcode(p, getcode(p) & ~0x02))
+#define setWH(p, _w, _h)          ((p)->w = (_w), (p)->h = (_h))
+#define setRGB0(p, _r0, _g0, _b0) ((p)->r0 = (_r0), (p)->g0 = (_g0), (p)->b0 = (_b0))
 
 // Texture page: which 64x256 block of VRAM to texture from, and how.
 //   tp:  color depth (0 = 4-bit, 1 = 8-bit, 2 = 16-bit)

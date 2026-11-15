@@ -80,4 +80,7 @@ sint32 func_80048EA4(SVECTOR *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
 sint32 func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
 void func_8004AC8C(void *vel, sint32 hit);
 
+// Stage overlay code (loaded with the stage; notes/rock_neo.md, "References outside the image").
+void func_80101D94(void);
+
 #endif // STAGE_H

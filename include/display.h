@@ -18,12 +18,12 @@ typedef struct
 
 // Both programs.
 extern volatile uint32 Vsync_count; // incremented once per vblank by Vsync_handler (shim 0x80059BC0, ROCK_NEO 0x80098888)
+extern DISP_ENV *Disp_env_ptr;      // the buffer being built (ROCK_NEO 0x80098934, set to &Disp_env[0] by func_80011F04)
 
 void Disp_env_init(DISP_ENV *buf);
 
 // Shim only.
 extern DISP_ENV Disp_env[2];
-extern DISP_ENV *Disp_env_ptr;
 extern sint16 disp_width_tbl[2];
 extern RECT Clear_rect;   // cleared with ClearImage at init
 extern sint32 D_80059BBC; // zeroed at init

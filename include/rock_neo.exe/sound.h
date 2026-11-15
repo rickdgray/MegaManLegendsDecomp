@@ -141,8 +141,16 @@ extern uint16 D_800822F0[]; // stage 25
 
 // Unknown
 extern uint32 D_80098958; // flags; 0x800 forces cd_cmd_read_comb to reload VAB bank 4
-extern uint8 D_800C356E;  // like Game_work.unk050; stage whose sound is loaded?
-extern uint8 D_800C356F;  // like Game_work.unk051
+extern sint16 D_800C3560; // D_800C3560 to D_800C3571 are reset together by func_800680BC
+extern sint16 D_800C3562;
+extern sint16 D_800C3564;
+extern sint16 D_800C356A;
+extern sint8 D_800C356C; // -1 after func_800680BC
+extern uint8 D_800C356D;
+extern uint8 D_800C356E; // like Game_work.unk050; stage whose sound is loaded?
+extern uint8 D_800C356F; // like Game_work.unk051
+extern uint8 D_800C3570;
+extern uint8 D_800C3571;
 extern char D_800C1010[]; // SsSetTableSize work area
 
 void Sound_stage_slot_set(sint32 which);
@@ -151,7 +159,7 @@ void Sound_stage_play(void);
 void Sound_init(void);
 void Sound_reverb_set(sint32 idx);
 void func_80019FB4(void);
-void Sound_call(sint16 id, sint32 arg1, sint32 arg2);
+void Sound_call(uint16 id, sint32 arg1, sint32 arg2);
 void Sound_call2(sint16 id, SVECTOR *pos);
 sint32 Sound_seq_is_eos(sint32 idx);
 void Sound_update(void);

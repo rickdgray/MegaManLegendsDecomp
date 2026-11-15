@@ -10,6 +10,7 @@
 // Globals at 0x800A395A.. (struct layout still unknown)
 extern uint8 D_800A395A;
 extern uint8 D_800A395B;
+extern uint8 D_800A395C; // set to 3 by func_8001E6C0
 extern uint8 D_800A395F;
 extern uint8 D_800A3960;
 extern sint8 D_800A3962;
@@ -38,7 +39,9 @@ extern sint32 D_800A399C;
 extern uint32 D_8009869C[8];
 
 void func_80037FB4(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
-void func_80038370(VECTOR *arg0, sint32 arg1);
+void func_80038370(VECTOR *arg0, VECTOR *arg1); // arg1: point to look at (func_8001E550)
+void func_80038324(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
+void func_800384A4(VECTOR *arg0, VECTOR *arg1);
 void func_80039BBC(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_80039C08(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_80039C54(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
@@ -46,6 +49,8 @@ void func_80039CA0(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_80039CEC(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 sint32 func_8003A218(sint32 arg0);
 void func_80039E50(void);
+// Returns nothing; declared sint32 for the same reason as Money_add (func_80055C1C needs it).
+sint32 func_80039E18(void);
 void func_800398E0(sint32 arg0);
 void Swing_Camera2(sint32 arg0, sint32 arg1, sint32 arg2, SVECTOR *pos);
 sint32 func_800399EC(sint32 arg0);

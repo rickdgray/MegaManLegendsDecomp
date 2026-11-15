@@ -247,8 +247,10 @@ before the pointer increment (`nop; sw v1,8(v0)`); ours puts the pointer in `v1`
 `sound`, more parked (banked this round: `pitch_scale`, `fade_step`):
 - `Sound_stage_play`: body is right except that the target reloads `Game_work+0x50`/`+0x51` with a
   fresh `lui` each (we keep the base in `s0`, +1 saved reg), and keeps the `id != 0xFFFF` test as
-  a value in `v0` (ours: `a1`). `sint16 id` removes the extra `sll/sra`. Tried: local func
-  pointer, `ok` flag, `&&` form, `uint16`/`sint32` id.
+  a value in `v0` (ours: `a1`). Since `Sound_call` takes `uint16 id`, `uint16 id` matches the
+  whole `lhu`/`xori 0xFFFF`/call sequence (and makes `id != 0xFFFF` meaningful); only the
+  `Game_work+0x50` base kept in `s0` remains. Tried: local func pointer, `ok` flag, `&&` form,
+  `sint32` id.
 - `Sound_update`: target hoists both table bases (`Sound_call_info_tbl`, `Sound_call_func_tbl`) into `s2`/`s1`
   after the loop pre-test; ours hoists only `Sound_call_func_tbl` and folds `Sound_call_info_tbl` as `lui at`.
   Tried: sized array, local `uint8 (*)[4]`, `SOUND_CALL_INFO` struct (the current attempt).
@@ -468,7 +470,7 @@ two AND tests with `beqz`/`li 1`/`move 0`, GCC emits `sltu` for `hit != 0` (trie
 local with `goto fail`, and `== 0` forms).
 
 Batch (`func_80046A0C`, `_8004602C`, `_80047EC8`): banked `func_80046A0C` (proximity test like `func_80045BC8`, then
-calls `func_80043294`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][field_A]`; `field_A` is kept in a
+calls `Money_add`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][field_A]`; `field_A` is kept in a
 local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_8]`, then one `func_8002D464` primitive
 filled from the four columns `D_80097EC0/C2/C4/C6`, each its own symbol). Parked `func_80047EC8` (`NON_MATCHING`;
 eight spark lines around the player's position at `Player_work+0x400`/`+0x418`): structure matches; the else-branch
@@ -521,3 +523,201 @@ uses `mtx.m`). `HIT_ENT` (`D_8008A310`, `D_8008A618`) is three (min, max) halfwo
 wrong register), `func_80047354` (4: if/else-if with its own call, value local `n` stored per case, a call per case;
 GCC always cross-jumps the identical `sub` stores the target keeps separate), `func_80045CE8` (clamp order: worse),
 `func_80046B34` and `func_80047228` (unchanged).
+
+`code_8004324C.c` (batch 1): banked `func_8004324C` (player `unk174 & 0xC0 || unk177`; must be `if (a || b)
+return 1; return 0;`: two separate `if`s fold the second test to `sltu`, a bare `return a || b` uses a temp),
+`func_8004327C` (`-(Game_work.money < -amount)`: -1 when `money` can't cover a negative change; `money` at
+`Game_work+0x1C`, capped at 999999 by `Money_add`), `func_800433C0` (`D_8008A0CC[wp->routine_8](wp)` on a
+`WORK_10C` of the `D_800BFB20` pool), `func_800435BC`, `func_80043740` and `func_80043E00` (spawn a `WORK_48`
+at the slot's position; in `func_80043E00` the `flag_3`/`field_C` stores are written after the position).
+Batch 2: banked `Money_add` (0x80043294; `amount` added to `money`, clamped to 999999 when positive, reset to 0
+on underflow when not, which also adds it to `Game_work+0x20`/`+0x24` by `c`; does nothing unless `b == 0`),
+`func_80043340` (`Player_work[n].unk6E += amount`, capped at `unkB0`; player 0's losses are added to
+`Game_work+0x4C`), `func_800435F8` and `func_80043E78` (queue `x_14`/`pos_2C` with `func_8003430C`; the source
+has one call per value of the `0x6000`/`0x4000` argument, and `func_800435F8` repeats that `if` in both arms of
+its `field_E` test: the target duplicates the `0x6000` setup). `field_C` is `sint8` (read with `lb`; the
+`(uint8)` casts give the `andi`/`lbu` before `func_80036294`), and `func_800375D4` returns `sint32` (the caller
+doesn't re-extend it).
+`WORK_10C.field_8` is split into `routine_8`/`field_9`/`field_A`/`timer_B`; `field_C` holds the owning player's
+id (`func_80036294` returns a `PL_WORK`: `func_800433FC` reads its `joint_pos[11]`/`[14]`; `+0x198` is that
+player's state flag for the slot).
+
+`code_800680BC.c` (event steps): `D_8009039C` is an event table of 8-byte entries (`u8`, `u8`, `s16` frame,
+step function), installed as `Scene_work+0xA4` by `func_80068CE0` (from `func_80068DAC`, a `D_80089024`
+scene routine called with `&Scene_work`). `func_8001F070` advances it when `Scene_work.timer_10` reaches the
+entry's frame and resets the timer. Entry bytes 0 and 1 are copied to `Scene_work.ev_08`/`ev_09`;
+`timer_18` restarts when `ev_08` changes and `timer_1C` when either changes. `func_8001F20C(table, arg)`
+(called only from overlays ST15/ST1B/ST1E) installs a table and sets `D_800BC7F0 = arg`; `func_8001F1DC`
+(many overlays) clears the timers and both bytes. Banked steps `func_8006885C`, `func_8006888C` (calls stage code
+`func_80101D94` at frame 10), `func_800688BC`, `func_800688E4`, `func_80068BC0`, `func_80068CB8`: at frame 0
+each sets `field_9` (and clears `field_A`) of one of `Scene_work.obj_24[0..2]`, typed `WORK_10C` (filled by
+`func_8001E968` from several pools). The object must be read into a local: the byte stores alias the array.
+Entries are typed `EVENT_ENT` (`scene.h`); `event_step_call` (0x80068D64) runs the current entry's function
+unless `ev_08` is 0xFF. Also banked: steps `func_80068344`, `func_80068728` (sets `obj_24[3]->field_E` and
+`Scene_work.field_64`), `func_80068760`; `func_800680BC(arg)` resets the bytes/halfwords `D_800C3560`-`D_800C3571`
+(`D_800C356F = arg`, `D_800C356E = 0x18`); `func_80068508(obj, n)` steps the halfword at
+`obj + 0x186 + n * 8` by 0x421 up to 0x4210 (an RGB555 fade on `obj_24[1]`, whose type is still unknown,
+so it takes a `uint8 *`). Its 8-byte frame comes for free: no unused local needed.
+Also banked: `func_80068244`, `func_8006849C`, `func_8006890C`, `func_80068998`, `func_80068AB0`,
+`func_80068B3C`: call `func_800680BC(0/1/2)` and set or clear bit 1 (sometimes bit 0) of
+`obj_24[0..2]->routine_0`. `func_8006849C` tests `Scene_work.field_0C` (0x0C, otherwise only cleared by
+`func_8001DDE4`) instead of `timer_10`. Two matching idioms: when two objects clear bit 1, the mask is an
+`int` local (`mask = ~2`; a literal folds to `andi 0xFD` at each use, the target loads -3 once), and the
+register split shows which objects shared one pointer local (`obj_24[0]` separate, `[1]`/`[2]` one local).
+Also banked: steps `func_80068290`, `func_80068388`, `func_800687D8`, `func_80068A24`, `func_80068BE4`.
+`func_80068388` writes `obj_24[1]` past 0x10C (signed bytes at 0x10B/0x117/0x143/0x147/0x14B/0x14F,
+RGB555 halfwords at 0x186 + n * 8) as byte offsets, since that object's type is still unknown.
+`screen_tile_draw(r, g, b, abr)` (0x80068120, no callers in ROCK_NEO) links a semi-transparent
+320x240 `TILE` and a `DR_MODE` (tpage `abr << 5 | 0xF`) into `Disp_env_ptr->ot[1]`. Each primitive
+takes 0x28 bytes from the scratchpad pointer `Scratch_prim_ptr` (0x1F800070), whatever its size.
+`Disp_env_ptr` (0x80098934) is the shim's name for the current `DISP_ENV`.
+
+`scene.c` (0x8001D928..0x8001F798): banked `func_8001D928(keep)` (clears `D_800BE438[16]` unless `keep`,
+then `Scene_work` bytes 0-3 with one word store and `D_800989F8`/`_9FC`/`_A00`; the clear loop only
+matches as a walking pointer `*p++ = 0`, the indexed loop comes out descending), `func_8001DDE4(arg)`
+(unless `Player_work[0].unk6E < 0`: `unk00 = 1`, `unk01 = arg`, clears the event bytes, timers and
+`obj_24[]`; needs a local `sw = &Scene_work` for `unk00` and the `obj_24` loop only, the target's loop base
+is `sw + 0x3C` with offset 0x24), `func_8001DE84` (1 if `Joy1` START is pressed and `Game_work.unk05A` or
+scene flag `0x380 + Scene_work.unk01` is set; nested `if`s, a single condition gives `sltu`),
+`func_8001F6C4` (seeks `Cd_seek_file` to the stage's first file from `D_800893BC[D_800C356E]` unless
+`Game_work.unk068` already has it, else to entry `D_800C356F + 1` unless negative or equal to `unk06A`; one
+call with a `file` local; `D_800C356F` is read into a local before the first test), `func_8001F798(n)`
+(halfword copy job `D_80089248[n]`, `HALF_COPY_ENT`). Parked `func_8001F158` (`NON_MATCHING`; the event-table
+step of `func_8001F070` without the frame test): only the first four instructions differ. GCC keeps the
+address of `Scene_work.ev_ptr_A4` in a register for the load and the store; the target uses `lui` + `%lo`
+for each. Experiments: in GCC 2.7 the *first* load/store pair on one constant address in a function gets
+the shared address register (also seen for `Game_work.unk053++` in the banked `func_8001D974`, and for
+`unk14++` in a reconstruction of `func_8001F070`, whose target also avoids it). A dead read of another
+global before it (`dead = Scene_work.timer_10;`) gives the target's code exactly, so the source probably had
+some statement that compiled away; an unused `&Scene_work` local, a parameter, `++` forms, a pre-read of
+`ev_08` and a pre-increment inside the condition don't do it. Same probably applies to `func_8001F070`.
+Update: banked `func_8001F070` (per-frame tick: `unk14`, `timer_18`, `timer_1C`, `timer_10` `++`, then
+the step when `ev_ptr_A4->frame_2` (not -1) equals `timer_10`) matches with a local
+`SCENE_WORK *sw = &Scene_work` used for every access: the shared address register disappears. Reading
+`Scene_work.ev_ptr_A4` into an `EVENT_ENT *` local moves the shared register onto `ev_ptr_A4` instead.
+The step has to read `sw->ev_ptr_A4->ev_0` after `sw->ev_ptr_A4++` (old pointer + 8), not a stepped local.
+Banked `func_8001F158` the same way: written exactly as `func_8001F070`'s step through `sw`, it matches.
+
+Also banked in `scene.c`: `func_8001F740` (`func_8001F798(Game_work.unk050)`, then
+`D_8008980C[unk050]()`, `STAGE_FUNC`), `func_8001F5E4` (reloads three files with `Cd_read_comb` when
+they change: `D_80089200[Player_work[0].unk16A]` → `Game_work.file_070`,
+`D_80089204[(sint8)unk16B >> 1]` → `file_072`, and when `tbl_sel >= 2`, `D_80089208[tbl_sel]` →
+`file_074`; the `file` local must be `sint32`, a `sint16` reloads the table for the store),
+`Sce_flag_off` (clears the bit; for flags 0x500-0x51F also removes `flag - 0x4FF` from
+`Player_work[0].ids_454[32]` and `ids_450[3]`; needs `p = Sce_flag; p += flag >> 3;` and `mask`/`bit`
+locals assigned in that order), and the camera pair on `D_800BC730` (`SCENE_CAM_WORK`, `scene.h`; one
+object from 0x800BC730 to at least 0x800BC7F3, which splat splits into many labels; `D_800BC7F0` is its
+`arg_C0`): `func_8001E550` hands position and angles (`func_80038324`) or look-at point
+(`func_800384A4`, whose second argument is a `VECTOR *`) to the camera code, through a local
+`cp = &D_800BC730` (CSE turns the accesses before the first join into `%lo(sym+off)`, the later ones
+keep the base register, as in the target); the high halfwords at `ang_40 + 2/6/0xA` are plain
+`vx >> 16`, which GCC narrows to `lh`. `func_8001E6C0(x, y, z)` resets it from the current camera
+(`D_800A39A0`, angles `D_800A3968/396C/3964 & 0xFFF` into vx/vy/vz); `D_800A395C = 3` only schedules
+right when written after the first `ofs_A0` store.
+
+`moji.c` (message control codes): banked `func_800546B0` (`timer_4 = unk_3F = get_le16(arg)`, chained),
+`func_80054874` (`Sound_call(get_le16(arg), 0, 0)`), `func_800560D0`, `func_80058D64` (cursor x/y from two
+16-bit arguments), `func_800594CC` (the `cmd_ptr_6C` twin of `func_80059530`; `unk_72` is `sint8`, `lb`).
+`MOJI_CMD_WORK` was merged into `MOJI_WORK`: `Moji_work` is an array of 0xC4-byte entries
+(`func_80053B40` walks it in 0xC4 steps; `func_80058788` gets the entry index as `wp - Moji_work`, an
+exact division by 0xC4), and the two views' fields don't overlap. Each entry has two read pointers with
+their own call stacks: `mes_ptr_14`/`call_stk_18`/`call_sp_BE` (text) and `cmd_ptr_6C`/`call_stk_4C`/
+`call_sp_C0` (commands). Also banked, all matching at once: `func_80054798`, `func_8005497C` and
+`func_80054A04` (call into a message of `mes_file_44`, or of `D_8008CACC` when it's NULL), `func_80058788`,
+`func_80058DB4` (fills `D_800BE2F8[0..0x7F]` with 0xFF; GCC reverses the loop), `two_digit_set` (two
+digits from `D_8008D028`, leading 0 replaced by font code 0x4F).
+`func_80054874` zero-extends the id (`andi 0xFFFF`), so `Sound_call`'s `id` is `uint16`, not `sint16`
+(`sound.c` still matches). Parked `func_80055C1C` (`NON_MATCHING`; if `flags_0 & 0x10000`, call
+`func_80039E18` and clear the bit; then step 1): only the tail differs, the read pointer gets `$v0` where the
+target has `$v1` and `li $v0,1` in the load delay slot. Banked later: the cause was the callee's return
+type (see the `Money_add` paragraph below); `func_80039E18` is now declared `sint32`.
+Also banked, matching at once: `func_80058EA0` (the `func_80058788` twin with flags `0x402800`; sets pool
+byte `D_80098851` to 0xFF), `func_80054804` (fails, returns 0, while `Moji_work[arg]` has bit 31 set and
+bit 17 clear), `func_80054ADC` and `func_80055BB0` (call `D_8008AAC0[unk_7C]`, a handler table splat
+split into several labels), `func_80057DF4` (writes the low bytes of `Game_work.unk084[D_800989D4][2..4]`
+into its own command's argument bytes; `sltiu`, so the counter is unsigned) and `func_80056778`.
+`func_80055BB0` needs the bit-set path written first.
+Also banked, matching: `func_800553F0` (`Sce_flag_off` of the 16-bit argument), `func_80055A78` and
+`func_8005A598` (pick byte 3 or 4 as a message of `mes_file_44` by `Game_work.unk050/051` equal to bytes
+1/2, or `Game_work.unk060` within [byte 1, byte 2]; 0xFF skips; `cmd_top_48 = cmd_ptr_6C = ...`, chained, so
+`cmd_ptr_6C` is stored first), `func_80053AA4` (`MojiTaskKill` for one entry `n`; clears Moji_flag bits
+`0x403E0000` and `0x08000000 >> n`), `func_80058C28`/`func_80058CC8` (command/text twins: push, then call into
+`D_8008BAA4[flag]` if scene flag `flag` is set, else `D_8008CE58`; both `get_le16` calls cast to `uint16`). Pool bytes `D_800987F8`, `D_80098850`,
+`D_80098851` are separate commons (`$gp` at an odd address), now tentative in `moji.c`.
+Banked, matching at once: `func_80054700` (wait command: loads `timer_4` (`sint16`, `lh`) from the 16-bit
+argument once, under flags_0 bit `0x01000000`, sets bit `0x10000000`, counts down, steps 3 at 0; returns 0),
+`func_80055438` (the `func_80055A78` twin choosing byte 3 or 4 by `Sce_flag_test` of the 16-bit argument),
+`func_8005721C` (`D_80098930 = D_800BE2F8[D_8009899C + unk_71] + arg`; `D_80098B6C = 1` when scene flag
+0x2EE is clear and `func_8004327C(-D_8008FD3C[D_80098930])`, i.e. the money can't cover that price; pool
+bytes `D_80098930`/`D_80098B6C` now tentative in `moji.c`).
+Parked, then banked: `func_80057B70`/`func_80057BB4` (`Money_add(±D_80098AF4, 0, 0)`, step 1)
+and `func_80057924` (`Money_add` of `-(Game_work.unk07D - unk07C) * 10` or of `-money`, then `unk07C =
+unk07D` in each branch (the target duplicates the tail), step 2). Only the tail differs: `cmd_ptr_6C` in `$v0`
+where the target has `$v1` with `li $v0,1` in the load delay slot. **Cause: the callee's return type.** With
+a `void` prototype GCC 2.7 treats `$v0` as free right after the `jal` and loads the pointer into it; with an
+`int`-returning callee (`call_value`) it picks `$v1`. So Capcom's `moji.c` called `Money_add` and
+`func_80039E18` as `int` functions (undeclared, implicit `int`), although neither returns a value. Both are now
+declared `sint32` (no `return`); all four functions match, as do `Money_add`'s other callers. Watch for this
+tail pattern (`$v0`/`$v1` swap right after a call to a `void` function) elsewhere.
+Banked, matching: `Moji_init` (moji init: `Cd_read_comb(30)` + `Cd_read_sync`, then for each of the 5
+entries clears `flags_0`, `cmd_ptr_6C`, `cmd_top_48` and sets `no_6` to its index (`sint16` counter); clears
+pool words `D_80098B2C` (bytes OR'd in per entry by `func_80053B40`, read as bytes at `+1`/`+2` elsewhere),
+`Moji_flag` and `D_80098960` (frame counter bumped by `func_80053B40`). Only `cmd_ptr_6C` is stored through a
+`&Moji_work[i]` pointer; the other fields by index), `MojiTaskKill` (ORs and clears every entry's `flags_0`,
+`mes_no_C2 = 0xFF`, XA stop if bit `0x40000` was set, `Moji_flag = 0`; `MOJI_WORK_MAX` = 5),
+`func_80057744` (byte 1 or 2 as message by `Game_work.unk07D == unk07C`, falls back to `D_8008CACC` without
+a file; `cmd_ptr_6C = cmd_top_48 = ...`, so `cmd_top_48` is stored first; clears `unk_3E`, `unk_3C`,
+`unk_72`), `func_800557B8` (`func_80054700`'s wait, also ending once bit `0x40000` (XA) clears; clears bits
+`0x11000000`), and the twins `func_8005958C`/`func_80059660` (push, then call into `D_8008CBA4[id - 1]` with
+`id = Player_work[0].ids_454[arg2 + D_8009899C]` if `arg1`, else `ids_450[arg2]` after setting the code's
+byte -1 to 0 (or 3 when `Moji_flag & 0x20000` and the next byte equals `unk_71`). The id bytes load with
+`lb`: cast to `sint8`, since typing the fields `sint8` breaks `Sce_flag_off`).
+Banked, this round: `func_800548C4` (XA wait command: first pass sets bit `0x01000000` and starts
+`Cd_xa_play_id(get_le32(arg))`; then once `func_8001D878()` (`Cd_stat & 0x20`) is set, `timer_4 = 5`,
+`Moji_flag |= 0x100000`, flags `|= 0x40000` and `&= ~0x01000000` in one expression, step 5; always sets
+`0x10000000`, returns 0), `func_800545C8` (the `func_80054700` wait, but at 0 it also sets `timer_4 = 5`,
+clears `unk_71..73`, sets `cmd_top_48` to the stepped `cmd_ptr_6C`, `unk_3C = unk_3E`, `Moji_flag |=
+0x200000`), `func_80057C2C` (lists the set bits of `Sce_flag[0x63]` (flags 0x318-0x31F) into
+`D_800BE2F8`, terminated by 8, then takes `cmd_ptr_6C[count]` as message; 0xFF steps 9. Needs a local
+`flag = &Sce_flag[0x63]` assigned first: with `Sce_flag[0x63]` written inline the hoisted address moves
+after the counter inits), `func_80058DEC` (text twin over 64 flags from `Sce_flag[0xA8]` (0x540-0x57F),
+count in pool word `D_800989A8`, now tentative in `moji.c`; rest of `D_800BE2F8[0..0x7F]` set to 0xFF),
+`func_8005861C` (push, then message byte 2, 3 or 4 of the command by `D_8008D8EC[D_800989D4][n]`: `[0]`
+zero, `[Player_work[0].rec[r].idx[n]]` zero (r = 0, or `D_800989D4 + 1`), or neither; clears/sets `Moji_flag`
+bit `0x20000`). Parked `six_digit_set` (`NON_MATCHING`; six digits of `n` by `D_8008AF24` (100000..1),
+leading zeros as `D_8008AF3C[pad]` until a nonzero digit (flag in `.sbss` `D_800986F0[0]`), terminator
+`D_8008D028[0]` at [6]). Best attempt (index loop, `uint32 i`) is 4 bytes long: the loop end is built as
+`lui/addiu %lo(D_8008AF24+0x18)`, where the target computes `addiu t3,t0,0x18` from the table register.
+Tried: a pointer loop (`for`, gets a pre-test; `do/while`), a local table pointer indexed or walked
+(`*place++` with `dst[i]` gives the right shape but the end from `dst + 6`), walking both pointers, `sint32 i`.
+Banked, matching: the `six_digit_set` text codes `func_80057BFC` (`D_80098AF4`), `func_80057144`
+(`money_40 = Game_work.money`, then prints it; the target reloads `money_40`) and `func_800579D8`
+(`(Game_work.unk07D - unk07C) * 10`), each writing at `++mes_ptr_14`; `func_800554E4` (scroll command:
+like `func_80054700`'s wait, but also `unk_3B++` on the first pass; each frame after the countdown
+`scroll_38 -= unk_3A` until `timer_4 * unk_3A < -(unk_3B * 12)`, then `scroll_38 += unk_3B * 12`, clears
+`unk_71..73`/`unk_3B`/bit `0x01000000`, `cmd_top_48 = cmd_ptr_6C += 3`, `unk_3C = unk_3E`; `unk_3B` is
+`sint8`, `lb`); `func_8005AB78` (window state in `unk_7D`: 0 sets flags `0x06000000`, margins
+`unk_B4 = unk_B6 = arg`, `Moji_flag |= 0x200000` and the four `corner_88` points from the margins and
+`unk_7E`/`unk_7F` * 12; 2 sets `0x10000000` and clears `0x06000000`; void, in a data table).
+Parked `func_80059D20` (`NON_MATCHING`; prints `D_8008AF00[i] - Game_work.unk028[i]` for `i =
+D_800BE2F8[arg] < 4`, else `unk062[9 - i] * D_8008AF00[i] - unk028[9 - i]`, at `cmd + 7`, then calls into
+`D_8008CE5C[i]`). Only the else branch differs: the target reuses the `i * 4` computed for
+`D_8008AF00[i]`; ours recomputes it (best form `(&arr[9])[-i]`, which at least folds the 9 into the
+symbol offset as the target does).
+
+`code_8002D9A0.c`: banked `func_8002DC84` (overlay accessor: returns a 16-byte `BLK_ENT` from block
+`src->blk_tbl[blk]`, entry `idx` after the header; needs one reused `uint32 *p` and one reused word
+local) and `billboard_draw` (projects the `BILLBOARD`s queued by `func_8002D464` in `D_800BE6D8`, links
+them as POLY_FT4 into `Scratch_ot[z / 8]`, depth cue and fog CLUT unless flag 8; the list entry is
+re-read through `D_800BE6D8[i]` for the flag and `rgbc`, and the three `vz` stores are one chained
+assignment). Neither function has a caller in the code or data (dead, or reached some other way).
+Parked `func_8002E3D0` (`NON_MATCHING`; draws a textured `MESH`: RTPT three vertices at a time into
+scratchpad sxy/sz arrays, then back-face-culled POLY_FT3/FT4 from its triangle and quad lists). The
+target reaches every scratchpad item off one register holding `0x1F800100` (prim pointer at -0x90, OT at
+-0xC4, sz array as a hoisted base +0x200). GCC only does that when the source derives them from one
+pointer: integer-constant addresses each get their own `lui` (tested), and a scratchpad struct at
+`0x1F800000` gives that base instead. The best attempt (the `SXY_*` macros off a local `sxy`) has the
+right size. Still different: the sz base is folded into the `lhu` offsets instead of held in its own
+register (t6); the target hoists `0x07000000`, `0xFFFFFF` and the OT address into s0/s2/s4 (5 saved
+registers, frame 0x38, `otz` at sp+0x14); loop 1 walks copies of the sxy/sz bases; and the face pointer
+is a plain `f` with offsets 0/2/4/8 where ours strength-reduces it to `&f->uv[2]`.

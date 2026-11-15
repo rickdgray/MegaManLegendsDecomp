@@ -26,6 +26,15 @@
 // func_8002F3A8, bit 5 keeps the slot alive in func_8002F420 (moved instead of closed), bit 6 set
 // by func_80033500/func_8003354C.
 
+// Object holding a bitmask of the slots it owns (see func_8003545C). An embedded block, not a
+// whole object: PL_WORK.owner_188, WORK_10C.owner_C4, D_800986D8, and the owner stored in each
+// SLOT_REQ.
+typedef struct
+{
+    uint32 pad_0;
+    uint32 mask_4;
+} SLOT_OWNER;
+
 typedef struct
 {
     uint8 routine_0;
@@ -116,8 +125,10 @@ typedef struct
             uint8 field_22;
             uint8 field_23;
             uint16 field_24;
-            uint8 pad_26[6]; // func_80047DD8: eight angles from 0x28 and eight counts from 0x38
-            sint16 vx_2C;    // speed, added to pos_38 each frame (func_80045750)
+            uint16 field_26;
+            sint16 field_28; // func_80047DD8: eight angles from 0x28 and eight counts from 0x38
+            sint16 field_2A;
+            sint16 vx_2C; // speed, added to pos_38 each frame (func_80045750)
             sint16 vy_2E;
             sint16 vz_30;
             sint16 ax_32; // acceleration, added to the speed each frame
@@ -135,6 +146,8 @@ typedef struct
     } u_44;
 } WORK_48; // 0x48 bytes
 
+typedef void (*WORK48_FUNC)(WORK_48 *wp);
+
 typedef struct
 {
     uint8 routine_0;
@@ -145,10 +158,16 @@ typedef struct
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
-    uint32 field_8;
-    uint8 field_C; // field_C to pad_E are cleared by one word store (on open)
+    uint8 routine_8; // routine_8 to timer_B are cleared by one word store (on open)
+    uint8 field_9;
+    uint8 field_A;
+    uint8 timer_B;
+    sint8 field_C; // field_C to pad_F are cleared by one word store (on open); id of the owning
+                   // player for the kinds of D_8008A0CC (func_800433C0); read with lb
+                   // (func_800435F8, func_80043E78), passed to func_80036294 as (uint8)
     sint8 slot_D;  // slot claimed by func_8003545C
-    uint8 pad_E[2];
+    sint8 field_E; // set to -0x80 by the event step func_80068728
+    uint8 pad_F;
     uint32 field_10;
     sint16 x_14; // position (x, height, z)
     sint16 y_16;
@@ -157,14 +176,22 @@ typedef struct
     sint32 x_1C; // 16.16 fixed-point position
     sint32 y_20;
     sint32 z_24;
-    uint8 pad_28[0x3C];
+    uint8 pad_28[4];
+    SVECTOR pos_2C; // second position, passed to func_8003430C with x_14 (func_800435F8)
+    uint8 pad_34[0x22];
+    sint16 angle_56; // Y angle (0..0xFFF); set from the scene data by func_8001E968
+    uint8 pad_58[0xC];
     uint16 field_64;
     uint8 pad_66[0xE];
     uint32 field_74;
     uint32 field_78;
     uint8 pad_7C[4];
     uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint8 pad_88[0x84];
+    uint8 pad_88[0x10];
+    uint16 field_98; // passed to func_8003430C as both positions' pad (func_80043E78)
+    uint8 pad_9A[0x2A];
+    SLOT_OWNER owner_C4; // 0xC4: slot owner passed to func_8003430C
+    uint8 pad_CC[0x40];
 } WORK_10C; // 0x10C bytes
 
 typedef struct
@@ -292,14 +319,6 @@ typedef struct
     uint32 pad_38;
     sint32 z_3C;
 } MOVE_WORK;
-
-// Object holding a bitmask of the slots it owns (see func_8003545C). An embedded block, not a
-// whole object: PL_WORK.owner_188, D_800986D8, and the owner stored in each SLOT_REQ.
-typedef struct
-{
-    uint32 pad_0;
-    uint32 mask_4;
-} SLOT_OWNER;
 
 // Queued request (func_800341BC): vector plus packed flags.
 typedef struct
@@ -511,8 +530,12 @@ SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint3
 void Model_work_init(ATTACH_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
-WORK_48 *func_80031618(void); // claims a free slot of D_800A3B40, or 0
+WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0
+void func_80031930(WORK_10C *wp); // frees a slot of D_800BFB20
+void *func_80036294(uint32 id);   // object of an id byte (kind | index), or 0
 uint32 func_8002FE74(uint32 a);
 sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8);
+sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,
+                     uint32 a9, uint32 a10);
 
 #endif // CODE_8002E7A8_H

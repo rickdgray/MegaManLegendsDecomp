@@ -2,6 +2,7 @@
 #include "psyq/libc.h"
 #include "code_8002E7A8.h"
 #include "player.h"
+#include "code_80037534.h"
 #include "code_80037FB4.h"
 #include "stage.h"
 
@@ -46,7 +47,7 @@ void func_80037594(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037534", func_80037594);
 #endif
 
-sint16 func_800375D4(PL_WORK *pl, sint32 n)
+sint32 func_800375D4(PL_WORK *pl, sint32 n)
 {
     return D_80089EAC[n][pl->rec[n].idx[0]].val[0];
 }

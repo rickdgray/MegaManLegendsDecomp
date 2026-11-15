@@ -65,7 +65,7 @@ Results (2026-11-10; empty `jr ra; nop` functions, 363 of them, left out):
   Their edges are strong file-boundary evidence for the overlays. `dupe_scan.py --runs` lists
   them.
 - **ROCK_NEO and overlays:** only 6 exact groups span both, covering 185 overlay functions. Most are
-  small wrappers; the largest is `func_80068120` (`0x124` bytes), also at `ST00` `0x80100614`.
+  small wrappers; the largest is `screen_tile_draw` (`0x124` bytes), also at `ST00` `0x80100614`.
   Stages mostly call ROCK_NEO rather than carrying copies of its code.
 - **Not near-copies:** `ST0C`/`ST0D` share 48 exact keys of 219, `ST11`/`ST12` 61 of 162. Equal
   `jr ra` counts were a coincidence.

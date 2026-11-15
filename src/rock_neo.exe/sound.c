@@ -220,7 +220,7 @@ void Sound_stage_play(void)
 {
     uint16 *list;
     sint32 ok;
-    sint16 id;
+    uint16 id;
 
     if (Sound_stage_func_tbl[Game_work.unk050] != 0)
     {
@@ -311,7 +311,7 @@ void func_80019FB4(void)
     }
 }
 
-void Sound_call(sint16 id, sint32 arg1, sint32 arg2)
+void Sound_call(uint16 id, sint32 arg1, sint32 arg2)
 {
     if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {

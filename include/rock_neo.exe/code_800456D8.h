@@ -8,8 +8,6 @@
 #include "code_8002E7A8.h"
 #include "stage.h"
 
-typedef void (*WORK48_FUNC)(WORK_48 *wp);
-
 // 6-byte records stepped by func_80048390 / func_80048484.
 typedef struct
 {
