@@ -205,7 +205,7 @@ rock_neo.exe,cd,confirmed,func_8001D7E4,Cd_read_sync,Yes,Yes,Yes,40,
 rock_neo.exe,cd,confirmed,func_8001D838,Cd_read_sync2,Yes,Yes,Yes,7,
 rock_neo.exe,scene,medium,func_8001D854,Sound_fade_start,Yes,Yes,,10,
 rock_neo.exe,scene,medium,func_8001D878,,Yes,Yes,,4,
-rock_neo.exe,scene,medium,func_8001D888,,Yes,Yes,,18,
+rock_neo.exe,scene,medium,func_8001D888,Sce_read_sync,Yes,Yes,,18,
 rock_neo.exe,scene,medium,func_8001D8C0,,No,No,,48,2
 rock_neo.exe,scene,medium,func_8001D928,,Yes,Yes,,37,
 rock_neo.exe,scene,medium,func_8001D974,,Yes,Yes,,6,
@@ -785,7 +785,7 @@ rock_neo.exe,code_80048620,low,func_8004B5CC,,No,No,,76,5
 rock_neo.exe,code_80048620,low,func_8004B6AC,,No,No,,646,4
 rock_neo.exe,code_80048620,low,func_8004BDC8,,No,No,,3617,3
 rock_neo.exe,code_80048620,low,func_8004E304,,No,No,,138,0
-rock_neo.exe,code_80048620,low,func_8004E488,,No,No,,2,0
+rock_neo.exe,code_80048620,low,func_8004E488,,Yes,Yes,,2,
 rock_neo.exe,code_80048620,low,func_8004E490,,No,No,,254,0
 rock_neo.exe,code_80048620,low,func_8004E750,,No,No,,254,0
 rock_neo.exe,code_80048620,low,func_8004EA10,,No,No,,254,0
@@ -968,7 +968,7 @@ rock_neo.exe,moji,medium,func_8005AB78,,Yes,Yes,,81,
 rock_neo.exe,moji,medium,func_8005ACA8,,No,No,,489,1
 rock_neo.exe,moji,medium,func_8005B454,,No,No,,116,0
 rock_neo.exe,moji,medium,func_8005B5D8,,No,No,,160,0
-rock_neo.exe,moji,medium,func_8005B85C,,No,No,,81,0
+rock_neo.exe,moji,medium,func_8005B85C,,Yes,Yes,,81,
 rock_neo.exe,moji,medium,func_8005B98C,,No,No,,213,0
 rock_neo.exe,moji,medium,func_8005BC90,,No,No,,26,2
 rock_neo.exe,moji,medium,func_8005BCE4,,No,No,,140,0

@@ -721,3 +721,12 @@ right size. Still different: the sz base is folded into the `lhu` offsets instea
 register (t6); the target hoists `0x07000000`, `0xFFFFFF` and the OT address into s0/s2/s4 (5 saved
 registers, frame 0x38, `otz` at sp+0x14); loop 1 walks copies of the sxy/sz bases; and the face pointer
 is a plain `f` with offsets 0/2/4/8 where ours strength-reduces it to `&f->uv[2]`.
+Banked by `tools/twins.py` (byte-identical to a matched function; C copied, build-checked):
+`func_8004E488` (same code as `func_80054BAC`: `return 0;`) and `func_8005B85C` (same code as
+`func_8005AB78`). Still all in assembly, twin groups to decompile together (`twins.py --unsolved`):
+`func_80023EA8`/`func_80026B04`, `func_8002466C`/`func_8002626C`, `func_8005A874`/`func_8005B98C`,
+`func_80024BAC`/`func_800267AC`, `func_800180D4`/`func_800181D4`, `func_800666D8`/`func_80066714`,
+`func_80013F60`/`func_80016D0C`/`func_80016D38`.
+Named `func_8001D888` -> `Sce_read_sync`: waits a frame at a time (`Thread_wait(1)`) until
+`Cd_read_sync2()` reports the CD queue empty. Same purpose as `Cd_read_sync`, different code (it calls
+`Cd_read_sync2` instead of comparing the queue pointers); its caller is in `Code800133D8`.

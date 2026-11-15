@@ -28,8 +28,13 @@ only authority on whether something matches.
    braces. Antiquated style is not a goal in itself.
 3. **Names follow Capcom's own conventions** (see "Names"), and real names win when known.
 
-Capcom's own source, from the Japanese release's `ST1E.BIN`, is on TCRF's "Mega Man Legends/
-Source Code" page. Use it as a reference for naming and idioms only; never copy it into the repo.
+Capcom's own source, from the Japanese release's `ST1E.BIN` (TCRF's "Mega Man Legends/Source
+Code" page), is saved locally as **`disc/tcrf.txt`** (gitignored). Read it there; never fetch the
+website. It has `eve19.c` (with the enemy `em1c`), `sub_scrn.c` and `EM09_49.C`, plus `extern`s
+from other files (`Sound_call`, `MojiTaskExec2`, `Sce_flag_test`, ...): real function names,
+prototypes, struct and field names (`EM_WORK`, `SHL_WORK`, `ep->size.pad`), constants and idioms.
+Search it before naming or typing anything: `grep -n -i "<name>\|<word>" disc/tcrf.txt`. Use it
+as a reference for naming and idioms only; never copy it into the repo.
 
 ## Git: read-only
 
@@ -86,6 +91,7 @@ ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (
 | `./tools/rebuild.sh <t>` | Split, build, and refresh `expected/<t>/` in one step. Use after any rename or yaml change. |
 | `./tools/cc.sh <t> <in.c> <out.o>` | Compile one C file with the target's matching toolchain. |
 | `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/`. |
+| `.venv/bin/python tools/twins.py <t> [--apply]` | Functions whose byte-identical twin is already matched; `--apply` banks them by copying the twin's C (build-checked). |
 
 ### Tool use (unattended runs)
 
@@ -284,7 +290,10 @@ What decompilers show vs. what to write:
 - **GTE (coprocessor 2) instructions** (`ctc2`, `lwc2`, `rtps`/`cop2`, `mfc2`, `swc2`) inside an
   ordinary GCC function are PsyQ's inline macros: write them with `include/psyq/inline_c.h`
   (`gte_ldv0(v); gte_rtps();`). If a sequence has no macro yet, add one with that exact sequence
-  (see `notes/toolchain.md`, "GTE"), named after PsyQ's macro for it.
+  (see `notes/toolchain.md`, "GTE"), named after PsyQ's macro for it: look it up in the Inline
+  Programming Reference, `grep -n "gte_<name>" notes/sdk/Inlinref.txt`. `gtemac.h`'s `read_*`
+  macros (`read_opz`) go in `include/psyq/gtemac.h`. A sequence with no Sony macro (single
+  `mtc2`/`mfc2` moves) gets a name after the GTE register (`gte_ldVXY0`, `gte_getSZ1`).
 - **Embedded TIM images:** image data in the binary is often a whole TIM file, read at fixed
   offsets (CLUT pixels at +0x14). Name the symbol `*_tim`.
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
@@ -296,6 +305,12 @@ What decompilers show vs. what to write:
 - **Initialized local structs:** write them with an initializer (`CHECK_BLOCK d = {...};`), for
   consistency, since some cases require it (GCC emits a read-only data copy). Assign fields one by
   one only if the initializer form doesn't match.
+- **Duplicate functions.** Byte-identical functions in one program are separate functions, each
+  with its own C: Capcom copied code. Write the copy with `// Same code as X.` above it, and give
+  twins parallel names. `tools/twins.py --apply` banks every still-assembly function whose twin is
+  already matched, so don't spend a cycle on one; `--unsolved` lists twins still all in assembly.
+  Near twins (same logic on different fields, like `moji`'s command and text handlers) are
+  written separately.
 - **`switch` fall-through** (no `break`) is deliberate in places. Keep it, with a `// fall through`
   comment.
 - **Reload vs. reuse after a store through a pointer:** after such a store, GCC must reload any

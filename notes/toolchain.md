@@ -52,6 +52,12 @@ Evidence:
 - **maspsx `--use-comm-section` (ROCK_NEO).** It keeps a tentative definition (`sint32 x;`) a common,
   as ASPSX left it for the linker's pool. Without it, maspsx defines the symbol locally in the
   file's `.sbss`.
+- **maspsx `--max-comm-alignment 4` (ROCK_NEO).** maspsx gives each common GNU `as`'s implicit
+  alignment (size rounded up to a power of two, capped at 16). psylink didn't align the pool that
+  way (`Code800133D8_work`, 16 bytes, at `0x80098AA8`; byte variables at odd addresses), and the
+  pool's assembly definitions are 4-aligned, so every multi-word common defined in C made `ld`
+  warn (first: `moji`'s `D_800989E0[4]`). The bytes never depend on it (the assembly definition
+  wins); the flag only stops the false warning.
 
 ## Pipeline
 
@@ -150,6 +156,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/find_dupes.py --names FILE` | Proposes SRC's names for DST's still-default symbols (functions, globals, callees), as `rename.py` batch lines |
 | `tools/find_dupes.py --map FILE` | Every SRC → DST symbol correspondence, unnamed ones included (`Cd_muted -> D_800988EA`); for porting C between the programs |
 | `tools/extract_overlays.py [--tsv FILE]` | Writes each `CDDATA/DAT/*.BIN` archive's code chunk to `disc/overlays/<ARCHIVE>.BIN` and lists load address, size, `jr ra` count, SHA-1 and identical groups ([disc.md](disc.md), "Code overlays"). Not per-target |
+| `tools/twins.py <t> [--apply] [--unsolved]` | Tier 1 duplicates: still-`INCLUDE_ASM` functions of one executable whose bytes (in-function `j` targets made relative) equal an already matched function's. Lists them; `--apply` copies the twin's C (renamed, `// Same code as X.`), builds, keeps it only on MATCH, else restores the file. `--unsolved` lists twin groups still all in assembly (decompile one, then rerun). No agent; run `rebuild.sh` after it banks anything. Parked twins are never copied |
 | `tools/dupe_scan.py [--tsv FILE] [--runs] [--list N]` | Duplicate functions across both executables and every overlay (splits the overlays into functions itself): exact and shape groups, savings in functions and bytes, runs shared between programs; `--tsv` writes one row per function ([overlays.md](overlays.md)). Build both targets and run `extract_overlays.py` first |
 | `tools/function_list.py [-o FILE]` | Every Capcom function in the game (both executables and every distinct overlay) as a CSV: Program, File, Confidence, Function (default `func_` name), Name (blank if not renamed), Decompiled (has C, matching or parked), Matched, Score, Depth. Executables' File and Confidence come from the yaml (subsegment and its comment's first word); overlays' from `overlay_files.py`. Build both targets and run `extract_overlays.py` first; `rebuild.sh` runs it |
 | `tools/func_metrics.py [--top N]` | Score (estimated difficulty: weighted instruction features, formula in its docstring) and Depth (longest chain of calls into functions with no C yet; 0 = ready) for every Capcom function; prints a summary and how the score separates parked from matched functions |

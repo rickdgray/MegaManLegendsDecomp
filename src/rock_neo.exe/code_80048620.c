@@ -64,7 +64,11 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_8004BDC8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_8004E304);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_8004E488);
+// Same code as func_80054BAC.
+sint32 func_8004E488(void)
+{
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_8004E490);
 

@@ -32,9 +32,13 @@ fi
 # --use-comm-section: a tentative definition (`sint32 x;`, no `extern`) stays a common symbol, as
 # ASPSX left it for the linker's pool (0x80098788-); without it maspsx defines it locally in the
 # file's .sbss. The pool itself stays assembly, and its definition wins over the common.
+# --max-comm-alignment 4: maspsx gives a common GNU as's implicit alignment (size rounded up to a
+# power of two, up to 16), but psylink packed the pool without that (Code800133D8_work, 16 bytes,
+# sits at 0x80098AA8). The asm definition is 4-aligned, so a multi-word common (moji's
+# D_800989E0[4]) made ld warn "alignment 4 ... is smaller than 16". The bytes never depended on it.
 case "$target" in
     slus_006.03)  GFLAGS="-G0"; MASPSX_EXTRA="" ;;
-    rock_neo.exe) GFLAGS="-G32"; MASPSX_EXTRA="-G32 --use-comm-section" ;;
+    rock_neo.exe) GFLAGS="-G32"; MASPSX_EXTRA="-G32 --use-comm-section --max-comm-alignment 4" ;;
     *)
         echo "usage: $0 <target> <in.c> <out.o>   (target: slus_006.03, rock_neo.exe)" >&2
         exit 2

@@ -17,8 +17,11 @@ static sint32 D_800986F0[2];
 // Pool variables (tentative definitions).
 uint8 D_80098830;
 uint8 D_800989D4;
-// Four words: func_8005C23C stores to [3] (0x800989EC), which is lui-based, as a common's
-// offset access is under ASPSX 2.56.
+// Defined here: func_80057E50 reaches [0] through $gp, which only this file's own small data gets.
+// Four words, probably message number parameters: func_80057E50 prints [0] or [3], and [3]
+// (0x800989EC) is lui-based, as a common's offset access is under ASPSX 2.56. A separate
+// D_800989EC would have to be defined in a file that never uses it ($gp here); nothing anywhere
+// (overlays included) touches [1] or [2].
 sint32 D_800989E0[4];
 sint32 D_80098AF4;
 uint32 Moji_flag;
@@ -1195,7 +1198,31 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B454);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B5D8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B85C);
+// Same code as func_8005AB78.
+void func_8005B85C(MOJI_WORK *wp)
+{
+    switch (wp->unk_7D)
+    {
+        case 0:
+            wp->flags_0 |= 0x06000000;
+            wp->unk_7D += 2;
+            wp->unk_B4 = wp->unk_B6 = wp->cmd_ptr_6C[2];
+            wp->cmd_ptr_6C += 3;
+            Moji_flag |= 0x200000;
+            wp->corner_88[0][0] = -wp->unk_B4;
+            wp->corner_88[0][1] = -wp->unk_B6;
+            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[1][1] = -wp->unk_B6;
+            wp->corner_88[2][0] = -wp->unk_B4;
+            wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
+            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+            break;
+        case 2:
+            wp->flags_0 = (wp->flags_0 | 0x10000000) & ~0x06000000;
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B98C);
 

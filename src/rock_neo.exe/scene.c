@@ -27,7 +27,7 @@ sint32 func_8001D878(void)
     return Cd_stat & 0x20;
 }
 
-void func_8001D888(void)
+void Sce_read_sync(void)
 {
     while (Cd_read_sync2())
     {
