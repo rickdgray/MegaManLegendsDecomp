@@ -5,10 +5,11 @@
 // shim's (see CLAUDE.md, "Literal addresses"). The map window is in stage.h.
 
 #include "common.h"
+#include "psyq/libgpu.h"
 #include "psyq/libgte.h"
 
 // Same names and layout as the shim's: the current double buffer (0/1; moji indexes D_80097F50's
-// draw areas by it) and vsyncs per frame (Code800133D8's func_80013420 sets 2).
+// draw areas by it) and vsyncs per frame (code_800133D8's func_80013420 sets 2).
 #define Dbl_buff_idx (*(uint8 *)0x1F800000)
 #define Vsync_wait   (*(uint8 *)0x1F800001)
 
@@ -21,8 +22,10 @@
 // The frame's ordering table: primitives are linked at Scratch_ot[z / 8] (billboard_draw).
 #define Scratch_ot (*(u_long **)0x1F80003C)
 
-// Next free byte of the frame's primitive buffer; code building primitives takes it and steps it.
-#define Scratch_prim_ptr (*(uint8 **)0x1F800070)
+// Next free slot of the frame's primitive buffer. Capcom's name and type (sub_scrn.c in
+// disc/tcrf.txt: `Map_prim_ptr = (POLY_FT4 *)ft4_buff_ptr2;`): slots are POLY_FT4-sized (0x28) whatever
+// primitive goes in, so code takes it with a cast and steps it with ++.
+#define Map_prim_ptr (*(POLY_FT4 **)0x1F800070)
 
 // Scratchpad scene scale and fog parameters (written by func_8003697C / func_800369C0).
 #define Scratch_scale_shift                                                                                                                \

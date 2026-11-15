@@ -70,14 +70,14 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800665FC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066664);
 
-sint32 func_800666D8(CODE8006430C_WORK *wp)
+sint32 func_800666D8(CODE_8006430C_WORK *wp)
 {
     D_8008FD20[wp->routine_1](wp);
     return 0;
 }
 
 // Same code as func_800666D8.
-sint32 func_80066714(CODE8006430C_WORK *wp)
+sint32 func_80066714(CODE_8006430C_WORK *wp)
 {
     D_8008FD20[wp->routine_1](wp);
     return 0;

@@ -12,10 +12,10 @@ typedef struct
     uint16 mode_2;   // 0x2: func_800665FC's argument; 0 selects routine 2, else routine 1
     sint8 routine_0; // 0x4: lb; index of D_8008FD10
     sint8 routine_1; // 0x5: lb; index of D_8008FD20
-} CODE8006430C_WORK;
+} CODE_8006430C_WORK;
 
-typedef void (*CODE8006430C_FUNC)(CODE8006430C_WORK *wp);
+typedef void (*CODE_8006430C_FUNC)(CODE_8006430C_WORK *wp);
 
-extern CODE8006430C_FUNC D_8008FD20[]; // routine_1 steps of routines 1 and 2
+extern CODE_8006430C_FUNC D_8008FD20[]; // routine_1 steps of routines 1 and 2
 
 #endif

@@ -89,8 +89,8 @@ typedef struct
     uint8 unk574[0x5F4 - 0x574];
 } PL_WORK;
 
-extern TBL_ROW *D_80089EAC[];  // 16 tables, one per Player_work.rec[n]
-extern PL_WORK Player_work[];  // 0x800B51B0: two players, 0x5F4 apart
-extern PL_WORK *p_Player_work; // 0x80098A50
+extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
+extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
+extern PL_WORK *Player_work_ptr; // 0x80098A50
 
 #endif // PLAYER_H

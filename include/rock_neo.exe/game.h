@@ -60,7 +60,7 @@ typedef struct
 } GAME_WORK;
 
 extern GAME_WORK Game_work; // 0x800C1B10
-// Pool sint16 (lh) read by Code800133D8, game, code_80014AC0, code_8001786C: while nonzero,
+// Pool sint16 (lh) read by code_800133D8, game, code_80014AC0, code_8001786C: while nonzero,
 // func_80013F60 and func_80016D0C/D38 hold their routine_1 step. Owner unknown.
 extern sint16 D_80098A72;
 extern uint8 Sce_flag[]; // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)

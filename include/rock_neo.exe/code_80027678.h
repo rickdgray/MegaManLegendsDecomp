@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-// Billboard sprite queued by func_8002D464 (0x28 bytes from Scratch_prim_ptr, listed in
+// Billboard sprite queued by func_8002D464 (0x28 bytes from Map_prim_ptr, listed in
 // D_800BE6D8, counted by D_800988FC): a POLY_FT4 whose vertex words hold the sprite's world
 // position, half size and flags until billboard_draw projects it and links it into the
 // ordering table. func_8002D464 still returns it as a uint32 * (its user writes it by index).

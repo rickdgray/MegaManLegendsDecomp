@@ -60,7 +60,7 @@ segments:
       # .rodata: Capcom's first, then the library
       # Each file's rodata, by which file's code uses it (jump tables, strings).
       - [0x800, .rodata, main]
-      - [0x870, .rodata, Code800133D8]
+      - [0x870, .rodata, code_800133D8]
       - [0x8B4, .rodata, code_80014AC0]
       - [0x938, .rodata, game]
       - [0x9E4, .rodata, code_8001786C]
@@ -98,7 +98,7 @@ segments:
 
       # .text
       - [0x2490, c, main]  # high
-      - [0x3BD8, c, Code800133D8]  # medium
+      - [0x3BD8, c, code_800133D8]  # medium
       - [0x52C0, c, code_80014AC0]  # medium
       - [0x5DA4, c, game]  # medium
       - [0x7DD8, asm, asm_fastmem]  # HAND-WRITTEN ASSEMBLY, not compiler output: never decompile

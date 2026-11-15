@@ -27,16 +27,16 @@ void screen_tile_draw(sint32 r, sint32 g, sint32 b, uint16 abr)
     TILE *tile;
     DR_MODE *mode;
 
-    tile = (TILE *)Scratch_prim_ptr;
+    tile = (TILE *)Map_prim_ptr;
     setTile(tile);
     tile->x0 = tile->y0 = 0;
     setWH(tile, 320, 240);
     setRGB0(tile, r, g, b);
     setSemiTrans(tile, 1);
-    Scratch_prim_ptr += 0x28;
-    mode = (DR_MODE *)Scratch_prim_ptr;
+    Map_prim_ptr++;
+    mode = (DR_MODE *)Map_prim_ptr;
     SetDrawMode(mode, 0, 0, (abr << 5) | 0xF, NULL);
-    Scratch_prim_ptr += 0x28;
+    Map_prim_ptr++;
     addPrim(&Disp_env_ptr->ot[1], tile);
     addPrim(&Disp_env_ptr->ot[1], mode);
 }

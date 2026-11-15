@@ -144,7 +144,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DEEC);
 // target addresses each of these relative to the register holding 0x1F800100, which GCC only
 // does when the source derives them from that pointer (literal addresses get their own lui).
 #define SXY_SZ(sxy)        ((uint16 *)((sxy) + 0x80)) // Scratch_sz
-#define SXY_PRIM_PTR(sxy)  (*(uint8 **)((sxy)-0x24))  // Scratch_prim_ptr
+#define SXY_PRIM_PTR(sxy)  (*(uint8 **)((sxy)-0x24))  // Map_prim_ptr
 #define SXY_CLUT_BITS(sxy) (*(u_long *)((sxy)-8))     // Scratch_clut_bits
 #define SXY_RGBC(sxy)      (*(u_long *)((sxy)-7))     // Scratch_rgbc
 #define SXY_OT(sxy)        (*(u_long **)((sxy)-0x31)) // Scratch_ot

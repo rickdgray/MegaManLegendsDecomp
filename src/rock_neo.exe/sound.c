@@ -286,9 +286,9 @@ void Sound_init(void)
         Sound_seq_chan_tbl[i].kind = -1;
         Sound_seq_tbl[i].num       = 0xFF;
     }
-    p_Player_work = &Player_work;
-    env.mask      = SPU_ENV_EVENT_QUEUEING;
-    env.queueing  = SPU_OFF;
+    Player_work_ptr = &Player_work;
+    env.mask        = SPU_ENV_EVENT_QUEUEING;
+    env.queueing    = SPU_OFF;
     SpuSetEnv(&env);
     SsStart();
     D_80098958 |= 1;
@@ -444,8 +444,8 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 *left = *right = v;
                 return;
             }
-            angle =
-                p_Player_work->unk56 - func_8001E83C(p_Player_work->pos.vx, p_Player_work->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
+            angle = Player_work_ptr->unk56 -
+                    func_8001E83C(Player_work_ptr->pos.vx, Player_work_ptr->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
             angle &= 0xFFF;
             pan = (ccos(angle) << 7) >> 12;
             if (pan < 0)
@@ -550,9 +550,9 @@ sint32 voice_check(SOUND_CALL_INFO *info, SOUND_CALL *call)
     }
     if (call->mode == SOUND_MODE_POS)
     {
-        dx   = p_Player_work->pos.vx - (sint16)call->arg1;
+        dx   = Player_work_ptr->pos.vx - (sint16)call->arg1;
         dx   = dx * dx;
-        dz   = p_Player_work->pos.vz - (sint16)call->arg2;
+        dz   = Player_work_ptr->pos.vz - (sint16)call->arg2;
         dz   = dz * dz;
         dist = SquareRoot0(dx + dz);
         if (dist >= 5000 || (status == 1 && Sound_voice_priority[voice] >= (info->unk2 & 0xF) && dist >= 3001))

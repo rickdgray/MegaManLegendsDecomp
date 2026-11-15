@@ -196,7 +196,14 @@ Constants, types and variables: `include/cd.h` (shared with the shim). This sect
 A 2023 decompilation attempt on GitHub; no matched C, last commit 2023-07. **No license**, so use its
 findings (facts) only; don't copy its files. **His names are references, not authority:** use one
 when the code supports it, and prefer the TCRF source's and the evidence here. His names are in
-`symbol_addrs_rock_neo.exe.txt`. His layout and `gp` are confirmed (above); his file starts were
+`symbol_addrs_rock_neo.exe.txt`. **Audited (2026-11-15):** of the ~400 names imported from him, the
+non-library ones are either confirmed by `disc/tcrf.txt` or siblings of confirmed names in the same
+style (`Sce_flag_off`, `Sce_flag`, `MojiTaskExec`, `Moji_work`, `Scene_work`, `Game_main_tbl`,
+`Debug_work`, `main`); the rest went: his file name `Code800133D8` is now `code_800133D8`, its
+placeholders `Code800133D8_work`/`_main_tbl` are back to `D_80098AA8`/`D_80080950`, `p_Player_work`
+is `Player_work_ptr` (like `Disp_env_ptr`), `Player_work2` is `Player_work[1]` (`Player_work` is
+`size:0xBE8`), and the unused `SHL_PROGBIN_LOAD_ADDRESS` is gone. His `Map_prim_ptr` was right
+(Capcom's, `POLY_FT4 *`); our `Scratch_prim_ptr` macro took that name. His layout and `gp` are confirmed (above); his file starts were
 checked in [rock_neo_files.md](rock_neo_files.md); the rest is **suspected** until verified.
 
 - **Names** (~330), many matched to the TCRF source: all `Sub_screen_*` functions
@@ -569,7 +576,7 @@ Also banked: steps `func_80068290`, `func_80068388`, `func_800687D8`, `func_8006
 RGB555 halfwords at 0x186 + n * 8) as byte offsets, since that object's type is still unknown.
 `screen_tile_draw(r, g, b, abr)` (0x80068120, no callers in ROCK_NEO) links a semi-transparent
 320x240 `TILE` and a `DR_MODE` (tpage `abr << 5 | 0xF`) into `Disp_env_ptr->ot[1]`. Each primitive
-takes 0x28 bytes from the scratchpad pointer `Scratch_prim_ptr` (0x1F800070), whatever its size.
+takes 0x28 bytes from the scratchpad pointer `Map_prim_ptr` (0x1F800070, Capcom's name), whatever its size.
 `Disp_env_ptr` (0x80098934) is the shim's name for the current `DISP_ENV`.
 
 `scene.c` (0x8001D928..0x8001F798): banked `func_8001D928(keep)` (clears `D_800BE438[16]` unless `keep`,
@@ -726,16 +733,16 @@ Banked by `tools/twins.py` (byte-identical to a matched function; C copied, buil
 `func_8005AB78`), and after the twins run below `func_800181D4`, `func_8005B98C`, `func_80066714`.
 Named `func_8001D888` -> `Sce_read_sync`: waits a frame at a time (`Thread_wait(1)`) until
 `Cd_read_sync2()` reports the CD queue empty. Same purpose as `Cd_read_sync`, different code (it calls
-`Cd_read_sync2` instead of comparing the queue pointers); its caller is in `Code800133D8`
+`Cd_read_sync2` instead of comparing the queue pointers); its caller is in `code_800133D8`
 (`func_80013420`), which loads `a0 = 1` in the call's delay slot, so Capcom's version probably took an
 argument it never used.
 
 Twins run (one of each all-assembly twin group, then `twins.py --apply`):
-- `func_80013F60` (`Code800133D8`; `routine_1++` of `Code800133D8_work` unless `D_80098A72`) and its
+- `func_80013F60` (`code_800133D8`; `routine_1++` of `D_80098AA8` unless `D_80098A72`) and its
   game.c copies `func_80016D0C`/`func_80016D38`, the same bytes on `Game_work` (`GAME_WORK.routine_0`/`_1`,
   `func_800155A4` runs `Game_main_tbl[routine_0]` on it). Written by hand, since the types differ.
 - `func_800666D8` (`code_8006430C`; runs `D_8008FD20[routine_1]` of its module state `D_80098910`,
-  `CODE8006430C_WORK`); routines 1 and 2 of `D_8008FD10` are the same code.
+  `CODE_8006430C_WORK`); routines 1 and 2 of `D_8008FD10` are the same code.
 - `func_800180D4` (`code_8001786C`, `D_800821BC[0]`): once `Dbl_buff_idx` is 1, zeroes both buffers'
   vertical offsets, clip y and the isbg/dfe flags, `MojiTaskKill`, sets three pool words, calls
   `func_800196A0`. `Dbl_buff_idx`/`Vsync_wait` added to ROCK_NEO's `scratch.h` (the shim's names).
