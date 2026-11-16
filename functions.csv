@@ -229,17 +229,17 @@ rock_neo.exe,scene,medium,func_8001E460,,No,No,,38,1
 rock_neo.exe,scene,medium,func_8001E4C4,,No,No,,57,2
 rock_neo.exe,scene,medium,func_8001E550,,Yes,Yes,,98,
 rock_neo.exe,scene,medium,func_8001E6C0,,Yes,Yes,,74,
-rock_neo.exe,scene,medium,func_8001E7E4,,Yes,Yes,,10,
-rock_neo.exe,scene,medium,func_8001E810,,Yes,Yes,,10,
+rock_neo.exe,scene,medium,func_8001E7E4,cam_pos_set,Yes,Yes,,10,
+rock_neo.exe,scene,medium,func_8001E810,cam_ang_set,Yes,Yes,,10,
 rock_neo.exe,scene,medium,func_8001E83C,,No,No,,116,0
 rock_neo.exe,scene,medium,func_8001E968,,No,No,,120,0
 rock_neo.exe,scene,medium,func_8001EAE8,,No,No,,64,1
 rock_neo.exe,scene,medium,func_8001EB98,,No,No,,26,2
 rock_neo.exe,scene,medium,func_8001EC0C,,No,No,,389,0
-rock_neo.exe,scene,medium,func_8001F070,,Yes,Yes,,68,
-rock_neo.exe,scene,medium,func_8001F158,,Yes,Yes,,36,
-rock_neo.exe,scene,medium,func_8001F1DC,,Yes,Yes,,11,
-rock_neo.exe,scene,medium,func_8001F20C,,Yes,Yes,,11,
+rock_neo.exe,scene,medium,func_8001F070,Sce_event_update,Yes,Yes,,68,
+rock_neo.exe,scene,medium,func_8001F158,Sce_event_next,Yes,Yes,,36,
+rock_neo.exe,scene,medium,func_8001F1DC,Sce_event_timer_clear,Yes,Yes,,11,
+rock_neo.exe,scene,medium,func_8001F20C,Sce_event_set,Yes,Yes,,11,
 rock_neo.exe,scene,medium,func_8001F23C,,No,No,,147,4
 rock_neo.exe,scene,medium,func_8001F3C8,,No,No,,151,3
 rock_neo.exe,scene,medium,func_8001F580,,No,No,,34,3
@@ -287,7 +287,7 @@ rock_neo.exe,code_8001F828,low,func_80023CF0,,No,No,,96,2
 rock_neo.exe,code_8001F828,low,func_80023E1C,,No,No,,52,2
 rock_neo.exe,code_8001F828,low,func_80023EA8,,No,No,,703,1
 rock_neo.exe,code_8001F828,low,func_8002466C,,No,No,,424,0
-rock_neo.exe,code_8001F828,low,func_80024BAC,,Yes,No,,171,
+rock_neo.exe,code_8001F828,low,func_80024BAC,map_blocks_draw,Yes,No,,171,
 rock_neo.exe,code_8001F828,low,func_80024D4C,,No,No,,124,2
 rock_neo.exe,code_8001F828,low,func_80024E94,,No,No,,75,2
 rock_neo.exe,code_8001F828,low,func_80024F30,,No,No,,749,1
@@ -295,7 +295,7 @@ rock_neo.exe,code_8001F828,low,func_80025748,,No,No,,96,2
 rock_neo.exe,code_8001F828,low,func_80025874,,No,No,,52,2
 rock_neo.exe,code_8001F828,low,func_80025900,,No,No,,873,1
 rock_neo.exe,code_8001F828,low,func_8002626C,,No,No,,424,0
-rock_neo.exe,code_8001F828,low,func_800267AC,,Yes,No,,171,
+rock_neo.exe,code_8001F828,low,func_800267AC,map_blocks_draw2,Yes,No,,171,
 rock_neo.exe,code_8001F828,low,func_8002694C,,No,No,,96,2
 rock_neo.exe,code_8001F828,low,func_80026A78,,No,No,,52,2
 rock_neo.exe,code_8001F828,low,func_80026B04,,No,No,,703,1
@@ -352,7 +352,7 @@ rock_neo.exe,code_8002D9A0,low,func_8002DE20,,Yes,Yes,,5,
 rock_neo.exe,code_8002D9A0,low,func_8002DE34,,Yes,Yes,,9,
 rock_neo.exe,code_8002D9A0,low,func_8002DE5C,,No,No,,77,1
 rock_neo.exe,code_8002D9A0,low,func_8002DEEC,,No,No,,538,0
-rock_neo.exe,code_8002D9A0,low,func_8002E3D0,,Yes,No,,430,
+rock_neo.exe,code_8002D9A0,low,func_8002E3D0,mesh_draw,Yes,No,,430,
 rock_neo.exe,code_8002E7A8,low,func_8002E7A8,Work_pools_init,Yes,Yes,,321,
 rock_neo.exe,code_8002E7A8,low,func_8002EA50,,No,No,,332,0
 rock_neo.exe,code_8002E7A8,low,func_8002EE90,Obj_work_flag_change,No,No,,685,2
@@ -367,7 +367,7 @@ rock_neo.exe,code_8002E7A8,low,func_8002FA10,,Yes,Yes,,11,
 rock_neo.exe,code_8002E7A8,low,func_8002FA38,,Yes,No,,175,
 rock_neo.exe,code_8002E7A8,low,func_8002FBF4,,No,No,,323,2
 rock_neo.exe,code_8002E7A8,low,func_8002FE74,,Yes,Yes,,18,
-rock_neo.exe,code_8002E7A8,low,func_8002FEA4,,Yes,Yes,,38,
+rock_neo.exe,code_8002E7A8,low,func_8002FEA4,Obj_pos_set,Yes,Yes,,38,
 rock_neo.exe,code_8002E7A8,low,func_8002FF34,,Yes,Yes,,38,
 rock_neo.exe,code_8002E7A8,low,func_8002FFC4,,Yes,Yes,,39,
 rock_neo.exe,code_8002E7A8,low,func_80030058,,Yes,No,,69,
@@ -409,7 +409,7 @@ rock_neo.exe,code_8002E7A8,low,func_80031988,,Yes,Yes,,28,
 rock_neo.exe,code_8002E7A8,low,func_800319F4,Close_EVE_WORK,Yes,Yes,,24,
 rock_neo.exe,code_8002E7A8,low,func_80031A4C,,Yes,Yes,,24,
 rock_neo.exe,code_8002E7A8,low,func_80031AA4,,Yes,Yes,,81,
-rock_neo.exe,code_8002E7A8,low,func_80031BEC,,Yes,No,,66,
+rock_neo.exe,code_8002E7A8,low,func_80031BEC,Muku,Yes,No,,66,
 rock_neo.exe,code_8002E7A8,low,func_80031CA4,,Yes,No,,66,
 rock_neo.exe,code_8002E7A8,low,func_80031D5C,Angle_diff_clamp,Yes,Yes,,43,
 rock_neo.exe,code_8002E7A8,low,func_80031DCC,,Yes,No,,42,
@@ -654,7 +654,7 @@ rock_neo.exe,code_800425FC,low,func_80042B58,,No,No,,239,2
 rock_neo.exe,code_800425FC,low,func_80042DF8,,No,No,,128,1
 rock_neo.exe,code_800425FC,low,func_80042F78,,No,No,,241,2
 rock_neo.exe,code_8004324C,low,func_8004324C,,Yes,Yes,,17,
-rock_neo.exe,code_8004324C,low,func_8004327C,,Yes,Yes,,6,
+rock_neo.exe,code_8004324C,low,func_8004327C,Money_check,Yes,Yes,,6,
 rock_neo.exe,code_8004324C,low,func_80043294,Money_add,Yes,Yes,,56,
 rock_neo.exe,code_8004324C,low,func_80043340,,Yes,Yes,,40,
 rock_neo.exe,code_8004324C,low,func_800433C0,,Yes,Yes,,17,
@@ -1145,7 +1145,7 @@ rock_neo.exe,code_800680BC,high,func_80068290,,Yes,Yes,,43,
 rock_neo.exe,code_800680BC,high,func_80068344,,Yes,Yes,,18,
 rock_neo.exe,code_800680BC,high,func_80068388,,Yes,Yes,,85,
 rock_neo.exe,code_800680BC,high,func_8006849C,,Yes,Yes,,27,
-rock_neo.exe,code_800680BC,high,func_80068508,,Yes,Yes,,24,
+rock_neo.exe,code_800680BC,high,func_80068508,part_col_step,Yes,Yes,,24,
 rock_neo.exe,code_800680BC,high,func_8006854C,,No,No,,155,0
 rock_neo.exe,code_800680BC,high,func_80068728,,Yes,Yes,,15,
 rock_neo.exe,code_800680BC,high,func_80068760,,Yes,Yes,,33,

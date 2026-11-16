@@ -61,12 +61,9 @@ typedef struct
 
 extern GAME_WORK Game_work; // 0x800C1B10
 // Pool sint16 (lh) read by code_800133D8, game, code_80014AC0, code_8001786C: while nonzero,
-// func_80013F60 and func_80016D0C/D38 hold their routine_1 step. Owner unknown.
+// func_80013F60 and func_80016D0C/D38 hold their routine_1 step. Owner unknown: only
+// code_8001786C stores to it (func_80017C30, func_800182D4, func_8001840C), but nothing reaches
+// it through $gp, so no file is confirmed.
 extern sint16 D_80098A72;
-extern uint8 Sce_flag[]; // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)
-
-sint32 Sce_flag_test(sint32 flag);
-void Sce_flag_on(sint32 flag);
-void Sce_flag_off(sint32 flag);
 
 #endif // GAME_H

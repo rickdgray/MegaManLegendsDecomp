@@ -2,6 +2,7 @@
 #define MOJI_H
 
 #include "common.h"
+#include "psyq/libgte.h"
 
 // Number of Moji_work entries (MojiTaskKill clears 5 entries of 0xC4 bytes).
 #define MOJI_WORK_MAX 5
@@ -64,8 +65,9 @@ typedef struct
     uint8 pad_84;
     uint8 unk_85; // 0x85: func_8005A874's opening/closing step per frame (8)
     uint8 pad_86[0x2];
-    sint16 corner_88[4][2]; // 0x88: window corners (x, y) relative to the text origin, set by
-                            // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12
+    DVECTOR corner_88[4]; // 0x88: window corners relative to the text origin, set by
+                          // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12;
+                          // func_8005ACA8 copies each x, y into the primitives at 0xA0-0xAC
     uint8 pad_98[0x1C];
     uint16 unk_B4; // 0xB4: window margin x (func_8005AB78, from a command's argument byte)
     uint16 unk_B6; // 0xB6: window margin y (set with unk_B4)
@@ -100,6 +102,7 @@ extern uint8 D_8008AF3C[];
 
 // Halfword table, row D_800989D4 (13 rows of 5 entries of 4; 0x208 bytes). func_8005861C picks
 // its message by entry [row][n]: [0] zero, or [Player_work[0].rec[..].idx[n]] zero, or neither.
+// Defining file unknown: it sits in sub_scrn's .data range, but moji's code is its only user.
 extern uint16 D_8008D8EC[13][5][4];
 
 // Message pointers; func_80057708 calls into entry D_80098830 as a sub-message.
@@ -129,7 +132,8 @@ extern MOJI_FUNC D_8008AB08[];
 // ...); splat splits it into several labels. Return value unused by both callers.
 extern MOJI_FUNC D_8008AAC0[];
 
-// Byte table; func_80057DB8 replaces Moji_flag's low byte with entry [low byte].
+// Byte table (0x80 entries: func_80058DB4 fills them); func_80057DB8 replaces Moji_flag's low byte with entry [low byte].
+// Defining file unknown; moji's code is its only user.
 extern uint8 D_800BE2F8[];
 
 // Pool variable (0x80098A58), defined tentatively in moji.c.

@@ -65,7 +65,9 @@ def outside_users(target, name, home=None):
     word = re.compile(rf"\b{re.escape(name)}\b")
     users = {}
     for c in (ROOT / "src" / target).glob("*.c"):
-        if c.stem != home and word.search(c.read_text()):
+        # Comments don't count (e.g. twins.py's "// Same code as X.").
+        code = re.sub(r"//[^\n]*|/\*.*?\*/", "", c.read_text(), flags=re.S)
+        if c.stem != home and word.search(code):
             users[c.stem] = "C"
     for s in (ROOT / "asm" / target).rglob("*.s"):
         owner = s.parent.name if "nonmatchings" in s.parts else "data table"

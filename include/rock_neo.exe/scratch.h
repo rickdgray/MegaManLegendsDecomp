@@ -22,9 +22,10 @@
 // The frame's ordering table: primitives are linked at Scratch_ot[z / 8] (billboard_draw).
 #define Scratch_ot (*(u_long **)0x1F80003C)
 
-// Next free slot of the frame's primitive buffer. Capcom's name and type (sub_scrn.c in
-// disc/tcrf.txt: `Map_prim_ptr = (POLY_FT4 *)ft4_buff_ptr2;`): slots are POLY_FT4-sized (0x28) whatever
-// primitive goes in, so code takes it with a cast and steps it with ++.
+// Next free byte of the frame's primitive buffer. Capcom's name and type (sub_scrn.c in
+// disc/tcrf.txt: `Map_prim_ptr = (POLY_FT4 *)ft4_buff_ptr2;`). Code that takes one POLY_FT4-sized
+// slot per primitive steps it with ++ (screen_tile_draw: a TILE, then a DR_MODE); mesh_draw steps it
+// by each primitive's own size (0x20 for a POLY_FT3).
 #define Map_prim_ptr (*(POLY_FT4 **)0x1F800070)
 
 // Scratchpad scene scale and fog parameters (written by func_8003697C / func_800369C0).
@@ -39,10 +40,10 @@
 // billboard_draw picks by depth.
 #define Scratch_clut_bits (*(u_long *)0x1F8000E0)
 
-// Color and code word given to the primitives func_8002E3D0 builds (code OR'd in).
+// Color and code word given to the primitives mesh_draw builds (code OR'd in).
 #define Scratch_rgbc (*(u_long *)0x1F8000E4)
 
-// Per-vertex screen XY and Z of the mesh func_8002E3D0 is drawing (vertex index).
+// Per-vertex screen XY and Z of the mesh mesh_draw is drawing (vertex index).
 #define Scratch_sxy ((long *)0x1F800100)
 #define Scratch_sz  ((uint16 *)0x1F800300)
 

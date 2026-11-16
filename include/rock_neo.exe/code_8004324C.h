@@ -12,7 +12,7 @@ typedef void (*WORK10C_FUNC)(WORK_10C *wp);
 extern WORK10C_FUNC D_8008A0CC[]; // routine_8 dispatch table of func_800433C0
 
 sint32 func_8004324C(PL_WORK *pl);
-sint32 func_8004327C(sint32 amount);
+sint32 Money_check(sint32 amount); // -1 when Game_work.money can't cover the (negative) amount, else 0
 // Returns nothing, but declared sint32: moji.c's callers only match when the call is seen as returning
 // int (Capcom's file presumably called it undeclared, i.e. implicit int). See notes/rock_neo.md.
 sint32 Money_add(sint32 amount, sint32 b, sint32 c);

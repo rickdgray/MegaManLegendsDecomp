@@ -141,13 +141,13 @@
 
 // Read SZ1 / SZ2 / SZ3 into a variable, one at a time. Not Sony names: Sony's gtemac.h reads the
 // FIFO with read_sz_fifo3 (all three at once), but the game interleaves each mfc2 with its store
-// (func_8002E3D0), and gte_stsz3 stores words to memory. Named after gtereg.h's C2_SZ1 ... C2_SZ3.
+// (mesh_draw), and gte_stsz3 stores words to memory. Named after gtereg.h's C2_SZ1 ... C2_SZ3.
 #define gte_getSZ1(r0) __asm__ volatile("mfc2 %0, $17" : "=r"(r0))
 #define gte_getSZ2(r0) __asm__ volatile("mfc2 %0, $18" : "=r"(r0))
 #define gte_getSZ3(r0) __asm__ volatile("mfc2 %0, $19" : "=r"(r0))
 
 // RTPT without the leading nops (Sony's "_b" suffix), for code that has already spaced its loads
-// (func_8002E3D0).
+// (mesh_draw).
 #define gte_rtpt_b() __asm__ volatile("cop2 0x0280030")
 
 // Normal clipping (NCLIP): the winding of SXY0-2, into MAC0 (> 0: facing the camera).

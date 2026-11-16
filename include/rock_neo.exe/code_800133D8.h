@@ -14,6 +14,4 @@ typedef struct
 
 extern CODE_800133D8_WORK D_80098AA8; // 0x80098AA8
 
-void func_80013F60(CODE_800133D8_WORK *wp);
-
 #endif

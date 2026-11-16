@@ -10,7 +10,8 @@
 // copy whole words in and out of tables the caller passes. The tables are word-aligned; the
 // getters return a struct with less than word alignment (copied out with lwl/lwr), filled
 // through a sint32 pointer. What the words hold is not known yet; the return types may well
-// be PsyQ's DVECTOR/SVECTOR or similar 2-aligned structs.
+// be PsyQ's DVECTOR/SVECTOR or similar 2-aligned structs. The tables come from the stage
+// overlays (the only callers, not disassembled), so they stay views until those are read.
 
 // 4-, 8- and 12-byte values as the getters return them.
 typedef struct
@@ -47,8 +48,9 @@ typedef struct
     WORDS3 body;
 } WORDS4;
 
-// Object func_8002DC84 reads (passed in by the stage overlays; origin unknown): a table of
-// block pointers at +0x18.
+// Object func_8002DC84 reads: a table of block pointers at +0x18. Origin unknown: its only
+// callers are stage overlays (ST00 ... ST1E, per tools/callers.py), which aren't disassembled,
+// and nothing in ROCK_NEO's own code or data reaches func_8002DC84.
 typedef struct
 {
     uint8 pad_0[0x18];
@@ -74,7 +76,11 @@ typedef struct
     uint32 idx;
 } MESH_FACE;
 
-// Textured mesh drawn by func_8002E3D0 (origin unknown).
+// Textured mesh drawn by mesh_draw. Its only caller, func_8002DEEC (assembly), passes
+// entry n of the MESH array whose address is in the scratchpad word 0x1F8000E8, n being a byte
+// at +0x4F8 of the object func_8002DEEC is given. That word is set to model data + 0x14 by
+// code_80027678 (func_8002786C, func_8002831C, func_80028F90, all assembly), from tables and
+// object fields with no C type yet; no existing type describes the mesh.
 typedef struct
 {
     uint8 n_tri;       // 0x00

@@ -10,13 +10,19 @@
 #define Map_w     (*(uint16 *)0x1F800044)
 #define Map_h     (*(uint16 *)0x1F800046)
 #define Map_cells (*(uint16 **)0x1F800048)
-// The block grid: 0x40 rows of 0x20 MAP_BLOCKs (func_80024BAC draws the rows' set bits).
+// The block grid: 0x40 rows of 0x20 MAP_BLOCKs (map_blocks_draw draws the rows' set bits).
 #define Map_blocks (*(MAP_BLOCK **)0x1F80004C)
 
 // The stage's IDX file, loaded at 0x8015C000 (notes/disc.md): 12-byte entries, position in
 // 1/512 units. Addressed by literal address, like the scratchpad: the target builds it with
 // lui/ori, and maspsx gives `addu at,idx,at` only for a constant (notes/rock_neo.md).
 #define Stage_idx_tbl ((IDX_ENT *)0x8015C000)
+
+// The 0x400 bytes below Stage_idx_tbl, cleared by Work_pools_init. The first 0x200 are two row
+// masks of the block grid (0x40 words each, one bit per MAP_BLOCK): func_80023C08 passes
+// 0x8015BC00 and 0x8015BD00 to map_blocks_draw/map_blocks_draw2, which draw the set blocks. The rest's
+// use is unknown.
+#define D_8015BC00 ((uint8 *)0x8015BC00)
 
 // EBD files (notes/disc.md): a count word, then that many 16-byte entries that bind an object's
 // kind and id to its model data (searched by func_8002FA38). The stage has two, SUPPORT one.
@@ -25,7 +31,8 @@
 #define Support_ebd ((sint32 *)0x801F2000)
 
 // One block of the map grid (Map_blocks): its position, and its model data pointer in the low 24
-// bits; bit 31 picks the draw function's column in D_80089890.
+// bits. The model's words 6-8 point to its near/mid/far LOD (words 9-11 instead when pos.pad is 0);
+// bit 31 of that LOD word picks the draw function's column in Map_block_draw_tbl.
 typedef struct
 {
     SVECTOR pos;  // 0x0

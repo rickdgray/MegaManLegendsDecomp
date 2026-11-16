@@ -187,13 +187,13 @@ void func_80039DE8(void)
 {
     D_80097D2C            = 0x200;
     Player_work[0].unk44D = 0;
-    Scene_work.unk01      = D_80098674;
+    Scene_work.id_01      = D_80098674;
     Scene_work.unk00      = D_80098670;
 }
 
 sint32 func_80039E18(void)
 {
-    Scene_work.unk01 = D_80098674;
+    Scene_work.id_01 = D_80098674;
     Scene_work.unk00 = D_80098670;
     func_80039E50();
 }

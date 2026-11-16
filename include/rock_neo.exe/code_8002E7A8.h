@@ -47,16 +47,48 @@ typedef struct
     uint32 field_8;
     uint32 field_C;
     uint32 field_10;
-    sint16 x_14; // position (x, height, z); x and z moved by func_8002F998
-    sint16 y_16;
-    sint16 z_18;
-    uint8 pad_1A[0xA];
+    SVECTOR pos; // 0x14: position (x, height, z); x and z moved by func_8002F998
+    uint8 pad_1C[8];
 } EVE_WORK; // 0x24 bytes
 
 typedef struct
 {
     uint8 r, g, b, pad;
 } RGB_ENT;
+
+// Model data of a WORK_5A4 (info_88): tbl_70 holds one 0x14-byte entry per part, after one for
+// the body (func_80031324 takes entry n + 1).
+typedef struct
+{
+    uint8 pad_0[0x14];
+} ENT_14;
+
+typedef struct
+{
+    uint8 pad_0[0x70];
+    ENT_14 *tbl_70;
+} PARENT_INFO;
+
+// Per-part 0x20-byte block (WORK_5A4.blk_240), copied whole into a detached part (func_80031324).
+typedef struct
+{
+    uint32 w[8];
+} CHILD_BLK;
+
+// Per-part entries of a model object (WORK_5A4.slot_F8/pos_180).
+typedef struct
+{
+    uint8 pad_0;
+    sint8 child_id;
+    uint8 pad_2;
+    sint8 field_3; // set to -1 or 0 by the event steps (func_80068388, func_8006854C)
+} CHILD_SLOT;
+
+typedef struct
+{
+    uint16 x, y, z;
+    sint16 col; // RGB555 colour, faded by part_col_step (func_80068388 sets it)
+} CHILD_POS;
 
 typedef struct
 {
@@ -67,13 +99,23 @@ typedef struct
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
-    uint32 field_8;
-    uint32 field_C;
+    uint8 routine_8; // routine_8 to timer_B are cleared by one word store (on open)
+    uint8 field_9;   // set (with field_A cleared) by the event steps of code_800680BC
+    uint8 field_A;
+    uint8 timer_B;
+    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
+    sint8 slot_D;
+    sint8 field_E;
+    uint8 pad_F;
     uint32 field_10;
-    sint16 x_14; // position (x, height, z)
-    sint16 y_16;
-    sint16 z_18;
-    uint8 pad_1A[0x5A];
+    // 0x14-0x5C: the MODEL_WORK layout (a model kind).
+    SVECTOR pos;  // 0x14: position (x, height, z)
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position
+    SVECTOR old;  // 0x2C: previous position
+    VECTOR old_l; // 0x34: 16.16 previous position
+    uint8 pad_44[0x10];
+    SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF)
+    uint8 pad_5C[0x18];
     uint32 field_74;
     uint32 field_78;
     uint8 pad_7C[4];
@@ -111,7 +153,11 @@ typedef struct
         } rec;
     } field_C;
     uint32 field_10;
-    uint32 field_14;
+    union
+    {
+        uint32 word; // packed start word of the sprite kinds (0x3D48002E, func_80044AEC)
+        uint8 *data; // model data of the EBD entry, set by Model_work_init (kinds 0x80, 0xE0)
+    } u_14;
     // 0x18-0x37 depend on the kind. Bit 2 of routine_0 selects which position func_8002F928 moves:
     // set, the kind has a model matrix here and its position in pos_38; clear, pos_1C.
     union
@@ -169,18 +215,15 @@ typedef struct
     sint8 field_E; // set to -0x80 by the event step func_80068728
     uint8 pad_F;
     uint32 field_10;
-    sint16 x_14; // position (x, height, z)
-    sint16 y_16;
-    sint16 z_18;
-    sint16 field_1A;
-    sint32 x_1C; // 16.16 fixed-point position
-    sint32 y_20;
-    sint32 z_24;
-    uint8 pad_28[4];
-    SVECTOR pos_2C; // second position, passed to func_8003430C with x_14 (func_800435F8)
-    uint8 pad_34[0x22];
-    sint16 angle_56; // Y angle (0..0xFFF); set from the scene data by func_8001E968
-    uint8 pad_58[0xC];
+    // 0x14-0x5C: the MODEL_WORK layout (a model kind: Model_work_init binds kinds 0x10 and 0x60).
+    SVECTOR pos;  // 0x14: position (x, height, z); pad: set by func_80035724
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position
+    SVECTOR old;  // 0x2C: previous position, passed to func_8003430C with pos (func_800435F8)
+    VECTOR old_l; // 0x34: 16.16 previous position (moved with pos_l by func_8002F884)
+    uint8 pad_44[0x10];
+    SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
+                 // by func_8001E968
+    uint8 pad_5C[8];
     uint16 field_64;
     uint8 pad_66[0xE];
     uint32 field_74;
@@ -204,7 +247,10 @@ typedef struct
     uint8 flags; // 6: see above
     uint8 pad_7;
     uint32 field_8;
-    uint32 field_C;
+    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
+    sint8 slot_D;
+    sint8 field_E; // set to -0x80 by the event step func_80068728
+    uint8 pad_F;
     uint32 field_10;
     uint8 pad_14[0x3C];
 } WORK_50; // 0x50 bytes
@@ -218,21 +264,37 @@ typedef struct
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
-    uint32 field_8;
-    uint32 field_C;
+    uint8 routine_8; // routine_8 to timer_B are cleared by one word store (on open)
+    uint8 field_9;   // set (with field_A cleared) by the event steps of code_800680BC
+    uint8 field_A;
+    uint8 timer_B;
+    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
+    sint8 slot_D;  // set and cleared by the event steps (func_800687D8, func_8006854C)
+    sint8 field_E;
+    uint8 pad_F;
     uint32 field_10;
-    sint16 x_14; // position (x, height, z)
-    sint16 y_16;
-    sint16 z_18;
-    uint8 pad_1A[0x5A];
+    // 0x14-0x5C: the MODEL_WORK layout (a model kind).
+    SVECTOR pos;  // 0x14: position (x, height, z)
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position
+    SVECTOR old;  // 0x2C: previous position
+    VECTOR old_l; // 0x34: 16.16 previous position
+    uint8 pad_44[0x10];
+    SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF)
+    uint8 pad_5C[0x18];
     uint32 field_74;
     uint32 field_78;
     uint8 pad_7C[4];
-    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint8 pad_88[0x4B8];
-    RGB_ENT base;    // 0x540
-    RGB_ENT tbl[24]; // 0x544
-} WORK_5A4;          // 0x5A4 bytes
+    uint32 dist_80[2];    // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
+    PARENT_INFO *info_88; // 0x88: model data (func_80031324)
+    uint8 pad_8C[0x6C];
+    // 24 parts, like tbl (func_80031324 detaches part n into a CHILD_WORK).
+    CHILD_SLOT slot_F8[24]; // 0xF8: child_id at +1
+    uint8 pad_158[0x28];
+    CHILD_POS pos_180[24]; // 0x180
+    CHILD_BLK blk_240[24]; // 0x240
+    RGB_ENT base;          // 0x540
+    RGB_ENT tbl[24];       // 0x544
+} WORK_5A4;                // 0x5A4 bytes
 
 // 0x28-byte fog/far-colour block (copied by func_80036B40); far colour RGB at +0x20, near at +0x24.
 typedef struct
@@ -240,20 +302,16 @@ typedef struct
     uint8 b[0x28];
 } FOG_BLOCK;
 
-// Four 0x14-byte entries at D_8009A306 (func_80036C50): id 0 means free.
+// Four 0x14-byte entries at D_8009A300 (func_800358F0 bases it there; func_80036C50 claims one,
+// func_80033EBC frees all): id 0 means free.
 typedef struct
 {
-    uint8 id;
-    uint8 pad_1[8];
-    sint8 flag; // toggled when the entry is taken
-    uint8 pad_A[0xA];
+    uint8 pad_0[6];
+    uint8 id_6;
+    uint8 pad_7[8];
+    sint8 flag_F; // toggled when the entry is taken
+    sint32 val_10;
 } SLOT_ENT;
-
-typedef struct
-{
-    sint32 val;
-    uint8 pad_4[0x10];
-} SLOT_VAL; // the word at +0xA of a SLOT_ENT, seen from D_8009A310
 
 // Keyframe command word: time is the frame count, ctl < 0 is a jump (-1: reload time).
 typedef union
@@ -274,51 +332,54 @@ typedef struct
     uint32 arg;
 } KEY_ENT; // 8 bytes
 
-// ---- Views of the common object header ----
-// The functions below take any object (PL_WORK or a pool slot), so each view covers only the
-// fields that one function reads. They can merge once the common header has its own type.
-
-// func_8002F928: called by func_8002F420 on the slots of D_800A3B40 (WORK_48) and D_800BF118
-// (WORK_50). Bit 2 of the first byte selects which of two (x, y, z) positions moves.
+// 16-byte entry of the EBD tables func_8002FA38 searches (Stage_ebd_0, ...).
 typedef struct
 {
-    uint8 flags;
-    uint8 pad_1[0x1B];
-    uint16 pos_1C[3]; // 0x1C
-    uint8 pad_22[0x16];
-    uint16 pos_38[3]; // 0x38
-} POS_WORK;
+    uint8 kind_0;
+    uint8 id_1;
+    uint8 sub_2;
+    uint8 pad_3;
+    uint8 *ptr_4;
+    sint32 *ptr_8;
+    KEY_ENT **seq_tbl_C; // keyframe sequences, copied to MODEL_WORK.seq_tbl_90
+} ATTACH_ENT;
 
-// func_8002F3A8: called by Obj_work_flag_change on both players and the slots of every pool;
-// flags is the header byte at 6.
+// Capcom's MODEL_WORK (their source passes EM_WORK to Model_work_init, Obj_pos_set and EM_Char_Set
+// as `(MODEL_WORK *)`): the layout every model object starts with: PL_WORK and the slots of the
+// model pools (WORK_10C, WORK_3C0, WORK_5A4). Like Capcom, each object keeps its own type and is
+// cast to MODEL_WORK for these functions. The header (routine_0, kind_1, flags at 6) is common
+// to every pool slot, so the functions that only touch it (func_8002F3A8) take this type too.
+// Names from Capcom's source: id, type, pos, pos_l, old, old_l, spd, add, ang.
 typedef struct
 {
-    uint8 pad_0[6];
-    uint8 flags;
-} FLAG_WORK;
-
-// func_8002F884: called by func_8002F420 on the slots of D_8009F108 (WORK_3C0), D_800C3580
-// (WORK_5A4), D_8009CF88 and D_800BFB20 (WORK_10C). Two position accumulators (16-bit and
-// 16.16 fixed), x and z.
-typedef struct
-{
-    uint8 pad_0[0x14];
-    uint16 x_14;
-    uint16 pad_16;
-    uint16 z_18;
-    uint16 pad_1A;
-    sint32 x_1C;
-    uint32 pad_20;
-    sint32 z_24;
-    uint8 pad_28[4];
-    uint16 x_2C;
-    uint16 pad_2E;
-    uint16 z_30;
-    uint16 pad_32;
-    sint32 x_34;
-    uint32 pad_38;
-    sint32 z_3C;
-} MOVE_WORK;
+    uint8 routine_0;
+    uint8 kind_1; // pool kind (0x10 * pool number) ORed with the slot index
+    uint8 id_2;   // id: matched against the EBD entries (func_8002FA38)
+    uint8 type_3; // type: Model_work_init's `sub` usually points here
+    uint8 pad_4[2];
+    uint8 flags; // 6: bits 0-1 changed by func_8002F3A8 (see "Work pool slots" above)
+    uint8 pad_7[0xD];
+    SVECTOR pos;  // 0x14: position (vx and vz horizontal, vy the height)
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
+    SVECTOR old;  // 0x2C: previous position
+    VECTOR old_l; // 0x34: previous 16.16 position (moved with pos_l by func_8002F884)
+    SVECTOR spd;  // 0x44: speed; pad: frames to the target (func_80030EE8)
+    SVECTOR add;  // 0x4C: acceleration
+    SVECTOR ang;  // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
+    uint8 pad_5C[0x2C];
+    uint8 *data_88; // 0x88: model data of the EBD entry (func_8002FA38)
+    uint8 pad_8C[4];
+    KEY_ENT **seq_tbl_90; // keyframe sequences, indexed by idx_AC (func_80032304)
+    KEY_ENT *seq_94;      // start of the sequence chosen by idx_AC (func_80032304)
+    KEY_ENT *ptr_98;      // current step; b0 indexes the entry of ptr_A0[idx_AC] (func_80033A28)
+    sint32 val_9C;
+    sint32 *ptr_A0; // table of tables of packed pose data (func_80033A28)
+    KEY_CMD cmd_A4; // copy of the current step's command; time counts down
+    uint8 pad_A8[4];
+    uint8 idx_AC;
+    uint8 pad_AD[0x4B];
+    uint8 buf_F8[0x18]; // 0x18 bytes of the model data (kinds 0x20 and 0x40, func_8002FA38)
+} MODEL_WORK;
 
 // Queued request (func_800341BC): vector plus packed flags.
 typedef struct
@@ -327,48 +388,8 @@ typedef struct
     uint32 flags;
 } SLOT_REQ;
 
-// Parent object that owns indexed child slots (see func_80031324). func_80031324 has no callers
-// in the code split so far (no jal, no table entry), so the origins of CHILD_PARENT and
-// CHILD_WORK are unknown.
-typedef struct
-{
-    uint8 pad_0[0x14];
-} ENT_14;
-
-typedef struct
-{
-    uint8 pad_0[0x70];
-    ENT_14 *tbl_70;
-} PARENT_INFO;
-
-typedef struct
-{
-    uint8 pad_0;
-    sint8 child_id;
-    uint8 pad_2[2];
-} CHILD_SLOT;
-
-typedef struct
-{
-    uint16 x, y, z, pad;
-} CHILD_POS;
-
-typedef struct
-{
-    uint32 w[8];
-} CHILD_BLK;
-
-typedef struct
-{
-    uint8 pad_0[0x88];
-    PARENT_INFO *info_88;
-    uint8 pad_8C[0x6C];
-    CHILD_SLOT slot_F8[0x10]; // child_id at 0xF9
-    uint8 pad_138[0x48];
-    CHILD_POS pos_180[0x18];
-    CHILD_BLK blk_240[0x10];
-} CHILD_PARENT;
-
+// A part detached from its WORK_5A4 parent (func_80031324). func_80031324 has no callers in the
+// code split so far (no jal, no table entry), so CHILD_WORK's pool is still unknown.
 typedef struct
 {
     uint8 pad_0[0xB];
@@ -389,90 +410,32 @@ typedef struct
     uint16 z_B0;
     uint16 pad_B2;
     uint32 color_B4;
-    CHILD_PARENT *parent_B8;
+    WORK_5A4 *parent_B8;
 } CHILD_WORK;
 
-// Object moved by a vector rotated about Y by angle_56 (see func_8002FEA4). func_8002FEA4 is called
-// on the player (func_80041E90) and on the object of the routine table at 0x80082104
-// (func_800150E0, type unknown); the fields match PL_WORK pos, pos_1C, pos_428 and svec_438.
+// Object whose second position (pos_428/svec_438) func_8002FF34 moves along its facing (ang.vy).
+// Kept as a view: func_8002FF34 is only called from the overlays ST03, ST03B and ST05, so the object
+// is not known. Its fields match PL_WORK's (ang, pos_428, svec_438); MODEL_WORK ends before 0x428.
 typedef struct
 {
-    uint8 pad_0[0x14];
-    SVECTOR svec_14;
-    VECTOR pos_1C; // 0x1C, only x/y/z used
-    uint8 pad_2C[0x2A];
-    sint16 angle_56;
-    uint8 pad_58[0x3D0];
+    uint8 pad_0[0x54];
+    SVECTOR ang; // 0x54: same as MODEL_WORK.ang
+    uint8 pad_5C[0x3CC];
     VECTOR pos_428;
     SVECTOR svec_438;
 } TURN_WORK;
 
-// Object with a view direction (angle_56) and a position (x_C4..z_C8); see func_80030418.
-// func_80030418, func_80030CB8 and func_80030CF0 have no callers in the code split so far.
+// Object with a view direction (ang.vy) and a position at 0xC4 (pos_C4); see func_80030418.
+// Kept as a view: func_80030418 is only called from the overlays (ST00, ST03, ...), and
+// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out WORK_10C (owner_C4
+// there) and PL_WORK has nothing known at 0xC4, so the object is not known. 0x54 is MODEL_WORK.ang.
 typedef struct
 {
-    uint8 pad_0[0x56];
-    sint16 angle_56;
-    uint8 pad_58[0x6C];
-    uint16 x_C4;
-    uint16 y_C6;
-    uint16 z_C8;
+    uint8 pad_0[0x54];
+    SVECTOR ang; // 0x54
+    uint8 pad_5C[0x68];
+    SVECTOR pos_C4; // only x, y, z used
 } VIEW_WORK;
-
-// 16-byte entry of the EBD tables func_8002FA38 searches (Stage_ebd_0, ...).
-typedef struct
-{
-    uint8 kind_0;
-    uint8 id_1;
-    uint8 sub_2;
-    uint8 pad_3;
-    uint8 *ptr_4;
-    sint32 *ptr_8;
-    uint32 val_C;
-} ATTACH_ENT;
-
-// Object that func_8002FA38 binds an entry to: any pool slot (the kind selects the fields it
-// writes: ptr_14 for WORK_48/WORK_50, ptr_88 and up for the others), and the player
-// (func_8003C418 reads cmd_A4 and idx_AC; the keyframe functions take PL_WORK).
-typedef struct
-{
-    uint8 pad_0;
-    uint8 kind_1;
-    uint8 id_2;
-    uint8 pad_3[0x11];
-    uint8 *ptr_14;
-    uint8 pad_18[0x70];
-    uint8 *ptr_88;
-    uint8 pad_8C[4];
-    uint32 val_90;
-    KEY_ENT *seq_94; // start of the sequence chosen by idx_AC (func_80032304)
-    KEY_ENT *ptr_98; // current step; b0 indexes the entry of ptr_A0[idx_AC] (func_80033A28)
-    sint32 val_9C;
-    sint32 *ptr_A0; // table of tables of packed pose data (func_80033A28)
-    KEY_CMD cmd_A4; // copy of the current step's command; time counts down
-    uint8 pad_A8[4];
-    uint8 idx_AC;
-    uint8 pad_AD[0x4B];
-    uint8 buf_F8[0x18];
-} ATTACH_WORK;
-
-// Object with a position at 0x14 (see func_80030628). func_800364B0 passes the player as `to`
-// and an unknown object as `from`; func_80030604 and func_80030EE8 have no callers so far.
-typedef struct
-{
-    uint8 pad_0[0x14];
-    uint16 x_14;
-    uint16 y_16;
-    uint16 z_18;
-    uint8 pad_1A[0x2A];
-    sint16 vx_44;
-    sint16 vy_46;
-    sint16 vz_48;
-    sint16 time_4A;
-    sint16 ax_4C;
-    sint16 ay_4E;
-    sint16 az_50;
-} POS14_WORK;
 
 extern SVECTOR D_80097CF4; // zero vector
 extern uint8 D_800899E0[][16];
@@ -515,11 +478,7 @@ extern uint8 D_80089A8B[]; // byte +0xB of 12-byte records
 extern uint32 D_800A32E0[];
 extern uint32 D_80098798;
 extern uint32 D_800BE478[];
-extern uint8 D_8009A306;
-extern SLOT_VAL D_8009A310[]; // word at +0xA of each 0x14-byte entry starting at D_8009A306
-extern uint8 D_8009A31A;
-extern uint8 D_8009A32E;
-extern uint8 D_8009A342;
+extern SLOT_ENT D_8009A300[4];
 extern uint8 D_8009A370;
 extern uint8 D_8009A371;
 extern uint8 D_8009A372;
@@ -527,7 +486,7 @@ extern uint16 D_8009A374;
 extern MATRIX D_800BC728[]; // matrix stack; D_80098A80 starts at its end (func_800333A0)
 
 SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint32 limit);
-void Model_work_init(ATTACH_WORK *wp, uint8 *sub);
+void Model_work_init(MODEL_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
 WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0

@@ -40,11 +40,10 @@ void func_8004495C(WORK_48 *wp)
 void func_80044998(WORK_48 *wp)
 {
     wp->routine_0 |= 2;
-    Model_work_init((ATTACH_WORK *)wp, 0);
+    Model_work_init((MODEL_WORK *)wp, 0);
     wp->field_40 = 0x2808080;
-    // field_14 is the model data Model_work_init found; the word at 0x10 of the block its word at
-    // 0x70 points to
-    wp->u_44.ptr = *(void **)(*(uint8 **)((uint8 *)wp->field_14 + 0x70) + 0x10);
+    // The word at 0x10 of the block the model data's word at 0x70 points to
+    wp->u_44.ptr = *(void **)(*(uint8 **)(wp->u_14.data + 0x70) + 0x10);
     wp->routine_8++;
     wp->timer_B = 0x10;
 }
@@ -83,7 +82,7 @@ void func_80044AB0(WORK_48 *wp)
 
 void func_80044AEC(WORK_48 *wp)
 {
-    wp->field_14        = 0x3D48002E;
+    wp->u_14.word       = 0x3D48002E;
     wp->u_18.s.field_18 = 0x2E808080;
     wp->routine_0 |= 0x22;
     wp->u_18.s.field_22 = D_8008A234[0][0];
@@ -130,7 +129,7 @@ void func_80044C58(WORK_48 *wp)
 
 void func_80044C94(WORK_48 *wp)
 {
-    wp->field_14        = 0x3D48002E;
+    wp->u_14.word       = 0x3D48002E;
     wp->u_18.s.field_18 = 0x2E404040;
     wp->u_18.s.field_22 = 0x20;
     wp->routine_0 |= 2;
@@ -186,7 +185,7 @@ void func_80045074(WORK_48 *wp)
 
 void func_800450B0(WORK_48 *wp)
 {
-    wp->field_14        = 0x3D48002E;
+    wp->u_14.word       = 0x3D48002E;
     wp->u_18.s.field_18 = 0x2E208080;
     wp->routine_0 |= 0x22;
     wp->u_18.s.field_22 = D_8008A26C[0][0];
@@ -246,7 +245,7 @@ void func_80045274(WORK_48 *wp)
     {
         wp->u_18.s.field_24 = D_80097DF0[idx].field_24;
     }
-    wp->field_14        = D_80097DF0[idx].field_14;
+    wp->u_14.word       = D_80097DF0[idx].field_14;
     wp->u_18.s.field_18 = D_80097DF0[idx].field_18;
     wp->u_18.s.field_22 = D_80097DF0[idx].field_22;
     wp->u_18.s.field_23 = D_80097DF0[idx].field_23;

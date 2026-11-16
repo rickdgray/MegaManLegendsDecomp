@@ -444,7 +444,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 *left = *right = v;
                 return;
             }
-            angle = Player_work_ptr->unk56 -
+            angle = Player_work_ptr->ang.vy -
                     func_8001E83C(Player_work_ptr->pos.vx, Player_work_ptr->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
             angle &= 0xFFF;
             pan = (ccos(angle) << 7) >> 12;

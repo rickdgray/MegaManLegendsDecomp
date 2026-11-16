@@ -140,7 +140,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DE5C);
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DEEC);
 
 #ifdef NON_MATCHING
-// func_8002E3D0 reaches all its scratchpad data from one pointer, sxy (Scratch_sxy): the
+// mesh_draw reaches all its scratchpad data from one pointer, sxy (Scratch_sxy): the
 // target addresses each of these relative to the register holding 0x1F800100, which GCC only
 // does when the source derives them from that pointer (literal addresses get their own lui).
 #define SXY_SZ(sxy)        ((uint16 *)((sxy) + 0x80)) // Scratch_sz
@@ -149,7 +149,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DEEC);
 #define SXY_RGBC(sxy)      (*(u_long *)((sxy)-7))     // Scratch_rgbc
 #define SXY_OT(sxy)        (*(u_long **)((sxy)-0x31)) // Scratch_ot
 
-void func_8002E3D0(MESH *m)
+void mesh_draw(MESH *m)
 {
     long *sxy;
     POLY_FT3 *p3;
@@ -270,5 +270,5 @@ void func_8002E3D0(MESH *m)
     }
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002E3D0);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", mesh_draw);
 #endif

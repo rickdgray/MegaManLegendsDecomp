@@ -361,7 +361,9 @@ now an array, the target indexes it by symbol; `unk56` read as `(uint16)` for `l
 the access keeps its own `lui`), `Angle_xz_vector`, `Angle_xz_svector` (`catan` of the x/z delta).
 Parked `func_80036C50` (`NON_MATCHING`; 4-entry table at `D_8009A306`, stride 0x14): the target keeps
 `&D_8009A306` in a3 for the first compare and the loop; ours folds the first compare to `lui`+`%lo` and
-rebuilds the base for the loop (local pointer, `e++`/flag pointer, index forms tried).
+rebuilds the base for the loop (local pointer, `e++`/flag pointer, index forms tried). Update: with
+`base = &D_8009A300[0].id_6` copied to a separate loop pointer (and `flag = base + 9`) only the loop counter
+(target t0) and the `D_8009A300[i]` offset (target a3) are swapped.
 
 `code_8002E7A8.c` (batch 3): banked `func_800331A0` (joint matrix/position update on the player, `PL_WORK.joint_mtx`/`joint_pos`: scratchpad
 matrix + `ApplyMatrix`/`RotMatrix`/`MulMatrix`/`ScaleMatrix`; the byte at `0x1F800074` is a shift count,
@@ -411,7 +413,7 @@ field is `sint8` so the `-1` store is `li -1`) and `func_8003545C` (claims a fre
 in s1, GCC merges them) and `func_80030058` (rotates an offset (x, y, z) by an angle into a VECTOR; same
 param/copy pair issue for x and z). Also parked (`NON_MATCHING`): `func_80031DCC`, `func_80031E60`,
 `func_80031EF0` (two-sector angle test, 1 if within +-half1 of center1 and +-half2 of center2; target
-keeps the result in v0 and a copy of the angle in v1, GCC uses a scratch register), `func_80031BEC`
+keeps the result in v0 and a copy of the angle in v1, GCC uses a scratch register), `Muku`
 (`func_80031CA4` on `Angle_xz_svector`, same s2/s1 issue), `func_8003081C` (GTE view-cone test:
 RotMatrixY/RotTrans, returns 0x10 behind, 2 inside; target stores `m[0]` late and shares one `ori 2`
 between the x >= 0 / x < 0 paths) and `func_80031F84` (direction quantizer vs a base angle, returns
@@ -442,6 +444,21 @@ joint views into `PL_WORK` (`tbl_F8`..`unk106`, `owner_188`, `base_mtx`, `joint_
 `pos_1C`, `pos_428`, `svec_438`), `OBJ_10C` into `WORK_10C`, `func_8002F998`'s pointer into `EVE_WORK`.
 `func_800323FC` is down to the order of its first two loads (lbu time before lw ent_FC) after reusing the
 parameter as the copy of ctl.
+
+`code_8002E7A8.c` (consolidation 2): the common header now has Capcom's type, `MODEL_WORK` (their source
+passes `EM_WORK` to `Model_work_init`, `Obj_pos_set` and `EM_Char_Set` as `(MODEL_WORK *)`; field names from
+it: `id`, `type`, `pos` 0x14, `pos_l` 0x1C, `old` 0x2C, `old_l` 0x34, `spd` 0x44 (pad = time), `add` 0x4C,
+`ang` 0x54, `ang.vy` the facing). `ATTACH_WORK`, `FLAG_WORK`, `MOVE_WORK` and `POS14_WORK` merged into it;
+`POS_WORK` into `WORK_48` (`func_8002F928` only sees `WORK_48`/`WORK_50`). Like Capcom, the pool types keep
+their own structs with the same leading layout: `WORK_10C` (`pos`, `pos_l`, `old`, `old_l`, `ang`),
+`WORK_3C0`/`WORK_5A4`/`EVE_WORK` (`pos`) and `PL_WORK` (`pos_1C` -> `pos_l`, `unk56` -> `ang`). Still views:
+`TURN_WORK` (`func_8002FF34`, only overlay callers; fields beyond MODEL_WORK at 0x428), `VIEW_WORK`
+(position at 0xC4, overlay callers only; WORK_10C has `owner_C4` there), `CHILD_WORK`
+(`func_80031324` has no callers; `CHILD_PARENT` was merged into `WORK_5A4`, see below; `CHILD_WORK` looks like a MODEL_WORK but writes a halfword at 0xAC, where
+MODEL_WORK has the byte `idx_AC`). `SLOT_ENT`/`SLOT_VAL` merged into one `SLOT_ENT[4]` at `D_8009A300`
+(`func_800358F0` uses that base; the old labels `D_8009A306`/`310`/`31A`/... are fields of it).
+Retried with the new types (no new matches): `func_80036C50` (now two registers from matching),
+`func_8002FA38`, `func_80032538`, `func_80033A28`, `func_80035724`, `func_8003606C` (unchanged).
 
 `code_8005C258.c` (small functions): banked `func_8005DCB4` (calls `func_8005DCDC`, `func_8005DE28`),
 `func_8005D9EC` (`Player_work+0x6E = +0xB0`, then `func_8005D9C4`), `func_8005D844` (arms slot
@@ -533,7 +550,7 @@ GCC always cross-jumps the identical `sub` stores the target keeps separate), `f
 
 `code_8004324C.c` (batch 1): banked `func_8004324C` (player `unk174 & 0xC0 || unk177`; must be `if (a || b)
 return 1; return 0;`: two separate `if`s fold the second test to `sltu`, a bare `return a || b` uses a temp),
-`func_8004327C` (`-(Game_work.money < -amount)`: -1 when `money` can't cover a negative change; `money` at
+`Money_check` (`-(Game_work.money < -amount)`: -1 when `money` can't cover a negative change; `money` at
 `Game_work+0x1C`, capped at 999999 by `Money_add`), `func_800433C0` (`D_8008A0CC[wp->routine_8](wp)` on a
 `WORK_10C` of the `D_800BFB20` pool), `func_800435BC`, `func_80043740` and `func_80043E00` (spawn a `WORK_48`
 at the slot's position; in `func_80043E00` the `flag_3`/`field_C` stores are written after the position).
@@ -551,20 +568,23 @@ player's state flag for the slot).
 
 `code_800680BC.c` (event steps): `D_8009039C` is an event table of 8-byte entries (`u8`, `u8`, `s16` frame,
 step function), installed as `Scene_work+0xA4` by `func_80068CE0` (from `func_80068DAC`, a `D_80089024`
-scene routine called with `&Scene_work`). `func_8001F070` advances it when `Scene_work.timer_10` reaches the
+scene routine called with `&Scene_work`). `Sce_event_update` advances it when `Scene_work.timer_10` reaches the
 entry's frame and resets the timer. Entry bytes 0 and 1 are copied to `Scene_work.ev_08`/`ev_09`;
-`timer_18` restarts when `ev_08` changes and `timer_1C` when either changes. `func_8001F20C(table, arg)`
-(called only from overlays ST15/ST1B/ST1E) installs a table and sets `D_800BC7F0 = arg`; `func_8001F1DC`
+`timer_18` restarts when `ev_08` changes and `timer_1C` when either changes. `Sce_event_set(table, arg)`
+(called only from overlays ST15/ST1B/ST1E) installs a table and sets `D_800BC7F0 = arg`; `Sce_event_timer_clear`
 (many overlays) clears the timers and both bytes. Banked steps `func_8006885C`, `func_8006888C` (calls stage code
 `func_80101D94` at frame 10), `func_800688BC`, `func_800688E4`, `func_80068BC0`, `func_80068CB8`: at frame 0
-each sets `field_9` (and clears `field_A`) of one of `Scene_work.obj_24[0..2]`, typed `WORK_10C` (filled by
-`func_8001E968` from several pools). The object must be read into a local: the byte stores alias the array.
+each sets `field_9` (and clears `field_A`) of one of `Scene_work.obj_24[0..2]`. `obj_24` is `void *[16]`:
+`func_8001E968` fills it from four pools by the kind byte of each object entry, and this scene's entries
+(`D_8008FF88`, opened by `func_80068CE0`) make `[0]` a `WORK_3C0`, `[1]`/`[2]` `WORK_5A4`, `[3]` a `WORK_50`.
+The object must be read into a local of that type: the byte stores alias the array.
 Entries are typed `EVENT_ENT` (`scene.h`); `event_step_call` (0x80068D64) runs the current entry's function
 unless `ev_08` is 0xFF. Also banked: steps `func_80068344`, `func_80068728` (sets `obj_24[3]->field_E` and
 `Scene_work.field_64`), `func_80068760`; `func_800680BC(arg)` resets the bytes/halfwords `D_800C3560`-`D_800C3571`
-(`D_800C356F = arg`, `D_800C356E = 0x18`); `func_80068508(obj, n)` steps the halfword at
-`obj + 0x186 + n * 8` by 0x421 up to 0x4210 (an RGB555 fade on `obj_24[1]`, whose type is still unknown,
-so it takes a `uint8 *`). Its 8-byte frame comes for free: no unused local needed.
+(`D_800C356F = arg`, `D_800C356E = 0x18`); `part_col_step(obj, n)` steps
+`WORK_5A4.pos_180[n].col` by 0x421 up to 0x4210 (an RGB555 fade on `obj_24[1]`). It matches only with the
+field written at each use: a `sint16 *col = &wp->pos_180[n].col` local adds an `addiu 0x180`. Its 8-byte
+frame comes for free: no unused local needed.
 Also banked: `func_80068244`, `func_8006849C`, `func_8006890C`, `func_80068998`, `func_80068AB0`,
 `func_80068B3C`: call `func_800680BC(0/1/2)` and set or clear bit 1 (sometimes bit 0) of
 `obj_24[0..2]->routine_0`. `func_8006849C` tests `Scene_work.field_0C` (0x0C, otherwise only cleared by
@@ -572,8 +592,11 @@ Also banked: `func_80068244`, `func_8006849C`, `func_8006890C`, `func_80068998`,
 `int` local (`mask = ~2`; a literal folds to `andi 0xFD` at each use, the target loads -3 once), and the
 register split shows which objects shared one pointer local (`obj_24[0]` separate, `[1]`/`[2]` one local).
 Also banked: steps `func_80068290`, `func_80068388`, `func_800687D8`, `func_80068A24`, `func_80068BE4`.
-`func_80068388` writes `obj_24[1]` past 0x10C (signed bytes at 0x10B/0x117/0x143/0x147/0x14B/0x14F,
-RGB555 halfwords at 0x186 + n * 8) as byte offsets, since that object's type is still unknown.
+`func_80068388` writes `obj_24[1]`'s per-part entries (`WORK_5A4.slot_F8[n].field_3`, `pos_180[n].col`).
+WORK_5A4 has 24 parts: `slot_F8[24]` (4 bytes), `pos_180[24]` (8 bytes), then 0x300 bytes to `base` at
+0x540, which is `CHILD_PARENT.blk_240` as 24 entries of 0x20. **Merged:** `CHILD_PARENT` was a view of
+WORK_5A4 (the same parts at the same offsets; `blk_240[24]` fills 0x240-0x53F exactly), so
+`func_80031324` takes a `WORK_5A4 *` and WORK_5A4 has `info_88` and `blk_240[24]`.
 `screen_tile_draw(r, g, b, abr)` (0x80068120, no callers in ROCK_NEO) links a semi-transparent
 320x240 `TILE` and a `DR_MODE` (tpage `abr << 5 | 0xF`) into `Disp_env_ptr->ot[1]`. Each primitive
 takes 0x28 bytes from the scratchpad pointer `Map_prim_ptr` (0x1F800070, Capcom's name), whatever its size.
@@ -589,21 +612,21 @@ scene flag `0x380 + Scene_work.unk01` is set; nested `if`s, a single condition g
 `func_8001F6C4` (seeks `Cd_seek_file` to the stage's first file from `D_800893BC[D_800C356E]` unless
 `Game_work.unk068` already has it, else to entry `D_800C356F + 1` unless negative or equal to `unk06A`; one
 call with a `file` local; `D_800C356F` is read into a local before the first test), `func_8001F798(n)`
-(halfword copy job `D_80089248[n]`, `HALF_COPY_ENT`). Parked `func_8001F158` (`NON_MATCHING`; the event-table
-step of `func_8001F070` without the frame test): only the first four instructions differ. GCC keeps the
+(halfword copy job `D_80089248[n]`, `HALF_COPY_ENT`). Parked `Sce_event_next` (`NON_MATCHING`; the event-table
+step of `Sce_event_update` without the frame test): only the first four instructions differ. GCC keeps the
 address of `Scene_work.ev_ptr_A4` in a register for the load and the store; the target uses `lui` + `%lo`
 for each. Experiments: in GCC 2.7 the *first* load/store pair on one constant address in a function gets
 the shared address register (also seen for `Game_work.unk053++` in the banked `func_8001D974`, and for
-`unk14++` in a reconstruction of `func_8001F070`, whose target also avoids it). A dead read of another
+`unk14++` in a reconstruction of `Sce_event_update`, whose target also avoids it). A dead read of another
 global before it (`dead = Scene_work.timer_10;`) gives the target's code exactly, so the source probably had
 some statement that compiled away; an unused `&Scene_work` local, a parameter, `++` forms, a pre-read of
-`ev_08` and a pre-increment inside the condition don't do it. Same probably applies to `func_8001F070`.
-Update: banked `func_8001F070` (per-frame tick: `unk14`, `timer_18`, `timer_1C`, `timer_10` `++`, then
+`ev_08` and a pre-increment inside the condition don't do it. Same probably applies to `Sce_event_update`.
+Update: banked `Sce_event_update` (per-frame tick: `unk14`, `timer_18`, `timer_1C`, `timer_10` `++`, then
 the step when `ev_ptr_A4->frame_2` (not -1) equals `timer_10`) matches with a local
 `SCENE_WORK *sw = &Scene_work` used for every access: the shared address register disappears. Reading
 `Scene_work.ev_ptr_A4` into an `EVENT_ENT *` local moves the shared register onto `ev_ptr_A4` instead.
 The step has to read `sw->ev_ptr_A4->ev_0` after `sw->ev_ptr_A4++` (old pointer + 8), not a stepped local.
-Banked `func_8001F158` the same way: written exactly as `func_8001F070`'s step through `sw`, it matches.
+Banked `Sce_event_next` the same way: written exactly as `Sce_event_update`'s step through `sw`, it matches.
 
 Also banked in `scene.c`: `func_8001F740` (`func_8001F798(Game_work.unk050)`, then
 `D_8008980C[unk050]()`, `STAGE_FUNC`), `func_8001F5E4` (reloads three files with `Cd_read_comb` when
@@ -612,11 +635,11 @@ they change: `D_80089200[Player_work[0].unk16A]` → `Game_work.file_070`,
 `file_074`; the `file` local must be `sint32`, a `sint16` reloads the table for the store),
 `Sce_flag_off` (clears the bit; for flags 0x500-0x51F also removes `flag - 0x4FF` from
 `Player_work[0].ids_454[32]` and `ids_450[3]`; needs `p = Sce_flag; p += flag >> 3;` and `mask`/`bit`
-locals assigned in that order), and the camera pair on `D_800BC730` (`SCENE_CAM_WORK`, `scene.h`; one
+locals assigned in that order), and the camera pair on `Sce_camera_work` (`SCENE_CAM_WORK`, `scene.h`; one
 object from 0x800BC730 to at least 0x800BC7F3, which splat splits into many labels; `D_800BC7F0` is its
 `arg_C0`): `func_8001E550` hands position and angles (`func_80038324`) or look-at point
 (`func_800384A4`, whose second argument is a `VECTOR *`) to the camera code, through a local
-`cp = &D_800BC730` (CSE turns the accesses before the first join into `%lo(sym+off)`, the later ones
+`cp = &Sce_camera_work` (CSE turns the accesses before the first join into `%lo(sym+off)`, the later ones
 keep the base register, as in the target); the high halfwords at `ang_40 + 2/6/0xA` are plain
 `vx >> 16`, which GCC narrows to `lh`. `func_8001E6C0(x, y, z)` resets it from the current camera
 (`D_800A39A0`, angles `D_800A3968/396C/3964 & 0xFFF` into vx/vy/vz); `D_800A395C = 3` only schedules
@@ -655,7 +678,7 @@ Banked, matching at once: `func_80054700` (wait command: loads `timer_4` (`sint1
 argument once, under flags_0 bit `0x01000000`, sets bit `0x10000000`, counts down, steps 3 at 0; returns 0),
 `func_80055438` (the `func_80055A78` twin choosing byte 3 or 4 by `Sce_flag_test` of the 16-bit argument),
 `func_8005721C` (`D_80098930 = D_800BE2F8[D_8009899C + unk_71] + arg`; `D_80098B6C = 1` when scene flag
-0x2EE is clear and `func_8004327C(-D_8008FD3C[D_80098930])`, i.e. the money can't cover that price; pool
+0x2EE is clear and `Money_check(-D_8008FD3C[D_80098930])`, i.e. the money can't cover that price; pool
 bytes `D_80098930`/`D_80098B6C` now tentative in `moji.c`).
 Parked, then banked: `func_80057B70`/`func_80057BB4` (`Money_add(±D_80098AF4, 0, 0)`, step 1)
 and `func_80057924` (`Money_add` of `-(Game_work.unk07D - unk07C) * 10` or of `-money`, then `unk07C =
@@ -718,7 +741,7 @@ local) and `billboard_draw` (projects the `BILLBOARD`s queued by `func_8002D464`
 them as POLY_FT4 into `Scratch_ot[z / 8]`, depth cue and fog CLUT unless flag 8; the list entry is
 re-read through `D_800BE6D8[i]` for the flag and `rgbc`, and the three `vz` stores are one chained
 assignment). Neither function has a caller in the code or data (dead, or reached some other way).
-Parked `func_8002E3D0` (`NON_MATCHING`; draws a textured `MESH`: RTPT three vertices at a time into
+Parked `mesh_draw` (`NON_MATCHING`; draws a textured `MESH`: RTPT three vertices at a time into
 scratchpad sxy/sz arrays, then back-face-culled POLY_FT3/FT4 from its triangle and quad lists). The
 target reaches every scratchpad item off one register holding `0x1F800100` (prim pointer at -0x90, OT at
 -0xC4, sz array as a hoisted base +0x200). GCC only does that when the source derives them from one
@@ -749,12 +772,12 @@ Twins run (one of each all-assembly twin group, then `twins.py --apply`):
 - `func_8005A874` (moji window kind 0): opens a window from a flat line `unk_85` (8) pixels a frame, then
   closes it. New `MOJI_WORK.unk_80`/`unk_85`; `unk_A` is `sint16` (`lh`). Matching needed `unk_7D++` at the
   end of state 1's block and `c[0][1] > c[2][1]` (not `<` swapped) in state 2.
-- Parked `func_80024BAC` and its twin `func_800267AC` (`NON_MATCHING`, same attempt): draws the map
+- Parked `map_blocks_draw` and its twin `map_blocks_draw2` (`NON_MATCHING`, same attempt): draws the map
   blocks (`Map_blocks`, `MAP_BLOCK`) whose bits are set in a row mask, LOD by depth, through
-  `D_80089890[kind][bit 31]`. Only the prologue differs: ours copies `rows` (a0) to s4 before setting
+  `Map_block_draw_tbl[kind][bit 31]`. Only the prologue differs: ours copies `rows` (a0) to s4 before setting
   `sxy = 0x1F800100` in s3. Needed: the first row's `&= 0x7FFFFFFF` before the loop, `row_end` set
   inside the `if`, the inner loop as `for (...; bits <<= 1, b++)`, the table indexed inline, and the
   drawn word read back into the `lod` local. Permuter candidate.
 - Not attempted: `func_8002466C`/`func_8002626C` (0x540 bytes) and `func_80023EA8`/`func_80026B04`
   (0x7C4): scratchpad polygon subdivision with GTE, every access off one 0x1F800100 base register, the
-  same pattern that parks `func_8002E3D0`.
+  same pattern that parks `mesh_draw`.

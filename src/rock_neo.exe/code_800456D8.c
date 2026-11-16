@@ -32,7 +32,7 @@ void func_800456D8(WORK_48 *wp)
     {
         wp->routine_0 |= 2;
     }
-    Model_work_init((ATTACH_WORK *)wp, &wp->flag_3);
+    Model_work_init((MODEL_WORK *)wp, &wp->flag_3);
     wp->routine_8++;
     Sound_call2(0x9B, &wp->pos_38);
     func_80045AB4(wp);
@@ -356,7 +356,7 @@ void func_8004602C(WORK_48 *wp)
 void func_800461A4(WORK_48 *wp)
 {
     wp->routine_0 |= 2;
-    Model_work_init((ATTACH_WORK *)wp, &wp->flag_3);
+    Model_work_init((MODEL_WORK *)wp, &wp->flag_3);
     wp->routine_8++;
     Sound_call2(0x9B, &wp->pos_38);
     if (wp->flag_3 != 0)
@@ -898,7 +898,7 @@ void func_80047354(WORK_48 *wp)
     if (wp->flag_3 & 0x20)
     {
         sub = 2;
-        Model_work_init((ATTACH_WORK *)wp, (uint8 *)&sub);
+        Model_work_init((MODEL_WORK *)wp, (uint8 *)&sub);
         func_800398E0(0x1E);
         e = func_80031618();
         if (e != NULL)
@@ -942,7 +942,7 @@ void func_80047354(WORK_48 *wp)
                 break;
         }
     init:
-        Model_work_init((ATTACH_WORK *)wp, (uint8 *)&sub);
+        Model_work_init((MODEL_WORK *)wp, (uint8 *)&sub);
     }
     pos         = &wp->pos_38;
     wp->timer_B = 0;
@@ -1159,14 +1159,14 @@ void func_80047C64(WORK_48 *wp)
     func_80047CD8(wp);
 }
 
-// Target does the field_14 word copy third, in source order; GCC delays the lw/sw to the end
+// Target does the u_14 word copy third, in source order; GCC delays the lw/sw to the end
 // (v1), whatever the statement order.
 #ifdef NON_MATCHING
 void func_80047C84(WORK_48 *wp)
 {
     wp->field_9         = 0;
     wp->field_A         = D_8008A6CD[0];
-    wp->field_14        = D_8008A6C8[0];
+    wp->u_14.word       = D_8008A6C8[0];
     wp->u_18.s.field_22 = D_8008A6CE[0];
     wp->u_18.s.field_23 = D_8008A6CF[0];
     wp->u_18.s.field_24 = D_8008A6CC[0];
@@ -1191,7 +1191,7 @@ void func_80047CD8(WORK_48 *wp)
         }
         else
         {
-            wp->field_14        = D_8008A6C8[i * 2];
+            wp->u_14.word       = D_8008A6C8[i * 2];
             wp->u_18.s.field_22 = D_8008A6CE[i * 8];
             wp->u_18.s.field_23 = D_8008A6CF[i * 8];
             wp->u_18.s.field_24 = D_8008A6CC[i * 8];
@@ -1227,11 +1227,11 @@ void func_80047DD8(WORK_48 *wp)
             p[8] = i;
             if (wp->flag_3)
             {
-                p[0] = ((uint16)pl->unk56 + 0x80 + (rand() & 0xFF)) & 0xFFF;
+                p[0] = ((uint16)pl->ang.vy + 0x80 + (rand() & 0xFF)) & 0xFFF;
             }
             else
             {
-                p[0] = ((uint16)pl->unk56 - 0x100U + (rand() & 0xFF)) & 0xFFF;
+                p[0] = ((uint16)pl->ang.vy - 0x100U + (rand() & 0xFF)) & 0xFFF;
             }
         }
         Sound_call(0x8D, 0, 0);
@@ -1295,11 +1295,11 @@ void func_80047EC8(WORK_48 *wp)
             }
             if (wp->flag_3)
             {
-                p[0] = ((uint16)Player_work[0].unk56 + 0x80 + (rand() & 0xFF)) & 0xFFF;
+                p[0] = ((uint16)Player_work[0].ang.vy + 0x80 + (rand() & 0xFF)) & 0xFFF;
             }
             else
             {
-                p[0] = (((sint32)(uint16)Player_work[0].unk56 - 0x100) + (rand() & 0xFF)) & 0xFFF;
+                p[0] = (((sint32)(uint16)Player_work[0].ang.vy - 0x100) + (rand() & 0xFF)) & 0xFFF;
             }
             for (j = 0; j < base[8 + i] * 2; j++)
             {
@@ -1399,7 +1399,7 @@ void func_80048390(WORK_48 *wp)
 {
     wp->u_18.s.field_24 = 0x20;
     wp->field_C.rec.b0  = 0x80;
-    wp->field_14        = 0x3D48002C;
+    wp->u_14.word       = 0x3D48002C;
     wp->u_18.s.field_18 = 0x2EC06060;
     wp->field_C.rec.idx = 0;
     wp->routine_0 |= 0x22;

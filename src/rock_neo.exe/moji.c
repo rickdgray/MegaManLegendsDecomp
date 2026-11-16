@@ -2,6 +2,7 @@
 #include "cd.h"
 #include "game.h"
 #include "moji.h"
+#include "player.h"
 #include "scene.h"
 #include "sound.h"
 #include "code_80037FB4.h"
@@ -666,7 +667,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057184);
 sint32 func_8005721C(MOJI_WORK *wp)
 {
     D_80098930 = D_800BE2F8[D_8009899C + wp->unk_71] + wp->cmd_ptr_6C[1];
-    if (!Sce_flag_test(0x2EE) && func_8004327C(-D_8008FD3C[D_80098930]))
+    if (!Sce_flag_test(0x2EE) && Money_check(-D_8008FD3C[D_80098930]))
     {
         D_80098B6C = 1;
     }
@@ -1178,45 +1179,45 @@ void func_8005A874(MOJI_WORK *wp)
             wp->flags_0 |= 0x08000000;
             wp->unk_B6 = wp->unk_B4 = wp->cmd_ptr_6C[2];
             wp->unk_7D++;
-            wp->corner_88[0][1] = wp->unk_7F * 6;
-            wp->corner_88[1][1] = wp->unk_7F * 6;
-            wp->corner_88[2][1] = wp->unk_7F * 6;
-            wp->corner_88[3][1] = wp->unk_7F * 6;
-            wp->corner_88[0][0] = -wp->unk_B4;
-            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[2][0] = -wp->unk_B4;
-            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[0].vy = wp->unk_7F * 6;
+            wp->corner_88[1].vy = wp->unk_7F * 6;
+            wp->corner_88[2].vy = wp->unk_7F * 6;
+            wp->corner_88[3].vy = wp->unk_7F * 6;
+            wp->corner_88[0].vx = -wp->unk_B4;
+            wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[2].vx = -wp->unk_B4;
+            wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
             break;
         case 1:
             wp->flags_0 |= 0x10000000;
-            wp->corner_88[0][1] -= wp->unk_85;
-            wp->corner_88[1][1] -= wp->unk_85;
-            wp->corner_88[2][1] += wp->unk_85;
-            wp->corner_88[3][1] += wp->unk_85;
-            if (wp->unk_A + wp->corner_88[0][1] <= wp->unk_A - wp->unk_B6)
+            wp->corner_88[0].vy -= wp->unk_85;
+            wp->corner_88[1].vy -= wp->unk_85;
+            wp->corner_88[2].vy += wp->unk_85;
+            wp->corner_88[3].vy += wp->unk_85;
+            if (wp->unk_A + wp->corner_88[0].vy <= wp->unk_A - wp->unk_B6)
             {
                 Moji_flag |= 0x200000;
-                wp->corner_88[0][0] = -wp->unk_B4;
-                wp->corner_88[0][1] = -wp->unk_B6;
-                wp->corner_88[1][1] = -wp->unk_B6;
-                wp->corner_88[2][0] = -wp->unk_B4;
+                wp->corner_88[0].vx = -wp->unk_B4;
+                wp->corner_88[0].vy = -wp->unk_B6;
+                wp->corner_88[1].vy = -wp->unk_B6;
+                wp->corner_88[2].vx = -wp->unk_B4;
                 wp->flags_0 |= 0x12000000;
                 wp->flags_0 = (wp->flags_0 & ~0x08000000) | wp->unk_80;
                 wp->cmd_ptr_6C += 3;
-                wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-                wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
-                wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
-                wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[2].vy = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[3].vy = wp->unk_B6 + wp->unk_7F * 12;
                 wp->unk_7D++;
             }
             break;
         case 2:
             wp->flags_0 |= 0x10000000;
-            wp->corner_88[0][1] += wp->unk_85;
-            wp->corner_88[1][1] += wp->unk_85;
-            wp->corner_88[2][1] -= wp->unk_85;
-            wp->corner_88[3][1] -= wp->unk_85;
-            if (wp->corner_88[0][1] > wp->corner_88[2][1])
+            wp->corner_88[0].vy += wp->unk_85;
+            wp->corner_88[1].vy += wp->unk_85;
+            wp->corner_88[2].vy -= wp->unk_85;
+            wp->corner_88[3].vy -= wp->unk_85;
+            if (wp->corner_88[0].vy > wp->corner_88[2].vy)
             {
                 wp->flags_0 &= ~0x06000000;
             }
@@ -1234,14 +1235,14 @@ void func_8005AB78(MOJI_WORK *wp)
             wp->unk_B4 = wp->unk_B6 = wp->cmd_ptr_6C[2];
             wp->cmd_ptr_6C += 3;
             Moji_flag |= 0x200000;
-            wp->corner_88[0][0] = -wp->unk_B4;
-            wp->corner_88[0][1] = -wp->unk_B6;
-            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[1][1] = -wp->unk_B6;
-            wp->corner_88[2][0] = -wp->unk_B4;
-            wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
-            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+            wp->corner_88[0].vx = -wp->unk_B4;
+            wp->corner_88[0].vy = -wp->unk_B6;
+            wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[1].vy = -wp->unk_B6;
+            wp->corner_88[2].vx = -wp->unk_B4;
+            wp->corner_88[2].vy = wp->unk_B6 + wp->unk_7F * 12;
+            wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[3].vy = wp->unk_B6 + wp->unk_7F * 12;
             break;
         case 2:
             wp->flags_0 = (wp->flags_0 | 0x10000000) & ~0x06000000;
@@ -1266,14 +1267,14 @@ void func_8005B85C(MOJI_WORK *wp)
             wp->unk_B4 = wp->unk_B6 = wp->cmd_ptr_6C[2];
             wp->cmd_ptr_6C += 3;
             Moji_flag |= 0x200000;
-            wp->corner_88[0][0] = -wp->unk_B4;
-            wp->corner_88[0][1] = -wp->unk_B6;
-            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[1][1] = -wp->unk_B6;
-            wp->corner_88[2][0] = -wp->unk_B4;
-            wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
-            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+            wp->corner_88[0].vx = -wp->unk_B4;
+            wp->corner_88[0].vy = -wp->unk_B6;
+            wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[1].vy = -wp->unk_B6;
+            wp->corner_88[2].vx = -wp->unk_B4;
+            wp->corner_88[2].vy = wp->unk_B6 + wp->unk_7F * 12;
+            wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[3].vy = wp->unk_B6 + wp->unk_7F * 12;
             break;
         case 2:
             wp->flags_0 = (wp->flags_0 | 0x10000000) & ~0x06000000;
@@ -1293,45 +1294,45 @@ void func_8005B98C(MOJI_WORK *wp)
             wp->flags_0 |= 0x08000000;
             wp->unk_B6 = wp->unk_B4 = wp->cmd_ptr_6C[2];
             wp->unk_7D++;
-            wp->corner_88[0][1] = wp->unk_7F * 6;
-            wp->corner_88[1][1] = wp->unk_7F * 6;
-            wp->corner_88[2][1] = wp->unk_7F * 6;
-            wp->corner_88[3][1] = wp->unk_7F * 6;
-            wp->corner_88[0][0] = -wp->unk_B4;
-            wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-            wp->corner_88[2][0] = -wp->unk_B4;
-            wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[0].vy = wp->unk_7F * 6;
+            wp->corner_88[1].vy = wp->unk_7F * 6;
+            wp->corner_88[2].vy = wp->unk_7F * 6;
+            wp->corner_88[3].vy = wp->unk_7F * 6;
+            wp->corner_88[0].vx = -wp->unk_B4;
+            wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+            wp->corner_88[2].vx = -wp->unk_B4;
+            wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
             break;
         case 1:
             wp->flags_0 |= 0x10000000;
-            wp->corner_88[0][1] -= wp->unk_85;
-            wp->corner_88[1][1] -= wp->unk_85;
-            wp->corner_88[2][1] += wp->unk_85;
-            wp->corner_88[3][1] += wp->unk_85;
-            if (wp->unk_A + wp->corner_88[0][1] <= wp->unk_A - wp->unk_B6)
+            wp->corner_88[0].vy -= wp->unk_85;
+            wp->corner_88[1].vy -= wp->unk_85;
+            wp->corner_88[2].vy += wp->unk_85;
+            wp->corner_88[3].vy += wp->unk_85;
+            if (wp->unk_A + wp->corner_88[0].vy <= wp->unk_A - wp->unk_B6)
             {
                 Moji_flag |= 0x200000;
-                wp->corner_88[0][0] = -wp->unk_B4;
-                wp->corner_88[0][1] = -wp->unk_B6;
-                wp->corner_88[1][1] = -wp->unk_B6;
-                wp->corner_88[2][0] = -wp->unk_B4;
+                wp->corner_88[0].vx = -wp->unk_B4;
+                wp->corner_88[0].vy = -wp->unk_B6;
+                wp->corner_88[1].vy = -wp->unk_B6;
+                wp->corner_88[2].vx = -wp->unk_B4;
                 wp->flags_0 |= 0x12000000;
                 wp->flags_0 = (wp->flags_0 & ~0x08000000) | wp->unk_80;
                 wp->cmd_ptr_6C += 3;
-                wp->corner_88[1][0] = wp->unk_B4 + wp->unk_7E * 12;
-                wp->corner_88[2][1] = wp->unk_B6 + wp->unk_7F * 12;
-                wp->corner_88[3][0] = wp->unk_B4 + wp->unk_7E * 12;
-                wp->corner_88[3][1] = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[2].vy = wp->unk_B6 + wp->unk_7F * 12;
+                wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
+                wp->corner_88[3].vy = wp->unk_B6 + wp->unk_7F * 12;
                 wp->unk_7D++;
             }
             break;
         case 2:
             wp->flags_0 |= 0x10000000;
-            wp->corner_88[0][1] += wp->unk_85;
-            wp->corner_88[1][1] += wp->unk_85;
-            wp->corner_88[2][1] -= wp->unk_85;
-            wp->corner_88[3][1] -= wp->unk_85;
-            if (wp->corner_88[0][1] > wp->corner_88[2][1])
+            wp->corner_88[0].vy += wp->unk_85;
+            wp->corner_88[1].vy += wp->unk_85;
+            wp->corner_88[2].vy -= wp->unk_85;
+            wp->corner_88[3].vy -= wp->unk_85;
+            if (wp->corner_88[0].vy > wp->corner_88[2].vy)
             {
                 wp->flags_0 &= ~0x06000000;
             }

@@ -28,11 +28,12 @@ typedef struct
     uint8 unk02[7];
     uint8 unk09; // 0x09: lbu; 3 while the pad-driven state of func_800482A8 applies
     uint8 unk0A[0x14 - 0x0A];
-    SVECTOR pos;   // 0x14: position (vx and vz are the horizontal axes, vy the height)
-    VECTOR pos_1C; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (func_8002FEA4)
-    uint8 unk2C[0x56 - 0x2C];
-    sint16 unk56; // 0x56: lh; facing angle (0..0xFFF), used by calc_vol
-    uint8 unk58[0x6E - 0x58];
+    // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
+    SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
+    uint8 unk2C[0x54 - 0x2C];
+    SVECTOR ang; // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
+    uint8 unk5C[0x6E - 0x5C];
     sint16 unk6E; // 0x6E: sh; copy of unkB0 (func_8005D9EC); func_8001DDE4 does nothing while negative
     uint8 unk70[0xB0 - 0x70];
     sint16 unkB0; // 0xB0: upper limit of unk6E (func_80043340)
@@ -44,7 +45,7 @@ typedef struct
     uint8 unk105;    // 0x105: set_104 when func_800321C8 last ran (func_8003C418)
     sint16 unk106;   // 0x106: set by func_800323FC
     uint8 unk108[0x116 - 0x108];
-    uint16 unk116; // 0x116: lhu; added to unk56 for the camera yaw (func_800355F0)
+    uint16 unk116; // 0x116: lhu; added to ang.vy for the camera yaw (func_800355F0)
     uint8 unk118[0x11C - 0x118];
     uint16 unk11C; // 0x11C: lhu; mask tested against unk128 and unk12A (func_800482A8)
     uint8 unk11E[0x128 - 0x11E];
@@ -75,7 +76,7 @@ typedef struct
     SVECTOR joint_pos[15]; // 0x3A8: joint positions (func_800331A0); [4] and [7] are copied to the
                            // objects func_80035724 spawns, [11] and [14] by func_80047EC8
     uint8 unk420[0x428 - 0x420];
-    VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_1C (func_8002FF34)
+    VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
     SVECTOR svec_438; // 0x438: rounded copy of pos_428
     uint8 unk440[0x44D - 0x440];
     uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8

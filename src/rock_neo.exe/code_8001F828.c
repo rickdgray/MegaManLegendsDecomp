@@ -156,7 +156,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002466C);
 // Remaining difference: the prologue copies rows (a0) into s4 before setting up sxy (0x1F800100) in
 // s3; the target sets sxy first. Everything else matches.
 #ifdef NON_MATCHING
-void func_80024BAC(uint32 *rows, sint32 kind)
+void map_blocks_draw(uint32 *rows, sint32 kind)
 {
     MAP_BLOCK *b;
     MAP_BLOCK *row_end;
@@ -206,7 +206,7 @@ void func_80024BAC(uint32 *rows, sint32 kind)
                         lod += 3;
                     }
                     lod = (uint32 *)*lod;
-                    D_80089890[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
+                    Map_block_draw_tbl[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
                 }
             }
         }
@@ -218,7 +218,7 @@ void func_80024BAC(uint32 *rows, sint32 kind)
     } while (b < end);
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80024BAC);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", map_blocks_draw);
 #endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80024D4C);
@@ -235,9 +235,9 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80025900);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002626C);
 
-// Same code as func_80024BAC (parked the same way).
+// Same code as map_blocks_draw (parked the same way).
 #ifdef NON_MATCHING
-void func_800267AC(uint32 *rows, sint32 kind)
+void map_blocks_draw2(uint32 *rows, sint32 kind)
 {
     MAP_BLOCK *b;
     MAP_BLOCK *row_end;
@@ -287,7 +287,7 @@ void func_800267AC(uint32 *rows, sint32 kind)
                         lod += 3;
                     }
                     lod = (uint32 *)*lod;
-                    D_80089890[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
+                    Map_block_draw_tbl[kind][(uint32)lod >> 31]((uint32 *)((uint32)lod & 0xFFFFFF), pos.vz);
                 }
             }
         }
@@ -299,7 +299,7 @@ void func_800267AC(uint32 *rows, sint32 kind)
     } while (b < end);
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_800267AC);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", map_blocks_draw2);
 #endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002694C);

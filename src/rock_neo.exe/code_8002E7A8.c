@@ -6,16 +6,16 @@
 #include "stage.h"
 
 // Called only from this file, ahead of their definitions.
-void func_80033A28(ATTACH_WORK *wp);
-sint32 func_8002FA38(ATTACH_WORK *wp, sint32 *tbl, uint8 *sub); // tbl: count, then ATTACH_ENT[count]
-uint32 func_80030628(POS14_WORK *from, POS14_WORK *to, sint16 *shift, VECTOR *out, sint16 angle);
+void func_80033A28(MODEL_WORK *wp);
+sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub); // tbl: count, then ATTACH_ENT[count]
+uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle);
 uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out);
-uint32 func_80030604(POS14_WORK *from, POS14_WORK *to, sint16 *shift, VECTOR *out);
+uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out);
 sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc);
-sint16 func_80030CF0(POS14_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc);
-sint16 func_80030CB8(POS14_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist);
-void func_8002F9EC(ATTACH_WORK *wp, uint8 *sub);
-void func_8002FA10(ATTACH_WORK *wp, uint8 *sub);
+sint16 func_80030CF0(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc);
+sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist);
+void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
+void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
 VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z);
 WORK_10C *func_80031598(void);
 sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
@@ -134,14 +134,14 @@ void Work_pools_init(sint32 players)
         D_800BF118[i].kind_1 = kind | i;
     }
     Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
-    Mem_clear((void *)0x8015BC00, (void *)0x8015BFFC); // the 0x400 bytes below Stage_idx_tbl (use unknown)
+    Mem_clear(D_8015BC00, D_8015BC00 + 0x3FC);
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Obj_work_flag_change);
 
-void func_8002F3A8(FLAG_WORK *wp, uint32 f)
+void func_8002F3A8(MODEL_WORK *wp, uint32 f)
 {
     if (f & 1)
     {
@@ -163,49 +163,51 @@ void func_8002F3A8(FLAG_WORK *wp, uint32 f)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002F420);
 
-void func_8002F884(MOVE_WORK *wp, SVECTOR *d)
+// Moves the position and the previous position (both forms) by d in x and z.
+void func_8002F884(MODEL_WORK *wp, SVECTOR *d)
 {
-    wp->x_14 += d->vx;
-    wp->z_18 += d->vz;
-    wp->x_1C += d->vx << 16;
-    wp->z_24 += d->vz << 16;
-    wp->x_2C += d->vx;
-    wp->z_30 += d->vz;
-    wp->x_34 += d->vx << 16;
-    wp->z_3C += d->vz << 16;
+    wp->pos.vx += d->vx;
+    wp->pos.vz += d->vz;
+    wp->pos_l.vx += d->vx << 16;
+    wp->pos_l.vz += d->vz << 16;
+    wp->old.vx += d->vx;
+    wp->old.vz += d->vz;
+    wp->old_l.vx += d->vx << 16;
+    wp->old_l.vz += d->vz << 16;
 }
 
-void func_8002F928(POS_WORK *wp, uint16 *d)
+// Also called on the slots of D_800BF118 (WORK_50) by func_8002F420.
+void func_8002F928(WORK_48 *wp, SVECTOR *d)
 {
-    if (wp->flags & 4)
+    if (wp->routine_0 & 4)
     {
-        wp->pos_38[0] += d[0];
-        wp->pos_38[2] += d[2];
+        wp->pos_38.vx += d->vx;
+        wp->pos_38.vz += d->vz;
     }
     else
     {
-        wp->pos_1C[0] += d[0];
-        wp->pos_1C[2] += d[2];
+        wp->u_18.s.pos_1C[0] += d->vx;
+        wp->u_18.s.pos_1C[2] += d->vz;
     }
 }
 
 void func_8002F998(EVE_WORK *wp, SVECTOR *d)
 {
-    wp->x_14 += d->vx;
-    wp->z_18 += d->vz;
+    wp->pos.vx += d->vx;
+    wp->pos.vz += d->vz;
 }
 
-void Model_work_init(ATTACH_WORK *wp, uint8 *sub)
+void Model_work_init(MODEL_WORK *wp, uint8 *sub)
 {
     func_8002FA38(wp, Stage_ebd_0, sub);
 }
 
-void func_8002F9EC(ATTACH_WORK *wp, uint8 *sub)
+void func_8002F9EC(MODEL_WORK *wp, uint8 *sub)
 {
     func_8002FA38(wp, Stage_ebd_1, sub);
 }
 
-void func_8002FA10(ATTACH_WORK *wp, uint8 *sub)
+void func_8002FA10(MODEL_WORK *wp, uint8 *sub)
 {
     func_8002FA38(wp, Support_ebd, sub);
 }
@@ -213,7 +215,7 @@ void func_8002FA10(ATTACH_WORK *wp, uint8 *sub)
 #ifdef NON_MATCHING
 // Only register allocation differs: the target keeps the entry pointer in a1 and the loop counter
 // in a2; ours has them the other way round (the prologue and everything else match).
-sint32 func_8002FA38(ATTACH_WORK *wp, sint32 *tbl, uint8 *sub)
+sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub)
 {
     ATTACH_ENT *e;
     sint32 count;
@@ -236,18 +238,19 @@ sint32 func_8002FA38(ATTACH_WORK *wp, sint32 *tbl, uint8 *sub)
                 case 0x40:
                 case 0x20:
                     Mem_copy4(e->ptr_4 + 0x10, wp->buf_F8, 0x18);
-                    wp->val_9C = *e->ptr_8;
-                    wp->ptr_A0 = e->ptr_8 + 1;
-                    wp->ptr_88 = e->ptr_4;
-                    wp->val_90 = e->val_C;
+                    wp->val_9C     = *e->ptr_8;
+                    wp->ptr_A0     = e->ptr_8 + 1;
+                    wp->data_88    = e->ptr_4;
+                    wp->seq_tbl_90 = e->seq_tbl_C;
                     break;
                 case 0x10:
                 case 0x60:
-                    wp->ptr_88 = e->ptr_4;
+                    wp->data_88 = e->ptr_4;
                     break;
                 case 0x80:
                 case 0xE0:
-                    wp->ptr_14 = e->ptr_4;
+                    // Not model objects (WORK_48, WORK_50): their data pointer is the word at 0x14.
+                    *(uint8 **)&wp->pos = e->ptr_4;
                     break;
             }
             return 1;
@@ -280,22 +283,23 @@ uint32 func_8002FE74(uint32 a)
     return a;
 }
 
-void func_8002FEA4(TURN_WORK *wp, sint16 x, sint16 y, sint16 z)
+// Moves the object by (x, y, z) in its own frame (rotated by its facing), then rounds pos_l to pos.
+void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z)
 {
     VECTOR v;
 
-    func_80030058(&v, wp->angle_56, x, y, z);
-    wp->pos_1C.vx += v.vx;
-    wp->pos_1C.vy += v.vy;
-    wp->pos_1C.vz += v.vz;
-    func_80030150(&wp->pos_1C, &wp->svec_14);
+    func_80030058(&v, wp->ang.vy, x, y, z);
+    wp->pos_l.vx += v.vx;
+    wp->pos_l.vy += v.vy;
+    wp->pos_l.vz += v.vz;
+    func_80030150(&wp->pos_l, &wp->pos);
 }
 
 void func_8002FF34(TURN_WORK *wp, sint16 x, sint16 y, sint16 z)
 {
     VECTOR v;
 
-    func_80030058(&v, wp->angle_56, x, y, z);
+    func_80030058(&v, wp->ang.vy, x, y, z);
     wp->pos_428.vx += v.vx;
     wp->pos_428.vy += v.vy;
     wp->pos_428.vz += v.vz;
@@ -430,11 +434,11 @@ uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out)
     m[5]  = 0;
     m[6]  = 0;
     m[7]  = 0;
-    sv.vx = to->x_C4 - from->x_C4;
-    sv.vy = to->y_C6 - from->y_C6;
-    sv.vz = to->z_C8 - from->z_C8;
+    sv.vx = to->pos_C4.vx - from->pos_C4.vx;
+    sv.vy = to->pos_C4.vy - from->pos_C4.vy;
+    sv.vz = to->pos_C4.vz - from->pos_C4.vz;
     m[0]  = 0x1000;
-    RotMatrixY(0x800 - from->angle_56, (MATRIX *)m);
+    RotMatrixY(0x800 - from->ang.vy, (MATRIX *)m);
     SetRotMatrix((MATRIX *)m);
     SetTransMatrix((MATRIX *)m);
     RotTrans(&sv, out, &flag);
@@ -484,13 +488,13 @@ uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out)
     return ret;
 }
 
-uint32 func_80030604(POS14_WORK *from, POS14_WORK *to, sint16 *shift, VECTOR *out)
+uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out)
 {
-    return func_80030628(from, to, shift, out, ((VIEW_WORK *)from)->angle_56);
+    return func_80030628(from, to, shift, out, from->ang.vy);
 }
 
 // Same as func_80030418, with the view angle passed in and the positions at 0x14.
-uint32 func_80030628(POS14_WORK *from, POS14_WORK *to, sint16 *shift, VECTOR *out, sint16 angle)
+uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle)
 {
     long m[8];
     SVECTOR sv;
@@ -505,10 +509,10 @@ uint32 func_80030628(POS14_WORK *from, POS14_WORK *to, sint16 *shift, VECTOR *ou
     m[5]  = 0;
     m[6]  = 0;
     m[7]  = 0;
-    sv.vx = to->x_14 - from->x_14;
-    sv.vy = to->y_16 - from->y_16;
+    sv.vx = to->pos.vx - from->pos.vx;
+    sv.vy = to->pos.vy - from->pos.vy;
     m[0]  = 0x1000;
-    sv.vz = to->z_18 - from->z_18;
+    sv.vz = to->pos.vz - from->pos.vz;
     RotMatrixY(0x800 - angle, (MATRIX *)m);
     SetRotMatrix((MATRIX *)m);
     SetTransMatrix((MATRIX *)m);
@@ -665,14 +669,14 @@ void func_800309E0(SVECTOR *from, SVECTOR *to, SVECTOR *out, sint16 *time, sint1
     }
 }
 
-sint16 func_80030CB8(POS14_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist)
+sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist)
 {
     return func_80030CF0(from, to, height, max_dist, 0x100);
 }
 
-sint16 func_80030CF0(POS14_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc)
+sint16 func_80030CF0(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc)
 {
-    return func_80030D30((SVECTOR *)&from->x_14, (SVECTOR *)&to->x_C4, height, max_dist, arc);
+    return func_80030D30(&from->pos, &to->pos_C4, height, max_dist, arc);
 }
 
 sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc)
@@ -715,36 +719,36 @@ sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist,
     return angle;
 }
 
-void func_80030EE8(POS14_WORK *wp, SVECTOR *target, sint16 speed)
+void func_80030EE8(MODEL_WORK *wp, SVECTOR *target, sint16 speed)
 {
     VECTOR d;
     VECTOR v;
     sint32 dist;
 
-    d.vx = target->vx - (sint16)wp->x_14;
-    d.vy = target->vy - (sint16)wp->y_16;
-    d.vz = target->vz - (sint16)wp->z_18;
+    d.vx = target->vx - wp->pos.vx;
+    d.vy = target->vy - wp->pos.vy;
+    d.vz = target->vz - wp->pos.vz;
     dist = SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
     if (dist != 0)
     {
         v.vx        = (speed * d.vx << 8) / dist;
         v.vy        = (speed * d.vy << 8) / dist;
         v.vz        = (speed * d.vz << 8) / dist;
-        wp->vx_44   = v.vx;
-        wp->vy_46   = v.vy;
-        wp->vz_48   = v.vz;
-        wp->time_4A = dist / speed;
+        wp->spd.vx  = v.vx;
+        wp->spd.vy  = v.vy;
+        wp->spd.vz  = v.vz;
+        wp->spd.pad = dist / speed;
     }
     else
     {
-        wp->vx_44   = 0;
-        wp->vy_46   = 0;
-        wp->vz_48   = 0;
-        wp->time_4A = 0;
+        wp->spd.vx  = 0;
+        wp->spd.vy  = 0;
+        wp->spd.vz  = 0;
+        wp->spd.pad = 0;
     }
-    wp->ax_4C = 0;
-    wp->ay_4E = 0;
-    wp->az_50 = 0;
+    wp->add.vx = 0;
+    wp->add.vy = 0;
+    wp->add.vz = 0;
 }
 
 sint32 Angle_xz_vector(VECTOR *from, VECTOR *to)
@@ -816,7 +820,7 @@ sint32 func_8003129C(SVECTOR *a, SVECTOR *b)
     return (0x1000 - ratan2(SquareRoot0(dx * dx + dz * dz), b->vy - a->vy)) & 0xFFF;
 }
 
-void func_80031324(CHILD_PARENT *parent, CHILD_WORK *child, sint16 n)
+void func_80031324(WORK_5A4 *parent, CHILD_WORK *child, sint16 n)
 {
     child->blk_8C    = parent->blk_240[n];
     child->ent_88    = (ENT_14 *)((uint8 *)parent->info_88->tbl_70 + (n + 1) * 0x14);
@@ -849,12 +853,12 @@ WORK_3C0 *func_80031418(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_800987E8 |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->flags              = 3;
-            wp->field_74           = 0;
+            wp->field_2               = 0;
+            *(uint32 *)&wp->flag_4    = 0;
+            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->routine_8 = 0;
+            wp->flags                 = 3;
+            wp->field_74              = 0;
             return wp;
         }
     }
@@ -881,12 +885,12 @@ WORK_5A4 *func_80031498(void)
             wp->field_10 = 0;
             wp->field_78 = 0;
             D_80098B20 |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->flags              = 3;
-            wp->field_74           = 0;
+            wp->field_2               = 0;
+            *(uint32 *)&wp->flag_4    = 0;
+            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->routine_8 = 0;
+            wp->flags                 = 3;
+            wp->field_74              = 0;
             return wp;
         }
     }
@@ -1038,11 +1042,11 @@ WORK_50 *func_80031734(void)
             wp           = &D_800BF118[i];
             wp->field_10 = 0;
             D_800989CC |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->flags              = 3;
+            wp->field_2             = 0;
+            *(uint32 *)&wp->flag_4  = 0;
+            *(uint32 *)&wp->field_C = 0;
+            wp->field_8             = 0;
+            wp->flags               = 3;
             return wp;
         }
     }
@@ -1062,12 +1066,12 @@ WORK_50 *func_800317AC(sint32 i)
         {
             wp = &D_800BF118[i];
             D_800989CC |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->flags              = 3;
-            wp->field_10           = 0;
+            wp->field_2             = 0;
+            *(uint32 *)&wp->flag_4  = 0;
+            *(uint32 *)&wp->field_C = 0;
+            wp->field_8             = 0;
+            wp->flags               = 3;
+            wp->field_10            = 0;
             return wp;
         }
         return 0;
@@ -1168,7 +1172,7 @@ void func_80031AA4(void)
 // Signed angle from `angle` to the direction from -> to, limited to +-limit.
 // Same difference as func_80031CA4: the target keeps limit in s2 and the result in s1 (moved
 // before the call); GCC uses one register. Also the target tests d < 0x800 once (a0) and reuses it.
-sint16 func_80031BEC(SVECTOR *from, SVECTOR *to, sint16 angle, uint32 limit)
+sint16 Muku(SVECTOR *from, SVECTOR *to, sint16 angle, uint32 limit)
 {
     uint32 d;
     uint32 r;
@@ -1196,7 +1200,7 @@ sint16 func_80031BEC(SVECTOR *from, SVECTOR *to, sint16 angle, uint32 limit)
     return r;
 }
 #else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031BEC);
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Muku);
 #endif
 
 #ifdef NON_MATCHING
@@ -1439,11 +1443,11 @@ void func_800321C8(PL_WORK *wp, sint32 unused, uint32 set, sint32 idx)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800322A8);
 
-void func_80032304(ATTACH_WORK *wp, sint32 idx, sint32 step)
+void func_80032304(MODEL_WORK *wp, sint32 idx, sint32 step)
 {
     KEY_ENT *ent;
 
-    ent        = ((KEY_ENT **)wp->val_90)[idx];
+    ent        = wp->seq_tbl_90[idx];
     wp->idx_AC = idx;
     wp->seq_94 = ent;
     ent        = ent + step;
@@ -1499,7 +1503,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80032488);
 
 #ifdef NON_MATCHING
 // Differs: registers only. The target has ent in v1, ctl in a2 and the copy (jump) in a1.
-void func_80032538(ATTACH_WORK *wp)
+void func_80032538(MODEL_WORK *wp)
 {
     KEY_ENT *ent;
     sint32 ctl;
@@ -1619,7 +1623,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80033598);
 
 // Unpacks 75 twelve-bit values (three per SVECTOR) of the pose selected by wp into the scratchpad.
 #ifdef NON_MATCHING
-void func_80033A28(ATTACH_WORK *wp)
+void func_80033A28(MODEL_WORK *wp)
 {
     uint32 *s;
     sint16 *d;
@@ -1701,15 +1705,15 @@ void func_80033D80(MATRIX *src, MATRIX *dst, SVECTOR *rot, SVECTOR *v)
 
 void func_80033EBC(void)
 {
-    D_800988E0 = 0;
-    D_80098798 = 0xFF;
-    D_8009A306 = 0;
-    D_8009A31A = 0;
-    D_8009A32E = 0;
-    D_8009A342 = 0;
-    D_80098560 = 0;
-    D_80098564 = 0;
-    D_80098568 = 0;
+    D_800988E0         = 0;
+    D_80098798         = 0xFF;
+    D_8009A300[0].id_6 = 0;
+    D_8009A300[1].id_6 = 0;
+    D_8009A300[2].id_6 = 0;
+    D_8009A300[3].id_6 = 0;
+    D_80098560         = 0;
+    D_80098564         = 0;
+    D_80098568         = 0;
 }
 
 // Rotates unit vector a toward b by `angle` when their dot product (<< 4) is below `limit`
@@ -1922,7 +1926,7 @@ MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
     MATRIX inv;
 
     rot.vx = -yaw & 0xFFF;
-    rot.vy = ((uint16)Player_work[n].unk56 + Player_work[n].unk116 + 0x800) & 0xFFF;
+    rot.vy = ((uint16)Player_work[n].ang.vy + Player_work[n].unk116 + 0x800) & 0xFFF;
     rot.vz = 0;
     RotMatrixYXZ(&rot, &m);
     TransposeMatrix(&m, &inv);
@@ -1962,28 +1966,28 @@ void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint
         {
             sel         = pl->unk170;
             wp->field_2 = D_80089A8B[sel * 12];
-            wp->x_14    = pl->joint_pos[4].vx;
-            wp->y_16    = pl->joint_pos[4].vy;
-            wp->z_18    = pl->joint_pos[4].vz;
+            wp->pos.vx  = pl->joint_pos[4].vx;
+            wp->pos.vy  = pl->joint_pos[4].vy;
+            wp->pos.vz  = pl->joint_pos[4].vz;
         }
         else
         {
             sel         = pl->unk171;
             wp->field_2 = D_80089A8B[sel * 12];
-            wp->x_14    = pl->joint_pos[7].vx;
-            wp->y_16    = pl->joint_pos[7].vy;
-            wp->z_18    = pl->joint_pos[7].vz;
+            wp->pos.vx  = pl->joint_pos[7].vx;
+            wp->pos.vy  = pl->joint_pos[7].vy;
+            wp->pos.vz  = pl->joint_pos[7].vz;
         }
         if (pl->rec[sel].val != 0x7FFF && sel != 4 && sel != 7 && (uint32)(sel - 0xC) >= 2)
         {
             pl->rec[sel].val = pl->rec[sel].val - 1;
         }
-        wp->field_1A = flag;
-        wp->x_1C     = wp->x_14 << 16;
+        wp->pos.pad  = flag;
+        wp->pos_l.vx = wp->pos.vx << 16;
         wp->field_C  = pl->unk01;
-        wp->y_20     = wp->y_16 << 16;
-        wp->z_24     = wp->z_18 << 16;
-        wp->field_64 = pl->unk56;
+        wp->pos_l.vy = wp->pos.vy << 16;
+        wp->pos_l.vz = wp->pos.vz << 16;
+        wp->field_64 = pl->ang.vy;
     }
 }
 #else
@@ -2024,8 +2028,8 @@ void func_8003606C(void)
             p3 = w3++;
             if (p3->routine_0 | 1)
             {
-                dx = (p3->x_14 - pos.vx) >> 1;
-                dz = (p3->z_18 - pos.vz) >> 1;
+                dx = (p3->pos.vx - pos.vx) >> 1;
+                dz = (p3->pos.vz - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
@@ -2043,8 +2047,8 @@ void func_8003606C(void)
             p5 = w5++;
             if (p5->routine_0 | 1)
             {
-                dx = (p5->x_14 - pos.vx) >> 1;
-                dz = (p5->z_18 - pos.vz) >> 1;
+                dx = (p5->pos.vx - pos.vx) >> 1;
+                dz = (p5->pos.vz - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
@@ -2062,8 +2066,8 @@ void func_8003606C(void)
             p1 = w1++;
             if (p1->routine_0 | 1)
             {
-                dx = (p1->x_14 - pos.vx) >> 1;
-                dz = (p1->z_18 - pos.vz) >> 1;
+                dx = (p1->pos.vx - pos.vx) >> 1;
+                dz = (p1->pos.vz - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
@@ -2207,23 +2211,27 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036B40);
 #endif
 
 #ifdef NON_MATCHING
-// best attempt: target keeps &D_8009A306 in a register (a3) for the first compare and the loop;
-// ours folds the first compare to lui+%lo and builds the base again for the loop.
+// best attempt: only two registers differ: the target keeps the loop counter in t0 and the
+// D_8009A300[i] byte offset in a3 (base's register, reused); ours has them the other way round.
+// The base pointer copied to a separate loop pointer gives the target's `move v1,a3`.
 void func_80036C50(uint8 id, sint32 val)
 {
-    SLOT_ENT *e = (SLOT_ENT *)&D_8009A306;
+    uint8 *base;
+    uint8 *p;
     sint8 *flag;
     uint32 i;
 
-    if (e->id != id && D_8009A31A != id && D_8009A32E != id && D_8009A342 != id && D_80098560 < 4)
+    base = &D_8009A300[0].id_6;
+    if (*base != id && D_8009A300[1].id_6 != id && D_8009A300[2].id_6 != id && D_8009A300[3].id_6 != id && D_80098560 < 4)
     {
-        flag = &e->flag;
+        flag = (sint8 *)base + 9;
+        p    = base;
         for (i = 0; i < 4; i++)
         {
-            if (e->id == 0)
+            if (*p == 0)
             {
-                e->id             = id;
-                D_8009A310[i].val = val;
+                *p                   = id;
+                D_8009A300[i].val_10 = val;
                 if (*flag != 0)
                 {
                     *flag = 0;
@@ -2235,7 +2243,7 @@ void func_80036C50(uint8 id, sint32 val)
                 D_80098560++;
                 return;
             }
-            e++;
+            p += sizeof(SLOT_ENT);
             flag += sizeof(SLOT_ENT);
         }
     }

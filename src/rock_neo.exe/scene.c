@@ -139,7 +139,7 @@ void func_8001DDE4(uint8 arg)
     sw->unk00            = 1;
     Scene_work.ev_09     = 0;
     Scene_work.ev_08     = 0;
-    Scene_work.unk01     = arg;
+    Scene_work.id_01     = arg;
     Scene_work.timer_10  = 0;
     Scene_work.field_0C  = 0;
     Scene_work.timer_1C  = 0;
@@ -157,7 +157,7 @@ void func_8001DDE4(uint8 arg)
 
 sint32 func_8001DE84(void)
 {
-    if (Game_work.unk05A != 0 || Sce_flag_test(Scene_work.unk01 + 0x380) != 0)
+    if (Game_work.unk05A != 0 || Sce_flag_test(Scene_work.id_01 + 0x380) != 0)
     {
         if (PAD_ON(Joy1) & PAD_START)
         {
@@ -201,11 +201,11 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001E4C4);
 void func_8001E550(void)
 {
     SCENE_CAM_WORK *cp;
-    WORK_10C *obj;
+    MODEL_WORK *obj;
     VECTOR pos;
     VECTOR tgt;
 
-    cp = &D_800BC730;
+    cp = &Sce_camera_work;
     if (cp->follow_03 == 0)
     {
         pos.vx = (cp->pos_10.vx + cp->ofs_A0.vx) >> 16;
@@ -215,9 +215,9 @@ void func_8001E550(void)
     else
     {
         obj           = Scene_work.obj_24[cp->obj_09];
-        cp->pos_10.vx = obj->x_1C + cp->ofs_B0.vx;
-        cp->pos_10.vy = obj->y_20 + cp->ofs_B0.vy;
-        cp->pos_10.vz = obj->z_24 + cp->ofs_B0.vz;
+        cp->pos_10.vx = obj->pos_l.vx + cp->ofs_B0.vx;
+        cp->pos_10.vy = obj->pos_l.vy + cp->ofs_B0.vy;
+        cp->pos_10.vz = obj->pos_l.vz + cp->ofs_B0.vz;
         pos.vx        = cp->pos_10.vx >> 16;
         pos.vy        = cp->pos_10.vy >> 16;
         pos.vz        = cp->pos_10.vz >> 16;
@@ -237,35 +237,35 @@ void func_8001E550(void)
 
 void func_8001E6C0(sint32 x, sint32 y, sint32 z)
 {
-    D_800BC730.ofs_A0.vx = x << 16;
-    D_800A395C           = 3; // after the first store: first, its li comes before x's sll
-    D_800BC730.ofs_A0.vy = y << 16;
-    D_800BC730.ofs_A0.vz = z << 16;
-    D_800BC730.vel_20.vx = D_800BC730.vel_20.vy = D_800BC730.vel_20.vz = 0;
-    D_800BC730.angvel_50.vx = D_800BC730.angvel_50.vy = D_800BC730.angvel_50.vz = 0;
-    D_800BC730.tgtvel_80.vx = D_800BC730.tgtvel_80.vy = D_800BC730.tgtvel_80.vz = 0;
-    D_800BC730.mode_08                                                          = 0;
-    D_800BC730.pos_10.vx                                                        = D_800A39A0.vx << 16;
-    D_800BC730.pos_10.vy                                                        = D_800A39A0.vy << 16;
-    D_800BC730.pos_10.vz                                                        = D_800A39A0.vz << 16;
-    D_800BC730.ang_40.vx                                                        = (D_800A3968 & 0xFFF) << 16;
-    D_800BC730.ang_40.vy                                                        = (D_800A396C & 0xFFF) << 16;
-    D_800BC730.ang_40.vz                                                        = (D_800A3964 & 0xFFF) << 16;
+    Sce_camera_work.ofs_A0.vx = x << 16;
+    D_800A395C                = 3; // after the first store: first, its li comes before x's sll
+    Sce_camera_work.ofs_A0.vy = y << 16;
+    Sce_camera_work.ofs_A0.vz = z << 16;
+    Sce_camera_work.vel_20.vx = Sce_camera_work.vel_20.vy = Sce_camera_work.vel_20.vz = 0;
+    Sce_camera_work.angvel_50.vx = Sce_camera_work.angvel_50.vy = Sce_camera_work.angvel_50.vz = 0;
+    Sce_camera_work.tgtvel_80.vx = Sce_camera_work.tgtvel_80.vy = Sce_camera_work.tgtvel_80.vz = 0;
+    Sce_camera_work.mode_08                                                                    = 0;
+    Sce_camera_work.pos_10.vx                                                                  = D_800A39A0.vx << 16;
+    Sce_camera_work.pos_10.vy                                                                  = D_800A39A0.vy << 16;
+    Sce_camera_work.pos_10.vz                                                                  = D_800A39A0.vz << 16;
+    Sce_camera_work.ang_40.vx                                                                  = (D_800A3968 & 0xFFF) << 16;
+    Sce_camera_work.ang_40.vy                                                                  = (D_800A396C & 0xFFF) << 16;
+    Sce_camera_work.ang_40.vz                                                                  = (D_800A3964 & 0xFFF) << 16;
     func_800398E0(0);
 }
 
-void func_8001E7E4(sint32 x, sint32 y, sint32 z)
+void cam_pos_set(sint32 x, sint32 y, sint32 z)
 {
-    D_800BC730.pos_10.vx = x << 16;
-    D_800BC730.pos_10.vy = y << 16;
-    D_800BC730.pos_10.vz = z << 16;
+    Sce_camera_work.pos_10.vx = x << 16;
+    Sce_camera_work.pos_10.vy = y << 16;
+    Sce_camera_work.pos_10.vz = z << 16;
 }
 
-void func_8001E810(sint32 x, sint32 y, sint32 z)
+void cam_ang_set(sint32 x, sint32 y, sint32 z)
 {
-    D_800BC730.ang_40.vx = x << 16;
-    D_800BC730.ang_40.vy = y << 16;
-    D_800BC730.ang_40.vz = z << 16;
+    Sce_camera_work.ang_40.vx = x << 16;
+    Sce_camera_work.ang_40.vy = y << 16;
+    Sce_camera_work.ang_40.vz = z << 16;
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001E83C);
@@ -278,7 +278,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001EB98);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001EC0C);
 
-void func_8001F070(void)
+void Sce_event_update(void)
 {
     SCENE_WORK *sw;
 
@@ -305,8 +305,8 @@ void func_8001F070(void)
     }
 }
 
-// Steps the event table to its next entry (func_8001F070's step, without the frame test).
-void func_8001F158(void)
+// Steps the event table to its next entry (Sce_event_update's step, without the frame test).
+void Sce_event_next(void)
 {
     SCENE_WORK *sw;
 
@@ -326,7 +326,7 @@ void func_8001F158(void)
     sw->timer_10 = 0;
 }
 
-void func_8001F1DC(void)
+void Sce_event_timer_clear(void)
 {
     Scene_work.timer_10 = 0;
     Scene_work.timer_18 = 0;
@@ -335,12 +335,12 @@ void func_8001F1DC(void)
     Scene_work.ev_09    = 0;
 }
 
-void func_8001F20C(EVENT_ENT *ev, sint32 arg1)
+void Sce_event_set(EVENT_ENT *ev, sint32 arg1)
 {
-    D_800BC730.arg_C0    = arg1;
-    Scene_work.ev_ptr_A4 = ev;
-    Scene_work.ev_08     = ev->ev_0;
-    Scene_work.ev_09     = ev->ev_1;
+    Sce_camera_work.arg_C0 = arg1;
+    Scene_work.ev_ptr_A4   = ev;
+    Scene_work.ev_08       = ev->ev_0;
+    Scene_work.ev_09       = ev->ev_1;
 }
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/scene", func_8001F23C);

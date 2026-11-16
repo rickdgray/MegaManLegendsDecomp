@@ -2,6 +2,9 @@
 #include "code_800133D8.h"
 #include "game.h"
 
+// Called only from this file
+void func_80013F60(CODE_800133D8_WORK *wp);
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800133D8", func_800133D8);
 
 void func_80013418(void)
