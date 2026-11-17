@@ -25,4 +25,7 @@ typedef void (*CODE_8006430C_FUNC)(CODE_8006430C_WORK *wp);
 extern CODE_8006430C_WORK D_80098910;   // the module's state
 extern CODE_8006430C_FUNC D_8008FD20[]; // routine_1 steps of routines 1 and 2
 
+void func_8006479C(void); // opens events (OpenEvent) inside a critical section; called at init
+void func_800665E8(void); // clears active_0 and the word at 0x4
+
 #endif

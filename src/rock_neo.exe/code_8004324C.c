@@ -4,6 +4,9 @@
 #include "game.h"
 #include "player.h"
 #include "code_80037534.h"
+#include "code_80037FB4.h"
+#include "code_8005C258.h"
+#include "sound.h"
 
 sint32 func_8004324C(PL_WORK *pl)
 {
@@ -71,9 +74,57 @@ void func_800433C0(WORK_10C *wp)
     D_8008A0CC[wp->routine_8](wp);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_800433FC);
+void func_800433FC(WORK_10C *wp)
+{
+    SVECTOR v;  // unused (0x18 bytes in the frame, the locals of func_800437F8's
+    VECTOR out; // launch vector)
+    PL_WORK *pl;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_800434F0);
+    wp->field_E = wp->pos.pad;
+    pl          = func_80036294((uint8)wp->field_C);
+    pl->unk198  = 0;
+    func_800354E0(wp->slot_D);
+    wp->timer_B = 11;
+    wp->routine_8++;
+    wp->owner_C4.pad_0  = 0;
+    wp->owner_C4.mask_4 = 0;
+    wp->hit_78          = 0;
+    if (wp->field_E)
+    {
+        wp->old = pl->joint_pos[11];
+    }
+    else
+    {
+        wp->old = pl->joint_pos[14];
+    }
+    wp->pos = wp->old;
+    func_800435F8(wp);
+    Sound_call2(0x96, &wp->pos);
+}
+
+void func_800434F0(WORK_10C *wp)
+{
+    PL_WORK *pl;
+    PL_WORK *cur;
+
+    pl      = func_80036294((uint8)wp->field_C);
+    cur     = func_80036294((uint8)wp->field_C);
+    wp->old = cur->pos;
+    if (--wp->timer_B == 0)
+    {
+        func_80031930(wp);
+    }
+    else if (func_80037694((STAGE_OBJ *)wp, 0))
+    {
+        func_80043740(wp);
+        wp->routine_8++;
+        pl->unk198 = 1;
+    }
+    else
+    {
+        func_800435F8(wp);
+    }
+}
 
 void func_800435BC(WORK_10C *wp)
 {
@@ -134,13 +185,173 @@ void func_80043740(WORK_10C *wp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_800437A8);
+void func_800437A8(WORK_10C *wp)
+{
+    D_8008A0D8[wp->routine_8](wp);
+    func_80051BAC((STAGE_OBJ *)wp);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_800437F8);
+void func_800437F8(WORK_10C *wp)
+{
+    SVECTOR v;
+    VECTOR out;
+    MATRIX m;
+    uint8 spd;
 
+    wp->routine_0 |= 0x2A;
+    wp->flags |= 0x20;
+    func_8005D97C();
+    wp->owner_C4.pad_0  = 0;
+    wp->owner_C4.mask_4 = 0;
+    wp->hit_78          = &D_80097DA0;
+    v.vx                = func_80039B80();
+    v.vy                = wp->field_64 & 0xFFF;
+    v.vz                = 0;
+    RotMatrixYXZ(&v, &m);
+    v.vx = 0;
+    v.vy = 0;
+    v.vz = -0x1000;
+    ApplyMatrix(&m, &v, &out);
+    v.vx         = out.vx;
+    v.vy         = out.vy;
+    v.vz         = out.vz;
+    spd          = D_80097DD4[Player_work[0].rec[1].idx[2]];
+    wp->spd.vx   = (v.vx * spd) >> 4;
+    wp->spd.vy   = (v.vy * spd) >> 4;
+    wp->spd.vz   = (v.vz * spd) >> 4;
+    wp->dir_A4   = v;
+    wp->add.vx   = 0;
+    wp->add.vy   = 0;
+    wp->add.vz   = 0;
+    wp->field_88 = 0x3D48002E;
+    wp->field_88 = D_80097DAC[Player_work[0].rec[1].idx[0]];
+    wp->rgbc_8C  = 0x2E808080;
+    wp->x_90 = wp->pos.vx = wp->pos_l.vx >> 16;
+    wp->y_92 = wp->pos.vy = wp->pos_l.vy >> 16;
+    wp->z_94 = wp->pos.vz = wp->pos_l.vz >> 16;
+    wp->old_l             = wp->pos_l;
+    wp->old               = wp->pos;
+    wp->field_96          = 0xC0;
+    wp->field_97          = 0x60;
+    wp->field_98          = D_80097DCC[Player_work[0].rec[1].idx[0]];
+    wp->field_7C          = 0;
+    wp->timer_B           = 0;
+    func_80043DF8(wp, &m);
+    wp->field_9 = 0;
+    wp->routine_8++;
+    if (wp->field_A)
+    {
+        wp->old.pad = wp->pos.pad = 0x6208;
+    }
+    else
+    {
+        wp->old.pad = wp->pos.pad = 0x4208;
+    }
+    if (wp->flag_3 >= 0x80 && (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz) == 0)
+    {
+        func_800354E0(wp->slot_D);
+        wp->flag_3 = 0;
+    }
+    func_80043E78(wp);
+    Sound_call2(0x9A, &wp->pos);
+}
+
+#ifdef NON_MATCHING
+// Two differences: GCC turns the hit flag into xori/sltu where the target branches (if/else,
+// switch, ternary, goto and two calls all tried), and the speed multiplies load dir.vx before
+// the table byte (register swap v0/v1).
+void func_80043A8C(WORK_10C *wp)
+{
+    SVECTOR dir;
+    SVECTOR nrm;
+    VECTOR d;
+    sint32 id;
+    uint8 spd;
+    sint32 hit;
+
+    id = func_80037694((STAGE_OBJ *)wp, 0);
+    if (id != 0 || wp->field_7C != 0)
+    {
+        if (id == 0x7FFF)
+        {
+            hit = 0;
+        }
+        else
+        {
+            hit = 1;
+        }
+        func_80043E00(wp, hit);
+        goto close;
+    }
+    wp->old_l = wp->pos_l;
+    wp->old   = wp->pos;
+    if (wp->timer_B++ < func_80037634(Player_work, 1))
+    {
+        if (wp->flag_3 >= 0x80)
+        {
+            if (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz)
+            {
+                d.vx = wp->tgt_BC.vx - wp->pos.vx;
+                d.vy = wp->tgt_BC.vy - wp->pos.vy;
+                d.vz = wp->tgt_BC.vz - wp->pos.vz;
+                if (d.vx < -0x687E || d.vx > 0x687E || d.vy < -0x687E || d.vy > 0x687E || d.vz < -0x687E || d.vz > 0x687E)
+                {
+                    d.vx >>= 2;
+                    d.vy >>= 2;
+                    d.vz >>= 2;
+                }
+                VectorNormalS(&d, &nrm);
+                if (wp->timer_B < 4)
+                {
+                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x424, 0x0F746EA4);
+                }
+                else if (wp->timer_B < 9)
+                {
+                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x8F, 0x0FFD813C);
+                }
+                else
+                {
+                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x47, 0x0FFF604C);
+                    func_800354E0(wp->slot_D);
+                    wp->flag_3 = 0;
+                }
+                wp->dir_A4 = dir;
+                spd        = D_80097DD4[Player_work[0].rec[1].idx[2]];
+                wp->spd.vx = (dir.vx * spd) >> 4;
+                wp->spd.vy = (dir.vy * spd) >> 4;
+                wp->spd.vz = (dir.vz * spd) >> 4;
+            }
+            else
+            {
+                func_800354E0(wp->slot_D);
+                wp->flag_3 = 0;
+            }
+        }
+        wp->pos_l.vx += wp->spd.vx << 8;
+        wp->pos_l.vy += wp->spd.vy << 8;
+        wp->pos_l.vz += wp->spd.vz << 8;
+        wp->x_90 = wp->pos.vx = wp->pos_l.vx >> 16;
+        wp->y_92 = wp->pos.vy = wp->pos_l.vy >> 16;
+        wp->z_94 = wp->pos.vz = wp->pos_l.vz >> 16;
+        wp->field_9A += 5;
+    }
+    else
+    {
+    close:
+        func_80031930(wp);
+        if (wp->flag_3 >= 0x80)
+        {
+            func_800354E0(wp->slot_D);
+        }
+        return;
+    }
+    func_80043E78(wp);
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_80043A8C);
+#endif
 
-void func_80043DF8(void)
+void func_80043DF8(WORK_10C *wp, MATRIX *m)
 {
 }
 

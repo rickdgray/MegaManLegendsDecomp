@@ -28,5 +28,6 @@ extern SLOT_FUNC D_8008D7B4[]; // 0x8008D7B4
 
 void func_8005D528(void); // also called from player
 void func_8005D9C4(void); // also called from sub_scrn
+void func_8005D97C(void); // clears D_800BBDAB; also called from code_8004324C
 
 #endif // CODE_8005C258_H

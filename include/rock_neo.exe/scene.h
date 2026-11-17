@@ -27,6 +27,19 @@ typedef struct
     uint16 *dst;
 } HALF_COPY_ENT;
 
+// One 0x14-byte entry of a scene's object table (D_8008FF88), opened by func_8001EAE8 (partial).
+typedef struct
+{
+    uint8 unk00;
+    uint8 unk01;
+    uint8 unk02;   // copied to the object's byte 4
+    uint8 kind_03; // pool: 0x20 WORK_3C0, 0x40 WORK_5A4, 0x60 WORK_10C, 0xE0 WORK_50 (func_8001E968)
+    uint8 unk04;   // copied to the object's byte 3
+    uint8 unk05[3];
+    sint32 unk08;    // copied to the object's word 0xC
+    sint16 unk0C[4]; // passed by address to func_8001E968
+} SCENE_OBJ_ENT;
+
 // Scene work, 0xA8 bytes (partial). Passed to the event-table step functions (D_8009039C).
 struct SCENE_WORK
 {
@@ -34,14 +47,16 @@ struct SCENE_WORK
     uint8 id_01; // 0x01: the scene's number (func_8001DDE4's argument); scene flag 0x380 + id_01
                  // marks it as seen, so START skips it (func_8001DE84)
     uint8 unk02[2];
-    sint32 unk04;
+    uint8 routine_4; // 0x04: state of the scene's main function (func_80068DAC); bytes 4-7
+                     // cleared at once by func_8001DDE4
+    uint8 unk05[3];
     uint8 ev_08; // 0x08: byte 0 of the current event-table entry (Sce_event_set, Sce_event_update)
     uint8 ev_09; // 0x09: byte 1 of the current event-table entry
     uint8 unk0A;
     uint8 unk0B;
     sint32 field_0C; // 0x0C: cleared by func_8001DDE4; tested by the event step func_8006849C
     sint32 timer_10; // 0x10: frames since the current event-table step began (Sce_event_update)
-    sint32 unk14;
+    sint32 timer_14; // 0x14: frames since the scene started (Sce_event_update)
     sint32 timer_18; // 0x18: frames since ev_08 last changed (Sce_event_update)
     sint32 timer_1C; // 0x1C: frames since ev_08 or ev_09 last changed (Sce_event_update)
     uint8 unk20[0x24 - 0x20];
@@ -53,7 +68,13 @@ struct SCENE_WORK
     // D_8008FF88), and the camera (func_8001E550) only needs the MODEL_WORK layout.
     void *obj_24[16];
     sint32 field_64; // set by the event steps (func_8006854C, func_80068728)
-    uint8 unk68[0xA4 - 0x68];
+    // 0x68-0x70: three levels that func_8006854C clears, then raises by 9 a frame from timer_10
+    // 90 to 120, all set to 0xFF once field_68 reaches it (probably an RGB fade)
+    uint32 field_68;
+    uint32 field_6C;
+    uint32 field_70;
+    sint32 field_74; // 0x74: set to 2 by func_8006854C
+    uint8 unk78[0xA4 - 0x78];
     EVENT_ENT *ev_ptr_A4; // 0xA4: current entry of the event table (Sce_event_update steps it)
 };
 
@@ -78,14 +99,19 @@ typedef struct
     VECTOR tgt_70;    // 0x70: point looked at when mode_08 is set
     VECTOR tgtvel_80; // 0x80: added to tgt_70 by func_8001EC0C
     uint8 unk90[0x10];
-    VECTOR ofs_A0; // 0xA0: offset added to pos_10 and tgt_70 (func_8001E6C0's arguments)
-    VECTOR ofs_B0; // 0xB0: offset from the followed object (follow_03)
-    sint32 arg_C0; // 0xC0: set with the event table by Sce_event_set; func_8001EC0C steps it
+    VECTOR ofs_A0;  // 0xA0: offset added to pos_10 and tgt_70 (func_8001E6C0's arguments)
+    VECTOR ofs_B0;  // 0xB0: offset from the followed object (follow_03)
+    uint32 *arg_C0; // 0xC0: camera command script (top byte of each word is the command), set
+                    // with the event table by Sce_event_set; func_8001EC0C steps it
 } SCENE_CAM_WORK;
 
 extern SCENE_WORK Scene_work; // 0x800C4C48
 extern uint8 Sce_flag[];      // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)
 extern SCENE_CAM_WORK Sce_camera_work;
+
+extern SCENE_OBJ_ENT D_8008FF88[4]; // objects of code_800680BC's scene (event_scene_init)
+extern uint32 D_8008FFD8[];         // camera script of code_800680BC's scene
+extern EVENT_ENT D_8009039C[];      // event table of code_800680BC's scene
 
 extern uint8 *D_80098B60;    // read pointer, advanced two bytes by func_8001DD88
 extern sint32 D_800988E8;    // bitmask of D_800ACD40 slots in use, slot n = 0x80000000 >> n (func_8001DFEC)
@@ -115,8 +141,15 @@ extern STAGE_FUNC D_8008980C[];
 sint32 Sce_flag_test(sint32 flag);
 void Sce_flag_on(sint32 flag);
 void Sce_flag_off(sint32 flag);
-void Sound_fade_start(sint32 fade);                             // starts a sound fade (Sound_fade_flags) unless one is running
-sint32 func_8001D878(void);                                     // Cd_stat & 0x20
+void Sound_fade_start(sint32 fade); // starts a sound fade (Sound_fade_flags) unless one is running
+sint32 func_8001D878(void);         // Cd_stat & 0x20
+void func_8001D974(void);           // Game_work.unk053++
+sint32 func_8001DE84(void);         // START pressed in a scene already seen
+void func_8001E390(sint32 flag);
+void func_8001EC0C(void); // steps the scene camera (Sce_camera_work)
+void Sce_event_update(void);
 sint32 func_8001E83C(sint16 x, sint16 z, sint16 dx, sint16 dz); // angle to a point
+void func_8001E6C0(sint32 x, sint32 y, sint32 z);               // resets the scene camera from the current camera
+void *func_8001EAE8(SCENE_OBJ_ENT *ent);                        // opens the object of one table entry
 
 #endif // SCENE_H

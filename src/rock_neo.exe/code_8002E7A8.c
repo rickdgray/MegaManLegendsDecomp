@@ -915,7 +915,7 @@ WORK_10C *Open_SHL_WORK(void)
         {
             wp           = &D_8009CF88[i];
             wp->field_10 = 0;
-            wp->field_78 = 0;
+            wp->hit_78   = 0;
             D_800987CC |= 0x80000000 >> i;
             *(uint16 *)&wp->field_2   = 0;
             *(uint32 *)&wp->flag_4    = 0;
@@ -947,7 +947,7 @@ WORK_10C *func_80031598(void)
         {
             wp           = &D_800BFB20[i];
             wp->field_10 = 0;
-            wp->field_78 = 0;
+            wp->hit_78   = 0;
             D_800989F0 |= 0x80000000 >> i;
             *(uint16 *)&wp->field_2   = 0;
             *(uint32 *)&wp->flag_4    = 0;

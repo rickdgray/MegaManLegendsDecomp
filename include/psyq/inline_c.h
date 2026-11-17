@@ -44,6 +44,18 @@
                      : "r"(r0)                                                                                                             \
                      : "$12", "$13", "$14")
 
+// Load the translation vector r0 (VECTOR *) into the GTE.
+#define gte_SetTransVector(r0)                                                                                                             \
+    __asm__ volatile("lw $12, 0(%0)\n\t"                                                                                                   \
+                     "lw $13, 4(%0)\n\t"                                                                                                   \
+                     "lw $14, 8(%0)\n\t"                                                                                                   \
+                     "ctc2 $12, $5\n\t"                                                                                                    \
+                     "ctc2 $13, $6\n\t"                                                                                                    \
+                     "ctc2 $14, $7"                                                                                                        \
+                     :                                                                                                                     \
+                     : "r"(r0)                                                                                                             \
+                     : "$12", "$13", "$14")
+
 // Load vector 0 from r0 (SVECTOR *).
 #define gte_ldv0(r0)                                                                                                                       \
     __asm__ volatile("lwc2 $0, 0(%0)\n\t"                                                                                                  \
@@ -190,6 +202,63 @@
 
 // Store the screen XY of the result (SXY2) to r0 (long *).
 #define gte_stsxy(r0) __asm__ volatile("swc2 $14, 0(%0)" : : "r"(r0) : "memory")
+
+// Load the depth-cueing interpolation value p (a value) into IR0.
+#define gte_lddp(r0) __asm__ volatile("mtc2 %0, $8" : : "r"(r0))
+
+// Store the depth-cueing interpolation value p (IR0) to r0 (long *).
+#define gte_stdp(r0) __asm__ volatile("swc2 $8, 0(%0)" : : "r"(r0) : "memory")
+
+// Load column 0 of r0 (MATRIX *; offset by 2 / 4 for columns 1 / 2) into IR1-IR3.
+#define gte_ldclmv(r0)                                                                                                                     \
+    __asm__ volatile("lhu $12, 0(%0)\n\t"                                                                                                  \
+                     "lhu $13, 6(%0)\n\t"                                                                                                  \
+                     "lhu $14, 12(%0)\n\t"                                                                                                 \
+                     "mtc2 $12, $9\n\t"                                                                                                    \
+                     "mtc2 $13, $10\n\t"                                                                                                   \
+                     "mtc2 $14, $11"                                                                                                       \
+                     :                                                                                                                     \
+                     : "r"(r0)                                                                                                             \
+                     : "$12", "$13", "$14")
+
+// Store IR1-IR3 to column 0 of r0 (MATRIX *; offset by 2 / 4 for columns 1 / 2).
+#define gte_stclmv(r0)                                                                                                                     \
+    __asm__ volatile("mfc2 $12, $9\n\t"                                                                                                    \
+                     "mfc2 $13, $10\n\t"                                                                                                   \
+                     "mfc2 $14, $11\n\t"                                                                                                   \
+                     "sh $12, 0(%0)\n\t"                                                                                                   \
+                     "sh $13, 6(%0)\n\t"                                                                                                   \
+                     "sh $14, 12(%0)"                                                                                                      \
+                     :                                                                                                                     \
+                     : "r"(r0)                                                                                                             \
+                     : "$12", "$13", "$14", "memory")
+
+// Rotate vector 0 (MVMVA 1,0,0,3,0: rotation matrix * V0, no translation; result in MAC1-3).
+#define gte_rtv0()                                                                                                                         \
+    __asm__ volatile("nop\n\t"                                                                                                             \
+                     "nop\n\t"                                                                                                             \
+                     "cop2 0x0486012")
+
+// Rotate IR1-IR3 (MVMVA 1,0,3,3,0: rotation matrix * IR, no translation).
+#define gte_rtir()                                                                                                                         \
+    __asm__ volatile("nop\n\t"                                                                                                             \
+                     "nop\n\t"                                                                                                             \
+                     "cop2 0x049E012")
+
+// r3 = r1 * r2 (MATRIX *), column by column. Destroys the GTE's rotation matrix.
+#define gte_MulMatrix0(r1, r2, r3)                                                                                                         \
+    {                                                                                                                                      \
+        gte_SetRotMatrix(r1);                                                                                                              \
+        gte_ldclmv(r2);                                                                                                                    \
+        gte_rtir();                                                                                                                        \
+        gte_stclmv(r3);                                                                                                                    \
+        gte_ldclmv((char *)(r2) + 2);                                                                                                      \
+        gte_rtir();                                                                                                                        \
+        gte_stclmv((char *)(r3) + 2);                                                                                                      \
+        gte_ldclmv((char *)(r2) + 4);                                                                                                      \
+        gte_rtir();                                                                                                                        \
+        gte_stclmv((char *)(r3) + 4);                                                                                                      \
+    }
 
 // Store the ordering-table Z (SZ3 / 4) to r0 (long *).
 #define gte_stszotz(r0)                                                                                                                    \

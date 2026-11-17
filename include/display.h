@@ -8,6 +8,10 @@
 #define DISP_MODE_640 1
 #define OT_LEN        8
 
+// Values of Vsync_wait: vblanks per frame.
+#define VSYNC_60FPS 1
+#define VSYNC_30FPS 2
+
 // One of the two double buffers.
 typedef struct
 {
@@ -18,7 +22,7 @@ typedef struct
 
 // Both programs.
 extern volatile uint32 Vsync_count; // incremented once per vblank by Vsync_handler (shim 0x80059BC0, ROCK_NEO 0x80098888)
-extern DISP_ENV *Disp_env_ptr;      // the buffer being built (ROCK_NEO 0x80098934, set to &Disp_env[0] by func_80011F04)
+extern DISP_ENV *Disp_env_ptr;      // the buffer being built (ROCK_NEO 0x80098934, set to &Disp_env[0] by System_init)
 
 void Disp_env_init(DISP_ENV *buf);
 
@@ -32,6 +36,7 @@ void Disp_env_set(sint32 mode);
 
 // ROCK_NEO only.
 extern DISP_ENV Disp_env[2]; // the double buffer (the shim's Disp_env)
+extern sint32 D_800D9B00;    // zeroed at init, where the shim zeroes D_80059BBC
 
 void Disp_env_setup(void); // the shim's Disp_env_set, fixed at 320 wide
 

@@ -49,7 +49,7 @@ void System_init(void)
     DecDCTReset(0); // full reset, including internal tables
     SetVideoMode(MODE_NTSC);
 
-    InitPAD((u_char *)&Joy1, 8, (u_char *)&Joy2, 8);
+    InitPAD((char *)&Joy1, 8, (char *)&Joy2, 8);
     // ugly, but idiomatic to Capcom's codebase
     *(uint32 *)Joy1.unk34 = 0x4001;
     *(uint32 *)Joy2.unk34 = 0x4001;

@@ -1,5 +1,9 @@
 #include "common.h"
+#include "cd.h"
+#include "code_8001786C.h"
 #include "display.h"
+#include "game.h"
+#include "player.h"
 #include "psyq/libgpu.h"
 #include "scene.h"
 #include "scratch.h"
@@ -7,7 +11,7 @@
 #include "stage.h"
 
 // The event steps below run the scene of D_8009039C. Its objects come from D_8008FF88
-// (func_80068CE0): Scene_work.obj_24[0] is a WORK_3C0, [1] and [2] WORK_5A4, [3] a WORK_50.
+// (event_scene_init): Scene_work.obj_24[0] is a WORK_3C0, [1] and [2] WORK_5A4, [3] a WORK_50.
 
 void func_800680BC(sint32 arg0)
 {
@@ -25,7 +29,7 @@ void func_800680BC(sint32 arg0)
 
 // Draws a semi-transparent full-screen tile of colour (r, g, b), blended with mode abr (tpage
 // bits 5-6), into OT slot 1 of the current buffer.
-void screen_tile_draw(sint32 r, sint32 g, sint32 b, uint16 abr)
+void screen_tile_draw(uint8 r, uint8 g, uint8 b, uint16 abr)
 {
     TILE *tile;
     DR_MODE *mode;
@@ -183,7 +187,64 @@ void part_col_step(WORK_5A4 *wp, sint32 n)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800680BC", func_8006854C);
+void func_8006854C(SCENE_WORK *sw)
+{
+    WORK_5A4 *wp;
+
+    if (sw->timer_10 == 0)
+    {
+        func_800680BC(1);
+        wp                      = sw->obj_24[1];
+        wp->field_9             = 5;
+        wp->pos_l.vx            = 0xFE590000;
+        wp->pos_l.vz            = 0xFF3D0000;
+        wp->field_A             = 0;
+        wp->slot_F8[4].field_3  = 0;
+        wp->slot_F8[7].field_3  = 0;
+        wp->slot_F8[18].field_3 = -1;
+        wp->slot_F8[19].field_3 = -1;
+        wp->routine_0 |= 2;
+        wp = sw->obj_24[2];
+        wp->routine_0 |= 2;
+        sw->field_64 = 1;
+        sw->field_74 = 2;
+        sw->field_68 = sw->field_6C = sw->field_70 = 0;
+    }
+    if (sw->timer_10 >= 14 && sw->timer_10 <= 20)
+    {
+        wp = sw->obj_24[1];
+        part_col_step(wp, 1);
+        part_col_step(wp, 3);
+        part_col_step(wp, 6);
+        part_col_step(wp, 7);
+        part_col_step(wp, 4);
+        part_col_step(wp, 15);
+        part_col_step(wp, 16);
+        part_col_step(wp, 17);
+        part_col_step(wp, 18);
+        part_col_step(wp, 19);
+    }
+    if (sw->timer_10 == 57)
+    {
+        wp         = sw->obj_24[1];
+        wp->slot_D = 1;
+    }
+    if (sw->timer_10 == 87)
+    {
+        wp         = sw->obj_24[1];
+        wp->slot_D = 0;
+    }
+    if (sw->timer_10 >= 90 && sw->timer_10 <= 120)
+    {
+        sw->field_68 += 9;
+        sw->field_6C += 9;
+        sw->field_70 += 9;
+        if (sw->field_68 >= 0xFF)
+        {
+            sw->field_68 = sw->field_6C = sw->field_70 = 0xFF;
+        }
+    }
+}
 
 void func_80068728(SCENE_WORK *sw)
 {
@@ -452,7 +513,17 @@ void func_80068CB8(SCENE_WORK *sw)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800680BC", func_80068CE0);
+void event_scene_init(SCENE_WORK *sw)
+{
+    func_8001E6C0(0, 0, 0);
+    Sce_camera_work.arg_C0 = D_8008FFD8;
+    sw->ev_ptr_A4          = D_8009039C;
+    func_8001EAE8(&D_8008FF88[0]);
+    func_8001EAE8(&D_8008FF88[1]);
+    func_8001EAE8(&D_8008FF88[2]);
+    func_8001EAE8(&D_8008FF88[3]);
+    sw->field_64 = 0;
+}
 
 void event_step_call(SCENE_WORK *sw)
 {
@@ -466,4 +537,75 @@ void func_80068DA4(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800680BC", func_80068DAC);
+void func_80068DAC(SCENE_WORK *sw)
+{
+    switch (sw->routine_4)
+    {
+        case 0:
+            if (func_80042238(Player_work))
+            {
+                Player_work[0].unk00 &= ~3;
+                sw->routine_4++;
+                Cd_xa_play_id(0x2001000B);
+            }
+            break;
+        case 1:
+            if (func_8001D878())
+            {
+                sw->routine_4++;
+                sw->field_0C = 30;
+            }
+            break;
+        case 2:
+            if (--sw->field_0C == 0)
+            {
+                sw->routine_4++;
+                func_80017C30(2);
+            }
+            break;
+        case 3:
+            event_scene_init(sw);
+            sw->routine_4++;
+            // fall through
+        case 4:
+            if (D_80098A72 == 0 && (sw->ev_ptr_A4->ev_0 == 0xFF || func_8001DE84()))
+            {
+                func_80017C30(10);
+                sw->routine_4++;
+            }
+            // fall through
+        case 5:
+            event_step_call(sw);
+            if (sw->field_64)
+            {
+                screen_tile_draw(sw->field_68, sw->field_6C, sw->field_70, sw->field_74);
+            }
+            func_8001EC0C();
+            Sce_event_update();
+            if (sw->timer_14 == 0x4680)
+            {
+                func_80068DA4();
+            }
+            if (sw->routine_4 == 5 && D_80098A72 == 0)
+            {
+                D_800C356C = 2;
+                D_800C356E = 0x1B;
+                D_800C356F = 6;
+                D_800C3560 = -0x40;
+                D_800C3562 = -1;
+                D_800C3564 = 0xC0;
+                D_800C356A = 0x800;
+                D_800C356D = 0;
+                D_800C3571 = 0xFF;
+                D_800C3570 = 2;
+                sw->unk00  = 0;
+                Cd_subcmd(0, 1, 0);
+                Player_work[0].unk00 |= 1;
+                func_80042314(Player_work);
+                func_8001E390(0x2EB);
+                Sce_flag_on(0x55);
+                func_8001D974();
+            }
+            break;
+    }
+}

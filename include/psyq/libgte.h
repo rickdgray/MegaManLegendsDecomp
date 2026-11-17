@@ -34,6 +34,9 @@ typedef struct
     long t[3];
 } MATRIX;
 
+void InitGeom(void);
+void SetGeomOffset(long ofx, long ofy);
+void SetGeomScreen(long h);
 long SquareRoot0(long a);
 int catan(int a);
 int ccos(int a);

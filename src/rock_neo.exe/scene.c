@@ -135,20 +135,20 @@ void func_8001DDE4(uint8 arg)
     {
         return;
     }
-    sw                   = &Scene_work;
-    sw->unk00            = 1;
-    Scene_work.ev_09     = 0;
-    Scene_work.ev_08     = 0;
-    Scene_work.id_01     = arg;
-    Scene_work.timer_10  = 0;
-    Scene_work.field_0C  = 0;
-    Scene_work.timer_1C  = 0;
-    Scene_work.timer_18  = 0;
-    Scene_work.unk14     = 0;
-    Scene_work.unk04     = 0;
-    Scene_work.unk0B     = 0;
-    Scene_work.unk0A     = 0;
-    Scene_work.ev_ptr_A4 = NULL;
+    sw                               = &Scene_work;
+    sw->unk00                        = 1;
+    Scene_work.ev_09                 = 0;
+    Scene_work.ev_08                 = 0;
+    Scene_work.id_01                 = arg;
+    Scene_work.timer_10              = 0;
+    Scene_work.field_0C              = 0;
+    Scene_work.timer_1C              = 0;
+    Scene_work.timer_18              = 0;
+    Scene_work.timer_14              = 0;
+    *(uint32 *)&Scene_work.routine_4 = 0;
+    Scene_work.unk0B                 = 0;
+    Scene_work.unk0A                 = 0;
+    Scene_work.ev_ptr_A4             = NULL;
     for (i = 15; i >= 0; i--)
     {
         sw->obj_24[i] = NULL;
@@ -283,7 +283,7 @@ void Sce_event_update(void)
     SCENE_WORK *sw;
 
     sw = &Scene_work;
-    sw->unk14++;
+    sw->timer_14++;
     sw->timer_18++;
     sw->timer_1C++;
     sw->timer_10++;
@@ -335,7 +335,7 @@ void Sce_event_timer_clear(void)
     Scene_work.ev_09    = 0;
 }
 
-void Sce_event_set(EVENT_ENT *ev, sint32 arg1)
+void Sce_event_set(EVENT_ENT *ev, uint32 *arg1)
 {
     Sce_camera_work.arg_C0 = arg1;
     Scene_work.ev_ptr_A4   = ev;

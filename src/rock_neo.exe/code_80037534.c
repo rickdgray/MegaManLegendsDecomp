@@ -57,7 +57,7 @@ sint16 func_80037604(PL_WORK *pl, sint32 n)
     return D_80089EAC[n][pl->rec[n].idx[1]].val[1];
 }
 
-sint16 func_80037634(PL_WORK *pl, sint32 n)
+sint32 func_80037634(PL_WORK *pl, sint32 n)
 {
     return D_80089EAC[n][pl->rec[n].idx[2]].val[2];
 }

@@ -133,6 +133,14 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 - In C, `Thread_current` and `THREAD_TBL` (`0x801F8100`, 4 records of 0x80) are literal-address
   macros (`system.h`): the target builds them with `lui 0x801f` / `ori 0x8300` and accesses at offset
   0, which only a constant gives. Using the `extern` symbol in `func_80012ECC` gives `%hi`/`%lo`.
+- `thread_dispatch` (`0x80012C80`) is the scheduler pass: for each record whose `flags` is 2, 4 or
+  0x7F (or 1 with `wait` counted down to 0) it sets `flags` = 0x7F and `ChangeTh`s to it; when
+  `unk70` is set it stops callbacks around the switch and restores `Vsync_handler` after. If the
+  thread called `func_80012F78(func)`, its thread is reopened at `func`.
+- Thread records hold PsyQ's `EXEC` at `+0x14` (`exec.gp` at `+0x44` is OpenTh's gp):
+  `Thread_open_file` (`0x80012FEC`) and `Thread_exec_file` (`0x800130D0`) load a PS-X EXE from
+  the host PC (`PCopen`/`PCread`/`PCclose`, development leftovers) into it, then open the thread
+  at / restart the current thread at `exec.pc0`. `wait` is `sint16` (the countdown tests it with `sll`).
 - `Cd_read_sync` waits for the CD queue to drain, calling `Thread_wait(1)` on each pass;
   `Cd_read_sync2` only tests whether the queue is empty.
 
@@ -285,14 +293,35 @@ the player). `key_on_tone`'s first parameter is `uint16` (the caller zero-extend
 
 `main` (`src/rock_neo.exe/main.c`), this round: banked `Disp_env_setup` (display buffers at `0x800C0C48`,
 `extern DISP_ENV Disp_env[2]`: the extern symbol is needed, an absolute-address cast loses the shared
-base), `Pad_repeat_update`/`func_80012350` (auto-repeat on `PAD_REP`, which extends `PAD_WORK` with
-`rep_state[8]` at +0x38 and `rep_count[8]` at +0x40; `mask` is `sint32`), `Thread_open`
+base), `Pad_repeat_update`/`func_80012350` (auto-repeat; ROCK_NEO's `PAD_WORK` adds
+`rep_state[8]` at +0x38 and `rep_count[8]` at +0x40 to the shim's layout; `mask` is `sint32`), `Thread_open`
 (`OpenTh` from the thread record's `sp`/`gp`), `func_800131FC` (thread entry: dispatch through
 `D_80080894[D_80098B1C]`, then `Thread_wait(1)`). Parked: `func_80012BC4` (thread table init). The
 table base `*(TCB **)0x110` must be written via a `TCB **kp = (TCB **)0x100` local (`kp[4]`) to get
 the `li t2,0x100` / `lw 0x10(t2)` split, and `gp` read into a local before the loop. Still different:
-target reloads `THREAD_TBL[i].tcb` from memory before storing `->sr` (ours reuses the register), and the
+target reloads `THREAD_TBL[i].tcb` from memory before storing `->reg[R_SR]` (ours reuses the register), and the
 loop counter/giv are scheduled differently. Tried: `uint32` field with a cast, `[0x25]` word index.
+
+Parked: `debug_mem_dump` (`0x80012A5C`, debug dump of 16 eight-byte lines as words/halfwords/bytes
+through `func_8001FE38`). **The code is byte-identical** (`uint32 mode`: the switch has no lower-bound
+test; addresses as `addr[i * 8 + k]`, since a walking `addr += 8` grows a second pointer giv). Only
+the rodata order differs: its 45-byte format string `D_80010040` comes out of `main.o` ahead of
+`D_80010000`, which `exception_handler`'s `INCLUDE_ASM` still supplies (`.rodata` 0x800-0x870 = 0x40 +
+0x30). A named `const char D_80010040[]` placed after that stub lands first too. Bank it with
+`exception_handler`, or once `D_80010000` is defined in C.
+
+Parked: `exception_handler` (`0x8001246C`, the exception handler that `func_80012938` installs with
+`OpenEvent`; never returns). It copies the current TCB (`TCB_CURRENT`, the `TCBH` entry that 0x108 points to),
+then each frame prints the exception name (`names[(cause >> 2) & 0xF]`, the initialized local whose
+copy is `D_80010000`), the break code (`*(u32 *)epc >> 6`: 0x1C00 = break 7, divide by zero; 0x1800
+= break 6, overflow), the labels `D_80080730[37]` and the registers. Select on controller 2 cycles
+`mode` (0 = registers, 1-3 = `debug_mem_dump` mode - 1); triangle toggles the dump address between
+main RAM and the scratchpad. The NON_MATCHING C is 3 instructions long. Found so far: the label
+table base needs a `DEBUG_TEXT *msg` local set before the loop, the break code and the register
+column are one local (`n`, in `s1`), and `for (i = 0, n = 0; ...)` gives the target's init order.
+Still different: the target keeps `D_800979A4` in `s0` for the last five prints (ours reloads it
+with `lui`/`addiu` each time; a `char *fmt` local gets hoisted out of the outer loop instead), and it
+schedules the hoisted scratchpad base `lui 0x1F80` ahead of `msg`'s `la`.
 
 ## To do
 
@@ -565,9 +594,27 @@ doesn't re-extend it).
 `WORK_10C.field_8` is split into `routine_8`/`field_9`/`field_A`/`timer_B`; `field_C` holds the owning player's
 id (`func_80036294` returns a `PL_WORK`: `func_800433FC` reads its `joint_pos[11]`/`[14]`; `+0x198` is that
 player's state flag for the slot).
+Batch 3: banked `func_800433FC` (frame has 0x18 bytes of unused locals: an `SVECTOR` + `VECTOR`, like
+`func_800437F8`'s), `func_800434F0` (calls `func_80036294` twice: once kept for `unk198`, once for the copy of
+`pos` to `old`), `func_800437F8` (launch: direction `(0, 0, -0x1000)` rotated by `func_80039B80()`/`field_64`,
+speed `dir * D_80097DD4[idx[2]] >> 4`, collision box `hit_78 = &D_80097DA0`; `field_88` is stored twice, the
+constant first; `x_90 = pos.vx = pos_l.vx >> 16` is Capcom's chained form, cf. `efc.model.sv` in
+`EM09_49.C`). `func_80043DF8` is empty but takes `(wp, &m)`: `func_800437F8` passes both. `func_80037634`
+now returns `sint32` (as `func_800375D4`): `func_80043A8C` compares it without re-extending.
+Parked `func_80043A8C` (homing flight toward `tgt_BC`, `+0xBC`, the vector `func_80035508` projects): GCC
+store-flags the 0/1 argument of `func_80043E00` (`id != 0x7FFF`) into `xori`/`sltu` where the target
+branches; if/else, switch, ternary, goto and two calls (not cross-jumped) all tried. The speed multiplies
+also differ by a v0/v1 swap (target loads the table byte before `dir.vx`). The rest, including the
+`if (...) {...} else { close: ...; return; } func_80043E78(wp);` layout, matches.
+Banked `func_800437A8` (the shot's update: `D_8008A0D8[wp->routine_8](wp)`, a table of `func_800437F8` and
+`func_80043A8C`, then `func_80051BAC(wp)`, which the player code also calls: it pushes the object on the
+list at `D_80098898` when `routine_0 & 3`, and clears `+0x7C`).
+`WORK_10C` fields from these: `spd`/`add` (0x44/0x4C, MODEL_WORK's), `hit_78` (`HIT_ENT *`, read by
+`func_80049C24`), `field_7C`, `field_88`, `rgbc_8C`, `x_90`..`z_94`, `field_96`/`97`, `field_9A`, `dir_A4`,
+`tgt_BC` (tested as two words, Capcom's `*(uint32 *)&v.vx` idiom).
 
 `code_800680BC.c` (event steps): `D_8009039C` is an event table of 8-byte entries (`u8`, `u8`, `s16` frame,
-step function), installed as `Scene_work+0xA4` by `func_80068CE0` (from `func_80068DAC`, a `D_80089024`
+step function), installed as `Scene_work+0xA4` by `event_scene_init` (from `func_80068DAC`, a `D_80089024`
 scene routine called with `&Scene_work`). `Sce_event_update` advances it when `Scene_work.timer_10` reaches the
 entry's frame and resets the timer. Entry bytes 0 and 1 are copied to `Scene_work.ev_08`/`ev_09`;
 `timer_18` restarts when `ev_08` changes and `timer_1C` when either changes. `Sce_event_set(table, arg)`
@@ -576,11 +623,14 @@ entry's frame and resets the timer. Entry bytes 0 and 1 are copied to `Scene_wor
 `func_80101D94` at frame 10), `func_800688BC`, `func_800688E4`, `func_80068BC0`, `func_80068CB8`: at frame 0
 each sets `field_9` (and clears `field_A`) of one of `Scene_work.obj_24[0..2]`. `obj_24` is `void *[16]`:
 `func_8001E968` fills it from four pools by the kind byte of each object entry, and this scene's entries
-(`D_8008FF88`, opened by `func_80068CE0`) make `[0]` a `WORK_3C0`, `[1]`/`[2]` `WORK_5A4`, `[3]` a `WORK_50`.
+(`D_8008FF88`, opened by `event_scene_init`) make `[0]` a `WORK_3C0`, `[1]`/`[2]` `WORK_5A4`, `[3]` a `WORK_50`.
 The object must be read into a local of that type: the byte stores alias the array.
 Entries are typed `EVENT_ENT` (`scene.h`); `event_step_call` (0x80068D64) runs the current entry's function
 unless `ev_08` is 0xFF. Also banked: steps `func_80068344`, `func_80068728` (sets `obj_24[3]->field_E` and
-`Scene_work.field_64`), `func_80068760`; `func_800680BC(arg)` resets the bytes/halfwords `D_800C3560`-`D_800C3571`
+`Scene_work.field_64`), `func_80068760`, and `event_scene_init` (the scene's setup: resets the camera
+with `func_8001E6C0(0, 0, 0)`, installs camera script `D_8008FFD8` in `Sce_camera_work.arg_C0` (a `uint32 *`
+command list stepped by `func_8001EC0C`) and event table `D_8009039C`, opens the four `SCENE_OBJ_ENT`s of
+`D_8008FF88` with `func_8001EAE8`, clears `field_64`); `func_800680BC(arg)` resets the bytes/halfwords `D_800C3560`-`D_800C3571`
 (`D_800C356F = arg`, `D_800C356E = 0x18`); `part_col_step(obj, n)` steps
 `WORK_5A4.pos_180[n].col` by 0x421 up to 0x4210 (an RGB555 fade on `obj_24[1]`). It matches only with the
 field written at each use: a `sint16 *col = &wp->pos_180[n].col` local adds an `addiu 0x180`. Its 8-byte
@@ -591,16 +641,30 @@ Also banked: `func_80068244`, `func_8006849C`, `func_8006890C`, `func_80068998`,
 `func_8001DDE4`) instead of `timer_10`. Two matching idioms: when two objects clear bit 1, the mask is an
 `int` local (`mask = ~2`; a literal folds to `andi 0xFD` at each use, the target loads -3 once), and the
 register split shows which objects shared one pointer local (`obj_24[0]` separate, `[1]`/`[2]` one local).
-Also banked: steps `func_80068290`, `func_80068388`, `func_800687D8`, `func_80068A24`, `func_80068BE4`.
+Also banked: steps `func_80068290`, `func_80068388`, `func_800687D8`, `func_80068A24`, `func_80068BE4`,
+`func_8006854C` (frames 14-20 run `part_col_step` on ten parts of `obj_24[1]`; frames 90-120 raise
+`Scene_work.field_68`/`6C`/`70` by 9, clamped to 0xFF together: probably an RGB fade level).
 `func_80068388` writes `obj_24[1]`'s per-part entries (`WORK_5A4.slot_F8[n].field_3`, `pos_180[n].col`).
 WORK_5A4 has 24 parts: `slot_F8[24]` (4 bytes), `pos_180[24]` (8 bytes), then 0x300 bytes to `base` at
 0x540, which is `CHILD_PARENT.blk_240` as 24 entries of 0x20. **Merged:** `CHILD_PARENT` was a view of
 WORK_5A4 (the same parts at the same offsets; `blk_240[24]` fills 0x240-0x53F exactly), so
 `func_80031324` takes a `WORK_5A4 *` and WORK_5A4 has `info_88` and `blk_240[24]`.
-`screen_tile_draw(r, g, b, abr)` (0x80068120, no callers in ROCK_NEO) links a semi-transparent
+`screen_tile_draw(r, g, b, abr)` (0x80068120, called by `func_80068DAC`) links a semi-transparent
 320x240 `TILE` and a `DR_MODE` (tpage `abr << 5 | 0xF`) into `Disp_env_ptr->ot[1]`. Each primitive
 takes 0x28 bytes from the scratchpad pointer `Map_prim_ptr` (0x1F800070, Capcom's name), whatever its size.
 `Disp_env_ptr` (0x80098934) is the shim's name for the current `DISP_ENV`.
+Banked `func_80068DAC(sw)` (0x80068DAC), the scene's main routine, a switch on `Scene_work.routine_4`:
+0 waits for `func_80042238(Player_work)`, clears bits 0-1 of `Player_work[0].unk00` and plays XA
+`0x2001000B`; 1 waits for `func_8001D878`, sets `field_0C = 30`; 2 counts `field_0C` down, then
+`func_80017C30(2)`; 3 `event_scene_init` and falls through to 4 (ends when `D_80098A72 == 0` and the
+event table reached its 0xFF entry or `func_8001DE84` says START skipped, `func_80017C30(10)`) and 5:
+the per-frame work (`event_step_call`, `screen_tile_draw(field_68, 6C, 70, 74)` while `field_64`, the
+camera, `Sce_event_update`, the empty `func_80068DA4` at `timer_14 == 0x4680`, 5 minutes). In 5 with
+`D_80098A72 == 0` it sets the `D_800C3560`.. block for the next stage (0x1B, 6), clears `unk00`, pauses
+the CD (`Cd_subcmd(0, 1, 0)`), restores the player (`func_80042314`), `func_8001E390(0x2EB)`,
+`Sce_flag_on(0x55)`, `func_8001D974`. So `screen_tile_draw` takes `uint8` r, g, b (the caller loads
+the low bytes of the `uint32` fields with `lbu`), and the stores only match with `D_800C356C = 2`
+written first (its constant is loaded before the others; its store stays in place).
 
 `scene.c` (0x8001D928..0x8001F798): banked `func_8001D928(keep)` (clears `D_800BE438[16]` unless `keep`,
 then `Scene_work` bytes 0-3 with one word store and `D_800989F8`/`_9FC`/`_A00`; the clear loop only
@@ -751,6 +815,26 @@ right size. Still different: the sz base is folded into the `lhu` offsets instea
 register (t6); the target hoists `0x07000000`, `0xFFFFFF` and the OT address into s0/s2/s4 (5 saved
 registers, frame 0x38, `otz` at sp+0x14); loop 1 walks copies of the sxy/sz bases; and the face pointer
 is a plain `f` with offsets 0/2/4/8 where ours strength-reduces it to `&f->uv[2]`.
+Parked `parts_model_draw` (`NON_MATCHING`; draws a `PARTS_WORK`, the 0x560-byte objects `parts_model_draw_all`
+walks from `D_800C3580` (4) and `D_8009F108` (16): projects `pos` (culls by depth and screen
+bounds), picks a level of detail of `model_80` by z (> 0x708, > 0x2BC), depth-cues the RGB555
+colour `col_55E`, then per visible part `gte_MulMatrix0`s the view matrix by `part_mtx[i]`, adds the
+rotated `part_pos[i]` to the view translation and calls `mesh_draw`). Everything matches except
+the fog CLUT lookup in `D_800C0DC0`: the target builds the address with `lui`/`ori` in `$at`, then
+`addu $at,$at,v0` and `lbu 0($at)`, the only such sequence in ROCK_NEO. maspsx gives a constant base
+`lui`, `addu $at,v0,$at`, `lbu %lo($at)` (one instruction shorter) and a symbol `%hi`/`%lo`; neither
+fits, so matching needs a toolchain change (an ASPSX expansion maspsx doesn't model). Found on the way:
+the 0x560 stride conflicts with `WORK_5A4 D_800C3580[]` and `WORK_3C0 D_8009F108[]`; the per-part
+colour needs a `sint32` local (`lh`, not `lhu`); the `mesh_draw` argument is an integer sum with the
+offset first (`addu a0,a0,v0`); `gte_lddp` is passed `&Scratch_dp`, the address, not the value.
+Parked `parts_model_draw_all` (`NON_MATCHING`; draws, last to first, the `PARTS_WORK`s with bit 1 of
+`flags` set in `Parts_work_tbl0` (0x800C3580, 4) and `Parts_work_tbl1` (0x8009F108, 16), both by
+constant address (`lui`/`ori`)). The C (`i = n; while (i != 0) { i--; ... tbl[i] ... }`) gives every
+instruction but the two counter loads: the target has `ori $s1,$zero,4` / `ori $s1,$zero,0x10`, where
+ASPSX 2.56 gives `addiu`. In all of ROCK_NEO only this function and `parts_model_draw` (`ori $v0,$zero,
+0x30`, plus its odd `$at` expansion) use `ori` for a small `li`: these two (0x8002DE5C-) were likely
+assembled with another ASPSX version (maspsx's default, pre-2.56, gives `ori`), i.e. a separate
+object with its own assembler setting. Matching needs a per-file toolchain change (owner's call).
 Banked by `tools/twins.py` (byte-identical to a matched function; C copied, build-checked):
 `func_8004E488` (same code as `func_80054BAC`: `return 0;`), `func_8005B85C` (same code as
 `func_8005AB78`), and after the twins run below `func_800181D4`, `func_8005B98C`, `func_80066714`.

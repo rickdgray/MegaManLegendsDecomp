@@ -7,6 +7,7 @@
 #include "common.h"
 #include "psyq/libgte.h"
 #include "scratch.h"
+#include "stage.h"
 
 // Keyframe table sets, loaded at fixed addresses (indexed by set number).
 #define Key_tbl_a ((KEY_ENT **)0x800D9D00)
@@ -220,19 +221,32 @@ typedef struct
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position
     SVECTOR old;  // 0x2C: previous position, passed to func_8003430C with pos (func_800435F8)
     VECTOR old_l; // 0x34: 16.16 previous position (moved with pos_l by func_8002F884)
-    uint8 pad_44[0x10];
-    SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
-                 // by func_8001E968
+    SVECTOR spd;  // 0x44: speed; added (<< 8) to pos_l each frame by func_80043A8C
+    SVECTOR add;  // 0x4C: acceleration
+    SVECTOR ang;  // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
+                  // by func_8001E968
     uint8 pad_5C[8];
-    uint16 field_64;
+    uint16 field_64; // low 12 bits: Y angle of the launch direction (func_800437F8)
     uint8 pad_66[0xE];
     uint32 field_74;
-    uint32 field_78;
-    uint8 pad_7C[4];
+    HIT_ENT *hit_78; // 0x78: collision box (func_80049C24); 0 on open
+    sint16 field_7C; // nonzero ends the flight of func_80043A8C
+    uint8 pad_7E[2];
     uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint8 pad_88[0x10];
+    uint32 field_88;   // 0x88: set from D_80097DAC (by Player_work[0].rec[1].idx[0])
+    uint32 rgbc_8C;    // 0x8C: code and colour (0x2E808080)
+    sint16 x_90;       // 0x90: copy of pos (func_800437F8, func_80043A8C)
+    sint16 y_92;
+    sint16 z_94;
+    uint8 field_96;
+    uint8 field_97;
     uint16 field_98; // passed to func_8003430C as both positions' pad (func_80043E78)
-    uint8 pad_9A[0x2A];
+    uint16 field_9A; // 0x9A: += 5 each frame by func_80043A8C
+    uint8 pad_9C[8];
+    SVECTOR dir_A4; // 0xA4: unit direction of flight (func_800437F8), turned toward tgt_BC
+    uint8 pad_AC[0x10];
+    SVECTOR tgt_BC;      // 0xBC: target position (0 when none); projected and cleared each frame by
+                         // func_80035508 while the object holds a slot of D_80098798
     SLOT_OWNER owner_C4; // 0xC4: slot owner passed to func_8003430C
     uint8 pad_CC[0x40];
 } WORK_10C; // 0x10C bytes
@@ -492,6 +506,7 @@ void func_80031988(WORK_48 *wp);
 WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0
 void func_80031930(WORK_10C *wp); // frees a slot of D_800BFB20
 void *func_80036294(uint32 id);   // object of an id byte (kind | index), or 0
+void func_800354E0(uint32 n);     // releases slot n of D_80098798 (claimed by func_8003545C)
 uint32 func_8002FE74(uint32 a);
 sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8);
 sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,

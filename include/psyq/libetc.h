@@ -14,6 +14,7 @@
 typedef void (*VSYNC_FUNC)(void);
 
 void ResetCallback(void);
+void StopCallback(void);
 long SetVideoMode(long mode);
 int VSync(int mode);
 void VSyncCallback(VSYNC_FUNC func);

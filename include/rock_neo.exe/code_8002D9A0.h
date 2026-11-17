@@ -76,9 +76,9 @@ typedef struct
     uint32 idx;
 } MESH_FACE;
 
-// Textured mesh drawn by mesh_draw. Its only caller, func_8002DEEC (assembly), passes
+// Textured mesh drawn by mesh_draw. Its only caller, parts_model_draw (assembly), passes
 // entry n of the MESH array whose address is in the scratchpad word 0x1F8000E8, n being a byte
-// at +0x4F8 of the object func_8002DEEC is given. That word is set to model data + 0x14 by
+// at +0x4F8 of the object parts_model_draw is given. That word is set to model data + 0x14 by
 // code_80027678 (func_8002786C, func_8002831C, func_80028F90, all assembly), from tables and
 // object fields with no C type yet; no existing type describes the mesh.
 typedef struct
@@ -92,6 +92,56 @@ typedef struct
     uint32 clut_tpage; // 0x0C CLUT in the high half, texture page in the low half
     SVECTOR *vtx;      // 0x10
 } MESH;
+
+// Model data of a PARTS_WORK: three levels of detail, each a MESH array whose entry 0 is skipped
+// (parts_model_draw uses &lod[n][1], entry 1 for part mesh 0).
+typedef struct
+{
+    uint8 pad_0[0x70];
+    MESH *lod[3]; // 0x70: near (z <= 0x2BC), middle (z <= 0x708), far
+} PARTS_MODEL;
+
+// Part entry of a PARTS_WORK.
+typedef struct
+{
+    uint8 mesh;   // mesh index in the chosen level of detail
+    sint8 n_part; // entry 0 only: number of parts drawn
+    uint8 pad_2;
+    sint8 hide; // < 0: part not drawn
+} PART_ENT;
+
+// 0x560-byte object drawn part by part by parts_model_draw. Its caller, parts_model_draw_all, walks two
+// arrays of these with a 0x560 stride: 4 from D_800C3580 and 16 from D_8009F108 (where
+// code_8002E7A8.h has WORK_5A4 and WORK_3C0, which don't fit that stride; not resolved yet),
+// drawing those with bit 1 of byte 0 set. It reaches both arrays by constant address
+// (Parts_work_tbl0, Parts_work_tbl1).
+typedef struct
+{
+    uint8 flags; // bit 1: drawn by parts_model_draw_all
+    uint8 pad_1[0xB];
+    SVECTOR pos; // 0x0C: projected to choose the level of detail and cull the object
+    uint8 pad_14[0x6C];
+    PARTS_MODEL *model_80;
+    uint8 pad_84[0xB4];
+    MATRIX part_mtx[24];  // 0x138: rotation of each part (relative to the view)
+    SVECTOR part_pos[24]; // 0x438: position of each part; pad: RGB555 colour (when col_55E is 0)
+    PART_ENT part[24];    // 0x4F8
+    uint8 pad_558[6];
+    sint16 col_55E; // RGB555 colour of the whole object; 0: each part's own
+} PARTS_WORK;       // 0x560 bytes
+
+// The two PARTS_WORK arrays parts_model_draw_all draws, addressed by constant in the source (lui/ori);
+// the same memory as D_800C3580 and D_8009F108.
+#define Parts_work_tbl0 ((PARTS_WORK *)0x800C3580) // [4]
+#define Parts_work_tbl1 ((PARTS_WORK *)0x8009F108) // [16]
+
+// RGB555 colour (bit 15: semi-transparency) to a primitive's colour and code word: 8-bit R, G, B
+// and the code's semi-transparency bit (0x02000000).
+#define RGB555_TO_RGBC(c) ((((c)&0x1F) << 3) | (((c)&0x3E0) << 6) | (((c)&0x7C00) << 9) | (((c)&0x8000) << 10))
+
+// Scratchpad: the MESH array mesh_draw's caller indexes (set to a model's mesh table by
+// parts_model_draw and by code_80027678).
+#define Scratch_mesh_tbl (*(MESH **)0x1F8000E8)
 
 extern MATRIX D_80097CD4; // identity rotation, zero translation (.sdata, owner not known)
 

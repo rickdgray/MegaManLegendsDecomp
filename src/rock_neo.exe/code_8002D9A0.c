@@ -7,6 +7,10 @@
 #include "psyq/libgpu.h"
 #include "scratch.h"
 
+// Called only from this file
+void mesh_draw(MESH *m);
+void parts_model_draw(PARTS_WORK *wp);
+
 void billboard_draw(void)
 {
     VECTOR pos;
@@ -135,9 +139,125 @@ void func_8002DE34(WORDS4 *tbl, sint32 idx, WORDS3 *val)
     tbl[idx].body.w[2] = val->w[2];
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DE5C);
+#ifdef NON_MATCHING
+// Every instruction matches except the two loop-count loads: the target has `ori $s1,$zero,4` and
+// `ori $s1,$zero,0x10` where ASPSX 2.56 (maspsx) gives `addiu`. Only this function and
+// parts_model_draw use `ori` for a small `li` in the whole program: an assembler difference
+// (older ASPSX?), not a source one.
+void parts_model_draw_all(void)
+{
+    sint32 i;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", func_8002DEEC);
+    i = 4;
+    while (i != 0)
+    {
+        i--;
+        if (Parts_work_tbl0[i].flags & 2)
+        {
+            parts_model_draw(&Parts_work_tbl0[i]);
+        }
+    }
+    i = 16;
+    while (i != 0)
+    {
+        i--;
+        if (Parts_work_tbl1[i].flags & 2)
+        {
+            parts_model_draw(&Parts_work_tbl1[i]);
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", parts_model_draw_all);
+#endif
+
+#ifdef NON_MATCHING
+// Only the fog CLUT lookup differs: the target builds 0x800C0DC0 (D_800C0DC0) with lui/ori in $at,
+// then addu $at,$at,reg and lbu 0($at), a form maspsx never emits (a constant base gives lui,
+// addu $at,reg,$at and lbu %lo($at); a symbol gives %hi/%lo relocations).
+void parts_model_draw(PARTS_WORK *wp)
+{
+    VECTOR v;
+    SVECTOR unused; // never used; keeps the frame size
+    DVECTOR sxy;
+    long z;
+    sint32 col;
+    sint32 c;
+    sint32 i;
+
+    gte_SetRotMatrix(&Scratch_view_mtx);
+    gte_SetTransVector(&Scratch_trans);
+    gte_ldv0(&wp->pos);
+    gte_rtps();
+    gte_stdp(&Scratch_dp);
+    gte_stsxy(&sxy);
+    gte_stszotz(&z);
+    if (z > Scratch_fog_0)
+    {
+        return;
+    }
+    if (z < (0x30 >> Scratch_scale_shift))
+    {
+        return;
+    }
+    if ((uint16)(sxy.vx + 0x160) > 0x400)
+    {
+        return;
+    }
+    if ((uint16)(sxy.vy + 0x88) > 0x400)
+    {
+        return;
+    }
+    Scratch_clut_bits = ((uint8 *)0x800C0DC0)[(z / 128) & 0x1F] << 16; // D_800C0DC0, as a constant
+    if (z > 0x708)
+    {
+        Scratch_mesh_tbl = &wp->model_80->lod[2][1];
+    }
+    else if (z > 0x2BC)
+    {
+        Scratch_mesh_tbl = &wp->model_80->lod[1][1];
+    }
+    else
+    {
+        Scratch_mesh_tbl = &wp->model_80->lod[0][1];
+    }
+    col          = wp->col_55E;
+    z            = wp->part[0].n_part;
+    Scratch_rgbc = RGB555_TO_RGBC(col);
+    gte_ldrgb(&Scratch_rgbc);
+    gte_dpcs();
+    gte_strgb(&Scratch_rgbc);
+    for (i = 0; i < z; i++)
+    {
+        if (wp->part[i].hide >= 0)
+        {
+            gte_MulMatrix0(&Scratch_view_mtx, &wp->part_mtx[i], &Scratch_mtx);
+            gte_SetRotMatrix(&Scratch_view_mtx);
+            gte_ldv0(&wp->part_pos[i]);
+            gte_rtv0();
+            gte_stlvnl(&v);
+            Scratch_mtx.t[0] = Scratch_view_mtx.t[0] + v.vx;
+            Scratch_mtx.t[1] = Scratch_view_mtx.t[1] + v.vy;
+            Scratch_mtx.t[2] = Scratch_view_mtx.t[2] + v.vz;
+            gte_SetRotMatrix(&Scratch_mtx);
+            gte_SetTransMatrix(&Scratch_mtx);
+            if (col == 0)
+            {
+                c            = wp->part_pos[i].pad;
+                Scratch_rgbc = RGB555_TO_RGBC(c);
+                gte_lddp(&Scratch_dp); // the address, not the value
+                gte_ldrgb(&Scratch_rgbc);
+                gte_dpcs();
+                gte_strgb(&Scratch_rgbc);
+            }
+            // Integer sum, offset first: gives the target's addu operand order.
+            mesh_draw((MESH *)(wp->part[i].mesh * sizeof(MESH) + (u_long)Scratch_mesh_tbl));
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", parts_model_draw);
+#endif
 
 #ifdef NON_MATCHING
 // mesh_draw reaches all its scratchpad data from one pointer, sxy (Scratch_sxy): the

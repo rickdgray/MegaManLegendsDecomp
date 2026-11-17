@@ -43,6 +43,14 @@
 // Color and code word given to the primitives mesh_draw builds (code OR'd in).
 #define Scratch_rgbc (*(u_long *)0x1F8000E4)
 
+// Depth-cueing value (GTE IR0) of the object being drawn, stored after projecting its position
+// (parts_model_draw).
+#define Scratch_dp (*(long *)0x1F8000EC)
+
+// Translation loaded with Scratch_view_mtx's rotation to project an object's position
+// (parts_model_draw).
+#define Scratch_trans (*(VECTOR *)0x1F800030)
+
 // Per-vertex screen XY and Z of the mesh mesh_draw is drawing (vertex index).
 #define Scratch_sxy ((long *)0x1F800100)
 #define Scratch_sz  ((uint16 *)0x1F800300)

@@ -15,6 +15,9 @@ typedef struct
 } RECT;
 
 // Primitive header: 24-bit address of the next primitive + 8-bit length.
+// The primitives' tag word is a u_long here, where the Library Reference writes `u_long *tag`:
+// it isn't a pointer but this packed address and length, and the game builds it with integer
+// operations (`p->tag = *ot | 0x09000000` in code_8002D9A0). Same size either way.
 typedef struct
 {
     unsigned addr : 24;
@@ -26,7 +29,7 @@ typedef struct
 {
     u_long tag;
     u_long code[15];
-} DR_ENV; // 0x40 */
+} DR_ENV; // 0x40
 
 typedef struct
 {
@@ -115,6 +118,7 @@ typedef struct
 #define setSprt(p)                (setlen(p, 4), setcode(p, 0x64))
 #define setTile(p)                (setlen(p, 3), setcode(p, 0x60))
 #define setSemiTrans(p, abe)      ((abe) ? setcode(p, getcode(p) | 0x02) : setcode(p, getcode(p) & ~0x02))
+#define setXY0(p, _x0, _y0)       ((p)->x0 = (_x0), (p)->y0 = (_y0))
 #define setWH(p, _w, _h)          ((p)->w = (_w), (p)->h = (_h))
 #define setRGB0(p, _r0, _g0, _b0) ((p)->r0 = (_r0), (p)->g0 = (_g0), (p)->b0 = (_b0))
 
@@ -129,16 +133,17 @@ typedef struct
 
 u_long *ClearOTag(u_long *ot, int n);
 void ClearOTagR(u_long *ot, long n);
-void DrawOTag(u_long *p);
-int DrawSync(int mode);
+void DrawOTag(u_long *ot);
+long DrawSync(long mode);
 DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h);
-DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h);
+DISPENV *SetDefDispEnv(DISPENV *disp, int x, int y, int w, int h);
 DRAWENV *PutDrawEnv(DRAWENV *env);
 DISPENV *PutDispEnv(DISPENV *env);
 void SetDispMask(int mask);
 int ResetGraph(int mode);
 int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
-int LoadImage(RECT *rect, u_long *p);
+int LoadImage(RECT *recp, u_long *p);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+u_short GetTPage(int tp, int abr, int x, int y);
 
 #endif // PSYQ_LIBGPU_H

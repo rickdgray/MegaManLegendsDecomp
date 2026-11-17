@@ -55,5 +55,6 @@ void func_800398E0(sint32 arg0);
 void Swing_Camera2(sint32 arg0, sint32 arg1, sint32 arg2, SVECTOR *pos);
 sint32 func_800399EC(sint32 arg0);
 void func_80039A38(sint32 arg0); // callers pass an address; forwarded to func_800399EC
+sint32 func_80039B80(void);      // D_800A396C, or 0 while D_800A3960 is 0
 
 #endif // CODE_80037FB4_H

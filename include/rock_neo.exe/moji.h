@@ -172,4 +172,7 @@ void Moji_init(void);
 // Moji_flag.
 void MojiTaskKill(void);
 
+// Runs every message entry; called once per frame by main.
+void func_80053B40(void);
+
 #endif

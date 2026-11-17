@@ -8,12 +8,14 @@
 
 #include "common.h"
 
+// DecDCToutCallback's callback. Ours, not PsyQ's: the Library Reference types it `long (*func)()`,
+// but the game's callback (the shim's Movie_dct_out_callback) returns nothing.
 typedef void (*DecDCTCB)(void);
 
-void DecDCTReset(int mode);
-void DecDCTin(u_long *buf, int mode);
+void DecDCTReset(long mode);
+void DecDCTin(u_long *runlevel, long mode);
 int DecDCTvlc(u_long *bs, u_long *buf);
-void DecDCTout(u_long *buf, int size);
-DecDCTCB DecDCToutCallback(DecDCTCB func);
+void DecDCTout(u_long *cell, long size);
+long DecDCToutCallback(DecDCTCB func);
 
 #endif // PSYQ_LIBPRESS_H

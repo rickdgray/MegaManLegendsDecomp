@@ -96,6 +96,9 @@ sint32 func_80048EA4(SVECTOR *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
 // Collides the move old -> pos against ent; returns hit flags (0x1000 = floor).
 sint32 func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
 void func_8004AC8C(void *vel, sint32 hit);
+// If obj's routine_0 has bit 0 or 1 set, pushes obj on the list at D_80098898; clears +0x7C.
+// Called with player objects and WORK_10C shots.
+void func_80051BAC(STAGE_OBJ *obj);
 
 // Stage overlay code (loaded with the stage; notes/rock_neo.md, "References outside the image").
 void func_80101D94(void);

@@ -75,7 +75,7 @@ typedef struct
 void SpuInit(void);
 void SpuQuit(void);
 void SpuSetEnv(SpuEnv *env);
-long SpuGetKeyStatus(unsigned long voice_bit);
+long SpuGetKeyStatus(u_long voice_bit);
 void SpuSetKeyOnWithAttr(SpuVoiceAttr *attr);
 void SpuSetKey(long on_off, u_long voice_bit);
 

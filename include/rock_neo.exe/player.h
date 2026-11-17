@@ -94,4 +94,7 @@ extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
 extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *Player_work_ptr; // 0x80098A50
 
+sint32 func_80042238(PL_WORK *pl);
+void func_80042314(PL_WORK *pl);
+
 #endif // PLAYER_H

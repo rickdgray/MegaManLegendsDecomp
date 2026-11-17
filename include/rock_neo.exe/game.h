@@ -19,7 +19,11 @@ typedef struct
 {
     sint8 routine_0; // 0x00: lb; index of Game_main_tbl (func_800155A4)
     uint8 routine_1; // 0x01
-    uint8 unk002[0x1A];
+    uint8 unk002[0x10 - 0x02];
+    uint32 unk010; // 0x10: cleared by func_8001326C
+    uint32 unk014; // 0x14: cleared by func_8001326C
+    sint16 unk018; // 0x18: cleared by func_8001326C
+    sint16 unk01A; // 0x1A: cleared by func_8001326C
     uint32 money;  // 0x1C: zenny, capped at MONEY_MAX (Money_add)
     uint32 unk020; // 0x20: Money_add adds the amount of a payment here (c == 0) ...
     uint32 unk024; // 0x24: ... or here (c != 0)
@@ -31,7 +35,9 @@ typedef struct
     sint8 unk051;  // 0x51: lb; indexes the list at Sound_stage_id_tbl[unk050] in Sound_stage_play
     uint8 unk052;
     sint8 unk053; // 0x53: lb; 1 selects a different value in func_8001997C
-    uint8 unk054[4];
+    uint8 unk054; // 0x54: cleared by func_8001326C
+    uint8 unk055; // 0x55: cleared by func_8001326C
+    uint8 unk056[2];
     sint8 mono; // 0x58: mono sound output (volume_update: SsSetMono, CD mixed to both sides; calc_vol)
     uint8 unk059;
     sint8 unk05A; // 0x5A: lb; when nonzero, func_8001DE84 skips its scene-flag test
@@ -47,7 +53,8 @@ typedef struct
     sint16 file_070;
     sint16 file_072;
     sint16 file_074;
-    uint8 unk076[0x7C - 0x76];
+    sint16 unk076; // 0x76: set to -1 with file_070-074 by func_8001326C
+    uint8 unk078[0x7C - 0x78];
     uint8 unk07C; // 0x7C: func_80057924 sets it to unk07D after charging 10 zenny per unit of
                   // the difference (or all the money)
     uint8 unk07D; // 0x7D
