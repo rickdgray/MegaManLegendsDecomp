@@ -33,7 +33,7 @@ typedef struct
     uint8 unk00;
     uint8 unk01;
     uint8 unk02;   // copied to the object's byte 4
-    uint8 kind_03; // pool: 0x20 WORK_3C0, 0x40 WORK_5A4, 0x60 WORK_10C, 0xE0 WORK_50 (func_8001E968)
+    uint8 kind_03; // pool: 0x20 WORK_3C0, 0x40 WORK_5A4, 0x60 SHL_WORK, 0xE0 WORK_50 (func_8001E968)
     uint8 unk04;   // copied to the object's byte 3
     uint8 unk05[3];
     sint32 unk08;    // copied to the object's word 0xC
@@ -62,7 +62,7 @@ struct SCENE_WORK
     uint8 unk20[0x24 - 0x20];
     // 0x24: the scene's objects, opened by func_8001E968 from one of four pools chosen by its third
     // argument (kind 0x20: func_80031418, WORK_3C0; 0x40: func_80031498, WORK_5A4; 0x60:
-    // Open_SHL_WORK, WORK_10C; 0xE0: func_80031734, WORK_50), so each entry's type depends on the
+    // Open_SHL_WORK, SHL_WORK; 0xE0: func_80031734, WORK_50), so each entry's type depends on the
     // scene. The users read an entry into a pointer of the type they know: the event steps of
     // code_800680BC have [0] WORK_3C0, [1] and [2] WORK_5A4, [3] WORK_50 (their object table
     // D_8008FF88), and the camera (func_8001E550) only needs the MODEL_WORK layout.

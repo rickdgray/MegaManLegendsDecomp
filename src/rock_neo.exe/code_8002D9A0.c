@@ -139,6 +139,9 @@ void func_8002DE34(WORDS4 *tbl, sint32 idx, WORDS3 *val)
     tbl[idx].body.w[2] = val->w[2];
 }
 
+// Dead code: nothing calls parts_model_draw_all (no jal, no data table, no stage overlay). With
+// parts_model_draw and mesh_draw, the only functions it reaches, it was written for an older
+// memory layout (see PARTS_WORK in code_8002D9A0.h).
 #ifdef NON_MATCHING
 // Every instruction matches except the two loop-count loads: the target has `ori $s1,$zero,4` and
 // `ori $s1,$zero,0x10` where ASPSX 2.56 (maspsx) gives `addiu`. Only this function and
@@ -171,6 +174,7 @@ void parts_model_draw_all(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", parts_model_draw_all);
 #endif
 
+// Dead code: only parts_model_draw_all calls it, and nothing calls that (see above).
 #ifdef NON_MATCHING
 // Only the fog CLUT lookup differs: the target builds 0x800C0DC0 (D_800C0DC0) with lui/ori in $at,
 // then addu $at,$at,reg and lbu 0($at), a form maspsx never emits (a constant base gives lui,
@@ -259,6 +263,7 @@ void parts_model_draw(PARTS_WORK *wp)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002D9A0", parts_model_draw);
 #endif
 
+// Dead code: only parts_model_draw calls it (see parts_model_draw_all).
 #ifdef NON_MATCHING
 // mesh_draw reaches all its scratchpad data from one pointer, sxy (Scratch_sxy): the
 // target addresses each of these relative to the register holding 0x1F800100, which GCC only

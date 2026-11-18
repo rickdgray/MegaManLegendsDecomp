@@ -69,7 +69,7 @@ typedef struct
     SLOT_OWNER owner_188; // 0x188: slot owner passed to func_800341BC (func_8003C2D8)
     uint8 unk190[0x198 - 0x190];
     uint32 unk198; // 0x198: cleared by func_800433FC/func_800435BC, set to 1 by func_800434F0
-                   // (state of the player's WORK_10C slot of D_8008A0CC)
+                   // (state of the player's SHL_WORK slot of D_8008A0CC)
     uint8 unk19C[0x1A8 - 0x19C];
     MATRIX base_mtx;       // 0x1A8: body matrix, copied from the scratchpad matrix (func_800325D4)
     MATRIX joint_mtx[15];  // 0x1C8: joint matrices (func_800331A0)

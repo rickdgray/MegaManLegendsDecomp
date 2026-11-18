@@ -110,11 +110,13 @@ typedef struct
     sint8 hide; // < 0: part not drawn
 } PART_ENT;
 
-// 0x560-byte object drawn part by part by parts_model_draw. Its caller, parts_model_draw_all, walks two
-// arrays of these with a 0x560 stride: 4 from D_800C3580 and 16 from D_8009F108 (where
-// code_8002E7A8.h has WORK_5A4 and WORK_3C0, which don't fit that stride; not resolved yet),
-// drawing those with bit 1 of byte 0 set. It reaches both arrays by constant address
-// (Parts_work_tbl0, Parts_work_tbl1).
+// 0x560-byte object drawn part by part by parts_model_draw, from two arrays that
+// parts_model_draw_all walks with a 0x560 stride. Not a view of any live object: nothing calls
+// parts_model_draw_all (no jal, no table, no overlay), so it, parts_model_draw and mesh_draw are
+// dead code written against an older memory layout. The arrays start where the live pools
+// D_800C3580 (WORK_5A4[4]) and D_8009F108 (WORK_3C0[16]) do, but with this stride the 16-entry
+// one would run to 0x800A4708, over Cd_cmd_queue (0x800A3A40). A stale object would also explain
+// the two functions' odd `ori` encodings. PARTS_WORK is kept as the layout this code expects.
 typedef struct
 {
     uint8 flags; // bit 1: drawn by parts_model_draw_all
@@ -130,8 +132,8 @@ typedef struct
     sint16 col_55E; // RGB555 colour of the whole object; 0: each part's own
 } PARTS_WORK;       // 0x560 bytes
 
-// The two PARTS_WORK arrays parts_model_draw_all draws, addressed by constant in the source (lui/ori);
-// the same memory as D_800C3580 and D_8009F108.
+// The two PARTS_WORK arrays parts_model_draw_all draws, addressed by constant in the source
+// (lui/ori); see PARTS_WORK for why they overlap the live pools D_800C3580 and D_8009F108.
 #define Parts_work_tbl0 ((PARTS_WORK *)0x800C3580) // [4]
 #define Parts_work_tbl1 ((PARTS_WORK *)0x8009F108) // [16]
 

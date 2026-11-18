@@ -57,26 +57,6 @@ typedef struct
     IDX_SHAPE *ptr; // 0x08
 } IDX_ENT;
 
-// An object tested against the IDX entries (func_80037694, func_80049C24); type unknown (partial).
-typedef struct
-{
-    uint8 unk00[0xC4];
-    uint32 unkC4; // top byte nonzero: skip
-} STAGE_OBJ;
-
-// Collision box passed to func_8004B5CC/func_80048EA4: three (min, max) halfword pairs, each
-// -n, +n in the tables (D_8008A310, D_8008A618). max_A is the half-height kept clear above the
-// ground (func_80046438).
-typedef struct
-{
-    sint16 min_0;
-    sint16 max_2;
-    sint16 min_4;
-    sint16 max_6;
-    sint16 min_8;
-    sint16 max_A;
-} HIT_ENT;
-
 // Stack of packed map cells (x | y << 8); Cell_stack_idx (code_80037534's .sdata) is the count.
 extern uint16 D_8009A376[];
 extern uint16 Cell_stack[];
@@ -86,19 +66,6 @@ extern sint8 D_80089EEC[8];
 extern sint8 D_80089EF4[8];
 extern sint8 D_80089EFC[4];
 extern sint8 D_80089F00[4];
-
-// code_80048620
-sint32 func_80049C24(STAGE_OBJ *obj); // the IDX entry obj touches, or 0
-void func_8004B414(STAGE_OBJ *obj);
-sint32 func_8004920C(SVECTOR *v); // defined in code_80048620.c
-// Moves pos along the ground; returns the height of the surface below it.
-sint32 func_80048EA4(SVECTOR *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
-// Collides the move old -> pos against ent; returns hit flags (0x1000 = floor).
-sint32 func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
-void func_8004AC8C(void *vel, sint32 hit);
-// If obj's routine_0 has bit 0 or 1 set, pushes obj on the list at D_80098898; clears +0x7C.
-// Called with player objects and WORK_10C shots.
-void func_80051BAC(STAGE_OBJ *obj);
 
 // Stage overlay code (loaded with the stage; notes/rock_neo.md, "References outside the image").
 void func_80101D94(void);

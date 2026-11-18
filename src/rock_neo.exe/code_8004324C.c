@@ -4,6 +4,7 @@
 #include "game.h"
 #include "player.h"
 #include "code_80037534.h"
+#include "code_80048620.h"
 #include "code_80037FB4.h"
 #include "code_8005C258.h"
 #include "sound.h"
@@ -69,12 +70,12 @@ void func_80043340(sint32 amount, sint32 n)
     }
 }
 
-void func_800433C0(WORK_10C *wp)
+void func_800433C0(SHL_WORK *wp)
 {
     D_8008A0CC[wp->routine_8](wp);
 }
 
-void func_800433FC(WORK_10C *wp)
+void func_800433FC(SHL_WORK *wp)
 {
     SVECTOR v;  // unused (0x18 bytes in the frame, the locals of func_800437F8's
     VECTOR out; // launch vector)
@@ -102,7 +103,7 @@ void func_800433FC(WORK_10C *wp)
     Sound_call2(0x96, &wp->pos);
 }
 
-void func_800434F0(WORK_10C *wp)
+void func_800434F0(SHL_WORK *wp)
 {
     PL_WORK *pl;
     PL_WORK *cur;
@@ -114,7 +115,7 @@ void func_800434F0(WORK_10C *wp)
     {
         func_80031930(wp);
     }
-    else if (func_80037694((STAGE_OBJ *)wp, 0))
+    else if (func_80037694((MODEL_WORK *)wp, 0))
     {
         func_80043740(wp);
         wp->routine_8++;
@@ -126,7 +127,7 @@ void func_800434F0(WORK_10C *wp)
     }
 }
 
-void func_800435BC(WORK_10C *wp)
+void func_800435BC(SHL_WORK *wp)
 {
     PL_WORK *pl;
 
@@ -135,7 +136,7 @@ void func_800435BC(WORK_10C *wp)
     func_80031930(wp);
 }
 
-void func_800435F8(WORK_10C *wp)
+void func_800435F8(SHL_WORK *wp)
 {
     sint32 id;
     PL_WORK *pl;
@@ -169,7 +170,7 @@ void func_800435F8(WORK_10C *wp)
     wp->old = wp->pos;
 }
 
-void func_80043740(WORK_10C *wp)
+void func_80043740(SHL_WORK *wp)
 {
     WORK_48 *e;
 
@@ -185,13 +186,13 @@ void func_80043740(WORK_10C *wp)
     }
 }
 
-void func_800437A8(WORK_10C *wp)
+void func_800437A8(SHL_WORK *wp)
 {
     D_8008A0D8[wp->routine_8](wp);
-    func_80051BAC((STAGE_OBJ *)wp);
+    func_80051BAC((MODEL_WORK *)wp);
 }
 
-void func_800437F8(WORK_10C *wp)
+void func_800437F8(SHL_WORK *wp)
 {
     SVECTOR v;
     VECTOR out;
@@ -260,7 +261,7 @@ void func_800437F8(WORK_10C *wp)
 // Two differences: GCC turns the hit flag into xori/sltu where the target branches (if/else,
 // switch, ternary, goto and two calls all tried), and the speed multiplies load dir.vx before
 // the table byte (register swap v0/v1).
-void func_80043A8C(WORK_10C *wp)
+void func_80043A8C(SHL_WORK *wp)
 {
     SVECTOR dir;
     SVECTOR nrm;
@@ -269,7 +270,7 @@ void func_80043A8C(WORK_10C *wp)
     uint8 spd;
     sint32 hit;
 
-    id = func_80037694((STAGE_OBJ *)wp, 0);
+    id = func_80037694((MODEL_WORK *)wp, 0);
     if (id != 0 || wp->field_7C != 0)
     {
         if (id == 0x7FFF)
@@ -351,11 +352,11 @@ void func_80043A8C(WORK_10C *wp)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_80043A8C);
 #endif
 
-void func_80043DF8(WORK_10C *wp, MATRIX *m)
+void func_80043DF8(SHL_WORK *wp, MATRIX *m)
 {
 }
 
-void func_80043E00(WORK_10C *wp, uint8 arg)
+void func_80043E00(SHL_WORK *wp, uint8 arg)
 {
     WORK_48 *e;
 
@@ -372,7 +373,7 @@ void func_80043E00(WORK_10C *wp, uint8 arg)
     }
 }
 
-void func_80043E78(WORK_10C *wp)
+void func_80043E78(SHL_WORK *wp)
 {
     uint32 pad;
     sint32 val;

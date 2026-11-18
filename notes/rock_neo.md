@@ -386,7 +386,7 @@ branch bodies, `>=`, swapped names and `-=` forms were also tried.
 `code_8002E7A8.c` (batch 2): banked `func_800355F0` (view matrix from `Player_work[n]`; `Player_work` is
 now an array, the target indexes it by symbol; `unk56` read as `(uint16)` for `lhu`), `func_80033D80`
 (scratchpad matrix `0x1F8000C0` + `ApplyMatrix`/`RotMatrix`/`MulMatrix`), `func_80037440` (counts
-`D_800BFB20[n]` by id into `D_8009856C[16]`; `D_800BFB22` is declared as a second `WORK_10C` array so
+`D_800BFB20[n]` by id into `D_8009856C[16]`; `D_800BFB22` is declared as a second `SHL_WORK` array so
 the access keeps its own `lui`), `Angle_xz_vector`, `Angle_xz_svector` (`catan` of the x/z delta).
 Parked `func_80036C50` (`NON_MATCHING`; 4-entry table at `D_8009A306`, stride 0x14): the target keeps
 `&D_8009A306` in a3 for the first compare and the loop; ours folds the first compare to `lui`+`%lo` and
@@ -403,7 +403,7 @@ then copy the vector or the midpoint into `D_800BE478[slot] + 0xBC` for each slo
 `owner->mask_4` temp). Parked `func_80036B40` (`NON_MATCHING`): copies the 0x28-byte block at
 `D_800BC7F8` to `D_8009A350` after `SetFarColor`/`SetFogNear`; the copy is right, but the target keeps
 `&D_800BC818` in s0 from the start (also the copy end pointer) while ours rebuilds `D_800BC818-0x20`.
-Parked `func_80035724` (`NON_MATCHING`; spawns a `WORK_10C` slot from `PL_WORK`, claims a slot with
+Parked `func_80035724` (`NON_MATCHING`; spawns a `SHL_WORK` slot from `PL_WORK`, claims a slot with
 `func_8003545C`): the target computes `pl + sel * 8` at the end of each branch, ours once after the merge.
 `func_80035508` (GTE: projects each claimed slot's position at +0xBC through `Scratch_view_mtx`, then
 clears it) banked with `psyq/inline_c.h`; its screen XY local is 8 bytes (frame 0x10), and `mask <<= 1`
@@ -470,7 +470,7 @@ keyframes at 0xF8-0x106). `Obj_work_flag_change` and `func_8002F420` apply `func
 `func_8002F928` to several pools, `func_8002FA38` writes by kind, so `FLAG_WORK`, `MOVE_WORK`, `POS_WORK`,
 `ATTACH_WORK`, `TURN_WORK` and `POS14_WORK` stay views until that header has a type. Merged: the keyframe and
 joint views into `PL_WORK` (`tbl_F8`..`unk106`, `owner_188`, `base_mtx`, `joint_mtx[15]`, `joint_pos[15]`,
-`pos_1C`, `pos_428`, `svec_438`), `OBJ_10C` into `WORK_10C`, `func_8002F998`'s pointer into `EVE_WORK`.
+`pos_1C`, `pos_428`, `svec_438`), `OBJ_10C` into `SHL_WORK`, `func_8002F998`'s pointer into `EVE_WORK`.
 `func_800323FC` is down to the order of its first two loads (lbu time before lw ent_FC) after reusing the
 parameter as the copy of ctl.
 
@@ -479,10 +479,10 @@ passes `EM_WORK` to `Model_work_init`, `Obj_pos_set` and `EM_Char_Set` as `(MODE
 it: `id`, `type`, `pos` 0x14, `pos_l` 0x1C, `old` 0x2C, `old_l` 0x34, `spd` 0x44 (pad = time), `add` 0x4C,
 `ang` 0x54, `ang.vy` the facing). `ATTACH_WORK`, `FLAG_WORK`, `MOVE_WORK` and `POS14_WORK` merged into it;
 `POS_WORK` into `WORK_48` (`func_8002F928` only sees `WORK_48`/`WORK_50`). Like Capcom, the pool types keep
-their own structs with the same leading layout: `WORK_10C` (`pos`, `pos_l`, `old`, `old_l`, `ang`),
+their own structs with the same leading layout: `SHL_WORK` (`pos`, `pos_l`, `old`, `old_l`, `ang`),
 `WORK_3C0`/`WORK_5A4`/`EVE_WORK` (`pos`) and `PL_WORK` (`pos_1C` -> `pos_l`, `unk56` -> `ang`). Still views:
 `TURN_WORK` (`func_8002FF34`, only overlay callers; fields beyond MODEL_WORK at 0x428), `VIEW_WORK`
-(position at 0xC4, overlay callers only; WORK_10C has `owner_C4` there), `CHILD_WORK`
+(position at 0xC4, overlay callers only; SHL_WORK has `owner_C4` there), `CHILD_WORK`
 (`func_80031324` has no callers; `CHILD_PARENT` was merged into `WORK_5A4`, see below; `CHILD_WORK` looks like a MODEL_WORK but writes a halfword at 0xAC, where
 MODEL_WORK has the byte `idx_AC`). `SLOT_ENT`/`SLOT_VAL` merged into one `SLOT_ENT[4]` at `D_8009A300`
 (`func_800358F0` uses that base; the old labels `D_8009A306`/`310`/`31A`/... are fields of it).
@@ -581,7 +581,7 @@ GCC always cross-jumps the identical `sub` stores the target keeps separate), `f
 return 1; return 0;`: two separate `if`s fold the second test to `sltu`, a bare `return a || b` uses a temp),
 `Money_check` (`-(Game_work.money < -amount)`: -1 when `money` can't cover a negative change; `money` at
 `Game_work+0x1C`, capped at 999999 by `Money_add`), `func_800433C0` (`D_8008A0CC[wp->routine_8](wp)` on a
-`WORK_10C` of the `D_800BFB20` pool), `func_800435BC`, `func_80043740` and `func_80043E00` (spawn a `WORK_48`
+`SHL_WORK` of the `D_800BFB20` pool), `func_800435BC`, `func_80043740` and `func_80043E00` (spawn a `WORK_48`
 at the slot's position; in `func_80043E00` the `flag_3`/`field_C` stores are written after the position).
 Batch 2: banked `Money_add` (0x80043294; `amount` added to `money`, clamped to 999999 when positive, reset to 0
 on underflow when not, which also adds it to `Game_work+0x20`/`+0x24` by `c`; does nothing unless `b == 0`),
@@ -591,7 +591,7 @@ has one call per value of the `0x6000`/`0x4000` argument, and `func_800435F8` re
 its `field_E` test: the target duplicates the `0x6000` setup). `field_C` is `sint8` (read with `lb`; the
 `(uint8)` casts give the `andi`/`lbu` before `func_80036294`), and `func_800375D4` returns `sint32` (the caller
 doesn't re-extend it).
-`WORK_10C.field_8` is split into `routine_8`/`field_9`/`field_A`/`timer_B`; `field_C` holds the owning player's
+`SHL_WORK.field_8` is split into `routine_8`/`field_9`/`field_A`/`timer_B`; `field_C` holds the owning player's
 id (`func_80036294` returns a `PL_WORK`: `func_800433FC` reads its `joint_pos[11]`/`[14]`; `+0x198` is that
 player's state flag for the slot).
 Batch 3: banked `func_800433FC` (frame has 0x18 bytes of unused locals: an `SVECTOR` + `VECTOR`, like
@@ -609,7 +609,7 @@ also differ by a v0/v1 swap (target loads the table byte before `dir.vx`). The r
 Banked `func_800437A8` (the shot's update: `D_8008A0D8[wp->routine_8](wp)`, a table of `func_800437F8` and
 `func_80043A8C`, then `func_80051BAC(wp)`, which the player code also calls: it pushes the object on the
 list at `D_80098898` when `routine_0 & 3`, and clears `+0x7C`).
-`WORK_10C` fields from these: `spd`/`add` (0x44/0x4C, MODEL_WORK's), `hit_78` (`HIT_ENT *`, read by
+`SHL_WORK` fields from these: `spd`/`add` (0x44/0x4C, MODEL_WORK's), `hit_78` (`HIT_ENT *`, read by
 `func_80049C24`), `field_7C`, `field_88`, `rgbc_8C`, `x_90`..`z_94`, `field_96`/`97`, `field_9A`, `dir_A4`,
 `tgt_BC` (tested as two words, Capcom's `*(uint32 *)&v.vx` idiom).
 
@@ -824,7 +824,8 @@ the fog CLUT lookup in `D_800C0DC0`: the target builds the address with `lui`/`o
 `addu $at,$at,v0` and `lbu 0($at)`, the only such sequence in ROCK_NEO. maspsx gives a constant base
 `lui`, `addu $at,v0,$at`, `lbu %lo($at)` (one instruction shorter) and a symbol `%hi`/`%lo`; neither
 fits, so matching needs a toolchain change (an ASPSX expansion maspsx doesn't model). Found on the way:
-the 0x560 stride conflicts with `WORK_5A4 D_800C3580[]` and `WORK_3C0 D_8009F108[]`; the per-part
+the 0x560 stride conflicts with `WORK_5A4 D_800C3580[]` and `WORK_3C0 D_8009F108[]` (settled: dead
+code, see below); the per-part
 colour needs a `sint32` local (`lh`, not `lhu`); the `mesh_draw` argument is an integer sum with the
 offset first (`addu a0,a0,v0`); `gte_lddp` is passed `&Scratch_dp`, the address, not the value.
 Parked `parts_model_draw_all` (`NON_MATCHING`; draws, last to first, the `PARTS_WORK`s with bit 1 of
@@ -835,6 +836,14 @@ ASPSX 2.56 gives `addiu`. In all of ROCK_NEO only this function and `parts_model
 0x30`, plus its odd `$at` expansion) use `ori` for a small `li`: these two (0x8002DE5C-) were likely
 assembled with another ASPSX version (maspsx's default, pre-2.56, gives `ori`), i.e. a separate
 object with its own assembler setting. Matching needs a per-file toolchain change (owner's call).
+**`parts_model_draw_all`, `parts_model_draw` and `mesh_draw` are dead code.** Nothing calls
+`parts_model_draw_all`: no `jal`, no data table, no stage overlay (`tools/callers.py`), and it is
+`parts_model_draw`'s only caller, which is `mesh_draw`'s only caller. Its arrays are not the live
+pools: `D_800C3580` and `D_8009F108` hold `WORK_5A4[4]` and `WORK_3C0[16]` (cleared as 0x168C and
+0x3BFC bytes and allocated by `func_80031498`/`func_80031418` at those sizes), while the 0x560 stride
+would put the 16th entry's end at 0x800A4708, over `Cd_cmd_queue` (0x800A3A40). So `PARTS_WORK` is
+the layout of an older build, not a view of `WORK_5A4`/`WORK_3C0`; the stale object would also
+explain the two functions' `ori` encodings.
 Banked by `tools/twins.py` (byte-identical to a matched function; C copied, build-checked):
 `func_8004E488` (same code as `func_80054BAC`: `return 0;`), `func_8005B85C` (same code as
 `func_8005AB78`), and after the twins run below `func_800181D4`, `func_8005B98C`, `func_80066714`.

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "code_80048620.h"
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048620);
 

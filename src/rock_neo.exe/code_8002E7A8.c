@@ -17,7 +17,7 @@ sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_
 void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
 void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
 VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z);
-WORK_10C *func_80031598(void);
+SHL_WORK *func_80031598(void);
 sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
 
 // Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
@@ -902,10 +902,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031498);
 
 #ifdef NON_MATCHING
 // Only the store order differs (see Open_EVE_WORK).
-WORK_10C *Open_SHL_WORK(void)
+SHL_WORK *Open_SHL_WORK(void)
 {
     sint32 i;
-    WORK_10C *wp;
+    SHL_WORK *wp;
     uint32 used;
 
     used = D_800987CC;
@@ -934,10 +934,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Open_SHL_WORK);
 
 #ifdef NON_MATCHING
 // Only the store order differs (see Open_EVE_WORK).
-WORK_10C *func_80031598(void)
+SHL_WORK *func_80031598(void)
 {
     sint32 i;
-    WORK_10C *wp;
+    SHL_WORK *wp;
     uint32 used;
 
     used = D_800989F0;
@@ -1093,16 +1093,16 @@ void func_8003187C(WORK_5A4 *wp)
     wp->routine_0 = 0;
 }
 
-void Close_SHL_WORK(WORK_10C *wp)
+void Close_SHL_WORK(SHL_WORK *wp)
 {
-    D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(WORK_10C));
+    D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(SHL_WORK));
     D_80098808 &= D_800987CC;
     wp->routine_0 = 0;
 }
 
-void func_80031930(WORK_10C *wp)
+void func_80031930(SHL_WORK *wp)
 {
-    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(WORK_10C));
+    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(SHL_WORK));
     D_80098A60 &= D_800989F0;
     wp->routine_0 = 0;
 }
@@ -1941,11 +1941,11 @@ MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
 #ifdef NON_MATCHING
 // best attempt: target computes pl + sel * 8 at the end of each branch (after the last position
 // store) and reaches the record through it; ours computes it once after the merge, hoisted early.
-// Retyping to WORK_10C / PL_WORK.joint_pos changed nothing; a TBL_IDX pointer set in each branch
+// Retyping to SHL_WORK / PL_WORK.joint_pos changed nothing; a TBL_IDX pointer set in each branch
 // moves the computation there but adds 0x4F4 to the pointer (the target folds it into the offset).
 void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint32 flag)
 {
-    WORK_10C *wp;
+    SHL_WORK *wp;
     sint32 sel;
     SVECTOR unused; // GCC reserves its 8 bytes; the target frame has them
 
@@ -2009,10 +2009,10 @@ void func_8003606C(void)
     SVECTOR unused;
     WORK_3C0 *w3;
     WORK_5A4 *w5;
-    WORK_10C *w1;
+    SHL_WORK *w1;
     WORK_3C0 *p3;
     WORK_5A4 *p5;
-    WORK_10C *p1;
+    SHL_WORK *p1;
     uint32 d;
     sint32 dx;
     sint32 dz;

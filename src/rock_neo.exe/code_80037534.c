@@ -5,6 +5,7 @@
 #include "code_80037534.h"
 #include "code_80037FB4.h"
 #include "stage.h"
+#include "code_80048620.h"
 
 // Called only from this file, ahead of their definitions.
 void func_8003777C(uint16 arg0, uint32 arg1);
@@ -67,11 +68,11 @@ sint16 func_80037664(PL_WORK *pl, sint32 n)
     return D_80089EAC[n][pl->rec[n].idx[3]].val[3];
 }
 
-sint32 func_80037694(STAGE_OBJ *obj, uint32 arg1)
+sint32 func_80037694(MODEL_WORK *obj, uint32 arg1)
 {
     sint32 id;
 
-    if (obj->unkC4 & 0xFF000000)
+    if (obj->field_C4 & 0xFF000000)
     {
         return 0x7FFF;
     }

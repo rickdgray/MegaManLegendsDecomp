@@ -1,6 +1,7 @@
 #include "common.h"
 #include "psyq/libc.h"
 #include "code_800456D8.h"
+#include "code_80048620.h"
 #include "code_80027678.h"
 #include "code_80037FB4.h"
 #include "code_8004324C.h"

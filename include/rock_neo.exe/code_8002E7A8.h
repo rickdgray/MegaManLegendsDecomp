@@ -7,7 +7,6 @@
 #include "common.h"
 #include "psyq/libgte.h"
 #include "scratch.h"
-#include "stage.h"
 
 // Keyframe table sets, loaded at fixed addresses (indexed by set number).
 #define Key_tbl_a ((KEY_ENT **)0x800D9D00)
@@ -21,6 +20,19 @@
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
 
+// Collision box passed to func_8004B5CC/func_80048EA4: three (min, max) halfword pairs, each
+// -n, +n in the tables (D_8008A310, D_8008A618). max_A is the half-height kept clear above the
+// ground (func_80046438).
+typedef struct
+{
+    sint16 min_0;
+    sint16 max_2;
+    sint16 min_4;
+    sint16 max_6;
+    sint16 min_8;
+    sint16 max_A;
+} HIT_ENT;
+
 // ---- Work pool slots (Work_pools_init). ----
 // Every slot, and PL_WORK, starts with the same header: routine_0, kind_1 (pool kind, 0x10 * pool
 // number, ORed with the slot index), and at 6 a flags byte: set to 3 on open, bits 0-1 changed by
@@ -28,7 +40,7 @@
 // by func_80033500/func_8003354C.
 
 // Object holding a bitmask of the slots it owns (see func_8003545C). An embedded block, not a
-// whole object: PL_WORK.owner_188, WORK_10C.owner_C4, D_800986D8, and the owner stored in each
+// whole object: PL_WORK.owner_188, SHL_WORK.owner_C4, D_800986D8, and the owner stored in each
 // SLOT_REQ.
 typedef struct
 {
@@ -195,6 +207,10 @@ typedef struct
 
 typedef void (*WORK48_FUNC)(WORK_48 *wp);
 
+// Capcom's SHL_WORK (their source opens one with `(SHL_WORK *)Open_SHL_WORK()`): a shot. Two pools
+// hold them, with the same allocator code: kind 0x60, D_8009CF88[32] (Open_SHL_WORK /
+// Close_SHL_WORK; the scene code and the stage overlays), and kind 0x10, D_800BFB20[16]
+// (func_80031598 / func_80031930; the player's shots, spawned by func_80035724).
 typedef struct
 {
     uint8 routine_0;
@@ -249,7 +265,7 @@ typedef struct
                          // func_80035508 while the object holds a slot of D_80098798
     SLOT_OWNER owner_C4; // 0xC4: slot owner passed to func_8003430C
     uint8 pad_CC[0x40];
-} WORK_10C; // 0x10C bytes
+} SHL_WORK; // 0x10C bytes
 
 typedef struct
 {
@@ -360,10 +376,12 @@ typedef struct
 
 // Capcom's MODEL_WORK (their source passes EM_WORK to Model_work_init, Obj_pos_set and EM_Char_Set
 // as `(MODEL_WORK *)`): the layout every model object starts with: PL_WORK and the slots of the
-// model pools (WORK_10C, WORK_3C0, WORK_5A4). Like Capcom, each object keeps its own type and is
+// model pools (SHL_WORK, WORK_3C0, WORK_5A4). Like Capcom, each object keeps its own type and is
 // cast to MODEL_WORK for these functions. The header (routine_0, kind_1, flags at 6) is common
 // to every pool slot, so the functions that only touch it (func_8002F3A8) take this type too.
 // Names from Capcom's source: id, type, pos, pos_l, old, old_l, spd, add, ang.
+// The stage collision services (func_80037694, code_80048620's func_80049C24, func_8004B414,
+// func_80051BAC) take it too: players, shots and every stage overlay's objects call them.
 typedef struct
 {
     uint8 routine_0;
@@ -380,7 +398,12 @@ typedef struct
     SVECTOR spd;  // 0x44: speed; pad: frames to the target (func_80030EE8)
     SVECTOR add;  // 0x4C: acceleration
     SVECTOR ang;  // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
-    uint8 pad_5C[0x2C];
+    uint8 pad_5C[0x18];
+    sint8 field_74; // read with lb by func_8004B414, passed to func_8004B6AC
+    uint8 pad_75[3];
+    HIT_ENT *hit_78; // 0x78: collision box (func_80049C24, func_8004B414)
+    sint16 field_7C; // cleared by func_80051BAC
+    uint8 pad_7E[0xA];
     uint8 *data_88; // 0x88: model data of the EBD entry (func_8002FA38)
     uint8 pad_8C[4];
     KEY_ENT **seq_tbl_90; // keyframe sequences, indexed by idx_AC (func_80032304)
@@ -391,7 +414,9 @@ typedef struct
     KEY_CMD cmd_A4; // copy of the current step's command; time counts down
     uint8 pad_A8[4];
     uint8 idx_AC;
-    uint8 pad_AD[0x4B];
+    uint8 pad_AD[0x17];
+    uint32 field_C4; // top byte nonzero: func_80037694 skips the stage collision
+    uint8 pad_C8[0x30];
     uint8 buf_F8[0x18]; // 0x18 bytes of the model data (kinds 0x20 and 0x40, func_8002FA38)
 } MODEL_WORK;
 
@@ -441,7 +466,7 @@ typedef struct
 
 // Object with a view direction (ang.vy) and a position at 0xC4 (pos_C4); see func_80030418.
 // Kept as a view: func_80030418 is only called from the overlays (ST00, ST03, ...), and
-// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out WORK_10C (owner_C4
+// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out SHL_WORK (owner_C4
 // there) and PL_WORK has nothing known at 0xC4, so the object is not known. 0x54 is MODEL_WORK.ang.
 typedef struct
 {
@@ -453,13 +478,13 @@ typedef struct
 
 extern SVECTOR D_80097CF4; // zero vector
 extern uint8 D_800899E0[][16];
-extern WORK_10C D_800BFB22[]; // D_800BFB20 again, based at field_2 (routine_0 is its field_2)
+extern SHL_WORK D_800BFB22[]; // D_800BFB20 again, based at field_2 (routine_0 is its field_2)
 extern WORK_48 D_800A3B40[];
 extern uint32 D_800988C8; // [2] bitmasks, second word is D_800988CC
 extern uint32 D_80098838; // [2] bitmasks, second word is D_8009883C
 extern uint32 D_8009883C;
 extern uint32 D_800988CC;
-extern WORK_10C D_800BFB20[];
+extern SHL_WORK D_800BFB20[];
 extern WORK_50 D_800BF118[];
 extern WORK_5A4 D_800C3580[];
 extern uint32 D_80098A60;
@@ -471,7 +496,7 @@ extern uint32 D_80098B20;
 extern EVE_WORK D_800A2D08[];
 extern uint8 D_800BBA90[]; // 0x268 bytes, cleared by Work_pools_init
 extern WORK_3C0 D_8009F108[];
-extern WORK_10C D_8009CF88[];
+extern SHL_WORK D_8009CF88[];
 extern uint32 D_80098818;
 extern uint32 D_800987EC;
 extern uint32 D_8009880C;
@@ -504,7 +529,7 @@ void Model_work_init(MODEL_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
 WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0
-void func_80031930(WORK_10C *wp); // frees a slot of D_800BFB20
+void func_80031930(SHL_WORK *wp); // frees a slot of D_800BFB20
 void *func_80036294(uint32 id);   // object of an id byte (kind | index), or 0
 void func_800354E0(uint32 n);     // releases slot n of D_80098798 (claimed by func_8003545C)
 uint32 func_8002FE74(uint32 a);
