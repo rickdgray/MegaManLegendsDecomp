@@ -13,7 +13,9 @@ Capcom's source files ([rock_neo_files.md](rock_neo_files.md)). In C: the `cd` f
   (overridden by the shim's `LoadExec` to `0x801FFF00`). Header data/BSS fields are zero. Ghidra
   reports PsyQ 4.0.0.
 - **Confirmed:** timestamp `Aug 16 1998 12:31:28`, 3 min 48 s before the shim's `12:35:16`: the same
-  build session. Also the string `MEGAMAN LEGENDS MASTER VERSION 1998/5/13`.
+  build session. The timestamp (`build_timestamp`, 0x800806C8, `"CAPCOM"` on both sides) and
+  the string `MEGAMAN LEGENDS MASTER VERSION 1998/5/13` (`version_str`, 0x80080704) are `main`'s
+  `.data`, around the primitive buffer table `D_800806EC`; nothing reads either string.
 - **Confirmed: `-G32`** (`gp` = `0x80097864`; the limit is pinned by string literals). How the
   build reproduces it (`-G32` to `cc1` and maspsx, `-G0` to GNU `as`): [toolchain.md](toolchain.md).
 

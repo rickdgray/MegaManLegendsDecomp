@@ -9,6 +9,15 @@
 #include "code_8005C258.h"
 #include "sound.h"
 
+// Small data (.sdata 0x80097DA0-0x80097DDB). Only this file uses it, always indexed or by address,
+// so it's lui-based here too. Tables of the shot launched by func_800437F8; the uint8/uint32 ones
+// are indexed by Player_work[0].rec[1].idx[0] or idx[2].
+HIT_ENT D_80097DA0   = {-16, 16, -16, 16, -16, 16}; // collision box (hit_78)
+uint32 D_80097DAC[8] = {0x3EB4002E, 0x3EB4002E, 0x3EB4002E, 0x3EB5002E,
+                        0x3EB5002E, 0x3EB5002E, 0x3EB6002E, 0x3EB6002E}; // field_88, by idx[0]
+uint8 D_80097DCC[8]  = {24, 32, 42, 32, 42, 56, 42, 64};                 // field_98, by idx[0]
+uint8 D_80097DD4[8]  = {100, 100, 100, 100, 100, 100, 120, 120};         // speed (spd = dir * n >> 4), by idx[2]
+
 sint32 func_8004324C(PL_WORK *pl)
 {
     if ((pl->unk174 & 0xC0) || pl->unk177)

@@ -117,6 +117,11 @@ Done for every file in the table. The layout and what it rests on:
   `char` arrays, up to 28 bytes. Under `-G32`, a literal that size would also land in `.sdata`.
   It also holds `D_80097864`, a 24-byte object reached through `$gp`. Its `.sbss` static
   `D_80098158` is also where 2MBYTE.OBJ's startup starts clearing the BSS, so it's made global.
+- **`code_8004324C`'s piece** (`0x80097DA0`–`0x80097DDB`) has no `$gp` variable: its four shot
+  tables are only read indexed or by address. It's placed by file order: in the asm stretch
+  `0x80097D74`–`0x80097DE3` each variable has one user file, in link order (`code_8003AC24`,
+  `player`, `code_8004324C`, `code_80043F34`), so `0x80097DA0`–`0x80097DDB` is `code_8004324C`'s and
+  `code_80043F34`'s piece starts at `0x80097DDC` (`D_80097DDC`, `D_80097DE0`, indexed only).
 
 ## Data order (`.data`, by pointer-linked units)
 

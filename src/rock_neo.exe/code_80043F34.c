@@ -3,7 +3,10 @@
 #include "code_80043F34.h"
 #include "sound.h"
 
-// Small data (.sdata 0x80097DE4-0x80097DF0): reached through $gp in this file.
+// Small data (.sdata 0x80097DDC-0x80097DEF). D_80097DDC and D_80097DE0 are only read indexed
+// (lui-based either way); D_80097DE4 is reached through $gp.
+uint8 D_80097DDC[4] = {10, 12, 16, 8};          // func_800441CC
+uint8 D_80097DE0[4] = {0x80, 0x8B, 0x8C, 0x80}; // func_80043F70
 // Step durations, [flag_3][step]: func_80044C94 reads step 0, func_80044D5C..func_80044F44 the
 // others (indexed by flag_3)
 uint8 D_80097DE4[3][4] = {{3, 3, 3, 3}, {4, 4, 4, 4}, {8, 8, 8, 4}};

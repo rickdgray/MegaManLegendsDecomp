@@ -64,8 +64,8 @@ extern u_long D_800A4D40[2][0x1000]; // the frame's ordering table (main points 
 extern u_long D_8009BF88[2][0x200];  // ordering tables
 extern u_long D_8009AE48[2][0x200];  // ordering tables
 // Primitive buffer starts (in the stage area), a pair per mode (D_80098864); main sets
-// Map_prim_ptr to the current buffer's. The version string follows the table.
-extern POLY_FT4 *D_800806EC[][2];
+// Map_prim_ptr to the current buffer's.
+extern POLY_FT4 *D_800806EC[3][2];
 extern sint32 D_800D9BCC; // VSync(1) at the start of the frame (main)
 extern sint32 D_800D9BD0; // VSync(1) at the start of the frame (main)
 
