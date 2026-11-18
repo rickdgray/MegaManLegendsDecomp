@@ -1,118 +1,151 @@
 # Mega Man Legends Decompilation
 
-An WIP decompilation of **Mega Man Legends** (PlayStation, USA).
+A matching decompilation of **Mega Man Legends** (PlayStation, Capcom, 1998), NTSC-U `SLUS-00603`,
+and a native Linux port built from it.
 
-The long-term goal is a *matching* decompilation: C source that compiles to a byte-identical copy of the original executable, as a foundation for future ports to other platforms.
-
-> **This repository contains no game data.** You must supply your own legally obtained copy of the game. Disc images, extracted files, and anything generated from them are excluded from version control.
-
-## Target
-
-| | |
-|---|---|
-| Title | Mega Man Legends (USA) |
-| Serial | SLUS-00603 |
-| Executables | `SLUS_006.03` (boot shim), `ROCK_NEO.EXE` (main game) |
-| Redump entry | <http://redump.org/disc/2773/> |
-| Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
-| Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
-
-Other regions and disc revisions are not supported.
+"Matching" means the C in `src/` compiles with the original compiler back to the retail executables
+**byte for byte**. The build checks this with SHA-1 against your own dump of the game; nothing is
+counted as done unless the bytes are identical.
 
 ## Status
 
-🛠️ **Decompiling.** Both executables rebuild byte-for-byte; C is replacing the assembly one source file at a time.
+| Part | State |
+|---|---|
+| Boot program `SLUS_006.03` | 34 / 34 functions in C, rebuilds byte-identically |
+| Main game `ROCK_NEO.EXE` | 1,132 / 1,132 functions in C, rebuilds byte-identically |
+| Stage and weapon overlays (`CDDATA/DAT/*.BIN`) | 44 modules, 8,842 / 8,842 functions in C, all rebuild byte-identically |
+| Native Linux port | playable: gamepad and keyboard, sound, movies, memory cards, settings, optional mods |
 
-- [x] Verified clean disc image against Redump
-- [x] Extracted filesystem and confirmed boot executable
-- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); the 44 code overlays (`ST*`, `ARM*R`, `SUPPORT`) mapped into functions (not yet split or built)
-- [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` and `ROCK_NEO.EXE` **match**)
-- [ ] Decompilation (m2c, permuter, agent-assisted batches): every `SLUS_006.03` function is matched or parked; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly. `tools/progress.py` and `functions.csv` have the numbers
-- [ ] Naming and documentation
+PsyQ library code (linked as-is) and Capcom's own hand-written assembly routines stay assembly.
 
-## Code style
+Five functions match only with an artificial statement that steers the compiler. Each is marked
+`// FAKE MATCH:` in the source; replacements with a more natural form are welcome.
 
-Naming and type conventions follow Capcom's own style, as seen in fragments of the game's [original source that shipped on the Japanese release (`ST1E.BIN`)](https://tcrf.net/Mega_Man_Legends/Source_Code). That covers `Capitalized_snake_case` globals, `lower_snake_case` statics, `ALL_CAPS` types such as `PL_WORK`, `_tbl` tables, `routine_N` state fields, and the `uint8`/`sint32` type names. Where the original's real name for something is known, it's used.
+## What you need
 
-Formatting is modern (Allman braces, always-braced blocks, typedefs for function pointers), since formatting never affects the compiled output. All C in this repository is reconstructed from the binary; no original source code is included.
+Your own copy of the game, dumped by you as BIN/CUE, matching Redump
+[disc 2773](http://redump.org/disc/2773/):
 
-## Setup
+| | SHA-1 |
+|---|---|
+| Track 1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
+| Track 2 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
 
-### 1. Rip and verify the disc
+**This repository contains no game data**: no executables, overlays, textures, audio, text or
+disassembly. Everything the build needs from the game is read from your disc at build time.
 
-Rip the disc to BIN/CUE and verify each track's hash against the Redump entry above. Place the image in `disc/image/`.
+## Building
 
-### 2. Extract the filesystem
+Arch Linux shown; elsewhere you need `mips-linux-gnu` (or `mipsel-linux-gnu`) binutils and
+`dumpsxiso` from mkpsxiso.
 
-Extract Track 1 with `dumpsxiso` from [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) into `disc/extracted/`:
+```sh
+yay -S mipsel-linux-gnu-binutils-minimal mkpsxiso-git uv
+make setup             # pinned compiler, maspsx, splat, m2c, asm-differ in tools/vendor and .venv
 
-```powershell
-dumpsxiso -x .\disc\extracted\ -s .\mml.xml ".\disc\image\Mega Man Legends (USA).cue"
+mkdir -p disc/image && cp /path/to/"Mega Man Legends (USA)"* disc/image/
+make extract           # unpacks the disc into disc/extracted/ and checks the executables
+
+make                   # split and build both executables; each must print MATCH
+make split-overlays    # the 44 overlay modules
+make overlays          # each must print MATCH
 ```
 
-This also writes the layout XML (`-s`) used to rebuild the disc.
+Day to day, per target (`slus_006.03`, `rock_neo.exe`, `r3_st00`, ...):
 
-### 3. Verify the executables
+| Command | |
+|---|---|
+| `./tools/split.sh <t>` | regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` |
+| `./tools/build.sh <t>` | build and compare with retail: prints MATCH or MISMATCH |
+| `./tools/diff.sh <t> <func>` | one function's diff against the last matching build |
+| `./tools/m2c.sh <t> <func>` | a first C draft of a function, for study |
+| `./tools/rebuild.sh <t>` | split, build and refresh the diff reference (after a rename) |
 
-```bash
-sha1sum disc/extracted/SLUS_006.03 disc/extracted/ROCK_NEO.EXE
+## Playing the port
+
+The port compiles the same C natively (as a 32-bit program, with the PS1's memory at its real
+addresses) and runs it on SDL3. It reads your disc image at run time.
+
+```sh
+yay -S lib32-sdl3 cmake ninja
+make extract           # once
+make play              # builds what is missing and starts the game in a window
+make install-desktop   # optional: an application-menu entry
 ```
 
-The hashes must match the `sha1:` line at the top of `config/slus_006.03/slus_006.03.yaml` and `config/rock_neo.exe/rock_neo.exe.yaml`; splat checks them again when it splits.
+- **Controls:** a gamepad maps by position (south/east/west/north = Cross/Circle/Square/Triangle,
+  shoulders L1/R1, triggers L2/R2). Keyboard: arrows, X/C/Z/S = Cross/Circle/Square/Triangle,
+  Q/W = L2/L1, E/R = R1/R2, Enter = Start, Right Shift = Select. F11 fullscreen, Esc quits.
+- **Settings:** `~/.config/megaman-legends/config.ini`, written with commented defaults on first
+  start (bindings, including stick directions as buttons; window scale; volume; disc and card
+  paths).
+- **Saves:** standard 128 KB memory card images in `~/.local/share/megaman-legends/`, readable by
+  PS1 emulators.
+- **Mods:** at start-up you choose **Vanilla** (the untouched game) or **Mods**. Modded runs use
+  their own memory cards, so vanilla saves are never touched. See [docs/mods.md](docs/mods.md).
 
-### 4. Set up the environment
+`make port-smoke` plays a scripted new game headless and checks memory at fixed points;
+`make port-compare` runs the same script with native and interpreted overlay code and compares them.
 
-In WSL Ubuntu, install the MIPS binutils and clang-format, create the Python venv, and fetch the pinned tools (`fetch_tools.sh` prints the extra `pip install` lines for m2c and asm-differ):
-
-```bash
-sudo apt install binutils-mips-linux-gnu clang-format-15
-python3 -m venv .venv
-.venv/bin/pip install "splat64[mips]==0.50.1" spimdisasm==1.42.4
-./tools/fetch_tools.sh
-```
-
-### 5. Build
-
-Split and build each target; each build prints MATCH or MISMATCH:
-
-```bash
-./tools/rebuild.sh slus_006.03
-./tools/rebuild.sh rock_neo.exe
-```
-
-After the first split, `./tools/build.sh <target>` rebuilds without re-splitting.
-
-The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolchain.md).
-
-## Repository layout
+## Layout
 
 ```
-├── CLAUDE.md                  # rules and patterns for writing matching C (read by agents and people)
-├── config/<target>/           # per target: <target>.yaml (splat config, with its SHA-1) and
-│                              #   symbol_addrs.txt (symbol registry)
-├── functions.csv              # every function with its status (decompiled, matched, reviewed)
-├── reviewed.txt               # functions a person has reviewed (tools/review.py)
-├── diff_settings.py           # asm-differ settings (tools/diff.sh)
-├── mml.xml                    # mkpsxiso disc layout (metadata only)
-├── src/<target>/              # decompiled C
-├── include/                   # headers shared by both executables; include/<target>/ for the rest
-├── notes/                     # findings and research notes (start with notes/README.md)
-├── tools/                     # build, diff and helper scripts
-├── disc/                      # (gitignored) your disc image and extracted files
-├── asm/, assets/, build/, expected/   # (gitignored) generated from disc/
-└── logs/, permuter/           # (gitignored) batch-run logs and permuter work
+src/<target>/        C source per executable and overlay module
+src/stage_common/    code shared by several stage modules
+include/             headers per target, self-written PsyQ declarations, assembler macros
+config/              splat configuration and symbol registry per target
+port/                the native port: runtime, PsyQ replacements, mods, tests
+tools/               build, split and diff scripts
+mml.xml              mkpsxiso disc layout (metadata only)
 ```
 
-## Tools
+`disc/`, `asm/`, `build/` and `expected/` are generated locally and ignored by git.
 
-| Tool | Version | Purpose |
-|---|---|---|
-| [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | 12.1.4 | Analysis and decompilation reference |
-| [ghidra_psx_ldr](https://github.com/lab313ru/ghidra_psx_ldr) | 2026.10.03 | PS-X EXE loader and PsyQ signatures |
-| [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) | | Disc extraction and rebuilding (`tools/Compare-Track1.ps1` compares a rebuilt Track 1 with the original) |
+## Toolchain
 
-The matching toolchain (gcc 2.7.2-psx, maspsx, splat, m2c, asm-differ, decomp-permuter) is pinned in `tools/fetch_tools.sh`; see [`notes/toolchain.md`](notes/toolchain.md).
+- gcc 2.7.2 for PlayStation (`cc1` from [decompals/old-gcc](https://github.com/decompals/old-gcc)),
+  [maspsx](https://github.com/mkst/maspsx) standing in for Sony's `aspsx` 2.56, then GNU `as`;
+  `-O2 -G8`. This is decomp.me's `PSYQ4.0` preset.
+- [splat](https://github.com/ethteck/splat) splits the executables;
+  [m2c](https://github.com/matt-kempster/m2c), [asm-differ](https://github.com/simonlindholm/asm-differ)
+  and [decomp-permuter](https://github.com/simonlindholm/decomp-permuter) help with matching.
+- [mkpsxiso](https://github.com/Lameguy64/mkpsxiso)'s `dumpsxiso` extracts the disc.
+
+## History
+
+This is a fork of [rickdgray/MegaManLegendsDecomp](https://github.com/rickdgray/MegaManLegendsDecomp).
+The commits up to 2026-11-06 ("local vars at top") are Rick Gray's: the splat setup, the
+toolchain identification, the first matched boot-program functions and the early research.
+
+On 2026-11-06 I took that state and kept going in a private repository. Over the following
+eleven days the main game, all 44 stage and weapon overlays and the rest of the boot program
+were matched, and the native port and its mods were written. This fork's next commit is that
+work, squashed into one: the development history was a long working log, not something worth
+publishing.
+
+The upstream project has continued separately since then, and I'd be glad to see the two come
+together. Upstream has no license file, so this fork doesn't add one; it's shared under
+GitHub's forking terms, and licensing is up to the original author.
+
+## How this was made
+
+AI-assisted tooling helped draft and iterate on C for a large share of the functions. Nothing is
+taken on trust: a function counts as matched only when the whole executable rebuilds to retail's
+exact bytes, and the port is checked against scripted play-throughs. Names, types and structure
+follow Capcom's own naming conventions.
+
+## Credits
+
+- [rickdgray/MegaManLegendsDecomp](https://github.com/rickdgray/MegaManLegendsDecomp): the
+  project this one is forked from (see History).
+- [ChrisNonyminus/mml1](https://github.com/ChrisNonyminus/mml1): the 2023 attempt, a reference for
+  symbols and research.
+- The authors of the community tools listed above.
+
+Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Legal
 
-This project is not affiliated with or endorsed by Capcom or Sony. Mega Man Legends is a trademark of Capcom. No copyrighted game code or assets are distributed in this repository.
+Not affiliated with or endorsed by Capcom or Sony. Mega Man Legends is a trademark of Capcom. You
+need your own copy of the game to build or play anything here. The original game's code, data and
+assets belong to their owners. Please don't ask for or share game files or disc images in issues.

@@ -14,9 +14,9 @@
 #define CdlReadN     0x06
 #define CdlPause     0x09
 #define CdlSetmode   0x0e
+#define CdlSetfilter 0x0d
 #define CdlGetlocP   0x11
 #define CdlSeekL     0x16
-#define CdlSetfilter 0x0d
 #define CdlReadS     0x1b
 
 // CdlSetmode mode bits
@@ -30,15 +30,6 @@
 #define CdlModeSpeed   0x80  // double speed
 #define CdlModeStream  0x100 // normal streaming
 #define CdlModeStream2 0x120 // streaming, subheader information included
-
-// Status byte bits (Cd_result[0] after most commands)
-#define CdlStatPlay      0x80 // playing CD-DA
-#define CdlStatSeek      0x40 // seeking
-#define CdlStatRead      0x20 // reading data sectors
-#define CdlStatShellOpen 0x10 // lid open (or was opened)
-#define CdlStatSeekError 0x04 // seek error
-#define CdlStatStandby   0x02 // motor spinning
-#define CdlStatError     0x01 // command error
 
 // CdSyncCallback / CdReadyCallback status codes.
 #define CdlDataReady 1
@@ -78,9 +69,6 @@ typedef struct
     CdlLOC loc;        // 0x1C  file location
 } StHEADER;
 
-// CdSyncCallback / CdReadyCallback callback. The Library Reference passes status as an int, but
-// the game's callbacks take a u_char: they zero-extend it (andi 0xff) before comparing, which an
-// int parameter doesn't give.
 typedef void (*CdlCB)(u_char, u_char *);
 
 // CD-DA / XA audio volume mix (CdMix argument).
@@ -92,17 +80,15 @@ typedef struct
     u_char val3;
 } CdlATV;
 
-// The Library Reference's syntax reads `void CdInit(mode)`, but the same page says mode is unused
-// and the function returns 1 on success, 0 on failure. The library's CdInit never reads a0 and
-// returns 1 or 0; both programs call it with no argument and test the result.
+// Differs from official PsyQ 4.4 docs; either a typo in the docs or a change in the library.
 int CdInit(void);
 
 int CdSync(int mode, u_char *result);
 int CdControl(u_char com, u_char *param, u_char *result);
 int CdControlB(u_char com, u_char *param, u_char *result);
 int CdReset(int mode);
-u_long CdSyncCallback(CdlCB func);
-u_long CdReadyCallback(CdlCB func);
+CdlCB CdSyncCallback(CdlCB func);
+CdlCB CdReadyCallback(CdlCB func);
 int CdMix(CdlATV *vol);
 CdlLOC *CdIntToPos(int i, CdlLOC *p);
 int CdPosToInt(CdlLOC *p);

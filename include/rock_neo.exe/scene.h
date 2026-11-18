@@ -1,155 +1,323 @@
-#ifndef SCENE_H
-#define SCENE_H
+#ifndef ROCK_NEO_SCENE_H
+#define ROCK_NEO_SCENE_H
 
 #include "common.h"
-#include "psyq/libgte.h"
-#include "code_8002E7A8.h"
 
-typedef struct SCENE_WORK SCENE_WORK;
+// Two bytes written one at a time and read back as one halfword
+typedef union
+{
+    sint16 half;
+    uint8 byte[2];
+} SCENE_HALF_BYTES;
 
-typedef void (*SCENE_EVENT_FUNC)(SCENE_WORK *sw);
-typedef void (*STAGE_FUNC)(void); // one per Game_work.unk050 (D_8008980C)
-
-// One 8-byte entry of an event table (D_8009039C).
+// Script command record (0x14 bytes).
 typedef struct
 {
-    uint8 ev_0;            // copied to SCENE_WORK.ev_08
-    uint8 ev_1;            // copied to SCENE_WORK.ev_09
-    sint16 frame_2;        // frame at which Sce_event_update moves to the next entry
-    SCENE_EVENT_FUNC func; // step function, called every frame with the scene work (event_step_call)
-} EVENT_ENT;
+    uint8 slot_0;
+    uint8 kind_1;
+    uint8 value_2;
+    uint8 type_3;
+    uint8 value_4;
+    uint8 reserved05[3];
+    uint32 word_8;
+    uint32 word_C;
+    uint8 reserved10[4];
+} SCENE_CMD;
 
-// One entry of D_80089248: a halfword copy job (func_8001F798).
+// Slot record returned by func_8001E968.
+typedef struct
+{
+    uint8 flags_0;
+    uint8 id_1;
+    uint8 kind_2;
+    uint8 value_3;
+    uint8 value_4;
+    uint8 reserved05;
+    uint8 flags_6;
+    uint8 reserved07;
+    uint8 routine_8;
+    uint8 reserved09[3];
+    uint32 word_C;
+    uint8 reserved10[4];
+    uint32 word_14;
+    uint16 half_18;
+    uint8 reserved1A[2];
+    sint32 pos_1C;
+    sint32 pos_20;
+    sint32 pos_24;
+    uint8 reserved28[0x10];
+    uint32 word_38;
+    uint32 word_3C;
+    uint8 reserved40[0x14];
+    uint16 half_54;
+    uint16 half_56;
+    uint16 half_58;
+} SCENE_SLOT;
+
+// Position record passed to func_8001E968
+typedef struct
+{
+    sint16 x_0;
+    sint16 y_2;
+    sint16 z_4;
+    sint16 w_6;
+} SCENE_POS;
+
+// Script command list: count, then the records.
+typedef struct
+{
+    uint32 count;
+    SCENE_CMD *cmds_4;
+} SCENE_CMD_LIST;
+
+// Local views: only the fields the scene helpers touch.
+typedef struct
+{
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2;
+    uint8 routine_3;
+    SCENE_CMD *cmds_4;
+    uint8 flag_8;
+    uint8 flag_9;
+    uint8 reserved0a[2];
+    uint32 work_C;
+    uint32 work_10;
+    uint32 work_14;
+    uint32 work_18;
+    uint32 work_1C;
+    uint8 reserved20[4];
+    SCENE_SLOT *slot_24[32];
+    uint8 *script_A4;
+} SCENE_WORK;
+
+typedef struct
+{
+    uint8 reserved00[0x50];
+    sint8 routine_50;
+    sint8 routine_51;
+    uint8 reserved52;
+    uint8 flags_53;
+    uint8 reserved54[6];
+    sint8 option_5A;
+    uint8 reserved5b[5];
+    sint16 value_60;
+    uint16 value_62;
+    uint8 flag_64;
+    uint8 flag_65;
+    uint8 reserved66[2];
+    sint16 value_68;
+    sint16 value_6A;
+    uint8 reserved6c[4];
+    sint16 value_70;
+    sint16 value_72;
+    sint16 value_74;
+    uint8 reserved76[0xC];
+    uint8 flags_82;
+} SCENE_GAME_VIEW;
+
 typedef struct
 {
     sint32 count;
     uint16 *src;
     uint16 *dst;
-} HALF_COPY_ENT;
+} SCENE_COPY;
 
-// One 0x14-byte entry of a scene's object table (D_8008FF88), opened by func_8001EAE8 (partial).
 typedef struct
 {
-    uint8 unk00;
-    uint8 unk01;
-    uint8 unk02;   // copied to the object's byte 4
-    uint8 kind_03; // pool: 0x20 WORK_3C0, 0x40 WORK_5A4, 0x60 SHL_WORK, 0xE0 WORK_50 (func_8001E968)
-    uint8 unk04;   // copied to the object's byte 3
-    uint8 unk05[3];
-    sint32 unk08;    // copied to the object's word 0xC
-    sint16 unk0C[4]; // passed by address to func_8001E968
-} SCENE_OBJ_ENT;
+    uint8 reserved00[0x6E];
+    sint16 value_6E;
+    uint8 reserved70[0x16A - 0x70];
+    sint8 value_16A;
+    uint8 value_16B;
+    uint8 reserved16c[6];
+    sint8 value_172;
+    uint8 reserved173[0x450 - 0x173];
+    uint8 slots_450[3];
+    uint8 reserved453;
+    uint8 slots_454[0x20];
+} SCENE_PLAYER_VIEW;
 
-// Scene work, 0xA8 bytes (partial). Passed to the event-table step functions (D_8009039C).
-struct SCENE_WORK
-{
-    uint8 unk00; // 0x00: set to 1 by func_8001DDE4; bytes 0-3 cleared at once by func_8001D928
-    uint8 id_01; // 0x01: the scene's number (func_8001DDE4's argument); scene flag 0x380 + id_01
-                 // marks it as seen, so START skips it (func_8001DE84)
-    uint8 unk02[2];
-    uint8 routine_4; // 0x04: state of the scene's main function (func_80068DAC); bytes 4-7
-                     // cleared at once by func_8001DDE4
-    uint8 unk05[3];
-    uint8 ev_08; // 0x08: byte 0 of the current event-table entry (Sce_event_set, Sce_event_update)
-    uint8 ev_09; // 0x09: byte 1 of the current event-table entry
-    uint8 unk0A;
-    uint8 unk0B;
-    sint32 field_0C; // 0x0C: cleared by func_8001DDE4; tested by the event step func_8006849C
-    sint32 timer_10; // 0x10: frames since the current event-table step began (Sce_event_update)
-    sint32 timer_14; // 0x14: frames since the scene started (Sce_event_update)
-    sint32 timer_18; // 0x18: frames since ev_08 last changed (Sce_event_update)
-    sint32 timer_1C; // 0x1C: frames since ev_08 or ev_09 last changed (Sce_event_update)
-    uint8 unk20[0x24 - 0x20];
-    // 0x24: the scene's objects, opened by func_8001E968 from one of four pools chosen by its third
-    // argument (kind 0x20: func_80031418, WORK_3C0; 0x40: func_80031498, WORK_5A4; 0x60:
-    // Open_SHL_WORK, SHL_WORK; 0xE0: func_80031734, WORK_50), so each entry's type depends on the
-    // scene. The users read an entry into a pointer of the type they know: the event steps of
-    // code_800680BC have [0] WORK_3C0, [1] and [2] WORK_5A4, [3] WORK_50 (their object table
-    // D_8008FF88), and the camera (func_8001E550) only needs the MODEL_WORK layout.
-    void *obj_24[16];
-    sint32 field_64; // set by the event steps (func_8006854C, func_80068728)
-    // 0x68-0x70: three levels that func_8006854C clears, then raises by 9 a frame from timer_10
-    // 90 to 120, all set to 0xFF once field_68 reaches it (probably an RGB fade)
-    uint32 field_68;
-    uint32 field_6C;
-    uint32 field_70;
-    sint32 field_74; // 0x74: set to 2 by func_8006854C
-    uint8 unk78[0xA4 - 0x78];
-    EVENT_ENT *ev_ptr_A4; // 0xA4: current entry of the event table (Sce_event_update steps it)
-};
+typedef void (*SCENE_FUNC)(void);
+typedef void (*SCENE_WORK_FUNC)(SCENE_WORK *work);
 
-// The scene's camera (partial), at 0x800BC730; func_8001EC0C reaches it through one base
-// register. All vectors are 16.16 fixed point. func_8001E550 hands it to the camera code each
-// frame: position pos_10 (+ ofs_A0) and either the angles ang_40 (func_80038324) or the point
-// tgt_70 + ofs_A0 (func_800384A4); func_8001E6C0 resets it from the current camera.
-typedef struct
-{
-    uint8 unk00[3];
-    uint8 follow_03; // 0x03: nonzero: pos_10 follows Scene_work.obj_24[obj_09] (+ ofs_B0)
-    uint8 unk04[4];
-    uint8 mode_08; // 0x08: 0 = aim by angles ang_40, otherwise at the point tgt_70
-    uint8 obj_09;  // 0x09: index of the followed object in Scene_work.obj_24
-    uint8 unk0A[0x10 - 0x0A];
-    VECTOR pos_10; // 0x10: position (cam_pos_set sets it in whole units)
-    VECTOR vel_20; // 0x20: added to pos_10 by func_8001EC0C
-    uint8 unk30[0x10];
-    VECTOR ang_40;    // 0x40: angles (0..0xFFF in the whole part; cam_ang_set)
-    VECTOR angvel_50; // 0x50: added to ang_40 by func_8001EC0C
-    uint8 unk60[0x10];
-    VECTOR tgt_70;    // 0x70: point looked at when mode_08 is set
-    VECTOR tgtvel_80; // 0x80: added to tgt_70 by func_8001EC0C
-    uint8 unk90[0x10];
-    VECTOR ofs_A0;  // 0xA0: offset added to pos_10 and tgt_70 (func_8001E6C0's arguments)
-    VECTOR ofs_B0;  // 0xB0: offset from the followed object (follow_03)
-    uint32 *arg_C0; // 0xC0: camera command script (top byte of each word is the command), set
-                    // with the event table by Sce_event_set; func_8001EC0C steps it
-} SCENE_CAM_WORK;
+extern SCENE_WORK Scene_work;
+extern SCENE_GAME_VIEW Game_work;
+extern SCENE_PLAYER_VIEW Player_work;
+extern uint8 Sce_flag[];
+extern SCENE_FUNC D_8008980C[];
+extern uint8 D_80098788;
+extern uint8 D_80098AB8;
+extern uint16 D_800C0C2A;
+extern uint32 D_800988E8;
+extern uint32 D_800ACDBC[];
+extern uint32 D_800BE438[];
+extern uint32 D_800989F8;
+extern uint32 D_800989FC;
+extern uint32 D_80098A00;
+extern sint32 D_800BC740;
+extern sint32 D_800BC744;
+extern sint32 D_800BC748;
+extern sint32 D_800BC770;
+extern sint32 D_800BC774;
+extern sint32 D_800BC778;
+extern uint32 D_800BC7F0;
 
-extern SCENE_WORK Scene_work; // 0x800C4C48
-extern uint8 Sce_flag[];      // 0x800BE378: scene flag bits, MSB first in each byte (Sce_flag_test)
-extern SCENE_CAM_WORK Sce_camera_work;
-
-extern SCENE_OBJ_ENT D_8008FF88[4]; // objects of code_800680BC's scene (event_scene_init)
-extern uint32 D_8008FFD8[];         // camera script of code_800680BC's scene
-extern EVENT_ENT D_8009039C[];      // event table of code_800680BC's scene
-
-extern uint8 *D_80098B60;    // read pointer, advanced two bytes by func_8001DD88
-extern sint32 D_800988E8;    // bitmask of D_800ACD40 slots in use, slot n = 0x80000000 >> n (func_8001DFEC)
-extern void *D_800ACD40[32]; // per slot, a copy of Scene_work.obj_24[n] (func_8001DFEC); cleared by func_8001DEE4
-
-extern sint32 D_800BE438[16]; // cleared by func_8001D928(0)
-extern sint32 D_800989F8;     // cleared by func_8001D928
-extern sint32 D_800989FC;     // cleared by func_8001D928
-extern sint32 D_80098A00;     // cleared by func_8001D928
-
-// Per stage (D_800C356E), a list of file indexes: [0] compared with Game_work.unk068, then one per
-// D_800C356F at [n + 1] (negative = none) compared with Game_work.unk06A (func_8001F6C4).
+extern uint16 D_800891B4[];
+void Sce_flag_on(uint32 flag);
+void Sce_flag_off(uint32 flag);
+void func_800179FC(sint32 arg, sint16 *value);
+void func_8002FBF4(void);
+void Cd_read_comb(sint32 arg);
+extern SCENE_SLOT *D_800ACD40[];
+extern SCENE_FUNC D_80088FA8[];
+extern SCENE_WORK_FUNC D_80089024[];
+extern sint8 D_800C356C;
+extern uint8 D_800C356E;
+extern uint8 D_800C356F;
 extern sint16 *D_800893BC[];
-
-// 12-byte entries {count, src, dst}: func_8001F798(n) copies count halfwords from src to dst.
-// Splat splits the first entry's fields into three labels (D_80089248, D_8008924C, D_80089250).
-extern HALF_COPY_ENT D_80089248[];
-
-// Files func_8001F5E4 loads for the player's settings (see GAME_WORK.file_070).
+extern SCENE_COPY D_80089248[];
+extern uint8 D_800A395C;
+extern sint32 D_800A3964;
+extern sint32 D_800A3968;
+extern sint32 D_800A396C;
+extern sint32 D_800A39A0;
+extern sint32 D_800A39A4;
+extern sint32 D_800A39A8;
+extern sint32 D_800BC7D0;
+extern sint32 D_800BC7D4;
+extern sint32 D_800BC7D8;
+extern sint32 D_800BC750;
+extern sint32 D_800BC754;
+extern sint32 D_800BC758;
+extern sint32 D_800BC780;
+extern sint32 D_800BC784;
+extern sint32 D_800BC788;
+extern sint32 D_800BC7B0;
+extern sint32 D_800BC7B4;
+extern sint32 D_800BC7B8;
+extern uint8 D_800BC738;
+void func_800398E0(sint32 arg);
+void func_8001D7AC(sint32 index);
+extern sint32 D_800891F0[];
+sint32 catan(sint32 x);
 extern sint16 D_80089200[];
 extern sint16 D_80089204[];
 extern sint16 D_80089208[];
+SCENE_SLOT *func_8001E968(sint32 index, sint32 kind, sint32 type, SCENE_POS *pos);
+SCENE_SLOT *func_8001EAE8(SCENE_CMD *cmd);
+uint32 Sce_flag_test(uint32 flag);
+void func_8001F798(sint32 arg);
 
-// One function per Game_work.unk050, called by func_8001F740 after func_8001F798(unk050).
-extern STAGE_FUNC D_8008980C[];
+// 16.16 fixed-point word, also read as its integer half.
+typedef union
+{
+    sint32 w;
+    struct
+    {
+        uint16 frac;
+        sint16 i;
+    } h;
+} SCENE_FIX;
 
-sint32 Sce_flag_test(sint32 flag);
-void Sce_flag_on(sint32 flag);
-void Sce_flag_off(sint32 flag);
-void Sound_fade_start(sint32 fade); // starts a sound fade (Sound_fade_flags) unless one is running
-sint32 func_8001D878(void);         // Cd_stat & 0x20
-void func_8001D974(void);           // Game_work.unk053++
-sint32 func_8001DE84(void);         // START pressed in a scene already seen
-void func_8001E390(sint32 flag);
-void func_8001EC0C(void); // steps the scene camera (Sce_camera_work)
-void Sce_event_update(void);
-sint32 func_8001E83C(sint16 x, sint16 z, sint16 dx, sint16 dz); // angle to a point
-void func_8001E6C0(sint32 x, sint32 y, sint32 z);               // resets the scene camera from the current camera
-void *func_8001EAE8(SCENE_OBJ_ENT *ent);                        // opens the object of one table entry
+// Local view of the camera block at 0x800BC730
+typedef struct
+{
+    uint8 reserved00[3];
+    uint8 flag_3;
+    uint8 reserved04[4];
+    uint8 mode_8;
+    uint8 index_9;
+    uint8 reserved0a[6];
+    sint32 pos_10;
+    sint32 pos_14;
+    sint32 pos_18;
+    uint8 reserved1c[4];
+    sint32 vel_20;
+    sint32 vel_24;
+    sint32 vel_28;
+    uint8 reserved2c[0x14];
+    SCENE_FIX rot_40;
+    SCENE_FIX rot_44;
+    SCENE_FIX rot_48;
+    uint8 reserved4c[4];
+    sint32 rot_vel_50;
+    sint32 rot_vel_54;
+    sint32 rot_vel_58;
+    uint8 reserved5c[0x14];
+    sint32 pos_70;
+    sint32 pos_74;
+    sint32 pos_78;
+    uint8 reserved7c[4];
+    sint32 vel_80;
+    sint32 vel_84;
+    sint32 vel_88;
+    uint8 reserved8c[0x14];
+    sint32 off_A0;
+    sint32 off_A4;
+    sint32 off_A8;
+    uint8 reservedac[4];
+    sint32 value_B0;
+    sint32 value_B4;
+    sint32 value_B8;
+    uint8 reservedbc[4];
+    uint32 *cmd_C0;
+} SCENE_CAM;
 
-#endif // SCENE_H
+extern SCENE_CAM D_800BC730;
+SCENE_SLOT *func_80031418(void);
+SCENE_SLOT *func_80031498(void);
+SCENE_SLOT *func_80031518(void);
+SCENE_SLOT *func_80031734(void);
+extern uint8 D_800BC733;
+extern uint8 D_800BC739;
+extern sint32 D_800BC7E0;
+extern sint32 D_800BC7E4;
+extern sint32 D_800BC7E8;
+void func_80038324(sint32 *pos, sint16 a, sint16 b, sint16 c);
+void func_800384A4(sint32 *pos, sint32 *pos2, sint32 w, SCENE_CAM *cam);
+
+typedef void (*SCENE_SLOT_FUNC)(SCENE_SLOT *slot);
+// Dispatch tables kept in scratchpad RAM: pointer to an array of pointers to function arrays
+#define SCENE_TBL_58 (*(SCENE_SLOT_FUNC ***)0x1F800058)
+#define SCENE_TBL_5C (*(SCENE_SLOT_FUNC ***)0x1F80005C)
+#define SCENE_TBL_60 (*(SCENE_SLOT_FUNC **)0x1F800060)
+#define SCENE_TBL_6C (*(SCENE_SLOT_FUNC **)0x1F80006C)
+uint32 func_8002FE74(uint8 id);
+void func_80031824(SCENE_SLOT *slot);
+
+extern uint16 D_800896D4[];
+extern SCENE_FUNC D_80089714[];
+extern SCENE_FUNC D_80089790[];
+void func_8001F740(void);
+void func_80019F94(uint16 arg);
+void func_800177CC(void *a, void *b);
+void func_8001D928(sint32 arg);
+void func_8003A3B4(void);
+void func_8003AD14(void);
+void func_80017944(void);
+extern uint8 *D_80098B60;
+extern uint8 D_800B6130[];
+void func_80067E18(void);
+void func_80067E4C(void);
+// Hand-written block copy entry inside func_80017618 (not yet in the registry).
+void func_800176DC(void *src, void *dst, sint32 count);
+void func_8003697C(void);
+void func_800369C0(void);
+void func_80036A1C(void);
+#define GAME_WORK_CLEAR_174 ((uint32 *)((uint8 *)&Game_work + 0x174))
+// Scene_work through its fixed address: GCC gives each access its own lui
+// (no shared base register), as the script-step helpers need.
+#define SCENE_WORK_FIXED (*(SCENE_WORK *)0x800C4C48)
+
+// func_800384A4 as func_8001E550 calls it: retail passes only the two vectors.
+typedef void (*SCENE_CAM_FUNC)(sint32 *pos, sint32 *target);
+
+// Game_work through its fixed address (same view type). The stage-load helpers read
+// routine_50/51 and value_6A this way, so GCC keeps each access on its own lui and does
+// not fold them into the &Game_work register the rest of the function uses.
+#define SCENE_GAME_FIXED (*(SCENE_GAME_VIEW *)0x800C1B10)
+
+void func_8001F5E4(void);
+
+#endif

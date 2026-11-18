@@ -22,6 +22,7 @@ void main(void)
     {
         while (Vsync_count < Vsync_wait)
         {
+            VSYNC_IDLE();
         }
 
         Vsync_count = 0;
@@ -49,7 +50,7 @@ void System_init(void)
     DecDCTReset(0); // full reset, including internal tables
     SetVideoMode(MODE_NTSC);
 
-    InitPAD((char *)&Joy1, 8, (char *)&Joy2, 8);
+    InitPAD((u_char *)&Joy1, 8, (u_char *)&Joy2, 8);
     // ugly, but idiomatic to Capcom's codebase
     *(uint32 *)Joy1.unk34 = 0x4001;
     *(uint32 *)Joy2.unk34 = 0x4001;
@@ -197,13 +198,13 @@ void Cd_init(void)
     {
     }
 
-    Cd_muted      = 0; // stored twice in the original; both needed for the match
-    Cd_ring_write = 0;
-    Cd_status     = CD_STATUS_IDLE;
-    Cd_xa_state   = CD_XA_OFF;
-    Cd_mode       = 0;
-    Cd_unused     = 0;
-    Cd_muted      = 0; // stored twice in the original; both needed for the match
+    D_80059BCA = 0; // stored twice in the original; both needed for the match
+    D_80059C00 = 0;
+    Cd_status  = 0;
+    D_80059C74 = 7;
+    Cd_mode    = 0;
+    D_80059C48 = 0;
+    D_80059BCA = 0; // stored twice in the original; both needed for the match
 
     Cd_controlb_retry(CdlSetmode, &Cd_mode, Cd_result);
 
@@ -219,9 +220,9 @@ void Cd_init(void)
 
     Cd_wait          = 0;
     Cd_movie_playing = 0;
-    Cd_head_state    = 0;
+    D_80059C24       = 0;
     Cd_cmd_routine   = 0;
-    Cd_play_mode     = 0;
+    D_80059BC9       = 0;
 }
 
 void cd_cmd_nop(void)
@@ -312,12 +313,12 @@ void cd_cmd_play_movie(void)
             Cd_wait = 0xFF;
             DecDCTReset(1);
             timeout = 0;
-            Movie_start(Cd_cmd_exec_ptr->args.movie.file);
-            Cd_play_mode     = 3;
+            Movie_start(Cd_cmd_exec_ptr->args.arg1);
+            D_80059BC9       = 3;
             Cd_movie_playing = 1;
             Movie_buf_idx    = 0;
             Vsync_wait       = VSYNC_60FPS;
-            Movie_end_frame  = Cd_cmd_exec_ptr->args.movie.end_frame;
+            Movie_end_frame  = Cd_cmd_exec_ptr->args.arg2;
 
             for (i = 0; i < CD_VOL_MAX; i++)
             {
@@ -362,7 +363,8 @@ void cd_cmd_play_movie(void)
                 }
             }
 
-            if ((Cd_cmd_exec_ptr->args.movie.skip & PAD_ON(Joy1)) || hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
+            if ((Cd_cmd_exec_ptr->args.arg3 & PAD_ON(Joy1)) ||
+                hdrs->frameCount == Movie_end_frame || (Cd_error_flags | D_80059BA4))
             {
                 Cd_cmd_routine++;
             }
@@ -422,8 +424,7 @@ void Movie_frame_upload(void)
 
         for (i = 0; i < MOVIE_SLICE_COUNT; i++)
         {
-            // slice i of the other buffer: the frame that finished decoding while this one was shown
-            LoadImage(rect, (u_long *)(MOVIE_IMG_BUF + (1 - Movie_frame_idx) * MOVIE_IMG_SIZE + i * MOVIE_SLICE_WORDS * 4));
+            LoadImage(rect, MOVIE_IMG(1 - Movie_frame_idx) + i * MOVIE_SLICE_WORDS);
             rect++;
         }
     }
@@ -446,19 +447,18 @@ void Cd_cmd_exec(void)
 
 void Cd_cmd_dequeue(void)
 {
-    CD_CMD *p = Cd_cmd_queue;
+    CD_CMD *p;
 
-    while (p->type != CD_CMD_END)
+    for (p = Cd_cmd_queue; p->type != 0; p++)
     {
-        p->type         = p[1].type;
-        p->args.word[0] = p[1].args.word[0];
-        p->args.word[1] = p[1].args.word[1];
-        p->args.word[2] = p[1].args.word[2];
-        p++;
+        p->type                  = p[1].type;
+        p->args.arg1             = p[1].args.arg1;
+        p->args.arg2             = p[1].args.arg2;
+        *(uint32 *)&p->args.arg3 = *(uint32 *)&p[1].args.arg3;
     }
 
-    p[1].type      = CD_CMD_END;
-    Cd_head_state  = 0;
+    p[1].type      = 0;
+    D_80059C24     = 0;
     Cd_cmd_routine = 0;
     Cd_cmd_write_ptr--;
 }
@@ -499,26 +499,27 @@ void Cd_sync_cb(u_char status, u_char *result)
     if (status == CdlComplete)
     {
         Cd_sync_done = 1;
-        Cd_status    = CD_STATUS_IDLE;
+        Cd_status    = 0;
     }
     else
     {
-        Cd_status = CD_STATUS_ERROR;
+        Cd_status = 0x80;
         Cd_error_flags |= CD_ERR_SYNC;
     }
 }
 
-#ifdef NON_MATCHING
+// cc1 runs with -G8 (tools/cc.sh): the 8-byte Cd_result then counts as small data, so GCC
+// rebuilds its address for each call instead of keeping it in a saved register.
 void Movie_start(sint32 file)
 {
     CdlLOC loc;
     CdlFILTER filter;
 
-    Cd_status = CD_STATUS_BUSY;
+    Cd_status = 1;
 
     Movie_buf_ready[0] = Movie_buf_ready[1] = Movie_buf_ready[2] = Movie_buf_ready[3] = 0;
 
-    Cd_xa_state       = CD_XA_OFF;
+    D_80059C74        = 7;
     Cd_error_flags    = 0;
     Cd_sync_done      = 0;
     Movie_sector_wait = 0;
@@ -535,11 +536,7 @@ void Movie_start(sint32 file)
     Cd_controlb_retry(CdlSetloc, (u_char *)&loc, Cd_result);
     Cd_controlb_retry(CdlReadS, NULL, Cd_result);
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_start);
-#endif
 
-#ifdef NON_MATCHING
 void Movie_sector_cb(u_char status, u_char *result)
 {
     sint32 i;
@@ -580,8 +577,10 @@ void Movie_sector_cb(u_char status, u_char *result)
         }
 
         // Frame data goes after the table, one sector's worth per sector.
-        src = sec->data;
-        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) + sec->hdr.secCount * STR_DATA_WORDS;
+        // retail builds this address as a literal (lui/ori), not from sec
+        src = (u_long *)(STR_SECTOR_BUF + sizeof(StHEADER));
+        dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) +
+              sec->hdr.secCount * STR_DATA_WORDS;
         for (i = 0; i < STR_DATA_WORDS; i++)
         {
             *dst++ = *src++;
@@ -596,14 +595,11 @@ void Movie_sector_cb(u_char status, u_char *result)
     }
     else
     {
-        Cd_status = CD_STATUS_ERROR;
+        Cd_status = 0x80;
         Cd_error_flags |= CD_ERR_READY;
         CdReadyCallback(0);
     }
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_sector_cb);
-#endif
 
 void Cd_control_retry(u_char com, u_char *param, u_char *result)
 {
@@ -645,10 +641,10 @@ void Cd_set_mode(u_char mode)
 
 void Cd_cmd_set_movie(sint32 arg1, sint32 arg2, uint16 arg3)
 {
-    Cd_cmd_write_ptr->type                 = CD_CMD_PLAY_MOVIE;
-    Cd_cmd_write_ptr->args.movie.file      = arg1;
-    Cd_cmd_write_ptr->args.movie.end_frame = arg2;
-    Cd_cmd_write_ptr->args.movie.skip      = arg3;
+    Cd_cmd_write_ptr->type      = CD_CMD_PLAY_MOVIE;
+    Cd_cmd_write_ptr->args.arg1 = arg1;
+    Cd_cmd_write_ptr->args.arg2 = arg2;
+    Cd_cmd_write_ptr->args.arg3 = arg3;
     Cd_cmd_write_ptr++;
 }
 
@@ -657,7 +653,6 @@ sint32 Cd_read_sync2(void)
     return Cd_cmd_write_ptr != Cd_cmd_queue;
 }
 
-#ifdef NON_MATCHING
 void Intro_init(void)
 {
     RECT rect;
@@ -667,6 +662,8 @@ void Intro_init(void)
     uint32 k;
     SPRT *p0;
     SPRT *p1;
+    DR_MODE *d0;
+    DR_MODE *d1;
 
     img                         = copyright_tim;
     *(uint32 *)&Intro_routine_0 = 2;
@@ -710,15 +707,16 @@ void Intro_init(void)
         }
     }
 
+    d0 = copyright_dr_mode[0];
+    d1 = copyright_dr_mode[1];
     for (i = 0; i < 5; i++)
     {
-        SetDrawMode(&copyright_dr_mode[0][i], 0, 0, (i + 10) | 0x80, NULL);
-        SetDrawMode(&copyright_dr_mode[1][i], 0, 0, (i + 10) | 0x80, NULL);
+        SetDrawMode(d0, 0, 0, (i + 10) | 0x80, NULL);
+        SetDrawMode(d1, 0, 0, (i + 10) | 0x80, NULL);
+        d0++;
+        d1++;
     }
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Intro_init);
-#endif
 
 void intro_copyright_draw(uint8 brightness)
 {
@@ -872,7 +870,8 @@ void intro_launch_game(void)
             SsQuit();
             StopPAD();
             _96_init();
-            LoadExec(rock_neo_path, ROCK_NEO_STACK, 0);
+            // 0x801fff00: stack pointer for ROCK_NEO.EXE: top of 2 MB RAM, minus 256 bytes.
+            LoadExec(rock_neo_path, 0x801fff00, 0);
             break;
     }
 

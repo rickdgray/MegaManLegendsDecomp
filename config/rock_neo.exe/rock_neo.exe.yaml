@@ -23,7 +23,7 @@ options:
   find_file_boundaries: False
 
   gp_value: 0x80097864
-  ld_gp_expression: "0x80097864"
+  ld_gp_expression: "main_SDATA_START + 0x8000"  # 0x80097864; follows the small data (tools/shift_test.py)
 
   o_as_suffix: True
   use_legacy_include_asm: False
@@ -58,14 +58,14 @@ segments:
     align: 1
     subsegments:
       # .rodata: Capcom's first, then the library
-      # Each file's rodata, by which file's code uses it (jump tables, strings).
       - [0x800, .rodata, main]
-      - [0x870, .rodata, code_800133D8]
+      - [0x840, rodata, 840]
+      - [0x870, .rodata, Code800133D8]
       - [0x8B4, .rodata, code_80014AC0]
       - [0x938, .rodata, game]
       - [0x9E4, .rodata, code_8001786C]
       - [0xA44, .rodata, cd]
-      - [0xAB0, .rodata, scene]          # stage-file path strings, reached through .data D_800893BC
+      - [0xAB0, rodata]
       - [0x10C0, .rodata, code_8001F828]
       - [0x1294, .rodata, code_8002E7A8]
       - [0x1330, .rodata, code_80037FB4]
@@ -76,6 +76,8 @@ segments:
       - [0x156C, .rodata, code_80048620]
       - [0x19E4, .rodata, code_8005C258]
       - [0x1A4C, .rodata, sub_scrn]
+      - [0x1B68, rodata, 1B68]  # padding word after sub_scrn's jump table
+      - [0x1B6C, .rodata, map_screen]
       - [0x1BD8, .rodata, code_8006430C]
       - [0x1CA0, .rodata, code_800680BC]
       - [0x1CB8, rodata, psyq/SPU]
@@ -97,20 +99,21 @@ segments:
       - [0x2290, rodata, psyq/SYS_2]
 
       # .text
-      - [0x2490, c, main]  # high
-      - [0x3BD8, c, code_800133D8]  # medium
+      - [0x2490, c, main]
+      - [0x3BD8, c, Code800133D8]  # medium
       - [0x52C0, c, code_80014AC0]  # medium
       - [0x5DA4, c, game]  # medium
       - [0x7DD8, asm, asm_fastmem]  # HAND-WRITTEN ASSEMBLY, not compiler output: never decompile
       - [0x806C, c, code_8001786C]  # low
-      - [0xA0C0, c, sound]  # high
-      - [0xBBE4, c, cd]  # confirmed
+      - [0xA0C0, c, sound]
+      - [0xBBE4, c, cd]  # medium
       - [0xE054, c, scene]  # medium
       - [0x10028, c, code_8001F828]  # low
       - [0x17E78, c, code_80027678]  # low
       - [0x1E1A0, c, code_8002D9A0]  # low
+      - [0x1EBD0, asm, asm_8002E3D0]  # HAND-WRITTEN ASSEMBLY (func_8002E3D0, GTE mesh draw): never decompile
       - [0x1EFA8, c, code_8002E7A8]  # low
-      - [0x27D34, c, code_80037534]  # low; func_80037440 belongs to the file before (.sbss and .data order)
+      - [0x27C40, c, code_80037440]  # low
       - [0x287B4, c, code_80037FB4]  # low
       - [0x2ABB4, c, code_8003A3B4]  # low
       - [0x2B424, c, code_8003AC24]  # low
@@ -122,11 +125,12 @@ segments:
       - [0x38E20, c, code_80048620]  # low
       - [0x43F88, c, moji]  # medium
       - [0x4CA58, c, code_8005C258]  # low
-      - [0x4F434, c, sub_scrn]  # medium; ends with Map_screen_* (Capcom's source, TCRF)
+      - [0x4F434, c, sub_scrn]  # medium
+      - [0x52D9C, c, map_screen]  # low
       - [0x531E0, c, debug]  # medium
       - [0x54B0C, c, code_8006430C]  # low
       - [0x587F8, asm, psyq/2MBYTE]   # unchanged
-      - [0x588BC, c, code_800680BC]  # high
+      - [0x588BC, c, code_800680BC]
       - [0x59838, asm, psyq/ADDDF3]
       - [0x59BB8, asm, psyq/ADDMANT]
       - [0x59C68, asm, psyq/DBSHIFT]
@@ -233,23 +237,10 @@ segments:
 
       # .data, then .sdata
       - [0x70EC4, data, 70EC4]  # starts 4 bytes before the timestamp string
-      # .sdata starts at gp (0x80097864): no $gp access has a negative offset. Each file's piece
-      # (`.sdata`, defined in its C file) runs from its first to its last $gp variable; the
-      # stretches between stay assembly.
-      - [0x88064, .sdata, main]
-      - [0x881DC, sdata, 881DC]
-      - [0x8843C, .sdata, code_8001F828]
-      - [0x88444, sdata, 88444]
-      - [0x884FC, .sdata, code_8002E7A8]
-      - [0x8850C, sdata, 8850C]
-      - [0x88524, .sdata, code_80037534]
-      - [0x88528, .sdata, code_80037FB4]
-      - [0x88574, sdata, 88574]
-      - [0x885A0, .sdata, code_8004324C]
-      - [0x885DC, .sdata, code_80043F34]
-      - [0x885F0, sdata, 885F0]
-      - [0x88804, .sdata, code_8005C258]
-      - [0x88838, sdata, 88838]
+      - [0x80064, sdata, 80064] # gp - 0x8000 = 0x8008F864
+      # C-owned small data, carved out where retail reaches it through $gp with an offset (which
+      # a tentative .comm definition can't get): the file's own .sdata, or its file-static .sbss
+      # (linker_section) in the BSS-as-sdata region below.
       - [0x8888C, .sdata, code_8006430C]
       - [0x8889C, sdata, 8889C]
 
@@ -257,27 +248,12 @@ segments:
       # which splat can't express as bss (it counts the file bytes on top of bss_size). Typed sdata so
       # it's laid out right after the small data. To restore real BSS later (may need a splat change):
       #   - { start: 0x88958, type: bss, name: 88958, vram: 0x80098158 }  plus  bss_size: 0x2D530 on main
-      # .sbss (statics, in file order), as typed sdata: each file's piece is its C file's .sbss.
-      - { start: 0x88958, type: .sdata, name: main, linker_section: .sbss }
-      - [0x88960, sdata, 88960]
+      - [0x88958, sdata, 88958]
       - { start: 0x88998, type: .sdata, name: scene, linker_section: .sbss }
-      - [0x889A0, sdata, 889A0]
-      - { start: 0x889BC, type: .sdata, name: code_8001F828, linker_section: .sbss }
-      - [0x88B54, sdata, 88B54]
-      - { start: 0x88D50, type: .sdata, name: code_80027678, linker_section: .sbss }
-      - [0x88D5C, sdata, 88D5C]
-      - { start: 0x88D60, type: .sdata, name: code_8002E7A8, linker_section: .sbss }
+      - [0x8899C, sdata, 8899C]
+      - { start: 0x88D6C, type: .sdata, name: code_80037440, linker_section: .sbss }
+      - { start: 0x88D7C, type: .sdata, name: code_8002E7A8, linker_section: .sbss }
       - [0x88E5C, sdata, 88E5C]
-      - { start: 0x88E60, type: .sdata, name: code_80037FB4, linker_section: .sbss }
-      - [0x88E9C, sdata, 88E9C]
-      - { start: 0x88ED0, type: .sdata, name: code_800456D8, linker_section: .sbss }
-      - [0x88ED8, sdata, 88ED8]
-      - { start: 0x88EE0, type: .sdata, name: moji, linker_section: .sbss }
-      - { start: 0x88EF8, type: .sdata, name: code_8005C258, linker_section: .sbss }
-      - { start: 0x88F00, type: .sdata, name: debug, linker_section: .sbss }
-      - { start: 0x88F08, type: .sdata, name: code_8006430C, linker_section: .sbss }
-      # The rest: PsyQ's small data, the pool of small common symbols (0x80098788-), then .bss.
-      - [0x88F30, sdata, 88F30]
 
   # Zeros after the BSS, plus one 0x04 at 0x800D8800 (the SHL overlay's load address).
   - name: tail

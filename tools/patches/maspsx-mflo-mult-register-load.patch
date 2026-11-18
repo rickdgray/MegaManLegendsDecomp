@@ -1,0 +1,11 @@
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ -838,7 +838,7 @@
+                 skip += 1
+                 if inst == next_instruction:
+                     op, *_ = inst.strip().split()
+-                    if op in load_mnemonics:
++                    if op in load_mnemonics and (uses_at(inst) or "(" not in inst):
+                         # allow for $at handling later in the script
+                         skip = 0
+                         break

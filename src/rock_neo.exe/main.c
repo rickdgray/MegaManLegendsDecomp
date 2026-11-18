@@ -1,217 +1,123 @@
 #include "common.h"
+#include "display.h"
+#include "thread.h"
 #include "system.h"
 #include "pad.h"
-#include "display.h"
-#include "psyq/libetc.h"
-#include "psyq/libsn.h"
-#include "psyq/libgpu.h"
-#include "cd.h"
-#include "game.h"
-#include "moji.h"
-#include "scratch.h"
 #include "debug.h"
-#include "code_8001786C.h"
-#include "code_8006430C.h"
-#include "code_8001F828.h"
-#include "fastmem.h"
-#include "sound.h"
-#include "psyq/libgte.h"
+#include "game.h"
+#include "main.h"
+#include "psyq/libapi.h"
 
-// Small data (.sdata 0x80097864-0x800979DC): reached through $gp in this file. The strings
-// are the exception handler's (names, then the register dump's labels and formats).
-sint32 D_80097864[6] = {0, 0, 0, 0, 0, 0x02000400};
-char D_8009787C[]    = "INT";
-char D_80097880[]    = "MOD";
-char D_80097884[]    = "TLBL";
-char D_8009788C[]    = "TLBS";
-char D_80097894[]    = "ADEL";
-char D_8009789C[]    = "ADES";
-char D_800978A4[]    = "IBE";
-char D_800978A8[]    = "DBE";
-char D_800978AC[]    = "SYS";
-char D_800978B0[]    = "BP";
-char D_800978B4[]    = "RI";
-char D_800978B8[]    = "CPU";
-char D_800978BC[]    = "OV";
-char D_800978C0[]    = "\?1";
-char D_800978C4[]    = "\?2";
-char D_800978C8[]    = "\?3";
-char D_800978CC[]    = "0x80000000 / -1";
-char D_800978DC[]    = "0x\?\?\?\?\?\?\?\? / 0";
-char D_800978EC[]    = "EXCEPTION=%s";
-char D_800978FC[]    = "CAUS=";
-char D_80097904[]    = "SR=";
-char D_80097908[]    = "MDLO=";
-char D_80097910[]    = "MDHI=";
-char D_80097918[]    = "EPC=";
-char D_80097920[]    = "RA=";
-char D_80097924[]    = "FP=";
-char D_80097928[]    = "SP=";
-char D_8009792C[]    = "GP=";
-char D_80097930[]    = "K1=";
-char D_80097934[]    = "K0=";
-char D_80097938[]    = "T9=";
-char D_8009793C[]    = "T8=";
-char D_80097940[]    = "S7=";
-char D_80097944[]    = "S6=";
-char D_80097948[]    = "S5=";
-char D_8009794C[]    = "S4=";
-char D_80097950[]    = "S3=";
-char D_80097954[]    = "S2=";
-char D_80097958[]    = "S1=";
-char D_8009795C[]    = "S0=";
-char D_80097960[]    = "T7=";
-char D_80097964[]    = "T6=";
-char D_80097968[]    = "T5=";
-char D_8009796C[]    = "T4=";
-char D_80097970[]    = "T3=";
-char D_80097974[]    = "T2=";
-char D_80097978[]    = "T1=";
-char D_8009797C[]    = "T0=";
-char D_80097980[]    = "A3=";
-char D_80097984[]    = "A2=";
-char D_80097988[]    = "A1=";
-char D_8009798C[]    = "A0=";
-char D_80097990[]    = "V1=";
-char D_80097994[]    = "V0=";
-char D_80097998[]    = "AT=";
-char D_8009799C[]    = "ZERO=";
-char D_800979A4[]    = "%08x";
-char D_800979AC[]    = "%08x %08x %08x";
-char D_800979BC[]    = "%08x %04x %04x %04x %04x";
-sint32 D_800979D8    = 0;
-
-// Small uninitialized statics (.sbss 0x80098158-0x80098160).
-static sint32 D_80098158[2];
-
-// Pool variable (0x800988D8): the event handle func_80012938 opens.
-sint32 D_800988D8;
-
-// Pool variable (0x80098A8C): set to 1 by System_init, read by main.
+// Small data reached through $gp
+THREAD_FUNC D_80098158;
+sint32 D_800979D8;
+sint32 D_80097864;
+long D_800988D8;
 uint8 D_80098A8C;
-
-// Pool variable (0x80098A90): DrawSync(1) at the start of the frame (main). volatile: without
-// it, the store moves ahead of DrawSync(0)'s argument setup in main.
 volatile sint32 D_80098A90;
-
-// Called only from this file
-void thread_dispatch(void);
-void exception_handler(void);
-void debug_addr_move(uint32 *addr);
-void debug_mem_dump(uint8 *addr, uint32 mode);
 
 void main(void)
 {
-    if (D_80097864[0] == 0)
+    if (D_80097864 == 0)
     {
         func_80012938();
     }
-
-    System_init();
-    Thread_open(0, func_800131FC);
-
+    func_80011F04();
+    func_80012E10(0, func_800131FC);
     while (1)
     {
-        while (Vsync_count < Vsync_wait)
+        while (Vsync_count < SCRATCH_VSYNC_WAIT)
         {
+            VSYNC_IDLE();
         }
-
         Vsync_count = 0;
         D_800D9BCC = D_800D9BD0 = VSync(1);
         D_80098A90              = DrawSync(1);
         DrawSync(0);
         ResetGraph(1);
-
         if (D_80098A8C == 0)
         {
-            PutDispEnv(&Disp_env_ptr->disp);
-            PutDrawEnv(&Disp_env_ptr->draw);
+            PutDispEnv(&CURRENT_DISP_ENV->disp);
+            PutDrawEnv(&CURRENT_DISP_ENV->draw);
         }
-
         func_80017734();
-
         if (D_80098810 == 0)
         {
-            DrawOTag(&Disp_env_ptr->ot[OT_LEN - 1]);
+            DrawOTag(&CURRENT_DISP_ENV->ot[OT_LEN - 1]);
         }
-
         Pad_update_all();
-
-        Dbl_buff_idx ^= 1;
-        Disp_env_ptr = &Disp_env[Dbl_buff_idx];
-        Scratch_ot   = D_800A4D40[Dbl_buff_idx];
-        ClearOTagR(Disp_env_ptr->ot, OT_LEN);
-        ClearOTagR(D_800A4D40[Dbl_buff_idx], 0x1000);
-        ClearOTagR(D_8009BF88[Dbl_buff_idx], 0x200);
-        ClearOTagR(D_8009AE48[Dbl_buff_idx], 0x200);
-        Map_prim_ptr = D_800806EC[D_80098864][Dbl_buff_idx];
-
-        thread_dispatch();
-        Sound_update();
-        Cd_cmd_exec();
+        SCRATCH_BUFFER_INDEX ^= 1;
+        D_80098934       = (CODE800133D8_LINK *)&Joy1.disp_env[SCRATCH_BUFFER_INDEX];
+        SCRATCH_PRIM_PTR = D_800A4D40[SCRATCH_BUFFER_INDEX];
+        ClearOTagR(CURRENT_DISP_ENV->ot, OT_LEN);
+        ClearOTagR((u_long *)D_800A4D40[SCRATCH_BUFFER_INDEX], 0x1000);
+        ClearOTagR(D_8009BF88[SCRATCH_BUFFER_INDEX], 0x200);
+        ClearOTagR(D_8009AE48[SCRATCH_BUFFER_INDEX], 0x200);
+        SCRATCH_SCREEN_WORD = D_800806EC[D_80098864][SCRATCH_BUFFER_INDEX];
+        func_80012C80();
+        func_8001A110();
+        func_8001C95C();
         func_800203A8();
         func_80053B40();
         func_80064060();
         DrawSync(0);
         func_80017B24();
         func_800178FC();
-
-        if (D_80097864[0] != 0)
+        if (D_80097864 != 0)
         {
-            DEBUG_BREAK();
+            __asm__ volatile("break 0x400");
         }
-
-        System_timer++;
+        SCRATCH_FRAME_COUNT++;
     }
 }
 
-void System_init(void)
+void func_80011F04(void)
 {
-    sint32 i;
+    sint32 angle;
 
     ResetCallback();
     Cd_init();
     ResetGraph(3);
     D_80098A8C = 1;
-    SetVideoMode(MODE_NTSC);
+    func_80077748(0);
     InitGeom();
-    SetGeomOffset(160, 120);
-    SetGeomScreen(384);
-    Mem_clear(&Joy1, (uint8 *)&Joy1 + 0x4C8);
-    Mem_clear(&Joy2, (uint8 *)&Joy2 + 0x4C8);
-    Mem_clear(D_800C0FC0, D_800C0FC0 + 0x4C8);
-    InitPAD((char *)&Joy1, 8, (char *)&Joy2, 8);
+    func_8007B118(0xA0, 0x78);
+    func_8007B138(0x180);
+    func_800177CC(&Joy1, (uint8 *)&Joy1 + 0x4C8);
+    func_800177CC(&Joy2, (uint8 *)&Joy2 + 0x4C8);
+    func_800177CC(D_800C0FC0, D_800C0FC0 + 0x4C8);
+    InitPAD(&Joy1.status, 8, &Joy2.status, 8);
     *(uint32 *)Joy1.unk34 = 0x4001;
     *(uint32 *)Joy2.unk34 = 0x4001;
     StartPAD();
     func_8006479C();
-    Sound_init();
+    func_80019DE0();
     ChangeClearPAD(0);
-    Disp_env_setup();
+    func_800120A8();
     func_80012BC4();
-    Disp_env_ptr = Disp_env;
-    D_800D9B00   = 0;
-    Dbl_buff_idx = 0;
-    Vsync_wait   = VSYNC_30FPS;
+    D_80098934           = (CODE800133D8_LINK *)D_800C0C48;
+    D_800D9B00           = 0;
+    SCRATCH_BUFFER_INDEX = 0;
+    SCRATCH_VSYNC_WAIT   = 2;
     VSyncCallback(Vsync_handler);
     D_80098824 = 0;
     D_80098864 = 0;
-    for (i = 0; i < 0x1000; i += 0x40)
+    for (angle = 0; angle < 0x1000; angle += 0x40)
     {
-        D_800BAEB0[i >> 6] = rcos(i);
-        D_800BBCF8[i >> 6] = rsin(i);
+        D_800BAEB0[angle >> 6] = rcos(angle);
+        D_800BBCF8[angle >> 6] = rsin(angle);
     }
     func_8002037C();
 }
 
-void Disp_env_setup(void)
+void func_800120A8(void)
 {
-    SetDefDrawEnv(&Disp_env[0].draw, 0, 0, 320, 240);
-    SetDefDispEnv(&Disp_env[0].disp, 0, 256, 320, 240);
-    SetDefDrawEnv(&Disp_env[1].draw, 0, 256, 320, 240);
-    SetDefDispEnv(&Disp_env[1].disp, 0, 0, 320, 240);
-    Disp_env_init(&Disp_env[0]);
-    Disp_env_init(&Disp_env[1]);
+    SetDefDrawEnv(&Joy1.disp_env[0].draw, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    SetDefDispEnv(&Joy1.disp_env[0].disp, 0, DISPLAY_BUFFER_Y, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    SetDefDrawEnv(&Joy1.disp_env[1].draw, 0, DISPLAY_BUFFER_Y, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    SetDefDispEnv(&Joy1.disp_env[1].disp, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    Disp_env_init(&Joy1.disp_env[0]);
+    Disp_env_init(&Joy1.disp_env[1]);
 }
 
 void Disp_env_init(DISP_ENV *buf)
@@ -226,38 +132,37 @@ void Disp_env_init(DISP_ENV *buf)
     buf->draw.b0       = 0;
 }
 
-// The shim's Pad_update, plus the auto-repeat update.
 void Pad_update(PAD_WORK *pad)
 {
+    uint32 repeat_flag;
+
     if (pad->status == 0xFF)
     {
-        pad->type                  = 0xFF;
-        pad->flags.all             = 0;
-        PAD_NOW(*pad)              = 0;
-        *(uint32 *)pad->analog_cpy = 0;
-        *(uint32 *)pad->old        = 0;
+        pad->type                 = 0xFF;
+        pad->flags                = 0;
+        pad->held                 = 0;
+        pad->analog_copy          = 0;
+        *(uint32 *)&pad->previous = 0;
     }
     else
     {
-        pad->type                  = pad->id >> 4;
-        PAD_OLD(*pad)              = PAD_NOW(*pad);
-        *(uint32 *)pad->analog_cpy = *(uint32 *)pad->analog;
-        PAD_NOW(*pad)              = ~PAD_RAW(*pad);
-        PAD_ON(*pad)               = PAD_NOW(*pad) & ~PAD_OLD(*pad);
-        PAD_OFF(*pad)              = PAD_OLD(*pad) & ~PAD_NOW(*pad);
-        Pad_repeat_update(pad);
-
-        if ((pad->flags.all & 3) == 1)
+        pad->type        = pad->id >> 4;
+        pad->previous    = pad->held;
+        pad->analog_copy = pad->analog;
+        pad->held        = ~pad->buttons;
+        pad->pressed     = pad->held & ~pad->previous;
+        pad->released    = pad->previous & ~pad->held;
+        func_800122D0(pad);
+        if ((pad->flags & 3) == 1)
         {
             pad->unk36 = 1;
         }
-
-        if ((pad->flags.all & 3) == 2)
+        if ((pad->flags & 3) == 2)
         {
             pad->unk36 = 0;
         }
-
-        pad->flags.bit.prev = pad->flags.bit.cur;
+        repeat_flag = (pad->flags & 1) << 1;
+        pad->flags  = (pad->flags & ~2) | repeat_flag;
     }
 }
 
@@ -267,7 +172,7 @@ void Pad_update_all(void)
     Pad_update(&Joy2);
 }
 
-void Pad_repeat_update(PAD_WORK *pad)
+void func_800122D0(PAD_WORK *pad)
 {
     func_80012350(pad, PAD_UP, 0);
     func_80012350(pad, PAD_DOWN, 1);
@@ -277,27 +182,27 @@ void Pad_repeat_update(PAD_WORK *pad)
     func_80012350(pad, PAD_R1, 5);
 }
 
-void func_80012350(PAD_WORK *pad, sint32 mask, sint32 i)
+void func_80012350(PAD_WORK *pad, sint32 mask, sint32 index)
 {
-    if (!(PAD_REP_OUT(pad) & mask) && (PAD_ON(*pad) & mask) == mask)
+    if (!(pad->repeat & mask) && (pad->pressed & mask) == mask)
     {
-        pad->rep_count[i] = 0;
-        if (pad->rep_state[i] == 0)
+        pad->repeat_count[index] = 0;
+        if (pad->repeat_state[index] == 0)
         {
-            pad->rep_state[i] = 1;
+            pad->repeat_state[index] = 1;
         }
         else
         {
-            pad->rep_state[i] = 2;
-            PAD_REP_OUT(pad) |= mask;
+            pad->repeat_state[index] = 2;
+            pad->repeat |= mask;
         }
     }
-    else if (pad->rep_state[i] != 0)
+    else if (pad->repeat_state[index] != 0)
     {
-        if (pad->rep_state[i] == 2 || pad->rep_count[i]++ >= 6)
+        if (pad->repeat_state[index] == 2 || pad->repeat_count[index]++ >= PAD_REPEAT_DELAY)
         {
-            pad->rep_state[i] = 0;
-            PAD_REP_OUT(pad) &= ~mask;
+            pad->repeat_state[index] = 0;
+            pad->repeat &= ~mask;
         }
     }
 }
@@ -309,407 +214,403 @@ void Vsync_handler(void)
 
 void func_80012424(void)
 {
-    if ((PAD_NOW(Joy1) & (PAD_L2 | PAD_R2 | PAD_L1 | PAD_R1)) == (PAD_L2 | PAD_R2 | PAD_L1 | PAD_R1) && (PAD_NOW(Joy2) & PAD_CIRCLE))
+    if ((D_800C0C26 & 0xF00) == 0xF00 && (D_800C0D8E[0] & 0x2000))
     {
-        D_80097864[0] ^= 1;
+        D_80097864 ^= 1;
     }
 }
 
-// Exception handler: shows the exception's name, the faulting thread's registers and, with
-// select on controller 2, a memory dump (triangle toggles main RAM / scratchpad). Never returns.
-// Parked (3 instructions long): the target shares D_800979A4 in s0 across the last five prints
-// (ours reloads it each time), and schedules the hoisted scratchpad base ahead of msg's.
-#ifdef NON_MATCHING
-void exception_handler(void)
+// Exception handler: a register and memory viewer that never returns.
+// The exception code is written out at each use: loop.c then hoists its shift and mask out of
+// the outer loop, and those two extra moves lower its threshold enough that the D_800979A4
+// address of the last five calls stays inside the loop (in s0) as in retail.
+long func_8001246C(void)
 {
-    char *names[16] = {D_8009787C, D_80097880, D_80097884, D_8009788C, D_80097894, D_8009789C, D_800978A4, D_800978A8,
-                       D_800978AC, D_800978B0, D_800978B4, D_800978B8, D_800978BC, D_800978C0, D_800978C4, D_800978C8};
-    uint32 addr[2];
+    char *names[16] = {
+        D_8009787C, D_80097880, D_80097884, D_8009788C, D_80097894, D_8009789C,
+        D_800978A4, D_800978A8, D_800978AC, D_800978B0, D_800978B4, D_800978B8,
+        D_800978BC, D_800978C0, D_800978C4, D_800978C8,
+    };
+    uint32 bank[2];
     TCB tcb;
     TCB *cur;
-    DEBUG_TEXT *msg;
     uint32 cause;
-    uint32 epc;
-    uint32 n; // the break code, then the register column
-    uint32 mode;
+    uint32 *epc;
+    uint32 brk;
     uint32 sel;
+    uint32 page;
     uint32 i;
 
-    cur   = TCB_CURRENT;
+    cur   = BIOS_PROCESS_TABLE->entry;
     tcb   = *cur;
-    cause = cur->reg[R_CAUSE];
-    epc   = cur->reg[R_EPC];
-    ExitCriticalSection();
-    sel     = 0;
-    addr[0] = 0x80000000;
-    addr[1] = 0x1F800000;
-
-    Disp_env[0].draw.ofs[1] = 0;
-    Disp_env[0].draw.clip.y = 0;
-    Disp_env[0].disp.disp.y = 256;
-    Disp_env[0].draw.isbg   = 1;
-    Disp_env[0].draw.dtd    = 0;
-    Disp_env[0].draw.dfe    = 1;
-    Disp_env[1].draw.ofs[1] = 256;
-    Disp_env[1].draw.clip.y = 256;
-    Disp_env[1].disp.disp.y = 0;
-    Disp_env[1].draw.isbg   = 1;
-    Disp_env[1].draw.dtd    = 0;
-    Disp_env[1].draw.dfe    = 1;
-    D_80098824              = 0;
-    mode                    = 0;
+    cause = cur->reg[TCB_R_CAUSE];
+    epc   = (uint32 *)cur->reg[TCB_R_EPC];
+    func_8007FF80();
+    sel                       = 0;
+    bank[0]                   = 0x80000000;
+    bank[1]                   = 0x1F800000;
+    D_800C0C48[0].draw.ofs[1] = 0;
+    D_800C0C48[0].draw.clip.y = 0;
+    D_800C0C48[0].disp.disp.y = 0x100;
+    D_800C0C48[0].draw.isbg   = 1;
+    D_800C0C48[0].draw.dtd    = 0;
+    D_800C0C48[0].draw.dfe    = 1;
+    D_800C0C48[1].draw.ofs[1] = 0x100;
+    D_800C0C48[1].draw.clip.y = 0x100;
+    D_800C0C48[1].disp.disp.y = 0;
+    D_800C0C48[1].draw.isbg   = 1;
+    D_800C0C48[1].draw.dtd    = 0;
+    D_800C0C48[1].draw.dfe    = 1;
+    D_80098824                = 0;
+    page                      = 0;
     func_80020A40();
-    msg = D_80080858;
-
     while (1)
     {
         VSync(0);
-        PutDispEnv(&Disp_env_ptr->disp);
-        PutDrawEnv(&Disp_env_ptr->draw);
-        DrawOTag(&Disp_env_ptr->ot[OT_LEN - 1]);
+        PutDispEnv(&CURRENT_DISP_ENV->disp);
+        PutDrawEnv(&CURRENT_DISP_ENV->draw);
+        DrawOTag(&CURRENT_DISP_ENV->ot[OT_LEN - 1]);
         Pad_update_all();
-
-        Dbl_buff_idx ^= 1;
-        Disp_env_ptr = &Disp_env[Dbl_buff_idx];
-        Scratch_ot   = D_800A4D40[Dbl_buff_idx];
-        ClearOTagR(Disp_env_ptr->ot, OT_LEN);
-        ClearOTagR(D_800A4D40[Dbl_buff_idx], 0x1000);
-        Map_prim_ptr = (POLY_FT4 *)(0x801B8000 + (Dbl_buff_idx << 17));
+        SCRATCH_BUFFER_INDEX ^= 1;
+        D_80098934       = (CODE800133D8_LINK *)&D_800C0C48[SCRATCH_BUFFER_INDEX];
+        SCRATCH_PRIM_PTR = D_800A4D40[SCRATCH_BUFFER_INDEX];
+        ClearOTagR(CURRENT_DISP_ENV->ot, OT_LEN);
+        ClearOTagR((u_long *)D_800A4D40[SCRATCH_BUFFER_INDEX], 0x1000);
+        SCRATCH_SCREEN_WORD = (SCRATCH_BUFFER_INDEX << 17) + 0x801B8000;
         func_800203A8();
-
         D_800987D4 = 0;
-        func_8001FE38(TEXT_POS(msg[0].x, msg[0].y, msg[0].unk2), msg[0].str, names[(cause >> 2) & 0xF]);
-
-        if (PAD_ON(Joy2) & PAD_SELECT)
+        func_8001FE38(DEBUG_TEXT_POS(D_80080858[0].x, D_80080858[0].y, D_80080858[0].color),
+                      D_80080858[0].text, names[(cause >> 2) & 0xF]);
+        if (Joy2.pressed & 1)
         {
-            mode = (mode + 1) & 3;
+            page = (page + 1) & 3;
         }
-
-        if (PAD_ON(Joy2) & PAD_TRIANGLE)
+        if (Joy2.pressed & 0x1000)
         {
             sel ^= 1;
         }
-
-        if (mode == 0)
+        if (page == 0)
         {
-            if (((cause >> 2) & 0xF) == 9)
+            if (((cause >> 2) & 0xF) == EXC_BREAK)
             {
-                n = *(uint32 *)epc >> 6;
-                switch (n)
+                brk = *epc >> 6;
+                switch (brk)
                 {
                     case 0x1C00:
-                        func_8001FE38(TEXT_POS(msg[1].x, msg[1].y, msg[1].unk2), msg[1].str);
+                        func_8001FE38(
+                            DEBUG_TEXT_POS(D_80080858[1].x, D_80080858[1].y, D_80080858[1].color),
+                            D_80080858[1].text);
                         break;
-
                     case 0x1800:
-                        func_8001FE38(TEXT_POS(msg[2].x, msg[2].y, msg[2].unk2), msg[2].str);
+                        func_8001FE38(
+                            DEBUG_TEXT_POS(D_80080858[2].x, D_80080858[2].y, D_80080858[2].color),
+                            D_80080858[2].text);
                         break;
-
                     default:
-                        func_8001FE38(TEXT_POS(2, 3, 0), D_800979A4, n);
+                        func_8001FE38(DEBUG_TEXT_POS(2, 3, 0), D_800979A4, brk);
                         break;
                 }
             }
-            func_8001FE38(TEXT_POS(22, 2, 0), D_800979A4, epc);
-
+            func_8001FE38(DEBUG_TEXT_POS(22, 2, 0), D_800979A4, epc);
             for (i = 0; i < 37; i++)
             {
-                func_8001FE38(TEXT_POS(D_80080730[i].x, D_80080730[i].y, D_80080730[i].unk2), D_80080730[i].str);
+                func_8001FE38(DEBUG_TEXT_POS(D_80080730[i].x, D_80080730[i].y, D_80080730[i].color),
+                              D_80080730[i].text);
             }
-
-            for (i = 0, n = 0; i < 32; i++)
+            for (i = 0, brk = 0; i < 32; i++)
             {
                 if (i >= 20)
                 {
-                    n = 1;
+                    brk = 1;
                 }
-                func_8001FE38(TEXT_POS(n * 20 + 7, i - n * 20 + 4, 0), D_800979A4, tcb.reg[i]);
+                func_8001FE38(DEBUG_TEXT_POS(brk * 20 + 7, i - brk * 20 + 4, 0), D_800979A4,
+                              tcb.reg[i]);
             }
-
-            i = (uint32)D_800979A4;
-            func_8001FE38(TEXT_POS(27, 16, 0), (char *)i, tcb.reg[R_EPC]);
-            func_8001FE38(TEXT_POS(27, 17, 0), (char *)i, tcb.reg[R_MDHI]);
-            func_8001FE38(TEXT_POS(27, 18, 0), (char *)i, tcb.reg[R_MDLO]);
-            func_8001FE38(TEXT_POS(27, 19, 0), (char *)i, tcb.reg[R_SR]);
-            func_8001FE38(TEXT_POS(27, 20, 0), (char *)i, tcb.reg[R_CAUSE]);
+            func_8001FE38(DEBUG_TEXT_POS(27, 16, 0), D_800979A4, tcb.reg[TCB_R_EPC]);
+            func_8001FE38(DEBUG_TEXT_POS(27, 17, 0), D_800979A4, tcb.reg[TCB_R_MDHI]);
+            func_8001FE38(DEBUG_TEXT_POS(27, 18, 0), D_800979A4, tcb.reg[TCB_R_MDLO]);
+            func_8001FE38(DEBUG_TEXT_POS(27, 19, 0), D_800979A4, tcb.reg[TCB_R_SR]);
+            func_8001FE38(DEBUG_TEXT_POS(27, 20, 0), D_800979A4, tcb.reg[TCB_R_CAUSE]);
         }
         else
         {
-            debug_addr_move(&addr[sel]);
-            debug_mem_dump((uint8 *)addr[sel], mode - 1);
+            func_80012988(&bank[sel]);
+            func_80012A5C((DEBUG_MEMORY_ROW *)bank[sel], page - 1);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", exception_handler);
-#endif
 
 void func_80012938(void)
 {
-    EnterCriticalSection();
-    D_800988D8 = OpenEvent(0xF0000010, 0x1000, 0x1000, exception_handler);
+    func_8007FF70();
+    D_800988D8 = OpenEvent(SYSTEM_EVENT_CLASS, EvSpTRAP, EvMdINTR, func_8001246C);
     EnableEvent(D_800988D8);
-    ExitCriticalSection();
+    func_8007FF80();
 }
 
-// Moves a debug address with controller 2 (up/down, by 8 lines; square, cross and circle pick
-// the line size), keeping it inside main RAM or the scratchpad.
-void debug_addr_move(uint32 *addr)
+void func_80012988(uint32 *value)
 {
-    uint32 old;
+    sint32 original;
     sint32 step;
+    uint32 limit;
+    uint32 current;
+    uint16 *buttons;
+    RECT rect; // Retail reserves eight bytes of unused local storage.
 
-    old  = *addr;
-    step = 1;
-    if (PAD_NOW(Joy2) & PAD_SQUARE)
+    buttons  = D_800C0D8E;
+    original = *value;
+    step     = 1;
+    if (*buttons & 0x8000)
     {
         step = 0x10;
     }
-    if (PAD_NOW(Joy2) & PAD_CROSS)
+    if (*buttons & 0x4000)
     {
         step = 0x100;
     }
-    if (PAD_NOW(Joy2) & PAD_CIRCLE)
+    if (*buttons & 0x2000)
     {
         step = 0x1000;
     }
-    if (PAD_NOW(Joy2) & PAD_UP)
+    if (*buttons & PAD_UP)
     {
-        *addr -= step * 8;
+        *value = original - step * 8;
     }
-    if (PAD_NOW(Joy2) & PAD_DOWN)
+    if (*buttons & PAD_DOWN)
     {
-        *addr += step * 8;
+        *value += step * 8;
     }
-    if (old >= 0x80000000)
+    limit = 0x7FFFFFFF;
+    if (original < 0)
     {
-        if (*addr < 0x80000000)
+        current = *value;
+        if (current <= limit)
         {
-            *addr = old;
+            *value = original;
+            return;
         }
-        else if (*addr > 0x801FFF80)
-        {
-            *addr = old;
-        }
+        limit = 0x801FFF80;
     }
     else
     {
-        if (*addr < 0x1F800000)
+        limit   = 0x1F7FFFFF;
+        current = *value;
+        if (current <= limit)
         {
-            *addr = old;
+            *value = original;
+            return;
         }
-        else if (*addr > 0x1F800380)
-        {
-            *addr = old;
-        }
+        limit = 0x1F800380;
+    }
+    if (current > limit)
+    {
+        *value = original;
     }
 }
 
-// Prints 16 lines of 8 bytes from addr, as words (mode 0), halfwords (1) or bytes (2).
-// Parked: the code matches, but its format string lands ahead of D_80010000 in .rodata. GCC's
-// MIPS port writes a file's data (string literals included) before all of its function bodies,
-// and INCLUDE_ASM's .include sits inside a function body, so exception_handler.s's table always
-// comes after this string. Bank this together with exception_handler: with both in C, the
-// table is emitted first, as in the original.
-#ifdef NON_MATCHING
-void debug_mem_dump(uint8 *addr, uint32 mode)
+void func_80012A5C(DEBUG_MEMORY_ROW *rows, uint32 mode)
 {
     uint32 i;
+    DEBUG_MEMORY_ROW *row;
 
     D_800987D4 = 0;
     switch (mode)
     {
         case 0:
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < DEBUG_MEMORY_ROWS; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, D_800979AC, &addr[i * 8], ((uint32 *)addr)[i * 2], ((uint32 *)addr)[i * 2 + 1]);
+                row = &rows[i];
+                func_8001FE38((DEBUG_MEMORY_BASE + i * DEBUG_MEMORY_SLOT_STEP) | DEBUG_MEMORY_FLAGS,
+                              D_800979AC, row, row->words[0], row->words[1]);
             }
             break;
-
         case 1:
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < DEBUG_MEMORY_ROWS; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, D_800979BC, &addr[i * 8], ((uint16 *)addr)[i * 4], ((uint16 *)addr)[i * 4 + 1],
-                              ((uint16 *)addr)[i * 4 + 2], ((uint16 *)addr)[i * 4 + 3]);
+                row = &rows[i];
+                func_8001FE38((DEBUG_MEMORY_BASE + i * DEBUG_MEMORY_SLOT_STEP) | DEBUG_MEMORY_FLAGS,
+                              D_800979BC, row, row->halves[0], row->halves[1], row->halves[2],
+                              row->halves[3]);
             }
             break;
-
         case 2:
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < DEBUG_MEMORY_ROWS; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, "%08x %02x %02x %02x %02x %02x %02x %02x %02x", &addr[i * 8], addr[i * 8],
-                              addr[i * 8 + 1], addr[i * 8 + 2], addr[i * 8 + 3], addr[i * 8 + 4], addr[i * 8 + 5], addr[i * 8 + 6],
-                              addr[i * 8 + 7]);
+                row = &rows[i];
+                func_8001FE38((DEBUG_MEMORY_BASE + i * DEBUG_MEMORY_SLOT_STEP) | DEBUG_MEMORY_FLAGS,
+                              D_80010040, row, row->bytes[0], row->bytes[1], row->bytes[2],
+                              row->bytes[3], row->bytes[4], row->bytes[5], row->bytes[6],
+                              row->bytes[7]);
             }
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", debug_mem_dump);
-#endif
 
-// Best attempt: the table base and gp now match; the target reloads THREAD_TBL[i].tcb from memory
-// before storing reg[R_SR] (mine reuses the register) and schedules the loop counter/giv differently.
-#ifdef NON_MATCHING
+// The context store comes before the stack and gp stores: those struct stores make CSE forget the
+// stored context, so it is reloaded for the sr store as in retail.
 void func_80012BC4(void)
 {
     sint32 i;
     uint32 gp;
-    TCB **kp;
+    KERNEL_TABLE *kernel;
+    THREAD_FUNC *vec;
 
-    kp = (TCB **)0x100;
-    gp = kp[4]->reg[R_GP];
-    for (i = 0; i < 4; i++)
+    kernel = KERNEL_TABLE_PTR;
+    gp     = kernel->threads[0].gp;
+    for (i = 0; i < THREAD_SLOT_COUNT; i++)
     {
-        THREAD_TBL[i].flags          = 0;
-        THREAD_TBL[i].sp             = 0x801FEC00 + i * 0x400;
-        THREAD_TBL[i].exec.gp        = gp;
-        THREAD_TBL[i].tcb            = &kp[4][i + 1];
-        THREAD_TBL[i].tcb->reg[R_SR] = 0x40000404;
-        THREAD_TBL[i].unk70          = 0;
+        THREAD_WORK_TABLE[i].state       = 0;
+        THREAD_WORK_TABLE[i].context     = &kernel->threads[i + 1];
+        THREAD_WORK_TABLE[i].stack       = THREAD_STACK_BASE + i * THREAD_STACK_SIZE;
+        THREAD_WORK_TABLE[i].gp          = gp;
+        THREAD_WORK_TABLE[i].context->sr = THREAD_INITIAL_SR;
+        THREAD_WORK_TABLE[i].unk70       = 0;
     }
-    for (i = 0; i < 9; i++)
+    vec = THREAD_VECTOR_TABLE;
+    for (i = 0; i < THREAD_VECTOR_COUNT; i++)
     {
-        ((uint32 *)0x801F8000)[i] = ((uint32 *)0x80080870)[i];
+        *vec++ = D_80080870[i];
     }
-    Thread_current = THREAD_TBL;
+    Thread_current = THREAD_WORK_TABLE;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012BC4);
-#endif
 
-// Thread scheduler: one pass over the thread records, switching to each one that is ready.
-void thread_dispatch(void)
+void func_80012C80(void)
 {
-    for (Thread_current = THREAD_TBL; Thread_current < &THREAD_TBL[4]; Thread_current++)
+    Thread_current = THREAD_WORK_TABLE;
+    do
     {
-        switch (Thread_current->flags)
+        switch (Thread_current->state)
         {
-            case 1:
-                if (--Thread_current->wait != 0)
+            case THREAD_WAITING:
+                if (--*(sint16 *)&Thread_current->wait != 0) // signed countdown
                 {
                     break;
                 }
                 // fall through
-            case 2:
+            case THREAD_READY:
             case 4:
-            case 0x7F:
-                if (Thread_current->unk70)
+            case THREAD_RUNNING:
+                if ((*THREAD_CURRENT_PTR)->unk70)
                 {
                     StopCallback();
                 }
-                Thread_current->flags = 0x7F;
-                ChangeTh(Thread_current->th);
-                if (Thread_current->unk70)
+                (*THREAD_CURRENT_PTR)->state = THREAD_RUNNING;
+                ChangeTh((*THREAD_CURRENT_PTR)->handle);
+                if ((*THREAD_CURRENT_PTR)->unk70)
                 {
                     ResetCallback();
                     VSyncCallback(Vsync_handler);
-                    Thread_current->unk70 = 0;
+                    (*THREAD_CURRENT_PTR)->unk70 = 0;
                 }
                 if (D_800979D8)
                 {
                     D_800979D8 = 0;
-                    EnterCriticalSection();
-                    CloseTh(Thread_current->th);
-                    Thread_current->th = OpenTh((TH_FUNC)D_80098158[0], Thread_current->sp, Thread_current->exec.gp);
-                    ExitCriticalSection();
+                    func_8007FF70();
+                    CloseTh((*THREAD_CURRENT_PTR)->handle);
+                    (*THREAD_CURRENT_PTR)->handle =
+                        OpenTh(D_80098158, (*THREAD_CURRENT_PTR)->stack, (*THREAD_CURRENT_PTR)->gp);
+                    func_8007FF80();
                 }
                 break;
         }
-    }
+    } while (++*THREAD_CURRENT_PTR < &THREAD_WORK_TABLE[THREAD_SLOT_COUNT]);
 }
 
-void Thread_open(sint32 n, TH_FUNC func)
+void func_80012E10(sint32 index, THREAD_FUNC entry)
 {
-    EnterCriticalSection();
-    THREAD_TBL[n].th = OpenTh(func, THREAD_TBL[n].sp, THREAD_TBL[n].exec.gp);
-    ExitCriticalSection();
-    THREAD_TBL[n].flags = 2;
+    THREAD_WORK *thread;
+
+    func_8007FF70();
+    thread = &THREAD_WORK_TABLE[index];
+    THREAD_WORK_TABLE[index].handle =
+        OpenTh(entry, THREAD_WORK_TABLE[index].stack, THREAD_WORK_TABLE[index].gp);
+    func_8007FF80();
+    thread->state = THREAD_READY;
 }
 
 void Thread_wait(sint32 arg)
 {
     Thread_current->wait  = arg;
-    Thread_current->flags = 1;
-    ChangeTh(0xFF000000);
+    Thread_current->state = THREAD_WAITING;
+    ChangeTh(THREAD_MAIN_HANDLE);
 }
 
 void func_80012ECC(void)
 {
-    Thread_current->flags = 0;
-    EnterCriticalSection();
-    CloseTh(Thread_current->th);
-    ExitCriticalSection();
-    ChangeTh(0xFF000000);
+    (*THREAD_CURRENT_PTR)->state = 0;
+    func_8007FF70();
+    CloseTh((*THREAD_CURRENT_PTR)->handle);
+    func_8007FF80();
+    ChangeTh(THREAD_MAIN_HANDLE);
 }
 
-void func_80012F24(sint32 n)
+void func_80012F24(sint32 index)
 {
-    THREAD_TBL[n].flags = 0;
-    EnterCriticalSection();
-    CloseTh(THREAD_TBL[n].th);
-    ExitCriticalSection();
+    THREAD_WORK_TABLE[index].state = 0;
+    func_8007FF70();
+    CloseTh(THREAD_WORK_TABLE[index].handle);
+    func_8007FF80();
 }
 
-void func_80012F78(sint32 arg)
+void func_80012F78(THREAD_FUNC entry)
 {
-    D_80098158[0] = arg;
-    D_800979D8    = 1;
-    ChangeTh(0xFF000000);
+    D_80098158 = entry;
+    D_800979D8 = 1;
+    ChangeTh(THREAD_MAIN_HANDLE);
 }
 
-void func_80012FA4(sint32 n)
+void func_80012FA4(sint32 index)
 {
-    THREAD_TBL[n].flags |= THREAD_FLAG_40;
+    THREAD_WORK_TABLE[index].state |= THREAD_FLAG_SUSPENDED;
 }
 
-void func_80012FC8(sint32 n)
+void func_80012FC8(sint32 index)
 {
-    THREAD_TBL[n].flags &= ~THREAD_FLAG_40;
+    THREAD_WORK_TABLE[index].state &= ~THREAD_FLAG_SUSPENDED;
 }
 
-// Loads a PS-X EXE from the host PC into thread n's record and opens the thread at its entry
-// point (Thread_exec_file does the same for the current thread).
-void Thread_open_file(sint32 n, char *name)
+void func_80012FEC(sint32 index, char *name)
 {
-    char head[0x10];
-    int fd;
-    char *p;
+    uint8 header[THREAD_FILE_HEADER_SIZE];
+    sint32 handle;
+    sint32 size;
+    uint8 *dest;
 
-    fd = PCopen(name, 0, 0);
-    PCread(fd, head, sizeof(head));
-    PCread(fd, (char *)&THREAD_TBL[n].exec, sizeof(EXEC));
-    PCread(fd, (char *)THREAD_TBL[n].exec.t_addr, 0x800 - sizeof(head) - sizeof(EXEC));
-    p = (char *)THREAD_TBL[n].exec.t_addr;
-    while (PCread(fd, p, 0x800) == 0x800)
+    handle = PCopen(name, 0, 0);
+    PCread(handle, header, THREAD_FILE_HEADER_SIZE);
+    PCread(handle, &THREAD_WORK_TABLE[index].entry, THREAD_FILE_WORK_SIZE);
+    PCread(handle, THREAD_WORK_TABLE[index].load_addr, THREAD_FILE_PREFIX_SIZE);
+    dest = THREAD_WORK_TABLE[index].load_addr;
+    do
     {
-        p += 0x800;
-    }
-    PCclose(fd);
+        size = PCread(handle, dest, THREAD_FILE_CHUNK_SIZE);
+        dest += THREAD_FILE_CHUNK_SIZE;
+    } while (size == THREAD_FILE_CHUNK_SIZE);
+    func_8007699C(handle);
     FlushCache();
-    Thread_open(n, (TH_FUNC)THREAD_TBL[n].exec.pc0);
+    func_80012E10(index, THREAD_WORK_TABLE[index].entry);
 }
 
-// Loads a PS-X EXE from the host PC: the exec info goes to the current thread's record, the
-// text to its t_addr, and the thread then switches to its entry point.
-void Thread_exec_file(char *name)
+void func_800130D0(char *name)
 {
-    char head[0x10];
-    int fd;
-    char *p;
+    uint8 header[THREAD_FILE_HEADER_SIZE];
+    sint32 handle;
+    sint32 size;
+    uint8 *dest;
 
-    fd = PCopen(name, 0, 0);
-    PCread(fd, head, sizeof(head));
-    PCread(fd, (char *)&Thread_current->exec, sizeof(EXEC));
-    PCread(fd, (char *)Thread_current->exec.t_addr, 0x800 - sizeof(head) - sizeof(EXEC));
-    p = (char *)Thread_current->exec.t_addr;
-    while (PCread(fd, p, 0x800) == 0x800)
+    handle = PCopen(name, 0, 0);
+    PCread(handle, header, THREAD_FILE_HEADER_SIZE);
+    PCread(handle, &(*THREAD_CURRENT_PTR)->entry, THREAD_FILE_WORK_SIZE);
+    PCread(handle, (*THREAD_CURRENT_PTR)->load_addr, THREAD_FILE_PREFIX_SIZE);
+    dest = (*THREAD_CURRENT_PTR)->load_addr;
+    do
     {
-        p += 0x800;
-    }
-    PCclose(fd);
+        size = PCread(handle, dest, THREAD_FILE_CHUNK_SIZE);
+        dest += THREAD_FILE_CHUNK_SIZE;
+    } while (size == THREAD_FILE_CHUNK_SIZE);
+    func_8007699C(handle);
     FlushCache();
-    func_80012F78(Thread_current->exec.pc0);
+    func_80012F78(Thread_current->entry);
 }
 
 void func_8001319C(void)
@@ -718,11 +619,11 @@ void func_8001319C(void)
 
     for (i = 0; i < 8; i++)
     {
-        Thread_current->unk60[i] = 0;
+        (*THREAD_CURRENT_PTR)->unk60[i] = 0;
     }
     for (i = 0; i < 16; i++)
     {
-        Thread_current->unk71[i] = 0;
+        (*THREAD_CURRENT_PTR)->unk71[i] = 0;
     }
 }
 
@@ -737,41 +638,41 @@ void func_800131FC(void)
     }
 }
 
-void func_8001326C(sint8 *routine)
+void func_8001326C(sint8 *state)
 {
     uint32 i;
+    CODE178_TILE *tile;
 
     SetDispMask(1);
     for (i = 0; i < 2; i++)
     {
-        setTile(&D_80098A28[i]);
-        setSemiTrans(&D_80098A28[i], 1);
-        setXY0(&D_80098A28[i], 0, 0);
-        setWH(&D_80098A28[i], 320, 240);
+        // Naming the table twice lets loop.c hoist its address and walk one tile pointer.
+        setlen(&D_80098A28[i], 3);
+        setcode(&D_80098A28[i], 0x62);
+        tile    = &D_80098A28[i];
+        tile->w = 320;
+        tile->x = 0;
+        tile->y = 0;
+        tile->h = 240;
         SetDrawMode(&D_80098A10[i], 0, 0, GetTPage(2, 2, 0, 0), NULL);
     }
     func_80063EF0();
-    Moji_init();
+    func_80053788();
     func_800665E8();
-    Cd_read_comb(29);
-    Game_work.unk05B    = 1;
-    Scratch_scale_shift = 0;
-    Game_work.unk010    = 0;
-    Game_work.unk014    = 0;
-    Game_work.unk018    = 0;
-    Game_work.unk01A    = 0;
-    Game_work.unk054    = 0;
-    Game_work.unk055    = 0;
-    Game_work.mono      = 0;
-    Game_work.unk059    = 0;
-    Game_work.file_070  = -1;
-    Game_work.file_072  = -1;
-    Game_work.file_074  = -1;
-    Game_work.unk076    = -1;
-    (*routine)++;
+    Cd_read_comb(0x1D);
+    Game_work.option_5b  = 1;
+    *(uint8 *)0x1F800074 = 0;
+    Game_work.value10    = 0;
+    Game_work.value14    = 0;
+    Game_work.flags_18   = 0;
+    Game_work.flags_1a   = 0;
+    Game_work.flags_54   = 0;
+    Game_work.flags_55   = 0;
+    Game_work.flags_58   = 0;
+    Game_work.flags_59   = 0;
+    Game_work.value70[0] = -1;
+    Game_work.value70[1] = -1;
+    Game_work.value70[2] = -1;
+    Game_work.value70[3] = -1;
+    (*state)++;
 }
-
-// For the code and data still in assembly: statics that other files point to (made global).
-// D_80098158 is also the start of the BSS, which 2MBYTE.OBJ's startup clears from.
-__asm__(".text\n"
-        ".globl D_80098158\n");

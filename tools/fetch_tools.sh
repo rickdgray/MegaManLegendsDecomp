@@ -30,7 +30,7 @@ fetch_tarball() {   # name url sha256 dest
     if [[ -e "$dest/.fetched" ]]; then echo "$name: present"; return; fi
     local tmp; tmp=$(mktemp)
     echo "$name: downloading"
-    wget -q -O "$tmp" "$url"
+    curl -fsSL -o "$tmp" "$url"
     local got; got=$(sha256sum "$tmp" | cut -d' ' -f1)
     if [[ "$got" != "$sha" ]]; then
         echo "$name: SHA-256 MISMATCH (expected $sha, got $got)" >&2
@@ -62,11 +62,33 @@ fetch_commit() {    # name repo commit dest
 
 fetch_tarball gcc-2.7.2-psx "$GCC_URL" "$GCC_SHA256" "$VENDOR/gcc-2.7.2-psx"
 fetch_commit  maspsx "$MASPSX_REPO" "$MASPSX_COMMIT" "$VENDOR/maspsx"
+# Local patches to pinned tools (tools/patches/<tool>-*.patch), applied once.
+#   maspsx-pre250-constant-address: before ASPSX 2.50 a constant address plus a register
+#   expands as lui/ori/addu $at,$at,base; only code_8002D9A0 (ASPSX 2.34) is affected.
+for patch in tools/patches/maspsx-*.patch; do
+    [[ -e "$patch" ]] || continue
+    if git -C "$VENDOR/maspsx" apply --check -R "$PWD/$patch" 2>/dev/null; then
+        echo "maspsx: $(basename "$patch") applied"
+    else
+        git -C "$VENDOR/maspsx" apply "$PWD/$patch"
+        echo "maspsx: $(basename "$patch") applied now"
+    fi
+done
 fetch_commit  m2c    "$M2C_REPO"    "$M2C_COMMIT"    "$VENDOR/m2c"
 fetch_commit  asm-differ "$ASMDIFF_REPO" "$ASMDIFF_COMMIT" "$VENDOR/asm-differ"
 fetch_commit  decomp-permuter "$PERMUTER_REPO" "$PERMUTER_COMMIT" "$VENDOR/decomp-permuter"
 
 rm -f "$VENDOR/asm-differ/diff_settings.py"
+
+# The scripts call mips-linux-gnu-*. Where only mipsel-linux-gnu-* is installed (Arch:
+# yay -S mipsel-linux-gnu-binutils-minimal), link the names; tools/target.sh puts this on PATH.
+if ! command -v mips-linux-gnu-as >/dev/null && command -v mipsel-linux-gnu-as >/dev/null; then
+    mkdir -p "$VENDOR/bin"
+    for t in as ld objcopy objdump readelf nm strip; do
+        ln -sf "$(command -v mipsel-linux-gnu-$t)" "$VENDOR/bin/mips-linux-gnu-$t"
+    done
+    echo "binutils: linked mipsel-linux-gnu-* as mips-linux-gnu-* in $VENDOR/bin"
+fi
 
 echo "asm-differ: install its dependencies into your venv with:"
 echo "  pip install colorama watchdog levenshtein cxxfilt"

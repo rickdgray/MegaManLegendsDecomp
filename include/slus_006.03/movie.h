@@ -21,7 +21,11 @@
 #define MOVIE_SLICE_WORDS 0x780   // u_longs of one 320x24 slice of a frame
 #define MOVIE_SLICE_COUNT 20      // slices per frame
 #define MOVIE_IMG_SIZE    0x25800 // u_longs of one 320x240 frame
-#define MOVIE_TIMEOUT     0x3FFFFF
+// Polls of the ring buffer before a CD timeout (about two seconds on the console). The native
+// port defines it first (port/include/port_prelude.h) to pace the polls at the console's speed.
+#ifndef MOVIE_TIMEOUT
+#define MOVIE_TIMEOUT 0x3FFFFF
+#endif
 
 // A ring buffer slot: a table of the frame's sector headers, then the frame data.
 #define MOVIE_SLOT(i) ((StHEADER *)(MOVIE_RING_BUF + (i)*MOVIE_SLOT_SIZE))

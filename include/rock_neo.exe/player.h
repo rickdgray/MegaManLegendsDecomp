@@ -1,118 +1,356 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef ROCK_NEO_PLAYER_H
+#define ROCK_NEO_PLAYER_H
 
 #include "common.h"
-#include "psyq/libgte.h"
-#include "code_8002E7A8.h"
 
-// Row of four signed shorts, 8 bytes each; D_80089EAC[n] points to an array of these.
+// Position/rotation snapshots used when entering a room.
 typedef struct
 {
-    sint16 val[4];
-} TBL_ROW;
+    sint16 x, y, z, pad;
+} PL_SHORT_VECTOR;
 
-// Record at PL_WORK 0x4F4, 8 bytes each (four index bytes used): rec[n].idx[k] selects
-// D_80089EAC[n][idx[k]].val[k].
 typedef struct
 {
-    sint8 idx[4];
-    uint8 unk04[2];
-    sint16 val; // 0x06: copy of D_80089EAC[n][idx[1]].val[1]; 0x7FFF is never counted down (func_80035724)
-} TBL_IDX;
+    sint32 x, y, z, pad;
+} PL_FIXED_VECTOR;
+typedef struct
+{
+    uint8 b[8];
+} PL_BYTES8;
 
-// Player work, 0x5F4 bytes. Tagged so code_8002E7A8.h can forward-declare it.
+typedef struct
+{
+    uint8 value00;
+    uint8 reserved01;
+    uint8 value02, value03;
+    uint8 reserved04[0x34];
+    PL_BYTES8 value38;
+} PL_CMD;
+
+typedef struct
+{
+    sint8 current;
+    sint8 selected;
+    sint8 value02;
+    sint8 value03;
+    sint8 value04;
+    uint8 reserved05;
+    sint16 value06;
+} PL_PART_STATE;
+
+typedef struct
+{
+    sint16 value0, value2, value4, value6, value8;
+    sint16 value0a;
+} PL_HEIGHT_INFO;
+
+typedef struct
+{
+    uint8 routine_0;
+    uint8 reserved01;
+    uint8 value02, value03;
+    uint8 reserved04[0x18];
+    PL_SHORT_VECTOR position;
+} PL_EFFECT;
+
+typedef struct
+{
+    uint16 mask_a, dir_a;
+    uint16 mask_b, dir_b;
+} PL_PAD_ENTRY;
+
 typedef struct PL_WORK
 {
-    uint8 unk00;
-    uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (func_80035724)
-    uint8 unk02[7];
-    uint8 unk09; // 0x09: lbu; 3 while the pad-driven state of func_800482A8 applies
-    uint8 unk0A[0x14 - 0x0A];
-    // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
-    SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
-    VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
-    uint8 unk2C[0x44 - 0x2C];
-    SVECTOR spd; // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
-    uint8 unk4C[0x54 - 0x4C];
-    SVECTOR ang; // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
-    uint8 unk5C[0x6E - 0x5C];
-    sint16 unk6E; // 0x6E: sh; copy of unkB0 (func_8005D9EC); func_8001DDE4 does nothing while negative
-    uint8 unk70[0x74 - 0x70];
-    sint8 field_74; // 0x74: same as MODEL_WORK.field_74; nonzero makes func_80042B58 call
-                    // Pl00_shot_enable_off, and func_800441CC leave owner_188 alone
-    uint8 unk75[0xAC - 0x75];
-    uint8 idx_AC; // 0xAC: same as MODEL_WORK.idx_AC; passed to func_800320B8 with a set
-    uint8 unkAD[0xB0 - 0xAD];
-    sint16 unkB0; // 0xB0: upper limit of unk6E (func_80043340)
-    uint8 unkB2[0xF8 - 0xB2];
-    KEY_ENT *tbl_F8; // 0xF8: keyframe table in use (func_800321C8)
-    KEY_ENT *ent_FC; // 0xFC: current keyframe
-    KEY_CMD cmd_100; // 0x100: copy of the current keyframe's command; time counts down (func_800323FC)
-    uint8 set_104;   // 0x104: index of the keyframe table set in use
-    uint8 unk105;    // 0x105: set_104 when func_800321C8 last ran (func_8003C418)
-    sint16 unk106;   // 0x106: set by func_800323FC
-    uint8 unk108[0x110 - 0x108];
-    sint8 unk110; // 0x110: sb; set to -1 or 0 by func_80042B58
-    uint8 unk111[0x116 - 0x111];
-    uint16 unk116; // 0x116: lhu; added to ang.vy for the camera yaw (func_800355F0)
-    uint8 unk118[0x11C - 0x118];
-    uint16 unk11C; // 0x11C: lhu; mask tested against keys_124[2] and [3] (func_800482A8)
-    uint8 unk11E[0x124 - 0x11E];
-    uint16 keys_124[16];   // 0x124: pad-bit masks, one row of D_8008A04C (func_800425FC)
-    uint16 key_pair[8][2]; // 0x144: [0] is the OR of two keys_124 masks, [1] one of the two
-                           // (func_800425FC)
-    uint8 unk164[0x16A - 0x164];
-    sint8 unk16A; // 0x16A: lb; selects the file D_80089200[unk16A] (func_8001F5E4)
-    uint8 unk16B; // 0x16B: lbu; bits 1-7 (signed) select the file D_80089204[n] (func_8001F5E4)
-    sint8 unk16C; // 0x16C: lb; when nonzero, Sce_flag_on sets it to the count of flags 0x53A-0x53C
-    uint8 unk16D[0x170 - 0x16D];
-    sint8 unk170;  // 0x170: lb; selects the TBL_IDX record counted by func_80037440; nonzero also
-                   // selects the alternate keyframe tables for sets 0x40-0x5F (func_800321C8)
-    sint8 unk171;  // 0x171: lb; record index for the alternative position (func_80035724); nonzero
-                   // selects the alternate keyframe tables for sets 0x60-0x7F
-    sint8 tbl_sel; // 0x172: lb; index of the active TBL_IDX record
-    uint8 unk173;
-    sint8 unk174; // 0x174: lb; bits 6-7 tested by func_8004324C
-    uint8 unk175; // 0x175: lbu; bits 0-2 tested by func_80042770 and func_80042F78
-    uint8 unk176;
-    sint8 unk177; // 0x177: lb; nonzero tested by func_8004324C
-    sint8 unk178; // 0x178: lb; step of func_80042A40 and func_80042DF8
-    uint8 unk179[0x188 - 0x179];
-    SLOT_OWNER owner_188; // 0x188: slot owner passed to func_800341BC (func_8003C2D8)
-    uint8 unk190[0x198 - 0x190];
-    uint32 unk198; // 0x198: cleared by func_800433FC/func_800435BC, set to 1 by func_800434F0
-                   // (state of the player's SHL_WORK slot of D_8008A0CC)
-    uint8 unk19C[0x1A8 - 0x19C];
-    MATRIX base_mtx;       // 0x1A8: body matrix, copied from the scratchpad matrix (func_800325D4)
-    MATRIX joint_mtx[15];  // 0x1C8: joint matrices (func_800331A0)
-    SVECTOR joint_pos[15]; // 0x3A8: joint positions (func_800331A0); [4] and [7] are copied to the
-                           // objects func_80035724 spawns, [11] and [14] by func_80047EC8
-    uint8 unk420[0x428 - 0x420];
-    VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
-    SVECTOR svec_438; // 0x438: rounded copy of pos_428
-    uint8 unk440[0x44C - 0x440];
-    sint8 unk44C; // 0x44C: bits read and cleared by func_80042B58 (bit 1: spd.vx = -0x280,
-                  // bit 0: unk110 = -1)
-    uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8
-    uint8 unk44E[0x450 - 0x44E];
-    uint8 ids_450[3]; // 0x450: entries of ids_454; Sce_flag_off clears the flag's id here too
-    uint8 unk453;
-    uint8 ids_454[32]; // 0x454: ids (flag - 0x4FF) of the set scene flags 0x500-0x51F, 0 = empty;
-                       // Sce_flag_on adds to the first empty entry, Sce_flag_off removes
-    uint8 unk474[0x4F4 - 0x474];
-    TBL_IDX rec[16]; // 0x4F4
-    uint8 unk574[0x5F4 - 0x574];
+    uint8 routine_0;
+    uint8 value01;
+    uint8 reserved02[4];
+    uint8 flags06;
+    uint8 reserved07;
+    uint8 kind;
+    uint8 routine_1;
+    uint8 value0a;
+    uint8 value0b;
+    uint8 reservedC[0x8];
+    PL_SHORT_VECTOR position;
+    PL_FIXED_VECTOR position_fixed;
+    PL_SHORT_VECTOR position_prev;
+    PL_FIXED_VECTOR position_fixed_prev;
+    sint16 value44, value46, value48;
+    uint8 reserved4A[0x4];
+    sint16 value4e;
+    uint8 reserved50[0x4];
+    PL_SHORT_VECTOR rotation;
+    PL_SHORT_VECTOR rotation_prev;
+    uint8 reserved64[0x8];
+    sint16 value6c;
+    sint16 value6e;
+    uint8 reserved70;
+    uint8 value71;
+    uint8 reserved72;
+    uint8 value73;
+    sint8 value74;
+    sint8 value75;
+    sint8 value76;
+    uint8 value77;
+    PL_HEIGHT_INFO *info78;
+    uint16 value7c;
+    uint8 reserved7E[0x26];
+    uint8 value_a4;
+    uint8 reservedA5[0x1];
+    sint8 value_a6;
+    sint8 value_a7;
+    uint8 reserveda8[4];
+    uint8 value_ac;
+    uint8 value_ad;
+    uint8 reservedAE[0x4];
+    uint16 value_b2;
+    sint16 value_b4;
+    sint16 value_b6;
+    uint8 reservedb8[5];
+    uint8 flags_bd;
+    uint8 reservedbe[2];
+    uint32 value_c0;
+    uint32 value_c4;
+    uint8 reservedc8[0x38];
+    uint8 value100;
+    uint8 reserved101[3];
+    uint8 value104;
+    uint8 value105;
+    uint8 reserved106[0x2];
+    sint16 value108;
+    uint16 value10a;
+    sint16 value10c;
+    sint16 value10e;
+    sint8 value110;
+    uint8 value111;
+    uint8 value112, value113;
+    uint16 value114;
+    uint16 value116;
+    uint16 value118;
+    uint8 reserved11A[0x2];
+    uint16 pad_cur;
+    uint16 value11e;
+    uint16 value120;
+    uint16 value122;
+    uint16 value124;
+    uint16 value126;
+    uint16 value128, value12a;
+    uint16 value12c, value12e;
+    uint16 value130, value132;
+    uint16 value134;
+    uint16 value136;
+    uint16 value138;
+    uint16 value13a, value13c;
+    uint16 value13e, value140;
+    uint8 reserved142[0x2];
+    PL_PAD_ENTRY pad_tbl[4];
+    sint16 value164;
+    uint8 reserved166[0x2];
+    sint8 value168, value169;
+    uint8 reserved16a;
+    uint8 flags16b;
+    uint8 reserved16c[4];
+    sint8 value170, value171;
+    sint8 part_index;
+    uint8 reserved173;
+    sint8 value174;
+    uint8 value175, value176;
+    sint8 value177;
+    uint16 value178;
+    uint8 reserved17a[0x6];
+    PL_SHORT_VECTOR table180[1];
+    uint32 value188, value18c, value190, value194;
+    uint8 reserved198[0x210];
+    PL_BYTES8 table3a8[16];
+    PL_FIXED_VECTOR position_saved_fixed;
+    PL_SHORT_VECTOR position_saved;
+    PL_SHORT_VECTOR rotation_saved;
+    uint8 value448;
+    sint8 value449;
+    uint8 value44a, value44b;
+    uint8 reserved44C[0x1];
+    uint8 value44d;
+    uint8 reserved44E[0xA6];
+    PL_PART_STATE parts[16];
+    uint8 reserved574[0xE0];
 } PL_WORK;
 
-extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
-extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
-extern PL_WORK *Player_work_ptr; // 0x80098A50
+extern PL_WORK Player_work;
+extern PL_WORK Player_work2;
 
-void func_80041E90(PL_WORK *pl, sint16 x, sint16 y, sint16 z);
-sint32 func_80042238(PL_WORK *pl);
+#define PL_ABS(x) (((x) < 0) ? -(x) : (x))
+
+// Position snapshots stored as 8-byte records in table3a8.
+#define PL_TABLE_VEC(pl, i) ((PL_SHORT_VECTOR *)&(pl)->table3a8[i])
+extern uint8 D_80089A84[];
+// Weapon records, 12 bytes each; only the first byte (reload) is read through this symbol.
+typedef struct
+{
+    uint8 reload;
+    uint8 reserved01[0xB];
+} PL_RELOAD_TBL;
+extern PL_RELOAD_TBL D_80089A88[];
+extern uint8 D_80089A89[];
+extern uint8 D_80089A8A[];
+
+// Local views of bytes inside Game_work.
+#define PL_GAME_FLAG55 (*(sint8 *)((uint8 *)&Game_work + 0x55))
+#define PL_GAME_FLAG56 (*(sint8 *)((uint8 *)&Game_work + 0x56))
+
+void func_8003BE6C(PL_WORK *pl, sint32 arg);
+sint32 func_80040764(PL_WORK *pl);
+sint32 rand(void);
+void func_8003F3E8(PL_WORK *pl);
+void func_80041EF4(PL_WORK *pl, sint32 a1, sint32 a2);
+void func_80041DDC(PL_WORK *pl, uint8 id, sint16 arg2, uint8 flag);
+sint32 func_80042154(PL_WORK *pl, sint32 a1, sint32 a2, sint32 mask);
+void Pl00_shot_enable_on(PL_WORK *pl);
+sint32 func_80040B68(PL_WORK *pl, sint32 arg);
+sint32 func_800402C4(PL_WORK *pl);
+sint32 func_8004030C(PL_WORK *pl, sint32 arg);
+void func_800394AC(void);
+sint32 func_800406A8(PL_WORK *pl);
+void func_80041A44(PL_WORK *pl, uint32 flags);
+sint32 func_80040818(PL_WORK *pl);
+sint32 func_80040710(PL_WORK *pl);
+sint32 func_800404FC(PL_WORK *pl, sint32 arg);
+sint32 func_80040630(PL_WORK *pl, sint32 arg);
+void func_8002D004(PL_WORK *pl, sint32 a1, sint32 a2);
+sint32 func_80040574(PL_WORK *pl);
+sint32 func_800410D4(PL_WORK *pl);
+sint32 func_80041158(PL_WORK *pl);
 void func_80042314(PL_WORK *pl);
-void Pl00_shot_enable_off(PL_WORK *pl);
-sint32 func_800423DC(PL_WORK *pl); // keyframe set for func_80042F78 (0x40-0x43)
-sint32 func_80042458(PL_WORK *pl); // keyframe set for func_80042770 (0x40-0x43)
+sint32 func_80041044(PL_WORK *pl);
+sint32 func_800403D4(PL_WORK *pl, sint32 arg);
+sint32 func_80040468(PL_WORK *pl, sint32 arg);
+void func_8003F188(PL_WORK *pl, sint32 dir, sint32 arg);
+sint32 func_80040E00(PL_WORK *pl, sint32 a1, sint16 a2, sint16 a3);
+void func_80040E9C(PL_WORK *pl, sint16 arg);
+sint32 func_80040FA8(PL_WORK *pl);
+void func_80040178(PL_WORK *pl);
+sint32 func_80048E6C(PL_WORK *pl);
+typedef void (*PL_FUNC)(PL_WORK *pl);
 
-#endif // PLAYER_H
+extern PL_FUNC D_80089F94[];
+void func_800321C8(PL_WORK *pl, sint32 a1, sint32 a2, sint32 a3);
+void func_800323FC(PL_WORK *pl, sint32 a1, sint32 a2);
+void func_800320B8(PL_WORK *pl, sint32 a1, sint32 a2);
+void func_8003234C(); // signature differs between callers; see code_8002e7a8.h
+uint32 func_8004324C(PL_WORK *pl);
+sint32 func_8004B414(PL_WORK *pl);
+sint32 func_80042044(PL_WORK *pl, sint32 a1, sint32 a2);
+sint32 func_800341BC(void *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, void *tbl,
+                     uint32 flags, sint32 arg7, sint32 arg8);
+void func_8003C4EC(PL_WORK *pl);
+sint32 func_800411DC();
+sint32 func_80040AEC(PL_WORK *pl);
+sint32 func_800405F4(PL_WORK *pl);
+sint32 func_80040380(PL_WORK *pl);
+void func_800395E8(void);
+void Pl00_shot_enable_off(PL_WORK *pl);
+void func_80051BAC(PL_WORK *pl);
+extern uint16 D_800C0C26, D_800C0C2A, D_800C0C2C, D_800C0C2E;
+extern uint16 D_800C0F96[];
+extern uint16 D_800C0F9A, D_800C0F9C, D_800C0F9E;
+extern uint16 D_800C0FE6, D_800C0FEA, D_800C0FEC, D_800C0FEE;
+void func_8003C418(PL_WORK *pl);
+extern PL_FUNC D_80089FF8[];
+extern PL_FUNC D_80089FA4[];
+void func_8004174C(PL_WORK *pl);
+void func_800426F8(PL_WORK *pl);
+void func_80042734(PL_WORK *pl);
+sint32 func_8004AF28(PL_SHORT_VECTOR *pos, uint16 a1, uint8 a2, uint8 a3);
+sint32 func_80037440();
+void func_80053158(PL_WORK *pl, uint32 arg);
+void func_8005331C(PL_WORK *pl, uint32 arg);
+sint32 func_80050C2C(PL_WORK *pl);
+void func_800329D4(); // signature differs between callers; see code_8002e7a8.h
+void func_800325D4(); // signature differs between callers; see code_8002e7a8.h
+void Model_Shadow_Trans(PL_WORK *pl, sint32 a1, sint32 a2, sint32 a3);
+extern uint8 D_80097D9C[];
+void func_80039A38(void *data);
+sint32 func_8004976C(PL_WORK *pl);
+void func_80041E90(PL_WORK *pl, sint32 x, sint32 y, sint32 z);
+void func_80041F54(PL_WORK *pl, sint32 a1, sint32 a2, uint16 mask);
+sint32 func_800423DC(PL_WORK *pl);
+sint32 func_80042458(PL_WORK *pl);
+void func_800425FC(); // signature differs between callers
+void func_80037534(PL_WORK *wp);
+void func_80037594(void);
+void func_800177CC(void *start, void *end);
+extern uint32 D_8009888C;
+extern PL_HEIGHT_INFO D_80097D90;
+extern uint8 D_800B5DB0[]; // same as cd_local.h
+// Generic effect allocator; CODE456_WORK is its full layout (code_800456d8.h).
+struct CODE456_WORK *func_80031618(void);
+void func_8003E068(PL_WORK *pl, sint32 index);
+void func_8005D528(void);
+void func_8003D124(PL_WORK *pl, sint32 dir);
+void func_8003EE68(PL_WORK *pl);
+sint32 func_80048EA4(); // signature differs between callers; see code_80048620.h
+sint32 func_8005D8C4(sint32 arg);
+void Swing_Camera2(); // takes a CAM_DELTA pointer; see code_80037fb4.h
+void func_80042528(PL_WORK *pl, PL_EFFECT *fx, sint32 arg);
+void func_80030150(); // signature differs between callers; see code_8002e7a8.h
+// Hand-written copy entry in asm_fastmem.s; not in the symbol registry yet.
+void func_800176DC(void *src, void *dst, sint32 count);
+
+// Player_work by its fixed address: GCC 2.7 rebuilds a literal address with lui at
+// each access instead of keeping the symbol's address in a register (func_80016528).
+#define PLAYER_WORK_PTR ((PL_WORK *)0x800B51B0)
+
+// 3x3 rotation plus translation, PsyQ MATRIX layout.
+typedef struct
+{
+    sint16 m[3][3];
+    sint16 pad;
+    sint32 t[3];
+} PL_MATRIX;
+
+// Collision box extents: x0..x1, z0..z1, then y0..y1.
+typedef struct
+{
+    sint16 x0, x1;
+    sint16 z0, z1;
+    sint16 y0, y1;
+} PL_BOUNDS;
+
+void RotMatrixYXZ();  // argument types differ between callers
+void func_800301A8(); // signature differs between callers; see code_8002e7a8.h
+sint32 func_80030374(sint16 *a, sint16 *b);
+
+extern sint32 D_80097D08; // same as code_8002e7a8.h
+extern sint32 D_80098B18; // same as code_8005c258.h
+
+// Common head of the 0x3C0, 0x5A4 and 0x10C entity records as the lock-on search
+// (func_800411DC) reads it: collision bounds, then position and rotation.
+typedef struct
+{
+    sint8 flags;
+    uint8 reserved01;
+    uint8 kind;
+    uint8 reserved03[0xD];
+    PL_BOUNDS *bounds;
+    PL_SHORT_VECTOR position;
+    uint8 reserved1C[0x38];
+    PL_SHORT_VECTOR rotation;
+} PL_TARGET;
+
+// The 0x50-byte records: bounds and two candidate positions.
+typedef struct
+{
+    sint8 flags;
+    uint8 reserved01[0xF];
+    PL_BOUNDS *bounds;
+    uint8 reserved14[0x8];
+    sint16 x1c, y1e, z20;
+    uint8 reserved22[0x16];
+    sint16 x38, y3a, z3c;
+    uint8 reserved3E[0x12];
+} PL_TARGET50;
+
+sint32 rsin(sint32 angle);
+sint32 rcos(sint32 angle);
+sint32 func_800414F0(PL_WORK *pl, PL_SHORT_VECTOR *pos, PL_SHORT_VECTOR *rot, PL_BOUNDS *box);
+
+#endif

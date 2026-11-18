@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Disassemble with real instructions (no pseudo-ops like li/move/nop) and relocations.
-# Usage: tools/objdump.sh [target] path/to/file.o   (whole object)
-#        tools/objdump.sh [target] FunctionName     (one function, from whichever object has it)
+# Usage: tools/objdump.sh <target> path/to/file.o   (whole object)
+#        tools/objdump.sh <target> FunctionName     (one function, from whichever object has it)
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
 OBJDUMP="mips-linux-gnu-objdump -d -r -M no-aliases"
 
 if [[ $# -ne 1 ]]; then
-    echo "usage: $0 [target] file.o | FunctionName" >&2
+    echo "usage: $0 <target> file.o | FunctionName" >&2
     exit 2
 fi
 

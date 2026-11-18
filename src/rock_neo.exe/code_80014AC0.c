@@ -1,329 +1,329 @@
 #include "common.h"
-#include "code_8002E7A8.h"
-#include "code_80014AC0.h"
-#include "code_800133D8.h"
-#include "game.h"
-#include "sound.h"
+#include "code_80014ac0.h"
 
-void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
+void func_80014AC0(CODE14_WORK *wp, CODE14_SCRIPT *script)
 {
-    wp->routine_0 |= 2;
-    Model_work_init((MODEL_WORK *)wp, 0);
-    *(uint32 *)&wp->vec_158.vx = 0x04000400;
-    *(uint32 *)&wp->vec_158.vz = 0x42100400;
-    wp->hit_78                 = &D_800979FC;
-    // ang.vx and ang.vz are cleared again below by the word stores; the build needs both.
-    wp->ang.vx             = 0;
-    wp->ang.vz             = 0;
-    wp->field_64           = 0;
-    *(uint32 *)&wp->spd.vx = 0;
-    *(uint32 *)&wp->spd.vz = 0;
-    *(uint32 *)&wp->add.vx = 0;
-    *(uint32 *)&wp->add.vz = 0;
-    *(uint32 *)&wp->ang.vx = 0;
-    *(uint32 *)&wp->ang.vz = 0;
-    wp->field_10           = 0;
-    sp->data               = D_800820E0[wp->field_C][wp->type_3];
-    if (sp->data == NULL)
+    wp->flags |= 2;
+    func_8002F9C4(wp, 0);
+    *(uint32 *)&wp->scale.x        = 0x04000400;
+    *(uint32 *)&wp->scale.z        = 0x42100400;
+    wp->table78                    = D_800979FC;
+    wp->rotation.x                 = 0;
+    wp->rotation.z                 = 0;
+    wp->value64                    = 0;
+    *(uint32 *)&wp->velocity_x     = 0;
+    *(uint32 *)&wp->velocity_z     = 0;
+    *(uint32 *)&wp->acceleration_x = 0;
+    *(uint32 *)&wp->acceleration_z = 0;
+    *(uint32 *)&wp->rotation.x     = 0;
+    *(uint32 *)&wp->rotation.z     = 0;
+    wp->value10                    = 0;
+    script->commands               = D_800820E0[wp->script_kind][wp->variant];
+    if (script->commands == NULL)
     {
-        wp->routine_8 = 2;
-        return;
+        wp->routine08 = 2;
     }
-    sp->pos       = 0;
-    sp->wait      = 0;
-    sp->add_8     = 0;
-    sp->direct_12 = 0;
-    wp->idx_AC    = 0xFF;
-    sp->field_13  = 0xFF;
-    sp->add_A     = 0;
-    sp->add_C     = 0;
-    sp->add_E     = 0;
-    wp->routine_8++;
-    func_800150E0(wp, sp);
+    else
+    {
+        script->index        = 0;
+        script->timer        = 0;
+        script->turn         = 0;
+        script->fixed_motion = 0;
+        wp->anim             = 255;
+        script->frame        = 255;
+        script->scale_x      = 0;
+        script->scale_y      = 0;
+        script->scale_z      = 0;
+        wp->routine08++;
+        func_800150E0(wp, script);
+    }
 }
 
-void script_exec(WORK_3C0 *wp, SCRIPT_WORK *sp)
+void func_80014BCC(CODE14_WORK *wp, CODE14_SCRIPT *script)
 {
-    while (sp->data[sp->pos] != 0)
+    while (script->commands[script->index] != 0)
     {
-        switch (sp->data[sp->pos])
+        switch (script->commands[script->index])
         {
             case 1:
-                wp->pos.vx   = sp->data[sp->pos + 1];
-                wp->pos.vy   = sp->data[sp->pos + 2];
-                wp->pos.vz   = sp->data[sp->pos + 3];
-                wp->pos_l.vx = wp->pos.vx << 16;
-                wp->pos_l.vy = wp->pos.vy << 16;
-                wp->pos_l.vz = wp->pos.vz << 16;
-                sp->pos += 4;
+                wp->position.x             = script->commands[script->index + 1];
+                wp->position.y             = script->commands[script->index + 2];
+                wp->position.z             = script->commands[script->index + 3];
+                wp->position_fixed.x.value = wp->position.x << 16;
+                wp->position_fixed.y.value = wp->position.y << 16;
+                wp->position_fixed.z.value = wp->position.z << 16;
+                script->index += 4;
                 break;
             case 2:
-                wp->pos.vx   = sp->data[sp->pos + 1];
-                wp->pos_l.vx = wp->pos.vx << 16;
-                sp->pos += 2;
+                wp->position.x             = script->commands[script->index + 1];
+                wp->position_fixed.x.value = wp->position.x << 16;
+                script->index += 2;
                 break;
             case 3:
-                wp->pos.vy   = sp->data[sp->pos + 1];
-                wp->pos_l.vy = wp->pos.vy << 16;
-                sp->pos += 2;
+                wp->position.y             = script->commands[script->index + 1];
+                wp->position_fixed.y.value = wp->position.y << 16;
+                script->index += 2;
                 break;
             case 4:
-                wp->pos.vz   = sp->data[sp->pos + 1];
-                wp->pos_l.vz = wp->pos.vz << 16;
-                sp->pos += 2;
+                wp->position.z             = script->commands[script->index + 1];
+                wp->position_fixed.z.value = wp->position.z << 16;
+                script->index += 2;
                 break;
             case 5:
-                wp->idx_AC = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->anim = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 6:
-                wp->spd.vx = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->velocity_x = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 7:
-                wp->add.vx = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->acceleration_x = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 8:
-                wp->spd.vy = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->velocity_y = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 9:
-                wp->add.vy = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->acceleration_y = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 10:
-                wp->spd.vz = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->velocity_z = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 11:
-                wp->add.vz = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->acceleration_z = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 12:
-                wp->ang.vy = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->rotation.y = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 13:
-                sp->add_8 = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                script->turn = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 14:
-                sp->field_13 = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                script->frame = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 15:
-                sp->direct_12 = 0;
-                sp->pos += 1;
+                script->fixed_motion = 0;
+                script->index++;
                 break;
             case 16:
-                sp->direct_12 = 1;
-                sp->pos += 1;
+                script->fixed_motion = 1;
+                script->index++;
                 break;
             case 17:
-                wp->slot_D  = 1;
-                wp->field_E = sp->data[sp->pos + 1];
-                wp->timer_F = 0;
-                sp->pos += 2;
+                wp->sound_enabled = 1;
+                wp->sound_kind    = script->commands[script->index + 1];
+                wp->sound_timer   = 0;
+                script->index += 2;
                 break;
             case 18:
-                wp->slot_D = 0;
-                sp->pos += 1;
+                wp->sound_enabled = 0;
+                script->index++;
                 break;
             case 19:
-                wp->vec_158.vx = sp->data[sp->pos + 1];
-                wp->vec_158.vy = sp->data[sp->pos + 2];
-                wp->vec_158.vz = sp->data[sp->pos + 3];
-                sp->pos += 4;
+                wp->scale.x = script->commands[script->index + 1];
+                wp->scale.y = script->commands[script->index + 2];
+                wp->scale.z = script->commands[script->index + 3];
+                script->index += 4;
                 break;
             case 20:
-                wp->vec_158.vx = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->scale.x = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 21:
-                wp->vec_158.vy = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->scale.y = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 22:
-                wp->vec_158.vz = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                wp->scale.z = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 23:
-                sp->add_A = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                script->scale_x = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 24:
-                sp->add_C = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                script->scale_y = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 25:
-                sp->add_E = sp->data[sp->pos + 1];
-                sp->pos += 2;
+                script->scale_z = script->commands[script->index + 1];
+                script->index += 2;
                 break;
             case 27:
-                wp->routine_8 = 2;
+                wp->routine08 = 2;
                 return;
             case 26:
-                sp->pos = sp->data[sp->pos + 1];
+                script->index = script->commands[script->index + 1];
                 break;
         }
     }
-    sp->wait = sp->data[sp->pos + 1] - 1;
-    sp->pos += 2;
+    script->timer = script->commands[script->index + 1] - 1;
+    script->index += 2;
 }
 
-void func_800150E0(WORK_3C0 *wp, SCRIPT_WORK *sp)
+void func_800150E0(CODE14_WORK *wp, CODE14_SCRIPT *script)
 {
-    wp->old_idx_AD = wp->idx_AC;
-    sp->field_14   = sp->field_13;
-    wp->old        = wp->pos;
-    wp->old_l      = wp->pos_l;
-    wp->old_ang    = wp->ang;
-    if (sp->wait == 0)
+    uint16 z;
+
+    wp->anim_prev           = wp->anim;
+    script->frame_prev      = script->frame;
+    wp->position_prev       = wp->position;
+    wp->position_fixed_prev = wp->position_fixed;
+    wp->rotation_prev       = wp->rotation;
+    if (script->timer == 0)
     {
-        script_exec(wp, sp);
+        func_80014BCC(wp, script);
     }
     else
     {
-        sp->wait--;
+        script->timer--;
     }
-    wp->spd.vx += wp->add.vx;
-    wp->spd.vy += wp->add.vy;
-    wp->spd.vz += wp->add.vz;
-    if (sp->direct_12)
+    wp->velocity_x += wp->acceleration_x;
+    wp->velocity_y += wp->acceleration_y;
+    z              = wp->velocity_z + wp->acceleration_z;
+    wp->velocity_z = z;
+    if (script->fixed_motion)
     {
-        wp->pos_l.vx += wp->spd.vx << 12;
-        wp->pos_l.vy += wp->spd.vy << 12;
-        wp->pos_l.vz += wp->spd.vz << 12;
-        wp->pos.vx = wp->pos_l.vx >> 16;
-        wp->pos.vy = wp->pos_l.vy >> 16;
-        wp->pos.vz = wp->pos_l.vz >> 16;
+        wp->position_fixed.x.value += (sint16)wp->velocity_x << 12;
+        wp->position_fixed.y.value += (sint16)wp->velocity_y << 12;
+        wp->position_fixed.z.value += (sint16)wp->velocity_z << 12;
+        wp->position.x = (wp->position_fixed.x.value >> 16);
+        wp->position.y = (wp->position_fixed.y.value >> 16);
+        wp->position.z = (wp->position_fixed.z.value >> 16);
     }
     else
     {
-        Obj_pos_set((MODEL_WORK *)wp, wp->spd.vx, wp->spd.vy, wp->spd.vz);
+        func_8002FEA4(wp, (sint16)wp->velocity_x, (sint16)wp->velocity_y, (sint16)z);
     }
-    wp->ang.vy += sp->add_8;
-    wp->vec_158.vx += sp->add_A;
-    wp->vec_158.vy += sp->add_C;
-    wp->vec_158.vz += sp->add_E;
-    if (wp->slot_D)
+    wp->rotation.y += script->turn;
+    wp->scale.x += script->scale_x;
+    wp->scale.y += script->scale_y;
+    wp->scale.z += script->scale_z;
+    if (wp->sound_enabled)
     {
-        switch (wp->field_E)
+        switch (wp->sound_kind)
         {
             case 0:
-                if (wp->timer_F == 0)
+                if (wp->sound_timer == 0)
                 {
                     Sound_call(0xD6, 0, 0);
-                    wp->timer_F = 18;
+                    wp->sound_timer = 18;
                 }
                 else
                 {
-                    wp->timer_F--;
+                    wp->sound_timer--;
                 }
                 break;
             case 1:
-                if (wp->timer_F == 0)
+                if (wp->sound_timer == 0)
                 {
                     Sound_call(0xD7, 0, 0);
-                    wp->timer_F = 10;
+                    wp->sound_timer = 10;
                 }
                 else
                 {
-                    wp->timer_F--;
+                    wp->sound_timer--;
                 }
                 break;
             case 2:
-                if (wp->timer_F == 0)
+                if (wp->sound_timer == 0)
                 {
                     Sound_call(0xD7, 0, 0);
-                    wp->timer_F = 8;
+                    wp->sound_timer = 8;
                 }
                 else
                 {
-                    wp->timer_F--;
+                    wp->sound_timer--;
                 }
                 break;
             case 3:
                 Sound_call(0xDA, 0, 0);
-                wp->slot_D = 0;
+                wp->sound_enabled = 0;
                 break;
             case 4:
                 Sound_call(0xD9, 0, 0);
-                wp->slot_D = 0;
+                wp->sound_enabled = 0;
                 break;
         }
     }
-    if (sp->field_13 != sp->field_14)
+    if (script->frame != script->frame_prev)
     {
-        wp->field_110 = sp->field_13;
+        wp->frame = script->frame;
     }
-    if (wp->old_idx_AD != wp->idx_AC)
+    if (wp->anim_prev != wp->anim)
     {
-        func_800322A8((MODEL_WORK *)wp, wp->idx_AC, 0);
+        func_800322A8(wp, wp->anim, 0);
     }
     else
     {
-        func_80032488((MODEL_WORK *)wp);
+        func_80032488(wp);
     }
 }
 
-void func_800153CC(WORK_3C0 *wp, SCRIPT_WORK *sp)
+void func_800153CC(GAME_WORK_3C0 *wp)
 {
     func_80031824(wp);
 }
 
-void func_800153EC(WORK_3C0 *wp)
+void func_800153EC(CODE14_WORK *wp)
 {
-    D_80082104[wp->routine_8](wp, &wp->script);
+    D_80082104[wp->routine08](wp, &wp->script);
 }
 
-void func_80015428(CODE_800133D8_WORK *wp)
+void func_80015428(CODE800133D8_STATE *wp)
 {
     sint32 i;
-    WORK_3C0 *op;
+    CODE14_WORK *entry;
 
-    switch (wp->routine_A)
+    switch ((sint16)wp->value0a)
     {
         case 0:
             if (D_80098A72 == 0)
             {
                 for (i = 0; i < 16; i++)
                 {
-                    op = func_80031418();
-                    if (op != NULL)
+                    entry = func_80031418();
+                    if (entry != NULL)
                     {
-                        op->routine_0           = 1;
-                        op->type_3              = i;
-                        op->id_2                = 0;
-                        *(uint16 *)&op->flag_4  = 0;
-                        *(uint32 *)&op->field_C = 0;
-                        op->field_C             = wp->field_8;
+                        entry->flags                   = 1;
+                        entry->variant                 = i;
+                        entry->kind                    = 0;
+                        entry->routine04               = 0;
+                        *(uint32 *)&entry->script_kind = 0;
+                        entry->script_kind             = wp->index08;
                     }
                 }
-                wp->timer_6 = 300;
-                wp->routine_A++;
+                wp->timer06 = 300;
+                wp->value0a++;
             }
             break;
         case 1:
-            if (wp->timer_6 == 0)
+            if (wp->timer06 == 0)
             {
-                Obj_work_flag_change(2, WORK_KILL);
-                if (++wp->field_8 >= 9)
+                Obj_work_flag_change(2, 0x80);
+                if (++wp->index08 >= 9)
                 {
-                    wp->field_8 = 0;
+                    wp->index08 = 0;
                 }
-                wp->routine_A++;
+                wp->value0a++;
             }
             else
             {
-                wp->timer_6--;
+                wp->timer06--;
             }
             break;
         case 2:
-            if (D_80098A72 == 0 && (wp->routine_0 == 4 || wp->routine_0 == 5 || wp->routine_0 == 6))
+            if (D_80098A72 == 0 && ((uint32)(wp->routine_0 - 4) < 2 || (sint8)wp->routine_0 == 6))
             {
-                wp->routine_A = 0;
+                wp->value0a = 0;
             }
             break;
     }

@@ -11,11 +11,9 @@
 #define MODE_NTSC 0
 #define MODE_PAL  1
 
-// VSyncCallback's callback, typed as the Library Reference writes it: void (*func)().
-typedef void (*VSYNC_FUNC)();
+typedef void (*VSYNC_FUNC)(void);
 
 void ResetCallback(void);
-void StopCallback(void);
 long SetVideoMode(long mode);
 int VSync(int mode);
 void VSyncCallback(VSYNC_FUNC func);

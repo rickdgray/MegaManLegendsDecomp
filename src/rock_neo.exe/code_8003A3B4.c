@@ -1,48 +1,46 @@
 #include "common.h"
-#include "psyq/abs.h"
-#include "psyq/libgte.h"
-#include "stage.h"
-#include "code_8003A3B4.h"
+#include "rock_neo.exe/code_8003a3b4.h"
 
-// Called only from this file
-void light_init(void);
-void func_8003A538(void);
-void func_8003A918(uint32 *p);
-
-// Pool (.sbss) variables this file reaches through $gp.
-CVECTOR D_80098858[3];
-SVECTOR D_80098870[3];
-sint32 D_80098900[3];
+// Light state, reached through $gp
+LIGHT_CVEC D_80098858[3];
+LIGHT_SVEC D_80098870[3];
+LIGHT_VEC D_80098900;
 
 void func_8003A3B4(void)
 {
     sint32 i;
+    sint32 off;
     sint32 j;
+    sint32 slot_off;
+    uint32 key;
+    uint32 *slot;
 
-    for (i = 0; i < 0x800; i++)
+    for (i = 0, off = 0; i < 0x800; i++, off += 12)
     {
-        if (Stage_idx_tbl[i].ptr == NULL)
+        if (*(uint32 *)(0x8015C008 + off) != 0)
         {
-            continue;
-        }
-        for (j = 0; j < HED_ENT_MAX; j++)
-        {
-            if (Stage_hed_tbl[j].model == 0)
+            slot_off = off;
+            for (j = 0; j < 0x1000; j += 8)
             {
-                break;
-            }
-            if ((Stage_hed_tbl[j].model & 0xFFFFFF) == ((uint32)Stage_idx_tbl[i].ptr & 0xFFFFFF))
-            {
-                Stage_idx_tbl[i].val = Stage_idx_tbl[i].ptr->unk18[1];
-                break;
+                key = *(uint32 *)(0x8013A004 + j);
+                if (key == 0)
+                {
+                    break;
+                }
+                slot = *(uint32 **)(0x8015C008 + slot_off);
+                if ((key & 0xFFFFFF) == ((uint32)slot & 0xFFFFFF))
+                {
+                    *(uint16 *)(0x8015C006 + slot_off) = *(uint16 *)(slot[6] + 2);
+                    break;
+                }
             }
         }
     }
-    light_init();
+    func_8003A480();
     func_8003A538();
 }
 
-void light_init(void)
+void func_8003A480(void)
 {
     D_80098870[0].vx = 0x93C;
     D_80098870[0].vy = 0x93C;
@@ -62,23 +60,23 @@ void light_init(void)
     D_80098858[2].r  = 0;
     D_80098858[2].g  = 0;
     D_80098858[2].b  = 0;
-    D_80098900[0]    = 0xA0;
-    D_80098900[1]    = 0xA0;
-    D_80098900[2]    = 0xA0;
+    D_80098900.vx    = 0xA0;
+    D_80098900.vy    = 0xA0;
+    D_80098900.vz    = 0xA0;
 }
 
 void func_8003A538(void)
 {
-    MATRIX m;
-    sint32 ent;
-    STG_MODEL *model;
+    LIGHT_MATRIX m;
+    uint32 k;
     uint32 *part;
-    uint32 head;
-    uint32 lod;
-    uint32 n;
+    uint32 *hdr;
     uint32 i;
+    uint32 j;
+    uint32 n;
+    uint32 w;
 
-    SetBackColor(D_80098900[0], D_80098900[1], D_80098900[2]);
+    SetBackColor(D_80098900.vx, D_80098900.vy, D_80098900.vz);
     m.m[0][0] = D_80098870[0].vx;
     m.m[0][1] = D_80098870[0].vy;
     m.m[0][2] = D_80098870[0].vz;
@@ -99,18 +97,18 @@ void func_8003A538(void)
     m.m[1][2] = D_80098858[2].g << 4;
     m.m[2][2] = D_80098858[2].b << 4;
     SetColorMatrix(&m);
-    for (ent = 0; Stage_hed_tbl[ent].model != 0; ent++)
+    for (k = 0; LIGHT_MODEL_TBL[k] != 0; k += 2)
     {
-        model = (STG_MODEL *)(Stage_hed_tbl[ent].model & 0xFFFFFF);
-        for (lod = STG_LOD_WORD; lod < STG_LOD_WORD + STG_LOD_NUM; lod++)
+        part = (uint32 *)(LIGHT_MODEL_TBL[k] & 0xFFFFFF);
+        for (i = 6; i < 12; i++)
         {
-            part = (uint32 *)(model->lod[lod - STG_LOD_WORD] & 0xFFFFFF);
-            head = *part;
-            part += (head & 0xFF) + 1;
-            n = (head & 0x3F00) >> 7;
-            for (i = 0; i < n; i += 2)
+            hdr = (uint32 *)(part[i] & 0xFFFFFF);
+            w   = *hdr;
+            hdr = (uint32 *)((uint8 *)hdr + (((w & 0xFF) << 2) + 4));
+            n   = (w & 0x3F00) >> 7;
+            for (j = 0; j < n; j += 2)
             {
-                func_8003A918(&part[i]);
+                func_8003A918(&hdr[j]);
             }
         }
     }
@@ -118,16 +116,15 @@ void func_8003A538(void)
 
 void func_8003A744(void)
 {
-    MATRIX m;
-    STG_MODEL *model;
+    LIGHT_MATRIX m;
     uint32 *part;
-    uint32 head;
-    uint32 lod;
-    uint32 n;
+    uint32 *hdr;
     uint32 i;
+    uint32 j;
+    uint32 n;
+    uint32 w;
 
-    model = &Support_stg[1];
-    SetBackColor(D_80098900[0], D_80098900[1], D_80098900[2]);
+    SetBackColor(D_80098900.vx, D_80098900.vy, D_80098900.vz);
     m.m[0][0] = D_80098870[0].vx;
     m.m[0][1] = D_80098870[0].vy;
     m.m[0][2] = D_80098870[0].vz;
@@ -148,64 +145,59 @@ void func_8003A744(void)
     m.m[1][2] = D_80098858[2].g << 4;
     m.m[2][2] = D_80098858[2].b << 4;
     SetColorMatrix(&m);
-    for (lod = STG_LOD_WORD; lod < STG_LOD_WORD + STG_LOD_NUM; lod++)
+    part = LIGHT_PLAYER_PARTS;
+    for (i = 6; i < 12; i++)
     {
-        part = (uint32 *)(model->lod[lod - STG_LOD_WORD] & 0xFFFFFF);
-        head = *part;
-        part += (head & 0xFF) + 1;
-        n = (head & 0x3F00) >> 7;
-        for (i = 0; i < n; i += 2)
+        hdr = (uint32 *)(part[i] & 0xFFFFFF);
+        w   = *hdr;
+        hdr = (uint32 *)((uint8 *)hdr + (((w & 0xFF) << 2) + 4));
+        n   = (w & 0x3F00) >> 7;
+        for (j = 0; j < n; j += 2)
         {
-            func_8003A918(&part[i]);
+            func_8003A918(&hdr[j]);
         }
     }
 }
 
-#ifdef NON_MATCHING
-// Working hypothesis, kept with the attempt until it matches. The target evaluates the inner
-// MAX_ABS twice (once for the outer compare, again for the result), which only a macro does, so
-// some macro like this is original. Its exact form isn't known: a ternary ABS on both sides
-// expands the inner argument three times (~40 extra instructions); the builtin abs() on both
-// compares with slt. Mixing them is the closest so far (one extra move).
-#define ABS(x)        ((x) < 0 ? -(x) : (x))
-#define MAX_ABS(a, b) (abs(a) > ABS(b) ? (a) : (b))
-
-void func_8003A918(uint32 *p)
+// Face normals of a model's quads: each vertex packs signed bytes (y negated), the normal
+// is scaled under 0x6883 before VectorNormal, and NormalColorCol gives the face colour.
+void func_8003A918(uint32 *prim)
 {
-    SVECTOR v[3];
-    CVECTOR col;
-    CVECTOR out;
-    VECTOR a;
-    VECTOR b;
-    VECTOR n;
-    VECTOR s;
-    uint32 *f;
+    LIGHT_SVEC v[3];
+    LIGHT_CVEC col;
+    LIGHT_CVEC out;
+    LIGHT_VEC a;
+    LIGHT_VEC b;
+    LIGHT_VEC o;
+    LIGHT_VEC s;
+    uint32 *poly;
     sint32 count;
     sint32 w;
-    sint32 max;
+    sint32 flags;
+    sint32 m;
     sint32 shift;
 
-    count = p[1] >> 24;
-    f     = (uint32 *)(p[1] & 0xFFFFFF);
+    count = prim[1] >> 24;
+    poly  = (uint32 *)(prim[1] & 0xFFFFFF);
     col.r = 0x80;
     col.g = 0x80;
     col.b = 0x80;
     while (count--)
     {
-        // Bits 26 and 24 tested as sign bits (a mask test compiles to one combined compare).
-        if ((sint32)(f[0] << 5) >= 0 || (sint32)(f[0] << 7) < 0)
+        flags = poly[0];
+        if ((flags << 5) >= 0 || (flags << 7) < 0)
         {
-            w       = f[1];
+            w       = poly[1];
             v[0].vx = (sint8)w;
-            v[0].vy = -(uint8)(w >> 8);
             v[0].vz = (sint8)(w >> 16);
             v[1].vx = (sint8)(w >> 24);
-            w       = f[2];
+            v[0].vy = -(uint8)(w >> 8);
+            w       = poly[2];
             v[1].vy = -(uint8)w;
             v[1].vz = (sint8)(w >> 8);
             v[2].vx = (sint8)(w >> 16);
             v[2].vy = -(uint8)(w >> 24);
-            w       = f[3];
+            w       = poly[3];
             v[2].vz = (sint8)w;
             a.vx    = v[1].vx - v[0].vx;
             a.vy    = v[1].vy - v[0].vy;
@@ -213,34 +205,40 @@ void func_8003A918(uint32 *p)
             b.vx    = v[2].vx - v[0].vx;
             b.vy    = v[2].vy - v[0].vy;
             b.vz    = v[2].vz - v[0].vz;
-            OuterProduct0(&a, &b, &n);
-            max = MAX_ABS(MAX_ABS(n.vx, n.vy), n.vz);
-            if (max < 0)
+            OuterProduct0(&a, &b, &o);
+            m = LIGHT_MAX_ABS(o.vx, o.vy);
+            if (m < 0)
             {
-                max = -max;
+                m = -m;
+            }
+            if (m > LIGHT_ABS(o.vz))
+            {
+                m = LIGHT_MAX_ABS(o.vx, o.vy);
+            }
+            else
+            {
+                m = o.vz;
+            }
+            if (m < 0)
+            {
+                m = -m;
             }
             shift = 0;
-            while (max > 0x6882)
+            while (m >= 0x6883)
             {
-                max >>= 1;
+                m >>= 1;
                 shift++;
             }
-            s.vx = n.vx >> shift;
-            s.vy = n.vy >> shift;
-            s.vz = n.vz >> shift;
+            s.vx = o.vx >> shift;
+            s.vy = o.vy >> shift;
+            s.vz = o.vz >> shift;
             VectorNormal(&s, &a);
             v[0].vx = a.vx;
             v[0].vy = a.vy;
             v[0].vz = a.vz;
             NormalColorCol(&v[0], &col, &out);
-            f[0] = (*(uint32 *)&out & 0xFFFFFF) | (f[0] & 0xFF000000);
+            poly[0] = (*(uint32 *)&out & 0xFFFFFF) | (poly[0] & 0xFF000000);
         }
-        f += 4;
+        poly += 4;
     }
 }
-
-#undef ABS
-#undef MAX_ABS
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003A3B4", func_8003A918);
-#endif

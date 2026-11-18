@@ -1,135 +1,113 @@
 #include "common.h"
-#include "code_8004324C.h"
-#include "code_8002E7A8.h"
-#include "code_80043F34.h"
-#include "game.h"
-#include "player.h"
-#include "code_80037534.h"
-#include "code_80048620.h"
-#include "code_80037FB4.h"
-#include "code_8005C258.h"
-#include "sound.h"
+#include "code_8004324c.h"
 
-// Small data (.sdata 0x80097DA0-0x80097DDB). Only this file uses it, always indexed or by address,
-// so it's lui-based here too. Tables of the shot launched by func_800437F8; the uint8/uint32 ones
-// are indexed by Player_work[0].rec[1].idx[0] or idx[2].
-HIT_ENT D_80097DA0   = {-16, 16, -16, 16, -16, 16}; // collision box (hit_78)
-uint32 D_80097DAC[8] = {0x3EB4002E, 0x3EB4002E, 0x3EB4002E, 0x3EB5002E,
-                        0x3EB5002E, 0x3EB5002E, 0x3EB6002E, 0x3EB6002E}; // PL_SHL_WORK.code_88, by idx[0]
-uint8 D_80097DCC[8]  = {24, 32, 42, 32, 42, 56, 42, 64};                 // field_98, by idx[0]
-uint8 D_80097DD4[8]  = {100, 100, 100, 100, 100, 100, 120, 120};         // speed (spd = dir * n >> 4), by idx[2]
-
-sint32 func_8004324C(PL_WORK *pl)
+sint32 func_8004324C(CODE43_FLAGS *wp)
 {
-    if ((pl->unk174 & 0xC0) || pl->unk177)
+    if ((wp->flags_174 & 0xC0) || wp->value_177)
     {
         return 1;
     }
     return 0;
 }
 
-sint32 Money_check(sint32 amount)
+sint32 func_8004327C(sint32 amount)
 {
-    return -(Game_work.money < (uint32)-amount);
+    return -(Game_work.money_1c < (uint32)-amount);
 }
 
-sint32 Money_add(sint32 amount, sint32 b, sint32 c)
+void func_80043294(sint32 amount, sint32 arg1, sint32 alt)
 {
-    if (b == 0)
+    if (arg1 == 0)
     {
         if (amount > 0)
         {
-            Game_work.money += amount;
-            if (Game_work.money > MONEY_MAX)
+            Game_work.money_1c += amount;
+            if (Game_work.money_1c > CODE43_MONEY_MAX)
             {
-                Game_work.money = MONEY_MAX;
+                Game_work.money_1c = CODE43_MONEY_MAX;
             }
         }
         else
         {
-            Game_work.money += amount;
-            if (Game_work.money > MONEY_MAX)
+            Game_work.money_1c += amount;
+            if (Game_work.money_1c > CODE43_MONEY_MAX)
             {
-                Game_work.money = 0;
+                Game_work.money_1c = 0;
             }
-            if (c)
+            if (alt)
             {
-                Game_work.unk024 -= amount;
+                Game_work.spent_24 -= amount;
             }
             else
             {
-                Game_work.unk020 -= amount;
+                Game_work.spent_20 -= amount;
             }
         }
     }
 }
 
-void func_80043340(sint32 amount, sint32 n)
+void func_80043340(sint32 amount, sint32 index)
 {
-    PL_WORK *pl;
+    CODE43_PLAYER *pl = &Player_work[index];
 
-    pl = &Player_work[n];
-    pl->unk6E += amount;
-    if (pl->unk6E > pl->unkB0)
+    pl->hp_6e += amount;
+    if ((sint16)pl->hp_6e > pl->hp_max_b0)
     {
-        pl->unk6E = pl->unkB0;
+        pl->hp_6e = pl->hp_max_b0;
     }
-    if (amount < 0 && n == 0)
+    if (amount < 0 && index == 0)
     {
-        Game_work.unk04C -= amount;
+        Game_work.hp_lost_4c -= amount;
     }
 }
 
-void func_800433C0(PL_SHL_WORK *wp)
+void func_800433C0(CODE43_WORK *wp)
 {
     D_8008A0CC[wp->routine_8](wp);
 }
 
-void func_800433FC(PL_SHL_WORK *wp)
+void func_800433FC(CODE43_WORK *wp)
 {
-    SVECTOR v;  // unused (0x18 bytes in the frame, the locals of func_800437F8's
-    VECTOR out; // launch vector)
-    PL_WORK *pl;
+    CODE43_SVECTOR unused[3];
+    CODE43_TARGET *target;
 
-    wp->field_E = wp->pos.pad;
-    pl          = func_80036294((uint8)wp->field_C);
-    pl->unk198  = 0;
-    func_800354E0(wp->slot_D);
-    wp->timer_B = 11;
+    wp->mode_e        = wp->pos_14.pad;
+    target            = func_80036294(wp->index_c);
+    target->state_198 = 0;
+    func_800354E0(wp->bit_d);
+    wp->timer_b = 0xB;
+    wp->word_c4 = 0;
+    wp->word_c8 = 0;
+    wp->ptr_78  = 0;
     wp->routine_8++;
-    wp->owner_C4.pad_0  = 0;
-    wp->owner_C4.mask_4 = 0;
-    wp->hit_78          = 0;
-    if (wp->field_E)
+    if (wp->mode_e)
     {
-        wp->old = pl->joint_pos[11];
+        wp->pos_2c = target->pos_400;
     }
     else
     {
-        wp->old = pl->joint_pos[14];
+        wp->pos_2c = target->pos_418;
     }
-    wp->pos = wp->old;
+    wp->pos_14 = wp->pos_2c;
     func_800435F8(wp);
-    Sound_call2(0x96, &wp->pos);
+    Sound_call2(0x96, &wp->pos_14);
 }
 
-void func_800434F0(PL_SHL_WORK *wp)
+void func_800434F0(CODE43_WORK *wp)
 {
-    PL_WORK *pl;
-    PL_WORK *cur;
+    CODE43_TARGET *target;
 
-    pl      = func_80036294((uint8)wp->field_C);
-    cur     = func_80036294((uint8)wp->field_C);
-    wp->old = cur->pos;
-    if (--wp->timer_B == 0)
+    target     = func_80036294(wp->index_c);
+    wp->pos_2c = func_80036294(wp->index_c)->pos_14;
+    if (--wp->timer_b == 0)
     {
         func_80031930(wp);
     }
-    else if (func_80037694((MODEL_WORK *)wp, 0))
+    else if (func_80037694(wp, 0))
     {
         func_80043740(wp);
         wp->routine_8++;
-        pl->unk198 = 1;
+        target->state_198 = 1;
     }
     else
     {
@@ -137,265 +115,274 @@ void func_800434F0(PL_SHL_WORK *wp)
     }
 }
 
-void func_800435BC(PL_SHL_WORK *wp)
+void func_800435BC(CODE43_WORK *wp)
 {
-    PL_WORK *pl;
-
-    pl         = func_80036294((uint8)wp->field_C);
-    pl->unk198 = 0;
+    func_80036294(wp->index_c)->state_198 = 0;
     func_80031930(wp);
 }
 
-void func_800435F8(PL_SHL_WORK *wp)
+void func_800435F8(CODE43_WORK *wp)
 {
     sint32 id;
-    PL_WORK *pl;
+    CODE43_TARGET *target;
 
-    id = wp->field_C;
-    pl = func_80036294((uint8)id);
-    if (wp->field_E)
+    id     = wp->index_c;
+    target = func_80036294(id);
+    if (wp->mode_e)
     {
-        wp->pos = pl->joint_pos[11];
+        wp->pos_14 = target->pos_400;
         if (id)
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->kind_1, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos_14, 0x20, &wp->pos_2c, 0x20, 0x200, 0x6000, wp->value_1,
+                          &wp->word_c4, 0x28000008, 0, 0x80);
         }
         else
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->kind_1, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos_14, 0x20, &wp->pos_2c, 0x20, 0x200, 0x4000, wp->value_1,
+                          &wp->word_c4, 0x28000008, 0, 0x80);
         }
     }
     else
     {
-        wp->pos = pl->joint_pos[14];
+        wp->pos_14 = target->pos_418;
         if (id)
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->kind_1, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos_14, 0x20, &wp->pos_2c, 0x20, 0x200, 0x6000, wp->value_1,
+                          &wp->word_c4, 0x28000008, 0, 0x80);
         }
         else
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->kind_1, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos_14, 0x20, &wp->pos_2c, 0x20, 0x200, 0x4000, wp->value_1,
+                          &wp->word_c4, 0x28000008, 0, 0x80);
         }
     }
-    wp->old = wp->pos;
+    wp->pos_2c = wp->pos_14;
 }
 
-void func_80043740(PL_SHL_WORK *wp)
+void func_80043740(CODE43_WORK *wp)
 {
-    W48_84_WORK *e;
+    CODE43_FX *fx;
 
-    e = (W48_84_WORK *)func_80031618();
-    if (e != 0)
+    fx = func_80031618();
+    if (fx)
     {
-        e->routine_0 = 1;
-        e->id_2      = 0x84;
-        e->type_3    = 0;
-        e->pos_1C[0] = wp->pos.vx;
-        e->pos_1C[1] = wp->pos.vy;
-        e->pos_1C[2] = wp->pos.vz;
+        fx->flags_0 = 1;
+        fx->kind_2  = 0x84;
+        fx->value_3 = 0;
+        fx->x_1c    = wp->pos_14.x;
+        fx->y_1e    = wp->pos_14.y;
+        fx->z_20    = wp->pos_14.z;
     }
 }
 
-void func_800437A8(PL_SHL_WORK *wp)
+void func_800437A8(CODE43_WORK *wp)
 {
     D_8008A0D8[wp->routine_8](wp);
-    func_80051BAC((MODEL_WORK *)wp);
+    func_80051BAC(wp);
 }
 
-void func_800437F8(PL_SHL_WORK *wp)
+void func_800437F8(CODE43_WORK *wp)
 {
-    SVECTOR v;
-    VECTOR out;
-    MATRIX m;
-    uint8 spd;
+    CODE43_SVECTOR rot;
+    CODE43_VECTOR vec;
+    CODE43_MATRIX mtx;
+    sint32 speed;
+    uint32 word;
 
-    wp->routine_0 |= 0x2A;
-    wp->flags |= 0x20;
+    wp->flags_0 |= 0x2A;
+    wp->flags_6 |= 0x20;
     func_8005D97C();
-    wp->owner_C4.pad_0  = 0;
-    wp->owner_C4.mask_4 = 0;
-    wp->hit_78          = &D_80097DA0;
-    v.vx                = func_80039B80();
-    v.vy                = wp->field_64 & 0xFFF;
-    v.vz                = 0;
-    RotMatrixYXZ(&v, &m);
-    v.vx = 0;
-    v.vy = 0;
-    v.vz = -0x1000;
-    ApplyMatrix(&m, &v, &out);
-    v.vx          = out.vx;
-    v.vy          = out.vy;
-    v.vz          = out.vz;
-    spd           = D_80097DD4[Player_work[0].rec[1].idx[2]];
-    wp->spd.vx    = (v.vx * spd) >> 4;
-    wp->spd.vy    = (v.vy * spd) >> 4;
-    wp->spd.vz    = (v.vz * spd) >> 4;
-    wp->dir_A4    = v;
-    wp->add.vx    = 0;
-    wp->add.vy    = 0;
-    wp->add.vz    = 0;
-    wp->code_88   = 0x3D48002E;
-    wp->code_88   = D_80097DAC[Player_work[0].rec[1].idx[0]];
-    wp->rgbc_8C   = 0x2E808080;
-    wp->pos_90[0] = wp->pos.vx = wp->pos_l.vx >> 16;
-    wp->pos_90[1] = wp->pos.vy = wp->pos_l.vy >> 16;
-    wp->pos_90[2] = wp->pos.vz = wp->pos_l.vz >> 16;
-    wp->old_l                  = wp->pos_l;
-    wp->old                    = wp->pos;
-    wp->field_96               = 0xC0;
-    wp->field_97               = 0x60;
-    wp->field_98               = D_80097DCC[Player_work[0].rec[1].idx[0]];
-    wp->field_7C               = 0;
-    wp->timer_B                = 0;
-    func_80043DF8(wp, &m);
-    wp->field_9 = 0;
+    wp->word_c4 = 0;
+    wp->word_c8 = 0;
+    wp->ptr_78  = D_80097DA0;
+    rot.vx      = func_80039B80();
+    rot.vy      = wp->angle_64 & 0xFFF;
+    rot.vz      = 0;
+    RotMatrixYXZ(&rot, &mtx);
+    rot.vx = 0;
+    rot.vy = 0;
+    rot.vz = -0x1000;
+    ApplyMatrix(&mtx, &rot, &vec);
+    rot.vy       = vec.vy;
+    rot.vx       = vec.vx;
+    rot.vz       = vec.vz;
+    speed        = D_80097DD4[Player_work[0].speed_idx_4fe];
+    wp->vel_44   = (rot.vx * speed) >> 4;
+    wp->vel_46   = (rot.vy * speed) >> 4;
+    wp->vel_48   = (rot.vz * speed) >> 4;
+    wp->pos_a4   = rot;
+    wp->value_4c = 0;
+    wp->value_4e = 0;
+    wp->value_50 = 0;
+    wp->word_88  = 0x3D48002E; // overwritten below; retail stores both
+    word         = D_80097DAC[Player_work[0].speed_idx_4fc];
+    wp->x_90 = wp->pos_14.x = wp->pos_1c.h.x_1e;
+    wp->word_8c             = 0x2E808080;
+    wp->y_92 = wp->pos_14.y = wp->pos_1c.h.y_22;
+    wp->z_94 = wp->pos_14.z = wp->pos_1c.h.z_26;
+    wp->word_88             = word;
+    wp->vec_34              = wp->pos_1c.v;
+    wp->pos_2c              = wp->pos_14;
+    wp->value_96            = 0xC0;
+    wp->value_97            = 0x60;
+    wp->value_98            = D_80097DCC[Player_work[0].speed_idx_4fc];
+    wp->value_7c            = 0;
+    wp->timer_b             = 0;
+    func_80043DF8(wp, &mtx);
+    wp->routine_9 = 0;
     wp->routine_8++;
-    if (wp->field_A)
+    if (wp->mode_a)
     {
-        wp->old.pad = wp->pos.pad = 0x6208;
+        wp->pos_2c.pad = wp->pos_14.pad = 0x6208;
     }
     else
     {
-        wp->old.pad = wp->pos.pad = 0x4208;
+        wp->pos_2c.pad = wp->pos_14.pad = 0x4208;
     }
-    if (wp->type_3 >= 0x80 && (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz) == 0)
+    if (wp->value_3 >= 0x80 && (wp->target.w.w_bc | wp->target.w.w_c0) == 0)
     {
-        func_800354E0(wp->slot_D);
-        wp->type_3 = 0;
+        func_800354E0(wp->bit_d);
+        wp->value_3 = 0;
     }
     func_80043E78(wp);
-    Sound_call2(0x9A, &wp->pos);
+    Sound_call2(0x9A, &wp->pos_14);
 }
 
-#ifdef NON_MATCHING
-// Two differences: GCC turns the hit flag into xori/sltu where the target branches (if/else,
-// switch, ternary, goto and two calls all tried), and the speed multiplies load dir.vx before
-// the table byte (register swap v0/v1).
-void func_80043A8C(PL_SHL_WORK *wp)
+// The first arm ends with its own copy of the timeout tail (func_80031930 and the
+// func_800354E0 check); cross-jumping then merges the two func_80043E00 calls into one, as in
+// retail.
+void func_80043A8C(CODE43_WORK *wp)
 {
-    SVECTOR dir;
-    SVECTOR nrm;
-    VECTOR d;
-    sint32 id;
-    uint8 spd;
-    sint32 hit;
+    sint32 result;
+    sint32 timer;
+    sint32 speed;
+    CODE43_SVECTOR step;
+    CODE43_SVECTOR dir;
+    CODE43_VECTOR delta;
 
-    id = func_80037694((MODEL_WORK *)wp, 0);
-    if (id != 0 || wp->field_7C != 0)
+    result = func_80037694(wp, 0);
+    if (result != 0 || wp->value_7c != 0)
     {
-        if (id == 0x7FFF)
+        if (result == 0x7FFF)
         {
-            hit = 0;
+            func_80043E00(wp, 0);
         }
         else
         {
-            hit = 1;
+            func_80043E00(wp, 1);
         }
-        func_80043E00(wp, hit);
-        goto close;
-    }
-    wp->old_l = wp->pos_l;
-    wp->old   = wp->pos;
-    if (wp->timer_B++ < func_80037634(Player_work, 1))
-    {
-        if (wp->type_3 >= 0x80)
-        {
-            if (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz)
-            {
-                d.vx = wp->tgt_BC.vx - wp->pos.vx;
-                d.vy = wp->tgt_BC.vy - wp->pos.vy;
-                d.vz = wp->tgt_BC.vz - wp->pos.vz;
-                if (d.vx < -0x687E || d.vx > 0x687E || d.vy < -0x687E || d.vy > 0x687E || d.vz < -0x687E || d.vz > 0x687E)
-                {
-                    d.vx >>= 2;
-                    d.vy >>= 2;
-                    d.vz >>= 2;
-                }
-                VectorNormalS(&d, &nrm);
-                if (wp->timer_B < 4)
-                {
-                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x424, 0x0F746EA4);
-                }
-                else if (wp->timer_B < 9)
-                {
-                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x8F, 0x0FFD813C);
-                }
-                else
-                {
-                    func_80033F04(&dir, &nrm, &wp->dir_A4, 0x47, 0x0FFF604C);
-                    func_800354E0(wp->slot_D);
-                    wp->type_3 = 0;
-                }
-                wp->dir_A4 = dir;
-                spd        = D_80097DD4[Player_work[0].rec[1].idx[2]];
-                wp->spd.vx = (dir.vx * spd) >> 4;
-                wp->spd.vy = (dir.vy * spd) >> 4;
-                wp->spd.vz = (dir.vz * spd) >> 4;
-            }
-            else
-            {
-                func_800354E0(wp->slot_D);
-                wp->type_3 = 0;
-            }
-        }
-        wp->pos_l.vx += wp->spd.vx << 8;
-        wp->pos_l.vy += wp->spd.vy << 8;
-        wp->pos_l.vz += wp->spd.vz << 8;
-        wp->pos_90[0] = wp->pos.vx = wp->pos_l.vx >> 16;
-        wp->pos_90[1] = wp->pos.vy = wp->pos_l.vy >> 16;
-        wp->pos_90[2] = wp->pos.vz = wp->pos_l.vz >> 16;
-        wp->field_9A += 5;
-    }
-    else
-    {
-    close:
         func_80031930(wp);
-        if (wp->type_3 >= 0x80)
+        if (wp->value_3 >= 0x80)
         {
-            func_800354E0(wp->slot_D);
+            func_800354E0(wp->bit_d);
         }
         return;
     }
+    else
+    {
+        wp->vec_34 = wp->pos_1c.v;
+        wp->pos_2c = wp->pos_14;
+        timer      = wp->timer_b++;
+        if (timer < func_80037634(Player_work, 1))
+        {
+            if (wp->value_3 >= 0x80)
+            {
+                if (wp->target.w.w_bc | wp->target.w.w_c0)
+                {
+                    delta.vx = wp->target.h.x_bc - (sint16)wp->pos_14.x;
+                    delta.vy = wp->target.h.y_be - (sint16)wp->pos_14.y;
+                    delta.vz = wp->target.h.z_c0 - (sint16)wp->pos_14.z;
+                    if ((uint32)(delta.vx + 0x687E) > 0xD0FC ||
+                        (uint32)(delta.vy + 0x687E) > 0xD0FC ||
+                        (uint32)(delta.vz + 0x687E) > 0xD0FC)
+                    {
+                        delta.vx >>= 2;
+                        delta.vy >>= 2;
+                        delta.vz >>= 2;
+                    }
+                    VectorNormalS(&delta, &dir);
+                    if (wp->timer_b < 4)
+                    {
+                        func_80033F04(&step, &dir, &wp->pos_a4, 0x424, 0xF746EA4);
+                    }
+                    else if (wp->timer_b < 9)
+                    {
+                        func_80033F04(&step, &dir, &wp->pos_a4, 0x8F, 0xFFD813C);
+                    }
+                    else
+                    {
+                        func_80033F04(&step, &dir, &wp->pos_a4, 0x47, 0xFFF604C);
+                        func_800354E0(wp->bit_d);
+                        wp->value_3 = 0;
+                    }
+                    wp->pos_a4 = step;
+                    speed      = D_80097DD4[Player_work[0].speed_idx_4fe];
+                    wp->vel_44 = (step.vx * speed) >> 4;
+                    wp->vel_46 = (step.vy * speed) >> 4;
+                    wp->vel_48 = (step.vz * speed) >> 4;
+                }
+                else
+                {
+                    func_800354E0(wp->bit_d);
+                    wp->value_3 = 0;
+                }
+            }
+            wp->pos_1c.v.vx += wp->vel_44 << 8;
+            wp->pos_1c.v.vy += wp->vel_46 << 8;
+            wp->pos_1c.v.vz += wp->vel_48 << 8;
+            wp->x_90 = wp->pos_14.x = wp->pos_1c.h.x_1e;
+            wp->y_92 = wp->pos_14.y = wp->pos_1c.h.y_22;
+            wp->value_9a += 5;
+            wp->z_94 = wp->pos_14.z = wp->pos_1c.h.z_26;
+            goto move;
+        }
+    }
+    func_80031930(wp);
+    if (wp->value_3 >= 0x80)
+    {
+        func_800354E0(wp->bit_d);
+    }
+    return;
+move:
     func_80043E78(wp);
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_80043A8C);
-#endif
 
-void func_80043DF8(PL_SHL_WORK *wp, MATRIX *m)
+void func_80043DF8(CODE43_WORK *wp, CODE43_MATRIX *mtx)
 {
 }
 
-void func_80043E00(PL_SHL_WORK *wp, uint8 arg)
+void func_80043E00(CODE43_WORK *wp, sint32 value)
 {
-    W48_82_WORK *e;
+    CODE43_FX *fx;
 
-    e = (W48_82_WORK *)func_80031618();
-    if (e != 0)
+    fx = func_80031618();
+    if (fx)
     {
-        e->routine_0 = 9;
-        e->id_2      = 0x82;
-        e->pos_1C[0] = wp->pos.vx;
-        e->pos_1C[1] = wp->pos.vy;
-        e->pos_1C[2] = wp->pos.vz;
-        e->type_3    = 1;
-        e->field_C   = arg;
+        fx->flags_0 = 9;
+        fx->kind_2  = 0x82;
+        fx->x_1c    = wp->pos_14.x;
+        fx->y_1e    = wp->pos_14.y;
+        fx->z_20    = wp->pos_14.z;
+        fx->value_3 = 1;
+        fx->value_c = value;
     }
 }
 
-void func_80043E78(PL_SHL_WORK *wp)
+void func_80043E78(CODE43_WORK *wp)
 {
-    uint32 pad;
-    sint32 val;
+    sint32 size;
+    sint32 flags;
 
-    pad = wp->field_98;
-    val = func_800375D4(Player_work, 1);
-    if (wp->field_C)
+    size  = wp->value_98;
+    flags = func_800375D4(Player_work, 1);
+    if (wp->index_c)
     {
-        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x6000, wp->kind_1, &wp->owner_C4, val | 0x8000000, 0, 0x80);
+        func_8003430C(&wp->pos_14, size, &wp->pos_2c, size, 0x200, 0x6000, wp->value_1,
+                      &wp->word_c4, flags | 0x08000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x4000, wp->kind_1, &wp->owner_C4, val | 0x8000000, 0, 0x80);
+        func_8003430C(&wp->pos_14, size, &wp->pos_2c, size, 0x200, 0x4000, wp->value_1,
+                      &wp->word_c4, flags | 0x08000000, 0, 0x80);
     }
 }

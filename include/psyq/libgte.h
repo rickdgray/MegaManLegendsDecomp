@@ -1,17 +1,16 @@
 #ifndef PSYQ_LIBGTE_H
 #define PSYQ_LIBGTE_H
 
-/*
- * Self-written declarations for the PsyQ libgte functions this project uses.
- * Not a copy of Sony's header.
- */
-
 #include "common.h"
+
+// Self-written PsyQ GTE types and prototypes (libgte), offsets checked against the binaries.
+// ROCK_NEO.EXE's own files still declare local views of these; the overlays use this header.
 
 typedef struct
 {
-    short vx, vy, vz, pad;
-} SVECTOR;
+    short m[3][3];
+    long t[3];
+} MATRIX;
 
 typedef struct
 {
@@ -20,49 +19,25 @@ typedef struct
 
 typedef struct
 {
-    short vx, vy;
-} DVECTOR;
+    short vx, vy, vz, pad;
+} SVECTOR;
 
 typedef struct
 {
     u_char r, g, b, cd;
 } CVECTOR;
 
-typedef struct
-{
-    short m[3][3];
-    long t[3];
-} MATRIX;
-
-void InitGeom(void);
-void SetGeomOffset(long ofx, long ofy);
-void SetGeomScreen(long h);
-long SquareRoot0(long a);
-int catan(int a);
-int ccos(int a);
-int rsin(int a);
-int rcos(int a);
-long ratan2(long x, long y);
+MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
 MATRIX *RotMatrixY(long r, MATRIX *m);
 MATRIX *RotMatrixYXZ(SVECTOR *r, MATRIX *m);
-void SetRotMatrix(MATRIX *m);
-void SetTransMatrix(MATRIX *m);
-void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag);
-MATRIX *TransposeMatrix(MATRIX *m0, MATRIX *m1);
-MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
-MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
 MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v);
+MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
+MATRIX *MulMatrix2(MATRIX *m0, MATRIX *m1);
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1);
-VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);
-void OuterProduct0(VECTOR *v0, VECTOR *v1, VECTOR *v2);
-void OuterProduct12(VECTOR *v0, VECTOR *v1, VECTOR *v2);
-void VectorNormal(VECTOR *v0, VECTOR *v1);
-void NormalColorCol(SVECTOR *v0, CVECTOR *v1, CVECTOR *v2);
-long VectorNormalS(VECTOR *v0, SVECTOR *v1);
-void SetFogNear(long a, long h);
-void SetFarColor(long rfc, long gfc, long bfc);
-void SetBackColor(long rbk, long gbk, long bbk);
-void SetColorMatrix(MATRIX *m);
-void SetLightMatrix(MATRIX *m);
+void VectorNormalS(VECTOR *v0, SVECTOR *v1);
+int rsin(int a);
+int rcos(int a);
+int ratan2(int y, int x);
+long SquareRoot0(long a);
 
 #endif // PSYQ_LIBGTE_H

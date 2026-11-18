@@ -5,7 +5,6 @@ disc/
 *.iso
 /SLUS_006.03
 /ROCK_NEO.EXE
-notes/sdk/
 
 # Ghidra
 *.gpr
@@ -32,9 +31,3 @@ tools/vendor/
 expected/
 permuter/
 *_map.txt
-renames*.txt
-logs/*
-ctx.c
-
-# pushover credentials
-.pushover.json

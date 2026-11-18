@@ -1,712 +1,1245 @@
 #include "common.h"
-#include "code_8002E7A8.h"
-#include "fastmem.h"
-#include "psyq/inline_c.h"
-#include "player.h"
-#include "stage.h"
+#include "rock_neo.exe/code_8002e7a8.h"
+#include "rock_neo.exe/game.h"
 
-// Called only from this file, ahead of their definitions.
-void func_80033A28(MODEL_WORK *wp);
-sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub); // tbl: count, then ATTACH_ENT[count]
-uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle);
-uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out);
-uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out);
-sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc);
-sint16 func_80030CF0(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc);
-sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist);
-void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
-void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
-VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z);
-PL_SHL_WORK *func_80031598(void);
-sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
+// Small data reached through $gp
+sint32 D_80097CFC;
+uint8 D_80097D02;
+uint8 D_80097D03;
+sint32 D_80097D08;
+uint32 D_80098560, D_80098564, D_80098568;
+MATRIX *D_80098A80;
+// Small data only addressed here, never loaded: owning them makes GCC rebuild each address per use
+PL_HEIGHT_INFO D_80097D0C;
+PL_HEIGHT_INFO D_80097D18;
 
-// Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
-sint32 D_80097CFC = 0x200;
-uint8 D_80097D00  = 0x5f;
-uint8 D_80097D01  = 0xaf;
-uint8 D_80097D02  = 0x49;
-uint8 D_80097D03  = 0x89;
-sint32 D_80097D04 = -0x363e05;
-sint32 D_80097D08 = 0;
-
-// Small uninitialized statics (.sbss 0x80098560-0x8009865C).
-static uint32 D_80098560;
-static sint32 D_80098564;
-static sint32 D_80098568;
-static uint8 D_8009856C[16]; // 0x8009856C-0x8009857B (was four words)
-static MATRIX D_8009857C;    // 0x8009857C-0x8009859B
-static sint32 D_8009859C[2];
-static sint32 D_800985A4[2];
-static sint32 D_800985AC[2];
-static sint32 D_800985B4[2];
-static sint32 D_800985BC[2];
-static sint32 D_800985C4[2];
-static sint32 D_800985CC[2];
-static sint32 D_800985D4[2];
-static sint32 D_800985DC[2];
-static sint32 D_800985E4[2];
-static sint32 D_800985EC[2];
-static sint32 D_800985F4[2];
+// Work area of the turn-toward helper (func_80033F04), reached through $gp. Only
+// D_8009857C, D_800985FC..D_80098604 and D_8009860C..D_8009864C (except D_8009862C) are
+// referenced in retail; the others fill the layout between them.
+static MATRIX D_8009857C;
+static MATRIX D_8009859C;
+static MATRIX D_800985BC;
+static MATRIX D_800985DC;
 static SVECTOR D_800985FC;
 static SVECTOR D_80098604;
-static VECTOR D_8009860C;
-static VECTOR D_8009861C;
-static sint32 D_8009862C[2];
-static sint32 D_80098634[2];
-static VECTOR D_8009863C;
-static VECTOR D_8009864C;
+static VEC32_PAD_WORK D_8009860C;
+static VEC32_PAD_WORK D_8009861C;
+static VEC32_PAD_WORK D_8009862C;
+static VEC32_PAD_WORK D_8009863C;
+static VEC32_PAD_WORK D_8009864C;
 
-// Pool variable (tentative definition): top of the matrix stack in D_800BC728.
-MATRIX *D_80098A80;
-
-// Clears the work pools and tags each slot with its pool kind (0x10 * pool) ORed with its index.
-// The player pool is only reset when `players` is set.
-void Work_pools_init(sint32 players)
+void func_8002E7A8(sint32 mode)
 {
-    sint32 kind;
     uint32 i;
+    uint32 id;
 
-    if (players)
+    if (mode != 0)
     {
-        kind = 0;
-        Mem_clear(Player_work, (uint8 *)Player_work + 0xBE4);
+        id = 0;
+        func_800177CC(&Player_work, (uint8 *)&Player_work + 0xBE4);
         for (i = 0; i < 2; i++)
         {
-            Player_work[i].unk01 = kind | i;
+            Player_slots[i].id_1 = id | i;
         }
     }
-    kind = 0x10;
-    Mem_clear(D_800BFB20, (uint8 *)D_800BFB20 + 0x10BC);
+    id = 0x10;
+    func_800177CC(D_800BFB20, (uint8 *)D_800BFB20 + 0x10BC);
     D_800989F0 = 0;
     D_80098A60 = 0;
-    for (i = 0; i < 0x10; i++)
+    for (i = 0; i < 16; i++)
     {
-        D_800BFB20[i].kind_1 = kind | i;
+        D_800BFB20[i].reserved01 = id | i;
     }
-    kind = 0x20;
-    Mem_clear(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
+    id = 0x20;
+    func_800177CC(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
     D_800987E8 = 0;
     D_8009880C = 0;
-    for (i = 0; i < 0x10; i++)
+    for (i = 0; i < 16; i++)
     {
-        D_8009F108[i].kind_1 = kind | i;
+        D_8009F108[i].reserved01 = id | i;
     }
-    kind = 0x40;
-    Mem_clear(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
+    id = 0x40;
+    func_800177CC(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
     D_80098B20 = 0;
     D_80098B64 = 0;
     for (i = 0; i < 4; i++)
     {
-        D_800C3580[i].kind_1 = kind | i;
+        D_800C3580[i].reserved01 = id | i;
     }
-    kind = 0x60;
-    Mem_clear(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
+    id = 0x60;
+    func_800177CC(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
     D_800987CC = 0;
     D_80098808 = 0;
-    for (i = 0; i < 0x20; i++)
+    for (i = 0; i < 32; i++)
     {
-        D_8009CF88[i].kind_1 = kind | i;
+        D_8009CF88[i].reserved01 = id | i;
     }
-    kind = 0x80;
-    Mem_clear(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
+    id = 0x80;
+    func_800177CC(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
     D_80098838 = 0;
     D_8009883C = 0;
     D_800988C8 = 0;
     D_800988CC = 0;
-    for (i = 0; i < 0x40; i++)
+    for (i = 0; i < 64; i++)
     {
-        D_800A3B40[i].kind_1 = kind | i;
+        D_800A3B40[i].reserved01 = id | i;
     }
-    kind = 0xC0;
-    Mem_clear(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
+    id = 0xC0;
+    func_800177CC(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
     D_800987EC = 0;
     D_80098818 = 0;
-    for (i = 0; i < 0x10; i++)
+    for (i = 0; i < 16; i++)
     {
-        D_800A2D08[i].kind_1 = kind | i;
+        D_800A2D08[i].reserved01 = id | i;
     }
-    kind = 0xE0;
-    Mem_clear(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
+    id = 0xE0;
+    func_800177CC(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
     D_800989CC = 0;
     D_80098A4C = 0;
-    for (i = 0; i < 0x20; i++)
+    for (i = 0; i < 32; i++)
     {
-        D_800BF118[i].kind_1 = kind | i;
+        D_800BF118[i].reserved01 = id | i;
     }
-    Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
-    Mem_clear(D_8015BC00, D_8015BC00 + 0x3FC);
+    func_800177CC(D_800BBA90, D_800BBA90 + 0x264);
+    func_800177CC((void *)0x8015BC00, (void *)0x8015BFFC);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
-
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Obj_work_flag_change);
-
-void func_8002F3A8(MODEL_WORK *wp, uint32 f)
+void func_8002EA50(SPAWN_ENTRY *e, sint32 spawn_player)
 {
-    if (f & 1)
+    SPAWN_SLOT *pl;
+    SPAWN_SLOT *o;
+    SPAWN_FX *fx;
+    SPAWN_LINK *lk;
+
+    while ((sint8)e->flags_0 != -1)
     {
-        wp->flags ^= 1;
-    }
-    if (f & 4)
-    {
-        wp->flags ^= 2;
-    }
-    if (f & 2)
-    {
-        wp->flags |= 1;
-    }
-    if (f & 8)
-    {
-        wp->flags |= 2;
+        switch (e->kind_1)
+        {
+            case 0:
+                if (spawn_player != 0)
+                {
+                    pl = (SPAWN_SLOT *)&Player_work2;
+                    D_8009888C |= 0x80000000U >> e->w2.b.byte_3;
+                    if (e->w2.b.byte_3 == 0)
+                    {
+                        pl--;
+                    }
+                    pl->flags_0  = e->flags_0;
+                    pl->half_2   = e->w2.half;
+                    pl->half_4   = e->half_4;
+                    pl->word_c   = e->word_8;
+                    pl->word_8   = 0;
+                    pl->fx_1c[0] = pl->fx_34[0] = e->x_c << 16;
+                    pl->fx_1c[1] = pl->fx_34[1] = e->y_e << 16;
+                    pl->fx_1c[2] = pl->fx_34[2] = e->z_10 << 16;
+                    pl->pos_2c                  = *(SVECTOR *)&e->x_c;
+                    pl->pos_14                  = pl->pos_2c;
+                    pl->rot_54.vx = pl->rot_5c.vx = 0;
+                    pl->rot_54.vy = pl->rot_5c.vy = e->byte_7 << 4;
+                    pl->rot_54.vz = pl->rot_5c.vz = 0;
+                }
+                break;
+            case 0x20:
+                o = (SPAWN_SLOT *)func_80031418();
+                goto fill_slot;
+            case 0x40:
+                o = (SPAWN_SLOT *)func_80031498();
+                goto fill_slot;
+            case 0x60:
+                // The room is read through Game_work itself, not the Spawn_game view: GCC then
+                // can't relate its address to mark_78's, so that address stays a short-lived
+                // register that loop.c doesn't hoist (retail rebuilds it each time).
+                if (e->w2.b.id_2 != 0x11 || (SPAWN_GAME.mark_78.flag != 0 &&
+                                             ((sint32)(SPAWN_GAME.mark_78.word << 8) >> 16) ==
+                                                 *(sint16 *)&Game_work.routine_50))
+                {
+                    o = (SPAWN_SLOT *)func_80031518();
+                fill_slot:
+                    if (o != NULL)
+                    {
+                        o->flags_0  = e->flags_0;
+                        o->half_2   = e->w2.half;
+                        o->half_4   = e->half_4;
+                        o->word_c   = e->word_8;
+                        o->fx_1c[0] = o->fx_34[0] = e->x_c << 16;
+                        o->fx_1c[1] = o->fx_34[1] = e->y_e << 16;
+                        o->fx_1c[2] = o->fx_34[2] = e->z_10 << 16;
+                        o->pos_2c                 = *(SVECTOR *)&e->x_c;
+                        o->pos_14                 = o->pos_2c;
+                        o->rot_54.vx = o->rot_5c.vx = 0;
+                        o->rot_54.vy = o->rot_5c.vy = e->byte_7 << 4;
+                        o->rot_54.vz = o->rot_5c.vz = 0;
+                    }
+                }
+                break;
+            case 0x80:
+                fx = (SPAWN_FX *)func_80031618();
+                goto fill_fx;
+            case 0xC0:
+                lk = (SPAWN_LINK *)func_800316BC();
+                if (lk != NULL)
+                {
+                    lk->flags_0 = e->flags_0;
+                    lk->half_2  = e->w2.half;
+                    lk->half_4  = e->half_4;
+                    lk->word_c  = e->word_8;
+                    lk->pos_14  = *(SVECTOR *)&e->x_c;
+                }
+                break;
+            case 0xE0:
+                fx = (SPAWN_FX *)func_80031734();
+            fill_fx:
+                if (fx != NULL)
+                {
+                    fx->flags_0 = e->flags_0;
+                    fx->half_2  = e->w2.half;
+                    fx->half_4  = e->half_4;
+                    fx->word_c  = e->word_8;
+                    fx->pos_38  = *(SVECTOR *)&e->x_c;
+                    fx->x_1c    = e->x_c;
+                    fx->y_1e    = e->y_e;
+                    fx->z_20    = e->z_10;
+                }
+                break;
+        }
+        e++;
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002F420);
-
-// Moves the position and the previous position (both forms) by d in x and z.
-void func_8002F884(MODEL_WORK *wp, SVECTOR *d)
+// Same instructions as retail; only register assignment differs (retail: slot s0, flags&0x80 s1,
+// i s2, flags s3, bits s4; here i s0, slot s1, flags&0x80 s2, bits s3, flags s4).
+void Obj_work_flag_change(sint32 mask, sint32 flags)
 {
-    wp->pos.vx += d->vx;
-    wp->pos.vz += d->vz;
-    wp->pos_l.vx += d->vx << 16;
-    wp->pos_l.vz += d->vz << 16;
-    wp->old.vx += d->vx;
-    wp->old.vz += d->vz;
-    wp->old_l.vx += d->vx << 16;
-    wp->old_l.vz += d->vz << 16;
+    uint32 bits;
+    sint32 i;
+    sint32 j;
+    uint8 *flag_slot;
+    uint8 *pl;
+    GAME_WORK_3C0 *s3c0;
+    GAME_WORK_5A4 *s5a4;
+    GAME_WORK_10C *s10c;
+    GAME_WORK_48 *s48;
+    GAME_WORK_24 *s24;
+    GAME_WORK_50 *s50;
+
+    if (mask & 1)
+    {
+        pl   = (uint8 *)&Player_work;
+        bits = D_8009888C;
+        for (i = 0; i < 2; i++, pl += 0x5F4)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    D_8009888C &= ~(0x80000000U >> i);
+                    *pl = 0;
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)pl, flags);
+                }
+            }
+        }
+    }
+    if (mask & 2)
+    {
+        s3c0 = D_8009F108;
+        bits = D_800987E8;
+        for (i = 0; i < 16; i++, s3c0++)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    func_80052528(s3c0);
+                    func_80031824(s3c0);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s3c0, flags);
+                }
+            }
+        }
+    }
+    if (mask & 4)
+    {
+        s5a4 = D_800C3580;
+        bits = D_80098B20;
+        for (i = 0; i < 4; i++, s5a4++)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    func_80052528(s5a4);
+                    func_8003187C(s5a4);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s5a4, flags);
+                }
+            }
+        }
+    }
+    if (mask & 8)
+    {
+        s10c = D_800BFB20;
+        bits = D_800989F0;
+        for (i = 0; i < 16; i++, s10c++)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    func_80052528(s10c);
+                    func_80031930(s10c);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s10c, flags);
+                }
+            }
+        }
+    }
+    if (mask & 16)
+    {
+        s10c = D_8009CF88;
+        bits = D_800987CC;
+        for (i = 0; i < 32; i++, s10c++)
+        {
+            if ((sint32)(bits << i) < 0 || (s10c->flags & 3))
+            {
+                if (flags & 0x80)
+                {
+                    func_80052528(s10c);
+                    func_800318D8(s10c);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s10c, flags);
+                }
+            }
+        }
+    }
+    if (mask & 0x20)
+    {
+        s48 = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            bits = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, s48++)
+            {
+                if ((sint32)(bits << j) < 0 && s48->kind >= 0x80)
+                {
+                    if (flags & 0x80)
+                    {
+                        func_80031988(s48);
+                    }
+                    else
+                    {
+                        func_8002F3A8((BYTE_WORK *)s48, flags);
+                    }
+                }
+            }
+        }
+    }
+    if (mask & 0x40)
+    {
+        s48 = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            bits = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, s48++)
+            {
+                if ((sint32)(bits << j) < 0 && s48->kind < 0x80)
+                {
+                    if (flags & 0x80)
+                    {
+                        func_80031988(s48);
+                    }
+                    else
+                    {
+                        func_8002F3A8((BYTE_WORK *)s48, flags);
+                    }
+                }
+            }
+        }
+    }
+    if (mask & 128)
+    {
+        s24  = D_800A2D08;
+        bits = D_800987EC;
+        for (i = 0; i < 16; i++, s24++)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    Close_EVE_WORK(s24);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s24, flags);
+                }
+            }
+        }
+    }
+    if (mask & 256)
+    {
+        s50  = D_800BF118;
+        bits = D_800989CC;
+        for (i = 0; i < 32; i++, s50++)
+        {
+            if ((sint32)(bits << i) < 0)
+            {
+                if (flags & 0x80)
+                {
+                    func_80052528(s50);
+                    func_80031A4C(s50);
+                }
+                else
+                {
+                    func_8002F3A8((BYTE_WORK *)s50, flags);
+                }
+            }
+        }
+    }
+    if (mask & 0x200)
+    {
+        flag_slot = D_800BBA90;
+        for (i = 0; i < 11; i++, flag_slot += 0x38)
+        {
+            if (*flag_slot & 3)
+            {
+                if (flags & 0x80)
+                {
+                    *flag_slot = 0;
+                }
+                else
+                {
+                    if (flags & 1)
+                    {
+                        *flag_slot ^= 1;
+                    }
+                    if (flags & 4)
+                    {
+                        *flag_slot ^= 2;
+                    }
+                    if (flags & 2)
+                    {
+                        *flag_slot |= 1;
+                    }
+                    if (flags & 8)
+                    {
+                        *flag_slot |= 2;
+                    }
+                }
+            }
+        }
+    }
 }
 
-// Also called on the slots of D_800BF118 (WORK_50) by func_8002F420.
-void func_8002F928(WORK_48 *wp, SVECTOR *d)
+void func_8002F3A8(BYTE_WORK *wp, uint32 flags)
 {
-    if (wp->routine_0 & 4)
+    if (flags & 1)
     {
-        wp->efc.model.pos.vx += d->vx;
-        wp->efc.model.pos.vz += d->vz;
+        wp->byte_6 ^= 1;
+    }
+    if (flags & 4)
+    {
+        wp->byte_6 ^= 2;
+    }
+    if (flags & 2)
+    {
+        wp->byte_6 |= 1;
+    }
+    if (flags & 8)
+    {
+        wp->byte_6 |= 2;
+    }
+}
+
+void func_8002F420(sint32 flag, GAME_DELTA *delta)
+{
+    sint32 i;
+    sint32 j;
+    uint32 mask;
+    GAME_WORK_3C0 *slot3c0;
+    GAME_WORK_5A4 *slot5a4;
+    GAME_WORK_10C *slot10c;
+    GAME_WORK_48 *slot48;
+    GAME_WORK_24 *slot24;
+    GAME_WORK_50 *slot50;
+
+    if (flag & 2)
+    {
+        slot3c0 = D_8009F108;
+        mask    = D_800987E8;
+        for (i = 0; i < 16; i++, slot3c0++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot3c0->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F884((SYNC_POS_WORK *)slot3c0, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    func_80031824(slot3c0);
+                }
+            }
+        }
+    }
+    if (flag & 4)
+    {
+        slot5a4 = D_800C3580;
+        mask    = D_80098B20;
+        for (i = 0; i < 4; i++, slot5a4++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot5a4->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F884((SYNC_POS_WORK *)slot5a4, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    func_8003187C(slot5a4);
+                }
+            }
+        }
+    }
+    if (flag & 8)
+    {
+        slot10c = D_800BFB20;
+        mask    = D_800989F0;
+        for (i = 0; i < 16; i++, slot10c++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot10c->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F884((SYNC_POS_WORK *)slot10c, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    func_80031930(slot10c);
+                }
+            }
+        }
+    }
+    if (flag & 16)
+    {
+        slot10c = D_8009CF88;
+        mask    = D_800987CC;
+        for (i = 0; i < 32; i++, slot10c++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot10c->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F884((SYNC_POS_WORK *)slot10c, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    func_800318D8(slot10c);
+                }
+            }
+        }
+    }
+    if (flag & 32)
+    {
+        slot48 = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            mask = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, slot48++)
+            {
+                if ((sint32)(mask << j) < 0 && slot48->kind >= 0x80)
+                {
+                    if (slot48->active & 0x20)
+                    {
+                        if (delta != NULL)
+                        {
+                            func_8002F928((MOVE_WORK *)slot48, (uint16 *)delta);
+                        }
+                    }
+                    else
+                    {
+                        func_80031988(slot48);
+                    }
+                }
+            }
+        }
+    }
+    if (flag & 64)
+    {
+        slot48 = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            mask = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, slot48++)
+            {
+                if ((sint32)(mask << j) < 0 && slot48->kind < 0x80)
+                {
+                    if (slot48->active & 0x20)
+                    {
+                        if (delta != NULL)
+                        {
+                            func_8002F928((MOVE_WORK *)slot48, (uint16 *)delta);
+                        }
+                    }
+                    else
+                    {
+                        func_80031988(slot48);
+                    }
+                }
+            }
+        }
+    }
+    if (flag & 128)
+    {
+        slot24 = D_800A2D08;
+        mask   = D_800987EC;
+        for (i = 0; i < 16; i++, slot24++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot24->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F998((POS_WORK *)slot24, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    Close_EVE_WORK(slot24);
+                }
+            }
+        }
+    }
+    if (flag & 256)
+    {
+        slot50 = D_800BF118;
+        mask   = D_800989CC;
+        for (i = 0; i < 32; i++, slot50++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (slot50->active & 0x20)
+                {
+                    if (delta != NULL)
+                    {
+                        func_8002F928((MOVE_WORK *)slot50, (uint16 *)delta);
+                    }
+                }
+                else
+                {
+                    func_80031A4C(slot50);
+                }
+            }
+        }
+    }
+}
+
+void func_8002F884(SYNC_POS_WORK *wp, uint16 *delta)
+{
+    wp->x_14 += delta[0];
+    wp->y_18 += delta[2];
+    wp->fixed_1c += (sint16)delta[0] << 16;
+    wp->fixed_24 += (sint16)delta[2] << 16;
+    wp->x_2c += delta[0];
+    wp->y_30 += delta[2];
+    wp->fixed_34 += (sint16)delta[0] << 16;
+    wp->fixed_3c += (sint16)delta[2] << 16;
+}
+
+void func_8002F928(MOVE_WORK *wp, uint16 *delta)
+{
+    if (wp->flags & 4)
+    {
+        wp->x_38 += delta[0];
+        wp->z_3C += delta[2];
     }
     else
     {
-        wp->efc.sprite.pos[0] += d->vx;
-        wp->efc.sprite.pos[2] += d->vz;
+        wp->x_1C += delta[0];
+        wp->z_20 += delta[2];
     }
 }
 
-void func_8002F998(EVE_WORK *wp, SVECTOR *d)
+void func_8002F998(POS_WORK *wp, uint16 *delta)
 {
-    wp->pos.vx += d->vx;
-    wp->pos.vz += d->vz;
+    wp->x_14 += delta[0];
+    wp->y_18 += delta[2];
 }
 
-void Model_work_init(MODEL_WORK *wp, uint8 *sub)
+void func_8002F9C4(void *wp, sint32 arg)
 {
-    func_8002FA38(wp, Stage_ebd_0, sub);
+    func_8002FA38((RES_OWNER *)wp, (sint32 *)0x8016C000, (uint8 *)arg);
 }
 
-void func_8002F9EC(MODEL_WORK *wp, uint8 *sub)
+void func_8002F9EC(void *wp, sint32 arg)
 {
-    func_8002FA38(wp, Stage_ebd_1, sub);
+    func_8002FA38((RES_OWNER *)wp, (sint32 *)0x80190000, (uint8 *)arg);
 }
 
-void func_8002FA10(MODEL_WORK *wp, uint8 *sub)
+void func_8002FA10(void *wp, sint32 arg)
 {
-    func_8002FA38(wp, Support_ebd, sub);
+    func_8002FA38((RES_OWNER *)wp, (sint32 *)0x801F2000, (uint8 *)arg);
 }
 
-#ifdef NON_MATCHING
-// Only register allocation differs: the target keeps the entry pointer in a1 and the loop counter
-// in a2; ours has them the other way round (the prologue and everything else match).
-sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub)
+sint32 func_8002FA38(RES_OWNER *wp, sint32 *dir, uint8 *key)
 {
-    ATTACH_ENT *e;
+    RES_ENTRY *e;
     sint32 count;
-    sint32 kind;
     sint32 i;
+    sint32 kind;
 
-    count = *tbl++;
-    kind  = func_8002FE74(wp->kind_1);
-    e     = (ATTACH_ENT *)tbl;
-    if (kind == 0x60 && wp->id_2 >= 0x80)
+    count = *dir++;
+    kind  = func_8002FE74(wp->id_1);
+    if (kind == 0x60 && wp->sub_2 >= 0x80)
     {
         kind = 0x10;
     }
-    for (i = 0; i < count; i++)
+    for (i = 0, e = (RES_ENTRY *)dir; i < count; i++, e++)
     {
-        if (kind == e->kind_0 && wp->id_2 == e->id_1 && (sub == 0 || *sub == e->sub_2))
+        if (kind == e->kind_0 && wp->sub_2 == e->id_1 && (key == NULL || *key == e->sub_2))
         {
             switch (kind)
             {
-                case 0x40:
                 case 0x20:
-                    Mem_copy4(e->ptr_4 + 0x10, wp->buf_F8, 0x18);
-                    wp->val_9C     = *e->ptr_8;
-                    wp->ptr_A0     = e->ptr_8 + 1;
-                    wp->data_88    = e->ptr_4;
-                    wp->seq_tbl_90 = e->seq_tbl_C;
+                case 0x40:
+                    func_80017684(e->data_4 + 0x10, wp->head_f8, 0x18);
+                    wp->word_9c = *e->tbl_8;
+                    wp->tbl_a0  = e->tbl_8 + 1;
+                    wp->data_88 = e->data_4;
+                    wp->word_90 = e->word_c;
                     break;
                 case 0x10:
                 case 0x60:
-                    wp->data_88 = e->ptr_4;
+                    wp->data_88 = e->data_4;
                     break;
                 case 0x80:
                 case 0xE0:
-                    // Not model objects (WORK_48, WORK_50): their data pointer is the word at 0x14.
-                    *(uint8 **)&wp->pos = e->ptr_4;
+                    wp->data_14 = e->data_4;
                     break;
             }
             return 1;
         }
-        e++;
     }
-    Entry_missing_trap = 0;
+    DEBUG_TRAP = 0;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002FA38);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002FBF4);
-
-uint32 func_8002FE74(uint32 a)
+void func_8002FBF4(void)
 {
-    if (a < 0x20)
+    sint32 i;
+    sint32 j;
+    uint32 mask;
+    GAME_WORK_3C0 *p3c0;
+    GAME_WORK_5A4 *p5a4;
+    GAME_WORK_10C *p10c;
+    GAME_WORK_48 *p48;
+    GAME_WORK_50 *p50;
+
+    p3c0 = D_8009F108;
+    mask = D_800987E8;
+    for (i = 0; i < 16; i++)
     {
-        a &= 0x10;
+        if ((sint32)(mask << i) < 0 && ((LINK88_VIEW *)p3c0)->link_88 <= 0x8018FFFF)
+        {
+            func_80052528(p3c0);
+            func_80031824(p3c0);
+        }
+        p3c0++;
+    }
+    p5a4 = D_800C3580;
+    mask = D_80098B20;
+    for (i = 0; i < 4; i++)
+    {
+        if ((sint32)(mask << i) < 0 && ((LINK88_VIEW *)p5a4)->link_88 <= 0x8018FFFF)
+        {
+            func_80052528(p5a4);
+            func_8003187C(p5a4);
+        }
+        p5a4++;
+    }
+    p10c = D_800BFB20;
+    mask = D_800989F0;
+    for (i = 0; i < 16; i++)
+    {
+        if ((sint32)(mask << i) < 0 && ((LINK88_VIEW *)p10c)->link_88 <= 0x8018FFFF)
+        {
+            func_80052528(p10c);
+            func_80031930(p10c);
+        }
+        p10c++;
+    }
+    p10c = D_8009CF88;
+    mask = D_800987CC;
+    for (i = 0; i < 32; i++)
+    {
+        if ((sint32)(mask << i) < 0 && ((LINK88_VIEW *)p10c)->link_88 <= 0x8018FFFF)
+        {
+            func_80052528(p10c);
+            func_800318D8(p10c);
+        }
+        p10c++;
+    }
+    p48 = D_800A3B40;
+    for (i = 0; i < 2; i++)
+    {
+        mask = (&D_80098838)[i];
+        for (j = 0; j < 32; j++)
+        {
+            if ((sint32)(mask << j) < 0 && ((LINK14_VIEW *)p48)->link_14 <= 0x8018FFFF)
+            {
+                func_80031988(p48);
+            }
+            p48++;
+        }
+    }
+    p50  = D_800BF118;
+    mask = D_800989CC;
+    for (i = 0; i < 32; i++)
+    {
+        if ((sint32)(mask << i) < 0 && ((LINK14_VIEW *)p50)->link_14 <= 0x8018FFFF)
+        {
+            func_80052528(p50);
+            func_80031A4C(p50);
+        }
+        p50++;
+    }
+}
+
+uint32 func_8002FE74(uint32 val)
+{
+    if (val < 0x20)
+    {
+        val &= 0x10;
     }
     else
     {
-        a &= 0xE0;
-        if (a == 0xA0)
+        val &= 0xE0;
+        if (val == 0xA0)
         {
-            a = 0x80;
+            val = 0x80;
         }
     }
-    return a;
+    return val;
 }
 
-// Moves the object by (x, y, z) in its own frame (rotated by its facing), then rounds pos_l to pos.
-void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z)
+void func_8002FEA4(FIXED_POS_WORK *wp, sint16 x, sint16 y, sint16 z)
 {
-    VECTOR v;
+    sint32 delta[3];
 
-    func_80030058(&v, wp->ang.vy, x, y, z);
-    wp->pos_l.vx += v.vx;
-    wp->pos_l.vy += v.vy;
-    wp->pos_l.vz += v.vz;
-    func_80030150(&wp->pos_l, &wp->pos);
+    func_80030058(delta, wp->angle_56, x, y, z);
+    wp->fixed_1c[0] += delta[0];
+    wp->fixed_1c[1] += delta[1];
+    wp->fixed_1c[2] += delta[2];
+    func_80030150(wp->fixed_1c, wp->pos_14);
 }
 
-void func_8002FF34(TURN_WORK *wp, sint16 x, sint16 y, sint16 z)
+void func_8002FF34(FIXED_POS_BIG *wp, sint16 x, sint16 y, sint16 z)
 {
-    VECTOR v;
+    sint32 delta[3];
 
-    func_80030058(&v, wp->ang.vy, x, y, z);
-    wp->pos_428.vx += v.vx;
-    wp->pos_428.vy += v.vy;
-    wp->pos_428.vz += v.vz;
-    func_80030150(&wp->pos_428, &wp->svec_438);
+    func_80030058(delta, wp->angle_56, x, y, z);
+    wp->fixed_428[0] += delta[0];
+    wp->fixed_428[1] += delta[1];
+    wp->fixed_428[2] += delta[2];
+    func_80030150(wp->fixed_428, wp->pos_438);
 }
 
-void func_8002FFC4(SVECTOR *dst, VECTOR *pos, sint32 angle, sint16 x, sint16 y, sint16 z)
+void func_8002FFC4(sint16 *out, sint32 *fixed, sint32 angle, sint16 x, sint16 y, sint16 z)
 {
-    VECTOR v;
+    sint32 delta[3];
 
-    func_80030058(&v, angle, x, y, z);
-    pos->vx += v.vx;
-    pos->vy += v.vy;
-    pos->vz += v.vz;
-    func_80030150(pos, dst);
+    func_80030058(delta, angle, x, y, z);
+    fixed[0] += delta[0];
+    fixed[1] += delta[1];
+    fixed[2] += delta[2];
+    func_80030150(fixed, out);
 }
 
-#ifdef NON_MATCHING
-// Register allocation only: the target keeps the x and z parameters (a2, v1) live next to their
-// negated copies (s2, s1); GCC merges each pair into one register, so the prologue order differs.
-VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z)
+sint32 *func_80030058(sint32 *out, sint32 angle, sint16 x, sint16 y, sint16 z)
 {
-    VECTOR in;
-    VECTOR res;
-    long m[8];
-    sint32 px;
-    sint32 pz;
+    sint32 v[4];
+    sint32 res[4];
+    sint32 mtx[8];
 
-    px = x;
-    pz = z;
-    if ((sint16)x < 0)
+    if (x < 0)
     {
-        px = -x;
-        pz = -z;
+        x = -x;
+        z = -z;
         angle += 0x800;
     }
-    m[0] = 0x1000;
-    m[1] = 0;
-    m[2] = 0x1000;
-    m[3] = 0;
-    m[4] = 0x1000;
-    m[5] = 0;
-    m[6] = 0;
-    m[7] = 0;
-    RotMatrixY(angle, (MATRIX *)m);
-    in.vx = (sint16)pz << 12;
-    in.vy = (sint16)y << 12;
-    in.vz = -((sint16)px << 12);
-    ApplyMatrixLV((MATRIX *)m, &in, &res);
-    *out = res;
+    mtx[0] = 0x1000;
+    mtx[1] = 0;
+    mtx[2] = 0x1000;
+    mtx[3] = 0;
+    mtx[4] = 0x1000;
+    mtx[5] = 0;
+    mtx[6] = 0;
+    mtx[7] = 0;
+    RotMatrixY(angle, (MATRIX *)mtx);
+    v[0] = (z << 16) >> 4;
+    v[1] = (y << 16) >> 4;
+    v[2] = -((x << 16) >> 4);
+    ApplyMatrixLV((MATRIX *)mtx, v, res);
+    *(VEC4_WORK *)out = *(VEC4_WORK *)res;
     return out;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80030058);
-#endif
 
-// Rounds a 16.16 fixed-point vector to integers.
-void func_80030150(VECTOR *src, SVECTOR *dst)
+void func_80030150(sint32 *in, sint16 *out)
 {
-    dst->vx = (src->vx >> 16) + ((src->vx >> 15) & 1);
-    dst->vy = (src->vy >> 16) + ((src->vy >> 15) & 1);
-    dst->vz = (src->vz >> 16) + ((src->vz >> 15) & 1);
+    out[0] = (in[0] >> 16) + ((in[0] >> 15) & 1);
+    out[1] = (in[1] >> 16) + ((in[1] >> 15) & 1);
+    out[2] = (in[2] >> 16) + ((in[2] >> 15) & 1);
 }
 
-void func_800301A8(MATRIX *m, VECTOR *pos, VECTOR *origin)
+void func_800301A8(MATRIX *m, sint32 *wp, sint32 *base)
 {
-    VECTOR d;
-    VECTOR r;
+    sint32 delta[4];
+    sint32 out[4];
 
-    d.vx = pos->vx - origin->vx;
-    d.vy = pos->vy - origin->vy;
-    d.vz = pos->vz - origin->vz;
-    ApplyMatrixLV(m, &d, &r);
-    pos->vx = origin->vx + r.vx;
-    pos->vy = origin->vy + r.vy;
-    pos->vz = origin->vz + r.vz;
+    delta[0] = wp[0] - base[0];
+    delta[1] = wp[1] - base[1];
+    delta[2] = wp[2] - base[2];
+    ApplyMatrixLV(m, delta, out);
+    wp[0] = base[0] + out[0];
+    wp[1] = base[1] + out[1];
+    wp[2] = base[2] + out[2];
 }
 
-long func_80030254(uint16 *a, uint16 *b)
+sint32 func_80030254(DELTA14_WORK *a, DELTA14_WORK *b)
 {
-    SVECTOR d;
+    sint16 d[3];
 
-    d.vx = b[10] - a[10];
-    d.vy = b[11] - a[11];
-    d.vz = b[12] - a[12];
-    return SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
+    d[0] = b->x_14 - a->x_14;
+    d[1] = b->y_16 - a->y_16;
+    d[2] = b->z_18 - a->z_18;
+    return SquareRoot0(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
 }
 
-long Distance_xyz(SVECTOR *a, SVECTOR *b)
+sint32 func_800302E4(DELTA0_WORK *a, DELTA0_WORK *b)
 {
-    SVECTOR d;
+    sint16 d[3];
 
-    d.vx = b->vx - a->vx;
-    d.vy = b->vy - a->vy;
-    d.vz = b->vz - a->vz;
-    return SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
+    d[0] = b->x_0 - a->x_0;
+    d[1] = b->y_2 - a->y_2;
+    d[2] = b->z_4 - a->z_4;
+    return SquareRoot0(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
 }
 
-long Distance_xz(SVECTOR *a, SVECTOR *b)
+sint32 func_80030374(sint16 *a, sint16 *b)
 {
-    VECTOR d;
+    sint32 d[4];
 
-    d.vx = b->vx - a->vx;
-    d.vz = b->vz - a->vz;
-    return SquareRoot0(d.vx * d.vx + d.vz * d.vz);
+    d[0] = b[0] - a[0];
+    d[2] = b[2] - a[2];
+    return SquareRoot0(d[0] * d[0] + d[2] * d[2]);
 }
 
-// Squared XZ distance between two points.
-sint32 Dist_xz_sq(SVECTOR *from, SVECTOR *to)
+sint32 func_800303CC(sint16 *a, sint16 *b)
 {
     sint32 d[3];
 
-    d[0] = to->vx - from->vx;
-    d[2] = to->vz - from->vz;
+    d[0] = b[0] - a[0];
+    d[2] = b[2] - a[2];
     return d[0] * d[0] + d[2] * d[2];
 }
 
-// Rotates the offset from -> to about Y by (0x800 - angle) with the GTE, then returns a mask of the
-// sides of the view cone (shift[0..2] = x, y, z half-width as 9 - shift) the point lies outside of.
-uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out)
+uint32 func_80030418(CLIP_WORK *a, CLIP_WORK *b, SHORT3_WORK *range, sint32 *out)
 {
-    long m[8];
+    sint32 mtx[8];
     SVECTOR sv;
-    long flag;
-    uint32 ret;
-    sint32 lim;
+    sint32 flag;
+    uint32 r;
+    sint32 sh;
+    sint32 v;
 
-    m[1]  = 0;
-    m[2]  = 0x1000;
-    m[3]  = 0;
-    m[4]  = 0x1000;
-    m[5]  = 0;
-    m[6]  = 0;
-    m[7]  = 0;
-    sv.vx = to->pos_C4.vx - from->pos_C4.vx;
-    sv.vy = to->pos_C4.vy - from->pos_C4.vy;
-    sv.vz = to->pos_C4.vz - from->pos_C4.vz;
-    m[0]  = 0x1000;
-    RotMatrixY(0x800 - from->ang.vy, (MATRIX *)m);
-    SetRotMatrix((MATRIX *)m);
-    SetTransMatrix((MATRIX *)m);
+    mtx[1] = 0;
+    mtx[2] = 0x1000;
+    mtx[3] = 0;
+    mtx[4] = 0x1000;
+    mtx[5] = 0;
+    mtx[6] = 0;
+    mtx[7] = 0;
+    sv.vx  = b->x_c4 - a->x_c4;
+    sv.vy  = b->y_c6 - a->y_c6;
+    sv.vz  = b->z_c8 - a->z_c8;
+    mtx[0] = 0x1000; // set last, as in func_8003081C
+    RotMatrixY(0x800 - a->angle_56, (MATRIX *)mtx);
+    SetRotMatrix((MATRIX *)mtx);
+    SetTransMatrix((MATRIX *)mtx);
     RotTrans(&sv, out, &flag);
-    ret = (uint32)out->vx >> 31;
-    if (out->vy < 0)
+    r = (uint32)out[0] >> 31;
+    if (out[1] < 0)
     {
-        ret |= 4;
+        r |= 4;
     }
-    if (out->vz < 0)
+    if (out[2] < 0)
     {
-        ret |= 0x10;
+        r |= 0x10;
     }
     else
     {
-        lim = 9 - shift[0];
-        if ((out->vx >= 0 && (out->vx << lim) < out->vz) || (out->vx < 0 && (-out->vx << lim) < out->vz))
+        sh = 9 - range->x;
+        if (((out[0] >= 0) ? (out[0] << sh) : (-out[0] << sh)) < out[2])
         {
-            ret |= 2;
+            r |= 2;
         }
     }
-    lim = 9 - shift[1];
-    if (out->vy >= 0)
+    sh = 9 - range->y;
+    v  = (out[1] >= 0) ? (out[1] << sh) : (-out[1] << sh);
+    if ((out[2] >= 0 && v < out[2]) || (out[2] < 0 && v < -out[2]))
     {
-        lim = out->vy << lim;
+        r |= 8;
     }
-    else
+    sh = 9 - range->z;
+    v  = (out[2] >= 0) ? (out[2] << sh) : (-out[2] << sh);
+    if ((out[0] >= 0 && v < out[0]) || (out[0] < 0 && v < -out[0]))
     {
-        lim = -out->vy << lim;
+        r |= 0x20;
     }
-    if ((out->vz >= 0 && lim < out->vz) || (out->vz < 0 && lim < -out->vz))
-    {
-        ret |= 8;
-    }
-    lim = 9 - shift[2];
-    if (out->vz >= 0)
-    {
-        lim = out->vz << lim;
-    }
-    else
-    {
-        lim = -out->vz << lim;
-    }
-    if ((out->vx >= 0 && lim < out->vx) || (out->vx < 0 && lim < -out->vx))
-    {
-        ret |= 0x20;
-    }
-    return ret;
+    return r;
 }
 
-uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out)
+void func_80030604(ANGLE_WORK *wp, sint32 a1, sint32 a2, sint32 a3)
 {
-    return func_80030628(from, to, shift, out, from->ang.vy);
+    func_80030628((DELTA14_WORK *)wp, (DELTA14_WORK *)a1, (SHORT3_WORK *)a2, (sint32 *)a3,
+                  wp->angle_56);
 }
 
-// Same as func_80030418, with the view angle passed in and the positions at 0x14.
-uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle)
+uint32 func_80030628(DELTA14_WORK *a, DELTA14_WORK *b, SHORT3_WORK *range, sint32 *out,
+                     sint16 angle)
 {
-    long m[8];
+    sint32 mtx[8];
     SVECTOR sv;
-    long flag;
-    uint32 ret;
-    sint32 lim;
+    sint32 flag;
+    uint32 r;
+    sint32 sh;
+    sint32 v;
 
-    m[1]  = 0;
-    m[2]  = 0x1000;
-    m[3]  = 0;
-    m[4]  = 0x1000;
-    m[5]  = 0;
-    m[6]  = 0;
-    m[7]  = 0;
-    sv.vx = to->pos.vx - from->pos.vx;
-    sv.vy = to->pos.vy - from->pos.vy;
-    m[0]  = 0x1000;
-    sv.vz = to->pos.vz - from->pos.vz;
-    RotMatrixY(0x800 - angle, (MATRIX *)m);
-    SetRotMatrix((MATRIX *)m);
-    SetTransMatrix((MATRIX *)m);
+    mtx[1] = 0;
+    mtx[2] = 0x1000;
+    mtx[3] = 0;
+    mtx[4] = 0x1000;
+    mtx[5] = 0;
+    mtx[6] = 0;
+    mtx[7] = 0;
+    sv.vx  = b->x_14 - a->x_14;
+    sv.vy  = b->y_16 - a->y_16;
+    mtx[0] = 0x1000;
+    sv.vz  = b->z_18 - a->z_18;
+    RotMatrixY(0x800 - angle, (MATRIX *)mtx);
+    SetRotMatrix((MATRIX *)mtx);
+    SetTransMatrix((MATRIX *)mtx);
     RotTrans(&sv, out, &flag);
-    ret = (uint32)out->vx >> 31;
-    if (out->vy < 0)
+    r = (uint32)out[0] >> 31;
+    if (out[1] < 0)
     {
-        ret |= 4;
+        r |= 4;
     }
-    if (out->vz < 0)
+    if (out[2] < 0)
     {
-        ret |= 0x10;
+        r |= 0x10;
     }
     else
     {
-        lim = 9 - shift[0];
-        if ((out->vx >= 0 && (out->vx << lim) < out->vz) || (out->vx < 0 && (-out->vx << lim) < out->vz))
+        sh = 9 - range->x;
+        if (((out[0] >= 0) ? (out[0] << sh) : (-out[0] << sh)) < out[2])
         {
-            ret |= 2;
+            r |= 2;
         }
     }
-    lim = 9 - shift[1];
-    if (out->vy >= 0)
+    sh = 9 - range->y;
+    if (out[1] >= 0)
     {
-        lim = out->vy << lim;
+        v = out[1] << sh;
     }
     else
     {
-        lim = -out->vy << lim;
+        v = -out[1] << sh;
     }
-    if ((out->vz >= 0 && lim < out->vz) || (out->vz < 0 && lim < -out->vz))
+    if ((out[2] >= 0 && v < out[2]) || (out[2] < 0 && v < -out[2]))
     {
-        ret |= 8;
+        r |= 8;
     }
-    lim = 9 - shift[2];
-    if (out->vz >= 0)
+    sh = 9 - range->z;
+    if (out[2] >= 0)
     {
-        lim = out->vz << lim;
+        v = out[2] << sh;
     }
     else
     {
-        lim = -out->vz << lim;
+        v = -out[2] << sh;
     }
-    if ((out->vx >= 0 && lim < out->vx) || (out->vx < 0 && lim < -out->vx))
+    if ((out[0] >= 0 && v < out[0]) || (out[0] < 0 && v < -out[0]))
     {
-        ret |= 0x20;
+        r |= 0x20;
     }
-    return ret;
+    return r;
 }
 
-#ifdef NON_MATCHING
-// Rotates the offset from -> to about Y by (0x800 - angle) with the GTE; returns 0x10 if the
-// point is behind (z < 0), else 2 if |x| << (9 - *shift) is less than z (inside the view cone).
-// Remaining differences: the target stores m[0] late (after the sv setup) and shares one slt/bnez
-// to `ori a2,a2,2` between the x >= 0 and x < 0 paths; GCC folds ret |= 2 into li 2.
-sint32 func_8003081C(SVECTOR *from, SVECTOR *to, sint16 *shift, sint16 angle)
+sint32 func_8003081C(DELTA0_WORK *a, DELTA0_WORK *b, sint16 *shift, sint16 angle)
 {
-    long m[8];
+    sint32 mtx[8];
     SVECTOR sv;
-    VECTOR out;
-    long flag;
-    sint32 ret;
+    sint32 out[4];
+    sint32 flag;
+    sint32 result;
     sint32 sh;
 
-    m[0]  = 0x1000;
-    m[1]  = 0;
-    m[2]  = 0x1000;
-    m[3]  = 0;
-    m[4]  = 0x1000;
-    m[5]  = 0;
-    m[6]  = 0;
-    m[7]  = 0;
-    sv.vx = to->vx - from->vx;
-    sv.vy = to->vy - from->vy;
-    sv.vz = to->vz - from->vz;
-    RotMatrixY(0x800 - angle, (MATRIX *)m);
-    SetRotMatrix((MATRIX *)m);
-    SetTransMatrix((MATRIX *)m);
-    RotTrans(&sv, &out, &flag);
-    ret = 0;
-    if (out.vz < 0)
+    mtx[1] = 0;
+    mtx[2] = 0x1000;
+    mtx[3] = 0;
+    mtx[4] = 0x1000;
+    mtx[5] = 0;
+    mtx[6] = 0;
+    mtx[7] = 0;
+    sv.vx  = b->x_0 - a->x_0;
+    sv.vy  = b->y_2 - a->y_2;
+    sv.vz  = b->z_4 - a->z_4;
+    mtx[0] = 0x1000; // set last: this placement gives retail's store scheduling
+    RotMatrixY(0x800 - angle, (MATRIX *)mtx);
+    SetRotMatrix((MATRIX *)mtx);
+    SetTransMatrix((MATRIX *)mtx);
+    RotTrans(&sv, out, &flag);
+    result = 0;
+    if (out[2] < 0)
     {
-        ret = 0x10;
+        result = 0x10;
     }
     else
     {
         sh = 9 - *shift;
-        if (out.vx >= 0)
+        if (((out[0] >= 0) ? (out[0] << sh) : (-out[0] << sh)) < out[2])
         {
-            if ((out.vx << sh) < out.vz)
-            {
-                ret |= 2;
-            }
+            result |= 2;
+        }
+    }
+    return result;
+}
+
+void func_80030934(void *a0, void *a1, sint16 a2, sint16 a3)
+{
+    func_80030968(a0, a1, a2, a3, 0x100);
+}
+
+void func_80030968(void *wp, void *other, sint16 a2, sint16 a3, sint16 a4)
+{
+    func_800309E0((uint8 *)wp + 0x14, (uint8 *)other + 0xC4, (uint8 *)wp + 0x44,
+                  (uint8 *)other + 0xCA, a2, a3, a4);
+    *(sint16 *)((uint8 *)wp + 0x50) = 0;
+    *(sint16 *)((uint8 *)wp + 0x4C) = 0;
+    *(sint16 *)((uint8 *)wp + 0x4E) = a4;
+}
+
+void func_800309E0(SHORT3_WORK *a, SHORT3_WORK *b, SHORT3_WORK *out, sint16 *size, sint16 e,
+                   sint16 f, sint16 g)
+{
+    sint32 delta[3];
+    sint32 res[3];
+    sint32 dist3;
+    sint32 dist2;
+    sint16 es;
+    sint16 gs;
+
+    es       = (uint16)e;
+    gs       = (uint16)g;
+    delta[0] = b->x - a->x;
+    delta[1] = b->y - a->y;
+    delta[2] = b->z - a->z;
+    dist3    = SquareRoot0(delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]);
+    dist2    = SquareRoot0(delta[0] * delta[0] + delta[2] * delta[2]);
+    if ((sint16)f != 0 && dist2 >= (sint16)f)
+    {
+        dist2 = (sint16)f;
+    }
+    if (dist3 != 0 && es != 0)
+    {
+        res[0] = ((es * delta[0]) << 8) / dist3;
+        if (dist2 != 0)
+        {
+            res[1] = (es * (delta[1] << 8)) / dist2 - (gs * (dist2 >> 1)) / es;
         }
         else
         {
-            if ((-out.vx << sh) < out.vz)
-            {
-                ret |= 2;
-            }
+            res[1] = es * (delta[1] << 8);
         }
+        res[2] = ((es * delta[2]) << 8) / dist3;
+        out->x = res[0];
+        out->y = res[1];
+        out->z = res[2];
+        *size  = dist3 / es;
+        return;
     }
-    return ret;
+    out->x = 0;
+    out->y = 0;
+    out->z = 0;
+    *size  = 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003081C);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80030934);
-
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80030968);
-
-// Launch velocity (out, three components) and flight time (*time) from `from` to `to` at `speed`;
-// `max` caps the horizontal distance when nonzero, `grav` is the drop per half-distance.
-void func_800309E0(SVECTOR *from, SVECTOR *to, SVECTOR *out, sint16 *time, sint16 speed, sint16 max, sint16 grav)
+sint16 func_80030CB8(void *a0, sint32 a1, sint16 a2, sint16 a3)
 {
-    VECTOR d;
-    VECTOR v;
+    return func_80030CF0(a0, a1, a2, a3, 0x100);
+}
+
+sint32 func_80030CF0(void *a0, sint32 a1, sint16 a2, sint16 a3, sint16 a4)
+{
+    return (sint16)func_80030D30((uint8 *)a0 + 0x14, (uint8 *)a1 + 0xC4, a2, a3, a4);
+}
+
+sint16 func_80030D30(SHORT3_WORK *a, SHORT3_WORK *b, sint16 c, sint16 d, sint16 e)
+{
+    sint32 delta[3];
+    SVECTOR unused; // never used; it sets the frame size
     sint32 dist;
-    sint32 dist_xz;
+    sint32 lim;
+    sint32 angle;
+    sint16 ee;
 
-    d.vx    = to->vx - from->vx;
-    d.vy    = to->vy - from->vy;
-    d.vz    = to->vz - from->vz;
-    dist    = SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
-    dist_xz = SquareRoot0(d.vx * d.vx + d.vz * d.vz);
-    if (max != 0 && dist_xz >= max)
+    ee       = (uint16)e;
+    delta[0] = b->x - a->x;
+    delta[1] = b->y - a->y;
+    delta[2] = b->z - a->z;
+    dist     = SquareRoot0(delta[0] * delta[0] + delta[2] * delta[2]);
+    if (d != 0)
     {
-        dist_xz = max;
-    }
-    if (dist != 0 && speed != 0)
-    {
-        v.vx = (speed * d.vx << 8) / dist;
-        if (dist_xz != 0)
+        if (dist >= d)
         {
-            v.vy = speed * (d.vy << 8) / dist_xz - grav * (dist_xz >> 1) / speed;
+            dist = d;
         }
-        else
-        {
-            v.vy = speed * (d.vy << 8);
-        }
-        v.vz    = (speed * d.vz << 8) / dist;
-        out->vx = v.vx;
-        out->vy = v.vy;
-        out->vz = v.vz;
-        *time   = dist / speed;
     }
-    else
-    {
-        out->vx = 0;
-        out->vy = 0;
-        out->vz = 0;
-        *time   = 0;
-    }
-}
-
-sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist)
-{
-    return func_80030CF0(from, to, height, max_dist, 0x100);
-}
-
-sint16 func_80030CF0(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc)
-{
-    return func_80030D30(&from->pos, &to->pos_C4, height, max_dist, arc);
-}
-
-sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc)
-{
-    VECTOR d;
-    SVECTOR unused;
-    sint32 dist;
-    sint32 y;
-    sint16 angle;
-
-    d.vx = to->vx - from->vx;
-    d.vy = to->vy - from->vy;
-    d.vz = to->vz - from->vz;
-    dist = SquareRoot0(d.vx * d.vx + d.vz * d.vz);
-    if (max_dist != 0 && dist >= max_dist)
-    {
-        dist = max_dist;
-    }
-    if (height != 0)
+    lim = c;
+    if (lim != 0)
     {
         if (dist != 0)
         {
-            y     = height * (d.vy << 8) / dist - arc * (dist >> 1) / height;
-            d.vy  = y;
-            angle = 0x400 - ratan2(height << 8, y);
+            delta[1] = (lim * (delta[1] << 8)) / dist - (ee * (dist >> 1)) / lim;
+            angle    = 0x400 - ratan2(lim << 8, delta[1]);
         }
         else
         {
             angle = -0x400;
-            if (to->vy > from->vy)
+            if (b->y > a->y)
             {
                 angle = 0x400;
             }
@@ -719,95 +1252,95 @@ sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist,
     return angle;
 }
 
-void func_80030EE8(MODEL_WORK *wp, SVECTOR *target, sint16 speed)
+void func_80030EE8(MOVER_WORK *wp, SHORT3_WORK *target, sint16 speed)
 {
-    VECTOR d;
-    VECTOR v;
+    sint32 d[3];
+    sint32 v[3];
     sint32 dist;
 
-    d.vx = target->vx - wp->pos.vx;
-    d.vy = target->vy - wp->pos.vy;
-    d.vz = target->vz - wp->pos.vz;
-    dist = SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
+    d[0] = target->x - wp->x_14;
+    d[1] = target->y - wp->y_16;
+    d[2] = target->z - wp->z_18;
+    dist = SquareRoot0(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
     if (dist != 0)
     {
-        v.vx        = (speed * d.vx << 8) / dist;
-        v.vy        = (speed * d.vy << 8) / dist;
-        v.vz        = (speed * d.vz << 8) / dist;
-        wp->spd.vx  = v.vx;
-        wp->spd.vy  = v.vy;
-        wp->spd.vz  = v.vz;
-        wp->spd.pad = dist / speed;
+        v[0]         = ((speed * d[0]) << 8) / dist;
+        v[1]         = ((speed * d[1]) << 8) / dist;
+        v[2]         = ((speed * d[2]) << 8) / dist;
+        wp->vel_x_44 = v[0];
+        wp->vel_y_46 = v[1];
+        wp->vel_z_48 = v[2];
+        wp->vel_w_4a = dist / speed;
     }
     else
     {
-        wp->spd.vx  = 0;
-        wp->spd.vy  = 0;
-        wp->spd.vz  = 0;
-        wp->spd.pad = 0;
+        wp->vel_x_44 = 0;
+        wp->vel_y_46 = 0;
+        wp->vel_z_48 = 0;
+        wp->vel_w_4a = 0;
     }
-    wp->add.vx = 0;
-    wp->add.vy = 0;
-    wp->add.vz = 0;
+    wp->v4c = 0;
+    wp->v4e = 0;
+    wp->v50 = 0;
 }
 
-sint32 Angle_xz_vector(VECTOR *from, VECTOR *to)
+sint32 func_800310CC(VEC32_WORK *a, VEC32_WORK *b)
 {
     sint32 dx;
     sint32 dz;
-    sint32 ang;
+    sint32 angle;
 
-    dz = (to->vz - from->vz) >> 12;
-    dx = to->vx - from->vx;
+    dz = (b->z - a->z) >> 12;
+    dx = b->x - a->x;
     if (dz > 0)
     {
-        ang = catan(dx / dz) + 0x800;
+        angle = catan(dx / dz) + 0x800;
     }
     else if (dz < 0)
     {
-        ang = (0x1000 - catan(-dx / dz)) & 0xFFF;
+        angle = (0x1000 - catan(-dx / dz)) & 0xFFF;
     }
     else
     {
-        ang = 0x400;
+        angle = 0x400;
         if (dx >= 0)
         {
-            ang = 0xC00;
+            angle = 0xC00;
         }
     }
-    return ang;
+    return angle;
 }
 
-sint32 Angle_xz_svector(SVECTOR *from, SVECTOR *to)
+sint32 func_80031198(SHORT3_WORK *a, SHORT3_WORK *b)
 {
     sint32 dx;
     sint32 dz;
-    sint32 ang;
+    sint32 angle;
 
-    dz = (to->vz - from->vz) << 4;
-    dx = (to->vx - from->vx) << 16;
+    dz = (b->z - a->z) << 4;
+    dx = (b->x - a->x) << 16;
     if (dz > 0)
     {
-        ang = catan(dx / dz) + 0x800;
+        angle = catan(dx / dz) + 0x800;
     }
     else if (dz < 0)
     {
-        ang = (0x1000 - catan(-dx / dz)) & 0xFFF;
+        angle = (0x1000 - catan(-dx / dz)) & 0xFFF;
     }
     else
     {
-        ang = 0x400;
+        angle = 0x400;
         if (dx >= 0)
         {
-            ang = 0xC00;
+            angle = 0xC00;
         }
     }
-    return ang;
+    return angle;
 }
 
-sint32 func_80031268(SVECTOR *from, SVECTOR *to)
+sint32 func_80031268(sint16 *a, sint16 *b)
 {
-    return ratan2(to->vx - from->vx, to->vz - from->vz) + 0x800;
+    return ratan2(b[0] - a[0], b[2] - a[2]) + 0x800;
 }
 
 sint32 func_8003129C(SVECTOR *a, SVECTOR *b)
@@ -820,302 +1353,307 @@ sint32 func_8003129C(SVECTOR *a, SVECTOR *b)
     return (0x1000 - ratan2(SquareRoot0(dx * dx + dz * dz), b->vy - a->vy)) & 0xFFF;
 }
 
-void func_80031324(WORK_5A4 *parent, CHILD_WORK *child, sint16 n)
+void func_80031324(SPAWN_OWNER *owner, SPAWN_CHILD *child, sint16 index)
 {
-    child->blk_8C    = parent->blk_240[n];
-    child->ent_88    = (ENT_14 *)((uint8 *)parent->info_88->tbl_70 + (n + 1) * 0x14);
-    child->color_B4  = 0x808080;
-    child->parent_B8 = parent;
-    child->x_AC = child->x_14 = parent->pos_180[n].x;
-    child->y_AE = child->y_16 = parent->pos_180[n].y;
-    child->z_B0 = child->z_18   = parent->pos_180[n].z;
-    child->x_1C                 = (sint16)child->x_14 << 16;
-    child->y_20                 = (sint16)child->y_16 << 16;
-    child->z_24                 = (sint16)child->z_18 << 16;
-    child->child_id             = parent->slot_F8[n].child_id;
-    parent->slot_F8[n].child_id = -1;
+    sint32 next;
+
+    child->blk_8c   = owner->blocks_240[index];
+    next            = index + 1;
+    child->link_88  = &owner->link_88->tbl_70[next];
+    child->word_b4  = 0x808080;
+    child->owner_b8 = owner;
+    child->x_ac = child->x_14 = owner->pos_180[index].x;
+    child->y_ae = child->y_16 = owner->pos_180[index].y;
+    child->z_b0 = child->z_18     = owner->pos_180[index].z;
+    child->fx_1c                  = (sint16)child->x_14 << 16;
+    child->fx_20                  = (sint16)child->y_16 << 16;
+    child->fx_24                  = (sint16)child->z_18 << 16;
+    child->byte_b                 = owner->slots_f8[index].byte_1;
+    owner->slots_f8[index].byte_1 = -1;
 }
 
-WORK_3C0 *func_80031418(void)
+GAME_WORK_3C0 *func_80031418(void)
 {
     sint32 i;
-    WORK_3C0 *wp;
-    uint32 used;
+    GAME_WORK_3C0 *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_800987E8;
-    for (i = 0; i < 0x10; i++)
+    mask = D_800987E8;
+    for (i = 0; i < 16; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_8009F108[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_8009F108[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            slot = (SLOT_INIT *)wp;
             D_800987E8 |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
-            *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
-            wp->flags                 = 3;
-            *(uint32 *)&wp->field_74  = 0;
+            slot->word_10 = 0;
+            slot->word_78 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
+            *(uint32 *)&slot->word_74   = 0;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
 
-#ifdef NON_MATCHING
-// Only the field_2 store is scheduled earlier than in the target (before the D_80098B20 store);
-// its three twins match with the same code.
-WORK_5A4 *func_80031498(void)
+GAME_WORK_5A4 *func_80031498(void)
 {
     sint32 i;
-    WORK_5A4 *wp;
-    uint32 used;
+    GAME_WORK_5A4 *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_80098B20;
+    mask = D_80098B20;
     for (i = 0; i < 4; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_800C3580[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_800C3580[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            slot = (SLOT_INIT *)wp;
             D_80098B20 |= 0x80000000 >> i;
-            wp->field_2               = 0;
-            *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
-            wp->flags                 = 3;
-            *(uint32 *)&wp->field_74  = 0;
+            slot->word_10 = 0;
+            slot->word_78 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
+            *(uint32 *)&slot->word_74   = 0;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031498);
-#endif
 
-SHL_WORK *Open_SHL_WORK(void)
+GAME_WORK_10C *func_80031518(void)
 {
     sint32 i;
-    SHL_WORK *wp;
-    uint32 used;
+    GAME_WORK_10C *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_800987CC;
-    for (i = 0; i < 0x20; i++)
+    mask = D_800987CC;
+    for (i = 0; i < 32; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_8009CF88[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_8009CF88[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            slot = (SLOT_INIT *)wp;
             D_800987CC |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
-            *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
-            wp->flags                 = 3;
-            *(uint32 *)&wp->field_74  = 0;
+            slot->word_10 = 0;
+            slot->word_78 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
+            *(uint32 *)&slot->word_74   = 0;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
 
-PL_SHL_WORK *func_80031598(void)
+GAME_WORK_10C *func_80031598(void)
 {
     sint32 i;
-    PL_SHL_WORK *wp;
-    uint32 used;
+    GAME_WORK_10C *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_800989F0;
-    for (i = 0; i < 0x10; i++)
+    mask = D_800989F0;
+    for (i = 0; i < 16; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_800BFB20[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_800BFB20[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            slot = (SLOT_INIT *)wp;
             D_800989F0 |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
-            *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
-            wp->flags                 = 3;
-            *(uint32 *)&wp->field_74  = 0;
+            slot->word_10 = 0;
+            slot->word_78 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
+            *(uint32 *)&slot->word_74   = 0;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
 
-WORK_48 *func_80031618(void)
+// player.h declares the result as struct CODE456_WORK *
+struct CODE456_WORK *func_80031618(void)
 {
     sint32 i;
     sint32 j;
-    WORK_48 *wp;
-    uint32 used;
+    uint32 bits;
+    GAME_WORK_48 *wp;
+    SLOT_INIT *slot;
 
-    for (j = 0; j < 2; j++)
+    for (i = 0; i < 2; i++)
     {
-        used = (&D_80098838)[j];
-        for (i = 0; i < 0x20; i++)
+        bits = (&D_80098838)[i];
+        for (j = 0; j < 0x20; j++)
         {
-            if ((sint32)(used << i) >= 0)
+            if (((sint32)bits << j) >= 0)
             {
-                (&D_80098838)[j] |= 0x80000000 >> i;
-                wp                        = &D_800A3B40[i + j * 0x20];
-                *(uint16 *)&wp->id_2      = 0;
-                *(uint32 *)&wp->flag_4    = 0;
-                wp->field_C               = 0;
-                *(uint32 *)&wp->routine_8 = 0;
-                wp->flags                 = 3;
-                wp->field_10              = 0;
-                return wp;
+                (&D_80098838)[i] |= 0x80000000 >> j;
+                wp                          = &D_800A3B40[j + (i << 5)];
+                slot                        = (SLOT_INIT *)wp;
+                slot->half_2                = 0;
+                *(sint32 *)&slot->routine_4 = 0;
+                slot->word_c                = 0;
+                slot->word_8                = 0;
+                slot->active_6              = 3;
+                slot->word_10               = 0;
+                return (struct CODE456_WORK *)wp;
             }
         }
     }
-    return 0;
+    return NULL;
 }
 
-#ifdef NON_MATCHING
-// Only the store order differs: the target keeps the stores in source order around the
-// D_800987EC update. A test with the mask as a struct member (MEM_IN_STRUCT_P) gave the
-// target order, so the mask words may belong to a pool struct. func_80031734 has the same
-// difference. The model-pool allocators (func_80031418, Open_SHL_WORK, func_80031598) matched
-// once field_74 was cleared by one word store like the other fields; func_800317AC matches as is.
-EVE_WORK *Open_EVE_WORK(void)
+GAME_WORK_24 *func_800316BC(void)
 {
     sint32 i;
-    EVE_WORK *wp;
-    uint32 used;
+    GAME_WORK_24 *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_800987EC;
-    for (i = 0; i < 0x10; i++)
+    mask = D_800987EC;
+    for (i = 0; i < 16; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_800A2D08[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_800A2D08[i];
-            wp->field_10 = 0;
+            slot = (SLOT_INIT *)wp;
             D_800987EC |= 0x80000000 >> i;
-            wp->field_2            = 0;
-            *(uint32 *)&wp->flag_4 = 0;
-            wp->field_C            = 0;
-            wp->field_8            = 0;
-            wp->flags              = 3;
+            slot->word_10 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Open_EVE_WORK);
-#endif
 
-#ifdef NON_MATCHING
-// Only the store order differs (see Open_EVE_WORK).
-WORK_50 *func_80031734(void)
+GAME_WORK_50 *func_80031734(void)
 {
     sint32 i;
-    WORK_50 *wp;
-    uint32 used;
+    GAME_WORK_50 *wp;
+    SLOT_INIT *slot;
+    uint32 mask;
 
-    used = D_800989CC;
-    for (i = 0; i < 0x20; i++)
+    mask = D_800989CC;
+    for (i = 0; i < 32; i++)
     {
-        if ((sint32)(used << i) >= 0)
+        wp = &D_800BF118[i];
+        if (((sint32)mask << i) >= 0)
         {
-            wp           = &D_800BF118[i];
-            wp->field_10 = 0;
+            slot = (SLOT_INIT *)wp;
             D_800989CC |= 0x80000000 >> i;
-            wp->field_2             = 0;
-            *(uint32 *)&wp->flag_4  = 0;
-            *(uint32 *)&wp->field_C = 0;
-            wp->field_8             = 0;
-            wp->flags               = 3;
+            slot->word_10 = 0;
+            // Cast stores, unlike field stores, can't be scheduled above the mask update
+            *(uint16 *)&slot->half_2    = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            *(uint32 *)&slot->word_c    = 0;
+            *(uint32 *)&slot->word_8    = 0;
+            slot->active_6              = 3;
             return wp;
         }
     }
-    return 0;
+    return NULL;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031734);
-#endif
 
-WORK_50 *func_800317AC(sint32 i)
+GAME_WORK_50 *func_800317AC(sint32 index)
 {
-    WORK_50 *wp;
+    GAME_WORK_50 *wp;
+    SLOT_INIT *slot;
 
-    if (i < 0x20)
+    if (index < 0x20)
     {
-        if ((sint32)(D_800989CC << i) >= 0)
+        if (((sint32)D_800989CC << index) >= 0)
         {
-            wp = &D_800BF118[i];
-            D_800989CC |= 0x80000000 >> i;
-            wp->field_2             = 0;
-            *(uint32 *)&wp->flag_4  = 0;
-            *(uint32 *)&wp->field_C = 0;
-            wp->field_8             = 0;
-            wp->flags               = 3;
-            wp->field_10            = 0;
+            wp   = &D_800BF118[index];
+            slot = (SLOT_INIT *)wp;
+            D_800989CC |= 0x80000000 >> index;
+            slot->half_2                = 0;
+            *(sint32 *)&slot->routine_4 = 0;
+            slot->word_c                = 0;
+            slot->word_8                = 0;
+            slot->active_6              = 3;
+            slot->word_10               = 0;
             return wp;
         }
-        return 0;
     }
-    return 0;
+    return NULL;
 }
 
-void func_80031824(WORK_3C0 *wp)
+void func_80031824(GAME_WORK_3C0 *wp)
 {
-    D_8009880C |= 0x80000000 >> (((uint32)wp - (uint32)D_8009F108) / sizeof(WORK_3C0));
+    D_8009880C |= 0x80000000 >> (((uint32)wp - (uint32)D_8009F108) / sizeof(*wp));
     D_8009880C &= D_800987E8;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void func_8003187C(WORK_5A4 *wp)
+void func_8003187C(GAME_WORK_5A4 *wp)
 {
-    D_80098B64 |= 0x80000000 >> (((uint32)wp - (uint32)D_800C3580) / sizeof(WORK_5A4));
+    D_80098B64 |= 0x80000000 >> (((uint32)wp - (uint32)D_800C3580) / sizeof(*wp));
     D_80098B64 &= D_80098B20;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void Close_SHL_WORK(SHL_WORK *wp)
+void func_800318D8(GAME_WORK_10C *wp)
 {
-    D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(SHL_WORK));
+    D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(*wp));
     D_80098808 &= D_800987CC;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void func_80031930(PL_SHL_WORK *wp)
+void func_80031930(GAME_WORK_10C *wp)
 {
-    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(PL_SHL_WORK));
+    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(*wp));
     D_80098A60 &= D_800989F0;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void func_80031988(WORK_48 *wp)
+void func_80031988(GAME_WORK_48 *wp)
 {
     uint32 i;
 
-    i = ((uint32)wp - (uint32)D_800A3B40) / sizeof(WORK_48);
+    i = ((uint32)wp - (uint32)D_800A3B40) / sizeof(*wp);
     (&D_800988C8)[i >> 5] |= 0x80000000 >> (i & 0x1F);
     (&D_800988C8)[i >> 5] &= (&D_80098838)[i >> 5];
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void Close_EVE_WORK(EVE_WORK *wp)
+void Close_EVE_WORK(GAME_WORK_24 *wp)
 {
-    D_80098818 |= 0x80000000 >> (((uint32)wp - (uint32)D_800A2D08) / sizeof(EVE_WORK));
+    D_80098818 |= 0x80000000 >> (((uint32)wp - (uint32)D_800A2D08) / sizeof(*wp));
     D_80098818 &= D_800987EC;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
-void func_80031A4C(WORK_50 *wp)
+void func_80031A4C(GAME_WORK_50 *wp)
 {
-    D_80098A4C |= 0x80000000 >> (((uint32)wp - (uint32)D_800BF118) / sizeof(WORK_50));
+    D_80098A4C |= 0x80000000 >> (((uint32)wp - (uint32)D_800BF118) / sizeof(*wp));
     D_80098A4C &= D_800989CC;
-    wp->routine_0 = 0;
+    wp->flags = 0;
 }
 
 void func_80031AA4(void)
@@ -1155,409 +1693,761 @@ void func_80031AA4(void)
     D_800989CC &= ~h;
 }
 
-#ifdef NON_MATCHING
-// Signed angle from `angle` to the direction from -> to, limited to +-limit.
-// Same difference as func_80031CA4: the target keeps limit in s2 and the result in s1 (moved
-// before the call); GCC uses one register. Also the target tests d < 0x800 once (a0) and reuses it.
-sint16 Muku(SVECTOR *from, SVECTOR *to, sint16 angle, uint32 limit)
+sint16 func_80031BEC(SHORT3_WORK *a, SHORT3_WORK *b, sint32 c, sint32 d)
 {
-    uint32 d;
-    uint32 r;
-
-    r = limit;
-    d = (Angle_xz_svector(from, to) - angle) & 0xFFF;
-    if (d < 0x800)
-    {
-        if (d < (sint16)limit * 2)
-        {
-            r = d;
-        }
-    }
-    if (d >= 0x800)
-    {
-        if (0x1000 - d < (sint16)r * 2)
-        {
-            r = 0x1000 - d;
-        }
-    }
-    if (d >= 0x801)
-    {
-        return -r;
-    }
-    return r;
-}
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Muku);
-#endif
-
-#ifdef NON_MATCHING
-// Register allocation only: the target keeps the limit parameter in s2 and the result copy in s1;
-// GCC merges them into one register here.
-sint16 func_80031CA4(SVECTOR *from, SVECTOR *to, sint16 angle, uint32 limit)
-{
-    uint32 d;
-    uint32 r;
-
-    r = limit;
-    d = (func_8003129C(from, to) - angle) & 0xFFF;
-    if (d < 0x800)
-    {
-        if (d < (sint16)r * 2)
-        {
-            r = d;
-        }
-    }
-    else
-    {
-        if (0x1000 - d < (sint16)limit * 2)
-        {
-            r = 0x1000 - d;
-        }
-    }
-    if (d >= 0x801)
-    {
-        return -r;
-    }
-    return r;
-}
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031CA4);
-#endif
-
-// Signed angle difference (a - b) on a 0x1000 circle, limited to +-limit.
-sint16 Angle_diff_clamp(sint16 a, sint16 b, sint16 limit)
-{
-    sint16 d;
+    uint32 v;
+    uint32 u;
     sint16 r;
 
-    r = limit;
-    d = a - b;
-    if (d < 0)
+    r = d;
+    v = (func_80031198(a, b) - (sint16)c) & 0xFFF;
+    if (v < 0x800 && v < (uint32)((sint16)d << 1))
     {
-        d += 0x1000;
+        r = v;
     }
-    if (d < 0x800)
+    else if (v >= 0x800 && (u = 0x1000 - v) < (uint32)(r << 1))
     {
-        if (d < limit)
+        r = u;
+    }
+    if (v < 0x801)
+    {
+        return r;
+    }
+    return -r;
+}
+
+sint16 func_80031CA4(SVECTOR *a, SVECTOR *b, sint32 c, sint32 d)
+{
+    uint32 v;
+    uint32 u;
+    sint16 r;
+
+    r = d;
+    v = (func_8003129C(a, b) - (sint16)c) & 0xFFF;
+    if (v < 0x800 && v < (uint32)((sint16)d << 1))
+    {
+        r = v;
+    }
+    else if (v >= 0x800 && (u = 0x1000 - v) < (uint32)(r << 1))
+    {
+        r = u;
+    }
+    if (v < 0x801)
+    {
+        return r;
+    }
+    return -r;
+}
+
+sint16 func_80031D5C(sint32 a, sint32 b, sint32 limit)
+{
+    sint16 r;
+    sint16 t;
+
+    r = limit;
+    t = a - b;
+    if (t < 0)
+    {
+        t += 0x1000;
+    }
+    if (t < 0x800)
+    {
+        if (t < (sint16)limit)
         {
-            r = d;
+            r = t;
         }
+    }
+    else if ((sint16)limit > 0x1000 - t)
+    {
+        r = t - 0x1000;
     }
     else
     {
-        if (limit > 0x1000 - d)
-        {
-            r = d - 0x1000;
-        }
-        else
-        {
-            r = -limit;
-        }
+        r = -limit;
     }
     return r;
 }
 
-#ifdef NON_MATCHING
-// 1 if the direction from -> to is within +-half1 of center1 and within +-half2 of
-// (center2 - 0x800); the angles are on a 0x1000 circle.
-// Logic is right; the target keeps the result in v0 (set to 0 right after the call) and
-// angle in a copy (v1), while GCC puts the result in a scratch register and reads angle from v0.
-sint32 func_80031DCC(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sint32 center2, sint32 half2)
+sint32 func_80031DCC(VEC32_WORK *wp, sint32 a, sint32 b, VEC32_WORK *target, sint32 d, sint32 e)
 {
     sint32 angle;
-    sint32 d1;
-    sint32 d2;
+    sint32 lo;
+    sint32 hi;
 
-    angle = Angle_xz_vector(from, to);
-    d2    = (half2 + (angle - (center2 - 0x800))) & 0xFFF;
-    d1    = (half1 + (angle - center1)) & 0xFFF;
-    if ((sint16)half1 * 2 < d1)
+    angle = func_800310CC(wp, target);
+    d -= 0x800;
+    hi = (e + (angle - d)) & 0xFFF;
+    lo = (b + (angle - a)) & 0xFFF;
+    if (((sint16)b << 1) >= lo)
     {
-        return 0;
+        if (((sint16)e << 1) >= hi)
+        {
+            return 1;
+        }
     }
-    return !((sint16)half2 * 2 < d2);
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031DCC);
-#endif
 
-#ifdef NON_MATCHING
-// Same as func_80031DCC without the 0x800 offset (same register differences).
-sint32 func_80031E60(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sint32 center2, sint32 half2)
+sint32 func_80031E60(VEC32_WORK *wp, sint32 a, sint32 b, VEC32_WORK *target, sint32 d, sint32 e)
 {
     sint32 angle;
-    sint32 d1;
-    sint32 d2;
+    sint32 lo;
+    sint32 hi;
 
-    angle = Angle_xz_vector(from, to);
-    d2    = (half2 + (angle - center2)) & 0xFFF;
-    d1    = (half1 + (angle - center1)) & 0xFFF;
-    if ((sint16)half1 * 2 < d1)
+    angle = func_800310CC(wp, target);
+    hi    = (e + (angle - d)) & 0xFFF;
+    lo    = (b + (angle - a)) & 0xFFF;
+    if (((sint16)b << 1) >= lo)
     {
-        return 0;
+        if (((sint16)e << 1) >= hi)
+        {
+            return 1;
+        }
     }
-    return !((sint16)half2 * 2 < d2);
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031E60);
-#endif
 
-#ifdef NON_MATCHING
-// func_80031DCC on SVECTORs (same register differences).
-sint32 func_80031EF0(SVECTOR *from, sint32 center1, sint32 half1, SVECTOR *to, sint32 center2, sint32 half2)
+sint32 func_80031EF0(SHORT3_WORK *wp, sint32 a, sint32 b, SHORT3_WORK *target, sint32 d, sint32 e)
 {
     sint32 angle;
-    sint32 d1;
-    sint32 d2;
+    sint32 lo;
+    sint32 hi;
 
-    angle = Angle_xz_svector(from, to);
-    d2    = (half2 + (angle - (center2 - 0x800))) & 0xFFF;
-    d1    = (half1 + (angle - center1)) & 0xFFF;
-    if ((sint16)half1 * 2 < d1)
+    angle = func_80031198(wp, target);
+    d -= 0x800;
+    hi = (e + (angle - d)) & 0xFFF;
+    lo = (b + (angle - a)) & 0xFFF;
+    if (((sint16)b << 1) >= lo)
     {
-        return 0;
+        if (((sint16)e << 1) >= hi)
+        {
+            return 1;
+        }
     }
-    return !((sint16)half2 * 2 < d2);
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031EF0);
-#endif
 
-#ifdef NON_MATCHING
-// Quantizes the facing of from -> to against `base`: the low 12 bits are an angle, bits 16+ say
-// which side (0: none/forward, 1: behind, 2: right, 3: left). to defaults to the zero vector
-// (D_80097CF4) when bit 0 of to->pad is clear, in which case `to` becomes the source.
-// Only the prologue differs: the target saves s0 and zeroes it (ret = 0) before saving s2 and
-// copying a2; GCC does the a2 copy first.
-sint32 func_80031F84(SVECTOR *from, SVECTOR *to, sint16 base, uint16 mode)
+// Two calls keep CSE from following block 0 into the angle uses, so angle stays a HImode
+// copy that sched1 may move; jump2 then merges the calls.
+sint32 func_80031F84(SHORT3_WORK *a, SHORT3_WORK *b, sint16 angle, uint16 mode)
 {
-    sint32 ret;
-    sint32 ang;
+    sint32 result;
+    sint32 t;
+    sint32 s;
     sint32 d;
 
-    ret = 0;
-    if (!(to->pad & 1))
+    result = 0;
+    if (!(((uint16 *)b)[3] & 1))
     {
-        from = to;
-        to   = &D_80097CF4;
+        t = func_80031198(b, &D_80097CF4);
     }
-    ang = Angle_xz_svector(from, to);
+    else
+    {
+        t = func_80031198(a, b);
+    }
     if (mode == 0)
     {
-        if ((((sint16)ang - base + 0x400) & 0xFFF) < 0x800)
+        s = (sint16)t;
+        if ((((s - angle) + 0x400) & 0xFFF) < 0x800)
         {
-            ret = ((sint16)ang + 0x800) & 0xFFF;
+            result = (s + 0x800) & 0xFFF;
         }
         else
         {
-            ret = (ang & 0xFFF) | 0x10000;
+            result = (t & 0xFFF) | 0x10000;
         }
     }
     else
     {
-        d = (sint16)ang - base;
+        d = (sint16)t - angle;
         if (((d + 0x200) & 0xFFF) < 0x400)
         {
-            ret = ((sint16)ang + 0x800) & 0xFFF;
+            result = ((sint16)t + 0x800) & 0xFFF;
         }
         else if (((d + 0x600) & 0xFFF) < 0x400)
         {
-            ret = (((sint16)ang - 0x400) & 0xFFF) | 0x30000;
+            result = (((sint16)t - 0x400) & 0xFFF) | 0x30000;
         }
         else if (((d + 0xA00) & 0xFFF) < 0x400)
         {
-            ret = (ang & 0xFFF) | 0x10000;
+            result = (t & 0xFFF) | 0x10000;
         }
         else if (((d + 0xE00) & 0xFFF) < 0x400)
         {
-            ret = (((sint16)ang + 0x400) & 0xFFF) | 0x20000;
+            result = (((sint16)t + 0x400) & 0xFFF) | 0x20000;
         }
     }
-    return ret;
+    return result;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031F84);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800320B8);
-
-void func_800321C8(PL_WORK *wp, sint32 unused, uint32 set, sint32 idx)
+void func_800320B8(PL_WORK *pl, sint32 id, sint32 index)
 {
-    KEY_ENT *base;
-    KEY_ENT *ent;
+    ANIM_SET_WORK *wp = (ANIM_SET_WORK *)pl;
+    STEP_WORK *steps;
 
-    switch (set >> 4)
+    switch ((uint32)id >> 4)
     {
         case 0:
         case 1:
         case 2:
         case 3:
-            base = Key_tbl_a[set];
+            steps = ANIM_BANK_D9D00[id];
             break;
         case 4:
         case 5:
-            if (wp->unk170 != 0)
+            if (wp->alt_170)
             {
-                base = Key_tbl_c_alt[set];
+                steps = ANIM_BANK_DC780[id];
             }
             else
             {
-                base = Key_tbl_c[set];
+                steps = ANIM_BANK_DC300[id];
             }
             break;
         case 6:
         case 7:
-            if (wp->unk171 != 0)
+            if (wp->alt_171)
             {
-                base = Key_tbl_d_alt[set];
+                steps = ANIM_BANK_DD000[id];
             }
             else
             {
-                base = Key_tbl_d[set];
+                steps = ANIM_BANK_DCB80[id];
             }
             break;
         case 8:
         default:
-            base = Key_tbl_b[set];
+            steps = ANIM_BANK_DB800[id];
             break;
     }
-    wp->tbl_F8       = base;
-    ent              = base + idx;
-    wp->ent_FC       = ent;
-    wp->set_104      = set;
-    wp->cmd_100.word = ent->cmd.word;
+    wp->steps_94 = steps;
+    wp->cur_98   = &steps[index];
+    wp->id_ac    = id;
+    wp->word_a4  = steps[index].w0.word;
+    func_800329D4(wp, id);
+    func_800325D4(wp);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800322A8);
-
-void func_80032304(MODEL_WORK *wp, sint32 idx, sint32 step)
+void func_800321C8(PL_WORK *pl, sint32 a1, sint32 id, sint32 index)
 {
-    KEY_ENT *ent;
+    ANIM_SET_WORK *wp = (ANIM_SET_WORK *)pl;
+    STEP_WORK *steps;
 
-    ent        = wp->seq_tbl_90[idx];
-    wp->idx_AC = idx;
-    wp->seq_94 = ent;
-    ent        = ent + step;
-    wp->ptr_98 = ent;
-    wp->cmd_A4 = ent->cmd;
+    switch ((uint32)id >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            steps = ANIM_BANK_D9D00[id];
+            break;
+        case 4:
+        case 5:
+            if (wp->alt_170)
+            {
+                steps = ANIM_BANK_DC780[id];
+            }
+            else
+            {
+                steps = ANIM_BANK_DC300[id];
+            }
+            break;
+        case 6:
+        case 7:
+            if (wp->alt_171)
+            {
+                steps = ANIM_BANK_DD000[id];
+            }
+            else
+            {
+                steps = ANIM_BANK_DCB80[id];
+            }
+            break;
+        case 8:
+        default:
+            steps = ANIM_BANK_DB800[id];
+            break;
+    }
+    wp->steps_f8 = steps;
+    wp->cur_fc   = &steps[index];
+    wp->id_104   = id;
+    wp->word_100 = steps[index].w0.word;
+}
+
+void func_800322A8(ENEMY_WORK *wp, sint32 a1, sint32 a2)
+{
+    uint32 *tbl;
+
+    tbl          = wp->tbl_90[a1];
+    wp->index_AC = a1;
+    wp->tbl_94   = tbl;
+    wp->ent_98   = tbl + a2 * 2;
+    wp->word_A4  = *wp->ent_98;
+    func_80033A28(wp);
+    func_8003346C(wp);
+}
+
+void func_80032304(ENEMY_WORK *wp, sint32 a1, sint32 a2)
+{
+    uint32 *tbl;
+
+    tbl          = wp->tbl_90[a1];
+    wp->index_AC = a1;
+    wp->tbl_94   = tbl;
+    wp->ent_98   = tbl + a2 * 2;
+    wp->word_A4  = *wp->ent_98;
     func_80033A28(wp);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003234C);
-
-#ifdef NON_MATCHING
-// Only the first two loads differ: the target loads cmd_100.b.time (lbu) before ent_FC (lw).
-// Reusing the parameter `a` (sint32) as the copy of ctl fixed the registers; moving the ent_FC
-// load before the `sh` or after a separate decrement did not change the order (or broke more).
-void func_800323FC(PL_WORK *wp, sint32 a)
+void func_8003234C(STEP_OWNER2 *wp, sint32 arg)
 {
-    KEY_ENT *ent;
-    sint32 ctl;
-    uint32 pad[2];
+    STEP_WORK *step;
+    STEP_WORK *next;
+    sint8 ctl;
 
-    wp->unk106 = a;
-    ent        = wp->ent_FC;
-    if (--wp->cmd_100.b.time == 0)
+    step = wp->cur_98;
+    if (--wp->wa4.b.timer_1 == 0)
     {
-        ctl = ent->cmd.b.ctl;
-        a   = ctl;
+        ctl = step->w0.b.ctl_3;
+        arg = ctl;
         if (ctl < 0)
         {
             if (ctl == -1)
             {
-                wp->cmd_100.b.time = ent->cmd.b.time;
+                wp->wa4.b.timer_1 = step->w0.b.time_1;
             }
             else
             {
-                ent              = wp->tbl_F8 + (a & 0x7F);
-                wp->ent_FC       = ent;
-                wp->cmd_100.word = ent->cmd.word;
+                step         = &wp->steps_94[ctl & 0x7F];
+                wp->cur_98   = step;
+                wp->wa4.word = step->w0.word;
             }
         }
         else
         {
-            ent              = wp->ent_FC + 1;
-            wp->ent_FC       = ent;
-            wp->cmd_100.word = ent->cmd.word;
+            next         = wp->cur_98;
+            wp->cur_98   = next + 1;
+            wp->wa4.word = next[1].w0.word;
         }
     }
+    func_800329D4(wp, arg);
+    func_800325D4(wp);
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800323FC);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80032488);
-
-#ifdef NON_MATCHING
-// Differs: registers only. The target has ent in v1, ctl in a2 and the copy (jump) in a1.
-void func_80032538(MODEL_WORK *wp)
+// Upper-body script step (player.h's 3-argument prototype; the third is unused). The
+// chained cur_fc/step assignment keeps retail's load order (timer byte before cur_fc).
+void func_800323FC(PL_WORK *pl, sint32 arg, sint32 unused_arg)
 {
-    KEY_ENT *ent;
-    sint32 ctl;
-    sint32 jump;
-    uint32 pad[2];
+    STEP_OWNER *wp = (STEP_OWNER *)pl;
+    STEP_WORK *step;
+    STEP_WORK *next;
+    sint8 ctl;
 
-    ent = wp->ptr_98;
-    if (--wp->cmd_A4.b.time == 0)
+    wp->half_106 = arg;
+    step         = wp->cur_fc;
+    if (--wp->w100.b.timer_1 == 0)
     {
-        ctl  = ent->cmd.b.ctl;
-        jump = ctl;
+        ctl = step->w0.b.ctl_3;
         if (ctl < 0)
         {
             if (ctl == -1)
             {
-                wp->cmd_A4.b.time = ent->cmd.b.time;
+                wp->w100.b.timer_1 = step->w0.b.time_1;
             }
             else
             {
-                wp->ptr_98 = wp->seq_94 + (jump & 0x7F);
-                wp->cmd_A4 = wp->ptr_98->cmd;
+                step = wp->cur_fc = &wp->steps_f8[ctl & 0x7F];
+                wp->w100.word     = step->w0.word;
             }
         }
         else
         {
-            wp->ptr_98 = wp->ptr_98 + 1;
-            wp->cmd_A4 = wp->ptr_98->cmd;
+            next          = wp->cur_fc;
+            wp->cur_fc    = next + 1;
+            wp->w100.word = next[1].w0.word;
+        }
+    }
+}
+
+void func_80032488(STEP_OWNER2 *wp)
+{
+    STEP_WORK *step;
+    STEP_WORK *next;
+    sint8 ctl;
+
+    step = wp->cur_98;
+    if (--wp->wa4.b.timer_1 == 0)
+    {
+        ctl = step->w0.b.ctl_3;
+        if (ctl < 0)
+        {
+            if (ctl == -1)
+            {
+                wp->wa4.b.timer_1 = step->w0.b.time_1;
+            }
+            else
+            {
+                step         = &wp->steps_94[ctl & 0x7F];
+                wp->cur_98   = step;
+                wp->wa4.word = step->w0.word;
+            }
+        }
+        else
+        {
+            next         = wp->cur_98;
+            wp->cur_98   = next + 1;
+            wp->wa4.word = next[1].w0.word;
+        }
+    }
+    func_80033A28(wp);
+    func_8003346C(wp);
+}
+
+void func_80032538(STEP_OWNER2 *wp)
+{
+    STEP_WORK *step;
+    STEP_WORK *next;
+    sint8 ctl;
+
+    step = wp->cur_98;
+    if (--wp->wa4.b.timer_1 == 0)
+    {
+        ctl = step->w0.b.ctl_3;
+        if (ctl < 0)
+        {
+            if (ctl == -1)
+            {
+                wp->wa4.b.timer_1 = step->w0.b.time_1;
+            }
+            else
+            {
+                step         = &wp->steps_94[ctl & 0x7F];
+                wp->cur_98   = step;
+                wp->wa4.word = step->w0.word;
+            }
+        }
+        else
+        {
+            next         = wp->cur_98;
+            wp->cur_98   = next + 1;
+            wp->wa4.word = next[1].w0.word;
         }
     }
     func_80033A28(wp);
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80032538);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800325D4);
-
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800329D4);
-
-void func_800331A0(PL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off)
+void func_800325D4(void *arg)
 {
-    VECTOR tmp;
-    VECTOR scale;
-    SVECTOR unused;
+    JOINT_WORK *wp = arg;
+    SVECTOR vec;
+    VEC32_WORK out;
+    SVECTOR *src_a;
+    SVECTOR *src_b;
+    SVECTOR *src_c;
+    SVECTOR *dst;
+    SVECTOR *first;
+
+    func_800333A0();
+    ((VEC32_WORK *)0x1F8000D4)->x = wp->x_14 << FOG_MODE;
+    ((VEC32_WORK *)0x1F8000D4)->y = wp->y_16 << FOG_MODE;
+    ((VEC32_WORK *)0x1F8000D4)->z = wp->z_18 << FOG_MODE;
+    vec.vx                        = 0;
+    vec.vy                        = wp->rot_56 - wp->rot_116;
+    vec.vz                        = 0;
+    RotMatrix(&vec, (MATRIX *)0x1F8000C0);
+    first       = JOINT_SRC_A;
+    wp->mtx_1a8 = *(MATRIX *)0x1F8000C0;
+    dst         = D_800DD600;
+    func_800333B4((MATRIX *)0x1F8000C0);
+    func_800331A0(wp, 0, JOINT_SRC_A + 1, JOINT_SRC_A);
+    func_800331A0(wp, 8, JOINT_SRC_A + 9, dst + 8);
+    func_800333B4((MATRIX *)0x1F8000C0);
+    func_800331A0(wp, 9, JOINT_SRC_A + 10, dst + 9);
+    func_800331A0(wp, 10, JOINT_SRC_A + 11, dst + 10);
+    func_800331A0(wp, 11, JOINT_SRC_A + 12, dst + 11);
+    func_8003340C((MATRIX *)0x1F8000C0);
+    func_800331A0(wp, 12, JOINT_SRC_A + 13, dst + 12);
+    func_800331A0(wp, 13, JOINT_SRC_A + 14, dst + 13);
+    func_800331A0(wp, 14, JOINT_SRC_A + 15, dst + 14);
+    func_8003340C((MATRIX *)0x1F8000C0);
+    switch (wp->mode_106)
+    {
+        case 0:
+        default:
+            src_a = JOINT_SRC_A;
+            src_b = JOINT_SRC_A;
+            src_c = JOINT_SRC_A;
+            break;
+        case 1:
+            src_a = JOINT_SRC_B;
+            src_b = JOINT_SRC_B;
+            src_c = JOINT_SRC_A;
+            break;
+        case 2:
+            src_a = JOINT_SRC_B;
+            src_b = JOINT_SRC_A;
+            src_c = JOINT_SRC_B;
+            break;
+        case 3:
+            src_a = JOINT_SRC_B;
+            src_b = JOINT_SRC_B;
+            src_c = JOINT_SRC_B;
+            break;
+    }
+    func_800331A0(wp, 0, src_a + 1, first);
+    func_800333B4((MATRIX *)0x1F8000C0);
+    vec = src_a[2];
+    vec.vy += wp->spin_b4 * 5;
+    func_800331A0(wp, 1, &vec, dst + 1);
+    vec.vx = 0;
+    vec.vy = -0x96;
+    vec.vz = 0;
+    ApplyMatrix((MATRIX *)0x1F8000C0, &vec, &out.x);
+    wp->pos_420[0] = ((VEC32_WORK *)0x1F8000D4)->x + out.x;
+    wp->pos_420[1] = ((VEC32_WORK *)0x1F8000D4)->y + out.y;
+    wp->pos_420[2] = ((VEC32_WORK *)0x1F8000D4)->z + out.z;
+    func_8003340C((MATRIX *)0x1F8000C0);
+    func_800333B4((MATRIX *)0x1F8000C0);
+    func_800331A0(wp, 2, src_b + 3, dst + 2);
+    func_800331A0(wp, 3, src_b + 4, dst + 3);
+    func_800331A0(wp, 4, src_b + 5, dst + 4);
+    func_8003340C((MATRIX *)0x1F8000C0);
+    func_800333B4((MATRIX *)0x1F8000C0);
+    func_800331A0(wp, 5, src_c + 6, dst + 5);
+    func_800331A0(wp, 6, src_c + 7, dst + 6);
+    func_800331A0(wp, 7, src_c + 8, dst + 7);
+    func_8003340C((MATRIX *)0x1F8000C0);
+}
+
+// The packed 12-bit decoder in func_80033A28's style, with src/dst pointers walked by
+// `*dst++ = (*src & mask) >> n;` and the next word read as src[1]. Offset-0 accesses go through a
+// register only where one address is used twice (0x1F800198, 0x1F80019C, the root at 0x1F800120).
+// The root's x is a plain halfword, not a USVECTOR field: as a scalar it stays ordered after the
+// last group's stores, so sched2 places the root pointer as retail does.
+void func_800329D4(void *arg, sint32 unused)
+{
+    ANIM_SET_WORK *wp = arg;
+    uint32 ***bank;
+    uint32 ***bank2;
+    uint8 id;
+    uint8 id2;
+    uint32 *src;
+    uint16 *dst;
+
+    id = wp->id_ac;
+    switch ((sint8)id >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            bank = POSE_BANK_DD604;
+            break;
+        case 4:
+        case 5:
+            bank = wp->alt_170 ? POSE_BANK_EF600 : POSE_BANK_ED600;
+            id -= 0x40;
+            break;
+        case 6:
+        case 7:
+            bank = wp->alt_171 ? POSE_BANK_F3600 : POSE_BANK_F1600;
+            id -= 0x60;
+            break;
+        case 8:
+        default:
+            bank = POSE_BANK_E9600;
+            id -= 0x80;
+            break;
+    }
+    id2 = wp->id_104;
+    switch ((sint8)id2 >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            bank2 = POSE_BANK_DD604;
+            break;
+        case 4:
+        case 5:
+            bank2 = wp->alt_170 ? POSE_BANK_EF600 : POSE_BANK_ED600;
+            id2 -= 0x40;
+            break;
+        case 6:
+        case 7:
+            bank2 = wp->alt_171 ? POSE_BANK_F3600 : POSE_BANK_F1600;
+            id2 -= 0x60;
+            break;
+        case 8:
+        default:
+            bank2 = POSE_BANK_E9600;
+            id2 -= 0x80;
+            break;
+    }
+    func_80017684(bank[(sint8)id][wp->cur_98->w0.b.id_0], (void *)0x1F800164, 0x12);
+    func_80017684(bank2[(sint8)id2][wp->cur_fc->w0.b.id_0], (void *)0x1F8001D0, 0xC);
+    dst = (uint16 *)0x1F800120;
+    src = (uint32 *)0x1F800164;
+    // Lower body: 18 words at 0x1F800164 unpacked into 16 vectors at 0x1F800120
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    dst++;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    dst++;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    dst++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    // Upper body: 12 words at 0x1F8001D0 unpacked into the 9 vectors that follow
+    src    = (uint32 *)0x1F8001D0;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    dst++;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    dst++;
+    // Root vector components are signed 12-bit values
+    *(uint16 *)0x1F800120        = (sint32)(*(uint16 *)0x1F800120 << 20) >> 20;
+    ((USVECTOR *)0x1F800120)->vy = (sint32)(((USVECTOR *)0x1F800120)->vy << 20) >> 20;
+    ((USVECTOR *)0x1F800120)->vz = (sint32)(((USVECTOR *)0x1F800120)->vz << 20) >> 20;
+}
+
+void func_800331A0(JOINT_WORK *wp, sint32 index, void *src, SVECTOR *dst)
+{
+    VEC32_WORK out;
+    VEC32_WORK scale;
+    SVECTOR unused; // never read; it sets the frame size
     SVECTOR v;
-    MATRIX rm;
+    MATRIX rot;
+    sint32 s;
 
-    v.vx = off->vx << Scratch_scale_shift;
-    v.vy = off->vy << Scratch_scale_shift;
-    v.vz = off->vz << Scratch_scale_shift;
-    ApplyMatrix(&Scratch_mtx, &v, &tmp);
-    RotMatrix(rot, &rm);
-    MulMatrix(&Scratch_mtx, &rm);
-    Scratch_mtx.t[0] += tmp.vx;
-    Scratch_mtx.t[1] += tmp.vy;
-    Scratch_mtx.t[2] += tmp.vz;
-    v.vx                = wp->pos.vx << Scratch_scale_shift;
-    v.vy                = wp->pos.vy << Scratch_scale_shift;
-    v.vz                = wp->pos.vz << Scratch_scale_shift;
-    wp->joint_pos[n].vx = (Scratch_mtx.t[0] + v.vx * 7 + 4) >> 3;
-    wp->joint_pos[n].vy = (Scratch_mtx.t[1] + v.vy * 7 + 4) >> 3;
-    wp->joint_pos[n].vz = (Scratch_mtx.t[2] + v.vz * 7 + 4) >> 3;
-    wp->joint_mtx[n]    = Scratch_mtx;
-    scale.vx            = D_80097CFC << Scratch_scale_shift;
-    scale.vy            = scale.vx;
-    scale.vz            = scale.vx;
-    ScaleMatrix(&wp->joint_mtx[n], &scale);
+    v.vx = dst->vx << FOG_MODE;
+    v.vy = dst->vy << FOG_MODE;
+    v.vz = dst->vz << FOG_MODE;
+    ApplyMatrix(JOINT_SCR_MTX, &v, &out.x);
+    RotMatrix(src, &rot);
+    MulMatrix(JOINT_SCR_MTX, &rot);
+    JOINT_SCR_MTX->t[0] += out.x;
+    JOINT_SCR_MTX->t[1] += out.y;
+    JOINT_SCR_MTX->t[2] += out.z;
+    v.vx                  = wp->x_14 << FOG_MODE;
+    v.vy                  = wp->y_16 << FOG_MODE;
+    v.vz                  = wp->z_18 << FOG_MODE;
+    wp->pos_3a8[index].vx = (JOINT_SCR_MTX->t[0] + v.vx * 7 + 4) >> 3;
+    wp->pos_3a8[index].vy = (JOINT_SCR_MTX->t[1] + v.vy * 7 + 4) >> 3;
+    wp->pos_3a8[index].vz = (JOINT_SCR_MTX->t[2] + v.vz * 7 + 4) >> 3;
+    wp->mats_1c8[index]   = *JOINT_SCR_MTX;
+    s                     = D_80097CFC << FOG_MODE;
+    scale.x               = s;
+    scale.y               = s;
+    scale.z               = s;
+    ScaleMatrix(&wp->mats_1c8[index], &scale);
 }
 
 void func_800333A0(void)
@@ -1565,151 +2455,284 @@ void func_800333A0(void)
     D_80098A80 = D_800BC728;
 }
 
-// Pushes a matrix onto the matrix stack at D_80098A80.
-void matrix_push(MATRIX *src)
+void func_800333B4(MATRIX *m)
 {
-    *--D_80098A80 = *src;
+    *--D_80098A80 = *m;
 }
 
-// Pops a matrix from the matrix stack at D_80098A80.
-void matrix_pop(MATRIX *dst)
+void func_8003340C(MATRIX *m)
 {
-    *dst = *D_80098A80;
+    *m = *D_80098A80;
     D_80098A80++;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003346C);
+void func_8003346C(void *wp)
+{
+    SVECTOR rot;
+    MATRIX m;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800334C4);
+    rot.vx = 0;
+    rot.vy = *(uint16 *)((uint8 *)wp + 0x56);
+    rot.vz = 0;
+    RotMatrix(&rot, &m);
+    func_80033598(wp, &m);
+}
 
-void func_80033500(WORK_5A4 *wp)
+void func_800334C4(void *wp)
+{
+    MATRIX m;
+
+    RotMatrixYXZ((SVECTOR *)((uint8 *)wp + 0x54), &m);
+    func_80033598(wp, &m);
+}
+
+void func_80033500(uint8 *wp)
 {
     sint32 i;
 
-    wp->base.r = wp->base.g = wp->base.b = 0x20;
-    for (i = 0; i < 24; i++)
+    wp[0x542] = 0x20;
+    wp[0x541] = 0x20;
+    wp[0x540] = 0x20;
+    for (i = 0; i < 0x18; i++)
     {
-        wp->tbl[i].r = wp->tbl[i].g = wp->tbl[i].b = 0x20;
+        wp[0x546 + i * 4] = 0x20;
+        wp[0x545 + i * 4] = 0x20;
+        wp[0x544 + i * 4] = 0x20;
     }
-    wp->flags |= 0x40;
+    wp[6] |= 0x40;
 }
 
-void func_8003354C(WORK_3C0 *wp)
+void func_8003354C(uint8 *wp)
 {
     sint32 i;
 
-    wp->base.r = wp->base.g = wp->base.b = 0x20;
-    for (i = 0; i < 13; i++)
+    wp[0x38A] = 0x20;
+    wp[0x389] = 0x20;
+    wp[0x388] = 0x20;
+    for (i = 0; i < 0xD; i++)
     {
-        wp->tbl[i].r = wp->tbl[i].g = wp->tbl[i].b = 0x20;
+        wp[0x38E + i * 4] = 0x20;
+        wp[0x38D + i * 4] = 0x20;
+        wp[0x38C + i * 4] = 0x20;
     }
-    wp->flags |= 0x40;
+    wp[6] |= 0x40;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80033598);
-
-// Unpacks 75 twelve-bit values (three per SVECTOR) of the pose selected by wp into the scratchpad.
-#ifdef NON_MATCHING
-void func_80033A28(MODEL_WORK *wp)
+// Bone-matrix pass. The bone records are reached as wp + (i * 4 + 0xF8), which keeps retail's
+// offset induction variable (added to wp each pass) in both loops.
+void func_80033598(BONE_WORK *wp, MATRIX *m)
 {
-    uint32 *s;
-    sint16 *d;
+    SVECTOR scale;
+    MATRIX tmp;
+    VEC32_WORK vec;
+    SVECTOR *tbl;
+    SVECTOR *base;
+    MATRIX *mats;
+    uint8 *scale_tbl;
+    uint32 count;
+    sint8 parent;
+    uint32 kind;
+    uint32 i;
+    uint16 z;
+    BONE_REC *bone;
+
+    if (func_8002FE74(wp->id_1) == 0x40)
+    {
+        mats = wp->mats_240;
+    }
+    else
+    {
+        mats = wp->mats_1e8;
+    }
+    base        = JOINT_SRC_A;
+    tbl         = wp->tbl_9c;
+    wp->mtx_160 = *m;
+    scale.vx    = wp->sx_158 << FOG_MODE;
+    scale.vy    = wp->sy_15a << FOG_MODE;
+    scale.vz    = wp->sz_15c << FOG_MODE;
+    RotMatrix((SVECTOR *)0x1F800128, &tmp);
+    MulMatrix0(m, &tmp, mats);
+    count = wp->bones_f8[0].parent_1;
+    for (i = 1; i < count; i++)
+    {
+        bone   = (BONE_REC *)((uint8 *)wp + (i * 4 + 0xF8));
+        parent = bone->parent_1;
+        kind   = bone->kind_2;
+        if (parent >= 0)
+        {
+            if (kind != 0)
+            {
+                RotMatrix(base + (kind + 1), &tmp);
+                MulMatrix0(&mats[parent], &tmp, &mats[i]);
+            }
+            else
+            {
+                *(MROT_WORK *)&mats[i] = *(MROT_WORK *)mats;
+            }
+        }
+    }
+    if (wp->flags_6 & 0x40)
+    {
+        if (func_8002FE74(wp->id_1) == 0x40)
+        {
+            scale_tbl = wp->scale_540;
+        }
+        else
+        {
+            scale_tbl = wp->scale_388;
+        }
+        vec.x = ((wp->sx_158 * scale_tbl[0]) << FOG_MODE) >> 5;
+        vec.y = ((wp->sy_15a * scale_tbl[1]) << FOG_MODE) >> 5;
+        vec.z = ((wp->sz_15c * scale_tbl[2]) << FOG_MODE) >> 5;
+        ScaleMatrix(&wp->mtx_160, &vec);
+        for (i = 0; i < count; i++)
+        {
+            vec.x = ((wp->sx_158 * scale_tbl[i * 4 + 4]) << FOG_MODE) >> 5;
+            vec.y = ((wp->sy_15a * scale_tbl[i * 4 + 5]) << FOG_MODE) >> 5;
+            vec.z = ((wp->sz_15c * scale_tbl[i * 4 + 6]) << FOG_MODE) >> 5;
+            ScaleMatrix(&mats[i], &vec);
+        }
+    }
+    else
+    {
+        vec.x = scale.vx;
+        vec.y = scale.vy;
+        vec.z = scale.vz;
+        ScaleMatrix(&wp->mtx_160, &vec);
+        for (i = 0; i < count; i++)
+        {
+            ScaleMatrix(&mats[i], &vec);
+        }
+    }
+    ((USVECTOR *)base)->vx = ((USVECTOR *)base)->vx * 8;
+    ((USVECTOR *)base)->vy = ((USVECTOR *)base)->vy * 8;
+    ((USVECTOR *)base)->vz = ((USVECTOR *)base)->vz * 8;
+    ApplyMatrix(&wp->mtx_160, base, &vec.x);
+    wp->pos_180[0].x = vec.x + (wp->x_14 << FOG_MODE);
+    wp->pos_180[0].y = vec.y + (wp->y_16 << FOG_MODE);
+    wp->pos_180[0].z = vec.z + (wp->z_18 << FOG_MODE);
+    for (i = 1; i < count; i++)
+    {
+        bone   = (BONE_REC *)((uint8 *)wp + (i * 4 + 0xF8));
+        parent = bone->parent_1;
+        kind   = bone->kind_2;
+        if (parent >= 0)
+        {
+            if (kind != 0)
+            {
+                ApplyMatrix(&mats[parent], &tbl[kind], &vec.x);
+                wp->pos_180[i].x = wp->pos_180[parent].x + vec.x;
+                wp->pos_180[i].y = wp->pos_180[parent].y + vec.y;
+                z                = wp->pos_180[parent].z + vec.z;
+            }
+            else
+            {
+                wp->pos_180[i].x = wp->pos_180[0].x;
+                wp->pos_180[i].y = wp->pos_180[0].y;
+                z                = wp->pos_180[0].z;
+            }
+            wp->pos_180[i].z = z;
+        }
+    }
+}
+
+void func_80033A28(void *arg)
+{
+    ANIM_SET_WORK *wp = arg;
+    uint32 *src;
+    uint16 *dst;
     sint32 i;
 
-    Mem_copy4(((uint32 **)((uint32 ***)wp->ptr_A0)[wp->idx_AC])[wp->ptr_98->cmd.b.b0], Scratch_pose_packed, 0x20);
-    d = Scratch_pose_vtx;
-    s = Scratch_pose_packed;
-    i = 3;
-    do
+    func_80017684((void *)wp->tbl_a0[wp->id_ac][wp->cur_98->w0.b.id_0], (void *)0x1F800180, 0x20);
+    dst = (uint16 *)0x1F800120;
+    src = (uint32 *)0x1F800180;
+    for (i = 3; i != 0; i--)
     {
-        *d++ = *s & 0xFFF;
-        *d++ = (*s & 0xFFF000) >> 12;
-        *d++ = ((*s & 0xFF000000) >> 24) | ((s[1] & 0xF) << 8);
-        s++;
-        d++;
-        *d++ = (*s & 0xFFF0) >> 4;
-        *d++ = (*s & 0x0FFF0000) >> 16;
-        *d++ = ((*s & 0xF0000000) >> 28) | (((uint8 *)s)[4] << 4);
-        s++;
-        d++;
-        *d++ = (*s & 0xFFF00) >> 8;
-        *d++ = (*s & 0xFFF00000) >> 20;
-        s++;
-        *d++ = *s & 0xFFF;
-        d++;
-        *d++ = (*s & 0xFFF000) >> 12;
-        *d++ = ((*s & 0xFF000000) >> 24) | ((s[1] & 0xF) << 8);
-        s++;
-        *d++ = (*s & 0xFFF0) >> 4;
-        d++;
-        *d++ = (*s & 0x0FFF0000) >> 16;
-        *d++ = ((*s & 0xF0000000) >> 28) | (((uint8 *)s)[4] << 4);
-        s++;
-        *d++ = (*s & 0xFFF00) >> 8;
-        d++;
-        *d++ = (*s & 0xFFF00000) >> 20;
-        s++;
-        *d++ = *s & 0xFFF;
-        *d++ = (*s & 0xFFF000) >> 12;
-        d++;
-        *d++ = ((*s & 0xFF000000) >> 24) | ((s[1] & 0xF) << 8);
-        s++;
-        *d++ = (*s & 0xFFF0) >> 4;
-        *d++ = (*s & 0x0FFF0000) >> 16;
-        d++;
-        *d++ = ((*s & 0xF0000000) >> 28) | (((uint8 *)s)[4] << 4);
-        s++;
-        *d++ = (*s & 0xFFF00) >> 8;
-        *d++ = (*s & 0xFFF00000) >> 20;
-        d++;
-        s++;
-    } while (--i != 0);
-    *d++                            = *s & 0xFFF;
-    *d++                            = (*s << 8) >> 20;
-    *d++                            = ((uint8 *)s)[3] | ((s[1] & 0xF) << 8);
-    *(uint16 *)&Scratch_pose_vtx[0] = ((sint32)(*(uint16 *)&Scratch_pose_vtx[0] << 20)) >> 20;
-    *(uint16 *)&Scratch_pose_vtx[1] = ((sint32)(*(uint16 *)&Scratch_pose_vtx[1] << 20)) >> 20;
-    *(uint16 *)&Scratch_pose_vtx[2] = ((sint32)(*(uint16 *)&Scratch_pose_vtx[2] << 20)) >> 20;
+        *dst++ = *src & 0xFFF;
+        *dst++ = (*src & 0xFFF000) >> 12;
+        *dst   = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+        src++;
+        dst += 2;
+        *dst++ = (*src & 0xFFF0) >> 4;
+        *dst++ = (*src & 0xFFF0000) >> 16;
+        *dst   = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+        src++;
+        dst += 2;
+        *dst++ = (*src & 0xFFF00) >> 8;
+        *dst++ = (*src & 0xFFF00000) >> 20;
+        src++;
+        *dst = *src & 0xFFF;
+        dst += 2;
+        *dst++ = (*src & 0xFFF000) >> 12;
+        *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+        src++;
+        *dst = (*src & 0xFFF0) >> 4;
+        dst += 2;
+        *dst++ = (*src & 0xFFF0000) >> 16;
+        *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+        src++;
+        *dst = (*src & 0xFFF00) >> 8;
+        dst += 2;
+        *dst++ = (*src & 0xFFF00000) >> 20;
+        src++;
+        *dst++ = *src & 0xFFF;
+        *dst   = (*src & 0xFFF000) >> 12;
+        dst += 2;
+        *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+        src++;
+        *dst++ = (*src & 0xFFF0) >> 4;
+        *dst   = (*src & 0xFFF0000) >> 16;
+        dst += 2;
+        *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+        src++;
+        *dst++ = (*src & 0xFFF00) >> 8;
+        *dst   = (*src & 0xFFF00000) >> 20;
+        src++;
+        dst += 2;
+    }
+    *dst++                       = *src & 0xFFF;
+    *dst                         = (*src & 0xFFF000) >> 12;
+    dst[1]                       = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    ((USVECTOR *)0x1F800120)->vx = (sint32)(((USVECTOR *)0x1F800120)->vx << 20) >> 20;
+    ((USVECTOR *)0x1F800120)->vy = (sint32)(((USVECTOR *)0x1F800120)->vy << 20) >> 20;
+    ((USVECTOR *)0x1F800120)->vz = (sint32)(((USVECTOR *)0x1F800120)->vz << 20) >> 20;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80033A28);
-#endif
 
-void func_80033D80(MATRIX *src, MATRIX *dst, SVECTOR *rot, SVECTOR *v)
+void func_80033D80(MATRIX *src, MATRIX *dst, SVECTOR *rot, SVECTOR *vec)
 {
-    VECTOR tmp;
-    MATRIX rm;
+    MATRIX *tmp = (MATRIX *)0x1F8000C0;
+    sint32 v[4];
+    MATRIX m;
 
-    Scratch_mtx = *src;
-    ApplyMatrix(&Scratch_mtx, v, &tmp);
-    Scratch_mtx.t[0] += tmp.vx;
-    Scratch_mtx.t[1] += tmp.vy;
-    Scratch_mtx.t[2] += tmp.vz;
-    RotMatrix(rot, &rm);
-    MulMatrix(&Scratch_mtx, &rm);
-    *dst = Scratch_mtx;
+    *tmp = *src;
+    ApplyMatrix((MATRIX *)0x1F8000C0, vec, v);
+    JOINT_SCR_MTX->t[0] += v[0];
+    JOINT_SCR_MTX->t[1] += v[1];
+    JOINT_SCR_MTX->t[2] += v[2];
+    RotMatrix(rot, &m);
+    MulMatrix((MATRIX *)0x1F8000C0, &m);
+    *dst = *tmp;
 }
 
 void func_80033EBC(void)
 {
     D_800988E0         = 0;
     D_80098798         = 0xFF;
-    D_8009A300[0].id_6 = 0;
-    D_8009A300[1].id_6 = 0;
-    D_8009A300[2].id_6 = 0;
-    D_8009A300[3].id_6 = 0;
+    D_8009A300[0].kind = 0;
+    D_8009A300[1].kind = 0;
+    D_8009A300[2].kind = 0;
+    D_8009A300[3].kind = 0;
     D_80098560         = 0;
     D_80098564         = 0;
     D_80098568         = 0;
 }
 
-// Rotates unit vector a toward b by `angle` when their dot product (<< 4) is below `limit`
-// (the high half of `limit` is the third component of the rotation vectors); result in out.
-SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint32 limit)
+SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 len, uint32 limit)
 {
-    sint32 dot0;
+    sint32 d0;
+    sint32 d1;
 
-    if (((a->vx * b->vx + a->vy * b->vy + a->vz * b->vz) << 4) >= limit)
+    if ((a->vx * b->vx + a->vy * b->vy + a->vz * b->vz) << 4 >= (sint32)limit)
     {
         *out = *a;
     }
@@ -1718,136 +2741,452 @@ SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint3
         D_8009857C.m[0][2] = b->vx;
         D_8009857C.m[1][2] = b->vy;
         D_8009857C.m[2][2] = b->vz;
-        D_8009860C.vx      = a->vx;
-        D_8009860C.vy      = a->vy;
-        D_8009860C.vz      = a->vz;
-        D_8009861C.vx      = b->vx;
-        D_8009861C.vy      = b->vy;
-        D_8009861C.vz      = b->vz;
+        D_8009860C.x       = a->vx;
+        D_8009860C.y       = a->vy;
+        D_8009860C.z       = a->vz;
+        D_8009861C.x       = b->vx;
+        D_8009861C.y       = b->vy;
+        D_8009861C.z       = b->vz;
         OuterProduct12(&D_8009860C, &D_8009861C, &D_8009863C);
         OuterProduct12(&D_8009861C, &D_8009863C, &D_8009864C);
-        D_800985FC.vx = angle;
-        D_80098604.vx = -angle;
-        D_80098604.vy = 0;
-        D_800985FC.vy = 0;
-        D_800985FC.vz = D_80098604.vz = (uint32)limit >> 16;
-        D_8009857C.m[0][1]            = D_8009863C.vx;
-        D_8009857C.m[1][1]            = D_8009863C.vy;
-        D_8009857C.m[2][1]            = D_8009863C.vz;
-        D_8009857C.m[0][0]            = D_8009864C.vx;
-        D_8009857C.m[1][0]            = D_8009864C.vy;
-        D_8009857C.m[2][0]            = D_8009864C.vz;
-        ApplyMatrix(&D_8009857C, &D_800985FC, &D_8009860C);
-        dot0 = a->vx * D_8009860C.vx + a->vy * D_8009860C.vy + a->vz * D_8009860C.vz;
-        ApplyMatrix(&D_8009857C, &D_80098604, &D_8009861C);
-        if (a->vx * D_8009861C.vx + a->vy * D_8009861C.vy + a->vz * D_8009861C.vz >= dot0)
+        D_800985FC.vx = len;
+        D_80098604.vx = -len;
+        D_800985FC.vy = D_80098604.vy = 0;
+        D_800985FC.vz = D_80098604.vz = limit >> 16;
+        D_8009857C.m[0][1]            = D_8009863C.x;
+        D_8009857C.m[1][1]            = D_8009863C.y;
+        D_8009857C.m[2][1]            = D_8009863C.z;
+        D_8009857C.m[0][0]            = D_8009864C.x;
+        D_8009857C.m[1][0]            = D_8009864C.y;
+        D_8009857C.m[2][0]            = D_8009864C.z;
+        ApplyMatrix(&D_8009857C, &D_800985FC, &D_8009860C.x);
+        d0 = a->vx * D_8009860C.x + a->vy * D_8009860C.y + a->vz * D_8009860C.z;
+        ApplyMatrix(&D_8009857C, &D_80098604, &D_8009861C.x);
+        d1 = a->vx * D_8009861C.x + a->vy * D_8009861C.y + a->vz * D_8009861C.z;
+        if (d1 < d0)
         {
-            VectorNormalS(&D_8009861C, &D_800985FC);
+            VectorNormalS((VEC32_WORK *)&D_8009860C, &D_800985FC);
         }
         else
         {
-            VectorNormalS(&D_8009860C, &D_800985FC);
+            VectorNormalS((VEC32_WORK *)&D_8009861C, &D_800985FC);
         }
         *out = D_800985FC;
     }
     return out;
 }
 
-// Queues an entry (up to 0x40) and copies v into the slots selected by owner->mask_4.
-sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8)
+// Hit-queue push.
+sint32 func_800341BC(void *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, void *tbl,
+                     uint32 flags, sint32 arg7, sint32 arg8)
 {
-    SLOT_REQ *req;
-    uint32 n;
-    uint32 mask;
+    QUEUE_ENTRY *entry;
+    uint32 bits;
     uint32 i;
+    uint32 n;
+    uint32 old;
 
     n = D_800988E0;
     if (n >= 0x40)
     {
         return 0;
     }
-    req           = &D_800A2F48[n];
-    req->v        = *v;
-    req->v.pad    = (a1 >> 2) | a2 | a3;
-    req->flags    = (a4 << 24) | ((uint32)owner & 0x7FFFFF) | a7;
-    D_800A32E0[n] = a6;
-    i             = owner->mask_4;
-    mask          = i & D_80098798;
-    D_800988E0++;
-    if (mask & 0x80)
+    entry            = &D_800A2F48[n];
+    entry->pos.u     = *(POS4_WORK *)pos;
+    entry->pos.u.pad = ((uint32)half >> 2) | arg2 | arg3;
+    entry->word_8    = (id << 24) | ((sint32)tbl & 0x7FFFFF) | arg7;
+    D_800A32E0[n]    = flags;
+    i                = ((MASK_WORK *)tbl)->mask_4;
+    bits             = i & D_80098798;
+    D_800988E0 += 1;
+    if (bits & 0x80)
     {
-        mask &= ~0xFF;
+        bits &= ~0xFF;
     }
-    owner->mask_4 = mask | a8;
-    if (mask != 0)
+    ((MASK_WORK *)tbl)->mask_4 = bits | arg8;
+    if (bits != 0)
     {
         for (i = 0; i < 0x18; i++)
         {
-            if (mask > 0x7FFFFFFF)
+            if (bits > 0x7FFFFFFF)
             {
-                *(SVECTOR *)(D_800BE478[i] + 0xBC) = *v;
+                D_800BE478[i]->pos_bc = *(POS4_WORK *)pos;
             }
-            mask <<= 1;
+            bits <<= 1;
         }
     }
     return 1;
 }
 
-// Like func_800341BC, but queues two entries (va, vb) and copies their midpoint to the slots.
-sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,
-                     uint32 a9, uint32 a10)
+// Two-entry hit-queue push (cf. func_800341BC). code_8004324c.h declares a different prototype.
+sint32 func_8003430C(POS4_WORK *a, uint32 size_a, POS4_WORK *b, uint32 size_b, sint32 arg5,
+                     sint32 arg6, sint32 id, MASK_WORK *tbl, sint32 flags, sint32 arg9,
+                     sint32 arg10)
 {
-    SLOT_REQ *req;
-    SVECTOR mid;
-    uint32 n;
-    uint32 mask;
     uint32 i;
+    QUEUE_ENTRY *entry;
+    POS4_WORK mid;
+    uint32 n;
+    uint32 bits;
+    uint32 word;
 
     n = D_800988E0;
     if (n >= 0x3F)
     {
         return 0;
     }
-    req           = &D_800A2F48[n];
-    req->v        = *va;
-    req->v.pad    = (pad_a >> 2) | a4 | a5;
-    req->flags    = (a6 << 24) | ((uint32)owner & 0x7FFFFF) | a9;
-    D_800A32E0[n] = val;
+    entry            = &D_800A2F48[n];
+    entry->pos.u     = *a;
+    word             = (id << 24) | ((sint32)tbl & 0x7FFFFF) | arg9;
+    entry->pos.u.pad = (size_a >> 2) | arg5 | arg6;
+    entry->word_8    = word;
+    D_800A32E0[n]    = flags;
     n++;
-    req           = &D_800A2F48[n];
-    req->v        = *vb;
-    req->v.pad    = (pad_b >> 2) | a4 | a5;
-    req->flags    = (a6 << 24) | ((uint32)owner & 0x7FFFFF) | a9;
-    D_800A32E0[n] = val;
-    i             = owner->mask_4;
-    mask          = i & D_80098798;
+    entry            = &D_800A2F48[n];
+    entry->pos.u     = *b;
+    entry->pos.u.pad = (size_b >> 2) | arg5 | arg6;
+    entry->word_8    = word;
+    D_800A32E0[n]    = flags;
+    i                = tbl->mask_4; // the counter variable briefly holds the old mask
+    bits             = i & D_80098798;
     D_800988E0 += 2;
-    owner->mask_4 = mask | a10;
-    if (mask != 0)
+    tbl->mask_4 = bits | arg10;
+    if (bits != 0)
     {
         for (i = 0; i < 0x18; i++)
         {
-            if (mask > 0x7FFFFFFF)
+            if (bits > 0x7FFFFFFF)
             {
-                mid.vx                             = (va->vx + vb->vx) >> 1;
-                mid.vy                             = (va->vy + vb->vy) >> 1;
-                mid.vz                             = (va->vz + vb->vz) >> 1;
-                *(SVECTOR *)(D_800BE478[i] + 0xBC) = mid;
+                mid.x                 = ((sint16)a->x + (sint16)b->x) >> 1;
+                mid.y                 = ((sint16)a->y + (sint16)b->y) >> 1;
+                mid.z                 = ((sint16)a->z + (sint16)b->z) >> 1;
+                D_800BE478[i]->pos_bc = mid;
             }
-            mask <<= 1;
+            bits <<= 1;
         }
     }
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003450C);
+void func_8003450C(void)
+{
+    uint32 i;
+    uint32 j;
+    uint32 n;
+    uint32 mask;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800346AC);
+    TIME_START = VSync(1);
+    mask       = 0xFF000000;
+    func_80034EB8();
+    D_80097D08 = func_800358F0(&Player_slots[0]);
+    n          = D_800988E0;
+    D_800988E0 = 0;
+    if (n < 2)
+    {
+        return;
+    }
+    TIME_SPLIT = (VSync(1) - TIME_START) & 0xFFFF;
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = i + 1; j < n; j++)
+        {
+            if (((D_80097D00[QUEUE_PAD(i) >> 13] << (QUEUE_PAD(j) >> 13)) & 0x80) &&
+                ((D_800A2F48[i].word_8 ^ D_800A2F48[j].word_8) & mask))
+            {
+                func_800346AC(&i, &j);
+            }
+        }
+    }
+    TIME_TOTAL = (VSync(1) - TIME_START) & 0xFFFF;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80034EB8);
+// Queue pair hit test (spheres, or capsules swept in eighths). Writing the weights as plain
+// (8 - ta)/(8 - tb) lets loop.c hoist one register holding 8 and strength-reduce 8 - tb as retail
+// does. Locals are reused as retail's registers show: ta first holds the 16-bit radius sum (the
+// truncation keeps the bound as a shift of it instead of folding to (ra + rb) * 8), flags holds the
+// bound, and the deltas reuse x, y and z. Both hit blocks read m->flags_0 into flags before or-ing
+// the other word in. step_b is set before step_a (delay-slot order). The a[0] load sits one loop
+// level deeper (do/while (0), likely a Capcom macro): its extra weight ranks pi above pj.
+void func_800346AC(uint32 *pi, uint32 *pj)
+{
+    SVECTOR a[2];
+    SVECTOR b[2];
+    HIT_OWNER *m;
+    uint32 cap_a;
+    uint32 cap_b;
+    uint32 word;
+    uint32 other;
+    uint32 flags;
+    uint32 ra;
+    uint32 rb;
+    sint32 step_a;
+    sint32 step_b;
+    sint32 ta;
+    sint32 tb;
+    sint32 x;
+    sint32 y;
+    sint32 z;
+    sint32 r;
 
-// Claims the first free bit of D_80098798 (24 slots), marks it in owner->mask_4 and stores value in D_800BE478[slot].
-sint32 func_8003545C(uint32 value, SLOT_OWNER *owner)
+    do
+    {
+        a[0] = D_800A2F48[*pi].pos.s;
+    } while (0);
+    b[0]     = D_800A2F48[*pj].pos.s;
+    ra       = a[0].pad & 0x1FF;
+    rb       = b[0].pad & 0x1FF;
+    ta       = (uint16)((rb + ra) * 4);
+    cap_a    = (a[0].pad & 0x600) >> 9;
+    cap_b    = (b[0].pad & 0x600) >> 9;
+    a[0].pad = ra * 4;
+    b[0].pad = rb * 4;
+    flags    = ta * 2;
+    if ((uint32)(a[0].vx - b[0].vx + ta) > flags || (uint32)(a[0].vy - b[0].vy + ta) > flags ||
+        (uint32)(a[0].vz - b[0].vz + ta) > flags)
+    {
+        if (cap_a)
+        {
+            (*pi)++;
+        }
+        if (cap_b)
+        {
+            (*pj)++;
+        }
+        return;
+    }
+    step_b = 9;
+    step_a = 9;
+    if (cap_a)
+    {
+        a[1].vx  = D_800A2F48[*pi + 1].pos.u.x;
+        a[1].vy  = D_800A2F48[*pi + 1].pos.u.y;
+        a[1].vz  = D_800A2F48[*pi + 1].pos.u.z;
+        a[1].pad = (D_800A2F48[*pi + 1].pos.u.pad & 0x1FF) * 4;
+        step_a   = 8 >> cap_a;
+        (*pi)++;
+    }
+    if (cap_b)
+    {
+        b[1].vx  = D_800A2F48[*pj + 1].pos.u.x;
+        b[1].vy  = D_800A2F48[*pj + 1].pos.u.y;
+        b[1].vz  = D_800A2F48[*pj + 1].pos.u.z;
+        b[1].pad = (D_800A2F48[*pj + 1].pos.u.pad & 0x1FF) * 4;
+        step_b   = 8 >> cap_b;
+        (*pj)++;
+    }
+    for (ta = 0; ta < 9; ta += step_a)
+    {
+        for (tb = 0; tb < 9; tb += step_b)
+        {
+            x = ((a[0].vx * (8 - ta) + a[1].vx * ta) - (b[0].vx * (8 - tb) + b[1].vx * tb)) / 8;
+            y = ((a[0].vy * (8 - ta) + a[1].vy * ta) - (b[0].vy * (8 - tb) + b[1].vy * tb)) / 8;
+            z = ((a[0].vz * (8 - ta) + a[1].vz * ta) - (b[0].vz * (8 - tb) + b[1].vz * tb)) / 8;
+            r = (a[0].pad * (8 - ta) + a[1].pad * ta + b[0].pad * (8 - tb) + b[1].pad * tb) / 8;
+            if (r * r < x * x + y * y + z * z)
+            {
+                continue;
+            }
+            word  = D_800A2F48[*pi].word_8;
+            other = D_800A32E0[*pj];
+            m     = (HIT_OWNER *)(word & 0x7FFFFF);
+            flags = m->flags_0;
+            flags |= other & 0xFF000000;
+            if (((D_800A32E0[*pi] & 0xFF0000) << ((QUEUE_PAD(*pj) >> 13) + 8)) >= 0)
+            {
+                flags += other & 0xFFFF;
+            }
+            m->flags_0 = flags;
+            do
+            {
+                if (word & 0x800000)
+                {
+                    x = b[0].vx - b[1].vx;
+                    y = b[0].vy - b[1].vy;
+                    z = b[0].vz - b[1].vz;
+                    if (cap_b == 0)
+                    {
+                        m->x_8 = (b[0].vx * (8 - tb) + b[1].vx * tb) / 8;
+                        m->y_a = (b[0].vy * (8 - tb) + b[1].vy * tb) / 8;
+                        m->z_c = (b[0].vz * (8 - tb) + b[1].vz * tb) / 8;
+                        m->w_e = 1;
+                    }
+                    else
+                    {
+                        m->x_8 = x;
+                        m->y_a = y;
+                        m->z_c = z;
+                        m->w_e = 0;
+                    }
+                }
+            } while (0);
+            word  = D_800A2F48[*pj].word_8;
+            other = D_800A32E0[*pi];
+            m     = (HIT_OWNER *)(word & 0x7FFFFF);
+            flags = m->flags_0;
+            flags |= other & 0xFF000000;
+            if (((D_800A32E0[*pj] & 0xFF0000) << ((QUEUE_PAD(*pi) >> 13) + 8)) >= 0)
+            {
+                flags += other & 0xFFFF;
+            }
+            m->flags_0 = flags;
+            do
+            {
+                if (word & 0x800000)
+                {
+                    x = a[0].vx - a[1].vx;
+                    y = a[0].vy - a[1].vy;
+                    z = a[0].vz - a[1].vz;
+                    if (cap_a == 0)
+                    {
+                        m->x_8 = (a[0].vx * (8 - tb) + a[1].vx * tb) / 8;
+                        m->y_a = (a[0].vy * (8 - tb) + a[1].vy * tb) / 8;
+                        m->z_c = (a[0].vz * (8 - tb) + a[1].vz * tb) / 8;
+                        m->w_e = 1;
+                    }
+                    else
+                    {
+                        m->x_8 = x;
+                        m->y_a = y;
+                        m->z_c = z;
+                        m->w_e = 0;
+                    }
+                }
+            } while (0);
+            return;
+        }
+    }
+}
+
+void func_80034EB8(void)
+{
+    MATRIX unused; // never used; it sets the frame size
+    sint16 sxy[2];
+    SVECTOR pos_a;
+    SVECTOR pos_b;
+    SVECTOR c;
+    sint32 sz;
+    sint32 z;
+    uint32 n;
+    sint32 zone;
+    uint32 i;
+    uint32 j;
+    sint32 best_a;
+    sint32 best_b;
+    sint32 best_xa;
+    sint32 best_xb;
+    uint8 mask;
+
+    func_80035508();
+    n = D_800988E0;
+    if (Player_work.value170 == 8)
+    {
+        zone = Player_work.parts[8].value04;
+    }
+    else
+    {
+        zone = 0;
+    }
+    for (i = 0; i < 1; i++)
+    {
+        if (!(Player_slots[i].flags_0 & 1))
+        {
+            continue;
+        }
+        best_xb = 0x7FFFFFFF;
+        best_xa = 0x7FFFFFFF;
+        best_b  = -1;
+        best_a  = -1;
+        GTE_SET_MATRIX(0x1F800008);
+        if (i != 0)
+        {
+            mask = D_80097D03;
+        }
+        else
+        {
+            mask = D_80097D02;
+        }
+        GTE_LDV0(&Player_slots[i].pos_14);
+        GTE_NOP2();
+        GTE_RTPS();
+        LOCK_GTE_STSZ3_4(&sz);
+        sz += 50;
+        for (j = 0; j < n; j++)
+        {
+            if (!((mask << (QUEUE_PAD(j) >> 13)) & 0x80))
+            {
+                continue;
+            }
+            if (D_800A2F48[j].pos.u.pad & 0x600)
+            {
+                c.vx = (D_800A2F48[j].pos.s.vx + D_800A2F48[j + 1].pos.s.vx) >> 1;
+                c.vy = (D_800A2F48[j].pos.s.vy + D_800A2F48[j + 1].pos.s.vy) >> 1;
+                c.vz = (D_800A2F48[j].pos.s.vz + D_800A2F48[j + 1].pos.s.vz) >> 1;
+                j++;
+            }
+            else
+            {
+                c = D_800A2F48[j].pos.s;
+            }
+            if (((MASK_WORK *)(D_800A2F48[j].word_8 & 0x7FFFFF))->mask_4 & 0x80)
+            {
+                continue;
+            }
+            GTE_LDV0(&c);
+            GTE_NOP2();
+            GTE_RTPS();
+            LOCK_GTE_STSZ3_4(&z);
+            GTE_STSXY2(sxy);
+            if (!(z > sz))
+            {
+                continue;
+            }
+            if (z < 0x500 && (uint16)(sxy[0] - 0x83) < 0x3B && (uint16)(sxy[1] - 1) < 0xEF)
+            {
+                if (LOCK_ABS(0xA0 - best_xa) > LOCK_ABS(0xA0 - sxy[0]))
+                {
+                    best_a  = j;
+                    best_xa = sxy[0];
+                    pos_a   = c;
+                }
+            }
+            if (z > sz && z < D_8008994C[zone].z_max && sxy[0] > D_8008994C[zone].x_min &&
+                sxy[0] < D_8008994C[zone].x_max && sxy[1] > D_8008994C[zone].y_min &&
+                sxy[1] < D_8008994C[zone].y_max)
+            {
+                if (LOCK_ABS(0xA0 - best_xb) > LOCK_ABS(0xA0 - sxy[0]))
+                {
+                    best_b  = j;
+                    best_xb = sxy[0];
+                    pos_b   = c;
+                }
+            }
+        }
+        if (best_a >= 0)
+        {
+            if (Player_slots[i].lock_174 & 0x20)
+            {
+                func_80035724((sint32)&c, 1, (OWNER35_WORK *)&Player_slots[i], best_a, 0);
+            }
+        }
+        else if (Player_slots[i].lock_174 & 0x20)
+        {
+            func_80035724((sint32)&c, 0, (OWNER35_WORK *)&Player_slots[i], -1, 0);
+        }
+        if (best_b >= 0)
+        {
+            if (Player_slots[i].lock_174 & 0x10)
+            {
+                func_80035724((sint32)&c, 1, (OWNER35_WORK *)&Player_slots[i], best_b, 1);
+            }
+        }
+        else if (Player_slots[i].lock_174 & 0x10)
+        {
+            func_80035724((sint32)&c, 0, (OWNER35_WORK *)&Player_slots[i], -1, 1);
+        }
+    }
+}
+
+sint32 func_8003545C(SPAWN_TARGET *value, MASK_WORK *wp)
 {
     sint32 i;
     uint32 bit;
@@ -1857,230 +3196,423 @@ sint32 func_8003545C(uint32 value, SLOT_OWNER *owner)
     {
         return -1;
     }
-    for (bit = 0x80000000; i < 0x18; i++, bit >>= 1)
+    bit = 0x80000000;
+    for (; i < 0x18; i++)
     {
         if (!(D_80098798 & bit))
         {
             D_80098798 |= bit;
-            owner->mask_4 |= bit;
+            wp->mask_4 |= bit;
             D_800BE478[i] = value;
             return i;
         }
+        bit >>= 1;
     }
     return -1;
 }
 
-void func_800354E0(uint32 n)
+void func_800354E0(sint32 bit)
 {
-    D_80098798 &= ~(0x80000000 >> n);
+    D_80098798 &= ~(0x80000000 >> bit);
 }
 
-// Projects the position (+0xBC) of every claimed slot of D_800BE478 through the view matrix and
-// clears it. The screen XY and depth go to locals and are never used (left over, or a debug aid).
 void func_80035508(void)
 {
-    SVECTOR sxy; // only the first word is written (screen x, y); 8 bytes in the frame
-    long otz;
-    uint32 mask;
+    sint16 sxy[2];
+    sint32 z;
+    uint32 bits;
     sint32 i;
+    SPAWN_TARGET *t;
 
-    gte_SetRotMatrix(&Scratch_view_mtx);
-    gte_SetTransMatrix(&Scratch_view_mtx);
-    mask = D_80098798 & 0xFFFFFF00;
-    if (mask != 0)
+    GTE_SET_MATRIX(0x1F800008);
+    bits = D_80098798 & ~0xFF;
+    if (bits != 0)
     {
         for (i = 0; i < 0x18; i++)
         {
-            if (mask >= 0x80000000)
+            if (bits > 0x7FFFFFFF)
             {
-                gte_ldv0((SVECTOR *)(D_800BE478[i] + 0xBC));
-                gte_rtps();
-                *(uint32 *)(D_800BE478[i] + 0xBC) = 0;
-                *(uint32 *)(D_800BE478[i] + 0xC0) = 0;
-                gte_stszotz(&otz);
-                gte_stsxy(&sxy);
+                t = D_800BE478[i];
+                GTE_LDV0(&t->pos_bc);
+                GTE_NOP2();
+                GTE_RTPS();
+                *(uint32 *)&t->pos_bc.x             = 0;
+                *(uint32 *)&D_800BE478[i]->pos_bc.z = 0;
+                LOCK_GTE_STSZ3_4(&z);
+                GTE_STSXY2(sxy);
             }
-            mask <<= 1;
+            bits <<= 1;
         }
     }
 }
 
-MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
+MATRIX *func_800355F0(MATRIX *out, sint32 index, sint32 angle)
 {
     SVECTOR rot;
-    VECTOR pos;
+    sint32 v[4];
     MATRIX m;
-    MATRIX inv;
+    MATRIX mt;
 
-    rot.vx = -yaw & 0xFFF;
-    rot.vy = ((uint16)Player_work[n].ang.vy + Player_work[n].unk116 + 0x800) & 0xFFF;
+    rot.vx = -angle & 0xFFF;
+    rot.vy = (Player_slots[index].rot_56 + Player_slots[index].rot_116 + 0x800) & 0xFFF;
     rot.vz = 0;
     RotMatrixYXZ(&rot, &m);
-    TransposeMatrix(&m, &inv);
-    pos.vx = -Player_work[n].pos.vx;
-    pos.vy = 0x96 - Player_work[n].pos.vy;
-    pos.vz = -Player_work[n].pos.vz;
-    ApplyMatrixLV(&inv, &pos, (VECTOR *)inv.t);
-    *out = inv;
+    TransposeMatrix(&m, &mt);
+    v[0] = -Player_slots[index].pos_14.vx;
+    v[1] = 0x96 - Player_slots[index].pos_14.vy;
+    v[2] = -Player_slots[index].pos_14.vz;
+    ApplyMatrixLV(&mt, v, mt.t);
+    *out = mt;
     return out;
 }
 
-#ifdef NON_MATCHING
-// best attempt: target computes pl + sel * 8 at the end of each branch (after the last position
-// store) and reaches the record through it; ours computes it once after the merge, hoisted early.
-// Retyping to SHL_WORK / PL_WORK.joint_pos changed nothing; a TBL_IDX pointer set in each branch
-// moves the computation there but adds 0x4F4 to the pointer (the target folds it into the offset).
-void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint32 flag)
+// Lock-on effect spawn. Each arm has its own copy of the counter decrement; GCC cross-jumps
+// the two copies into one tail, which gives retail's per-arm address computation.
+void func_80035724(sint32 a0, sint32 a1, OWNER35_WORK *owner, sint32 index, sint32 flag)
 {
-    PL_SHL_WORK *wp;
-    sint32 sel;
-    SVECTOR unused; // GCC reserves its 8 bytes; the target frame has them
+    FX35_WORK *fx;
+    sint32 id;
+    sint32 slot;
 
-    wp = func_80031598();
-    if (wp != 0)
+    fx = func_80031598();
+    if (fx != NULL)
     {
-        wp->type_3 = 0;
-        if (idx >= 0)
+        fx->flag_3 = 0;
+        if (index >= 0)
         {
-            wp->slot_D = func_8003545C((uint32)wp, (SLOT_OWNER *)(D_800A2F48[idx].flags & 0x7FFFFF));
-            if (wp->slot_D >= 0)
+            slot =
+                func_8003545C((SPAWN_TARGET *)fx, (MASK_WORK *)(D_800A2F50[index * 3] & 0x7FFFFF));
+            fx->id_d = slot;
+            if ((sint8)slot >= 0)
             {
-                wp->type_3 = 0x80;
+                fx->flag_3 = 0x80;
             }
         }
-        wp->routine_0 = 1;
+        fx->flags_0 = 1;
         if (flag != 0)
         {
-            sel        = pl->unk170;
-            wp->id_2   = D_80089A8B[sel * 12];
-            wp->pos.vx = pl->joint_pos[4].vx;
-            wp->pos.vy = pl->joint_pos[4].vy;
-            wp->pos.vz = pl->joint_pos[4].vz;
+            id         = owner->idx_170;
+            fx->kind_2 = D_80089A8B[id * 12];
+            fx->x_14   = owner->pos_3c8[0];
+            fx->y_16   = owner->pos_3c8[1];
+            fx->z_18   = owner->pos_3c8[2];
+            if (owner->ent_4f8[id].b != 0x7FFF && id != 4 && id != 7 && (uint32)(id - 0xC) >= 2)
+            {
+                owner->ent_4f8[id].b--;
+            }
         }
         else
         {
-            sel        = pl->unk171;
-            wp->id_2   = D_80089A8B[sel * 12];
-            wp->pos.vx = pl->joint_pos[7].vx;
-            wp->pos.vy = pl->joint_pos[7].vy;
-            wp->pos.vz = pl->joint_pos[7].vz;
+            id         = owner->idx_171;
+            fx->kind_2 = D_80089A8B[id * 12];
+            fx->x_14   = owner->pos_3e0[0];
+            fx->y_16   = owner->pos_3e0[1];
+            fx->z_18   = owner->pos_3e0[2];
+            if (owner->ent_4f8[id].b != 0x7FFF && id != 4 && id != 7 && (uint32)(id - 0xC) >= 2)
+            {
+                owner->ent_4f8[id].b--;
+            }
         }
-        if (pl->rec[sel].val != 0x7FFF && sel != 4 && sel != 7 && (uint32)(sel - 0xC) >= 2)
-        {
-            pl->rec[sel].val = pl->rec[sel].val - 1;
-        }
-        wp->pos.pad  = flag;
-        wp->pos_l.vx = wp->pos.vx << 16;
-        wp->field_C  = pl->unk01;
-        wp->pos_l.vy = wp->pos.vy << 16;
-        wp->pos_l.vz = wp->pos.vz << 16;
-        wp->field_64 = pl->ang.vy;
+        fx->half_1a = flag;
+        fx->value_c = owner->byte_1;
+        fx->fx_1c   = (sint16)fx->x_14 << 16;
+        fx->fx_20   = (sint16)fx->y_16 << 16;
+        fx->fx_24   = (sint16)fx->z_18 << 16;
+        fx->half_64 = owner->rot_56;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80035724);
-#endif
 
 void func_800358E8(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800358F0);
+sint32 func_800358F0(void *arg)
+{
+    PICK_PLAYER *pl = arg;
+    SVECTOR c;
+    SVECTOR pos;
+    uint32 flags;
+    uint32 best_d;
+    uint32 n;
+    uint32 i;
+    uint32 w;
+    uint32 d;
+    sint32 best;
+    sint32 dx;
+    sint32 dy;
+    sint32 dz;
+    uint8 side;
+    uint8 mask;
+    uint32 kind;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80035C90);
+    for (i = 0; i < 4; i++)
+    {
+        func_80036D40(&D_8009A300[i]);
+    }
+    best_d = 4000000;
+    side   = pl->side_1;
+    n      = D_800988E0;
+    best   = -1;
+    if (side)
+    {
+        mask = D_80097D03;
+    }
+    else
+    {
+        mask = D_80097D02;
+    }
+    pos = pl->pos_14;
+    for (i = 0; i < n; i++)
+    {
+        if (!((mask << (QUEUE_PAD(i) >> 13)) & 0x80))
+        {
+            continue;
+        }
+        w     = D_800A2F48[i].word_8;
+        flags = ((MASK_WORK *)(w & 0x7FFFFF))->mask_4;
+        if (flags & 0x80)
+        {
+            continue;
+        }
+        if ((kind = w >> 24) >= 0x80)
+        {
+            continue;
+        }
+        if (D_800A2F48[i].pos.u.pad & 0x600)
+        {
+            c.vx = (D_800A2F48[i].pos.s.vx + D_800A2F48[i + 1].pos.s.vx) >> 1;
+            c.vy = (D_800A2F48[i].pos.s.vy + D_800A2F48[i + 1].pos.s.vy) >> 1;
+            c.vz = (D_800A2F48[i].pos.s.vz + D_800A2F48[i + 1].pos.s.vz) >> 1;
+            i++;
+        }
+        else
+        {
+            c = D_800A2F48[i].pos.s;
+        }
+        dx = pos.vx - c.vx;
+        if ((uint32)(dx + 2000) > 4000)
+        {
+            continue;
+        }
+        dy = pos.vy - c.vy;
+        if ((uint32)(dy + 2000) > 4000)
+        {
+            continue;
+        }
+        dz = pos.vz - c.vz;
+        if ((uint32)(dz + 2000) > 4000)
+        {
+            continue;
+        }
+        d = dx * dx + dy * dy + dz * dz;
+        if (d > 4000000)
+        {
+            continue;
+        }
+        if (!(flags & (side + 1)))
+        {
+            func_80036C50(D_800A2F48[i].word_8 >> 24,
+                          (MASK_WORK *)(D_800A2F48[i].word_8 & 0x7FFFFF));
+        }
+        else if (d < best_d)
+        {
+            best   = i;
+            best_d = d;
+        }
+    }
+    if (D_80098568)
+    {
+        D_80098568--;
+    }
+    if (best >= 0)
+    {
+        kind = D_800A2F48[best].word_8 >> 24;
+        if (kind < 0x80)
+        {
+            if (D_80098568 == 0)
+            {
+                if (kind != D_80098564)
+                {
+                    D_80098568 = 0x18;
+                    D_80098564 = kind;
+                }
+                return (sint32)func_80036294(kind);
+            }
+            if (kind == D_80098564)
+            {
+                return (sint32)func_80036294(kind);
+            }
+        }
+    }
+    return 0;
+}
 
-#ifdef NON_MATCHING
+void *func_80035C90(SEEK_PLAYER *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
+{
+    SVECTOR unused0[5]; // unused locals the retail frame reserves
+    SVECTOR pos;
+    SVECTOR fwd;
+    SVECTOR unused1;
+    SVECTOR edge;
+    SVECTOR norm;
+    SVECTOR other;
+    SVECTOR mark;
+    VEC32_WORK delta;
+    SEEK_SLOT *slot;
+    void *found;
+    sint32 best;
+    sint32 dot;
+    sint32 hit;
+    uint32 i;
+
+    found = NULL;
+    best  = 0;
+
+    fwd.vx  = -rsin(pl->rot_56 + pl->rot_116);
+    fwd.vy  = 0;
+    fwd.vz  = -rcos(pl->rot_56 + pl->rot_116);
+    edge.vx = -rsin(pl->rot_56 + pl->rot_116 + arc);
+    edge.vy = 0;
+    edge.vz = -rcos(pl->rot_56 + pl->rot_116 + arc);
+    pos     = *(SVECTOR *)&pl->x_14;
+
+    hit = -1;
+    for (i = 0; i < 16; i++)
+    {
+        slot = (SEEK_SLOT *)&D_8009F108[i];
+        if ((slot->flags_0 & 3) && max_dist >= slot->dist_80)
+        {
+            other   = slot->pos_14;
+            delta.y = 0;
+            delta.x = other.vx - pos.vx;
+            delta.z = other.vz - pos.vz;
+            VectorNormalS(&delta, &norm);
+            if ((edge.vx * norm.vx + edge.vz * norm.vz) >= 0)
+            {
+                dot = fwd.vx * norm.vx + fwd.vz * norm.vz;
+                if (dot >= min_dot && best < dot)
+                {
+                    best = dot;
+                    hit  = i;
+                }
+            }
+        }
+    }
+    if (hit >= 0)
+    {
+        mark     = Seek_3c0[hit].pos_14;
+        mark.pad = 1;
+        found    = &Seek_3c0[hit];
+    }
+
+    hit = -1;
+    for (i = 0; i < 4; i++)
+    {
+        slot = (SEEK_SLOT *)&D_800C3580[i];
+        if ((slot->flags_0 & 3) && max_dist >= slot->dist_80)
+        {
+            other   = slot->pos_14;
+            delta.y = 0;
+            delta.x = other.vx - pos.vx;
+            delta.z = other.vz - pos.vz;
+            VectorNormalS(&delta, &norm);
+            if ((edge.vx * norm.vx + edge.vz * norm.vz) >= 0)
+            {
+                dot = fwd.vx * norm.vx + fwd.vz * norm.vz;
+                if (dot >= min_dot && best < dot)
+                {
+                    best = dot;
+                    hit  = i;
+                }
+            }
+        }
+    }
+    if (hit >= 0)
+    {
+        mark     = Seek_5a4[hit].pos_14;
+        mark.pad = 1;
+        found    = &Seek_5a4[hit];
+    }
+    return found;
+}
+
 void func_8003606C(void)
 {
+    sint32 p;
+    sint32 i;
     SVECTOR pos;
-    SVECTOR unused;
-    WORK_3C0 *w3;
-    WORK_5A4 *w5;
-    SHL_WORK *w1;
-    WORK_3C0 *p3;
-    WORK_5A4 *p5;
-    SHL_WORK *p1;
-    uint32 d;
+    DIST_SLOT *e;
     sint32 dx;
     sint32 dz;
-    sint32 k;
-    sint32 j;
+    uint32 d;
+    SVECTOR unused; // never used; it sets the frame size
 
-    for (k = 0; k < 2; k++)
+    for (p = 0; p < 2; p++)
     {
-        pos = Player_work[k].pos;
-        w3  = D_8009F108;
-        for (j = 0; j < 0x10; j++)
+        pos = Player_slots[p].pos_14;
+        for (i = 0; i < 0x10;)
         {
-            p3 = w3++;
-            if (p3->routine_0 | 1)
+            e = (DIST_SLOT *)&D_8009F108[i++];
+            if (e->flags_0 | 1)
             {
-                dx = (p3->pos.vx - pos.vx) >> 1;
-                dz = (p3->pos.vz - pos.vz) >> 1;
+                dx = (e->x_14 - pos.vx) >> 1;
+                dz = (e->z_18 - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
-                    p3->dist_80[k] = -1;
+                    e->dist_80[p] = -1;
                 }
                 else
                 {
-                    p3->dist_80[k] = d << 2;
+                    e->dist_80[p] = d * 4;
                 }
             }
         }
-        w5 = D_800C3580;
-        for (j = 0; j < 4; j++)
+        for (i = 0; i < 4;)
         {
-            p5 = w5++;
-            if (p5->routine_0 | 1)
+            e = (DIST_SLOT *)&D_800C3580[i++];
+            if (e->flags_0 | 1)
             {
-                dx = (p5->pos.vx - pos.vx) >> 1;
-                dz = (p5->pos.vz - pos.vz) >> 1;
+                dx = (e->x_14 - pos.vx) >> 1;
+                dz = (e->z_18 - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
-                    p5->dist_80[k] = -1;
+                    e->dist_80[p] = -1;
                 }
                 else
                 {
-                    p5->dist_80[k] = d << 2;
+                    e->dist_80[p] = d * 4;
                 }
             }
         }
-        w1 = D_8009CF88;
-        for (j = 0; j < 0x20; j++)
+        for (i = 0; i < 0x20;)
         {
-            p1 = w1++;
-            if (p1->routine_0 | 1)
+            e = (DIST_SLOT *)&D_8009CF88[i++];
+            if (e->flags_0 | 1)
             {
-                dx = (p1->pos.vx - pos.vx) >> 1;
-                dz = (p1->pos.vz - pos.vz) >> 1;
+                dx = (e->x_14 - pos.vx) >> 1;
+                dz = (e->z_18 - pos.vz) >> 1;
                 d  = dx * dx + dz * dz;
                 if (d > 0x10000000)
                 {
-                    p1->dist_80[k] = -1;
+                    e->dist_80[p] = -1;
                 }
                 else
                 {
-                    p1->dist_80[k] = d << 2;
+                    e->dist_80[p] = d * 4;
                 }
             }
         }
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003606C);
-#endif
 
-void *func_80036294(uint32 id)
+void *func_80036294(uint8 id)
 {
-    sint32 kind;
-
-    kind = func_8002FE74(id & 0xFF);
-    switch (kind)
+    switch ((sint32)func_8002FE74(id))
     {
-        case 0x00:
-            return &Player_work[id & 0xF];
+        case 0:
+            return (uint8 *)&Player_work + (id & 0xF) * 0x5F4;
         case 0x10:
             return &D_800BFB20[id & 0xF];
         case 0x20:
@@ -2096,198 +3628,404 @@ void *func_80036294(uint32 id)
         case 0xE0:
             return &D_800BF118[id & 0x1F];
         default:
-            return 0;
+            return NULL;
     }
 }
 
-void func_80036470(uint8 *p)
+void func_80036470(BYTE_WORK *wp)
 {
-    p[7] = 0;
+    wp->byte_7 = 0;
 }
 
-void func_80036478(uint8 *p, uint8 a, uint32 b)
+void func_80036478(BYTE_WORK *wp, uint8 arg1, uint32 arg2)
 {
-    p[6]  = a;
-    p[15] = b >> 4;
-    p[7]  = 0;
+    wp->byte_6 = arg1;
+    wp->byte_F = arg2 >> 4;
+    wp->byte_7 = 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003648C);
+void func_8003648C(TRACK_WORK *a0, ANGLE_WORK *a1)
+{
+    func_800364B0(a0, (TRACK_TARGET *)a1, a1->angle_56);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800364B0);
+// Homing tracker update. The failure paths share one block (the fail label at the top), state 0
+// breaks to the common return 0, and D_80097D0C is file-owned small data (see func_80036D40).
+sint32 func_800364B0(TRACK_WORK *t, TRACK_TARGET *tg, sint32 angle)
+{
+    SHORT3_WORK range;
+    SVECTOR dir;
+    PL_SHORT_VECTOR pl;
+    VEC32_WORK delta;
+
+    if (tg->dist_80 >= (uint32)(D_800899AC[t->kind].range << 20))
+    {
+    fail:
+        t->state = 0;
+        return 0;
+    }
+    switch (t->state)
+    {
+        case 0:
+        default:
+            range.z = 0;
+            range.y = 0;
+            range.x = 0;
+            if (func_80030628((DELTA14_WORK *)tg, (DELTA14_WORK *)&Player_work, &range,
+                              (sint32 *)&delta, (sint16)angle) &
+                0x10)
+            {
+                return 0;
+            }
+            t->state = 1;
+            t->x     = tg->x_14;
+            t->y     = tg->y_16 + (t->height << 24 >> 20);
+            t->z     = tg->z_18;
+            t->vel.x = Player_work.position.x - t->x;
+            t->vel.y = Player_work.position.y - t->y;
+            t->vel.z = Player_work.position.z - t->z;
+            t->timer = D_800899AC[t->kind].start;
+            break;
+        case 1:
+            pl      = Player_work.position;
+            delta.x = pl.x - t->x;
+            if ((uint32)(delta.x + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            delta.y = pl.y - t->y;
+            if ((uint32)(delta.y + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            delta.z = pl.z - t->z;
+            if ((uint32)(delta.z + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            VectorNormalS(&delta, &dir);
+            func_80033F04(&range, &dir, &t->vel, 0x165, 0x0FF069DA);
+            t->vel.x = range.x;
+            t->vel.y = range.y;
+            t->vel.z = range.z;
+            dir.vx   = t->x;
+            dir.vy   = t->y;
+            dir.vz   = t->z;
+            range.x  = range.x * 25 >> 10;
+            range.y  = range.y * 25 >> 10;
+            range.z  = range.z * 25 >> 10;
+            t->x     = dir.vx + range.x;
+            t->y     = dir.vy + range.y;
+            t->z     = dir.vz + range.z;
+            if (func_80049C54(t, t, &D_80097D0C, 0xFFFF) != 0)
+            {
+                goto fail;
+            }
+            dir.vx += range.x >> 1;
+            dir.vy += range.y >> 1;
+            dir.vz += range.z >> 1;
+            if (func_80049C54(&dir, &dir, &D_80097D0C, 0xFFFF) != 0)
+            {
+                goto fail;
+            }
+            if (--t->timer == 0)
+            {
+                goto fail;
+            }
+            if ((uint16)(t->x - pl.x + 100) >= 200)
+            {
+                return 0;
+            }
+            if ((uint16)(t->y - pl.y + 100) >= 200)
+            {
+                return 0;
+            }
+            if ((uint16)(t->z - pl.z + 100) >= 200)
+            {
+                return 0;
+            }
+            if (*(uint8 *)0x1F800075 == 2)
+            {
+                Sound_call(0x9C, 0, 0);
+            }
+            t->state = 2;
+            t->timer = D_800899AC[t->kind].hold;
+            return func_8005EBD4() < 1;
+        case 2:
+            if (func_8005EBD4() > 0)
+            {
+                t->timer = 0;
+                t->state = 0;
+                return 0;
+            }
+            func_8005D4C0();
+            range.z = 9;
+            range.y = 9;
+            range.x = 9;
+            if (func_80030628((DELTA14_WORK *)tg, (DELTA14_WORK *)&Player_work, &range,
+                              (sint32 *)&delta, (sint16)angle) &
+                0x10)
+            {
+                if (--t->timer == 0)
+                {
+                    {
+                        t->state = 0;
+                        return 0;
+                    }
+                }
+                return 1;
+            }
+            t->timer = D_800899AC[t->kind].hold;
+            return 1;
+    }
+    return 0;
+}
 
 void func_8003697C(void)
 {
-    Scratch_scale_shift = 0;
-    Scratch_fog_0       = 0xE00;
-    Scratch_fog_1       = 0xE00;
+    FOG_MODE = 0;
+    FOG_A    = 0xE00;
+    FOG_B    = 0xE00;
     SetFogNear(D_800BC81C, 0x180);
 }
 
 void func_800369C0(void)
 {
-    uint32 n;
+    uint32 near;
 
-    Scratch_scale_shift = 1;
-    Scratch_fog_0       = 0x680;
-    Scratch_fog_1       = 0x680;
-    n                   = D_800BC81C * 2;
-    if (n >= 0x3333)
+    FOG_MODE = 1;
+    FOG_A    = 0x680;
+    FOG_B    = 0x680;
+    near     = D_800BC81C << 1;
+    if (near >= 0x3333)
     {
-        n = D_800BC81C;
+        near = D_800BC81C;
     }
-    SetFogNear(n, 0x180);
+    SetFogNear(near, 0x180);
 }
 
 void func_80036A1C(void)
 {
-    uint32 n;
+    uint32 near;
 
-    Scratch_scale_shift = 2;
-    Scratch_fog_0       = 0x300;
-    Scratch_fog_1       = 0x300;
-    n                   = D_800BC81C * 4;
-    if (n >= 0x3333)
+    FOG_MODE = 2;
+    FOG_A    = 0x300;
+    FOG_B    = 0x300;
+    near     = D_800BC81C << 2;
+    if (near >= 0x3333)
     {
-        n = D_800BC81C;
+        near = D_800BC81C;
     }
-    SetFogNear(n, 0x180);
+    SetFogNear(near, 0x180);
 }
 
-void func_80036A78(uint16 v)
+void func_80036A78(sint32 arg)
 {
-    Scratch_fog_1 = v;
+    *(uint16 *)0x1F800076 = arg;
 }
 
-void func_80036A88(sint32 r, sint32 g, sint32 b, sint32 n)
+void func_80036A88(sint32 r, sint32 g, sint32 b, sint32 near)
 {
     SetFarColor(r, g, b);
-    SetFogNear(n, 0x180);
-    D_8009A370 = r;
-    D_8009A371 = g;
-    D_8009A372 = b;
-    D_8009A374 = n;
+    SetFogNear(near, 0x180);
+    D_8009A370.r    = r;
+    D_8009A370.g    = g;
+    D_8009A370.b    = b;
+    D_8009A370.near = near;
 }
 
-#ifdef NON_MATCHING
-void func_80036B00(SVECTOR *v)
+void func_80036B00(sint16 *out)
 {
-    // best attempt: GCC hoists the later loads above the earlier stores
-    v->vx  = D_8009A370;
-    v->vy  = D_8009A371;
-    v->vz  = D_8009A372;
-    v->pad = D_8009A374;
+    out[0] = D_8009A370.r;
+    out[1] = D_8009A370.g;
+    out[2] = D_8009A370.b;
+    out[3] = D_8009A370.near;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036B00);
-#endif
 
-#ifdef NON_MATCHING
-// best attempt: the copy is right; the target keeps &D_800BC818 in s0 (set up before the
-// SetFarColor loads and reused as the copy end pointer), ours rebuilds it as D_800BC818-0x20.
 void func_80036B40(void)
 {
-    FOG_BLOCK *src = (FOG_BLOCK *)(&D_800BC818 - 0x20);
-
-    SetFarColor(D_800BC818, D_800BC819, D_800BC81A);
-    SetFogNear(D_800BC81C, 0x180);
-    D_8009A350 = *src;
+    SetFarColor(D_800BC7F8.b[0x20], D_800BC7F8.b[0x21], D_800BC7F8.b[0x22]);
+    SetFogNear(*(uint16 *)&D_800BC7F8.b[0x24], 0x180);
+    D_8009A350 = D_800BC7F8;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036B40);
-#endif
 
-#ifdef NON_MATCHING
-// best attempt: only two registers differ: the target keeps the loop counter in t0 and the
-// D_8009A300[i] byte offset in a3 (base's register, reused); ours has them the other way round.
-// The base pointer copied to a separate loop pointer gives the target's `move v1,a3`.
-void func_80036C50(uint8 id, sint32 val)
+void func_80036C50(uint8 kind, MASK_WORK *target)
 {
-    uint8 *base;
-    uint8 *p;
-    sint8 *flag;
     uint32 i;
 
-    base = &D_8009A300[0].id_6;
-    if (*base != id && D_8009A300[1].id_6 != id && D_8009A300[2].id_6 != id && D_8009A300[3].id_6 != id && D_80098560 < 4)
+    if (D_8009A300[0].kind == kind || D_8009A300[1].kind == kind || D_8009A300[2].kind == kind ||
+        D_8009A300[3].kind == kind)
     {
-        flag = (sint8 *)base + 9;
-        p    = base;
-        for (i = 0; i < 4; i++)
+        return;
+    }
+    if (D_80098560 >= 4)
+    {
+        return;
+    }
+    for (i = 0; i < 4; i++)
+    {
+        if (D_8009A300[i].kind == 0)
         {
-            if (*p == 0)
+            D_8009A300[i].kind   = kind;
+            D_8009A300[i].target = target;
+            if (D_8009A300[i].toggle)
             {
-                *p                   = id;
-                D_8009A300[i].val_10 = val;
-                if (*flag != 0)
-                {
-                    *flag = 0;
-                }
-                else
-                {
-                    *flag = 1;
-                }
-                D_80098560++;
-                return;
+                D_8009A300[i].toggle = 0;
             }
-            p += sizeof(SLOT_ENT);
-            flag += sizeof(SLOT_ENT);
+            else
+            {
+                D_8009A300[i].toggle = 1;
+            }
+            D_80098560++;
+            return;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036C50);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80036D40);
-
-// Loads a scene block: 0x20 bytes of src into D_800BADB0, and a 0x28-byte fog block (far color at
-// +0x20, near at +0x24, scratchpad byte at +0x23) into the three fog copies.
-void func_800371A0(void *src, FOG_BLOCK *fog)
+// D_80097D18 is this file's small data (tentative definition above): GCC treats its address
+// as cheap and rebuilds it before each func_80049C54 call, as retail does.
+sint32 func_80036D40(TRACK_SLOT *t)
 {
-    Mem_copy32(src, D_800BADB0, 8);
+    SVECTOR range;
+    SVECTOR dir;
+    SVECTOR tp;
+    VEC32_WORK delta;
+    HOMING_TARGET *tg;
+    MASK_WORK *m;
+    PL_WORK *pl;
+
+    if (t->kind == 0)
+    {
+        return 0;
+    }
+    tg = func_80036294(t->kind);
+    if (tg->flags_0 == 0)
+    {
+        goto clear;
+    }
+    pl = &Player_work;
+    if (tg->dist_80 > 0x2EFFFFF)
+    {
+        goto fail;
+    }
+    switch (t->state)
+    {
+        case 0:
+        default:
+            range.vx = range.vy = range.vz = 9;
+            dir.vx                         = D_800A39F0.x;
+            dir.vy                         = D_800A39F4;
+            dir.vz                         = D_800A39F8;
+            if (!(func_8003081C((DELTA0_WORK *)&dir, (DELTA0_WORK *)&tg->pos_14, &range.vx,
+                                Player_work.rotation.y) &
+                  2))
+            {
+                return 0;
+            }
+            if (!(tg->flags_6 & 0x80) && tg->id_1 < 0x60)
+            {
+                return 0;
+            }
+            t->state = 1;
+            t->x     = pl->position.x;
+            t->y     = pl->position.y - 100;
+            t->z     = pl->position.z;
+            if (t->toggle)
+            {
+                t->vel.x = tg->pos_14.vx - t->x;
+                t->vel.y = tg->pos_14.vy - t->y;
+                t->vel.z = tg->pos_14.vz - t->z;
+                t->timer = 50;
+            }
+            else
+            {
+                t->vel.y = -0x1000;
+                t->vel.x = 0;
+                t->vel.z = 0;
+                t->timer = 15;
+            }
+            return 0;
+        case 1:
+            tp      = tg->pos_14;
+            delta.x = tp.vx - t->x;
+            if ((uint32)(delta.x + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            delta.y = tp.vy - t->y;
+            if ((uint32)(delta.y + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            delta.z = tp.vz - t->z;
+            if ((uint32)(delta.z + 0x687E) > 0xD0FC)
+            {
+                goto fail;
+            }
+            VectorNormalS(&delta, &dir);
+            func_80033F04(&range, &dir, (SVECTOR *)&t->vel, 0x424, 0x0F746EA4);
+            t->vel.x = range.vx;
+            t->vel.y = range.vy;
+            t->vel.z = range.vz;
+            dir.vx   = t->x;
+            dir.vy   = t->y;
+            dir.vz   = t->z;
+            range.vx = range.vx * 25 >> 10;
+            range.vy = range.vy * 25 >> 10;
+            range.vz = range.vz * 25 >> 10;
+            t->x     = dir.vx + range.vx;
+            t->y     = dir.vy + range.vy;
+            t->z     = dir.vz + range.vz;
+            if (func_80049C54(t, t, &D_80097D18, 0xFFFF))
+            {
+                goto fail;
+            }
+            dir.vx += range.vx >> 1;
+            dir.vy += range.vy >> 1;
+            dir.vz += range.vz >> 1;
+            if (func_80049C54(&dir, &dir, &D_80097D18, 0xFFFF))
+            {
+                goto fail;
+            }
+            if (--t->timer == 0)
+            {
+            fail:
+                t->state = 0;
+            clear:
+                t->kind = 0;
+                D_80098560--;
+                return 0;
+            }
+            if ((uint16)(t->x - tp.vx + 100) >= 200)
+            {
+                return 0;
+            }
+            if ((uint16)(t->y - tp.vy + 100) >= 200)
+            {
+                return 0;
+            }
+            if ((uint16)(t->z - tp.vz + 100) >= 200)
+            {
+                return 0;
+            }
+            m        = t->target;
+            t->state = 0;
+            t->kind  = 0;
+            D_80098560--;
+            m->mask_4 |= 1;
+            return 1;
+    }
+}
+
+void func_800371A0(uint32 *blocks, uint32 *arg1)
+{
+    FOGSAVE_WORK *fog = (FOGSAVE_WORK *)arg1;
+
+    func_800176DC(blocks, D_800BADB0, 8);
     D_800BC7F8 = *fog;
     D_8009A350 = D_800BC7F8;
     SetFarColor(fog->b[0x20], fog->b[0x21], fog->b[0x22]);
     SetFogNear(*(uint16 *)&fog->b[0x24], 0x180);
-    D_800C0DC0    = *fog;
-    Scratch_fog_2 = fog->b[0x23];
-}
-
-uint32 func_80037440(void)
-{
-    sint32 i;
-    sint32 sel;
-    sint32 idx;
-    uint32 id;
-
-    sel                       = Player_work[0].unk170;
-    ((uint32 *)D_8009856C)[0] = 0;
-    ((uint32 *)D_8009856C)[1] = 0;
-    ((uint32 *)D_8009856C)[2] = 0;
-    ((uint32 *)D_8009856C)[3] = 0;
-    for (i = 0; i < 16; i++)
-    {
-        if (D_800BFB20[i].routine_0 & 1)
-        {
-            id = D_800BFB22[i].routine_0 - 0x80; // low byte of id_2
-            if ((sint32)id < 16)
-            {
-                D_8009856C[id]++;
-            }
-        }
-    }
-    if (sel == 6)
-    {
-        idx = (sint8)Player_work[0].rec[6].unk04[0];
-    }
-    else
-    {
-        idx = Player_work[0].rec[sel].idx[3];
-    }
-    if (idx >= 4)
-    {
-        idx = 3;
-    }
-    return D_800899E0[idx][sel] > D_8009856C[sel];
+    *(FOGSAVE_WORK *)D_800C0DC0 = *fog;
+    FOG_FAR_MODE                = fog->b[0x23];
 }

@@ -1,0 +1,31 @@
+--- a/maspsx/__init__.py
++++ b/maspsx/__init__.py
+@@ -1087,7 +1087,27 @@
+                 res.extend(extra_nops)
+ 
+             else:
+-                if r_source and (int(operand, 0) > 32767 or int(operand, 0) < -32768):
++                if (
++                    r_source
++                    and self.expand_li
++                    and (int(operand, 0) > 32767 or int(operand, 0) < -32768)
++                ):
++                    # Before ASPSX 2.50 a constant address plus a register goes through li:
++                    # lui/ori $at, then addu $at,$at,base and a zero offset.
++                    value = int(operand, 0) & 0xFFFFFFFF
++                    res.extend(
++                        [
++                            "# EXPAND_AT START",
++                            ".set\tnoat",
++                            f"lui\t$at,0x{value >> 16:X}",
++                            f"ori\t$at,$at,0x{value & 0xFFFF:X}",
++                            f"addu\t$at,$at,{r_source}",
++                            f"{op}\t{r_dest},0x0($at)",
++                            ".set\tat",
++                            "# EXPAND_AT END",
++                        ]
++                    )
++                elif r_source and (int(operand, 0) > 32767 or int(operand, 0) < -32768):
+                     # e.g. lhu	$2,49344($2)
+                     res.extend(
+                         [

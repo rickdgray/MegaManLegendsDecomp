@@ -27,6 +27,12 @@ options:
 
   section_order: [".rodata", ".text", ".data", ".bss"]
 
+  # PsyQ's startup (stup1) sets $gp to 0x80059B14. The shim makes no $gp-relative accesses, so
+  # nothing fixes its relation to the data; it is tied to the BSS start so it moves with the
+  # program (tools/shift_test.py). gp_value makes spimdisasm write %hi(_gp)/%lo(_gp).
+  gp_value: 0x80059B14
+  ld_gp_expression: "main_BSS_START - 0x2C"
+
   symbol_addrs_path:
     - config/slus_006.03/symbol_addrs.txt
 
@@ -81,7 +87,8 @@ segments:
       - [0x6774, asm, psyq/PRIM]      # GetTPage
       - [0x6E68, asm, psyq/SYS_2]     # ResetGraph
       - [0x9EFC, asm, psyq/LIBPRESS]  # DecDCTReset
-      - [0xA65C, asm, psyq/VLC]
+      - [0xA65C, textbin, psyq/VLC_OBJ_0]  # one data word in .text; as asm it makes spimdisasm emit the module as raw words
+      - [0xA660, asm, psyq/VLC]
       - [0xAB24, asm, psyq/PAD]       # SetInitPadFlag
       - [0xAEA4, asm, psyq/PATCH]     # EnablePAD
       - [0xAF44, asm, psyq/SENDPAD]   # _SendPAD

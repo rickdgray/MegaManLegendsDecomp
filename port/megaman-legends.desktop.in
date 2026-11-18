@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Mega Man Legends
+Comment=Mega Man Legends, native port (plays from your own disc image)
+Exec="@PLAY@"
+Path=@REPO@
+Icon=applications-games
+Terminal=false
+Categories=Game;ActionGame;

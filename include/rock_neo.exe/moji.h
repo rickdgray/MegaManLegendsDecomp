@@ -2,177 +2,242 @@
 #define MOJI_H
 
 #include "common.h"
-#include "psyq/libgte.h"
+#include "player.h"
+#include "psyq/libgpu.h"
+#include "display.h"
 
-// Number of Moji_work entries (MojiTaskKill clears 5 entries of 0xC4 bytes).
-#define MOJI_WORK_MAX 5
-
-// One entry of the message (text) work array Moji_work (0xC4 bytes each: func_80053B40 walks the
-// array in 0xC4 steps, func_80058788 takes its entry's index from the pointer). Each entry has
-// two read pointers with their own call stacks: mes_ptr_14 (message text, read by the control-
-// code handlers in the tables at 0x8008A91C and later) and cmd_ptr_6C (a command stream, read by
-// handlers that return 1). D_8008AB08 holds handlers of both kinds. Partial.
-typedef struct
+// Text/message task: only the fields these helpers touch.
+typedef struct MOJI_WORK
 {
-    uint32 flags_0;  // 0x00: flag bits (func_80054B88 sets 0x08000000, func_8005563C 0x20000000)
-    sint16 timer_4;  // 0x04: wait countdown: func_80054700 loads it from its command's 16-bit
-                     // argument (flags_0 bit 0x01000000 while waiting) and counts it down to 0;
-                     // func_800546B0 sets it with unk_3F
-    sint16 no_6;     // 0x06: the entry's own index in Moji_work (set by Moji_init)
-    uint16 base_x_8; // 0x08: line start x; func_8005459C (new line) resets pos_x_10 to it
-    sint16 unk_A;    // 0x0A: lh (func_8005A874); set with base_x_8 from a command's second 16-bit argument (func_80054798)
-    uint8 pad_C[0x4];
-    uint16 pos_x_10;       // 0x10: text cursor x; func_8005A858 adds 12 (one character's width?)
-    uint16 pos_y_12;       // 0x12: text cursor y; func_8005459C (new line) adds 12
-    uint8 *mes_ptr_14;     // 0x14: read pointer into the message byte stream
-    uint8 *call_stk_18[8]; // 0x18: return addresses (func_80054A04 pushes, func_80054AB4 pops);
-                           // depth not confirmed
-    uint16 scroll_38;      // 0x38: scroll offset: func_800554E4 moves it by unk_3A per frame, then
-                           // by the rest of unk_3B lines of 12
-    sint8 unk_3A;          // 0x3A: lb; func_800554E4's scroll step per frame
-    sint8 unk_3B;          // 0x3B: line counter, incremented by func_8005457C and func_80056128;
-                           // lb in func_800554E4, which clears it
-    uint8 unk_3C;          // 0x3C: cleared with unk_3E and unk_72 on a jump to a new message (func_80057744)
-    uint8 unk_3D;          // 0x3D: set from a command's argument byte (func_80058C08)
-    uint8 unk_3E;          // 0x3E: set from a control code's argument byte (func_80054694)
-    uint8 unk_3F;          // 0x3F: set from a command's 16-bit argument (func_800546B0)
-    uint32 money_40;       // 0x40: copy of Game_work.money (func_80057124)
-    uint8 *mes_file_44;    // 0x44: message file: uint16 offsets from its start, one per message,
-                           // then the messages (func_80058740 calls into message mes_no_C2); when
-                           // NULL, func_80054A04 and func_8005497C call into D_8008CACC instead
-    uint8 *cmd_top_48;     // 0x48: start of the current command message; func_80055A78 and
-                           // func_8005A598 set it with cmd_ptr_6C to message mes_no_C2
-    uint8 *call_stk_4C[8]; // 0x4C: return addresses (func_8005497C pushes, func_80054A84 pops)
-    uint8 *cmd_ptr_6C;     // 0x6C: read pointer into the command byte stream
-    uint8 unk_70;          // 0x70: copied to unk_3E at each new line (func_8005459C)
-    sint8 unk_71;          // 0x71: added to D_8009899C to index D_800BE2F8 (func_8005721C)
-    sint8 unk_72;          // 0x72: counter, incremented by func_80054BB4, func_80055CC4 and func_80058788;
-                           // added to D_8009899C to index D_800BE2F8 (func_800594CC); func_80055304 skips
-                           // this many bytes plus 2
-    sint8 unk_73;          // 0x73: added to D_8009899C to index D_800BE2F8 (func_80059530)
-    uint8 pad_74[0x4];
-    uint8 unk_78; // 0x78: set from a control code's argument byte (func_80056180)
-    uint8 pad_79[0x3];
-    uint8 unk_7C;  // 0x7C: index into D_8008AB08 (func_80054B4C) and D_8008AAC0 (func_80054ADC sets
-                   // it from a command's argument byte, func_80055BB0)
-    uint8 unk_7D;  // 0x7D: state of func_8005AB78 (0 opens, 2 closes); cleared by func_80054ADC
-                   // with flags_0 bit 0x02000000
-    uint8 unk_7E;  // 0x7E: set from a command's argument byte (func_80054798); width in 12-pixel
-                   // characters (func_8005AB78)
-    uint8 unk_7F;  // 0x7F: set from a command's argument byte (func_80054798); height in 12-pixel
-                   // lines (func_8005AB78)
-    uint32 unk_80; // 0x80: flags_0 bit 0x08000000 saved by func_8005A874 while its window opens
-    uint8 pad_84;
-    uint8 unk_85; // 0x85: func_8005A874's opening/closing step per frame (8)
-    uint8 pad_86[0x2];
-    DVECTOR corner_88[4]; // 0x88: window corners relative to the text origin, set by
-                          // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12;
-                          // func_8005ACA8 copies each x, y into the primitives at 0xA0-0xAC
-    uint8 pad_98[0x1C];
-    uint16 unk_B4; // 0xB4: window margin x (func_8005AB78, from a command's argument byte)
-    uint16 unk_B6; // 0xB6: window margin y (set with unk_B4)
-    uint8 pad_B8[0x4];
-    uint16 unk_BC;     // 0xBC: cleared by func_80054BB4, func_80055CC4 and func_80058788
-    uint16 call_sp_BE; // 0xBE: depth of call_stk_18
-    uint16 call_sp_C0; // 0xC0: depth of call_stk_4C
-    uint16 mes_no_C2;  // 0xC2: message number in mes_file_44
+    uint32 flags_0;
+    sint16 val_4;
+    sint16 index_6;
+    uint16 val_8;
+    sint16 val_A;
+    sint16 val_C;
+    sint16 val_E;
+    uint16 pos_10;
+    uint16 pos_12;
+    uint8 *pos_14;
+    uint32 jump_tbl_18[1];
+    uint8 unk_1C[0x1C];
+    uint16 val_38;
+    sint8 val_3A;
+    uint8 count_3B;
+    uint8 val_3C;
+    uint8 val_3D;
+    uint8 val_3E;
+    uint8 val_3F;
+    uint32 val_40;
+    uint8 *base_44;
+    uint8 *pos_48;
+    uint32 jump_tbl_4C[1];
+    uint8 unk_50[0x1C];
+    uint8 *pos_6C;
+    uint8 val_70;
+    uint8 val_71;
+    union
+    {
+        sint8 skip;
+        uint8 count;
+    } v_72;
+    uint8 val_73;
+    uint8 *pos_74;
+    uint8 val_78;
+    uint8 val_79;
+    uint8 unk_7A[2];
+    uint8 val_7C;
+    uint8 val_7D;
+    uint8 val_7E;
+    uint8 val_7F;
+    uint32 val_80;
+    uint8 unk_84;
+    uint8 val_85;
+    uint8 unk_86[2];
+    sint16 val_88, val_8A, val_8C, val_8E;
+    sint16 val_90, val_92, val_94, val_96;
+    POLY_F4 *prim_98;
+    POLY_F4 *prim_9C;
+    POLY_G4 *prim_A0[4];
+    uint8 val_B0, val_B1, val_B2;
+    uint8 unk_B3;
+    uint16 val_B4;
+    uint16 val_B6;
+    uint16 val_B8;
+    uint16 val_BA;
+    uint16 val_BC;
+    uint16 depth_BE;
+    uint16 depth_C0;
+    uint16 val_C2;
 } MOJI_WORK;
 
-typedef void (*MOJI_FUNC)(MOJI_WORK *mp);
+// Local view of Game_work: only the fields the moji commands read.
+typedef struct
+{
+    uint8 reserved00[0x1C];
+    uint32 value1C;
+    uint8 reserved20[8];
+    uint32 value28, value2C, value30, value34, value38, value3C;
+    uint8 reserved40[0x20];
+    sint16 value60;
+    uint8 reserved62[4];
+    uint8 value66, value67;
+    uint8 reserved68[0x14];
+    uint8 value7C;
+    uint8 value7D;
+    uint8 reserved7E[6];
+    struct
+    {
+        uint32 value0;
+        uint16 value4[6];
+    } value84[1];
+} MOJI_WORK_G;
 
-// The message work entries (see MOJI_WORK).
-extern MOJI_WORK Moji_work[MOJI_WORK_MAX];
+#define MOJI_GAME ((MOJI_WORK_G *)Game_work)
 
-// Message pointers; func_80054A04 and func_8005497C call into entry n (the argument byte) when
-// the entry has no message file.
-extern uint8 *D_8008CACC[];
+typedef struct
+{
+    sint16 x, y, z, pad;
+} MOJI_POS;
 
-// Font codes of the digits 0 to 9 (0x00-0x09; two_digit_set).
-extern uint8 D_8008D028[];
+typedef void (*MOJI_FUNC)(MOJI_WORK *);
 
-// Powers of ten from 100000 down to 1: the digit places of six_digit_set's six-digit numbers.
-extern uint32 D_8008AF24[6];
+typedef MOJI_WORK MOJI_WORK2;
 
-// Six signed words (500, 200, 250, 200, 180, 150); func_80059D20 prints entry D_800BE2F8[n] less a
-// Game_work word (times a Game_work byte for entries 4 and 5).
-extern sint32 D_8008AF00[6];
+#define MOJI_FLAG_08000000 0x08000000
+#define MOJI_FLAG_20000000 0x20000000
 
-// Font codes six_digit_set writes for leading zeros, chosen by its first argument.
-extern uint8 D_8008AF3C[];
-
-// Halfword table, row D_800989D4 (13 rows of 5 entries of 4; 0x208 bytes). func_8005861C picks
-// its message by entry [row][n]: [0] zero, or [Player_work[0].rec[..].idx[n]] zero, or neither.
-// Defining file unknown: it sits in sub_scrn's .data range, but moji's code is its only user.
-extern uint16 D_8008D8EC[13][5][4];
-
-// Message pointers; func_80057708 calls into entry D_80098830 as a sub-message.
+extern uint32 D_800989EC;
+extern uint16 D_80098912;
+extern MOJI_FUNC D_8008AB08[];
+extern uint8 *D_8008D0D4[];
 extern uint8 *D_8008CBA4[];
-
-// Message pointer tables; func_80057D60 and func_80059E24 call into entry D_800BE2F8[n], n from
-// the control code's argument byte; func_80059530 calls into D_8008CCA4[D_800BE2F8[...]].
-extern uint8 *D_8008CCA4[];
-extern uint8 *D_8008CE10[];
 extern uint8 *D_8008CE5C[];
-
-// func_80058C28 and func_80058CC8 call into D_8008BAA4[flag] when scene flag `flag` (the code's
-// 16-bit argument) is set, and into message D_8008CE58 otherwise. D_8008BAA4 is indexed by the
-// flag number itself (its label holds text bytes); typed by that use.
+extern uint8 D_800BE2F8[];
+extern sint32 D_8008AF00[];
+extern uint8 D_800BE3DB[];
+extern uint8 *D_8008CE10[];
+extern uint8 *D_8008CACC[];
+extern uint8 D_8008D028[];
+extern MOJI_FUNC D_8008AAC0[];
+extern MOJI_WORK Moji_work[];
 extern uint8 *D_8008BAA4[];
 extern uint8 *D_8008CE58;
+extern uint8 *D_8008CAC8[];
+extern uint32 Game_work[];
 
-// Pointers to byte variables (game flags and work fields); func_80055C80 stores a command's
-// argument byte through entry n.
-extern uint8 *D_8008D0D4[];
+uint16 func_80054410(uint8 *p);
+void func_8005BF10(sint32 mode, uint32 value, uint8 *out);
+sint32 func_8005DA78(sint32 arg0);
+sint32 func_8005DAEC(sint32 arg0);
+sint32 func_8005DA1C(sint32 arg0);
+sint32 Sce_flag_test(sint32 flag);
+// Sce_flag_on, func_80039E18 and func_80043294 are void, but Capcom's moji code called them
+// without prototypes (implicitly int): its calls keep the unused v0 result (call_value).
+sint32 Sce_flag_on(sint32 flag);
+void Sce_flag_off(sint32 flag);
+void Sound_call(sint32 sound, ...);
+void func_8005ACA8(MOJI_WORK *wp);
+sint32 rand(void);
+sint32 func_80039E18(void);
+extern uint8 D_80097F6C[][6];
+extern uint8 D_80097F79[];
+extern uint8 D_80097F7A[];
+extern uint8 D_80097F7B[];
+sint32 func_80031198(MOJI_POS *pos, PL_SHORT_VECTOR *target);
+void func_80039FAC(sint32 *vec, sint32 arg1, sint32 arg2, sint32 arg3);
+void func_80039FFC(sint32 *vec, sint32 arg1, sint32 arg2, sint32 arg3);
+sint32 func_8003A13C(void);
+extern MOJI_POS *D_800987B8;
+extern uint8 D_800987B0[];
+extern sint32 D_800A396C;
+extern uint8 Scene_work;
+void func_8001D494(sint32 arg0, sint32 arg1, sint32 arg2);
+sint32 func_8004327C(sint32 arg0);
+sint32 func_80043294(sint32 arg0, sint32 arg1, sint32 arg2);
+void Game_logo_kill(sint32 index);
+void func_80063FC0(uint32 arg0, uint32 arg1);
 
-// Handler table that func_80054B4C indexes with MOJI_WORK.unk_7C. It holds both message-text and
-// command handlers (Moji_skip_*, func_800543B0, ...); typed by func_80054B4C's use.
-extern MOJI_FUNC D_8008AB08[];
+sint32 MojiTaskExec(sint32 arg0, uint8 *script, sint32 arg2);
 
-// Handler table that func_80054ADC and func_80055BB0 index with MOJI_WORK.unk_7C (func_8005A874,
-// ...); splat splits it into several labels. Return value unused by both callers.
-extern MOJI_FUNC D_8008AAC0[];
-
-// Byte table (0x80 entries: func_80058DB4 fills them); func_80057DB8 replaces Moji_flag's low byte with entry [low byte].
-// Defining file unknown; moji's code is its only user.
-extern uint8 D_800BE2F8[];
-
-// Pool variable (0x80098A58), defined tentatively in moji.c.
-extern uint32 Moji_flag;
-
-// Pool variable (0x8009899C), defined tentatively in moji.c; func_80059530 adds it to
-// MOJI_WORK.unk_73 to index D_800BE2F8. func_80058DB4 clears it.
+// Small data ($gp) these functions use.
+extern uint8 D_80098830;
+extern sint32 D_80098AF4;
+extern uint32 D_800989E0;
+extern uint8 D_800989D4;
 extern uint8 D_8009899C;
-
-// Pool variable (0x80098B30), defined tentatively in moji.c; func_80058788 clears bit
-// 17 + (Moji_work entry index).
+extern uint8 *D_8008CCA4[];
+extern uint32 Moji_flag;
 extern uint32 Moji_flag3;
-
-// Halfword table in the tail of small tables (0x8008FD3C); func_8005721C tests whether the money
-// covers entry D_80098930 (a price).
-extern uint16 D_8008FD3C[];
-
-// Pool variables (0x80098930, 0x80098B6C), defined tentatively in moji.c. func_8005721C sets
-// D_80098930 to D_800BE2F8[D_8009899C + unk_71] plus its command's argument byte, and
-// D_80098B6C to 1 when scene flag 0x2EE is clear and the money doesn't cover D_8008FD3C[D_80098930].
+extern uint8 D_80098851;
+extern uint32 D_80098824;
+extern uint8 D_800988F4;
+extern uint16 D_80097F64[];
+extern uint8 D_80097F68[];
+extern uint16 D_8008FE40[];
+extern uint16 D_8008FE44;
+extern uint16 D_8008FE62;
+extern uint8 Sce_flag[];
+extern uint8 D_80098B2D;
+extern uint8 D_800987D4;
+extern char D_80097F60[];
+void func_8001FE38(uint32 flags, const char *fmt, ...);
+void Sub_screen_rb_parts_set(void);
+void func_8005BFC0(uint32 frames, uint8 *out);
+void func_8005C0E4(uint32 value, uint8 *out);
+extern uint16 D_8008FD7C[];
+extern uint8 D_80097FF4[];
+extern uint16 D_8008D8EC[][5][4];
+extern uint8 D_80097FEC[];
+extern uint8 D_80097FE4[];
+extern uint8 D_80097FDC[];
+extern uint8 *D_8008CBA0[];
+extern uint16 D_8008AF40[];
+extern uint8 *D_8008CAD0[];
+extern uint8 *D_8008CAD4[];
+extern sint32 D_800989A8;
+extern uint8 D_800BE420[];
+uint32 func_80054424(uint8 *p);
+uint32 func_8001D878(void);
+extern sint32 D_800986F0;
 extern uint8 D_80098930;
 extern uint8 D_80098B6C;
-
-// Pool variables, defined tentatively in moji.c. D_8008D0D4 (pointers to byte variables) points
-// to D_800987F8 and D_80098850. func_80056778 copies D_800987F8 into its command and adds 0x20 to
-// the D_800BE2F8 entry it stores to D_80098830 when D_80098850 is set; func_80058EA0 sets
-// D_80098851 to 0xFF.
-extern uint8 D_800987F8;
+extern uint32 D_8008AF24[];
+extern uint8 D_8008AF3C[];
+extern uint16 D_8008FD3C[];
 extern uint8 D_80098850;
-extern uint8 D_80098851;
+extern uint8 D_800987F8;
+extern sint32 D_80098B2C;
+extern uint32 D_80098960;
 
-// Loads file 30 and resets the message entries, Moji_flag and the module's pool counters.
-void Moji_init(void);
+extern uint8 D_80097FE2; // byte 6 of the D_80097FDC script, written as its own symbol
 
-// Kills every message entry: clears their flags (stopping XA audio if one was playing it) and
-// Moji_flag.
-void MojiTaskKill(void);
-
-// Runs every message entry; called once per frame by main.
-void func_80053B40(void);
+extern DISP_ENV *D_80098934;
+extern uint8 D_8008AF18[];
+void func_8005BCE4(MOJI_WORK *wp, sint32 index);
+sint32 func_80054E54(MOJI_WORK *wp);
+void func_80056820(MOJI_WORK *wp);
+sint32 func_80057FF8(MOJI_WORK *wp);
+sint32 func_80059E74(MOJI_WORK *wp);
+void Sub_screen_sort_attack(void);
+void Sub_screen_sort_energy(void);
+void Sub_screen_sort_range(void);
+void Sub_screen_sort_rapid(void);
+extern uint8 D_80098A64;
+extern uint8 D_80098A65;
+extern uint8 D_8008D0AC[];
+extern uint8 D_800986E0;
+extern uint8 D_800986E4;
+extern uint8 D_800989D4;
+extern uint8 D_800986E8;
+extern uint8 D_800986EC;
+extern uint32 D_800987E0;
+typedef sint32 (*MOJI_CMD_FUNC)(MOJI_WORK *);
+extern MOJI_CMD_FUNC D_8008A91C[];
+extern MOJI_FUNC D_8008AAC4[];
+extern MOJI_FUNC D_8008AAE4[];
+extern RECT D_80097F50[];
+extern uint16 D_80097F30[];
+extern uint8 D_8008AE7C[];
 
 #endif

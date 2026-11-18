@@ -2,172 +2,253 @@
 #define SOUND_H
 
 #include "common.h"
-#include "psyq/libsnd.h"
 #include "psyq/libcd.h"
-#include "psyq/libgte.h"
+#include "psyq/libsnd.h"
 
 #define SOUND_FLAG_MONO   0x0001
 #define SOUND_FLAG_CD_OFF 0x8000
 
-#define SOUND_DATA_BUF ((uint8 *)0x8013B000) // sound data loaded by comb reads (types 7, 8)
-#define VAB_HEAD_BUF   ((uint8 *)0x8014B000) // VAB headers, one per Game_work.vab slot
-#define VAB_HEAD_SIZE  0x1820
-
-#define SOUND_CALL_MAX 24 // entries in the sound call queue (Sound_call_queue)
-
-// SOUND_CALL.mode: what arg1/arg2 hold (calc_vol, voice_check)
-#define SOUND_MODE_PAN 0 // Sound_call: arg1 = pan (-0x80..0x80), arg2 = attenuation (0..0x80)
-#define SOUND_MODE_POS 1 // Sound_call2: arg1/arg2 = x/z of the source, panned against the player
-
-// Sound_fade_flags: two bits per volume (1 = fade out, 2 = fade in), stepped by volume_update
-#define SOUND_FADE_MVOL   0x03 // Sound_work.mvol_fade
-#define SOUND_FADE_SE     0x0C // Sound_work.se_fade
-#define SOUND_FADE_SEQ    0x30 // Sound_work.seq_fade
-#define SOUND_FADE_SERIAL 0xC0 // Sound_work.serial_fade (fade out also pauses the CD: Cd_subcmd(0, 1, 0))
-
 // CD/sound mixer state at 0x800AD140..0x800AD163 (0x24 bytes; 0x800AD164..67 is never accessed,
 // and 0x800AD168 starts an unrelated buffer). Widths and signedness are from the load/store
-// instructions. Each volume is scaled by its fade (0..0x7F, stepped by fade_step) in volume_update.
+// instructions. Most fields are touched through D_800AD1xx labels (see "Unknown" below); only
+// func_8001AEF0, func_8001AA8C and func_8001AC58 (sound.s) address them through Sound_work.
 typedef struct
 {
     uint8 unk00[2]; // 0x00: never accessed
-    uint16 flags;   // 0x02: bit 0 = mono (see Cd_set_volume); bit 15 set by Cd_stop/cd_subcmd_mute.
-        //       lhu/andi 0x8000 in volume_update, B644/B6FC/B89C/B7B4/CB7C, Cd_set_volume
-    sint16 mvol;                     // 0x04: master volume (SsSetMVol)
-    sint16 serial_vol;               // 0x06: CD input volume (SsSetSerialVol)
-    sint16 se_vol;                   // 0x08: sound effect volume (calc_vol); init 0x40 in Sound_init
-    sint16 seq_vol;                  // 0x0A: sequence volume (SsSeqSetVol/SsSepSetVol); init 0x64 in Sound_init
-    sint16 mvol_fade;                // 0x0C: fade of mvol (SOUND_FADE_MVOL)
-    sint16 serial_fade;              // 0x0E: fade of serial_vol (SOUND_FADE_SERIAL); also set by cd_cmd_xa_play
-    sint16 se_fade;                  // 0x10: fade of se_vol (SOUND_FADE_SE)
-    sint16 seq_fade;                 // 0x12: fade of seq_vol (SOUND_FADE_SEQ); set to 0x7F by Sound_seq_play/Sound_sep_play
-    CdlATV atv;                      // 0x14: CD audio volume (val0..val3, bytes), applied with CdMix; Cd_set_volume
-    sint8 reserved_voice;            // 0x18: voices for SsSetReservedVoice; init 0xF in Sound_init
-    sint8 reserved_voice_set;        // 0x19: reserved_voice as last applied by volume_update
-    uint8 reverb_state;              // 0x1A: volume_update: 0 = idle, 1 = waiting for reverb_timer
-    uint8 reverb_timer;              // 0x1B: frames before the reverb depth is set (0x1E)
-    struct SOUND_REVERB *reverb;     // 0x1C: reverb wanted (Sound_init, Sound_reverb_set)
-    struct SOUND_REVERB *reverb_set; // 0x20: reverb as last applied by volume_update
+    uint16 flags;   // 0x02: bit 0 = mono (see Cd_set_volume); bit 15 set by Cd_stop/func_8001B7B4.
+    //       lhu/andi 0x8000 in func_8001AEF0, B644/B6FC/B89C/B7B4/CB7C, Cd_set_volume
+    sint16 unk04; // 0x04: lh (func_8001AEF0, master volume factor); init in func_80019DE0
+    sint16 unk06; // 0x06: lh (func_8001AEF0, serial volume factor); also read as lhu / saved and
+                  //       cleared by func_8001B7B4 (D_800AD146); init in func_80019DE0
+    sint16 unk08; // 0x08: lh (func_8001A274); init 0x40 in func_80019DE0
+    sint16 unk0A; // 0x0A: lh (func_8001AEF0); init 0x64 in func_80019DE0
+    sint16
+        unk0C; // 0x0C: lh; &unk0C passed to func_8001AE6C (read/written as 16-bit) by func_8001AEF0
+    sint16
+        unk0E; // 0x0E: lh; &unk0E passed to func_8001AE6C by func_8001AEF0; also written by func_8001B89C
+    sint16 unk10; // 0x10: lh (func_8001A274); &unk10 passed to func_8001AE6C by func_8001AEF0
+    sint16
+        unk12; // 0x12: lh; &unk12 passed to func_8001AE6C; set to 0x7F by func_8001AA8C/func_8001AC58
+    CdlATV atv;  // 0x14: CD audio volume (val0..val3, bytes), applied with CdMix; Cd_set_volume
+    sint8 unk18; // 0x18: lb/lbu (func_8001AEF0, compared with unk19); init in func_80019DE0
+    sint8 unk19; // 0x19: lb/sb (func_8001AEF0, copy of unk18); cleared in func_80019DE0
+    uint8 unk1A; // 0x1A: lbu/sb (func_8001AEF0 reverb state 0/1); cleared in func_80019DE0
+    uint8 unk1B; // 0x1B: lbu/sb (func_8001AEF0 countdown, set to 0x1E)
+    uint8
+        *unk1C; // 0x1C: lw (func_8001AEF0: pointer to 3-byte reverb entries); set by func_80019DE0
+                //       (&D_800821F8) and func_80019F94
+    uint8 *unk20; // 0x20: lw/sw (func_8001AEF0: last applied unk1C); cleared in func_80019DE0
 } SOUND_WORK;
 
-// A reverb preset of Sound_reverb_tbl, applied by volume_update.
-typedef struct SOUND_REVERB
-{
-    uint8 type;  // 0x0: SsUtSetReverbType; 0 = off
-    uint8 vol;   // 0x1: SsSetRVol
-    uint8 depth; // 0x2: SsUtSetReverbDepth
-    uint8 pad3;
-} SOUND_REVERB;
+extern SOUND_WORK Sound_work; // 0x800AD140
 
-// An entry of Sound_seq_tbl, filled by cd_cmd_read_comb's types 7 and 8.
+// Local views for the sound helpers (additive).
 typedef struct
 {
-    uint8 num;       // 0x0: number of the data loaded; a new number reloads it
-    uint8 sep_count; // 0x1: type 8 (SEP) only: number of sequences, for SsSepOpen
-    uint8 pad2[2];
-    uint8 *data; // 0x4: in SOUND_DATA_BUF
-} SOUND_DATA;
+    uint32 arg1;
+    uint32 arg2;
+} SOUND_ARGS;
 
-// A queued sound call, 0x14 bytes; Sound_call and Sound_call2 append one at Sound_call_ptr.
 typedef struct
 {
-    uint8 mode; // 0x0: SOUND_MODE_PAN or SOUND_MODE_POS
-    uint8 pad1;
-    sint16 id;     // 0x2: index of Sound_call_info_tbl
-    sint32 arg1;   // 0x4: see SOUND_MODE_*
-    sint32 arg2;   // 0x8
-    uint8 unkC[8]; // 0xC: untouched by the sound code
-} SOUND_CALL;
+    uint8 kind; // 0 = Sound_call, 1 = Sound_call2
+    uint8 reserved01;
+    sint16 id;
+    SOUND_ARGS args;
+    uint8 reserved0c[8];
+} SOUND_CALL; // 0x14 bytes
 
-// A sequence channel, an entry of Sound_seq_chan_tbl (8 bytes).
 typedef struct
 {
-    sint16 access;  // 0x0: SsSeqOpen/SsSepOpen access number; -1 when unused
-    sint8 kind;     // 0x2: 0 = SEQ, 1 = SEP, -1 = unused
-    sint8 priority; // 0x3: priority of the sequence playing (low nibble of SOUND_CALL_INFO.unk2)
-    uint8 seq_num;  // 0x4: SEP only: sequence number in the SEP
-    uint8 playing;  // 0x5: SsIsEos result, stored by Sound_update
-    sint16 id;      // 0x6: id of the SOUND_CALL playing
-} SOUND_SEQ_CHAN;
+    uint8 id;
+    uint8 reserved01[7];
+} SOUND_ENTRY; // 8-byte stride
 
-// An entry of the table at Sound_call_info_tbl, 4 bytes.
+typedef void (*SOUND_FUNC)(sint32 arg);
+
+// Signed view of GAME_WORK.flags_53 (lb in the original)
+#define GAME_WORK_FLAG53 (*(sint8 *)((uint8 *)&Game_work + 0x53))
 typedef struct
 {
-    uint8 type; // 0x0: bits 0-5 = bank number (vab_find), bits 6-7 select the handler in Sound_call_func_tbl
-    uint8 unk1; // 0x1: bits 0-6 = program number (tones) or sequence data number (seq_find); bit 7 = loop (SEP)
-    uint8 unk2; // 0x2: high nibble = tone offset in the program or channel; low nibble = priority
-    uint8 unk3; // 0x3: bits 0-4 = SPU voice or SEP sequence number, bits 5-6 = extra tones to play
-} SOUND_CALL_INFO;
+    uint8 reserved00[0x1BA];
+    SOUND_ENTRY slots[5];
+} GAME_WORK_SOUND_VIEW;
+#define GAME_WORK_VIEW  ((GAME_WORK_SOUND_VIEW *)&Game_work)
+#define GAME_WORK_SLOTS ((SOUND_ENTRY *)((uint8 *)&Game_work + 0x1BA))
+extern SOUND_CALL D_800BE6D8[];
 
-// One VAB header slot in VAB_HEAD_BUF, VAB_HEAD_SIZE bytes: VabHdr, 128 ProgAtr, then the tones (0x820)
+extern uint32 D_800821F8[];
+extern sint16 D_80082274;
+extern sint16 D_80082278;
+extern sint16 D_80082218;
+extern sint16 D_800822D6;
+extern uint16 D_800822A6[]; // table of 6 ends here; no symbol at its base 0x800822A0
+#define D_800822A0 (D_800822A6 - 5)
+extern uint16 D_800822B0[]; // table of 5 ends here; no symbol at its base 0x800822A8
+#define D_800822A8 (D_800822B0 - 4)
+extern uint16 D_800822F2;
+extern uint16 D_800822F4;
+extern SOUND_ENTRY D_80098AD0[];
+extern SOUND_CALL *D_80098938;
+extern uint32 D_80098958;
+extern SOUND_FUNC D_800823A0[];
+
+extern uint16 *D_80082320[];
+extern void func_8001B33C(void);
+extern void func_8001D854(sint32 arg);
 typedef struct
 {
-    VabHdr hdr;         // 0x000
-    ProgAtr prog[128];  // 0x020
-    VagAtr tone[8][16]; // 8 programs of 16 tones
-} VAB_HEAD;
+    uint8 reserved0[2];
+    uint8 priority_2;
+    uint8 voice_3;
+} SOUND_VOICE;
 
-typedef void (*SOUND_FUNC)(sint32);
+typedef struct
+{
+    uint8 reserved00[0x14];
+    sint16 x;
+    sint16 y;
+    sint16 z;
+    uint8 reserved1A[0x3C];
+    sint16 rot_56;
+} SOUND_PLAYER;
+
+typedef struct
+{
+    uint8 kind_0;
+    uint8 reserved1[3];
+    sint16 x_4;
+    sint16 reserved6;
+    sint16 z_8;
+} SOUND_POS;
+
+extern SOUND_PLAYER *p_Player_work;
+#define SOUND_DIST_TBL ((sint16 *)((uint8 *)&Game_work + 0x1E0))
+extern uint8 D_80098B48[];
+extern sint32 SpuGetKeyStatus(uint32 voice_bit);
+extern sint32 SquareRoot0(sint32 v);
 typedef void (*SOUND_CALL_FUNC)(SOUND_CALL *call);
+extern SOUND_CALL D_800BE4F8[];
+typedef struct
+{
+    uint8 flags;
+    uint8 byte_1; // low 7 bits: tone index high part
+    uint8 byte_2; // high nibble: tone index low part
+    uint8 byte_3; // bits 0-4: first voice slot, bits 5-6: extra tone count
+} SOUND_INFO;
+#define GAME_WORK_SLOT_VAB(i) (*(uint16 *)((uint8 *)&Game_work + 0x1B8 + (i) * 8))
+#define SOUND_TONE_BASE       0x8014B820
+extern SOUND_INFO D_8008241C[];
+extern SOUND_CALL_FUNC D_80082C64[];
+extern uint8 D_80098AFD[][8];
+extern void func_8001AEF0(void);
+extern sint32 Sce_flag_test(sint32 flag);
+extern sint16 SsIsEos(sint16 vab_id, sint16 prog);
+extern sint16 D_8008222A[];
+#define D_80082224 (D_8008222A - 5)
+extern sint16 D_8008222C;
+extern uint8 D_80098840;
+extern sint16 D_80098AF8[][4];
+extern sint8 D_80098AFA[][8];
+extern uint8 D_80098AFC[][8];
+extern sint32 D_80082C70[];
+extern sint32 D_80082CA0[];
+extern sint32 func_8001A63C(sint32 n);
+extern void func_80070114(sint32 arg);
+extern void func_8007013C(sint32 arg0, sint32 arg1);
+extern void SsUtKeyOffV(sint16 voice);
+extern void SpuSetKey(sint32 on_off, uint32 voice_bit);
 
-extern SOUND_WORK Sound_work;
-extern SOUND_DATA Sound_seq_tbl[5];
-extern SOUND_REVERB Sound_reverb_tbl[2]; // reverb presets selected by Sound_reverb_set
-extern SOUND_FUNC Sound_stage_func_tbl[];
-extern SOUND_SEQ_CHAN Sound_seq_chan_tbl[4];
-extern SOUND_CALL *Sound_call_ptr;                  // next free sound call entry
-extern SOUND_CALL Sound_call_queue[SOUND_CALL_MAX]; // the queue; Sound_call_ptr points into it
-extern sint32 Sound_pitch_tbl_up[12];               // pitch_scale: scale table, positive exponents
-extern sint32 Sound_pitch_tbl_down[12];             // pitch_scale: scale table, negative exponents
-extern uint8 Sound_fade_step_size;                  // step used by fade_step
-extern uint16 *Sound_stage_id_tbl[];                // per-stage sound call id lists, indexed by Game_work.unk051
-extern SOUND_CALL_INFO Sound_call_info_tbl[];       // per-call-id info, indexed by SOUND_CALL.id
-extern SOUND_CALL_FUNC Sound_call_func_tbl[3];
-extern uint8 Sound_voice_priority[24]; // per-voice priority of the sound playing (low nibble of SOUND_CALL_INFO.unk2)
-extern uint16 Sound_stage_slot_tbl[];  // Sound_stage_slot_set: per-stage sound ids
-extern uint8 Sound_fade_flags;         // fade requests (SOUND_FADE_*); set by Sound_fade_start
+// Local view of PsyQ's SpuVoiceAttr (0x40 bytes)
+typedef struct
+{
+    uint32 voice;    // 0x00
+    uint32 mask;     // 0x04
+    uint16 volume_l; // 0x08
+    uint16 volume_r; // 0x0A
+    uint8 reserved0c[8];
+    uint16 pitch; // 0x14
+    uint8 reserved16[6];
+    uint32 addr; // 0x1C
+    uint8 reserved20[0x1A];
+    uint16 adsr1; // 0x3A
+    uint16 adsr2; // 0x3C
+    uint8 reserved3e[2];
+} SOUND_VOICE_ATTR;
 
-// Per-stage sound call id lists (entries of Sound_stage_id_tbl, indexed by Game_work.unk051),
-// rewritten by the stage's Sound_stage_func_tbl function.
-extern uint16 D_8008220C[]; // stages 3 and 27
-extern uint16 D_80082220[]; // stage 4
-extern uint16 D_8008222C[]; // stage 5
-extern uint16 D_80082274[]; // stage 10
-extern uint16 D_80082278[]; // stage 12
-extern uint16 D_8008229C[]; // stage 16
-extern uint16 D_800822A8[]; // stage 17
-extern uint16 D_800822C0[]; // stage 19
-extern uint16 D_800822F0[]; // stage 25
+// Local view of a VAB tone entry used by func_8001A744
+typedef struct
+{
+    uint8 reserved00[2];
+    uint8 pan_2;
+    uint8 reserved03;
+    uint8 note_4;
+    uint8 frac_5;
+    uint8 note_6;
+    uint8 reserved07[9];
+    uint16 adsr1_10;
+    uint16 adsr2_12;
+    uint8 reserved14[2];
+    sint16 vag_16;
+    uint8 reserved18[8];
+} SOUND_TONE; // 0x20 bytes
 
-// Unknown
-extern uint32 D_80098958; // flags; 0x800 forces cd_cmd_read_comb to reload VAB bank 4
-extern sint16 D_800C3560; // D_800C3560 to D_800C3571 are reset together by func_800680BC
-extern sint16 D_800C3562;
-extern sint16 D_800C3564;
-extern sint16 D_800C356A;
-extern sint8 D_800C356C; // -1 after func_800680BC
-extern uint8 D_800C356D;
-extern uint8 D_800C356E; // like Game_work.unk050; stage whose sound is loaded?
-extern uint8 D_800C356F; // like Game_work.unk051
-extern uint8 D_800C3570;
-extern uint8 D_800C3571;
-extern char D_800C1010[]; // SsSetTableSize work area
+extern sint32 func_8001A834(SOUND_VOICE *voice, SOUND_POS *pos);
+extern void func_8001A274(SOUND_POS *pos, uint32 pan, uint16 *left, uint16 *right, sint16 dist);
+extern void SpuSetKeyOnWithAttr(SOUND_VOICE_ATTR *attr);
+extern sint32 SsUtGetVagAddr(sint16 vab, sint16 vag);
 
-void Sound_stage_slot_set(sint32 which);
-void Sound_stage_check(void);
-void Sound_stage_play(void);
-void Sound_init(void);
-void Sound_reverb_set(sint32 idx);
-void func_80019FB4(void);
-void Sound_call(uint16 id, sint32 arg1, sint32 arg2);
-void Sound_call2(sint16 id, SVECTOR *pos);
-sint32 Sound_seq_is_eos(sint32 idx);
-void Sound_update(void);
-void Sound_call_play(SOUND_CALL *call);
-void Sound_seq_play(SOUND_CALL *call);
-void Sound_sep_play(SOUND_CALL *call);
-void Sound_key_off_voice(sint16 voice);
-void func_8001B314(void);
-void Sound_seq_stop_all(void);
+extern uint16 D_80082314[];
+
+// Local view of PsyQ's SpuEnv
+typedef struct
+{
+    uint32 mask;
+    uint32 value;
+} SOUND_SPU_ENV;
+
+extern void func_8006B594(void);
+extern uint8 D_800C1010[];
+extern void SsSetTableSize(void *table, sint32 s_max, sint32 t_max);
+extern void SsSetTickMode(sint32 mode);
+extern void SsStart(void);
+extern void SpuSetEnv(SOUND_SPU_ENV *env);
+
+// Local view of the 8-byte entries of D_80098AF8
+typedef struct
+{
+    sint16 seq;   // 0x00: SsSeq access number, -1 if closed
+    sint8 kind;   // 0x02: -1 none, 0 SEQ, otherwise SEP
+    sint8 prio;   // 0x03
+    uint8 arg_4;  // 0x04
+    uint8 flag_5; // 0x05
+    sint16 id;    // 0x06: sound call id
+} SOUND_SEQ;
+#define SOUND_SEQ_TBL ((SOUND_SEQ *)D_80098AF8)
+extern sint32 D_80098AD4[][2];
+extern sint16 SsSepOpen(sint32 addr, sint16 vab, uint8 seq_num);
+extern void SsSepPlay(sint16 seq, uint8 sep, sint32 mode, sint32 loop);
+extern sint32 func_8001A238(sint32 id);
+extern sint16 SsSeqOpen(sint32 addr, sint16 vab);
+extern void SsSeqPlay(sint16 seq, sint32 mode, sint32 loop);
+extern void SsSeqClose(sint16 seq);
+extern void SsSepClose(sint16 seq);
+
+extern sint32 ccos(sint32 angle);
+extern sint32 func_8001E83C(sint16 x0, sint16 z0, sint16 x1, sint16 z1);
+#define GAME_WORK_FLAG58 (*(sint8 *)((uint8 *)&Game_work + 0x58))
+
+extern sint32 func_8001AE6C(sint32 flags, uint16 *p);
+extern void SsSetMVol(sint16 voll, sint16 volr);
+extern void func_80075AA4(void);
+extern void func_80075AB8(void);
+extern void func_80070634(sint16 seq, sint16 voll, sint16 volr);
+extern void func_80070694(sint16 seq, uint8 sep, sint16 voll, sint16 volr);
+extern void func_80070974(sint32 arg);
+extern void SsSetReservedVoice(uint8 voices);
+extern void SsUtSetReverbType(sint16 type);
+extern void func_800721C4(void);
+extern void SsUtSetReverbDepth(sint16 left, sint16 right);
+extern void SsSetRVol(sint16 left, sint16 right);
 
 #endif // SOUND_H

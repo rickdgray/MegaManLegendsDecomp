@@ -1,0 +1,55 @@
+# The long smoke test: a new game from boot, by pad input only (the language is described at
+# the top of port/runtime/port_script.c). `make port-smoke` runs it headless with the game-paced
+# clock, so the run is exact and the checkpoints below are regression checks: memory values
+# (stage, room, Mega Man's position), never stored pictures. `mark` lines log a hash of the
+# display for comparing runs by eye.
+#
+# It ends in the opening ruin after the first fight (blank ~15,300). Beyond that the route to
+# the first door is not scripted yet.
+let stage 0x800C1B60
+let room  0x800C1B61
+let px    0x800B51C4:s16      # Player_work.position
+let py    0x800B51C6:s16
+let pz    0x800B51C8:s16
+
+# --- intro crawl, title, NEW GAME ---------------------------------------------------------
+wait 1500
+press start                 # skip the intro
+wait 1088
+press start                 # PRESS START BUTTON
+wait 988
+expect stage == 0 && room == 0
+mark title-menu
+
+# --- the opening cutscene, into the first ruin ----------------------------------------------
+mash cross until stage == 0 && room == 1 max 9000   # NEW GAME, then through the cutscene
+mark opening-ruin
+wait 60
+expect px == 2822 && pz == -4833                   # where the ruin starts
+
+# --- Roll's tutorial: walk up, the instructions, "Read instructions again?" No ---------------
+hold up 1500
+press cross
+wait 80
+press cross
+wait 80
+press cross
+wait 80
+press right
+press cross
+wait 60
+hold r2+square 400          # the small Reaverbot on the corridor wall
+hold r2 200
+hold up 600                 # to the corner: "Turn right there.", the Horokko come
+expect pz < -11000           # at the corner
+
+# --- the three Horokko, then north along the corridor --------------------------------------
+mash square with r2 900
+wait 60
+mark after-fight
+expect stage == 0 && room == 1
+hold up until pz >= -5420 max 900
+expect px >= 2593 && px <= 3039
+mark corridor-north
+wait 60
+end

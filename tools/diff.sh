@@ -3,12 +3,12 @@
 # asm-differ's -o mode doesn't accept an end address, so this cuts its output off at the
 # function's real end (start + size, from the object's symbol table).
 # The header's score still covers everything asm-differ diffed; trust the flagged lines.
-# Usage: tools/diff.sh [target] FunctionName [--whole] [extra asm-differ flags]
+# Usage: tools/diff.sh <target> FunctionName [--whole] [extra asm-differ flags]
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
 if [[ $# -lt 1 ]]; then
-    echo "usage: $0 [target] FunctionName [--whole] [diff.py flags]" >&2
+    echo "usage: $0 <target> FunctionName [--whole] [diff.py flags]" >&2
     exit 2
 fi
 fn=$1; shift
@@ -19,10 +19,6 @@ export DIFF_MAP=$MAP DIFF_ORIGINAL=$ORIGINAL DIFF_BINARY=$BINARY \
 
 whole=0
 if [[ "${1:-}" == "--whole" ]]; then whole=1; shift; fi
-
-# Plain text when the output isn't a terminal (piped, or an agent reading it): no colour codes
-# to strip. A --format given on the command line comes later and wins.
-if [[ ! -t 1 ]]; then set -- --format plain "$@"; fi
 
 # Find the function's offset and size in the object that defines it ("F" = function symbol).
 found=""

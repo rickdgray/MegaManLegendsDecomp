@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Snapshot a MATCHING build of one target as the reference for per-function diffs
 # (asm-differ -o). Refuses to run unless the built binary is byte-identical to the original.
-# asm-differ looks for the reference object at expected/[target]/<object path>, so the
-# snapshot keeps the build's own path: expected/[target]/build/[target]/...
-# Usage: tools/make_expected.sh [target]
+# asm-differ looks for the reference object at expected/<target>/<object path>, so the
+# snapshot keeps the build's own path: expected/<target>/build/<target>/...
+# Usage: tools/make_expected.sh <target>
 set -euo pipefail
-source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+source "$(dirname "$0")/target.sh" "${1:-}"; shift
 
 if ! cmp -s "$ORIGINAL" "$BINARY"; then
     echo "Refusing: $BINARY does not match $ORIGINAL. Run tools/build.sh $TARGET and fix it first." >&2
