@@ -5,9 +5,6 @@
 #include "game.h"
 #include "sound.h"
 
-// Called only from this file
-void func_800150E0(WORK_3C0 *wp, SCRIPT_WORK *sp);
-
 void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
 {
     wp->routine_0 |= 2;
@@ -26,7 +23,7 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     *(uint32 *)&wp->ang.vx = 0;
     *(uint32 *)&wp->ang.vz = 0;
     wp->field_10           = 0;
-    sp->data               = D_800820E0[wp->field_C][wp->field_3];
+    sp->data               = D_800820E0[wp->field_C][wp->type_3];
     if (sp->data == NULL)
     {
         wp->routine_8 = 2;
@@ -297,8 +294,8 @@ void func_80015428(CODE_800133D8_WORK *wp)
                     if (op != NULL)
                     {
                         op->routine_0           = 1;
-                        op->field_3             = i;
-                        op->field_2             = 0;
+                        op->type_3              = i;
+                        op->id_2                = 0;
                         *(uint16 *)&op->flag_4  = 0;
                         *(uint32 *)&op->field_C = 0;
                         op->field_C             = wp->field_8;

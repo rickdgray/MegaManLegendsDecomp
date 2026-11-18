@@ -399,7 +399,8 @@ branch bodies, `>=`, swapped names and `-=` forms were also tried.
 `flag_3` picks how pos_1C, field_24 and the colour word move; `case 2:` shares `default:`), and parked
 `func_800441CC` (`NON_MATCHING`; register allocation only, in the distance test against Player_work: the
 target keeps the player's coordinate in v1 and the three squares in a1/a0/t0, the attempt gives v0 and
-a2/a1/a0). `func_8004441C` (a jump-table function) was in progress when the session was killed; still
+a2/a1/a0). Consolidation retried six more shapes of the distance test (squares into locals, reversed
+subtractions, the sum in a reused local, `r *= r`): all register-only differences. `func_8004441C` (a jump-table function) was in progress when the session was killed; still
 assembly. The sprite kinds that keep their position in `pos_1C` (`func_80045338`, `func_80045400`,
 `func_8004548C`) use `WORK_48.u_18.spr`: acceleration at 0x28 and speed at 0x30, unlike `u_18.s`, where
 0x2C is the speed and 0x32 the acceleration (`code_800456D8`'s debris).

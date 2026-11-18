@@ -1,5 +1,8 @@
 #include "common.h"
 #include "code_800425FC.h"
+#include "code_80037534.h"
+#include "game.h"
+#include "player.h"
 
 void func_800425FC(PL_WORK *pl, sint32 row)
 {

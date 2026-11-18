@@ -130,8 +130,8 @@ typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint8 field_2; // field_2 and field_3 are cleared together by one halfword store (on open)
-    uint8 field_3; // func_80015428: index of the object (0..15)
+    uint8 id_2;   // MODEL_WORK.id_2; id_2 and type_3 are cleared by one halfword store (on open)
+    uint8 type_3; // MODEL_WORK.type_3; func_80015428 sets it to the object's index (0..15)
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above

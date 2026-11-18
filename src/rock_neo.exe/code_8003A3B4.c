@@ -2,6 +2,7 @@
 #include "psyq/abs.h"
 #include "psyq/libgte.h"
 #include "stage.h"
+#include "code_8003A3B4.h"
 
 // Called only from this file
 void light_init(void);

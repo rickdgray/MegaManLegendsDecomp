@@ -851,7 +851,7 @@ WORK_3C0 *func_80031418(void)
             wp->field_10 = 0;
             wp->hit_78   = 0;
             D_800987E8 |= 0x80000000 >> i;
-            *(uint16 *)&wp->field_2   = 0;
+            *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;

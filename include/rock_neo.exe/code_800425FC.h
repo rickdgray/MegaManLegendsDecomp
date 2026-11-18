@@ -3,8 +3,6 @@
 
 #include "common.h"
 #include "player.h"
-#include "game.h"
-#include "code_80037534.h"
 
 typedef void (*PL_FUNC)(PL_WORK *pl);
 
