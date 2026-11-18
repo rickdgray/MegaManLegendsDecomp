@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""Exports the 64-bit game's sources for the Apple TV build.
+
+Reads the configured Linux 64-bit build (build/port64-all by default): every object that goes into
+mml_game64, its compile flags (ninja's compile database) and the headers it read (ninja's deps
+log). Copies those sources and headers, generated wasm2c C included, into OUT/src with portable
+relative paths, and writes OUT/src/sources.cmake: one group per distinct set of defines and
+include directories, which port/appletv/CMakeLists.txt compiles for tvOS. The Mac then needs
+only Xcode and SDL3: no wasm toolchain, no Python.
+
+    port/appletv/export.py [--build build/port64-all] [--out build/appletv]
+"""
+
+import argparse
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+
+def ninja(build, *args):
+    return subprocess.run(["ninja", "-C", build, "-t", *args], check=True, capture_output=True,
+                          text=True).stdout
+
+
+def inputs(build, target):
+    out, mode = [], False
+    for line in ninja(build, "query", target).splitlines():
+        s = line.strip()
+        if s.startswith("input:"):
+            mode = True
+        elif s.startswith("outputs:"):
+            mode = False
+        elif mode and s:
+            out.append(s.lstrip("|").strip())
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--build", default=os.path.join(REPO, "build", "port64-all"))
+    ap.add_argument("--out", default=os.path.join(REPO, "build", "appletv"))
+    args = ap.parse_args()
+    build = os.path.abspath(args.build)
+    out = os.path.join(os.path.abspath(args.out), "src")
+    tools = os.path.join(REPO, "build", "port64-tools", "usr")
+
+    # Where each absolute path goes in the bundle (longest prefix first).
+    roots = [
+        (os.path.join(build, "gen") + "/", "gen/"),
+        (os.path.join(tools, "share", "wabt", "wasm2c") + "/", "wabt/runtime/"),
+        (os.path.join(tools, "include") + "/", "wabt/include/"),
+        (os.path.join(REPO, "port") + "/", "port/"),
+        (os.path.join(REPO, "include") + "/", "include/"),
+    ]
+
+    def portable(path):
+        path = os.path.normpath(os.path.join(build, path))
+        for prefix, mapped in roots:
+            if path.startswith(prefix) or path + "/" == prefix:
+                return mapped + path[len(prefix):] if path.startswith(prefix) else mapped.rstrip("/")
+        if path.startswith("/usr/include") or path.startswith("/usr/lib"):
+            return None  # the system's own headers
+        sys.exit(f"export: no bundle location for {path}")
+
+    objects, libs = [], []
+    for item in inputs(build, "mml_game64"):
+        (objects if item.endswith(".o") else libs).append(item)
+    for lib in libs:
+        if lib.endswith(".a"):
+            objects += [o for o in inputs(build, lib) if o.endswith(".o")]
+    objects = list(dict.fromkeys(objects))
+    db = {e["output"]: e for e in json.load(open(os.path.join(build, "compile_commands.json")))
+          } if os.path.exists(os.path.join(build, "compile_commands.json")) else {}
+    if not db:
+        objects = list(dict.fromkeys(objects))
+    db = {e["output"]: e for e in json.loads(ninja(build, "compdb"))}
+
+    groups = {}
+    files = set()
+    for obj in objects:
+        entry = db[obj]
+        argv = shlex.split(entry["command"])
+        source = portable(entry["file"])
+        defines, includes = [], []
+        for i, a in enumerate(argv):
+            if a.startswith("-D"):
+                name = a[2:].split("=", 1)[0]
+                if name.startswith("PORT_DEFAULT_") or name == "NDEBUG":
+                    continue  # host paths; the app finds its files in its bundle
+                defines.append(a[2:])
+            elif a.startswith("-I"):
+                inc = portable(a[2:])
+                if inc is not None:
+                    includes.append(inc)
+            elif a == "-isystem" and i + 1 < len(argv):
+                inc = portable(argv[i + 1])
+                if inc is not None:
+                    includes.append(inc)
+        key = (tuple(defines), tuple(includes))
+        groups.setdefault(key, []).append(source)
+        files.add(source)
+        for line in ninja(build, "deps", obj).splitlines()[1:]:
+            dep = line.strip()
+            if dep:
+                mapped = portable(dep)
+                if mapped is not None:
+                    files.add(mapped)
+
+    if os.path.isdir(out):
+        shutil.rmtree(out)
+    reverse = [(mapped, prefix) for prefix, mapped in roots]
+    for f in sorted(files):
+        for mapped, prefix in reverse:
+            if f.startswith(mapped):
+                src = prefix + f[len(mapped):]
+                break
+        dst = os.path.join(out, f)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
+
+    with open(os.path.join(out, "sources.cmake"), "w") as cm:
+        cm.write("# Generated by port/appletv/export.py: the 64-bit game's sources by compile flags.\n")
+        cm.write(f"set(MML_GROUPS {len(groups)})\n")
+        for n, ((defines, includes), sources) in enumerate(sorted(groups.items())):
+            def q(items):
+                return " ".join('"' + i.replace('"', '\\"') + '"' for i in items)
+            cm.write(f"set(MML_GROUP_{n}_DEFINES {q(defines)})\n")
+            cm.write(f"set(MML_GROUP_{n}_INCLUDES {q(includes)})\n")
+            cm.write(f"set(MML_GROUP_{n}_SOURCES {q(sorted(sources))})\n")
+    size = sum(os.path.getsize(os.path.join(out, f)) for f in files)
+    print(f"export: {len(objects)} objects in {len(groups)} groups, {len(files)} files "
+          f"({size / 1e6:.0f} MB) in {out}")
+
+
+if __name__ == "__main__":
+    main()

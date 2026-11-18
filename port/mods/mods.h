@@ -91,8 +91,11 @@ void mods_frame(void);
 
 // --- for mods ---------------------------------------------------------------------------------
 
-// Points the game function at retail address `addr` at `fn` (same C signature; cdecl) and
-// returns the original native code for fn to call, or NULL (logged) when it cannot.
+// Points the game function at retail address `addr` at `fn` and returns the original for fn to
+// call, or NULL (logged) when it cannot. Hooks and originals take and return PS1 words: every
+// argument a uint32_t (game pointers as PS1 addresses; MODS_PTR reads them), as many as the
+// game function has. The same mod code then runs in the 32-bit port (a jump at the retail
+// address) and the 64-bit one (a compiled hook point; port/aot/mods_host.c).
 void *mods_hook(uint32_t addr, void *fn);
 void mods_unhook(uint32_t addr);
 // Closes the pause panel (a page that hands control back to the game, e.g. a teleport). The
@@ -104,7 +107,19 @@ void mods_save_setting(MOD *m, MOD_SETTING *s);
 // The game's state the panel and mods read (PS1 addresses).
 #define MODS_GAME_WORK 0x800C1B10u // Game_work: routine_0 +0, routine_1 +1, stage +0x50, room +0x51
 #define MODS_PLAYER_WORK 0x800B51B0u // Player_work (PL_WORK, include/rock_neo.exe/player.h)
-#define MODS_PEEK8(a)    (*(volatile uint8_t *)(uintptr_t)(a))
-#define MODS_PEEK16(a)   (*(volatile int16_t *)(uintptr_t)(a))
+// PS1 memory: a host pointer to PS1 address `a`, and reads and writes through it.
+#ifdef PORT_AOT_MIPS
+uint8_t *mods_ptr(uint32_t addr); // the 64-bit port's guest memory
+#define MODS_PTR(a) mods_ptr((uint32_t)(a))
+#else
+#define MODS_PTR(a) ((uint8_t *)(uintptr_t)(a)) // PS1 memory at its own addresses
+#endif
+#define MODS_PEEK8(a)     (*(volatile uint8_t *)MODS_PTR(a))
+#define MODS_PEEK16(a)    (*(volatile int16_t *)MODS_PTR(a))
+#define MODS_POKE8(a, v)  (*(volatile uint8_t *)MODS_PTR(a) = (uint8_t)(v))
+#define MODS_POKE16(a, v) (*(volatile int16_t *)MODS_PTR(a) = (int16_t)(v))
+#define MODS_POKE32(a, v) (*(volatile uint32_t *)MODS_PTR(a) = (uint32_t)(v))
+// Calls the game function at retail address `addr` with `n` (0-4) word arguments.
+uint32_t mods_call(uint32_t addr, int n, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3);
 
 #endif

@@ -32,6 +32,17 @@ RETAIL_IMPORTS = (
     "SetDrawMode", "SsQuit", "StopPAD", "_96_init", "LoadExec",
 )
 HOST_IMPORTS = (*RETAIL_IMPORTS, "port_vblank_idle", "port_spin_pause")
+# Base-game functions the port's mods hook (port/mods/, port/aot/mods_host.c). Each definition
+# is renamed NAME__orig and NAME becomes an import, so every call (direct, through a retail
+# address, from an overlay) reaches the host, which runs the mod's hook or the original.
+MOD_HOOKS = (
+    "func_8003D1E0",  # the skates' routine (fast_skates)
+    "func_8002FEA4",  # a step of movement (fast_skates)
+    "func_8003F5D8",  # standing: the skate button check (skate_quick_start)
+    "func_8003C88C",  # the player's routine (skate_quick_start)
+    "func_8003FDA8",  # skating: the action check (skate_shoot)
+    "func_800158F0",  # the field mode (teleport)
+)
 LIBRARY_SYMBOLS = (
     "InterruptCallback", "DMACallback", "OpenEvent", "EnableEvent", "CloseEvent",
     "DisableEvent", "DeliverEvent", "SetDrawEnv2",
@@ -77,6 +88,18 @@ invalid:
 
 declare void @llvm.trap()
 """
+
+
+def bind_mod_hooks(ir):
+    for name in MOD_HOOKS:
+        define = re.compile(rf"^define ([^\n]*?)(\S+) @{name}\(([^\n]*?)\)([^\n]*)\{{$", re.MULTILINE)
+        match = define.search(ir)
+        if match is None:
+            continue  # defined in another source file
+        params = ", ".join(re.sub(r" %[\w.]+$", "", p.strip()) for p in match[3].split(",") if p.strip())
+        ir = ir[:match.start()] + match[0].replace(f"@{name}(", f"@{name}__orig(", 1) + ir[match.end():]
+        ir += f"\ndeclare {match[2]} @{name}({params})\n"
+    return ir
 
 
 def bind_data(ir, symbols, locals_, game):
@@ -151,7 +174,10 @@ def main():
 
     if args.game:
         try:
-            args.output.write_text(lower_calls(ir, symbols, locals_))
+            ir = lower_calls(ir, symbols, locals_)
+            if args.main_elf is None:  # the base game
+                ir = bind_mod_hooks(ir)
+            args.output.write_text(ir)
         except ValueError as error:
             parser.error(f"{args.source}: {error}")
         return

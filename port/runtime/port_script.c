@@ -18,6 +18,8 @@
 //   dump NAME                   writes VRAM to DUMP-NAME.ppm (with --dump DUMP)
 //   ram NAME                    writes PS1 RAM (2 MB) and the scratchpad (1 KB) to
 //                               DUMP-NAME.ram (for finding values to wait on)
+//   poke ADDR BYTE              writes a byte of PS1 memory (tests: e.g. an item the save
+//                               would have; ADDR is a PS1 address)
 //   end                         stops the program successfully (also at the end of the file)
 //   serve                       writing scripts: keeps the run here and forks a continuation
 //                               per request (--serve DIR; port_fork_serve in port_game.c)
@@ -49,6 +51,7 @@ enum
     C_MARK,
     C_DUMP,
     C_RAM,
+    C_POKE,
     C_END,
     C_SERVE
 };
@@ -410,6 +413,19 @@ int port_script_load(const char *path)
             c.kind = tok[0][0] == 'm' ? C_MARK : tok[0][0] == 'd' ? C_DUMP : C_RAM;
             snprintf(c.name, sizeof(c.name), "%s", tok[1]);
         }
+        else if (strcmp(tok[0], "poke") == 0 && ntok == 3 && parse_number(tok[1], &n) == 0)
+        {
+            int32_t value;
+
+            if (parse_number(tok[2], &value) != 0 || value < 0 || value > 255)
+            {
+                fclose(f);
+                return parse_error(lineno, "bad poke value", tok[2]);
+            }
+            c.kind           = C_POKE;
+            c.terms[0].addr  = (uint32_t)n;
+            c.terms[0].value = value;
+        }
         else if (strcmp(tok[0], "end") == 0 && ntok == 1)
         {
             c.kind = C_END;
@@ -647,6 +663,11 @@ uint32_t port_script_buttons(uint32_t v)
                         port_log("script: blank %u: wrote VRAM to %s", v, path);
                     }
                 }
+                break;
+            case C_POKE:
+                *(uint8_t *)psx_ptr(c->terms[0].addr) = (uint8_t)c->terms[0].value;
+                port_log("script: blank %u: poke 0x%08X = 0x%02X", v, c->terms[0].addr,
+                         (unsigned)c->terms[0].value);
                 break;
             case C_END:
                 port_log("script: end at blank %u", v);

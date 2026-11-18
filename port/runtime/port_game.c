@@ -19,17 +19,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __linux__
 #include <sys/prctl.h>
 #include <sys/syscall.h>
+#include <ucontext.h>
+#else
+#include <pthread.h>
+#endif
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <time.h>
-#include <ucontext.h>
 #include <unistd.h>
 
 #pragma weak port_cd_tick
+#if defined(PORT_BOOT_SHIM_ONLY) && defined(PORT_AOT_MIPS)
+#pragma weak mods_pad_filter
+#pragma weak mods_frame
+#endif
 
-PORT_OPTIONS port_options = {1, 0, 0, 60, 0, NULL, 0, NULL, NULL, NULL, NULL, 0, 0, NULL};
+PORT_OPTIONS port_options = {1, 0, 0, 60, 0, NULL, 0, NULL, NULL, NULL, NULL, 0, 0, NULL, 0};
 
 static volatile uint32_t vblanks;
 static void (*vblank_handler)(void);
@@ -115,7 +123,13 @@ int port_window_open(const char *title, int scale)
 
 // --- vertical blank -------------------------------------------------------------------------
 
-static pid_t game_tid; // the OS thread the game runs on (its threads are coroutines in it)
+// The OS thread the game runs on (its threads are coroutines in it).
+#ifdef __linux__
+static pid_t game_tid;
+#else
+static pthread_t game_thread;
+static int game_thread_set;
+#endif
 
 // The interrupt-time work of one vertical blank. Runs with SIGALRM blocked (in the signal
 // handler, or from deliver_vblank).
@@ -164,6 +178,38 @@ static volatile int vblank_on; // between port_vblank_start and port_vblank_stop
 static uint32_t watchdog_seen;
 static int watchdog_idle;
 
+// port_options.paced: wait until this blank's slot of real time. A run that falls more than a
+// quarter second behind (a slow host, a breakpoint) restarts the schedule rather than racing.
+static void pace_vblank(void)
+{
+    static struct timespec origin;
+    static uint64_t paced;
+    struct timespec now, ts;
+    uint64_t period = 1000000000ull / (uint64_t)(port_options.vblank_hz > 0 ? port_options.vblank_hz : 60);
+    int64_t ahead;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    if (paced == 0)
+    {
+        origin = now;
+    }
+    paced++;
+    ahead = (int64_t)(paced * period) -
+            ((int64_t)(now.tv_sec - origin.tv_sec) * 1000000000 + (now.tv_nsec - origin.tv_nsec));
+    if (ahead < -250000000)
+    {
+        origin = now;
+        paced  = 1;
+        return;
+    }
+    if (ahead > 0)
+    {
+        ts.tv_sec  = (time_t)(ahead / 1000000000);
+        ts.tv_nsec = (long)(ahead % 1000000000);
+        nanosleep(&ts, NULL);
+    }
+}
+
 static int deliver_vblank(void)
 {
     sigset_t set, old;
@@ -176,6 +222,10 @@ static int deliver_vblank(void)
         // Interrupts are off (a critical section, or the callbacks stopped): none can arrive.
         sigprocmask(SIG_SETMASK, &old, NULL);
         return 0;
+    }
+    if (port_options.paced)
+    {
+        pace_vblank();
     }
     vblank_interrupt();
     sigprocmask(SIG_SETMASK, &old, NULL);
@@ -197,7 +247,9 @@ static void watchdog(void *uc)
     watchdog_idle = 0;
     {
         unsigned long pc = 0;
-#if defined(__i386__)
+#if !defined(__linux__)
+        (void)uc;
+#elif defined(__i386__)
         pc = (unsigned long)((ucontext_t *)uc)->uc_mcontext.gregs[REG_EIP];
 #elif defined(__x86_64__)
         pc = (unsigned long)((ucontext_t *)uc)->uc_mcontext.gregs[REG_RIP];
@@ -216,11 +268,19 @@ static void on_alarm(int sig, siginfo_t *si, void *uc)
     (void)si;
     // The timer signal goes to the process, and any thread may take it; SDL starts threads of
     // its own. The vertical blank must interrupt the game's thread, so pass it on.
+#ifdef __linux__
     if (game_tid != 0 && (pid_t)syscall(SYS_gettid) != game_tid)
     {
         syscall(SYS_tgkill, getpid(), game_tid, sig);
         return;
     }
+#else
+    if (game_thread_set && !pthread_equal(pthread_self(), game_thread))
+    {
+        pthread_kill(game_thread, sig);
+        return;
+    }
+#endif
     if (port_options.deterministic)
     {
         watchdog(uc);
@@ -241,7 +301,12 @@ void port_vblank_start(void (*handler)(void))
     }
     vblank_handler = handler;
     vblank_on      = 1;
-    game_tid       = (pid_t)syscall(SYS_gettid);
+#ifdef __linux__
+    game_tid = (pid_t)syscall(SYS_gettid);
+#else
+    game_thread     = pthread_self();
+    game_thread_set = 1;
+#endif
     memset(&sa, 0, sizeof(sa));
     sa.sa_sigaction = on_alarm;
     sa.sa_flags     = SA_RESTART | SA_SIGINFO;
@@ -480,6 +545,11 @@ void port_pad_update(void)
     memcpy(out, pads, sizeof(out));
 #ifndef PORT_BOOT_SHIM_ONLY
     mods_pad_filter(out);
+#elif defined(PORT_AOT_MIPS)
+    if (mods_pad_filter != NULL)
+    {
+        mods_pad_filter(out); // mml_game64 links the mods; the boot-shim programs do not
+    }
 #endif
     for (i = 0; i < 2; i++)
     {
@@ -568,7 +638,7 @@ void port_exec(const char *path, char *const argv[])
     {
         _exit(1);
     }
-#ifdef PORT_HAVE_SDL
+#if defined(PORT_HAVE_SDL) && defined(__linux__)
     if (!port_options.headless && port_remote() == NULL)
     {
         // One window across LoadExec (port_remote.h): this process keeps the window and the
@@ -611,11 +681,17 @@ void port_exec(const char *path, char *const argv[])
         _exit(platform_host_run(child));
     }
 #endif
+#ifdef PORT_SINGLE_PROCESS
+    (void)path;
+    (void)argv;
+    port_stop(1, "LoadExec to another process (not available on this host)");
+#else
     finish("LoadExec");
     port_irq_restore(0); // the new program starts with the timer signal unblocked
     execv(path, argv);
     perror(path);
     _exit(1);
+#endif
 }
 
 void port_display_enable(int on)
@@ -711,6 +787,11 @@ void port_frame_drawn(void)
     dump_scheduled();
 #ifndef PORT_BOOT_SHIM_ONLY
     mods_frame(); // the mod panel's menu and its text layer (port/mods/); nothing in vanilla
+#elif defined(PORT_AOT_MIPS)
+    if (mods_frame != NULL)
+    {
+        mods_frame();
+    }
 #endif
     if (port_options.verbose)
     {
@@ -754,6 +835,9 @@ void port_frame_drawn(void)
 // LIST` (absolute blanks), `quit`.
 void port_fork_serve(void)
 {
+#ifdef PORT_SINGLE_PROCESS
+    port_stop(1, "serve: not available on this host");
+#else
     const char *dir = port_options.serve_dir;
     static uint8_t *saved;
     static char script[1024], dump[1024], dump_at[4096];
@@ -870,4 +954,5 @@ void port_fork_serve(void)
             fclose(f);
         }
     }
+#endif
 }

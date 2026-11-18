@@ -84,6 +84,20 @@ target_compile_definitions(port_boot64 PRIVATE PORT_AOT_MIPS=1 PORT_AOT_STACK_TO
     PORT_SHIM PORT_BOOT_SHIM_ONLY PORT_GPU_STATE=0x80048090u PUBLIC WASM_RT_MEMCHECK_BOUNDS_CHECK=1)
 target_link_libraries(port_boot64 PUBLIC m)
 
+# A window, sound and gamepads through SDL3 (mml_game64 --window). Without SDL3 the build stays
+# headless.
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(SDL3_64 IMPORTED_TARGET sdl3)
+endif()
+if(SDL3_64_FOUND)
+    target_sources(port_boot64 PRIVATE runtime/platform_sdl.c)
+    target_compile_definitions(port_boot64 PUBLIC PORT_HAVE_SDL)
+    target_link_libraries(port_boot64 PUBLIC PkgConfig::SDL3_64)
+else()
+    message(STATUS "SDL3 not found: mml_game64 runs headless only")
+endif()
+
 add_executable(boot64_check aot/boot64_check.c)
 target_link_libraries(boot64_check PRIVATE port_boot64)
 add_executable(mml_boot64 aot/boot_main.c)
@@ -240,6 +254,13 @@ add_custom_command(
 add_executable(mml_game64 aot/game_main.c aot/game_imports.c
     "${AOT_GAME_IMPORTS}" "${AOT_GAME_IMPORT_ADDRESSES}")
 target_link_libraries(mml_game64 PRIVATE game64_module port_boot64)
+# The mods (port/mods/): the same sources as the 32-bit port, with their hooks on compiled hook
+# points (aot/mods_host.c, MOD_HOOKS in aot/bind_retail.py).
+target_sources(mml_game64 PRIVATE aot/mods_host.c mods/mods.c mods/mods_menu.c mods/mods_list.c
+    mods/mod_fast_skates.c mods/mod_skate_shoot.c mods/mod_skate_quick_start.c
+    mods/mod_teleport.c mods/mod_teleport_dests.c mods/mod_weapon_switch.c)
+target_include_directories(mml_game64 PRIVATE mods runtime)
+target_compile_definitions(mml_game64 PRIVATE PORT_AOT_MIPS=1)
 target_compile_definitions(mml_game64 PRIVATE PORT_DEFAULT_EXE="${PORT_RETAIL_EXE}"
     PORT_DEFAULT_DISC="${PORT_DISC_IMAGE}" PORT_DEFAULT_SHIM="${PORT_SHIM_EXE}")
 

@@ -38,19 +38,24 @@
 
 #define PL_SKATING 3 // routine_1: the Jet Skates
 
-typedef void (*CHECK_FN)(uint8_t *pl);
-typedef int32_t (*SHOT_FN)(uint8_t *pl, int32_t how);
+typedef void (*CHECK_FN)(uint32_t pl);
 
 static CHECK_FN orig_check;
 
-static void check_hook(uint8_t *pl)
+static void check_hook(uint32_t addr)
 {
-    orig_check(pl);
-    if (pl == (uint8_t *)(uintptr_t)MODS_PLAYER_WORK && pl[PL_ROUTINE_1] == PL_SKATING &&
-        (pl[PL_VALUE0A] == 3 || pl[PL_VALUE0A] == 4))
+    uint8_t *pl;
+
+    orig_check(addr);
+    if (addr != MODS_PLAYER_WORK)
+    {
+        return;
+    }
+    pl = MODS_PTR(addr);
+    if (pl[PL_ROUTINE_1] == PL_SKATING && (pl[PL_VALUE0A] == 3 || pl[PL_VALUE0A] == 4))
     {
         pl[PL_VALUE175] |= 1;
-        ((SHOT_FN)(uintptr_t)FUNC_SHOT_CHECK)(pl, 2);
+        mods_call(FUNC_SHOT_CHECK, 2, addr, 2, 0, 0); // sint32 func_80040B68(pl, how)
     }
 }
 

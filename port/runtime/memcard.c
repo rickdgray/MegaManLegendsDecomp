@@ -21,6 +21,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#ifdef __APPLE__
+#define st_mtim st_mtimespec // Darwin's name for the modification time
+#endif
+
 #define ST_FIRST   0x51
 #define ST_MIDDLE  0x52
 #define ST_LAST    0x53

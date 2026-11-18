@@ -60,9 +60,7 @@
 #define PL_STANDING 0
 #define PL_SKATING  3
 
-typedef void (*PL_FN)(uint8_t *pl);
-typedef void (*ANIM_FN)(uint8_t *pl, int32_t id);
-typedef void (*SOUND_FN)(int32_t id, int32_t a1, int32_t a2);
+typedef void (*PL_FN)(uint32_t pl);
 
 enum
 {
@@ -85,9 +83,9 @@ static PL_FN orig_frame;
 #define PL_S8(pl, off)  (*(int8_t *)((pl) + (off)))
 #define PL_U16(pl, off) (*(uint16_t *)((pl) + (off)))
 
-static int is_player(uint8_t *pl)
+static int is_player(uint32_t addr)
 {
-    return pl == (uint8_t *)(uintptr_t)MODS_PLAYER_WORK;
+    return addr == MODS_PLAYER_WORK;
 }
 
 // Cases 0-3 of the skates' routine as they stand by the time cruising starts: case 4 then
@@ -100,16 +98,18 @@ static void skip_start_up(uint8_t *pl)
         PL_U8(pl, PL_VALUE44A)++;
     }
     *(int16_t *)(pl + PL_VALUE44) = 0x340;
-    ((SOUND_FN)(uintptr_t)FUNC_SOUND_CALL)(0x8C, 0, 0);
+    mods_call(FUNC_SOUND_CALL, 3, 0x8C, 0, 0, 0);
     PL_U8(pl, PL_VALUE0A) = 4;
 }
 
-static void stand_check_hook(uint8_t *pl)
+static void stand_check_hook(uint32_t addr)
 {
-    orig_stand_check(pl);
+    uint8_t *pl = MODS_PTR(addr);
+
+    orig_stand_check(addr);
     // value44a counts only while func_80040574 ran this frame with Circle held and the skates
     // owned (every other path clears it), so this is the game's own count.
-    if (is_player(pl) && PL_U8(pl, PL_ROUTINE_1) == PL_STANDING &&
+    if (is_player(addr) && PL_U8(pl, PL_ROUTINE_1) == PL_STANDING &&
         (PL_U16(pl, PL_PAD_CUR) & PL_U16(pl, PL_VALUE134)) && (PL_U8(pl, PL_FLAGS16B) & 2) &&
         PL_U8(pl, PL_VALUE44B) == 0 && PL_U8(pl, PL_VALUE44A) >= holds[settings[0].value])
     {
@@ -122,11 +122,12 @@ static void stand_check_hook(uint8_t *pl)
     }
 }
 
-static void frame_hook(uint8_t *pl)
+static void frame_hook(uint32_t addr)
 {
-    int state = PL_U8(pl, PL_VALUE0A);
+    uint8_t *pl = MODS_PTR(addr);
+    int state   = PL_U8(pl, PL_VALUE0A);
 
-    if (is_player(pl) && PL_U8(pl, PL_ROUTINE_1) == PL_SKATING && state <= 3)
+    if (is_player(addr) && PL_U8(pl, PL_ROUTINE_1) == PL_SKATING && state <= 3)
     {
         if (settings[0].value == START_INSTANT)
         {
@@ -136,10 +137,10 @@ static void frame_hook(uint8_t *pl)
                  (state == 3 || PL_S8(pl, PL_VALUE_A6) == 0))
         {
             // One extra tick of the playing start-up animation, before the routine looks at it.
-            ((ANIM_FN)(uintptr_t)FUNC_ANIM_STEP)(pl, PL_U8(pl, PL_VALUE_AC));
+            mods_call(FUNC_ANIM_STEP, 2, addr, PL_U8(pl, PL_VALUE_AC), 0, 0);
         }
     }
-    orig_frame(pl);
+    orig_frame(addr);
 }
 
 static void enable(MOD *m, int on)

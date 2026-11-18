@@ -6,6 +6,11 @@
 // stack; the stack and gp the game passes to OpenTh are PS1 addresses meant for MIPS frames and
 // are ignored. Handles are the kernel's: 0xFF000000 | slot, slot 0 being the main thread.
 #define _GNU_SOURCE
+#ifdef __APPLE__
+// Darwin hides the (deprecated, still working) ucontext routines unless asked for XSI.
+#define _XOPEN_SOURCE    600
+#define _DARWIN_C_SOURCE 1
+#endif
 #include "port_game.h"
 #include "psx_mem.h"
 #include "psx_io.h"
@@ -18,6 +23,13 @@
 #include <string.h>
 #include <ucontext.h>
 
+// Coroutines: ucontext on Linux. Apple's tvOS has the ucontext functions but they do not switch
+// (the game's second thread never ran there), so Apple platforms use mml_coro_switch below, a
+// stack switch saving the callee-saved registers. -DPORT_OWN_CORO selects it elsewhere too.
+#if defined(__APPLE__) && !defined(PORT_OWN_CORO)
+#define PORT_OWN_CORO 1
+#endif
+
 #define THREADS      8
 #define THREAD_STACK (1024 * 1024)
 #define HANDLE_TH    0xFF000000u
@@ -29,10 +41,71 @@ typedef struct
     int used;
     ENTRY entry;
     ucontext_t ctx;
+    void *sp; // PORT_OWN_CORO: the saved stack pointer while switched out
     void *stack;
 } THREAD;
 
-static THREAD threads[THREADS] = {{1, NULL, {0}, NULL}};
+static THREAD threads[THREADS] = {{1, NULL, {0}, NULL, NULL}};
+
+#ifdef PORT_OWN_CORO
+#ifdef __APPLE__
+#define CORO_SYM(name) "_" #name
+#else
+#define CORO_SYM(name) #name
+#endif
+// void mml_coro_switch(void **save_sp, void *load_sp): saves the callee-saved registers on the
+// current stack, stores its pointer in *save_sp, and resumes the stack at load_sp. A new stack
+// (coro_prepare) resumes into mml_coro_trampoline, which calls mml_coro_start.
+void mml_coro_switch(void **save_sp, void *load_sp);
+void mml_coro_trampoline(void);
+void mml_coro_start(void);
+#if defined(__aarch64__)
+__asm__(".text\n.p2align 2\n.globl " CORO_SYM(mml_coro_switch) "\n" CORO_SYM(mml_coro_switch) ":\n"
+        "  sub sp, sp, #160\n"
+        "  stp x19, x20, [sp, #0]\n  stp x21, x22, [sp, #16]\n  stp x23, x24, [sp, #32]\n"
+        "  stp x25, x26, [sp, #48]\n  stp x27, x28, [sp, #64]\n  stp x29, x30, [sp, #80]\n"
+        "  stp d8, d9, [sp, #96]\n  stp d10, d11, [sp, #112]\n  stp d12, d13, [sp, #128]\n"
+        "  stp d14, d15, [sp, #144]\n"
+        "  mov x2, sp\n  str x2, [x0]\n  mov sp, x1\n"
+        "  ldp x19, x20, [sp, #0]\n  ldp x21, x22, [sp, #16]\n  ldp x23, x24, [sp, #32]\n"
+        "  ldp x25, x26, [sp, #48]\n  ldp x27, x28, [sp, #64]\n  ldp x29, x30, [sp, #80]\n"
+        "  ldp d8, d9, [sp, #96]\n  ldp d10, d11, [sp, #112]\n  ldp d12, d13, [sp, #128]\n"
+        "  ldp d14, d15, [sp, #144]\n"
+        "  add sp, sp, #160\n  ret\n"
+        ".globl " CORO_SYM(mml_coro_trampoline) "\n" CORO_SYM(mml_coro_trampoline) ":\n"
+        "  mov x29, #0\n  bl " CORO_SYM(mml_coro_start) "\n  brk #0\n");
+
+static void *coro_prepare(void *stack, size_t size)
+{
+    uintptr_t top = ((uintptr_t)stack + size) & ~(uintptr_t)15;
+    uint64_t *frame = (uint64_t *)(top - 160);
+
+    memset(frame, 0, 160);
+    frame[11] = (uint64_t)(uintptr_t)mml_coro_trampoline; // x30: where the switch returns
+    return frame;
+}
+#elif defined(__x86_64__)
+__asm__(".text\n.p2align 4\n.globl " CORO_SYM(mml_coro_switch) "\n" CORO_SYM(mml_coro_switch) ":\n"
+        "  pushq %rbp\n  pushq %rbx\n  pushq %r12\n  pushq %r13\n  pushq %r14\n  pushq %r15\n"
+        "  movq %rsp, (%rdi)\n  movq %rsi, %rsp\n"
+        "  popq %r15\n  popq %r14\n  popq %r13\n  popq %r12\n  popq %rbx\n  popq %rbp\n"
+        "  ret\n"
+        ".globl " CORO_SYM(mml_coro_trampoline) "\n" CORO_SYM(mml_coro_trampoline) ":\n"
+        "  xorl %ebp, %ebp\n  call " CORO_SYM(mml_coro_start) "\n  ud2\n");
+
+static void *coro_prepare(void *stack, size_t size)
+{
+    uintptr_t top = ((uintptr_t)stack + size) & ~(uintptr_t)15;
+    uint64_t *frame = (uint64_t *)(top - 72); // so the trampoline's call is 16-byte aligned
+
+    memset(frame, 0, 72);
+    frame[6] = (uint64_t)(uintptr_t)mml_coro_trampoline; // the switch's return address
+    return frame;
+}
+#else
+#error "PORT_OWN_CORO: no stack switch for this architecture"
+#endif
+#endif
 static int current;
 
 #ifdef PORT_AOT_MIPS
@@ -43,6 +116,15 @@ void port_api_set_guest_threads(void (*start)(uint32_t), void (*change)(int, int
 {
     guest_thread_start = start;
     guest_thread_switch = change;
+}
+#endif
+
+static void thread_start(void);
+
+#ifdef PORT_OWN_CORO
+void mml_coro_start(void)
+{
+    thread_start();
 }
 #endif
 
@@ -95,11 +177,15 @@ long OpenTh(ENTRY entry, uint32_t stack, uint32_t gp)
     }
     // The slot's previous context (if any) was closed and is never resumed, so its stack is
     // free for the new one even when that thread is the one calling OpenTh's caller back.
+#ifdef PORT_OWN_CORO
+    threads[i].sp = coro_prepare(threads[i].stack, THREAD_STACK);
+#else
     getcontext(&threads[i].ctx);
     threads[i].ctx.uc_stack.ss_sp   = threads[i].stack;
     threads[i].ctx.uc_stack.ss_size = THREAD_STACK;
     threads[i].ctx.uc_link          = NULL;
     makecontext(&threads[i].ctx, thread_start, 0);
+#endif
     threads[i].entry = entry;
     threads[i].used  = 1;
     return (long)(HANDLE_TH | (uint32_t)i);
@@ -140,7 +226,11 @@ long ChangeTh(long handle)
     if (guest_thread_switch != NULL)
         guest_thread_switch(from, to);
 #endif
+#ifdef PORT_OWN_CORO
+    mml_coro_switch(&threads[from].sp, threads[to].sp);
+#else
     swapcontext(&threads[from].ctx, &threads[to].ctx);
+#endif
     port_irq_restore(blocked);
     return 1;
 }

@@ -34,6 +34,9 @@ typedef struct
     // one, not on a real-time timer, so the same input gives the same run. 0 = real time.
     int deterministic;
     const char *serve_dir; // writing scripts: where the `serve` script command takes requests
+    // With the game-paced clock: hold each delivered blank to its slot of real time (1/vblank_hz
+    // s), for play in a window without a timer signal (the 64-bit and Apple TV builds).
+    int paced;
 } PORT_OPTIONS;
 
 extern PORT_OPTIONS port_options;

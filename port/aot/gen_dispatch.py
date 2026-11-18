@@ -16,8 +16,8 @@ EXPORT = re.compile(
 def generate(header, globals_, locals_, overlay, elf):
     entries = {}
     for name, result, function, parameters in EXPORT.findall(header.read_text()):
-        if name.startswith("__"):
-            continue
+        if name.startswith("__") or name.endswith("__orig"):
+            continue  # __orig: a mod hook point's original, reached only through mods_host.c
         retail_name = "main" if name == "psx_main" else name
         address = retail_address(retail_name, globals_, want_func=True)
         if address is None:

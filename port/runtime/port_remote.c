@@ -4,6 +4,44 @@
 
 #include "gpu.h"
 
+#include <stddef.h>
+
+#ifndef __linux__
+// The shared window block needs memfd and eventfd (Linux). Elsewhere one process owns its
+// window, so there is never a block to attach to or create.
+PORT_REMOTE *port_remote(void)
+{
+    return NULL;
+}
+int port_remote_attach(void)
+{
+    return 0;
+}
+void port_remote_present(void)
+{
+}
+int port_remote_poll(PSX_PAD_STATE pads[2])
+{
+    (void)pads;
+    return 1;
+}
+int port_remote_create(void)
+{
+    return -1;
+}
+int port_remote_event_fd(void)
+{
+    return -1;
+}
+int port_remote_take_frame(uint16_t *vram, int32_t disp[5], PORT_OVERLAY *overlay)
+{
+    (void)vram;
+    (void)disp;
+    (void)overlay;
+    return 0;
+}
+#else
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -151,3 +189,5 @@ int port_remote_take_frame(uint16_t *vram, int32_t disp[5], PORT_OVERLAY *overla
     last_seq = s1;
     return 1;
 }
+
+#endif // __linux__

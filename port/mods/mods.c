@@ -7,7 +7,9 @@
 #include "mods_internal.h"
 #include "port_config.h"
 #include "port_game.h"
+#ifndef PORT_AOT_MIPS
 #include "port_stubs.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -323,9 +325,20 @@ void mods_save_setting(MOD *m, MOD_SETTING *s)
     port_config_save("mods", key, s->choices[s->value]);
 }
 
+#ifdef PORT_AOT_MIPS
+// The 64-bit port: hook points compiled into the game (port/aot/mods_host.c).
+void *mods_host_hook(uint32_t addr, void *fn);
+void mods_host_unhook(uint32_t addr);
+uint32_t mods_host_call(uint32_t addr, int n, const uint32_t args[4]);
+#endif
+
 void *mods_hook(uint32_t addr, void *fn)
 {
+#ifdef PORT_AOT_MIPS
+    void *orig = mods_host_hook(addr, fn);
+#else
     void *orig = port_stub_hook(addr, fn);
+#endif
 
     if (orig == NULL)
     {
@@ -336,5 +349,34 @@ void *mods_hook(uint32_t addr, void *fn)
 
 void mods_unhook(uint32_t addr)
 {
+#ifdef PORT_AOT_MIPS
+    mods_host_unhook(addr);
+#else
     port_stub_unhook(addr);
+#endif
+}
+
+uint32_t mods_call(uint32_t addr, int n, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3)
+{
+#ifdef PORT_AOT_MIPS
+    const uint32_t args[4] = {a0, a1, a2, a3};
+
+    return mods_host_call(addr, n, args);
+#else
+    // The game function's native code is reached through its retail address (cdecl).
+    switch (n)
+    {
+        case 0:
+            return ((uint32_t (*)(void))(uintptr_t)addr)();
+        case 1:
+            return ((uint32_t (*)(uint32_t))(uintptr_t)addr)(a0);
+        case 2:
+            return ((uint32_t (*)(uint32_t, uint32_t))(uintptr_t)addr)(a0, a1);
+        case 3:
+            return ((uint32_t (*)(uint32_t, uint32_t, uint32_t))(uintptr_t)addr)(a0, a1, a2);
+        default:
+            return ((uint32_t (*)(uint32_t, uint32_t, uint32_t, uint32_t))(uintptr_t)addr)(a0, a1,
+                                                                                         a2, a3);
+    }
+#endif
 }

@@ -39,10 +39,10 @@
 #define PL_POSITION   (MODS_PLAYER_WORK + 0x14) // PL_WORK.position x, y, z
 #define PL_ROTATION_Y (MODS_PLAYER_WORK + 0x56) // PL_WORK.rotation.y
 
-#define POKE8(a, v)  (*(volatile uint8_t *)(uintptr_t)(a) = (uint8_t)(v))
-#define POKE16(a, v) (*(volatile int16_t *)(uintptr_t)(a) = (int16_t)(v))
+#define POKE8(a, v)  MODS_POKE8(a, v)
+#define POKE16(a, v) MODS_POKE16(a, v)
 
-typedef void (*FIELD_FN)(uint8_t *wp);
+typedef void (*FIELD_FN)(uint32_t wp);
 
 static FIELD_FN orig_field;
 
@@ -65,9 +65,9 @@ static int msg_colour;
 
 // --- the teleport -----------------------------------------------------------------------------
 
-static void field_hook(uint8_t *wp)
+static void field_hook(uint32_t wp)
 {
-    if (pending_on && wp[1] == 2 && MODS_PEEK8(ENTRY + 0x14) == 0 && MODS_PEEK8(SCENE_WORK) == 0 &&
+    if (pending_on && MODS_PEEK8(wp + 1) == 2 && MODS_PEEK8(ENTRY + 0x14) == 0 && MODS_PEEK8(SCENE_WORK) == 0 &&
         MODS_PEEK16(FADE_BUSY) == 0)
     {
         // As func_80050C2C does for a door (its kinds 2, 4-6 and 8).
@@ -81,7 +81,7 @@ static void field_hook(uint8_t *wp)
         POKE8(ENTRY + 0x19, 0x15); // fade out
         POKE8(ENTRY + 0x18, 2);    // fade in
         POKE8(ENTRY + 0x14, 2);    // flags14: a door request
-        ((void (*)(void))(uintptr_t)FUNC_MUSIC)();
+        mods_call(FUNC_MUSIC, 0, 0, 0, 0, 0);
         pending_on = 0;
         port_log("teleport: to stage %02X room %02X at (%d, %d, %d) facing 0x%03X (%s)",
                  pending.stage, pending.room, pending.x, pending.y, pending.z, pending.rot & 0xFFF,
@@ -126,7 +126,7 @@ static void go(const TP_DEST *d)
     port_log("teleport: chosen: stage %02X room %02X (%s); return point stage %02X room %02X at "
              "(%d, %d, %d)",
              t.stage, t.room, t.name, back.stage, back.room, back.x, back.y, back.z);
-    *(volatile uint32_t *)(uintptr_t)SUB_WORK = 8; // as Start on the top screen
+    MODS_POKE32(SUB_WORK, 8); // as Start on the top screen
     mods_panel_close();
 }
 

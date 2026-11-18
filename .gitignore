@@ -31,3 +31,6 @@ tools/vendor/
 expected/
 permuter/
 *_map.txt
+
+# Local settings for port/appletv/deploy.sh (Mac host, team, device; the Mac password)
+.env

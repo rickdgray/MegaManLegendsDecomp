@@ -107,6 +107,12 @@ Set `PORT_WABT_INCLUDE` and `PORT_WABT_RUNTIME` if WABT's headers and `wasm2c` r
 not in the default places. `PORT_64_OVERLAYS` selects which overlays are compiled in (default
 `all`; `PORT_OVERLAY_NATIVE=0` at run time interprets them instead).
 
+`mml_game64 --window` plays it with SDL3 in real time, with the same mods (`--mods LIST`, or the
+start-up menu). `port/appletv/` builds the same code as an Apple TV app on a Mac (Xcode, CMake and
+a static SDL3 for tvOS), with your disc image bundled in it: `port/appletv/deploy.sh` exports the
+C, builds, signs and installs; its header lists the settings it reads from a git-ignored `.env`.
+`port/appletv/icon/make.py` draws the app icon and top shelf images.
+
 ## Layout
 
 ```

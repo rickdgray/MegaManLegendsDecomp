@@ -45,7 +45,7 @@
 #define PL_OUT       (MODS_PLAYER_WORK + 0x44F) // the special weapon is out
 #define PL_ENERGY(i) (MODS_PLAYER_WORK + 0x4F4 + (i) * 8 + 6) // parts[i].value06
 
-#define POKE8(a, v) (*(volatile uint8_t *)(uintptr_t)(a) = (uint8_t)(v))
+#define POKE8(a, v) MODS_POKE8(a, v)
 
 #define NWEAPONS 14 // ids 0..13 (1 is the buster, never a special weapon)
 
@@ -108,8 +108,7 @@ static void build_list(void)
 
 static int energy_max(int id)
 {
-    return ((int32_t (*)(uint8_t *, int32_t))(uintptr_t)FUNC_ENERGY_MAX)(
-        (uint8_t *)(uintptr_t)MODS_PLAYER_WORK, id);
+    return (int32_t)mods_call(FUNC_ENERGY_MAX, 2, MODS_PLAYER_WORK, (uint32_t)id, 0, 0);
 }
 
 static const char *name_of(int id)
@@ -152,11 +151,11 @@ static void equip(int id)
     POKE8(PL_CHOSEN, id);
     if (settings[0].value)
     {
-        ((void (*)(void))(uintptr_t)FUNC_REFILL)();
+        mods_call(FUNC_REFILL, 0, 0, 0, 0, 0);
     }
     if ((int8_t)MODS_PEEK8(PL_ARMED) > 0)
     {
-        ((void (*)(int32_t, int32_t))(uintptr_t)FUNC_OBJ_FLAG_CHANGE)(8, 0x80);
+        mods_call(FUNC_OBJ_FLAG_CHANGE, 2, 8, 0x80, 0, 0);
         POKE8(PL_IN_USE, id);
         POKE8(PL_OUT, id > 0 ? 1 : 0);
         msg = "Equipped: loads when you unpause";

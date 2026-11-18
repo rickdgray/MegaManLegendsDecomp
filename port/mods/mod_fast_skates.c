@@ -23,9 +23,9 @@
 #define FUNC_PL_SKATE 0x8003D1E0u // void func_8003D1E0(PL_WORK *pl): routine_1 3, the skates
 #define FUNC_STEP     0x8002FEA4u // void func_8002FEA4(FIXED_POS_WORK *wp, sint16 x, y, z)
 
-typedef void (*SKATE_FN)(uint8_t *pl);
-// The 16-bit speeds arrive as 32-bit stack words (cdecl); passed on sign-extended.
-typedef void (*STEP_FN)(uint8_t *wp, int32_t x, int32_t y, int32_t z);
+typedef void (*SKATE_FN)(uint32_t pl);
+// The 16-bit speeds arrive as 32-bit words; passed on sign-extended.
+typedef void (*STEP_FN)(uint32_t wp, uint32_t x, uint32_t y, uint32_t z);
 
 static const char *const speeds[]   = {"1.5x", "2x", "3x"};
 static const int32_t numerators[]   = {3, 2, 3}; // speed = step * num / den
@@ -39,11 +39,11 @@ static SKATE_FN orig_skate;
 static STEP_FN orig_step;
 static int skating; // inside func_8003D1E0 for Player_work
 
-static void skate_hook(uint8_t *pl)
+static void skate_hook(uint32_t pl)
 {
-    skating += pl == (uint8_t *)(uintptr_t)MODS_PLAYER_WORK;
+    skating += pl == MODS_PLAYER_WORK;
     orig_skate(pl);
-    skating -= pl == (uint8_t *)(uintptr_t)MODS_PLAYER_WORK;
+    skating -= pl == MODS_PLAYER_WORK;
 }
 
 static int32_t scale(int32_t v)
@@ -55,17 +55,16 @@ static int32_t scale(int32_t v)
     return v > 0x7FFF ? 0x7FFF : v < -0x7FFF ? -0x7FFF : v;
 }
 
-static void step_hook(uint8_t *wp, int32_t x, int32_t y, int32_t z)
+static void step_hook(uint32_t wp, uint32_t sx, uint32_t sy, uint32_t sz)
 {
-    x = (int16_t)x;
-    y = (int16_t)y;
-    z = (int16_t)z;
-    if (skating && wp == (uint8_t *)(uintptr_t)MODS_PLAYER_WORK)
+    int32_t x = (int16_t)sx, y = (int16_t)sy, z = (int16_t)sz;
+
+    if (skating && wp == MODS_PLAYER_WORK)
     {
         x = scale(x);
         z = scale(z);
     }
-    orig_step(wp, x, y, z);
+    orig_step(wp, (uint32_t)x, (uint32_t)y, (uint32_t)z);
 }
 
 static void enable(MOD *m, int on)

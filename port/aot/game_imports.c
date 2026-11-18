@@ -49,6 +49,19 @@ extern void port_gpu_set_state_address(uint32_t address);
 extern void port_gpu_set_draw_env_builder(uint32_t address);
 
 static struct w2c_env *game;
+
+// The mods' hook points (mods_host.c): 1 when `address` is one and it ran.
+int mods_host_try(uint32_t address, const uint32_t *args, uint32_t *result);
+
+void *port_game_instance(void)
+{
+    return game->instance;
+}
+
+struct w2c_env *port_game_env(void)
+{
+    return game;
+}
 static uint32_t vsync_address, cd_ready_address, cd_sync_address;
 static uint32_t guest_stack[8];
 
@@ -71,12 +84,22 @@ static void switch_guest_stack(int from, int to)
 
 static int call_compiled_game(uint32_t address, const uint32_t args[16], uint32_t *result)
 {
+    if (mods_host_try(address, args, result))
+    {
+        return 1;
+    }
     return port_game_call_native(game->instance, address, args, result);
 }
 
 static int call_retail_overlay(uint32_t address, const uint32_t args[PORT_GAME_ARG_WORDS],
                                uint32_t *result)
 {
+    // Function-pointer calls (port_game_dispatch) to a mod hook point land here: its compiled
+    // body is NAME__orig, which the native dispatch does not list.
+    if (mods_host_try(address, args, result))
+    {
+        return 1;
+    }
     if ((address & 3) != 0 ||
         !((address >= 0x800D8800u && address < 0x800F0000u) ||
           (address >= 0x80100000u && address < 0x801F0000u)))
@@ -173,11 +196,64 @@ static void cd_sync_callback(uint8_t status, uint8_t *data)
     call_callback(cd_sync_address, status, data, 0x80218008u);
 }
 
+// --trace-imports (on by default in the Apple TV app, where nothing else shows what the game is
+// doing): logs the first call of each library function, and every 300 blanks the last few
+// functions called, so a stall shows where the game waits.
+int port_game_trace_imports;
+
+static void trace_import(uint32_t address, const char *name)
+{
+    static const char *seen[512];
+    static const char *recent[6];
+    static int recent_n;
+    static uint32_t last_report;
+    uint32_t h = (uint32_t)(((uintptr_t)name >> 3) & 511), now;
+    int i;
+
+    (void)address;
+    while (seen[h] != NULL && seen[h] != name)
+    {
+        h = (h + 1) & 511;
+    }
+    if (seen[h] == NULL)
+    {
+        seen[h] = name;
+        port_log("import: first call to %s at blank %u", name, port_vblank_count());
+    }
+    for (i = 0; i < 6 && recent[i] != name; i++)
+    {
+    }
+    if (i == 6)
+    {
+        recent[recent_n++ % 6] = name;
+    }
+    now = port_vblank_count();
+    if (now - last_report >= 300)
+    {
+        last_report = now;
+        port_log("status: blank %u; recently called %s %s %s %s %s %s", now,
+                 recent[0] ? recent[0] : "-", recent[1] ? recent[1] : "-",
+                 recent[2] ? recent[2] : "-", recent[3] ? recent[3] : "-",
+                 recent[4] ? recent[4] : "-", recent[5] ? recent[5] : "-");
+        memset(recent, 0, sizeof(recent));
+        recent_n = 0;
+    }
+}
+
 uint32_t port_game_call_import(struct w2c_env *env, uint32_t address, const char *name,
                                const uint32_t args[PORT_GAME_ARG_WORDS])
 {
     uint32_t a0 = args[0], a1 = args[1], a2 = args[2], a3 = args[3];
     uint32_t old;
+
+    if (port_game_trace_imports)
+    {
+        trace_import(address, name);
+    }
+    if (mods_host_try(address, args, &old))
+    {
+        return old;
+    }
 
     switch (address)
     {
