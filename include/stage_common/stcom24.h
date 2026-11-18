@@ -126,7 +126,11 @@ extern STCOM24_KIND **D_80098844;
 void func_80036478(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
+#ifdef __wasm32__
+void func_80047148(void *wp, STCOM_SVECTOR *pos);
+#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
+#endif
 STCOM24_SHOT *func_80031518(void);
 
 // ROCK_NEO.EXE (see rock_neo.h).

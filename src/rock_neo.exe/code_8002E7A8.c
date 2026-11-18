@@ -2,6 +2,10 @@
 #include "rock_neo.exe/code_8002e7a8.h"
 #include "rock_neo.exe/game.h"
 
+#ifdef __wasm32__
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#endif
+
 // Small data reached through $gp
 sint32 D_80097CFC;
 uint8 D_80097D02;
@@ -846,7 +850,12 @@ uint32 func_8002FE74(uint32 val)
 
 void func_8002FEA4(FIXED_POS_WORK *wp, sint16 x, sint16 y, sint16 z)
 {
+#ifdef __wasm32__
+    // func_80030058 copies four words, including the vector's padding word.
+    sint32 delta[4];
+#else
     sint32 delta[3];
+#endif
 
     func_80030058(delta, wp->angle_56, x, y, z);
     wp->fixed_1c[0] += delta[0];
@@ -857,7 +866,12 @@ void func_8002FEA4(FIXED_POS_WORK *wp, sint16 x, sint16 y, sint16 z)
 
 void func_8002FF34(FIXED_POS_BIG *wp, sint16 x, sint16 y, sint16 z)
 {
+#ifdef __wasm32__
+    // func_80030058 copies four words, including the vector's padding word.
+    sint32 delta[4];
+#else
     sint32 delta[3];
+#endif
 
     func_80030058(delta, wp->angle_56, x, y, z);
     wp->fixed_428[0] += delta[0];
@@ -868,7 +882,12 @@ void func_8002FF34(FIXED_POS_BIG *wp, sint16 x, sint16 y, sint16 z)
 
 void func_8002FFC4(sint16 *out, sint32 *fixed, sint32 angle, sint16 x, sint16 y, sint16 z)
 {
+#ifdef __wasm32__
+    // func_80030058 copies four words, including the vector's padding word.
+    sint32 delta[4];
+#else
     sint32 delta[3];
+#endif
 
     func_80030058(delta, angle, x, y, z);
     fixed[0] += delta[0];
@@ -1021,9 +1040,10 @@ uint32 func_80030418(CLIP_WORK *a, CLIP_WORK *b, SHORT3_WORK *range, sint32 *out
     return r;
 }
 
-void func_80030604(ANGLE_WORK *wp, sint32 a1, sint32 a2, sint32 a3)
+// Returns func_80030628's flags: stage callers test them.
+uint32 func_80030604(ANGLE_WORK *wp, sint32 a1, sint32 a2, sint32 a3)
 {
-    func_80030628((DELTA14_WORK *)wp, (DELTA14_WORK *)a1, (SHORT3_WORK *)a2, (sint32 *)a3,
+    return func_80030628((DELTA14_WORK *)wp, (DELTA14_WORK *)a1, (SHORT3_WORK *)a2, (sint32 *)a3,
                   wp->angle_56);
 }
 
@@ -3644,9 +3664,10 @@ void func_80036478(BYTE_WORK *wp, uint8 arg1, uint32 arg2)
     wp->byte_7 = 0;
 }
 
-void func_8003648C(TRACK_WORK *a0, ANGLE_WORK *a1)
+// Returns the tracker's result: stage callers test it.
+sint32 func_8003648C(TRACK_WORK *a0, ANGLE_WORK *a1)
 {
-    func_800364B0(a0, (TRACK_TARGET *)a1, a1->angle_56);
+    return func_800364B0(a0, (TRACK_TARGET *)a1, a1->angle_56);
 }
 
 // Homing tracker update. The failure paths share one block (the fail label at the top), state 0

@@ -246,8 +246,16 @@ void func_80016BF4(void);
 void func_80016D64(void);
 void func_80015EE8(PL_WORK *wp, GAME_ENTRY_WORK *entry, sint32 reset);
 void Sce_flag_on(sint32 flag);
+#ifdef __wasm32__
+sint32 func_8001F23C(void);
+#else
 void func_8001F23C(void);
+#endif
+#ifdef __wasm32__
+sint32 func_8001F3C8(void);
+#else
 void func_8001F3C8(void);
+#endif
 void func_80038648(void);
 void func_8001D8C0(sint32 mode);
 void func_8003B278(sint32 mode);

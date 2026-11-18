@@ -52,7 +52,11 @@ extern STCOM36_OBJ *stcom36_E2_0000[]; // the spawned objects, by slot
 
 // ROCK_NEO.EXE.
 extern STCOM36_SCENE_WORK Scene_work;
+#ifdef __wasm32__
+void *func_8001EAE8(STCOM36_SPAWN *entry);
+#else
 void func_8001EAE8(STCOM36_SPAWN *entry);
+#endif
 void func_8001EC0C(void);
 void func_8001F070(void);
 sint32 func_8002FE74(uint8 id);

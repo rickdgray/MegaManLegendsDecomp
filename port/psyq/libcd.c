@@ -654,6 +654,25 @@ void port_cd_tick(void)
 
 // --- libcd ----------------------------------------------------------------------------------
 
+#ifdef PORT_AOT_MIPS
+// Keep the open disc and sector map while switching from the shim to the game.
+void port_cd_reset_session(void)
+{
+    sync_cb = ready_cb = NULL;
+    mode = filter_file = filter_chan = 0;
+    setloc_lba = pos_lba = 0;
+    reading = playing = sync_pending = sector_valid = fifo_pos = 0;
+    sync_status = 0;
+    budget = sectors_read = 0;
+    memset(pending_result, 0, sizeof(pending_result));
+    memset(last_result, 0, sizeof(last_result));
+    memset(last_header, 0, sizeof(last_header));
+    atv[0] = atv[2] = 0x80;
+    atv[1] = atv[3] = 0;
+    xa_reset();
+}
+#endif
+
 int CdInit(void)
 {
     int b = port_irq_block();

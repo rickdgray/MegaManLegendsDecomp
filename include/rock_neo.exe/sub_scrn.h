@@ -157,7 +157,11 @@ typedef struct
     uint32 tag_78;
 } SUB_OT78;
 
+#ifdef __wasm32__
+typedef sint32 (*SUB_FUNC)(SUB_WORK *wp);
+#else
 typedef void (*SUB_FUNC)(SUB_WORK *wp);
+#endif
 
 // Player_work and Game_work reached through their fixed addresses. GCC 2.7 keeps a
 // symbol's address in a saved register across calls, but rebuilds a literal address
@@ -220,7 +224,12 @@ void func_8005FBB4(SUB_SEL *wp);
 void func_8005FFBC(SUB_SEL *wp);
 sint32 Sub_screen_cancel_check(void);
 sint32 func_8005FDE4(SUB_GAME *gw);
+#ifdef __wasm32__
+// WebAssembly calls require the callee's fixed parameter signature.
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#else
 void Sound_call(sint32 sound, ...);
+#endif
 void func_8003B140(void);
 void func_80017C30(sint32 arg);
 void func_8001D854(sint32 arg);
@@ -228,8 +237,16 @@ void func_80016D64(void);
 void func_8001B33C(void);
 void func_8001B314(void);
 void func_80019C20(void);
+#ifdef __wasm32__
+sint32 func_8001F23C(void);
+#else
 void func_8001F23C(void);
+#endif
+#ifdef __wasm32__
+sint32 func_8001F3C8(void);
+#else
 void func_8001F3C8(void);
+#endif
 extern uint32 D_80098958;
 void Sub_screen_gauge_set(sint32 x, sint32 y, sint32 width, sint32 row);
 void Sub_screen_status_calc(SUB_WORK *wp, sint32 slot);
@@ -250,7 +267,12 @@ void Sub_screen_basic_param_set(void);
 SUB_PRIM *Sub_screen_status_param_set_sub(SUB_PRIM *prim, sint32 x, sint32 value, sint32 flags);
 SUB_PRIM *Sub_screen_basic_param_set_sub(SUB_PRIM *prim, sint32 x, sint32 value, sint32 flags);
 void func_800602A4(SUB_WORK *wp, sint32 arg);
+#ifdef __wasm32__
+// WebAssembly calls require the callee's fixed parameter signature.
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#else
 void Sound_call(sint32 sound, ...);
+#endif
 void Sound_call2(sint16 id, void *args);
 void MojiTaskKill(void);
 sint32 MojiTaskExec(sint32 arg0, uint8 *script, sint32 arg2);

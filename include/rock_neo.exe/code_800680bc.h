@@ -139,7 +139,11 @@ void func_80068508(CODE68_CHILD *child, sint32 index);
 void func_80068120(sint32 r, sint32 g, sint32 b, uint16 tpage);
 void func_80101D94(void);
 void func_8001E6C0(sint32 a0, sint32 a1, sint32 a2);
+#ifdef __wasm32__
+void *func_8001EAE8(CODE68_ENTRY *entry);
+#else
 void func_8001EAE8(CODE68_ENTRY *entry);
+#endif
 void func_80068CE0(CODE68_WORK *wp);
 void func_80068D64(CODE68_WORK *wp);
 void func_80068DA4(void);

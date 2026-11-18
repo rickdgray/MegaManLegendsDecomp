@@ -209,6 +209,10 @@ void func_8012192C(STAGE_OBJ *wp)
 
 // coord is set in identical arms (merged by jump2) so cse2 can't fold the later coord + 4 to
 // wp + 0x8C; mat is that address, used by both matrix calls.
+#ifdef __wasm32__
+void func_80122000(ST1A_DEBRIS *wp);
+#endif
+
 void func_80121968(ST1A_DEBRIS *wp)
 {
     STCOM_FIXED_VECTOR scale;
@@ -497,6 +501,10 @@ void func_8012222C(STAGE_OBJ *wp)
     D_80133134[wp->routine_0](wp);
 }
 
+#ifdef __wasm32__
+void func_80122CC8(ST1A_DART *wp);
+#endif
+
 void func_80122268(ST1A_DART *wp)
 {
     STCOM_MATRIX unused_m; // unused, but retail reserves its frame
@@ -614,6 +622,10 @@ void func_801226D0(STAGE_OBJ *wp)
 {
     wp->routine_0++;
 }
+
+#ifdef __wasm32__
+void func_80122BC8(ST1A_10C *wp);
+#endif
 
 void func_801226E4(ST1A_DART *wp)
 {

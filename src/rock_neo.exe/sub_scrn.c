@@ -1,10 +1,18 @@
 #include "common.h"
 #include "sub_scrn.h"
 
+#ifdef __wasm32__
+sint32 func_8005EC34(void)
+#else
 void func_8005EC34(void)
+#endif
 {
     Sub_screen_back_ground_set();
+#ifdef __wasm32__
+    return D_8008DBB0[D_800A38F0.routine_0](&D_800A38F0);
+#else
     D_8008DBB0[D_800A38F0.routine_0](&D_800A38F0);
+#endif
 }
 
 sint32 func_8005EC80(sint32 *wp)

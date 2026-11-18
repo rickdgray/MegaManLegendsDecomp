@@ -297,7 +297,12 @@ void port_asm_break(uint32_t code, const char *where)
 // so it goes to the same RAM through its KSEG0 view, as overlay.c's fault handler does for
 // native code. Without this an `lwc2` through a null pointer crashed (func_80027BE0's mesh).
 #define MEM_ADDR(addr) ((uint32_t)(addr) < PSX_KUSEG_MIRROR ? PSX_RAM_BASE | (uint32_t)(addr) : (uint32_t)(addr))
+#ifdef PORT_AOT_MIPS
+#include "mips_memory.h"
+#define MEM(type, addr) (*(type *)port_aot_mips_ptr(addr))
+#else
 #define MEM(type, addr) (*(type *)(uintptr_t)MEM_ADDR(addr))
+#endif
 
 void port_asm_run(PORT_ASM_PROG *prog, uint32_t *ops)
 {

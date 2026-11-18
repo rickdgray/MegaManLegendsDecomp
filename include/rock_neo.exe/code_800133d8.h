@@ -88,7 +88,12 @@ void func_80063EF0(void);
 void func_80017994(void);
 void func_80031AA4(void);
 // Some sound commands use only the ID; other commands consume two payload words.
+#ifdef __wasm32__
+// WebAssembly calls require the callee's fixed parameter signature.
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#else
 void Sound_call(sint32 sound, ...);
+#endif
 void func_8001456C(sint32 index);
 void func_800137D4(void);
 void Sub_screen_back_ground_set(void);

@@ -2,6 +2,10 @@
 #include "code_800456d8.h"
 #include "player.h"
 
+#ifdef __wasm32__
+void Sound_call2(sint16 id, void *args);
+#endif
+
 // Small data reached through $gp
 sint32 D_800986D0;
 

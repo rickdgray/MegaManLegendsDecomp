@@ -125,7 +125,11 @@ static void vblank_interrupt(void)
     if (port_options.max_vblanks != 0 && vblanks >= (uint32_t)port_options.max_vblanks)
     {
         // The game may be spinning in a loop that never reaches the runtime: stop from here.
+#ifdef PORT_BOOT_SHIM_ONLY
+        port_stop(1, "vblank limit reached");
+#else
         port_stop(0, "vblank limit reached");
+#endif
     }
     if (pad_started)
     {
@@ -258,6 +262,14 @@ void port_vblank_stop(void)
     setitimer(ITIMER_REAL, &it, NULL);
     vblank_handler = NULL;
     vblank_on      = 0;
+}
+
+void port_reset_clock(void)
+{
+    port_vblank_stop();
+    vblanks = frames = watchdog_seen = 0;
+    watchdog_idle = 0;
+    display_on = 0;
 }
 
 uint32_t port_vblank_count(void)
@@ -466,7 +478,9 @@ void port_pad_update(void)
     // The mod panel (port/mods/) takes pad 1 while it is open; nothing in vanilla play. A copy:
     // in a window `pads` holds the host's input until the next poll.
     memcpy(out, pads, sizeof(out));
+#ifndef PORT_BOOT_SHIM_ONLY
     mods_pad_filter(out);
+#endif
     for (i = 0; i < 2; i++)
     {
         if (pad_buf[i] != NULL && pad_len[i] >= 2)
@@ -521,7 +535,9 @@ static void finish(const char *why)
             "%u commands, %u polygons, %u rects, %u lines, %u fills, %u unknown\n",
             why, frames, vblanks, d->w, d->h, d->x, d->y, display_on ? "" : " (masked)",
             s->commands, s->polygons, s->rects, s->lines, s->fills, s->unknown);
+#ifndef PORT_BOOT_SHIM_ONLY
     port_overlay_print_stats();
+#endif
     port_audio_close();
     if (port_options.dump != NULL && port_dump_vram(port_options.dump) == 0)
     {
@@ -693,7 +709,9 @@ void port_frame_drawn(void)
     watch_memory();
     port_audio_flush();
     dump_scheduled();
+#ifndef PORT_BOOT_SHIM_ONLY
     mods_frame(); // the mod panel's menu and its text layer (port/mods/); nothing in vanilla
+#endif
     if (port_options.verbose)
     {
         const GPU_STATS *s = gpu_stats();

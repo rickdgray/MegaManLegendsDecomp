@@ -26,6 +26,7 @@
 // r3 start select; `mods` is the port's mod-panel button, PORT_HOST_MODS), or `none`. COND: VALUE OP NUMBER, joined by `&&`; VALUE is a `let` name or
 // ADDR[:TYPE]; OP is == != < <= > >=; numbers in C notation (0x.., negative allowed).
 #include "port_script.h"
+#include "psx_mem.h"
 
 #include "gpu.h"
 #include "port_game.h"
@@ -451,7 +452,7 @@ int port_script_active(void)
 
 static int32_t read_value(const TERM *t)
 {
-    const volatile uint8_t *p = (const volatile uint8_t *)(uintptr_t)t->addr;
+    const volatile uint8_t *p = psx_ptr(t->addr);
 
     switch (t->type)
     {
@@ -636,8 +637,8 @@ uint32_t port_script_buttons(uint32_t v)
 
                         if (f != NULL)
                         {
-                            fwrite((const void *)(uintptr_t)0x80000000u, 1, 0x200000, f);
-                            fwrite((const void *)(uintptr_t)0x1F800000u, 1, 0x400, f);
+                            fwrite(psx_ptr(PSX_RAM_BASE), 1, 0x200000, f);
+                            fwrite(psx_ptr(PSX_SCRATCH_BASE), 1, 0x400, f);
                             fclose(f);
                         }
                     }

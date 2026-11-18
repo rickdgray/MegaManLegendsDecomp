@@ -686,6 +686,10 @@ void func_8010B470(STAGE_OBJ *wp)
     }
 }
 
+#ifdef __wasm32__
+void func_8010B8D4(ST0B_OBJ *wp, sint32 color);
+#endif
+
 void func_8010B4BC(STAGE_OBJ *wp)
 {
     STCOM_FIXED_VECTOR ofs;
@@ -1682,6 +1686,10 @@ void func_8010D118(ST0B_OBJ *wp, ST0B_HIT_B *ctl)
     wp->value_B0             = life;
     wp->value_B2             = life;
 }
+
+#ifdef __wasm32__
+void func_8010D558(ST0B_BOAT *wp, ST0B_BOAT_CTL *ctl);
+#endif
 
 void func_8010D288(STAGE_OBJ *wp, ST0B_HIT_B *ctl)
 {

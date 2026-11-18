@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st1d.h"
 
+#ifdef __wasm32__
+void Sce_flag_off(sint32 flag);
+#endif
+
 void func_80111300(STAGE_OBJ50 *wp)
 {
     if (wp->variant_3 == 0xFF)

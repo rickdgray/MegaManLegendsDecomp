@@ -32,6 +32,10 @@ uint64_t mips_call64(uint32_t addr, const uint32_t args[8]);
 // The native code standing for `addr`, or NULL when it is MIPS code to interpret.
 void *mips_native_target(uint32_t addr);
 
+// AOT runtime callback for entries implemented in the active compiled game module.
+void mips_set_guest_dispatch(int (*dispatch)(uint32_t address, const uint32_t args[16],
+                                            uint32_t *result));
+
 // gp register value for interpreted code (the executable's small-data base).
 extern uint32_t mips_gp;
 

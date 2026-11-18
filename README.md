@@ -15,6 +15,7 @@ counted as done unless the bytes are identical.
 | Main game `ROCK_NEO.EXE` | 1,132 / 1,132 functions in C, rebuilds byte-identically |
 | Stage and weapon overlays (`CDDATA/DAT/*.BIN`) | 44 modules, 8,842 / 8,842 functions in C, all rebuild byte-identically |
 | Native Linux port | playable: gamepad and keyboard, sound, movies, memory cards, settings, optional mods |
+| 64-bit native build | the whole game and all 44 overlays compiled for x86-64; matches the 32-bit port byte for byte on the scripted play-through (groundwork for Apple TV, iOS and Android) |
 
 PsyQ library code (linked as-is) and Capcom's own hand-written assembly routines stay assembly.
 
@@ -86,6 +87,25 @@ make install-desktop   # optional: an application-menu entry
 
 `make port-smoke` plays a scripted new game headless and checks memory at fixed points;
 `make port-compare` runs the same script with native and interpreted overlay code and compares them.
+
+### 64-bit build
+
+A second build runs on 64-bit hosts with no fixed-address memory. Clang compiles the same C to
+wasm32, retail data addresses are bound from the matching ELFs, and WABT's `wasm2c` turns the
+result into portable C for the host compiler. The game's memory is one buffer, so the generated C
+needs no JIT and no special mappings. It needs Clang, LLD (`wasm-ld`) and WABT, and the matching
+builds of both executables (`make`) first.
+
+```sh
+cmake -S port -B build/port64 -G Ninja -DPORT_BOOT64=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build/port64
+ctest --test-dir build/port64 --output-on-failure
+build/port64/mml_game64 --headless --script port/tests/smoke.script
+```
+
+Set `PORT_WABT_INCLUDE` and `PORT_WABT_RUNTIME` if WABT's headers and `wasm2c` runtime sources are
+not in the default places. `PORT_64_OVERLAYS` selects which overlays are compiled in (default
+`all`; `PORT_OVERLAY_NATIVE=0` at run time interprets them instead).
 
 ## Layout
 

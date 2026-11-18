@@ -26,6 +26,8 @@ uint32_t psx_io_read(uint32_t ea, int size);
 void psx_io_write(uint32_t ea, uint32_t value, int size);
 
 // DMA completion callbacks (libetc's DMACallback): a MIPS or retail-native address, 0 = none.
+void psx_io_reset(void);
+
 uint32_t psx_dma_set_callback(int channel, uint32_t func);
 
 // Runs the DMA completion callbacks of transfers started since the last call (the MIPS

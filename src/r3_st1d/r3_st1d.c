@@ -12,6 +12,10 @@ void func_80100288(void)
     STAGE_PL_BYTE(0x170) = 0;
 }
 
+#ifdef __wasm32__
+void func_80100460(void);
+#endif
+
 void func_801002F8(void)
 {
     void *spawn;

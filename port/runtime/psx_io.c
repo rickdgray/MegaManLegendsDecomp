@@ -22,6 +22,15 @@ static uint32_t dma_cb[7];
 static uint32_t misc[0x800]; // other registers, as storage (word granular)
 static uint32_t pending;     // channels whose completion callback is due
 
+void psx_io_reset(void)
+{
+    memset(dma_regs, 0, sizeof(dma_regs));
+    memset(dma_cb, 0, sizeof(dma_cb));
+    memset(misc, 0, sizeof(misc));
+    dpcr = 0x07654321u;
+    dicr = pending = 0;
+}
+
 uint32_t psx_dma_set_callback(int channel, uint32_t func)
 {
     uint32_t old;

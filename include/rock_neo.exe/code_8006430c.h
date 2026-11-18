@@ -182,7 +182,12 @@ void func_8007FC88(long val);
 void func_8007FCE0(void);
 void _bu_init(void);
 void MojiTaskKill(void);
+#ifdef __wasm32__
+// WebAssembly calls require the callee's fixed parameter signature.
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#else
 void Sound_call(sint32 sound, ...);
+#endif
 void func_80065064(void);
 sint32 rand(void);
 void func_80065384(void);

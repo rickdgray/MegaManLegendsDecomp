@@ -1,6 +1,11 @@
 #include "common.h"
 #include "st1a.h"
 
+#ifdef __wasm32__
+void func_8010C1C8(ST1A_NPC *wp, STAGE_FACE *face);
+void func_8010C254(ST1A_NPC *wp, STAGE_FACE *face);
+#endif
+
 void func_8010BF50(ST1A_NPC *wp)
 {
     STAGE_FACE *face;
@@ -159,6 +164,10 @@ void func_8010C484(ST1A_NPC *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
             break;
     }
 }
+
+#ifdef __wasm32__
+void func_8010C8A0(ST1A_NPC *wp);
+#endif
 
 void func_8010C530(ST1A_NPC *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
 {

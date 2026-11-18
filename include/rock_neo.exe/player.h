@@ -264,7 +264,11 @@ sint32 func_80037440();
 void func_80053158(PL_WORK *pl, uint32 arg);
 void func_8005331C(PL_WORK *pl, uint32 arg);
 sint32 func_80050C2C(PL_WORK *pl);
+#ifdef __wasm32__
+void func_800329D4(void *arg, sint32 unused);
+#else
 void func_800329D4(); // signature differs between callers; see code_8002e7a8.h
+#endif
 void func_800325D4(); // signature differs between callers; see code_8002e7a8.h
 void Model_Shadow_Trans(PL_WORK *pl, sint32 a1, sint32 a2, sint32 a3);
 extern uint8 D_80097D9C[];

@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st00.h"
 
+#ifdef __wasm32__
+void func_80047228(void *wp, void *obj, sint32 n);
+#endif
+
 void func_801076E8(STAGE_STCOM15_WORK_4E0 *wp)
 {
     STAGE_STCOM15_CTL *ctl;

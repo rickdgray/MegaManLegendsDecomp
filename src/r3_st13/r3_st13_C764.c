@@ -1187,7 +1187,11 @@ void func_8010EB10(STCOM16_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0x40;
         effect->sprite.position = wp->joints_180[0];
+#ifdef __wasm32__
+        func_80047148(wp, &wp->joints_180[0]);
+#else
         func_80047148(wp, &wp->joints_180[0], effect);
+#endif
     }
     wp->routine_0 = 2;
     wp->flags_0 &= ~2;

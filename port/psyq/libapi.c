@@ -7,6 +7,7 @@
 // are ignored. Handles are the kernel's: 0xFF000000 | slot, slot 0 being the main thread.
 #define _GNU_SOURCE
 #include "port_game.h"
+#include "psx_mem.h"
 #include "psx_io.h"
 #include "memcard.h"
 #include "psyq_alias.h"
@@ -34,13 +35,29 @@ typedef struct
 static THREAD threads[THREADS] = {{1, NULL, {0}, NULL}};
 static int current;
 
+#ifdef PORT_AOT_MIPS
+static void (*guest_thread_start)(uint32_t address);
+static void (*guest_thread_switch)(int from, int to);
+
+void port_api_set_guest_threads(void (*start)(uint32_t), void (*change)(int, int))
+{
+    guest_thread_start = start;
+    guest_thread_switch = change;
+}
+#endif
+
 static void thread_start(void)
 {
     ENTRY entry = threads[current].entry;
 
     // A new thread starts with interrupts enabled.
     port_irq_restore(0);
-    entry();
+#ifdef PORT_AOT_MIPS
+    if (guest_thread_start != NULL)
+        guest_thread_start((uint32_t)(uintptr_t)entry);
+    else
+#endif
+        entry();
     port_log("thread 0x%08X returned from its entry function", HANDLE_TH | (uint32_t)current);
     // A kernel thread has nowhere to return to; hand control back to the main thread.
     for (;;)
@@ -119,6 +136,10 @@ long ChangeTh(long handle)
     // No interrupt in the middle of a switch; each thread gets its own state back on resume.
     blocked = port_irq_block();
     current = to;
+#ifdef PORT_AOT_MIPS
+    if (guest_thread_switch != NULL)
+        guest_thread_switch(from, to);
+#endif
     swapcontext(&threads[from].ctx, &threads[to].ctx);
     port_irq_restore(blocked);
     return 1;
@@ -662,11 +683,11 @@ PSYQ_SPLAT_ALIAS(func_8007699C, PCclose);
 
 void port_kernel_init(uint32_t gp)
 {
-    uint32_t *table = (uint32_t *)(uintptr_t)KERNEL_TABLE;
-    uint32_t *pcb   = (uint32_t *)(uintptr_t)KERNEL_PCB;
+    uint32_t *table = psx_ptr(KERNEL_TABLE);
+    uint32_t *pcb   = psx_ptr(KERNEL_PCB);
 
-    memset((void *)(uintptr_t)KERNEL_TCBS, 0, THREADS * TCB_SIZE);
-    *(uint32_t *)(uintptr_t)(KERNEL_TCBS + TCB_GP) = gp;
+    memset(psx_ptr(KERNEL_TCBS), 0, THREADS * TCB_SIZE);
+    *(uint32_t *)psx_ptr(KERNEL_TCBS + TCB_GP) = gp;
     table[2]                                       = KERNEL_PCB;
     table[3]                                       = 8; // size of the process table
     table[4]                                       = KERNEL_TCBS;

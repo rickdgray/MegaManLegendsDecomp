@@ -13,13 +13,13 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct
+typedef struct PSYQ_RECT
 {
     int16_t x, y, w, h;
 } PSYQ_RECT;
 
 // DRAWENV (include/psyq/libgpu.h): 0x5C bytes, the DR_ENV packet at 0x1C.
-typedef struct
+typedef struct PSYQ_DRAWENV
 {
     PSYQ_RECT clip;
     int16_t ofs[2];
@@ -31,7 +31,7 @@ typedef struct
 } PSYQ_DRAWENV;
 
 // DISPENV: 0x14 bytes.
-typedef struct
+typedef struct PSYQ_DISPENV
 {
     PSYQ_RECT disp;
     PSYQ_RECT screen;
@@ -46,16 +46,26 @@ _Static_assert(sizeof(PSYQ_DISPENV) == 0x14, "DISPENV layout");
 #ifndef PORT_GPU_STATE
 #define PORT_GPU_STATE 0x80097718u
 #endif
-#define GPU_STATE(off, type) (*(volatile type *)(PORT_GPU_STATE + (off)))
+#ifdef PORT_AOT_MIPS
+static uint32_t gpu_state_address = PORT_GPU_STATE;
+
+void port_gpu_set_state_address(uint32_t address)
+{
+    gpu_state_address = address;
+}
+#else
+#define gpu_state_address PORT_GPU_STATE
+#endif
+#define GPU_STATE(off, type) (*(volatile type *)psx_ptr(gpu_state_address + (off)))
 #define GPU_TYPE        GPU_STATE(0x00, uint8_t) // 0: the retail GPU's command layout
 #define GPU_RESET_DONE  GPU_STATE(0x01, uint8_t)
 #define GPU_DEBUG       GPU_STATE(0x02, uint8_t)
 #define GPU_VRAM_WIDTH  GPU_STATE(0x04, int16_t)
 #define GPU_VRAM_HEIGHT GPU_STATE(0x06, int16_t)
-#define GPU_DRAW_ENV    ((PSYQ_DRAWENV *)(PORT_GPU_STATE + 0x10))   // last PutDrawEnv
-#define GPU_DISP_ENV    ((PSYQ_DISPENV *)(PORT_GPU_STATE + 0x6C))   // last PutDispEnv
-#define GPU_WIDTH_TBL   ((const uint32_t *)(PORT_GPU_STATE + 0x80)) // VRAM size by GPU type
-#define GPU_HEIGHT_TBL  ((const uint32_t *)(PORT_GPU_STATE + 0x94))
+#define GPU_DRAW_ENV    ((PSYQ_DRAWENV *)psx_ptr(gpu_state_address + 0x10))   // last PutDrawEnv
+#define GPU_DISP_ENV    ((PSYQ_DISPENV *)psx_ptr(gpu_state_address + 0x6C))   // last PutDispEnv
+#define GPU_WIDTH_TBL   ((const uint32_t *)psx_ptr(gpu_state_address + 0x80)) // VRAM size by GPU type
+#define GPU_HEIGHT_TBL  ((const uint32_t *)psx_ptr(gpu_state_address + 0x94))
 
 uint32_t psyq_SetDrawEnv2(uint32_t dr_env, uint32_t env, uint32_t, uint32_t, uint32_t, uint32_t,
                           uint32_t, uint32_t);
@@ -70,7 +80,7 @@ int ResetGraph(int mode)
         case 3:
         case 5:
             // Full reset: the library's state, as libgpu's ResetGraph sets it up.
-            memset((void *)PORT_GPU_STATE, 0, 0x80);
+            memset(psx_ptr(gpu_state_address), 0, 0x80);
             GPU_TYPE        = 0;
             GPU_RESET_DONE  = 1;
             GPU_VRAM_WIDTH  = (int16_t)GPU_WIDTH_TBL[0];

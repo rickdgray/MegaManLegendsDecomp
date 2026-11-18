@@ -87,7 +87,11 @@ void func_80108820(ST0E_VIEW *wp)
                 fx->variant_3       = 0;
                 fx->sprite.position = wp->position;
             }
+#ifdef __wasm32__
+            func_80047148(wp, &wp->position);
+#else
             func_80047148(wp, &wp->position, fx);
+#endif
             while (D_80110504 < 8)
             {
                 func_80108A44(wp);

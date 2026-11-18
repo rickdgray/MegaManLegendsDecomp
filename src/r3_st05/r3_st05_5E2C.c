@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st05.h"
 
+#ifdef __wasm32__
+void func_801016F0(void);
+#endif
+
 void func_80105E2C(sint8 index)
 {
     STAGE_SPAWNED *obj;
@@ -399,6 +403,10 @@ void func_80106934(STAGE_ROOM *wp)
             break;
     }
 }
+
+#ifdef __wasm32__
+void func_80107DB4(void);
+#endif
 
 void func_80106B28(void)
 {

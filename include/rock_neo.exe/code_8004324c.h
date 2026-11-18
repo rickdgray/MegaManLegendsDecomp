@@ -190,8 +190,13 @@ void func_800354E0(sint32 bit);
 void func_80043740(CODE43_WORK *wp);
 sint32 func_80037634(void *player, sint32 arg);
 void VectorNormalS(CODE43_VECTOR *v, CODE43_SVECTOR *out);
+#ifdef __wasm32__
+CODE43_SVECTOR *func_80033F04(CODE43_SVECTOR *out, CODE43_SVECTOR *dir, CODE43_SVECTOR *cur, sint32 a3,
+                   sint32 a4);
+#else
 void func_80033F04(CODE43_SVECTOR *out, CODE43_SVECTOR *dir, CODE43_SVECTOR *cur, sint32 a3,
                    sint32 a4);
+#endif
 void func_80043DF8(CODE43_WORK *wp, CODE43_MATRIX *mtx);
 void func_8005D97C(void);
 sint16 func_80039B80(void);
@@ -201,7 +206,12 @@ void func_800435F8(CODE43_WORK *wp);
 void func_80043E78(CODE43_WORK *wp);
 void func_80043E00(CODE43_WORK *wp, sint32 value);
 sint32 func_800375D4(void *player, sint32 arg);
+#ifdef __wasm32__
+sint32 func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6,
+                   sint32 *a7, sint32 a8, sint32 a9, sint32 a10);
+#else
 void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6,
                    sint32 *a7, sint32 a8, sint32 a9, sint32 a10);
+#endif
 
 #endif

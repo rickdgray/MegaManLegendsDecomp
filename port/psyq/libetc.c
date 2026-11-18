@@ -15,6 +15,19 @@ static volatile uint32_t irq_cb[11]; // InterruptCallback, by PS1 address (retai
 static uint32_t last_vsync; // vblank count at the previous VSync call
 static struct timespec last_blank;
 static int started;
+static int initialized;
+
+#ifdef PORT_AOT_MIPS
+void port_libetc_reset_session(void)
+{
+    port_vblank_stop();
+    vsync_cb = NULL;
+    memset((void *)irq_cb, 0, sizeof(irq_cb));
+    last_vsync = 0;
+    started = 0;
+    initialized = 0;
+}
+#endif
 
 static void vblank(void)
 {
@@ -86,13 +99,11 @@ void *VSyncCallback(CALLBACK func)
 // DecDCTReset call it again after the game has set its callbacks.
 void ResetCallback(void)
 {
-    static int done;
-
-    if (done)
+    if (initialized)
     {
         return;
     }
-    done     = 1;
+    initialized = 1;
     vsync_cb = NULL;
     memset((void *)irq_cb, 0, sizeof(irq_cb));
     if (!started)

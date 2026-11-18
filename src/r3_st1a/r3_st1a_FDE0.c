@@ -788,6 +788,10 @@ void func_801110B4(ST1A_VIEW_H *wp, uint8 kind)
     }
 }
 
+#ifdef __wasm32__
+void func_80111C40(ST1A_TALKER3 *wp, ST1A_FACE *face);
+#endif
+
 void func_8011146C(ST1A_TALKER3 *wp)
 {
     ST1A_FACE *face;
@@ -813,6 +817,11 @@ void func_8011146C(ST1A_TALKER3 *wp)
     }
 }
 
+#ifdef __wasm32__
+void func_80111BF0(ST1A_TALKER3 *wp, ST1A_FACE *face, sint32 index);
+void func_80111C18(ST1A_TALKER3 *wp, ST1A_FACE *face, sint32 index);
+#endif
+
 void func_801115A0(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
     wp->flags_0 |= 2;
@@ -833,6 +842,10 @@ void func_801115A0(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
     wp->routine_2    = 0;
     wp->routine_3    = 0;
 }
+
+#ifdef __wasm32__
+void func_80111D88(ST1A_TALKER3 *wp);
+#endif
 
 void func_80111658(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
@@ -1169,6 +1182,10 @@ void func_801120E4(STAGE_OBJ *wp)
     wp->position.y         = (sint16)(temp_v1 >> 0x10);
 }
 
+#ifdef __wasm32__
+void func_801124D0(ST1A_TALKER *wp, STAGE_FACE2 *face);
+#endif
+
 void func_80112134(STAGE_OBJ *wp, STAGE_FACE2 *face)
 {
     wp->flags_0 |= 2;
@@ -1291,6 +1308,10 @@ void func_8011259C(ST1A_TALKER *wp)
     func_80111F80(wp, face);
 }
 
+#ifdef __wasm32__
+void func_801130D0(ST1A_WATCHER *wp, ST1A_EYES *face);
+#endif
+
 void func_801125F8(ST1A_WATCHER *wp)
 {
     ST1A_EYES *face;
@@ -1325,6 +1346,10 @@ void func_801125F8(ST1A_WATCHER *wp)
         }
     }
 }
+
+#ifdef __wasm32__
+void func_801130A8(void *wp, ST1A_EYES *face, sint32 index);
+#endif
 
 void func_8011277C(ST1A_WATCHER *wp, STAGE_SCENE_WORK *scene, ST1A_EYES *face)
 {
@@ -1619,6 +1644,12 @@ void func_8011318C(STAGE_OBJ *wp)
 {
     D_80132370[wp->variant_3][wp->routine_0](wp, &Scene_work, &wp->u_4E0.face);
 }
+
+#ifdef __wasm32__
+void func_80114478(STAGE_OBJ *wp, STAGE_FACE *face, sint32 index);
+void func_801144A0(STAGE_OBJ *wp, STAGE_FACE *face, sint32 index);
+void func_80114610(STAGE_OBJ *wp, STAGE_FACE *face);
+#endif
 
 void func_801131DC(ST1A_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
@@ -2318,6 +2349,10 @@ void func_80114610(STAGE_OBJ *wp, STAGE_FACE *face)
     pl->value_169 = face->prev_10 = face->shape_F = face->eyes_8[face->index_11];
 }
 
+#ifdef __wasm32__
+void func_80114A7C(STAGE_OBJ *wp, STAGE_FACE *face);
+#endif
+
 void func_801146D8(ST1A_OBJ *wp)
 {
     STAGE_FACE *face;
@@ -2964,6 +2999,11 @@ void func_80115970(ST1A_OBJ *wp)
         func_8002C8CC(wp, 0x40, 0x200, 0);
     }
 }
+
+#ifdef __wasm32__
+void func_801165AC(STAGE_OBJ *wp, STAGE_FACE *face, sint32 index);
+void func_801165D4(STAGE_OBJ *wp, STAGE_FACE *face, sint32 index);
+#endif
 
 void func_80115A90(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_TALK *talk)
 {
@@ -3634,6 +3674,11 @@ void func_80116E50(STAGE_OBJ *wp)
 }
 
 // ported from r3_st13 func_801012E8
+#ifdef __wasm32__
+void func_801177CC(ST1A_OBJ *wp);
+void func_80117868(ST1A_OBJ *wp);
+#endif
+
 void func_80116EBC(ST1A_STCOM27_WORK_D *wp)
 {
     STCOM_PL_WORK *pl;
@@ -3742,6 +3787,10 @@ void func_801170E0(STAGE_OBJ *wp)
 void func_801171E0(void)
 {
 }
+
+#ifdef __wasm32__
+void func_801173B0(ST1A_OBJ *wp);
+#endif
 
 void func_801171E8(ST1A_ACTOR *wp)
 {
@@ -3881,7 +3930,11 @@ void func_80117548(ST1A_STCOM27_WORK *wp)
                 effect->variant_3       = 0;
                 effect->sprite.position = wp->position;
             }
+#ifdef __wasm32__
+            func_80047148(wp, &wp->position);
+#else
             func_80047148(wp, &wp->position, effect);
+#endif
             wp->routine_0 = 2;
             wp->routine_1 = 0;
             wp->routine_2 = 0;
@@ -4314,6 +4367,10 @@ void func_80118404(STAGE_OBJ *wp)
     D_80132C28[wp->variant_3](wp, &wp->u_4E0.face);
 }
 
+#ifdef __wasm32__
+void func_80119114(ST1A_OBJ *wp, ST1A_FACE *face);
+#endif
+
 void func_80118440(ST1A_OBJ *wp)
 {
     ST1A_FACE *face;
@@ -4338,6 +4395,11 @@ void func_80118440(ST1A_OBJ *wp)
         func_8002C8CC(wp, 0x80, 0x200, 0);
     }
 }
+
+#ifdef __wasm32__
+void func_801190C4(ST1A_OBJ *wp, ST1A_FACE *face, sint32 index);
+void func_801190EC(ST1A_OBJ *wp, ST1A_FACE *face, sint32 index);
+#endif
 
 void func_80118560(ST1A_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {

@@ -468,7 +468,7 @@ void func_80036A78(sint32 arg);
 void func_8002F3A8(BYTE_WORK *wp, uint32 flags);
 void func_80036478(BYTE_WORK *wp, uint8 arg1, uint32 arg2);
 void func_8002F9EC(void *wp, sint32 arg);
-void func_80030604(ANGLE_WORK *wp, sint32 a1, sint32 a2, sint32 a3);
+uint32 func_80030604(ANGLE_WORK *wp, sint32 a1, sint32 a2, sint32 a3);
 void func_8002F9C4(void *wp, sint32 arg);
 void func_8002FA10(void *wp, sint32 arg);
 void func_800354E0(sint32 bit);
@@ -795,7 +795,7 @@ extern void func_8005D4C0(void);
 extern SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 len, uint32 limit);
 extern sint32 func_80049C54(void *pos, void *prev, PL_HEIGHT_INFO *info, sint32 kind);
 sint32 func_800364B0(TRACK_WORK *t, TRACK_TARGET *tg, sint32 angle);
-void func_8003648C(TRACK_WORK *a0, ANGLE_WORK *a1);
+sint32 func_8003648C(TRACK_WORK *a0, ANGLE_WORK *a1);
 
 // Matrix stack: func_800333A0 resets it, func_800333B4 pushes, func_8003340C pops.
 extern MATRIX D_800BC728[];

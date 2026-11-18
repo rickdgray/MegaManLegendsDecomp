@@ -4,6 +4,11 @@
 #include "rock_neo.exe/code_80014ac0.h"
 #include "rock_neo.exe/code_800133d8.h"
 
+#ifdef __wasm32__
+void func_8005D98C(void);
+void func_80039630(sint32 arg);
+#endif
+
 void func_8003BE40(sint32 arg)
 {
     func_8003BE6C(&Player_work, arg);
@@ -278,7 +283,11 @@ void func_8003C4EC(PL_WORK *pl)
         }
     }
     func_8002D004(pl, pl->value168, pl->value169);
+#ifdef __wasm32__
+    func_800329D4(pl, 0);
+#else
     func_800329D4(pl);
+#endif
     func_800325D4(pl);
     if (pl->routine_0 & 2)
     {
@@ -1858,7 +1867,11 @@ void func_8003EEC0(PL_WORK *pl)
     if (target == NULL || !(D_80098B18 & 2) || func_8003F224(pl) != 0)
     {
         func_80041EF4(pl, 2, 0x40);
+#ifdef __wasm32__
+        func_80039630(pl->value108);
+#else
         func_80039630(pl->value108, 0x15E);
+#endif
         pl->value10e = 0;
         if (!(pl->value174 & 0xC0))
         {
@@ -1952,7 +1965,11 @@ void func_8003EEC0(PL_WORK *pl)
             pl->value108 = -0x1C0;
         }
     }
+#ifdef __wasm32__
+    func_80039630(pl->value108);
+#else
     func_80039630(pl->value108, 0x15E);
+#endif
 }
 
 void func_8003F188(PL_WORK *pl, sint32 dir, sint32 arg)

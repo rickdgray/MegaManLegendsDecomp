@@ -2,6 +2,10 @@
 #define SOUND_H
 
 #include "common.h"
+
+#ifdef __wasm32__
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#endif
 #include "psyq/libcd.h"
 #include "psyq/libsnd.h"
 

@@ -6,6 +6,10 @@ void func_80104D48(STAGE_OBJ *wp)
     D_8011465C[wp->routine_0](wp);
 }
 
+#ifdef __wasm32__
+void func_80104EC4(ST10_ACTOR *wp);
+#endif
+
 void func_80104D84(ST10_ACTOR *wp)
 {
     STCOM_FIXED_VECTOR fixed;

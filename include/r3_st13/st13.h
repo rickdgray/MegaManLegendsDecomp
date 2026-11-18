@@ -678,7 +678,11 @@ void func_8010D718(STCOM16_WORK *wp);
 void func_8010D928(STCOM16_WORK *wp);
 void func_8010DDCC(STCOM16_WORK *wp);
 void func_8010DEF4(STCOM16_WORK *wp);
+#ifdef __wasm32__
+void func_80047148(void *wp, STCOM_SVECTOR *pos);
+#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
+#endif
 void func_80100988(void);
 void func_801150B0(STAGE_OBJ *wp);
 void func_801009C8(void);

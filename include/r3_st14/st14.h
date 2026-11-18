@@ -550,7 +550,11 @@ void func_80100B88(STAGE_ROOM *wp);
 void func_8010E0B0(ST14_TALKER *wp);
 void func_8010E304(ST14_TALKER *wp);
 void func_8010E454(ST14_TALKER *wp);
+#ifdef __wasm32__
+void func_80047148(void *wp, STCOM_SVECTOR *pos);
+#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
+#endif
 // func_80047148 as func_8010C9CC calls it: without the effect (retail passes whatever a2 holds).
 void func_80047148_2(void *wp, STCOM_SVECTOR *pos) __asm__("func_80047148");
 // func_8002FEA4 as func_8010CDB0 calls it: without a prototype, so an int result is set in v0.

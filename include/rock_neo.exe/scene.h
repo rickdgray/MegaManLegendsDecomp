@@ -166,7 +166,11 @@ extern uint32 D_800BC7F0;
 extern uint16 D_800891B4[];
 void Sce_flag_on(uint32 flag);
 void Sce_flag_off(uint32 flag);
+#ifdef __wasm32__
+void func_800179FC(void);
+#else
 void func_800179FC(sint32 arg, sint16 *value);
+#endif
 void func_8002FBF4(void);
 void Cd_read_comb(sint32 arg);
 extern SCENE_SLOT *D_800ACD40[];
@@ -275,7 +279,11 @@ extern sint32 D_800BC7E0;
 extern sint32 D_800BC7E4;
 extern sint32 D_800BC7E8;
 void func_80038324(sint32 *pos, sint16 a, sint16 b, sint16 c);
+#ifdef __wasm32__
+void func_800384A4(sint32 *pos, sint32 *target);
+#else
 void func_800384A4(sint32 *pos, sint32 *pos2, sint32 w, SCENE_CAM *cam);
+#endif
 
 typedef void (*SCENE_SLOT_FUNC)(SCENE_SLOT *slot);
 // Dispatch tables kept in scratchpad RAM: pointer to an array of pointers to function arrays

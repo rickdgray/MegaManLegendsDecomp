@@ -28,6 +28,12 @@ set(GEN ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file(MAKE_DIRECTORY ${GEN})
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+option(PORT_BOOT64 "Build the 64-bit AOT boot shim check" OFF)
+if(PORT_BOOT64)
+    include(aot/CMakeLists.txt)
+    return()
+endif()
+
 option(PORT_SDL_M32 "Build the SDL programs as 32-bit (needs lib32-sdl3)" OFF)
 option(PORT_GAME_WARNINGS "Show compiler warnings for the game sources" OFF)
 set(PORT_RETAIL_ELF ${REPO}/build/rock_neo.exe/rock_neo.exe.elf CACHE FILEPATH
@@ -47,10 +53,12 @@ set(M32 -m32)
 # symbols, so tools/gen_link.py can place each at its retail address. No loop bounds inferred from
 # array sizes (the game indexes past a row on purpose, e.g. func_8003B278), and no assumption
 # that a file static is untouched by calls (retail data and literal addresses reach them too).
+# Uninitialized locals start at zero: retail reads stack garbage in places (func_8003346C's
+# MATRIX translation), and zero keeps this build and the 64-bit one (port/aot) in step.
 set(PLACE_CFLAGS -ffunction-sections -fdata-sections -fno-common)
 set(GAME_CFLAGS ${M32} -std=gnu89 -fpermissive -fno-pic -fno-strict-aliasing -fwrapv
     -fno-builtin -fno-delete-null-pointer-checks -fno-stack-protector -O2 -g ${PLACE_CFLAGS}
-    -fno-aggressive-loop-optimizations -fno-ipa-reference)
+    -fno-aggressive-loop-optimizations -fno-ipa-reference -ftrivial-auto-var-init=zero)
 if(NOT PORT_GAME_WARNINGS)
     list(APPEND GAME_CFLAGS -w)
 endif()
@@ -82,7 +90,7 @@ endfunction()
 
 # --- runtime ---------------------------------------------------------------------------------
 
-set(RT_CORE runtime/psx_mem.c runtime/gpu.c runtime/pad.c runtime/memcard.c runtime/port_config.c
+set(RT_CORE runtime/psx_mem.c runtime/psx_exe.c runtime/gpu.c runtime/pad.c runtime/memcard.c runtime/port_config.c
     runtime/port_remote.c runtime/port_overlay.c)
 # The mod system (port/mods/): the vanilla/mods choice, hooks on game
 # functions, the menus, and the mods. Port only; it reaches the game through retail addresses.

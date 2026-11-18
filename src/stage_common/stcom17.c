@@ -631,7 +631,11 @@ void stcom17_func_1168(STCOM17_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0x40;
         effect->sprite.position = wp->joints_180[1];
+#ifdef __wasm32__
+        func_80047148(wp, &wp->joints_180[0]);
+#else
         func_80047148(wp, &wp->joints_180[0], effect);
+#endif
     }
     func_80052528(wp);
     wp->flags_0               = 1;
@@ -1084,7 +1088,11 @@ void stcom17_func_1FFC(STCOM17_GUN_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0x40;
         effect->sprite.position = wp->joints_180[2];
+#ifdef __wasm32__
+        func_80047148(wp, &wp->joints_180[0]);
+#else
         func_80047148(wp, &wp->joints_180[0], effect);
+#endif
     }
     if (wp->variant_3 == 0)
     {

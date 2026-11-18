@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st0a.h"
 
+#ifdef __wasm32__
+void func_80036478(void *track, uint8 arg1, uint32 arg2);
+#endif
+
 void func_80102DA8(STAGE_OBJ *wp)
 {
     wp->position_prev       = wp->position;

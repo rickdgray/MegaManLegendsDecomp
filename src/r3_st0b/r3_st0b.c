@@ -2523,6 +2523,10 @@ void func_80105404(ST0B_OBJ *wp)
     }
 }
 
+#ifdef __wasm32__
+void func_80106C90(ST0B_OBJ *wp);
+#endif
+
 void func_8010552C(ST0B_OBJ *wp)
 {
     ST0B_CTL *ctl;
@@ -2645,6 +2649,10 @@ void func_80105790(ST0B_OBJ *wp)
     }
     ctl->time_64++;
 }
+
+#ifdef __wasm32__
+void func_80106F6C(ST0B_OBJ *wp);
+#endif
 
 void func_801058E4(ST0B_OBJ *wp)
 {

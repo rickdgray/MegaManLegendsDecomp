@@ -4,6 +4,10 @@
 #include "rock_neo.exe/player.h"
 #include "rock_neo.exe/pad.h"
 
+#ifdef __wasm32__
+void Cd_read_comb(sint32 id);
+#endif
+
 // Small data reached through $gp
 uint32 Moji_flag;
 uint32 Moji_flag3;

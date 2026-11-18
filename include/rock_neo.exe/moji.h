@@ -134,12 +134,25 @@ sint32 func_8005DA1C(sint32 arg0);
 sint32 Sce_flag_test(sint32 flag);
 // Sce_flag_on, func_80039E18 and func_80043294 are void, but Capcom's moji code called them
 // without prototypes (implicitly int): its calls keep the unused v0 result (call_value).
+#ifdef __wasm32__
+void Sce_flag_on(sint32 flag);
+#else
 sint32 Sce_flag_on(sint32 flag);
+#endif
 void Sce_flag_off(sint32 flag);
+#ifdef __wasm32__
+// WebAssembly calls require the callee's fixed parameter signature.
+void Sound_call(sint16 id, uint32 arg1, uint32 arg2);
+#else
 void Sound_call(sint32 sound, ...);
+#endif
 void func_8005ACA8(MOJI_WORK *wp);
 sint32 rand(void);
+#ifdef __wasm32__
+void func_80039E18(void);
+#else
 sint32 func_80039E18(void);
+#endif
 extern uint8 D_80097F6C[][6];
 extern uint8 D_80097F79[];
 extern uint8 D_80097F7A[];
@@ -154,7 +167,11 @@ extern sint32 D_800A396C;
 extern uint8 Scene_work;
 void func_8001D494(sint32 arg0, sint32 arg1, sint32 arg2);
 sint32 func_8004327C(sint32 arg0);
+#ifdef __wasm32__
+void func_80043294(sint32 arg0, sint32 arg1, sint32 arg2);
+#else
 sint32 func_80043294(sint32 arg0, sint32 arg1, sint32 arg2);
+#endif
 void Game_logo_kill(sint32 index);
 void func_80063FC0(uint32 arg0, uint32 arg1);
 

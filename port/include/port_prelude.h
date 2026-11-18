@@ -14,10 +14,10 @@
 #error "port_prelude.h is for the native port build only"
 #endif
 
-#if !defined(__i386__)
-// Game structures store pointers in 32-bit fields and data loaded from the disc holds 32-bit
-// addresses, so the port is an ILP32 build.
-#error "the game code must be built as 32-bit x86 (-m32)"
+#if !defined(__i386__) && !defined(__wasm32__)
+// Game structures and disc data store 32-bit addresses. The AOT build keeps that ABI inside
+// WebAssembly linear memory, even when the generated program uses 64-bit host pointers.
+#error "the game code requires 32-bit x86 or wasm32"
 #endif
 
 // --- include_asm.h ---------------------------------------------------------------------------

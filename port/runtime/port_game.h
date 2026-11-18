@@ -50,6 +50,7 @@ int port_window_open(const char *title, int scale);
 // Starts and stops the vertical-blank timer; the handler calls `handler` once per blank.
 void port_vblank_start(void (*handler)(void));
 void port_vblank_stop(void);
+void port_reset_clock(void);
 uint32_t port_vblank_count(void);
 // Blocks or unblocks the interrupt (critical sections). Returns the previous state (1 = blocked).
 int port_irq_block(void);
@@ -61,6 +62,7 @@ void port_vblank_wait(uint32_t count);
 // briefly (port_vblank_poll) or does nothing (port_vblank_idle).
 void port_vblank_poll(void);
 void port_vblank_idle(void);
+void port_spin_pause(void);
 
 // Called once per DrawOTag: presents the frame, polls input, stops when the options say so.
 void port_frame_drawn(void);

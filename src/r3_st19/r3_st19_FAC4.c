@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st19.h"
 
+#ifdef __wasm32__
+void func_80111D50(void);
+#endif
+
 void func_8010FAC4(STAGE_OBJ *wp)
 {
     D_80118480[wp->variant_3](wp);

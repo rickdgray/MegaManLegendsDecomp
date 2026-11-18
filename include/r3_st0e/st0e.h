@@ -789,7 +789,11 @@ void func_80108A44(ST0E_VIEW *);
 void func_80108AE4(ST0E_VIEW *);
 void func_80108820(ST0E_VIEW *wp);
 void func_80108980(ST0E_VIEW *wp);
+#ifdef __wasm32__
+void func_80047148(void *wp, STCOM_SVECTOR *pos);
+#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
+#endif
 
 void func_80105AB0(ST0E_PROP *wp);
 

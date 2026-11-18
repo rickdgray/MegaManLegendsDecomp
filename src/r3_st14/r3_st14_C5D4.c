@@ -1558,7 +1558,11 @@ void func_8010F4F4(ST14_VILLAGER *wp)
             effect->sprite.position = wp->position;
             effect->value_D         = 2;
         }
+#ifdef __wasm32__
+        func_80047148(wp, &wp->position);
+#else
         func_80047148(wp, &wp->position, effect);
+#endif
         func_8005D4E8();
         func_8005D6E8(wp);
         wp->routine_0 = 2;

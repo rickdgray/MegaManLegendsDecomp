@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st1b.h"
 
+#ifdef __wasm32__
+void Sce_flag_off(sint32 flag);
+#endif
+
 void func_8010603C(STAGE_WORK *wp)
 {
     wp->flags_0 |= 2;

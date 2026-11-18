@@ -34,6 +34,10 @@ void func_8010ACA4(ST10_PROP *wp)
     wp->routine_3 = 0;
 }
 
+#ifdef __wasm32__
+void func_8010AE98(STAGE_OBJ *wp);
+#endif
+
 void func_8010AD74(ST10_PROP *wp)
 {
     STCOM_SVECTOR pos;

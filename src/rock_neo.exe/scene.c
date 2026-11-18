@@ -3,6 +3,15 @@
 #include "rock_neo.exe/system.h"
 #include "rock_neo.exe/scene.h"
 
+#ifdef __wasm32__
+void func_80031AA4(void);
+void func_80051B40(void);
+void func_80033EBC(void);
+void func_800629E0(void);
+void func_8002CFA4(void);
+void Obj_work_flag_change(sint32 arg, sint32 flags);
+#endif
+
 // Small data reached through $gp
 static SCENE_HALF_BYTES D_80098198;
 
@@ -437,7 +446,11 @@ void func_8001E3F0(sint32 arg)
     {
         *value = 0xFF;
     }
+#ifdef __wasm32__
+    func_800179FC();
+#else
     func_800179FC(arg, value);
+#endif
 }
 
 void func_8001E460(sint32 arg0, sint32 arg1, sint32 arg2)

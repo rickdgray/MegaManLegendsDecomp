@@ -1,6 +1,11 @@
 #include "common.h"
 #include "st03.h"
 
+#ifdef __wasm32__
+void Sce_flag_off(sint32 flag);
+void stcom36_func_0028(sint8 room);
+#endif
+
 void func_801004BC(void)
 {
     STAGE_TABLE_3C0 = D_80114350;
@@ -135,6 +140,10 @@ void func_8010093C(STAGE_OBJ *wp)
         wp->value_4 = 0xFF;
     }
 }
+
+#ifdef __wasm32__
+void func_80101918(sint32 set);
+#endif
 
 void func_80100990(STAGE_ROOM *wp)
 {

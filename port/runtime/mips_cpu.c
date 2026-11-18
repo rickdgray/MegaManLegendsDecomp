@@ -7,7 +7,11 @@
 #include "psx_io.h"
 #include "psx_mem.h"
 
+#ifdef PORT_AOT_MIPS
+#include "mips_memory.h"
+#else
 #include <alloca.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,11 +38,15 @@ uint64_t mips_cpu_steps(void)
     return steps;
 }
 
-// The process is 32-bit and maps PS1 memory at its own addresses, so a MIPS address is a host
-// address.
-#define MEM8(a)  (*(uint8_t *)(uintptr_t)(a))
-#define MEM16(a) (*(uint16_t *)(uintptr_t)(a))
-#define MEM32(a) (*(uint32_t *)(uintptr_t)(a))
+#ifdef PORT_AOT_MIPS
+#define MIPS_PTR(type, address) ((type *)port_aot_mips_ptr(address))
+#else
+// The fixed-address port can also pass native stack pointers directly to MIPS.
+#define MIPS_PTR(type, address) ((type *)(uintptr_t)(address))
+#endif
+#define MEM8(a)  (*MIPS_PTR(uint8_t, a))
+#define MEM16(a) (*MIPS_PTR(uint16_t, a))
+#define MEM32(a) (*MIPS_PTR(uint32_t, a))
 
 static void fatal(const CPU *c, uint32_t insn, const char *what)
 {
@@ -538,7 +546,7 @@ void *mips_native_target(uint32_t addr)
 // then returns to ra.
 static void call_native(CPU *c, void *fn)
 {
-    const uint32_t *st = (const uint32_t *)(uintptr_t)c->r[29];
+    const uint32_t *st = MIPS_PTR(const uint32_t, c->r[29]);
     uint64_t r = ((NATIVE_FN)fn)(c->r[4], c->r[5], c->r[6], c->r[7], st[4], st[5], st[6], st[7],
                                  st[8], st[9]);
 
@@ -561,32 +569,32 @@ static void bios_call(CPU *c)
     switch ((c->pc << 8) | (c->r[9] & 0xFF))
     {
         case 0xA015: // strcat
-            strcat((char *)(uintptr_t)a0, (const char *)(uintptr_t)a1);
+            strcat(MIPS_PTR(char, a0), MIPS_PTR(const char, a1));
             v = a0;
             break;
         case 0xA017: // strcmp
-            v = (uint32_t)strcmp((const char *)(uintptr_t)a0, (const char *)(uintptr_t)a1);
+            v = (uint32_t)strcmp(MIPS_PTR(const char, a0), MIPS_PTR(const char, a1));
             break;
         case 0xA018: // strncmp
-            v = (uint32_t)strncmp((const char *)(uintptr_t)a0, (const char *)(uintptr_t)a1, a2);
+            v = (uint32_t)strncmp(MIPS_PTR(const char, a0), MIPS_PTR(const char, a1), a2);
             break;
         case 0xA019: // strcpy
-            strcpy((char *)(uintptr_t)a0, (const char *)(uintptr_t)a1);
+            strcpy(MIPS_PTR(char, a0), MIPS_PTR(const char, a1));
             v = a0;
             break;
         case 0xA01B: // strlen
-            v = (uint32_t)strlen((const char *)(uintptr_t)a0);
+            v = (uint32_t)strlen(MIPS_PTR(const char, a0));
             break;
         case 0xA028: // bzero
-            memset((void *)(uintptr_t)a0, 0, a1);
+            memset(MIPS_PTR(void, a0), 0, a1);
             v = a0;
             break;
         case 0xA02A: // memcpy
-            memmove((void *)(uintptr_t)a0, (const void *)(uintptr_t)a1, a2);
+            memmove(MIPS_PTR(void, a0), MIPS_PTR(const void, a1), a2);
             v = a0;
             break;
         case 0xA02B: // memset
-            memset((void *)(uintptr_t)a0, (int)a1, a2);
+            memset(MIPS_PTR(void, a0), (int)a1, a2);
             v = a0;
             break;
         case 0xA02F: // rand
@@ -597,7 +605,7 @@ static void bios_call(CPU *c)
             bios_seed = a0;
             break;
         case 0xA03F: // printf: the format only
-            fprintf(stderr, "port: (printf) %s", (const char *)(uintptr_t)a0);
+            fprintf(stderr, "port: (printf) %s", MIPS_PTR(const char, a0));
             break;
         default:
             fprintf(stderr,
@@ -610,9 +618,36 @@ static void bios_call(CPU *c)
     c->next_pc = c->pc + 4;
 }
 
+#ifdef PORT_AOT_MIPS
+// Reserve distinct guest stacks above PS1 RAM for nested interpreter calls.
+static _Thread_local unsigned aot_stack_depth;
+static int (*guest_dispatch)(uint32_t, const uint32_t args[16], uint32_t *);
+
+void mips_set_guest_dispatch(int (*dispatch)(uint32_t, const uint32_t args[16], uint32_t *))
+{
+    guest_dispatch = dispatch;
+}
+
+static int dispatch_game(CPU *c)
+{
+    if (guest_dispatch == NULL || c->pc < 0x80010000u || c->pc >= 0x80080000u)
+        return 0;
+
+    uint32_t args[16] = {c->r[4], c->r[5], c->r[6], c->r[7]};
+    const uint32_t *stack = MIPS_PTR(const uint32_t, c->r[29]);
+    memcpy(args + 4, stack + 4, sizeof(args) - 4 * sizeof(args[0]));
+    if (!guest_dispatch(c->pc, args, &c->r[2]))
+        return 0;
+    c->r[3] = 0;
+    c->pc = c->r[31];
+    c->next_pc = c->pc + 4;
+    return 1;
+}
+#define AOT_STACK_COUNT ((PORT_AOT_STACK_TOP - (PSX_RAM_BASE + PSX_RAM_SIZE + 0x20000u)) / STACK_BYTES)
+#endif
+
 uint64_t mips_call64(uint32_t addr, const uint32_t args[8])
 {
-    uint8_t *stack;
     uint32_t sp;
     void *fn;
     CPU c;
@@ -624,18 +659,25 @@ uint64_t mips_call64(uint32_t addr, const uint32_t args[8])
         return ((NATIVE_FN)fn)(args[0], args[1], args[2], args[3], args[4], args[5], args[6],
                                args[7], 0, 0);
     }
-    // The MIPS stack lives on the host stack of whoever calls: nested entries (native code
-    // called from MIPS code calling MIPS code again) and the game's threads, each on its own
-    // host stack, then never share one.
-    stack = alloca(STACK_BYTES);
+#ifdef PORT_AOT_MIPS
+    if (aot_stack_depth == AOT_STACK_COUNT)
+    {
+        fputs("mips_cpu: out of guest stack space\n", stderr);
+        abort();
+    }
+    sp = PORT_AOT_STACK_TOP - (aot_stack_depth++ * STACK_BYTES) - 0x40;
+#else
+    // Each native thread and nested interpreter call gets its own MIPS stack.
+    uint8_t *stack = alloca(STACK_BYTES);
+    sp = ((uint32_t)(uintptr_t)(stack + STACK_BYTES) - 0x40) & ~7u;
+#endif
     memset(&c, 0, sizeof(c));
     // The callee may store a0-a3 into the 16 bytes the caller reserves at sp; stack arguments
     // follow them.
-    sp = ((uint32_t)(uintptr_t)(stack + STACK_BYTES) - 0x40) & ~7u;
     for (i = 0; i < 4; i++)
     {
-        c.r[4 + i]                         = args[i];
-        ((uint32_t *)(uintptr_t)sp)[4 + i] = args[4 + i];
+        c.r[4 + i]                   = args[i];
+        MIPS_PTR(uint32_t, sp)[4 + i] = args[4 + i];
     }
     c.r[28]   = mips_gp;
     c.r[29]   = sp;
@@ -661,6 +703,17 @@ uint64_t mips_call64(uint32_t addr, const uint32_t args[8])
             bios_call(&c);
             continue;
         }
+#ifdef PORT_AOT_MIPS
+        if (dispatch_game(&c))
+            continue;
+        // Resolve native calls from the dispatch table after the MIPS delay slot.
+        fn = mips_native_target(c.pc);
+        if (fn != NULL)
+        {
+            call_native(&c, fn);
+            continue;
+        }
+#else
         // Branches reach native code too (a tail call through `b`): a stub's x86 jmp opcode
         // 0xE9 is the low byte of the word at the function's address.
         if (MEM8(c.pc) == 0xE9 && port_stub_find(c.pc) != NULL)
@@ -668,10 +721,14 @@ uint64_t mips_call64(uint32_t addr, const uint32_t args[8])
             call_native(&c, mips_native_target(c.pc));
             continue;
         }
+#endif
         step(&c);
     }
     // DMA completion interrupts of transfers the call started (libspu, libpress).
     psx_io_run_pending();
+#ifdef PORT_AOT_MIPS
+    aot_stack_depth--;
+#endif
     return ((uint64_t)c.r[3] << 32) | c.r[2];
 }
 

@@ -1179,6 +1179,10 @@ void func_8010D0A4(STCOM16_WORK *wp)
     ctl->hit_8 = 0;
 }
 
+#ifdef __wasm32__
+void func_8010D424(STCOM16_WORK *wp);
+#endif
+
 void func_8010D27C(STCOM16_WORK *wp)
 {
     STCOM16_CTL *ctl;
@@ -2325,7 +2329,11 @@ void func_8010F454(STCOM16_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0x40;
         effect->sprite.position = wp->joints_180[0];
+#ifdef __wasm32__
+        func_80047148(wp, &wp->joints_180[0]);
+#else
         func_80047148(wp, &wp->joints_180[0], effect);
+#endif
     }
     wp->routine_0 = 2;
     wp->flags_0 &= ~2;

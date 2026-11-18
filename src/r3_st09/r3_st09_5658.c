@@ -1,6 +1,18 @@
 #include "common.h"
 #include "st09.h"
 
+#ifdef __wasm32__
+void Sce_flag_off(sint32 flag);
+#endif
+
+#ifdef __wasm32__
+void func_80100DF4(ST09_VIEW *wp);
+#endif
+
+#ifdef __wasm32__
+void func_80047148(void *wp, void *obj);
+#endif
+
 void func_80105658(STAGE_STCOM15_WORK_348 *wp)
 {
     STAGE_STCOM15_CTL *ctl;
@@ -1079,7 +1091,11 @@ void func_80107A14(ST09_VIEW *wp)
                     effect->variant_3       = 0x40;
                     effect->sprite.position = wp->vec_188;
                 }
+#ifdef __wasm32__
+                func_80047148(wp, &wp->vec_180);
+#else
                 func_80047148(wp, &wp->vec_180, effect);
+#endif
                 if (!(wp->u_C.b[3] & 0x42))
                 {
                     ((STAGE_OBJ *)ext->u_4C.p)->routine_0 = 4;

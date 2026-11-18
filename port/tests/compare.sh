@@ -7,19 +7,23 @@
 # runs agree. Arguments go to both runs of mml.
 set -eu
 root=$(cd "$(dirname "$0")/../.." && pwd)
+binary=${PORT_TEST_BIN:-"$root/build/port/mml"}
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 export XDG_CONFIG_HOME="$tmp/config" XDG_DATA_HOME="$tmp/data"
 at=5000,8000,10000,11000,12000,13000,14000
 for native in 1 0; do
-    PORT_OVERLAY_NATIVE=$native "$root/build/port/mml" --headless --deterministic --vblanks 40000 \
+    PORT_OVERLAY_NATIVE=$native "$binary" --headless --deterministic --vblanks 40000 \
         --script "$root/port/tests/smoke.script" --card1 "$tmp/card$native.mcd" \
         --dump "$tmp/vram$native.ppm" --dump-at "$at" --wav "$tmp/sound$native.wav" "$@" \
         2> "$tmp/log$native" || { echo "port-compare: run with PORT_OVERLAY_NATIVE=$native failed"; exit 1; }
     grep "script:" "$tmp/log$native" > "$tmp/script$native"
 done
-grep "overlays:" "$tmp/log1" | head -1
 status=0
+if ! grep -m 1 -E 'overlays: .* [1-9][0-9]* calls ran natively|game64: running compiled .* overlay' "$tmp/log1"; then
+    echo "port-compare: the native run executed no compiled overlays"
+    status=1
+fi
 cmp -s "$tmp/script1" "$tmp/script0" || { echo "port-compare: script lines differ"; status=1; }
 for v in $(echo "$at" | tr , ' '); do
     cmp -s "$tmp/vram1-$v.ppm" "$tmp/vram0-$v.ppm" || { echo "port-compare: VRAM differs at blank $v"; status=1; }

@@ -227,7 +227,11 @@ void func_80043340(uint32 id, sint32 arg1);
 sint32 func_80048EA4(void *snd, CODE456_REC12 *rec, sint32 arg2, sint32 arg3);
 sint32 func_8004B5CC(void *snd, PL_SHORT_VECTOR *old, sint32 arg2, CODE456_REC12 *rec);
 void func_80046B34(PL_SHORT_VECTOR *pos, uint32 arg);
+#ifdef __wasm32__
+sint32 func_8004AC8C(void *tr, sint32 flags);
+#else
 void func_8004AC8C(void *tr, sint32 flags);
+#endif
 void func_80045AB4(CODE456_WORK *wp);
 void func_80045BC8(CODE456_WORK *wp);
 void func_80046890(CODE456_WORK *wp);

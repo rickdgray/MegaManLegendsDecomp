@@ -1,6 +1,10 @@
 #include "common.h"
 #include "st13.h"
 
+#ifdef __wasm32__
+void func_80031A4C(void *wp);
+#endif
+
 void func_801078D4(STAGE_OBJ *wp)
 {
     ST13_REC10 *rec;
