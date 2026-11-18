@@ -17,6 +17,9 @@
 #define Key_tbl_d     ((KEY_ENT **)0x800DCB80)
 #define Key_tbl_d_alt ((KEY_ENT **)0x800DD000)
 
+// Obj_work_flag_change's flag: close the slots (Capcom's name, from eve19.c).
+#define WORK_KILL 0x80
+
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
 
@@ -32,6 +35,9 @@ typedef struct
     sint16 min_8;
     sint16 max_A;
 } HIT_ENT;
+
+// PL_WORK is defined in player.h, which includes this header.
+struct PL_WORK;
 
 // ---- Work pool slots (Work_pools_init). ----
 // Every slot, and PL_WORK, starts with the same header: routine_0, kind_1 (pool kind, 0x10 * pool
@@ -103,11 +109,29 @@ typedef struct
     sint16 col; // RGB555 colour, faded by part_col_step (func_80068388 sets it)
 } CHILD_POS;
 
+// Command script of a WORK_3C0 (WORK_3C0.script, run by script_exec from func_800150E0): data
+// is a list of halfword commands (1..27, 0 ends a frame) followed by their arguments.
+typedef struct
+{
+    sint16 *data; // 0x0: command stream
+    uint16 pos;   // 0x4: index of the current command in data
+    sint16 wait;  // 0x6: frames left before the next commands run
+    uint16 add_8; // 0x8: added to WORK_3C0.ang.vy each frame
+    uint16 add_A; // 0xA, 0xC, 0xE: added to WORK_3C0.vec_158.vx, vy, vz each frame
+    uint16 add_C;
+    uint16 add_E;
+    uint8 pad_10[2];
+    uint8 direct_12; // nonzero: pos_l moved by spd directly, else through Obj_pos_set
+    uint8 field_13;  // copied to WORK_3C0 0x110 when it changes
+    uint8 field_14;  // previous field_13
+} SCRIPT_WORK;
+
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint16 field_2;
+    uint8 field_2; // field_2 and field_3 are cleared together by one halfword store (on open)
+    uint8 field_3; // func_80015428: index of the object (0..15)
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -116,24 +140,37 @@ typedef struct
     uint8 field_9;   // set (with field_A cleared) by the event steps of code_800680BC
     uint8 field_A;
     uint8 timer_B;
-    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
-    sint8 slot_D;
-    sint8 field_E;
-    uint8 pad_F;
+    sint8 field_C; // field_C to timer_F are cleared by one word store (on open)
+    sint8 slot_D;  // nonzero: play the sound of field_E (func_800150E0)
+    sint8 field_E; // sound: 0-2 repeat every timer_F frames, 3-4 play once
+    sint8 timer_F; // frames to the next repeat of the sound
     uint32 field_10;
     // 0x14-0x5C: the MODEL_WORK layout (a model kind).
-    SVECTOR pos;  // 0x14: position (x, height, z)
-    VECTOR pos_l; // 0x1C: 16.16 fixed-point position
-    SVECTOR old;  // 0x2C: previous position
-    VECTOR old_l; // 0x34: 16.16 previous position
-    uint8 pad_44[0x10];
-    SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF)
-    uint8 pad_5C[0x18];
-    uint32 field_74;
-    uint32 field_78;
+    SVECTOR pos;     // 0x14: position (x, height, z)
+    VECTOR pos_l;    // 0x1C: 16.16 fixed-point position
+    SVECTOR old;     // 0x2C: previous position
+    VECTOR old_l;    // 0x34: 16.16 previous position
+    SVECTOR spd;     // 0x44: speed
+    SVECTOR add;     // 0x4C: acceleration
+    SVECTOR ang;     // 0x54: rotation; ang.vy is the Y angle (0..0xFFF)
+    SVECTOR old_ang; // 0x5C: previous rotation (func_800150E0)
+    uint32 field_64; // cleared on open (func_80014AC0)
+    uint8 pad_68[0xC];
+    sint8 field_74; // MODEL_WORK.field_74; 0x74-0x77 cleared by one word store on open
+    uint8 pad_75[3];
+    HIT_ENT *hit_78; // 0x78: collision box (MODEL_WORK.hit_78)
     uint8 pad_7C[4];
     uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint8 pad_88[0x300];
+    uint8 pad_88[0x24];
+    uint8 idx_AC;     // MODEL_WORK.idx_AC: keyframe sequence
+    uint8 old_idx_AD; // previous idx_AC: a change restarts the sequence (func_800150E0)
+    uint8 pad_AE[0x62];
+    uint8 field_110; // set from script.field_13 when it changes
+    uint8 pad_111[0x47];
+    SVECTOR vec_158; // moved by script.add_A/C/E each frame (func_800150E0)
+    uint8 pad_160[0x1E8];
+    SCRIPT_WORK script; // 0x348: command script run by script_exec
+    uint8 pad_360[0x28];
     RGB_ENT base;    // 0x388
     RGB_ENT tbl[13]; // 0x38C
 } WORK_3C0;          // 0x3C0 bytes
@@ -164,6 +201,20 @@ typedef struct
             uint8 timer; // counts down per record
             uint8 b3;
         } rec;
+        struct
+        {
+            sint8 sound;   // nonzero: func_80043F70 plays sound 0xA1 after the init
+            sint8 col;     // column of D_8008A138 (func_80043F70)
+            sint8 variant; // index into D_80097DE0 (the model id); nonzero sets bit 7 of routine_0
+            uint8 b3;
+        } mdl;
+        struct
+        {
+            sint8 b0;
+            sint8 size;  // index into D_80097DDC, the size passed to func_800341BC (func_800441CC)
+            sint8 mode;  // 0 or 1 selects the func_800341BC call; others make none
+            sint8 level; // nonzero in mode 0, flag_3 6: adds 0x20/0x30/0x40 to Player_work's owner
+        } hit;
     } field_C;
     uint32 field_10;
     union
@@ -194,6 +245,19 @@ typedef struct
             sint16 ay_34;
             sint16 az_36;
         } s;
+        // The sprite kinds that keep their position in pos_1C (u_14.word is their packed start
+        // word; func_80045400, func_8004548C): add is added to spd, and spd to pos_1C, each frame.
+        struct
+        {
+            uint32 field_18;  // packed colour word (s.field_18)
+            uint16 pos_1C[3]; // position (s.pos_1C)
+            uint8 field_22;
+            uint8 field_23;
+            uint16 field_24;
+            uint16 field_26;
+            SVECTOR add; // 0x28: acceleration
+            SVECTOR spd; // 0x30: speed
+        } spr;
     } u_18;
     SVECTOR pos_38;  // 0x38: position (x, y = height, z); pad: scale of the diagonal of mtx
                      // (func_800469A4). Passed to Sound_call2 as the source.
@@ -244,7 +308,8 @@ typedef struct
     uint8 pad_5C[8];
     uint16 field_64; // low 12 bits: Y angle of the launch direction (func_800437F8)
     uint8 pad_66[0xE];
-    uint32 field_74;
+    sint8 field_74; // MODEL_WORK.field_74; 0x74-0x77 cleared by one word store on open
+    uint8 pad_75[3];
     HIT_ENT *hit_78; // 0x78: collision box (func_80049C24); 0 on open
     sint16 field_7C; // nonzero ends the flight of func_80043A8C
     uint8 pad_7E[2];
@@ -311,8 +376,9 @@ typedef struct
     uint8 pad_44[0x10];
     SVECTOR ang; // 0x54: rotation; ang.vy is the Y angle (0..0xFFF)
     uint8 pad_5C[0x18];
-    uint32 field_74;
-    uint32 field_78;
+    sint8 field_74; // MODEL_WORK.field_74; 0x74-0x77 cleared by one word store on open
+    uint8 pad_75[3];
+    HIT_ENT *hit_78; // 0x78: collision box (MODEL_WORK.hit_78)
     uint8 pad_7C[4];
     uint32 dist_80[2];    // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
     PARENT_INFO *info_88; // 0x88: model data (func_80031324)
@@ -528,10 +594,19 @@ SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint3
 void Model_work_init(MODEL_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
+void func_800320B8(struct PL_WORK *wp, uint32 set, sint32 idx);
+void func_800321C8(struct PL_WORK *wp, sint32 unused, uint32 set, sint32 idx);
 WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0
 void func_80031930(SHL_WORK *wp); // frees a slot of D_800BFB20
-void *func_80036294(uint32 id);   // object of an id byte (kind | index), or 0
-void func_800354E0(uint32 n);     // releases slot n of D_80098798 (claimed by func_8003545C)
+void func_80031824(WORK_3C0 *wp); // frees a slot of D_8009F108
+WORK_3C0 *func_80031418(void);    // claims a free slot of D_8009F108, or 0
+void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z);
+void func_800322A8(MODEL_WORK *wp, sint32 seq, sint32 step); // starts keyframe sequence seq
+void func_80032488(MODEL_WORK *wp);                          // steps the keyframe sequence
+// mask: pool bits (1 Player_work, 2 D_8009F108, ...); flag WORK_KILL closes every live slot.
+void Obj_work_flag_change(sint32 mask, sint32 flag);
+void *func_80036294(uint32 id); // object of an id byte (kind | index), or 0
+void func_800354E0(uint32 n);   // releases slot n of D_80098798 (claimed by func_8003545C)
 uint32 func_8002FE74(uint32 a);
 sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8);
 sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,

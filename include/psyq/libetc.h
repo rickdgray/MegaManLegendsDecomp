@@ -11,7 +11,8 @@
 #define MODE_NTSC 0
 #define MODE_PAL  1
 
-typedef void (*VSYNC_FUNC)(void);
+// VSyncCallback's callback, typed as the Library Reference writes it: void (*func)().
+typedef void (*VSYNC_FUNC)();
 
 void ResetCallback(void);
 void StopCallback(void);

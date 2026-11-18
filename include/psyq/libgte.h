@@ -54,9 +54,15 @@ MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
 MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v);
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1);
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);
+void OuterProduct0(VECTOR *v0, VECTOR *v1, VECTOR *v2);
 void OuterProduct12(VECTOR *v0, VECTOR *v1, VECTOR *v2);
+void VectorNormal(VECTOR *v0, VECTOR *v1);
+void NormalColorCol(SVECTOR *v0, CVECTOR *v1, CVECTOR *v2);
 long VectorNormalS(VECTOR *v0, SVECTOR *v1);
 void SetFogNear(long a, long h);
 void SetFarColor(long rfc, long gfc, long bfc);
+void SetBackColor(long rbk, long gbk, long bbk);
+void SetColorMatrix(MATRIX *m);
+void SetLightMatrix(MATRIX *m);
 
 #endif // PSYQ_LIBGTE_H

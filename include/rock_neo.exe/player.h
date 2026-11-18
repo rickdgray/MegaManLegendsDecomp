@@ -20,8 +20,8 @@ typedef struct
     sint16 val; // 0x06: copy of D_80089EAC[n][idx[1]].val[1]; 0x7FFF is never counted down (func_80035724)
 } TBL_IDX;
 
-// Player work, 0x5F4 bytes.
-typedef struct
+// Player work, 0x5F4 bytes. Tagged so code_8002E7A8.h can forward-declare it.
+typedef struct PL_WORK
 {
     uint8 unk00;
     uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (func_80035724)
@@ -31,11 +31,18 @@ typedef struct
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
     SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
-    uint8 unk2C[0x54 - 0x2C];
+    uint8 unk2C[0x44 - 0x2C];
+    SVECTOR spd; // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
+    uint8 unk4C[0x54 - 0x4C];
     SVECTOR ang; // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
     uint8 unk5C[0x6E - 0x5C];
     sint16 unk6E; // 0x6E: sh; copy of unkB0 (func_8005D9EC); func_8001DDE4 does nothing while negative
-    uint8 unk70[0xB0 - 0x70];
+    uint8 unk70[0x74 - 0x70];
+    sint8 field_74; // 0x74: same as MODEL_WORK.field_74; nonzero makes func_80042B58 call
+                    // Pl00_shot_enable_off, and func_800441CC leave owner_188 alone
+    uint8 unk75[0xAC - 0x75];
+    uint8 idx_AC; // 0xAC: same as MODEL_WORK.idx_AC; passed to func_800320B8 with a set
+    uint8 unkAD[0xB0 - 0xAD];
     sint16 unkB0; // 0xB0: upper limit of unk6E (func_80043340)
     uint8 unkB2[0xF8 - 0xB2];
     KEY_ENT *tbl_F8; // 0xF8: keyframe table in use (func_800321C8)
@@ -44,14 +51,17 @@ typedef struct
     uint8 set_104;   // 0x104: index of the keyframe table set in use
     uint8 unk105;    // 0x105: set_104 when func_800321C8 last ran (func_8003C418)
     sint16 unk106;   // 0x106: set by func_800323FC
-    uint8 unk108[0x116 - 0x108];
+    uint8 unk108[0x110 - 0x108];
+    sint8 unk110; // 0x110: sb; set to -1 or 0 by func_80042B58
+    uint8 unk111[0x116 - 0x111];
     uint16 unk116; // 0x116: lhu; added to ang.vy for the camera yaw (func_800355F0)
     uint8 unk118[0x11C - 0x118];
-    uint16 unk11C; // 0x11C: lhu; mask tested against unk128 and unk12A (func_800482A8)
-    uint8 unk11E[0x128 - 0x11E];
-    uint16 unk128; // 0x128: lhu
-    uint16 unk12A; // 0x12A: lhu
-    uint8 unk12C[0x16A - 0x12C];
+    uint16 unk11C; // 0x11C: lhu; mask tested against keys_124[2] and [3] (func_800482A8)
+    uint8 unk11E[0x124 - 0x11E];
+    uint16 keys_124[16];   // 0x124: pad-bit masks, one row of D_8008A04C (func_800425FC)
+    uint16 key_pair[8][2]; // 0x144: [0] is the OR of two keys_124 masks, [1] one of the two
+                           // (func_800425FC)
+    uint8 unk164[0x16A - 0x164];
     sint8 unk16A; // 0x16A: lb; selects the file D_80089200[unk16A] (func_8001F5E4)
     uint8 unk16B; // 0x16B: lbu; bits 1-7 (signed) select the file D_80089204[n] (func_8001F5E4)
     sint8 unk16C; // 0x16C: lb; when nonzero, Sce_flag_on sets it to the count of flags 0x53A-0x53C
@@ -63,9 +73,11 @@ typedef struct
     sint8 tbl_sel; // 0x172: lb; index of the active TBL_IDX record
     uint8 unk173;
     sint8 unk174; // 0x174: lb; bits 6-7 tested by func_8004324C
-    uint8 unk175[2];
+    uint8 unk175; // 0x175: lbu; bits 0-2 tested by func_80042770 and func_80042F78
+    uint8 unk176;
     sint8 unk177; // 0x177: lb; nonzero tested by func_8004324C
-    uint8 unk178[0x188 - 0x178];
+    sint8 unk178; // 0x178: lb; step of func_80042A40 and func_80042DF8
+    uint8 unk179[0x188 - 0x179];
     SLOT_OWNER owner_188; // 0x188: slot owner passed to func_800341BC (func_8003C2D8)
     uint8 unk190[0x198 - 0x190];
     uint32 unk198; // 0x198: cleared by func_800433FC/func_800435BC, set to 1 by func_800434F0
@@ -78,7 +90,9 @@ typedef struct
     uint8 unk420[0x428 - 0x420];
     VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
     SVECTOR svec_438; // 0x438: rounded copy of pos_428
-    uint8 unk440[0x44D - 0x440];
+    uint8 unk440[0x44C - 0x440];
+    sint8 unk44C; // 0x44C: bits read and cleared by func_80042B58 (bit 1: spd.vx = -0x280,
+                  // bit 0: unk110 = -1)
     uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8
     uint8 unk44E[0x450 - 0x44E];
     uint8 ids_450[3]; // 0x450: entries of ids_454; Sce_flag_off clears the flag's id here too
@@ -94,7 +108,11 @@ extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
 extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *Player_work_ptr; // 0x80098A50
 
+void func_80041E90(PL_WORK *pl, sint16 x, sint16 y, sint16 z);
 sint32 func_80042238(PL_WORK *pl);
 void func_80042314(PL_WORK *pl);
+void Pl00_shot_enable_off(PL_WORK *pl);
+sint32 func_800423DC(PL_WORK *pl); // keyframe set for func_80042F78 (0x40-0x43)
+sint32 func_80042458(PL_WORK *pl); // keyframe set for func_80042770 (0x40-0x43)
 
 #endif // PLAYER_H

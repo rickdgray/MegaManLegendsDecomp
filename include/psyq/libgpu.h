@@ -14,10 +14,9 @@ typedef struct
     short x, y, w, h;
 } RECT;
 
-// Primitive header: 24-bit address of the next primitive + 8-bit length.
-// The primitives' tag word is a u_long here, where the Library Reference writes `u_long *tag`:
-// it isn't a pointer but this packed address and length, and the game builds it with integer
-// operations (`p->tag = *ot | 0x09000000` in code_8002D9A0). Same size either way.
+// Primitive header: 24-bit address of the next primitive + 8-bit length. The primitives type
+// it `u_long *tag`, as the Library Reference does, though it holds this packed word rather than
+// a pointer; code that builds it with integer operations casts (code_8002D9A0).
 typedef struct
 {
     unsigned addr : 24;
@@ -27,7 +26,7 @@ typedef struct
 
 typedef struct
 {
-    u_long tag;
+    u_long *tag;
     u_long code[15];
 } DR_ENV; // 0x40
 
@@ -51,7 +50,7 @@ typedef struct
 
 typedef struct
 {
-    u_long tag;              // 0x00
+    u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
     u_char u0, v0;           // 0x0c
@@ -61,7 +60,7 @@ typedef struct
 
 typedef struct
 {
-    u_long tag;              // 0x00
+    u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
     short w, h;              // 0x0c
@@ -69,13 +68,13 @@ typedef struct
 
 typedef struct
 {
-    u_long tag;
+    u_long *tag;
     u_long code[2];
 } DR_MODE; // 0x0c
 
 typedef struct
 {
-    u_long tag;              // 0x00
+    u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
     u_char u0, v0;           // 0x0c
@@ -90,7 +89,7 @@ typedef struct
 
 typedef struct
 {
-    u_long tag;              // 0x00
+    u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
     u_char u0, v0;           // 0x0c

@@ -30,9 +30,38 @@
 #define Stage_ebd_1 ((sint32 *)0x80190000)
 #define Support_ebd ((sint32 *)0x801F2000)
 
-// One block of the map grid (Map_blocks): its position, and its model data pointer in the low 24
-// bits. The model's words 6-8 point to its near/mid/far LOD (words 9-11 instead when pos.pad is 0);
-// bit 31 of that LOD word picks the draw function's column in Map_block_draw_tbl.
+// The STG files (notes/disc.md): arrays of STG_MODEL. The stage's loads at 0x80194000, SUPPORT's at
+// 0x801F6000. Record 0 has id 0xFFFFFFFF; func_8003A744 relights SUPPORT's record 1.
+#define Support_stg ((STG_MODEL *)0x801F6000)
+
+// The stage HED file, loaded at 0x8013A000 (notes/disc.md): HED_ENTs, ended by one whose model is
+// 0. func_8003A3B4 searches at most HED_ENT_MAX of them.
+#define Stage_hed_tbl ((HED_ENT *)0x8013A000)
+#define HED_ENT_MAX   0x200
+
+#define STG_LOD_NUM  6
+#define STG_LOD_WORD 6 // word index of STG_MODEL.lod
+
+// One model record of an STG file. lod[0..2] point to its near/mid/far LOD and lod[3..5] to a
+// second set (MAP_BLOCK); the low 24 bits are the address, bit 31 picks the draw function's column
+// in Map_block_draw_tbl. Each LOD starts with a header word: its length in words - 1 (low byte)
+// and a part count (bits 8-13).
+typedef struct
+{
+    uint32 id; // 0x00: matches HED_ENT.id
+    uint8 unk04[0x14];
+    uint32 lod[STG_LOD_NUM]; // 0x18
+} STG_MODEL;                 // 0x30 bytes
+
+// One entry of the stage HED file.
+typedef struct
+{
+    uint32 id;    // 0x0: STG_MODEL.id
+    uint32 model; // 0x4: the STG_MODEL in the low 24 bits; 0 ends the list
+} HED_ENT;
+
+// One block of the map grid (Map_blocks): its position, and its STG_MODEL in the low 24 bits. The
+// draw uses lod[0..2] by distance, or lod[3..5] when pos.pad is 0.
 typedef struct
 {
     SVECTOR pos;  // 0x0
@@ -44,8 +73,9 @@ typedef struct
 {
     sint32 head; // 0x00: negative selects func_80037818's path in func_8003777C
     uint8 unk04[8];
-    SVECTOR ofs; // 0x0C
-    uint32 size; // 0x14: low half width, high half >> 1 spread
+    SVECTOR ofs;   // 0x0C
+    uint32 size;   // 0x14: low half width, high half >> 1 spread
+    uint16 *unk18; // 0x18: element 1 is copied to IDX_ENT.val by func_8003A3B4
 } IDX_SHAPE;
 
 typedef struct

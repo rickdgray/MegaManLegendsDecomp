@@ -16,6 +16,7 @@ sint32 func_80048EA4(SVECTOR *pos, HIT_ENT *ent, sint32 angle, uint32 mask);
 // Collides the move old -> pos against ent; returns hit flags (0x1000 = floor).
 sint32 func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
 void func_8004AC8C(void *vel, sint32 hit);
+sint32 func_80049C54(SVECTOR *a, SVECTOR *b, sint32 arg2, sint32 arg3);
 // If obj's routine_0 has bit 0 or 1 set, pushes obj on the list at D_80098898; clears +0x7C.
 // Called with player objects, SHL_WORK shots and the stage overlays' objects.
 void func_80051BAC(MODEL_WORK *obj);

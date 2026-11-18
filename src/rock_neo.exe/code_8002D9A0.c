@@ -351,7 +351,7 @@ void mesh_draw(MESH *m)
             gte_avsz3();
             gte_stotz(&otz);
             ot                 = &SXY_OT(sxy)[otz >> 1];
-            p3->tag            = *ot | 0x07000000;
+            p3->tag            = (u_long *)(*ot | 0x07000000);
             *ot                = (u_long)p3 & 0xFFFFFF;
             *(u_long *)&p3->r0 = code;
             *(u_long *)&p3->u0 = (ct & 0xFFFF0000) | f->uv[0] | SXY_CLUT_BITS(sxy);
@@ -384,7 +384,7 @@ void mesh_draw(MESH *m)
             gte_avsz4();
             gte_stotz(&otz);
             ot                 = &SXY_OT(sxy)[otz >> 1];
-            p4->tag            = *ot | 0x09000000;
+            p4->tag            = (u_long *)(*ot | 0x09000000);
             *ot                = (u_long)p4 & 0xFFFFFF;
             *(u_long *)&p4->r0 = code;
             *(u_long *)&p4->u0 = (ct & 0xFFFF0000) | f->uv[0] | SXY_CLUT_BITS(sxy);

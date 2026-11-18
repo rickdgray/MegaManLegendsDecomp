@@ -9,8 +9,10 @@ Usage:
 
 Each batch: pick the next functions, snapshot the files an agent can change, run Claude Code
 headless in a fresh session, then build BOTH targets. If both MATCH, the batch's changes stay in
-the working tree and a patch of them is saved in the log folder; otherwise the snapshot is
-restored and its functions are recorded as failed.
+the working tree and a patch of them is saved in the log folder; otherwise the batch's changes
+are saved as NNN_failed.patch, the snapshot is restored and its functions are recorded as failed.
+Each session runs under a fixed session id (NNN_session.txt), so a failed or timed-out batch can be
+inspected or resumed: apply NNN_failed.patch, then `claude --resume <id>` from the repo root.
 
 Order: by Depth, then Score, from a functions.csv regenerated before each batch (see
 func_metrics.py: Depth 0 = every callee already has C), so each function's callees come first.
@@ -45,6 +47,7 @@ import re
 import shutil
 import signal
 import subprocess
+import uuid
 import sys
 import threading
 import time
@@ -292,11 +295,11 @@ def patch(snap, out):
     out.write_text("".join(chunks))
 
 
-def agent(prompt, model, timeout_min):
-    """Run Claude Code headless. Returns (stdout, stderr, timed_out). On timeout the whole process
-    group is killed (claude and the builds it started)."""
+def agent(prompt, model, timeout_min, session_id):
+    """Run Claude Code headless under session_id. Returns (stdout, stderr, timed_out). On timeout
+    the whole process group is killed (claude and the builds it started)."""
     p = subprocess.Popen(["claude", "-p", prompt, "--model", model, "--output-format", "json",
-                          "--permission-mode", "acceptEdits"],
+                          "--permission-mode", "acceptEdits", "--session-id", session_id],
                          cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                          start_new_session=True)
     try:
@@ -310,6 +313,15 @@ def agent(prompt, model, timeout_min):
             os.killpg(p.pid, signal.SIGKILL)
             out, err = p.communicate()
         return out or "", err or "", True
+
+
+def new_session(logdir, tag):
+    """A fresh session id for one batch, recorded with how to pick the session up again."""
+    sid = str(uuid.uuid4())
+    (logdir / f"{tag}_session.txt").write_text(
+        f"{sid}\n\nResume from the repo root (if the batch was reverted, first apply {tag}_failed.patch\n"
+        f"with `git apply logs/{logdir.name}/{tag}_failed.patch`):\n    claude --resume {sid}\n")
+    return sid
 
 
 def save_state(state):
@@ -397,7 +409,7 @@ def consolidate(args, cfiles, logdir):
         tag = f"{n:03}_consolidate"
         (logdir / f"{tag}_prompt.txt").write_text(prompt)
         start = datetime.datetime.now()
-        out, err, timed_out = agent(prompt, args.model, args.timeout)
+        out, err, timed_out = agent(prompt, args.model, args.timeout, new_session(logdir, tag))
         minutes = (datetime.datetime.now() - start).total_seconds() / 60
         (logdir / f"{tag}_raw.json").write_text(out + "\n--- stderr ---\n" + err)
         cost, report = 0.0, out
@@ -427,6 +439,7 @@ def consolidate(args, cfiles, logdir):
             line = (f"consolidate {n}: KEPT ({Path(cfile).stem}), {before} still parked, "
                     f"${cost:.2f}, {minutes:.0f} min" + (" TIMEOUT" if timed_out else ""))
         else:
+            patch(snap, logdir / f"{tag}_failed.patch")   # what the session left, for inspection or resuming
             restore(snap)
             resplit(renamed)
             line = f"consolidate {n}: REVERTED ({Path(cfile).stem}, build {results}), ${cost:.2f}, {minutes:.0f} min"
@@ -533,7 +546,7 @@ def main():
         snapshot(snap)
         (logdir / f"{batch_no:03}_prompt.txt").write_text(prompt)
         start = datetime.datetime.now()
-        out, err, timed_out = agent(prompt, args.model, args.timeout)
+        out, err, timed_out = agent(prompt, args.model, args.timeout, new_session(logdir, f"{batch_no:03}"))
         minutes = (datetime.datetime.now() - start).total_seconds() / 60
         (logdir / f"{batch_no:03}_raw.json").write_text(out + "\n--- stderr ---\n" + err)
         cost, report = 0.0, out
@@ -596,6 +609,7 @@ def main():
                     f"{n_ren} renamed{warn}, ${cost:.2f}, {minutes:.0f} min{tag}")
             rank = ranks(args.target, logdir / "functions.csv")    # depths change as functions get C
         else:
+            patch(snap, logdir / f"{batch_no:03}_failed.patch")   # what the session left, for inspection or resuming
             restore(snap)
             resplit(renamed)
             failed.update(batch)

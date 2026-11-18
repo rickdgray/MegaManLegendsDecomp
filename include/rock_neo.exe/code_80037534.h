@@ -13,6 +13,8 @@
 sint32 func_800375D4(PL_WORK *pl, sint32 n);
 // D_80089EAC[n][pl->rec[n].idx[2]].val[2]. Returns sint32 for the same reason (func_80043A8C).
 sint32 func_80037634(PL_WORK *pl, sint32 n);
+// D_80089EAC[n][pl->rec[n].idx[3]].val[3]. Returns sint32 for the same reason (func_80042770).
+sint32 func_80037664(PL_WORK *pl, sint32 n);
 // Tests the object against the stage's IDX entries: 0x7FFF when skipped (unkC4's top byte set),
 // else the entry hit (0 for none).
 sint32 func_80037694(MODEL_WORK *obj, uint32 arg1);

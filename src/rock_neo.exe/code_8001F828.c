@@ -163,7 +163,7 @@ void map_blocks_draw(uint32 *rows, sint32 kind)
     MAP_BLOCK *end;
     sint32 bits;
     long *sxy;
-    uint32 *model;
+    STG_MODEL *model;
     uint32 *lod;
     VECTOR pos;
 
@@ -182,7 +182,7 @@ void map_blocks_draw(uint32 *rows, sint32 kind)
 
                 if (bits < 0)
                 {
-                    model     = (uint32 *)(b->model & 0xFFFFFF);
+                    model     = (STG_MODEL *)(b->model & 0xFFFFFF);
                     sxy[0x10] = *(long *)&b->pos.vx;
                     sxy[0x11] = *(long *)&b->pos.vz;
                     gte_ldv0(&sxy[0x10]);
@@ -191,15 +191,15 @@ void map_blocks_draw(uint32 *rows, sint32 kind)
                     pos.vz >>= Scratch_scale_shift;
                     if (pos.vz > 0x1C20)
                     {
-                        lod = &model[8];
+                        lod = &model->lod[2];
                     }
                     else if (pos.vz > 0xAF0)
                     {
-                        lod = &model[7];
+                        lod = &model->lod[1];
                     }
                     else
                     {
-                        lod = &model[6];
+                        lod = &model->lod[0];
                     }
                     if (((sint16 *)sxy)[0x23] == 0)
                     {
@@ -244,7 +244,7 @@ void map_blocks_draw2(uint32 *rows, sint32 kind)
     MAP_BLOCK *end;
     sint32 bits;
     long *sxy;
-    uint32 *model;
+    STG_MODEL *model;
     uint32 *lod;
     VECTOR pos;
 
@@ -263,7 +263,7 @@ void map_blocks_draw2(uint32 *rows, sint32 kind)
 
                 if (bits < 0)
                 {
-                    model     = (uint32 *)(b->model & 0xFFFFFF);
+                    model     = (STG_MODEL *)(b->model & 0xFFFFFF);
                     sxy[0x10] = *(long *)&b->pos.vx;
                     sxy[0x11] = *(long *)&b->pos.vz;
                     gte_ldv0(&sxy[0x10]);
@@ -272,15 +272,15 @@ void map_blocks_draw2(uint32 *rows, sint32 kind)
                     pos.vz >>= Scratch_scale_shift;
                     if (pos.vz > 0x1C20)
                     {
-                        lod = &model[8];
+                        lod = &model->lod[2];
                     }
                     else if (pos.vz > 0xAF0)
                     {
-                        lod = &model[7];
+                        lod = &model->lod[1];
                     }
                     else
                     {
-                        lod = &model[6];
+                        lod = &model->lod[0];
                     }
                     if (((sint16 *)sxy)[0x23] == 0)
                     {

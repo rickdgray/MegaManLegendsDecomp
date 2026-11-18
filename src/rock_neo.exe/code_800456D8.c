@@ -1,5 +1,5 @@
 #include "common.h"
-#include "psyq/libc.h"
+#include "psyq/rand.h"
 #include "code_800456D8.h"
 #include "code_80048620.h"
 #include "code_80027678.h"
@@ -1363,19 +1363,19 @@ sint32 func_800482A8(WORK_48 *wp)
     {
         if (wp->flag_3 != 0)
         {
-            if (!(Player_work[0].unk11C & Player_work[0].unk12A))
+            if (!(Player_work[0].unk11C & Player_work[0].keys_124[3]))
             {
                 goto fail;
             }
-            hit = Player_work[0].unk128 & Player_work[0].unk11C;
+            hit = Player_work[0].keys_124[2] & Player_work[0].unk11C;
         }
         else
         {
-            if (!(Player_work[0].unk11C & Player_work[0].unk128))
+            if (!(Player_work[0].unk11C & Player_work[0].keys_124[2]))
             {
                 goto fail;
             }
-            hit = Player_work[0].unk12A & Player_work[0].unk11C;
+            hit = Player_work[0].keys_124[3] & Player_work[0].unk11C;
         }
         if (hit == 0)
         {

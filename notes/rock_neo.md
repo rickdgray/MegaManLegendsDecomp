@@ -394,6 +394,42 @@ that take the record owner are passed `&Player_work`, so their parameter is `PL_
 distance mod 0x1000 from arg0 to `D_800A3968`; GCC inverts the `a < b` test and swaps the two
 branch bodies, `>=`, swapped names and `-=` forms were also tried.
 
+`code_80043F34` (batch 20261117 #4, recovered from its session log after the timeout revert): banked
+`func_80044D5C`, `func_80044E50`, `func_80044F44` (near-twin per-frame steps of the sprite kinds:
+`flag_3` picks how pos_1C, field_24 and the colour word move; `case 2:` shares `default:`), and parked
+`func_800441CC` (`NON_MATCHING`; register allocation only, in the distance test against Player_work: the
+target keeps the player's coordinate in v1 and the three squares in a1/a0/t0, the attempt gives v0 and
+a2/a1/a0). `func_8004441C` (a jump-table function) was in progress when the session was killed; still
+assembly. The sprite kinds that keep their position in `pos_1C` (`func_80045338`, `func_80045400`,
+`func_8004548C`) use `WORK_48.u_18.spr`: acceleration at 0x28 and speed at 0x30, unlike `u_18.s`, where
+0x2C is the speed and 0x32 the acceleration (`code_800456D8`'s debris).
+
+`code_8003A3B4`: GTE lighting. Banked `func_8003A3B4`: for each of the 0x800 `Stage_idx_tbl` entries
+with a `ptr`, finds the `Stage_hed_tbl` entry (the stage HED file, `HED_ENT` = {id, model}, loaded at
+`0x8013A000`) whose model has the same low 24 bits and copies `ptr->unk18[1]` into the entry's `val`,
+then calls `light_init` and `func_8003A538`. It was parked while the HED list was a `uint32 *` at
+`0x8013A004`; with the 8-byte struct the plain `Stage_hed_tbl[j].model` loop matched. `light_init`
+(banked) resets three light tables that `func_8003A538`/`func_8003A744` hand to `SetLightMatrix`,
+`SetColorMatrix` and `SetBackColor`: `SVECTOR D_80098870[3]` (light directions), `CVECTOR D_80098858[3]`
+(light colours, `<< 4` into the colour matrix's columns), `sint32 D_80098900[3]` (back colour). Each is a
+pool common, tentative in `code_8003A3B4.c`; `$gp` reaches only element 0, other elements are `sym+off`,
+which splat labels separately (`D_80098872`, ...). Both (banked) then walk the six LOD words of
+`STG_MODEL`s (`stage.h`): each LOD's header word holds its header length in words - 1 (low byte) and a
+part count (bits 8-13), and each 8-byte part goes to `func_8003A918`. `func_8003A744` does this for
+`Support_stg[1]` (SUPPORT's STG at `0x801F6000`; record 0 has id `0xFFFFFFFF`), `func_8003A538` for every
+model in the stage HED list. The target counts the LOD index 6..11 (the word index; map_blocks_draw also
+reads words 6-8), hence `lod[lod - STG_LOD_WORD]`; a 0..5 counter adds an instruction. Parked
+`func_8003A918` (`NON_MATCHING`): for each 16-byte face of `p[1]` (count in the top byte, address in the
+low 24 bits) unless bit 26 is set without bit 24, it unpacks three byte vertices (y = `-(uint8)`), takes
+the cross product (`OuterProduct0`), shifts it below 0x6883, `VectorNormal`s it and stores the
+`NormalColorCol` colour in the face's low 24 bits. The target evaluates the inner "larger magnitude of
+n.vx, n.vy" twice (for the outer compare against n.vz, then again for the result), which only a macro
+does, so a MAX_ABS-like macro is original; its exact form is unknown. The left side of each compare is
+evaluated once and the right side is branchy: all-ternary `ABS` expands the inner argument three times
+(+40 instructions), all-builtin `abs()` compares with `slt`; builtin left + ternary right (the attempt,
+macros local to the parked block) leaves one extra `move`. The flag test has to be written as sign tests
+(`(sint32)(f[0] << 5) >= 0`); a mask test folds into one `and`/`beq`.
+
 `code_8002E7A8.c` (batch 2): banked `func_800355F0` (view matrix from `Player_work[n]`; `Player_work` is
 now an array, the target indexes it by symbol; `unk56` read as `(uint16)` for `lhu`), `func_80033D80`
 (scratchpad matrix `0x1F8000C0` + `ApplyMatrix`/`RotMatrix`/`MulMatrix`), `func_80037440` (counts
@@ -438,17 +474,20 @@ above the earlier stores (struct, `sint16 *`, `*v++` and `volatile` forms tried)
 Banked `Angle_diff_clamp` (signed angle difference on a 0x1000 circle, clamped to +-limit; `r = limit`
 first, and the else-branch test written `limit > 0x1000 - d`). Parked (`NON_MATCHING`): `func_800323FC`
 (steps a `KEY_ENT` table; target loads `lbu 0x101` before `lw 0xFC` and keeps `ctl` in a2 with a copy in a1)
-and the four slot allocators `func_80031418`, `Open_SHL_WORK`, `Open_EVE_WORK`, `func_80031734` (pool
-bitmask scan; only the store order differs: the target keeps the stores in source order around the mask
-update). A scratch test with the mask as a struct member (`MEM_IN_STRUCT_P`, so the store aliases the
-`wp->` stores) gave exactly the target order, so the mask words (`D_800987CC/E8/EC`, `D_800989CC`) are
-probably members of a pool struct; a scalar `uint32` lets the scheduler hoist the `wp->` stores.
+and the slot allocators `Open_EVE_WORK`, `func_80031734` (pool bitmask scan; only the store order
+differs: the target keeps the stores in source order around the mask update). A scratch test with the
+mask as a struct member (`MEM_IN_STRUCT_P`, so the store aliases the `wp->` stores) gave exactly the
+target order, so the mask words (`D_800987EC`, `D_800989CC`) may be members of a pool struct; a scalar
+`uint32` lets the scheduler hoist the `wp->` stores. The model-pool allocators `func_80031418`,
+`Open_SHL_WORK` and `func_80031598` are banked: they matched once `field_74` (a `sint8`, read with `lb`
+everywhere) was cleared with one word store over 0x74-0x77, like their other multi-field clears.
 
 Banked `func_80031324` (initialises a child object from slot n of a parent: copies the 32-byte block at
 parent+0x240+n*32, position from parent+0x180+n*8, takes and clears the id at parent+0xF9+n*4; the id
 field is `sint8` so the `-1` store is `li -1`) and `func_8003545C` (claims a free bit of `D_80098798`,
 24 slots, records it in owner+4 and stores the value in `D_800BE478[slot]`). Parked (`NON_MATCHING`):
-`func_80031498` and `func_80031598` (two more pool allocators with the same store-order issue as above),
+`func_80031498` (the `WORK_5A4` allocator: only its `field_2` halfword store is scheduled before the
+`D_80098B20` update, where its three matched twins keep source order),
 `func_80031CA4` (clamped angle step toward a target; target keeps the `limit` parameter in s2 and a copy
 in s1, GCC merges them) and `func_80030058` (rotates an offset (x, y, z) by an angle into a VECTOR; same
 param/copy pair issue for x and z). Also parked (`NON_MATCHING`): `func_80031DCC`, `func_80031E60`,

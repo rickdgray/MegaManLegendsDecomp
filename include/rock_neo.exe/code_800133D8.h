@@ -9,7 +9,11 @@ typedef struct
 {
     sint8 routine_0; // 0x0: lb; index of D_80080950
     uint8 routine_1; // 0x1
-    uint8 pad2[0xE];
+    uint8 pad2[4];
+    sint16 timer_6;   // 0x6: func_80015428 counts it down before closing the objects
+    sint16 field_8;   // 0x8: func_80015428 cycles it 0..8, passed to each object's field_C
+    sint16 routine_A; // 0xA: func_80015428's state
+    uint8 padC[4];
 } CODE_800133D8_WORK;
 
 extern CODE_800133D8_WORK D_80098AA8; // 0x80098AA8

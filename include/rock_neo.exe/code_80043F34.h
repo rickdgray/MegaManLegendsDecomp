@@ -19,6 +19,7 @@ typedef struct
 } INIT_48;
 
 extern WORK48_FUNC D_8008A208[]; // routine_8 dispatch table of func_80043F34
+extern WORK48_FUNC D_8008A214[]; // field_9 dispatch table of func_800441CC
 extern WORK48_FUNC D_8008A220[]; // routine_8 dispatch table of func_8004495C
 extern WORK48_FUNC D_8008A250[]; // routine_8 dispatch table of func_80044AB0
 extern WORK48_FUNC D_8008A258[]; // routine_8 dispatch table of func_80044C58
@@ -44,5 +45,13 @@ extern uint8 D_8008A278[];
 extern uint8 D_8008A280[];
 
 extern INIT_48 D_80097DF0[]; // 2 entries; func_80045274
+
+// Slot owner passed to func_800341BC by func_800441CC (.sdata 0x800986C0, 16 bytes, in a
+// file not identified yet)
+extern SLOT_OWNER D_800986C0;
+
+// u_44.hw[0] and hw[1] of func_80043F70, [flag_3 & 0xF][field_C.mdl.col] (splat labels the
+// second halfword D_8008A13A)
+extern uint16 D_8008A138[][4][2];
 
 #endif

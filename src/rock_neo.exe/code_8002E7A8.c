@@ -836,8 +836,6 @@ void func_80031324(WORK_5A4 *parent, CHILD_WORK *child, sint16 n)
     parent->slot_F8[n].child_id = -1;
 }
 
-#ifdef NON_MATCHING
-// Only the store order differs (see Open_EVE_WORK).
 WORK_3C0 *func_80031418(void)
 {
     sint32 i;
@@ -851,25 +849,23 @@ WORK_3C0 *func_80031418(void)
         {
             wp           = &D_8009F108[i];
             wp->field_10 = 0;
-            wp->field_78 = 0;
+            wp->hit_78   = 0;
             D_800987E8 |= 0x80000000 >> i;
-            wp->field_2               = 0;
+            *(uint16 *)&wp->field_2   = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
             wp->flags                 = 3;
-            wp->field_74              = 0;
+            *(uint32 *)&wp->field_74  = 0;
             return wp;
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031418);
-#endif
 
 #ifdef NON_MATCHING
-// Only the store order differs (see Open_EVE_WORK).
+// Only the field_2 store is scheduled earlier than in the target (before the D_80098B20 store);
+// its three twins match with the same code.
 WORK_5A4 *func_80031498(void)
 {
     sint32 i;
@@ -883,14 +879,14 @@ WORK_5A4 *func_80031498(void)
         {
             wp           = &D_800C3580[i];
             wp->field_10 = 0;
-            wp->field_78 = 0;
+            wp->hit_78   = 0;
             D_80098B20 |= 0x80000000 >> i;
             wp->field_2               = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
             wp->flags                 = 3;
-            wp->field_74              = 0;
+            *(uint32 *)&wp->field_74  = 0;
             return wp;
         }
     }
@@ -900,8 +896,6 @@ WORK_5A4 *func_80031498(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031498);
 #endif
 
-#ifdef NON_MATCHING
-// Only the store order differs (see Open_EVE_WORK).
 SHL_WORK *Open_SHL_WORK(void)
 {
     sint32 i;
@@ -922,18 +916,13 @@ SHL_WORK *Open_SHL_WORK(void)
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
             wp->flags                 = 3;
-            wp->field_74              = 0;
+            *(uint32 *)&wp->field_74  = 0;
             return wp;
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Open_SHL_WORK);
-#endif
 
-#ifdef NON_MATCHING
-// Only the store order differs (see Open_EVE_WORK).
 SHL_WORK *func_80031598(void)
 {
     sint32 i;
@@ -954,15 +943,12 @@ SHL_WORK *func_80031598(void)
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
             wp->flags                 = 3;
-            wp->field_74              = 0;
+            *(uint32 *)&wp->field_74  = 0;
             return wp;
         }
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031598);
-#endif
 
 WORK_48 *func_80031618(void)
 {
@@ -996,8 +982,9 @@ WORK_48 *func_80031618(void)
 #ifdef NON_MATCHING
 // Only the store order differs: the target keeps the stores in source order around the
 // D_800987EC update. A test with the mask as a struct member (MEM_IN_STRUCT_P) gave the
-// target order, so the mask words probably belong to a pool struct. Same for the other
-// allocators (func_80031418, Open_SHL_WORK, func_80031734); func_800317AC matches as is.
+// target order, so the mask words may belong to a pool struct. func_80031734 has the same
+// difference. The model-pool allocators (func_80031418, Open_SHL_WORK, func_80031598) matched
+// once field_74 was cleared by one word store like the other fields; func_800317AC matches as is.
 EVE_WORK *Open_EVE_WORK(void)
 {
     sint32 i;

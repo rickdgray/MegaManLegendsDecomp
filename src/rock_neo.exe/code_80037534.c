@@ -1,5 +1,5 @@
 #include "common.h"
-#include "psyq/libc.h"
+#include "psyq/rand.h"
 #include "code_8002E7A8.h"
 #include "player.h"
 #include "code_80037534.h"
@@ -63,7 +63,7 @@ sint32 func_80037634(PL_WORK *pl, sint32 n)
     return D_80089EAC[n][pl->rec[n].idx[2]].val[2];
 }
 
-sint16 func_80037664(PL_WORK *pl, sint32 n)
+sint32 func_80037664(PL_WORK *pl, sint32 n)
 {
     return D_80089EAC[n][pl->rec[n].idx[3]].val[3];
 }

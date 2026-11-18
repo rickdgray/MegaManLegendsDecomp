@@ -58,7 +58,9 @@ typedef struct
     uint8 unk07C; // 0x7C: func_80057924 sets it to unk07D after charging 10 zenny per unit of
                   // the difference (or all the money)
     uint8 unk07D; // 0x7D
-    uint8 unk07E[0x84 - 0x7E];
+    uint8 unk07E[0x83 - 0x7E];
+    uint8 unk083; // 0x83: lbu; 1 changes the speed func_80042A40/func_80042DF8 set
+
     uint16 unk084[19][8]; // 0x84: rows of 8 halfwords, row from D_800989D4; func_80057DF4 copies the
                           // low bytes of [2..4]. Row count not confirmed (19 fits before 0x1B8).
     uint8 unk1B4[0x1B8 - 0x1B4];

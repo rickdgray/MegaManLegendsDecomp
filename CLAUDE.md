@@ -449,7 +449,10 @@ Before applying a name:
   If it's taken, pick a more specific name; `rename.py` refuses a clash.
 - **Pick global or `static` style from the callers:** run `.venv/bin/python tools/callers.py <t>
   NAME`. It checks the other C files, their assembly, data tables and, for ROCK_NEO, every stage
-  overlay (overlays call into ROCK_NEO, and nothing in `asm/` shows it). No outside users means a
+  overlay (overlays call into ROCK_NEO, and nothing in `asm/` shows it). It reports only users
+  **outside** the defining file: callers in the same file are never listed, so "outside users:
+  none" means static, not unused (to find same-file callers, `grep` the file's C and its
+  `asm/<t>/nonmatchings/<file>/` assembly). No outside users means a
   file-local helper, named `lower_snake_case` with no module prefix; any outside user (including
   an overlay or a data table) means `Capitalized_snake_case`. For data, `lui` + `%lo` access under `-G32` means it's defined in another
   file, so it's global. **Not in the shim:** it is one C file with no overlays, so the test would
