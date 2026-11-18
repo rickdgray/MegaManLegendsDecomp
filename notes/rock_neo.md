@@ -324,6 +324,15 @@ column are one local (`n`, in `s1`), and `for (i = 0, n = 0; ...)` gives the tar
 Still different: the target keeps `D_800979A4` in `s0` for the last five prints (ours reloads it
 with `lui`/`addiu` each time; a `char *fmt` local gets hoisted out of the outer loop instead), and it
 schedules the hoisted scratchpad base `lui 0x1F80` ahead of `msg`'s `la`.
+Lead: holding the format in the loop counter (`i = (uint32)D_800979A4;` before the last five
+prints, passing `(char *)i`) gives the target's exact length (307 instructions) and its `$s0` reuse:
+a variable set in several places gets no constant equivalence, so GCC neither hoists nor
+rematerializes it. A separate `char *fmt` is hoisted. What's left is register allocation: the
+target gives `i` (counter, format) `$s0` and `n` (break code, column) `$s1`, ours the reverse; moving
+the break code into `i` fixes `i` but pushes the column to `$s2` (12 differing spots instead of 18).
+Declaration order, `for (n = 0, i = 0; ...)` and a separate break-code local don't help. A
+permuter run from the `i`-reuse version is the next step. Moving `msg`'s assignment into the loop
+makes it longer (317).
 
 ## To do
 

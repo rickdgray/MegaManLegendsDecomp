@@ -1,6 +1,6 @@
 # Mega Man Legends Decompilation
 
-An experimental, work-in-progress decompilation of **Mega Man Legends** (PlayStation, USA).
+An WIP decompilation of **Mega Man Legends** (PlayStation, USA).
 
 The long-term goal is a *matching* decompilation: C source that compiles to a byte-identical copy of the original executable, as a foundation for future ports to other platforms.
 
@@ -25,9 +25,9 @@ Other regions and disc revisions are not supported.
 
 - [x] Verified clean disc image against Redump
 - [x] Extracted filesystem and confirmed boot executable
-- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); overlays not yet
+- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); the 44 code overlays (`ST*`, `ARM*R`, `SUPPORT`) mapped into functions (not yet split or built)
 - [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` and `ROCK_NEO.EXE` **match**)
-- [ ] Decompilation (m2c, permuter, agent-assisted batches): `SLUS_006.03` all in C except 5 parked functions; `ROCK_NEO.EXE` split into Capcom's source files, its `cd` file in C. `tools/progress.py` reports the numbers
+- [ ] Decompilation (m2c, permuter, agent-assisted batches): every `SLUS_006.03` function is matched or parked; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly. `tools/progress.py` and `functions.csv` have the numbers
 - [ ] Naming and documentation
 
 ## Code style
@@ -52,21 +52,35 @@ dumpsxiso -x .\disc\extracted\ -s .\layout\mml.xml ".\disc\image\Mega Man Legend
 
 This also writes the layout XML (`-s`) used to rebuild the disc.
 
-### 3. Verify the executable
+### 3. Verify the executables
 
 ```bash
-sha1sum -c checksums.sha1
+sha1sum disc/extracted/SLUS_006.03 disc/extracted/ROCK_NEO.EXE
 ```
 
-### 4. Build
+The hashes must match the `sha1:` line at the top of `slus_006.03.yaml` and `rock_neo.exe.yaml`; splat checks them again when it splits.
 
-In WSL Ubuntu, fetch the pinned tools and build each target; each build prints MATCH or MISMATCH:
+### 4. Set up the environment
+
+In WSL Ubuntu, install the MIPS binutils and clang-format, create the Python venv, and fetch the pinned tools (`fetch_tools.sh` prints the extra `pip install` lines for m2c and asm-differ):
 
 ```bash
+sudo apt install binutils-mips-linux-gnu clang-format-15
+python3 -m venv .venv
+.venv/bin/pip install "splat64[mips]==0.50.1" spimdisasm==1.42.4
 ./tools/fetch_tools.sh
+```
+
+### 5. Build
+
+Split and build each target; each build prints MATCH or MISMATCH:
+
+```bash
 ./tools/rebuild.sh slus_006.03
 ./tools/rebuild.sh rock_neo.exe
 ```
+
+After the first split, `./tools/build.sh <target>` rebuilds without re-splitting.
 
 The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolchain.md).
 
@@ -74,16 +88,19 @@ The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolc
 
 ```
 ├── CLAUDE.md                  # rules and patterns for writing matching C (read by agents and people)
-├── checksums.sha1             # SHA-1 of the original executable
-├── <target>.yaml              # splat config per executable (slus_006.03, rock_neo.exe)
+├── <target>.yaml              # splat config per executable (slus_006.03, rock_neo.exe), with its SHA-1
 ├── symbol_addrs_<target>.txt  # symbol registry per executable
+├── functions.csv              # every function with its status (decompiled, matched, reviewed)
+├── reviewed.txt               # functions a person has reviewed (tools/review.py)
+├── diff_settings.py           # asm-differ settings (tools/diff.sh)
 ├── src/<target>/              # decompiled C
 ├── include/                   # headers shared by both executables; include/<target>/ for the rest
 ├── layout/                    # mkpsxiso disc layout (metadata only)
 ├── notes/                     # findings and research notes (start with notes/README.md)
 ├── tools/                     # build, diff and helper scripts
 ├── disc/                      # (gitignored) your disc image and extracted files
-└── asm/, assets/, build/, expected/   # (gitignored) generated from disc/
+├── asm/, assets/, build/, expected/   # (gitignored) generated from disc/
+└── logs/, permuter/           # (gitignored) batch-run logs and permuter work
 ```
 
 ## Tools
@@ -92,7 +109,7 @@ The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolc
 |---|---|---|
 | [Ghidra](https://github.com/NationalSecurityAgency/ghidra) | 12.1.4 | Analysis and decompilation reference |
 | [ghidra_psx_ldr](https://github.com/lab313ru/ghidra_psx_ldr) | 2026.10.03 | PS-X EXE loader and PsyQ signatures |
-| [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) | | Disc extraction and rebuilding |
+| [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) | | Disc extraction and rebuilding (`tools/Compare-Track1.ps1` compares a rebuilt Track 1 with the original) |
 
 The matching toolchain (gcc 2.7.2-psx, maspsx, splat, m2c, asm-differ, decomp-permuter) is pinned in `tools/fetch_tools.sh`; see [`notes/toolchain.md`](notes/toolchain.md).
 

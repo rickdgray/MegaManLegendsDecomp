@@ -28,6 +28,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import targets  # noqa: E402  (tools/targets.py)
+from preamble import preamble  # noqa: E402  (tools/preamble.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 INCLUDE = ROOT / "include"
@@ -75,10 +76,11 @@ def main() -> None:
     out = ROOT / "permuter" / args.target / fn
     out.mkdir(parents=True, exist_ok=True)
 
-    # base.c: the source file's includes plus the draft, fully preprocessed.
+    # base.c: the source file's preamble (includes, its own small data and pool definitions,
+    # file-local prototypes; tools/preamble.py) plus the draft, fully preprocessed. Keeping the
+    # file's own small data defined keeps its $gp accesses as in the build.
     # PERMUTER makes include_asm.h define INCLUDE_ASM as nothing.
-    includes = [line for line in text.splitlines() if line.startswith("#include")]
-    raw = "\n".join(includes) + "\n\n" + body
+    raw = preamble(text) + "\n" + body
     pre = subprocess.run(
         ["cpp", "-P", "-undef", "-nostdinc", f"-I{INCLUDE / args.target}", f"-I{INCLUDE}", "-DPERMUTER", "-DNON_MATCHING", "-"],
         input=raw, text=True, capture_output=True,
@@ -116,7 +118,7 @@ def main() -> None:
         sys.exit(f"base.c does not compile:\n{check.stderr}")
 
     print(f"Ready: permuter/{args.target}/{fn}/")
-    print(f"Run:   .venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/{args.target}/{fn} -j 8")
+    print(f"Run:   ./tools/permute.sh [{args.target}] {fn} 8")
 
 
 if __name__ == "__main__":

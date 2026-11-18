@@ -4,8 +4,11 @@
 # Usage: tools/ctx.sh [target] <file.c> [out]     (out defaults to ctx.c in the repo root)
 #   e.g. tools/ctx.sh rock_neo.exe src/rock_neo.exe/cd.c
 #
-# Only the file's #include lines are preprocessed (its function bodies and INCLUDE_ASM lines would
-# not compile on decomp.me), with the target's own include folder first, as tools/cc.sh does.
+# Only the file's preamble is preprocessed (tools/preamble.py: everything before its first function,
+# INCLUDE_ASM or parked block, i.e. its #includes, its own small data and pool definitions and its
+# file-local prototypes; the function bodies and INCLUDE_ASM lines would not compile on decomp.me),
+# with the target's own include folder first, as tools/cc.sh does. The small data definitions
+# carry their initial values (game data) into the context.
 # -dD keeps the #defines so constants survive; the compiler's built-in macros (__*) are dropped,
 # since decomp.me's compiler defines those itself.
 set -euo pipefail
@@ -42,7 +45,7 @@ fi
 tmp=$(mktemp --suffix=.c)
 trap 'rm -f "$tmp"' EXIT
 
-grep '^#include' "$src" > "$tmp"
+python3 tools/preamble.py "$src" > "$tmp"
 mips-linux-gnu-cpp -P -dD -I "include/$target" -I include "$tmp" | grep -v '^#define __' > "$out"
 
-echo "wrote $out ($(wc -l < "$out") lines) from the includes of $src"
+echo "wrote $out ($(wc -l < "$out") lines) from the preamble of $src"

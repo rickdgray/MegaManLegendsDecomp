@@ -384,6 +384,7 @@ void exception_handler(void)
         {
             mode = (mode + 1) & 3;
         }
+
         if (PAD_ON(Joy2) & PAD_TRIANGLE)
         {
             sel ^= 1;
@@ -424,11 +425,13 @@ void exception_handler(void)
                 }
                 func_8001FE38(TEXT_POS(n * 20 + 7, i - n * 20 + 4, 0), D_800979A4, tcb.reg[i]);
             }
-            func_8001FE38(TEXT_POS(27, 16, 0), D_800979A4, tcb.reg[R_EPC]);
-            func_8001FE38(TEXT_POS(27, 17, 0), D_800979A4, tcb.reg[R_MDHI]);
-            func_8001FE38(TEXT_POS(27, 18, 0), D_800979A4, tcb.reg[R_MDLO]);
-            func_8001FE38(TEXT_POS(27, 19, 0), D_800979A4, tcb.reg[R_SR]);
-            func_8001FE38(TEXT_POS(27, 20, 0), D_800979A4, tcb.reg[R_CAUSE]);
+
+            i = (uint32)D_800979A4;
+            func_8001FE38(TEXT_POS(27, 16, 0), (char *)i, tcb.reg[R_EPC]);
+            func_8001FE38(TEXT_POS(27, 17, 0), (char *)i, tcb.reg[R_MDHI]);
+            func_8001FE38(TEXT_POS(27, 18, 0), (char *)i, tcb.reg[R_MDLO]);
+            func_8001FE38(TEXT_POS(27, 19, 0), (char *)i, tcb.reg[R_SR]);
+            func_8001FE38(TEXT_POS(27, 20, 0), (char *)i, tcb.reg[R_CAUSE]);
         }
         else
         {

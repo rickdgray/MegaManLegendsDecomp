@@ -9,7 +9,7 @@
 | Redump | <http://redump.org/disc/2773/> |
 | Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
 | Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
-| Boot executable SHA-1 | see `checksums.sha1` |
+| Executable SHA-1s | the `sha1:` lines of `slus_006.03.yaml` and `rock_neo.exe.yaml` |
 
 ## Layout
 
