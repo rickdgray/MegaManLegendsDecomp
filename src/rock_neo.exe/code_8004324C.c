@@ -1,6 +1,7 @@
 #include "common.h"
 #include "code_8004324C.h"
 #include "code_8002E7A8.h"
+#include "code_80043F34.h"
 #include "game.h"
 #include "player.h"
 #include "code_80037534.h"
@@ -181,17 +182,17 @@ void func_800435F8(SHL_WORK *wp)
 
 void func_80043740(SHL_WORK *wp)
 {
-    WORK_48 *e;
+    W48_84_WORK *e;
 
-    e = func_80031618();
+    e = (W48_84_WORK *)func_80031618();
     if (e != 0)
     {
-        e->routine_0        = 1;
-        e->field_2          = 0x84;
-        e->flag_3           = 0;
-        e->u_18.s.pos_1C[0] = wp->pos.vx;
-        e->u_18.s.pos_1C[1] = wp->pos.vy;
-        e->u_18.s.pos_1C[2] = wp->pos.vz;
+        e->routine_0 = 1;
+        e->id_2      = 0x84;
+        e->type_3    = 0;
+        e->pos_1C[0] = wp->pos.vx;
+        e->pos_1C[1] = wp->pos.vy;
+        e->pos_1C[2] = wp->pos.vz;
     }
 }
 
@@ -367,18 +368,18 @@ void func_80043DF8(SHL_WORK *wp, MATRIX *m)
 
 void func_80043E00(SHL_WORK *wp, uint8 arg)
 {
-    WORK_48 *e;
+    W48_82_WORK *e;
 
-    e = func_80031618();
+    e = (W48_82_WORK *)func_80031618();
     if (e != 0)
     {
-        e->routine_0        = 9;
-        e->field_2          = 0x82;
-        e->u_18.s.pos_1C[0] = wp->pos.vx;
-        e->u_18.s.pos_1C[1] = wp->pos.vy;
-        e->u_18.s.pos_1C[2] = wp->pos.vz;
-        e->flag_3           = 1;
-        e->field_C.rec.b0   = arg;
+        e->routine_0 = 9;
+        e->id_2      = 0x82;
+        e->pos_1C[0] = wp->pos.vx;
+        e->pos_1C[1] = wp->pos.vy;
+        e->pos_1C[2] = wp->pos.vz;
+        e->type_3    = 1;
+        e->field_C   = arg;
     }
 }
 

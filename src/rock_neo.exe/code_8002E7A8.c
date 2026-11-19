@@ -181,13 +181,13 @@ void func_8002F928(WORK_48 *wp, SVECTOR *d)
 {
     if (wp->routine_0 & 4)
     {
-        wp->pos_38.vx += d->vx;
-        wp->pos_38.vz += d->vz;
+        wp->efc.model.pos_38.vx += d->vx;
+        wp->efc.model.pos_38.vz += d->vz;
     }
     else
     {
-        wp->u_18.s.pos_1C[0] += d->vx;
-        wp->u_18.s.pos_1C[2] += d->vz;
+        wp->efc.sprite.pos_1C[0] += d->vx;
+        wp->efc.sprite.pos_1C[2] += d->vz;
     }
 }
 
@@ -966,9 +966,9 @@ WORK_48 *func_80031618(void)
             {
                 (&D_80098838)[j] |= 0x80000000 >> i;
                 wp                        = &D_800A3B40[i + j * 0x20];
-                *(uint16 *)&wp->field_2   = 0;
+                *(uint16 *)&wp->id_2      = 0;
                 *(uint32 *)&wp->flag_4    = 0;
-                wp->field_C.word          = 0;
+                wp->field_C               = 0;
                 *(uint32 *)&wp->routine_8 = 0;
                 wp->flags                 = 3;
                 wp->field_10              = 0;

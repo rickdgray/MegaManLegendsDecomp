@@ -185,17 +185,17 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             if (e != 0)
             {
                 e->routine_0 = 5;
-                e->field_2   = 0x80;
-                e->flag_3    = 2;
+                e->id_2      = 0x80;
+                e->type_3    = 2;
                 r            = rand();
                 a            = j * step0 - (r & 0x1F);
                 if (cnt0 == 1)
                 {
                     spread = 0;
                 }
-                e->pos_38.vx = pos.vx + ((rcos(a) * spread) >> 12);
-                e->pos_38.vy = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->pos_38.vz = pos.vz + ((rsin(a) * spread) >> 12);
+                e->efc.model.pos_38.vx = pos.vx + ((rcos(a) * spread) >> 12);
+                e->efc.model.pos_38.vy = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->efc.model.pos_38.vz = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }
@@ -207,18 +207,18 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             e = func_80031618();
             if (e != 0)
             {
-                e->field_2   = 0x83;
+                e->id_2      = 0x83;
                 e->routine_0 = 1;
-                e->flag_3    = 2;
+                e->type_3    = 2;
                 r            = rand();
                 a            = j * step1 - (r & 0x1F);
                 if (cnt1 == 1)
                 {
                     spread = 0;
                 }
-                e->u_18.s.pos_1C[0] = pos.vx + ((rcos(a) * spread) >> 12);
-                e->u_18.s.pos_1C[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->u_18.s.pos_1C[2] = pos.vz + ((rsin(a) * spread) >> 12);
+                e->efc.sprite.pos_1C[0] = pos.vx + ((rcos(a) * spread) >> 12);
+                e->efc.sprite.pos_1C[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->efc.sprite.pos_1C[2] = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }

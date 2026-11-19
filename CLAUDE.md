@@ -365,7 +365,7 @@ What decompilers show vs. what to write:
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_*` buttons, `Joy1`/`Joy2`, `Pad_update`; `PAD_WORK` itself is per program (`include/<target>/pad_work.h`: ROCK_NEO's adds the auto-repeat state) |
 | `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `pad_work.h` (PAD_WORK), `scratch.h`, `system.h` |
-| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `pad_work.h` (PAD_WORK with the auto-repeat state), `fastmem.h` (the hand-written copy routines), `debug.h` (debug.c), `moji.h` (message text, Moji_work), `code_8002E7A8.h` (the work pools and their slot types, MODEL_WORK, HIT_ENT, keyframe tables), `code_800456D8.h`, `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h`, `code_800133D8.h`, `code_8001786C.h`, `code_8001F828.h`, `code_8006430C.h`, `code_8002D9A0.h`, `code_80037534.h`, `code_80043F34.h`, `code_80048620.h`, `code_80014AC0.h` (the scripted WORK_3C0 objects), `code_800425FC.h`, `code_8003A3B4.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
+| `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `pad_work.h` (PAD_WORK with the auto-repeat state), `fastmem.h` (the hand-written copy routines), `debug.h` (debug.c), `moji.h` (message text, Moji_work), `code_8002E7A8.h` (the work pools and their slot types, MODEL_WORK, HIT_ENT, keyframe tables), `code_800456D8.h` (WORK_48 kinds 0x86-0x8A), `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h`, `code_800133D8.h`, `code_8001786C.h`, `code_8001F828.h`, `code_8006430C.h`, `code_8002D9A0.h`, `code_80037534.h`, `code_80043F34.h` (WORK_48 kinds 0x80-0x85), `code_80048620.h`, `code_80014AC0.h` (the scripted WORK_3C0 objects), `code_800425FC.h`, `code_8003A3B4.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
   compiles to nothing, and using one the program lacks fails at link, so a shared header may hold
@@ -391,15 +391,36 @@ takes, find where the object comes from: the function that returns it (`func_800
 `WORK_48` slots), the array it indexes (`&D_800A3B40[i]`), or the global it is. If that already
 has a type, use it, and grow it: replace the `pad`/`unk` bytes with the field you found. So:
 
-- Same allocator or same pool array means the same type, whatever the function does with it.
+- Same allocator or same pool array means the same type, whatever the function does with it;
+  for a pool of several kinds, the same generic type or one of its kinds' structs (below).
 - Don't add a partial struct (`POS_WORK`, `FLAG_WORK`) for an object whose type exists or can be
   found. If the origin really is unknown, say so in the struct's comment ("passed in by
   func_X; probably a pool slot") so it can be merged later.
 - Give a field its natural type before reaching for a union. Bytes that are copied as 8, passed
-  as an `SVECTOR *` and moved as x/y/z are one `SVECTOR` (`WORK_48.pos_38`), not a union of the
-  views each function needed. A union is for bytes that hold different things at different times.
+  as an `SVECTOR *` and moved as x/y/z are one `SVECTOR` (`W48_80_WORK.pos_38`), not a union of the
+  views each function needed. A union is for bytes that hold different things at different times
+  (see below for objects of several kinds).
 - The type goes in the header of the file that owns the object (its allocator or pool), not the
   header of the first file that uses it.
+
+**Objects of several kinds.** A pool slot holds whichever kind of object was opened in it; the
+kind is the id byte at 2 (`id_2`, Capcom's `ep->id`), and the pool update calls `handler[id_2]`.
+Don't give the generic type a union view for one kind's bytes. Capcom's source handles kinds two
+ways; follow the one the object's layout shows:
+
+- **Kind data spread through the object: one full struct per kind.** Each kind's handlers take
+  its own struct; shared code takes the generic type, and callers cast at the boundary, as Capcom
+  does with `(MODEL_WORK *)ep`. These casts are the deliberate exception to "avoid casts".
+  `WORK_48` works this way: `W48_80_WORK` ... `W48_8A_WORK` (notes/rock_neo.md, "WORK_48 kinds").
+- **Kind data in one block at the end: a `free` block plus a per-kind struct cast over it**, as
+  Capcom's `fp = (SHL38_FREE *)&sp->free[0];`. The generic type declares the neutral block.
+- Name a kind's struct after its id (`W48_85_WORK`, `W48_85_FUNC` for its handlers) until its
+  purpose is known, and put it in the header of the file with the kind's code. A spawner that
+  opens a slot casts the allocator's result to the kind it sets up.
+- A union is still right for one value in two shapes (a word and its bytes: `KEY_CMD`,
+  `CD_XA_POS`), for a family layout the shared code switches on (`WORK_48.efc`: model or sprite,
+  after Capcom's `efc.model`), and for bytes one object uses differently over time
+  (`W48_88_WORK.efc`).
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.

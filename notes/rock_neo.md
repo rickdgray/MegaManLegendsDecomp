@@ -334,6 +334,38 @@ Declaration order, `for (n = 0, i = 0; ...)` and a separate break-code local don
 permuter run from the `i`-reuse version is the next step. Moving `msg`'s assignment into the loop
 makes it longer (317).
 
+## WORK_48 kinds
+
+A slot of the effect pool `D_800A3B40` (`func_80031618` / `func_80031988`) is an object whose kind is `id_2`: the
+pool update (game's `func_800172F4`/`func_800173B4`) calls `handler[id_2]`, from the stage overlay's table (pointer at
+scratchpad `0x1F800064`) for ids below 0x80, and from `D_80089858 + id * 4` for 0x80-0x8A (11 ROCK_NEO kinds). As
+Capcom does with `EM_WORK` -> `MODEL_WORK`, each ROCK_NEO kind has its own full struct and its handlers take it; the
+shared code takes the generic `WORK_48`, and callers cast at the boundary (`func_80031988((WORK_48 *)wp)`).
+
+| Id | Struct | Handler | Family | Kind-specific bytes |
+|---|---|---|---|---|
+| 0x80 | `W48_80_WORK` | `func_80043F34` | model | `sound_C`/`size_D`/`variant_E`/`level_F`, `hw_44` |
+| 0x81 | `W48_81_WORK` | `func_8004495C` | model | `ptr_44` |
+| 0x82 | `W48_82_WORK` | `func_80044AB0` | sprite | `field_C` (byte, from the spawner `func_80043E00`) |
+| 0x83 | `W48_83_WORK` | `func_80044C58` | sprite | |
+| 0x84 | `W48_84_WORK` | `func_80045074` | sprite | `field_C` (byte) |
+| 0x85 | `W48_85_WORK` | `func_80045238` | sprite | `add` 0x28, `spd` 0x30, `dir_40` |
+| 0x86 | `W48_86_WORK` | `func_8004569C` | model (debris) | `ang_y_C`/`ang_x_E`, speed in the matrix's `t` bytes, `ptr_44` |
+| 0x87 | `W48_87_WORK` | `func_8004602C` | model (debris) | same as 0x86 |
+| 0x88 | `W48_88_WORK` | `func_80047318` | model, then sprite | `field_C` (byte), `hw_44`; `efc` union (routine 3 animates it as a sprite) |
+| 0x89 | `W48_89_WORK` | `func_80047D9C` | sprite | `ang_28[8]`, `idx_38[8]` |
+| 0x8A | `W48_8A_WORK` | `func_80048354` | sprite | `field_C`, `idx_D`, `timer_E` (records `W48_8A_REC`) |
+
+The kinds come in two families laid over 0x14-0x43, which `WORK_48.efc` keeps for the shared code: model (`data_14`
+from `Model_work_init`, `mtx` 0x18, `pos_38`, `rgbc_40`; bit 2 of `routine_0` set) and sprite (`code_14`, `rgbc_18`,
+`pos_1C[3]`, `field_22..26`, kind data from 0x28). `func_8002F928` moves `efc.model.pos_38` or `efc.sprite.pos_1C` by
+that bit. The name follows Capcom's shot code (`wk_p->efc.model.m`, `.sv`, `.rgbc`). The debris kinds copy the whole
+matrix as a `MATRIX` (`func_80045AB4`), but keep their speed and acceleration in its `t` bytes, so their struct has
+`m[3][3]` plus `vx_2C..az_36` and passes `(MATRIX *)wp->m`. `func_80037890` creates kinds 0x80 and 0x83 through one
+reused local, so it stays generic. `func_80045CE8` and `func_80046B34` are spawners (of 0x86 and 0x87), not
+handlers. The overlays' kinds (below 0x80) use the generic type until they are decompiled. Older entries below use
+the names from before this split (`u_18.s`, `u_18.mtx`, `field_C.rec`, `u_44`, `field_2`/`flag_3` = `id_2`/`type_3`).
+
 ## To do
 
 - **Compiler:** test `-funsigned-char` with the first plain `char`.
@@ -402,8 +434,8 @@ target keeps the player's coordinate in v1 and the three squares in a1/a0/t0, th
 a2/a1/a0). Consolidation retried six more shapes of the distance test (squares into locals, reversed
 subtractions, the sum in a reused local, `r *= r`): all register-only differences. `func_8004441C` (a jump-table function) was in progress when the session was killed; still
 assembly. The sprite kinds that keep their position in `pos_1C` (`func_80045338`, `func_80045400`,
-`func_8004548C`) use `WORK_48.u_18.spr`: acceleration at 0x28 and speed at 0x30, unlike `u_18.s`, where
-0x2C is the speed and 0x32 the acceleration (`code_800456D8`'s debris).
+`func_8004548C`) are kind 0x85 (`W48_85_WORK`): acceleration at 0x28 and speed at 0x30, unlike the debris
+kinds 0x86/0x87, where 0x2C is the speed and 0x32 the acceleration (see "WORK_48 kinds").
 
 `code_8003A3B4`: GTE lighting. Banked `func_8003A3B4`: for each of the 0x800 `Stage_idx_tbl` entries
 with a `ptr`, finds the `Stage_hed_tbl` entry (the stage HED file, `HED_ENT` = {id, model}, loaded at

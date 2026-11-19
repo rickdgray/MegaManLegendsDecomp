@@ -175,99 +175,53 @@ typedef struct
     RGB_ENT tbl[13]; // 0x38C
 } WORK_3C0;          // 0x3C0 bytes
 
+// A slot of the effect pool D_800A3B40 (func_80031618 / func_80031988), as the code shared by every
+// kind sees it. The kind is id_2: the pool update (game's func_800172F4/func_800173B4) calls
+// handler[id_2], from the stage overlay's table for ids below 0x80 and from D_80089858 for 0x80
+// and up. Each ROCK_NEO kind has its own full struct (W48_80_WORK ... W48_8A_WORK, in the header
+// of the file with its code), cast to WORK_48 for the shared code, as Capcom does with
+// EM_WORK -> MODEL_WORK. 0x14-0x43 hold one of two layouts, the model kinds' or the sprite kinds'
+// (Capcom's shot code writes the model one as efc.model.m / .sv / .rgbc); bit 2 of routine_0 says
+// which, and func_8002F928 moves efc.model.pos_38 or efc.sprite.pos_1C by it.
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint8 field_2; // field_2 and flag_3 are cleared together by one halfword store
-    uint8 flag_3;  // selects the sound id in func_80046848
-    uint8 flag_4;  // index into the dispatch tables of func_800485E4
+    uint8 id_2;   // the kind; id_2 and type_3 are cleared together by one halfword store
+    uint8 type_3; // the kind's variant (selects the sound id in func_80046848)
+    uint8 flag_4; // index into the dispatch tables of func_800485E4
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
     uint8 routine_8;
     uint8 field_9;
     uint8 field_A;
-    uint8 timer_B; // counts down; routine_8 advances when it reaches 0
+    uint8 timer_B;   // counts down; routine_8 advances when it reaches 0
+    uint32 field_C;  // depends on the kind; cleared on open
+    uint32 field_10; // cleared on open
     union
     {
-        uint32 word;
-        sint16 angle; // Y rotation of the matrix at 0x18 (func_800469A4)
-        sint16 hw[2]; // hw[1] (0xE) is the X rotation (func_80045AB4)
         struct
         {
-            sint8 b0;
-            sint8 idx;   // index into the 6-byte records of D_8008A730/D_8008A748 (func_80048390)
-            uint8 timer; // counts down per record
-            uint8 b3;
-        } rec;
+            uint8 *data_14; // model data of the EBD entry, set by Model_work_init
+            MATRIX mtx;     // 0x18: rotation and scale (diagonal = pos_38.pad)
+            SVECTOR pos_38; // 0x38: position (x, y = height, z). Passed to Sound_call2 as the source.
+            uint32 rgbc_40; // 0x40: code and colour (0x02808080)
+        } model;
         struct
         {
-            sint8 sound;   // nonzero: func_80043F70 plays sound 0xA1 after the init
-            sint8 col;     // column of D_8008A138 (func_80043F70)
-            sint8 variant; // index into D_80097DE0 (the model id); nonzero sets bit 7 of routine_0
-            uint8 b3;
-        } mdl;
-        struct
-        {
-            sint8 b0;
-            sint8 size;  // index into D_80097DDC, the size passed to func_800341BC (func_800441CC)
-            sint8 mode;  // 0 or 1 selects the func_800341BC call; others make none
-            sint8 level; // nonzero in mode 0, flag_3 6: adds 0x20/0x30/0x40 to Player_work's owner
-        } hit;
-    } field_C;
-    uint32 field_10;
-    union
-    {
-        uint32 word; // packed start word of the sprite kinds (0x3D48002E, func_80044AEC)
-        uint8 *data; // model data of the EBD entry, set by Model_work_init (kinds 0x80, 0xE0)
-    } u_14;
-    // 0x18-0x37 depend on the kind. Bit 2 of routine_0 selects which position func_8002F928 moves:
-    // set, the kind has a model matrix here and its position in pos_38; clear, pos_1C.
-    union
-    {
-        MATRIX mtx; // rotation and scale (diagonal = pos_38.pad) of the model kinds; the debris
-                    // kinds keep their speed in the bytes of t (s.vx_2C..az_36)
-        struct
-        {
-            uint32 field_18;  // packed word (func_80048390, func_80047354)
-            uint16 pos_1C[3]; // position (x, y, z), e.g. copied from the player (func_80047EC8)
+            uint32 code_14;   // packed start word (0x3D48002E, func_8004548C)
+            uint32 rgbc_18;   // code and colour (0x2E808080)
+            uint16 pos_1C[3]; // position (x, y, z)
             uint8 field_22;
             uint8 field_23;
             uint16 field_24;
             uint16 field_26;
-            sint16 field_28; // func_80047DD8: eight angles from 0x28 and eight counts from 0x38
-            sint16 field_2A;
-            sint16 vx_2C; // speed, added to pos_38 each frame (func_80045750)
-            sint16 vy_2E;
-            sint16 vz_30;
-            sint16 ax_32; // acceleration, added to the speed each frame
-            sint16 ay_34;
-            sint16 az_36;
-        } s;
-        // The sprite kinds that keep their position in pos_1C (u_14.word is their packed start
-        // word; func_80045400, func_8004548C): add is added to spd, and spd to pos_1C, each frame.
-        struct
-        {
-            uint32 field_18;  // packed colour word (s.field_18)
-            uint16 pos_1C[3]; // position (s.pos_1C)
-            uint8 field_22;
-            uint8 field_23;
-            uint16 field_24;
-            uint16 field_26;
-            SVECTOR add; // 0x28: acceleration
-            SVECTOR spd; // 0x30: speed
-        } spr;
-    } u_18;
-    SVECTOR pos_38;  // 0x38: position (x, y = height, z); pad: scale of the diagonal of mtx
-                     // (func_800469A4). Passed to Sound_call2 as the source.
-    uint32 field_40; // packed colour (code in the top byte of some users)
-    union
-    {
-        void *ptr;    // table the object steps through (func_80045CE8)
-        sint16 hw[2]; // hw[0] += hw[1] each frame, then added to pos_38.pad (func_800477A0)
-    } u_44;
-} WORK_48; // 0x48 bytes
+            uint8 pad_28[0x1C]; // 0x28-0x43: depends on the kind
+        } sprite;
+    } efc;
+    uint32 field_44; // depends on the kind
+} WORK_48;           // 0x48 bytes
 
 typedef void (*WORK48_FUNC)(WORK_48 *wp);
 
