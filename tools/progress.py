@@ -24,7 +24,7 @@ CODE_TYPES = {"c", "asm", "hasm"}
 
 def subsegments(target):
     """[(start vram, end vram, name, type)] for the main segment's subsegments, in file order."""
-    doc = yaml.safe_load((ROOT / f"{target}.yaml").read_text())
+    doc = yaml.safe_load((ROOT / f"config/{target}/{target}.yaml").read_text())
     main = next(s for s in doc["segments"] if isinstance(s, dict) and s.get("type") == "code")
     rows = []
     for sub in main["subsegments"]:

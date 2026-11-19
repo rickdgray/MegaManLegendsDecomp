@@ -72,8 +72,8 @@ ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (
 
 | Target `<t>` | Path |
 |---|---|
-| splat config | `<t>.yaml` |
-| symbol registry | `symbol_addrs_<t>.txt` |
+| splat config | `config/<t>/<t>.yaml` |
+| symbol registry | `config/<t>/symbol_addrs.txt` |
 | C sources | `src/<t>/` |
 | assembly | `asm/<t>/` |
 | build output, linker script, map | `build/<t>/` |
@@ -82,7 +82,7 @@ ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (
 
 | Command | What it does |
 |---|---|
-| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `<t>.yaml` (clears `asm/<t>/` first). |
+| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` (clears `asm/<t>/` first). |
 | `./tools/build.sh <t>` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH. |
 | `./tools/diff.sh <t> <Func>` | Per-function diff against `expected/<t>/`. Flagged lines are what still differs. |
 | `./tools/m2c.sh <t> <Func>` | Draft C for a function with m2c, using all headers as context. |
@@ -436,8 +436,8 @@ are in `notes/sdk/`, gitignored): `grep -n -A8 "^ *OpenTh" notes/sdk/Libref.txt`
 
 ## Names
 
-The repo is the source of truth for names. Each target's `symbol_addrs_<t>.txt` (e.g.
-`symbol_addrs_slus_006.03.txt`) is the hand-maintained registry that splat uses when generating
+The repo is the source of truth for names. Each target's `config/<t>/symbol_addrs.txt` (e.g.
+`config/slus_006.03/symbol_addrs.txt`) is the hand-maintained registry that splat uses when generating
 assembly.
 
 **Apply a name when you're sure of it; otherwise leave the splat default.** Sure means you can
@@ -449,7 +449,7 @@ batch runner logs them in `logs/renames_applied.txt`), so a wrong name costs a r
   suspected registry error, is the owner's: write it to `renames.txt` (format below) and say why.
 - Apply names **after** the task's functions are banked or parked, one call per name:
   `tools/rename.py <t> OLD NEW [attrs]` (e.g. `tools/rename.py rock_neo.exe func_80012E10
-  Thread_open`). It updates `symbol_addrs_<t>.txt`, `src/<t>/`, `include/` and `notes/` together
+  Thread_open`). It updates `config/<t>/symbol_addrs.txt`, `src/<t>/`, `include/` and `notes/` together
   and adds `type:func` / `absolute:True` where needed. Then run `./tools/rebuild.sh <t>` once
   (re-split, build, refresh `expected/`); it must print MATCH.
 - Struct fields aren't symbols: name them in the header as their uses become clear.
@@ -468,7 +468,7 @@ Before applying a name:
 - **Name only what you understand.** If you can't say what a symbol is for, leave it as the
   splat default. No placeholders (`Sound_unk_82274`), no guesses about other modules' symbols,
   and nothing named after one side effect when the job is still unclear.
-- **Check for duplicates.** `grep -w` the NEW name in `symbol_addrs_<t>.txt` and `renames.txt`.
+- **Check for duplicates.** `grep -w` the NEW name in `config/<t>/symbol_addrs.txt` and `renames.txt`.
   If it's taken, pick a more specific name; `rename.py` refuses a clash.
 - **Pick global or `static` style from the callers:** run `.venv/bin/python tools/callers.py <t>
   NAME`. It checks the other C files, their assembly, data tables and, for ROCK_NEO, every stage
@@ -511,7 +511,7 @@ uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the
 
 - Edit anything under `asm/`, `assets/`, `build/`, or `expected/`, or the generated
   `build/<t>/<t>.ld` / `undefined_*_auto.txt`. They are regenerated and edits are lost.
-- Change a `<t>.yaml`, toolchain flags, or `tools/` scripts without asking first.
+- Change a `config/<t>/<t>.yaml`, toolchain flags, or `tools/` scripts without asking first.
 - Refresh `expected/` from a build that doesn't match.
 - Upload game code anywhere (e.g. decomp.me) without asking.
 - Decompile PsyQ library code (`asm/<t>/psyq/`). It is linked as-is.

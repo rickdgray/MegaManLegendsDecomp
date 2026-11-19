@@ -1161,9 +1161,6 @@ void func_80047C64(W48_88_WORK *wp)
     func_80047CD8(wp);
 }
 
-// Target does the u_14 word copy third, in source order; GCC delays the lw/sw to the end
-// (v1), whatever the statement order.
-#ifdef NON_MATCHING
 void func_80047C84(W48_88_WORK *wp)
 {
     wp->field_9             = 0;
@@ -1173,9 +1170,6 @@ void func_80047C84(W48_88_WORK *wp)
     wp->efc.sprite.field_F  = D_8008A6CF[0];
     wp->efc.sprite.field_10 = D_8008A6CC[0];
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80047C84);
-#endif
 
 void func_80047CD8(W48_88_WORK *wp)
 {

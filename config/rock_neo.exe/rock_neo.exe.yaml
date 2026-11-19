@@ -5,7 +5,7 @@ options:
   basename: rock_neo.exe
   target_path: disc/extracted/ROCK_NEO.EXE
   elf_path: build/rock_neo.exe/rock_neo.exe.elf
-  base_path: .
+  base_path: ../..
   platform: psx
   compiler: PSYQ
 
@@ -31,7 +31,7 @@ options:
   section_order: [".rodata", ".text", ".data", ".sdata", ".bss"]
 
   symbol_addrs_path:
-  - symbol_addrs_rock_neo.exe.txt
+  - config/rock_neo.exe/symbol_addrs.txt
 
   undefined_funcs_auto_path: build/rock_neo.exe/undefined_funcs_auto.txt
   undefined_syms_auto_path: build/rock_neo.exe/undefined_syms_auto.txt

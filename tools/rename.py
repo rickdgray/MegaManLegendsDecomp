@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rename symbols in one target: updates symbol_addrs_<target>.txt, src/<target>/, include/ and
+"""Rename symbols in one target: updates config/<target>/symbol_addrs.txt, src/<target>/, include/ and
 notes/ in one step.
 
 Usage:
@@ -29,7 +29,7 @@ import targets  # noqa: E402  (tools/targets.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = ["slus_006.03", "rock_neo.exe"]
-REGISTRY = None  # symbol_addrs_<target>.txt, set in main()
+REGISTRY = None  # config/<target>/symbol_addrs.txt, set in main()
 
 LINE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*(?://\s*(.*))?$")
 DEFAULT = re.compile(r"^(func|D|jtbl)_([0-9A-Fa-f]{8})$")
@@ -153,7 +153,7 @@ def main():
         if not IDENT.match(new):
             sys.exit(f"{new}: not a valid C identifier")
 
-    REGISTRY = ROOT / f"symbol_addrs_{args.target}.txt"
+    REGISTRY = ROOT / f"config/{args.target}/symbol_addrs.txt"
     text_globs = [f"src/{args.target}/**/*.c", f"src/{args.target}/**/*.h", "include/**/*.h", "notes/**/*.md"]
     lines, entries = load_registry()
     files = sorted({p for g in text_globs for p in ROOT.glob(g)})

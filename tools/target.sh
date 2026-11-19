@@ -17,8 +17,8 @@ else
     TARGET_ARGC=0
 fi
 
-YAML=$TARGET.yaml                       # splat config
-REGISTRY=symbol_addrs_$TARGET.txt       # hand-maintained symbol registry
+YAML=config/$TARGET/$TARGET.yaml        # splat config
+REGISTRY=config/$TARGET/symbol_addrs.txt  # hand-maintained symbol registry
 SRC_DIR=src/$TARGET
 ASM_DIR=asm/$TARGET
 BUILD_DIR=build/$TARGET                 # must match build_path in $YAML

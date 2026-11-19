@@ -37,9 +37,9 @@ DEF_HEAD = re.compile(r"^[A-Za-z_][^;{}#/\n]*?\b(\w+)\s*\([^;{}]*\)\s*$")
 
 
 def registry(target):
-    """({name: address}, {address: name}) from symbol_addrs_<target>.txt."""
+    """({name: address}, {address: name}) from config/<target>/symbol_addrs.txt."""
     by_name, by_addr = {}, {}
-    for line in (ROOT / f"symbol_addrs_{target}.txt").read_text().splitlines():
+    for line in (ROOT / f"config/{target}/symbol_addrs.txt").read_text().splitlines():
         m = re.match(r"\s*(\w+)\s*=\s*(0x[0-9A-Fa-f]+)", line)
         if m:
             by_name[m.group(1)] = int(m.group(2), 16)
@@ -117,7 +117,7 @@ def main():
     if len(args) < 2:
         sys.exit(__doc__)
     target, rest = args[0], args[1:]
-    if not (ROOT / f"symbol_addrs_{target}.txt").exists():
+    if not (ROOT / f"config/{target}/symbol_addrs.txt").exists():
         sys.exit(f"unknown target {target!r}")
     by_name, by_addr = registry(target)
     entries = load()

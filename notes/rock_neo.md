@@ -206,7 +206,7 @@ Constants, types and variables: `include/cd.h` (shared with the shim). This sect
 A 2023 decompilation attempt on GitHub; no matched C, last commit 2023-07. **No license**, so use its
 findings (facts) only; don't copy its files. **His names are references, not authority:** use one
 when the code supports it, and prefer the TCRF source's and the evidence here. His names are in
-`symbol_addrs_rock_neo.exe.txt`. **Audited (2026-11-15):** of the ~400 names imported from him, the
+`config/rock_neo.exe/symbol_addrs.txt`. **Audited (2026-11-15):** of the ~400 names imported from him, the
 non-library ones are either confirmed by `disc/tcrf.txt` or siblings of confirmed names in the same
 style (`Sce_flag_off`, `Sce_flag`, `MojiTaskExec`, `Moji_work`, `Scene_work`, `Game_main_tbl`,
 `Debug_work`, `main`); the rest went: his file name `Code800133D8` is now `code_800133D8`, its
@@ -611,9 +611,9 @@ the target is `func_8002FE74(wp->kind_1)` followed by `move v1,v0`; GCC drops th
 `void` function with a local, and a `return` form emits no move either (also tried `register`).
 Also banked: `func_80047D9C`/`func_80048354` (`D_8008A724`/`D_8008A76C[wp->routine_8](wp)`), `func_800485E4`
 (`D_8008A778[wp->flag_4](wp)`), `func_80048268`, `func_80046848` (`WORK_48.flag_3` picks sound 0x9E/0x9D).
-Parked `func_80047C84` (`NON_MATCHING`): copies `D_8008A6C8..CF` into `WORK_48`; the target does the
-`field_14` word load/store third, GCC always delays the `lw`/`sw` to the end (v1), whatever the
-statement order or the type of `field_14` (`uint32`, `sint16[2]`, cast).
+Banked `func_80047C84`: copies `D_8008A6C8..CF` into `WORK_48`. It was parked over the `field_14`
+word copy (the target does it third; GCC delayed it to the end), but it matches as written since the
+later `WORK_48` type changes.
 Parked `func_80047354` (`NON_MATCHING`, spawn/init of a `WORK_48` by `flag_3`): all instructions match except the
 tail layout. The target tests `flag_3 & 0x80` with `beqz` (`sub = 0` store, then `j` to the shared `Model_work_init`)
 and keeps the `sub = 4/5/6` arms as three separate stubs; ours inverts the 0x80 test and merges the arms. Tried

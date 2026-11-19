@@ -5,7 +5,7 @@ options:
   basename: slus_006.03
   target_path: disc/extracted/SLUS_006.03
   elf_path: build/slus_006.03/slus_006.03.elf
-  base_path: .
+  base_path: ../..
   platform: psx
   compiler: PSYQ
 
@@ -28,7 +28,7 @@ options:
   section_order: [".rodata", ".text", ".data", ".bss"]
 
   symbol_addrs_path:
-    - symbol_addrs_slus_006.03.txt
+    - config/slus_006.03/symbol_addrs.txt
 
   undefined_funcs_auto_path: build/slus_006.03/undefined_funcs_auto.txt
   undefined_syms_auto_path: build/slus_006.03/undefined_syms_auto.txt

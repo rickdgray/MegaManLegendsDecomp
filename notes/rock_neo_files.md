@@ -2,7 +2,7 @@
 
 Proposed split of the two Capcom code ranges (`2490`: `0x80011C90`-`0x80067FF7`, `588BC`:
 `0x800680BC`-`0x80069037`) into Capcom's original source files. **Mostly suspected, not verified.**
-The split is applied in `rock_neo.exe.yaml` (one subsegment per row; every file is `c`, with `INCLUDE_ASM`
+The split is applied in `config/rock_neo.exe/rock_neo.exe.yaml` (one subsegment per row; every file is `c`, with `INCLUDE_ASM`
 stubs for what isn't decompiled yet, except the hand-written `asm_fastmem`); a row's confidence is the
 first word of the comment on its yaml line. Each file's rodata is assigned to it too (`.rodata` rows,
 split where the owning file changes: `0x870`, `0x19E4`, `0x1A4C`, `0x1CA0`). File offset = address - `0x8000F800`.
@@ -270,7 +270,7 @@ runs of 0xF4-byte look-alikes), `0x800542FC`-`0x80054424` (row 24, fourteen 0x14
 ## Method and limits
 
 Parsed the two `.s` files for functions, `jal`/`j` targets and all symbol/`0x8xxxxxxx` operands
-(`symbol_addrs_rock_neo.exe.txt` names resolved to addresses); jump-table owners from `.L` labels in
+(`config/rock_neo.exe/symbol_addrs.txt` names resolved to addresses); jump-table owners from `.L` labels in
 `asm/rock_neo.exe/data/*.rodata.s`. The scripts were scratch work and are not in the repo. Limits: only
 exact symbol references are seen (indexed accesses through a computed base are counted at the symbol, not
 at the element), the cost metric treats few-caller globals as local, and `.data` ordering is link order

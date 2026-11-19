@@ -47,7 +47,7 @@ Rip the disc to BIN/CUE and verify each track's hash against the Redump entry ab
 Extract Track 1 with `dumpsxiso` from [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) into `disc/extracted/`:
 
 ```powershell
-dumpsxiso -x .\disc\extracted\ -s .\layout\mml.xml ".\disc\image\Mega Man Legends (USA).cue"
+dumpsxiso -x .\disc\extracted\ -s .\mml.xml ".\disc\image\Mega Man Legends (USA).cue"
 ```
 
 This also writes the layout XML (`-s`) used to rebuild the disc.
@@ -58,7 +58,7 @@ This also writes the layout XML (`-s`) used to rebuild the disc.
 sha1sum disc/extracted/SLUS_006.03 disc/extracted/ROCK_NEO.EXE
 ```
 
-The hashes must match the `sha1:` line at the top of `slus_006.03.yaml` and `rock_neo.exe.yaml`; splat checks them again when it splits.
+The hashes must match the `sha1:` line at the top of `config/slus_006.03/slus_006.03.yaml` and `config/rock_neo.exe/rock_neo.exe.yaml`; splat checks them again when it splits.
 
 ### 4. Set up the environment
 
@@ -88,14 +88,14 @@ The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolc
 
 ```
 ├── CLAUDE.md                  # rules and patterns for writing matching C (read by agents and people)
-├── <target>.yaml              # splat config per executable (slus_006.03, rock_neo.exe), with its SHA-1
-├── symbol_addrs_<target>.txt  # symbol registry per executable
+├── config/<target>/           # per target: <target>.yaml (splat config, with its SHA-1) and
+│                              #   symbol_addrs.txt (symbol registry)
 ├── functions.csv              # every function with its status (decompiled, matched, reviewed)
 ├── reviewed.txt               # functions a person has reviewed (tools/review.py)
 ├── diff_settings.py           # asm-differ settings (tools/diff.sh)
+├── mml.xml                    # mkpsxiso disc layout (metadata only)
 ├── src/<target>/              # decompiled C
 ├── include/                   # headers shared by both executables; include/<target>/ for the rest
-├── layout/                    # mkpsxiso disc layout (metadata only)
 ├── notes/                     # findings and research notes (start with notes/README.md)
 ├── tools/                     # build, diff and helper scripts
 ├── disc/                      # (gitignored) your disc image and extracted files

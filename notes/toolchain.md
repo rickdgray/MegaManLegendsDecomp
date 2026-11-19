@@ -81,7 +81,7 @@ Header search order (`include/<target>/` if any, before `include/`) and the rule
 
 ## splat configuration
 
-Settings that took debugging, in `slus_006.03.yaml` (ROCK_NEO's own are in
+Settings that took debugging, in `config/slus_006.03/slus_006.03.yaml` (ROCK_NEO's own are in
 [rock_neo.md](rock_neo.md)):
 
 - **Alignment:** `ld_align_section_vram_end: False` and `ld_align_segment_vram_end: False`. The
@@ -106,9 +106,9 @@ Settings that took debugging, in `slus_006.03.yaml` (ROCK_NEO's own are in
   aligned properly file-wise" by moving that object's rodata start to the 8-byte boundary right
   after the previous object's last referenced item.
 
-## Symbol registry (`symbol_addrs_<target>.txt`)
+## Symbol registry (`config/<target>/symbol_addrs.txt`)
 
-- The repo is the source of truth for names; each target's `symbol_addrs_<target>.txt` is
+- The repo is the source of truth for names; each target's `config/<target>/symbol_addrs.txt` is
   hand-maintained (no comments, just splat attributes). Renaming touches the registry,
   `src/<target>/`, `include/` and `notes/` (`tools/rename.py` does all four); then re-split.
 - Names that exist only in C or headers don't exist for the assembly. **PsyQ functions called
@@ -132,7 +132,7 @@ Settings that took debugging, in `slus_006.03.yaml` (ROCK_NEO's own are in
 ## Tools
 
 Every script takes the target as an optional first argument (`<t>`: `rock_neo.exe`, the default when left out, or `slus_006.03`). `progress.py` without one reports both programs.
-`tools/target.sh` derives the paths from it: `<t>.yaml`, `symbol_addrs_<t>.txt`, `src/<t>/`,
+`tools/target.sh` derives the paths from it: `config/<t>/<t>.yaml`, `config/<t>/symbol_addrs.txt`, `src/<t>/`,
 `asm/<t>/`, `build/<t>/` (linker script, ELF, map, objects, `undefined_*_auto.txt`),
 `assets/<t>/`, `expected/<t>/`, and the final binary `build/<t>/<T>`, named like the disc file
 (`build/slus_006.03/SLUS_006.03`). Exceptions: `fetch_tools.sh`, `find_dupes.py` and the
@@ -149,7 +149,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/m2c.sh <t> <Func>` | m2c draft with all headers as context (`--target mipsel-gcc-c`) |
 | `tools/cc.sh <t> <in.c> <out.o>` | Compile one file with the target's matching toolchain |
 | `tools/format.sh <t>` | clang-format on `src/<t>/` and `include/` |
-| `tools/rename.py <t> OLD NEW [attr]` / `<t> -f FILE` | Renames in `symbol_addrs_<t>.txt`, `src/<t>/`, `include/`, `notes/`; `-n` for a dry run. New registry lines get `type:func` (for `func_`) and `absolute:True` (outside the image) |
+| `tools/rename.py <t> OLD NEW [attr]` / `<t> -f FILE` | Renames in `config/<t>/symbol_addrs.txt`, `src/<t>/`, `include/`, `notes/`; `-n` for a dry run. New registry lines get `type:func` (for `func_`) and `absolute:True` (outside the image) |
 | `tools/permuter_prep.py <t> <Func> --src FILE` | Builds `permuter/<t>/<Func>/` from a parked `NON_MATCHING` block in `FILE` (e.g. `src/rock_neo.exe/cd.c`; without it, searches `src/<t>/`). `base.c` is the file's preamble plus the draft |
 | `tools/preamble.py FILE` | Prints a C file's preamble: everything before its first function, `INCLUDE_ASM` or parked block (includes, its own small data and pool definitions, file-local prototypes). Used by `permuter_prep.py` and `ctx.sh` |
 | `tools/find_dupes.py [--src S] [--dst D] [--min 0.85]` | Finds functions of one program that are compiled copies of the other's (default shim → ROCK_NEO), by opcode/register shape; immediates and targets ignored. Needs both ELFs built |

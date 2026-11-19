@@ -9,14 +9,14 @@
 | Redump | <http://redump.org/disc/2773/> |
 | Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
 | Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
-| Executable SHA-1s | the `sha1:` lines of `slus_006.03.yaml` and `rock_neo.exe.yaml` |
+| Executable SHA-1s | the `sha1:` lines of `config/slus_006.03/slus_006.03.yaml` and `config/rock_neo.exe/rock_neo.exe.yaml` |
 
 ## Layout
 
 - **Confirmed:** `SYSTEM.CNF` boots `cdrom:\SLUS_006.03;1`, a small shim that shows the intro and
   then `LoadExec`s `cdrom:\ROCK_NEO.EXE;1`, the main game (see [shim.md](shim.md)).
 - **Confirmed:** the data track round-trips: `dumpsxiso` extraction plus a `mkpsxiso` rebuild from
-  `layout/` reproduces Redump Track 1 exactly (207,145 sectors, 0 differences).
+  `mml.xml` reproduces Redump Track 1 exactly (207,145 sectors, 0 differences).
 - `CDDATA/DAT/*.BIN`: chunk archives holding stage code and data (format below).
 - `CDDATA/STR/CAPCOM20.STR`: the intro FMV, played by the shim.
 - `CDDATA/XA/*.XA`: streamed XA audio.

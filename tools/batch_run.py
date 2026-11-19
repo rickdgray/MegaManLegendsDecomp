@@ -70,8 +70,7 @@ TARGETS = ["slus_006.03", "rock_neo.exe"]
 STATE = ROOT / "logs" / "batch_state.json"
 SCRATCH = ROOT / "logs" / "scratch"     # agents' scratch files (CLAUDE.md, "Tool use")
 # Everything an agent may change; snapshotted before each batch and restored if it fails.
-TRACKED = ["src", "include", "notes", "symbol_addrs_slus_006.03.txt", "symbol_addrs_rock_neo.exe.txt",
-           "slus_006.03.yaml", "rock_neo.exe.yaml", "CLAUDE.md", "renames.txt"]
+TRACKED = ["src", "include", "notes", "config", "CLAUDE.md", "renames.txt"]
 NO_RANK = (1 << 30, 1 << 30)
 
 PROMPT = """Decompile these functions in `{cfile}`, in this order: {funcs}.
@@ -191,7 +190,7 @@ def registry_changes(snap):
     """{target: [(old line, new line)...]} for registries that differ from the snapshot."""
     out = {}
     for t in TARGETS:
-        name = f"symbol_addrs_{t}.txt"
+        name = f"config/{t}/symbol_addrs.txt"
         before = (snap / name).read_text().splitlines() if (snap / name).exists() else []
         after = (ROOT / name).read_text().splitlines()
         if before != after:

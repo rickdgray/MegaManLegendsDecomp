@@ -59,7 +59,7 @@ YAML_ROW = re.compile(r"^\s*- \[0x[0-9A-Fa-f]+,\s*\.?\w+,\s*([\w/]+)\]\s*(?:#\s*
 def confidence(target):
     """{subsegment name: confidence} from the first word of each yaml line's comment."""
     conf = {}
-    for line in (ROOT / f"{target}.yaml").read_text().splitlines():
+    for line in (ROOT / f"config/{target}/{target}.yaml").read_text().splitlines():
         m = YAML_ROW.match(line)
         if m and m.group(2) in ("confirmed", "high", "medium", "low"):
             conf[m.group(1)] = m.group(2)

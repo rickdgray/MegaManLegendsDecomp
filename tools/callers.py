@@ -29,7 +29,7 @@ def address(target, name):
     m = re.fullmatch(r"func_([0-9A-Fa-f]{8})", name)
     if m:
         return int(m.group(1), 16)
-    for line in (ROOT / f"symbol_addrs_{target}.txt").read_text().splitlines():
+    for line in (ROOT / f"config/{target}/symbol_addrs.txt").read_text().splitlines():
         m = re.match(rf"\s*{re.escape(name)}\s*=\s*(0x[0-9A-Fa-f]+)", line)
         if m:
             return int(m.group(1), 16)
