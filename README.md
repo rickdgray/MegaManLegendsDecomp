@@ -150,8 +150,8 @@ work, squashed into one: the development history was a long working log, not som
 publishing.
 
 The upstream project has continued separately since then, and I'd be glad to see the two come
-together. Upstream has no license file, so this fork doesn't add one; it's shared under
-GitHub's forking terms, and licensing is up to the original author.
+together. Upstream is MIT-licensed, and this fork is too: see [LICENSE](LICENSE), which keeps
+Rick Gray's copyright notice alongside this fork's.
 
 ## How this was made
 
@@ -171,6 +171,9 @@ follow Capcom's own naming conventions.
 Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Legal
+
+The code in this repository is under the MIT license ([LICENSE](LICENSE)). That covers only the
+code written here, not the game.
 
 Not affiliated with or endorsed by Capcom or Sony. Mega Man Legends is a trademark of Capcom. You
 need your own copy of the game to build or play anything here. The original game's code, data and
