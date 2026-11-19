@@ -17,7 +17,7 @@ sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_
 void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
 void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
 VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z);
-SHL_WORK *func_80031598(void);
+PL_SHL_WORK *func_80031598(void);
 sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
 
 // Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
@@ -181,13 +181,13 @@ void func_8002F928(WORK_48 *wp, SVECTOR *d)
 {
     if (wp->routine_0 & 4)
     {
-        wp->efc.model.pos_38.vx += d->vx;
-        wp->efc.model.pos_38.vz += d->vz;
+        wp->efc.model.pos.vx += d->vx;
+        wp->efc.model.pos.vz += d->vz;
     }
     else
     {
-        wp->efc.sprite.pos_1C[0] += d->vx;
-        wp->efc.sprite.pos_1C[2] += d->vz;
+        wp->efc.sprite.pos[0] += d->vx;
+        wp->efc.sprite.pos[2] += d->vz;
     }
 }
 
@@ -911,7 +911,7 @@ SHL_WORK *Open_SHL_WORK(void)
             wp->field_10 = 0;
             wp->hit_78   = 0;
             D_800987CC |= 0x80000000 >> i;
-            *(uint16 *)&wp->field_2   = 0;
+            *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
@@ -923,10 +923,10 @@ SHL_WORK *Open_SHL_WORK(void)
     return 0;
 }
 
-SHL_WORK *func_80031598(void)
+PL_SHL_WORK *func_80031598(void)
 {
     sint32 i;
-    SHL_WORK *wp;
+    PL_SHL_WORK *wp;
     uint32 used;
 
     used = D_800989F0;
@@ -938,7 +938,7 @@ SHL_WORK *func_80031598(void)
             wp->field_10 = 0;
             wp->hit_78   = 0;
             D_800989F0 |= 0x80000000 >> i;
-            *(uint16 *)&wp->field_2   = 0;
+            *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
@@ -1087,9 +1087,9 @@ void Close_SHL_WORK(SHL_WORK *wp)
     wp->routine_0 = 0;
 }
 
-void func_80031930(SHL_WORK *wp)
+void func_80031930(PL_SHL_WORK *wp)
 {
-    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(SHL_WORK));
+    D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(PL_SHL_WORK));
     D_80098A60 &= D_800989F0;
     wp->routine_0 = 0;
 }
@@ -1932,38 +1932,38 @@ MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
 // moves the computation there but adds 0x4F4 to the pointer (the target folds it into the offset).
 void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint32 flag)
 {
-    SHL_WORK *wp;
+    PL_SHL_WORK *wp;
     sint32 sel;
     SVECTOR unused; // GCC reserves its 8 bytes; the target frame has them
 
     wp = func_80031598();
     if (wp != 0)
     {
-        wp->flag_3 = 0;
+        wp->type_3 = 0;
         if (idx >= 0)
         {
             wp->slot_D = func_8003545C((uint32)wp, (SLOT_OWNER *)(D_800A2F48[idx].flags & 0x7FFFFF));
             if (wp->slot_D >= 0)
             {
-                wp->flag_3 = 0x80;
+                wp->type_3 = 0x80;
             }
         }
         wp->routine_0 = 1;
         if (flag != 0)
         {
-            sel         = pl->unk170;
-            wp->field_2 = D_80089A8B[sel * 12];
-            wp->pos.vx  = pl->joint_pos[4].vx;
-            wp->pos.vy  = pl->joint_pos[4].vy;
-            wp->pos.vz  = pl->joint_pos[4].vz;
+            sel        = pl->unk170;
+            wp->id_2   = D_80089A8B[sel * 12];
+            wp->pos.vx = pl->joint_pos[4].vx;
+            wp->pos.vy = pl->joint_pos[4].vy;
+            wp->pos.vz = pl->joint_pos[4].vz;
         }
         else
         {
-            sel         = pl->unk171;
-            wp->field_2 = D_80089A8B[sel * 12];
-            wp->pos.vx  = pl->joint_pos[7].vx;
-            wp->pos.vy  = pl->joint_pos[7].vy;
-            wp->pos.vz  = pl->joint_pos[7].vz;
+            sel        = pl->unk171;
+            wp->id_2   = D_80089A8B[sel * 12];
+            wp->pos.vx = pl->joint_pos[7].vx;
+            wp->pos.vy = pl->joint_pos[7].vy;
+            wp->pos.vz = pl->joint_pos[7].vz;
         }
         if (pl->rec[sel].val != 0x7FFF && sel != 4 && sel != 7 && (uint32)(sel - 0xC) >= 2)
         {
@@ -2270,7 +2270,7 @@ uint32 func_80037440(void)
     {
         if (D_800BFB20[i].routine_0 & 1)
         {
-            id = D_800BFB22[i].routine_0 - 0x80; // low byte of field_2
+            id = D_800BFB22[i].routine_0 - 0x80; // low byte of id_2
             if ((sint32)id < 16)
             {
                 D_8009856C[id]++;

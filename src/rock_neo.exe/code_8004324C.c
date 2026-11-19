@@ -15,7 +15,7 @@
 // are indexed by Player_work[0].rec[1].idx[0] or idx[2].
 HIT_ENT D_80097DA0   = {-16, 16, -16, 16, -16, 16}; // collision box (hit_78)
 uint32 D_80097DAC[8] = {0x3EB4002E, 0x3EB4002E, 0x3EB4002E, 0x3EB5002E,
-                        0x3EB5002E, 0x3EB5002E, 0x3EB6002E, 0x3EB6002E}; // field_88, by idx[0]
+                        0x3EB5002E, 0x3EB5002E, 0x3EB6002E, 0x3EB6002E}; // PL_SHL_WORK.code_88, by idx[0]
 uint8 D_80097DCC[8]  = {24, 32, 42, 32, 42, 56, 42, 64};                 // field_98, by idx[0]
 uint8 D_80097DD4[8]  = {100, 100, 100, 100, 100, 100, 120, 120};         // speed (spd = dir * n >> 4), by idx[2]
 
@@ -80,12 +80,12 @@ void func_80043340(sint32 amount, sint32 n)
     }
 }
 
-void func_800433C0(SHL_WORK *wp)
+void func_800433C0(PL_SHL_WORK *wp)
 {
     D_8008A0CC[wp->routine_8](wp);
 }
 
-void func_800433FC(SHL_WORK *wp)
+void func_800433FC(PL_SHL_WORK *wp)
 {
     SVECTOR v;  // unused (0x18 bytes in the frame, the locals of func_800437F8's
     VECTOR out; // launch vector)
@@ -113,7 +113,7 @@ void func_800433FC(SHL_WORK *wp)
     Sound_call2(0x96, &wp->pos);
 }
 
-void func_800434F0(SHL_WORK *wp)
+void func_800434F0(PL_SHL_WORK *wp)
 {
     PL_WORK *pl;
     PL_WORK *cur;
@@ -137,7 +137,7 @@ void func_800434F0(SHL_WORK *wp)
     }
 }
 
-void func_800435BC(SHL_WORK *wp)
+void func_800435BC(PL_SHL_WORK *wp)
 {
     PL_WORK *pl;
 
@@ -146,7 +146,7 @@ void func_800435BC(SHL_WORK *wp)
     func_80031930(wp);
 }
 
-void func_800435F8(SHL_WORK *wp)
+void func_800435F8(PL_SHL_WORK *wp)
 {
     sint32 id;
     PL_WORK *pl;
@@ -180,7 +180,7 @@ void func_800435F8(SHL_WORK *wp)
     wp->old = wp->pos;
 }
 
-void func_80043740(SHL_WORK *wp)
+void func_80043740(PL_SHL_WORK *wp)
 {
     W48_84_WORK *e;
 
@@ -196,13 +196,13 @@ void func_80043740(SHL_WORK *wp)
     }
 }
 
-void func_800437A8(SHL_WORK *wp)
+void func_800437A8(PL_SHL_WORK *wp)
 {
     D_8008A0D8[wp->routine_8](wp);
     func_80051BAC((MODEL_WORK *)wp);
 }
 
-void func_800437F8(SHL_WORK *wp)
+void func_800437F8(PL_SHL_WORK *wp)
 {
     SVECTOR v;
     VECTOR out;
@@ -223,30 +223,30 @@ void func_800437F8(SHL_WORK *wp)
     v.vy = 0;
     v.vz = -0x1000;
     ApplyMatrix(&m, &v, &out);
-    v.vx         = out.vx;
-    v.vy         = out.vy;
-    v.vz         = out.vz;
-    spd          = D_80097DD4[Player_work[0].rec[1].idx[2]];
-    wp->spd.vx   = (v.vx * spd) >> 4;
-    wp->spd.vy   = (v.vy * spd) >> 4;
-    wp->spd.vz   = (v.vz * spd) >> 4;
-    wp->dir_A4   = v;
-    wp->add.vx   = 0;
-    wp->add.vy   = 0;
-    wp->add.vz   = 0;
-    wp->field_88 = 0x3D48002E;
-    wp->field_88 = D_80097DAC[Player_work[0].rec[1].idx[0]];
-    wp->rgbc_8C  = 0x2E808080;
-    wp->x_90 = wp->pos.vx = wp->pos_l.vx >> 16;
-    wp->y_92 = wp->pos.vy = wp->pos_l.vy >> 16;
-    wp->z_94 = wp->pos.vz = wp->pos_l.vz >> 16;
-    wp->old_l             = wp->pos_l;
-    wp->old               = wp->pos;
-    wp->field_96          = 0xC0;
-    wp->field_97          = 0x60;
-    wp->field_98          = D_80097DCC[Player_work[0].rec[1].idx[0]];
-    wp->field_7C          = 0;
-    wp->timer_B           = 0;
+    v.vx          = out.vx;
+    v.vy          = out.vy;
+    v.vz          = out.vz;
+    spd           = D_80097DD4[Player_work[0].rec[1].idx[2]];
+    wp->spd.vx    = (v.vx * spd) >> 4;
+    wp->spd.vy    = (v.vy * spd) >> 4;
+    wp->spd.vz    = (v.vz * spd) >> 4;
+    wp->dir_A4    = v;
+    wp->add.vx    = 0;
+    wp->add.vy    = 0;
+    wp->add.vz    = 0;
+    wp->code_88   = 0x3D48002E;
+    wp->code_88   = D_80097DAC[Player_work[0].rec[1].idx[0]];
+    wp->rgbc_8C   = 0x2E808080;
+    wp->pos_90[0] = wp->pos.vx = wp->pos_l.vx >> 16;
+    wp->pos_90[1] = wp->pos.vy = wp->pos_l.vy >> 16;
+    wp->pos_90[2] = wp->pos.vz = wp->pos_l.vz >> 16;
+    wp->old_l                  = wp->pos_l;
+    wp->old                    = wp->pos;
+    wp->field_96               = 0xC0;
+    wp->field_97               = 0x60;
+    wp->field_98               = D_80097DCC[Player_work[0].rec[1].idx[0]];
+    wp->field_7C               = 0;
+    wp->timer_B                = 0;
     func_80043DF8(wp, &m);
     wp->field_9 = 0;
     wp->routine_8++;
@@ -258,10 +258,10 @@ void func_800437F8(SHL_WORK *wp)
     {
         wp->old.pad = wp->pos.pad = 0x4208;
     }
-    if (wp->flag_3 >= 0x80 && (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz) == 0)
+    if (wp->type_3 >= 0x80 && (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz) == 0)
     {
         func_800354E0(wp->slot_D);
-        wp->flag_3 = 0;
+        wp->type_3 = 0;
     }
     func_80043E78(wp);
     Sound_call2(0x9A, &wp->pos);
@@ -271,7 +271,7 @@ void func_800437F8(SHL_WORK *wp)
 // Two differences: GCC turns the hit flag into xori/sltu where the target branches (if/else,
 // switch, ternary, goto and two calls all tried), and the speed multiplies load dir.vx before
 // the table byte (register swap v0/v1).
-void func_80043A8C(SHL_WORK *wp)
+void func_80043A8C(PL_SHL_WORK *wp)
 {
     SVECTOR dir;
     SVECTOR nrm;
@@ -298,7 +298,7 @@ void func_80043A8C(SHL_WORK *wp)
     wp->old   = wp->pos;
     if (wp->timer_B++ < func_80037634(Player_work, 1))
     {
-        if (wp->flag_3 >= 0x80)
+        if (wp->type_3 >= 0x80)
         {
             if (*(uint32 *)&wp->tgt_BC.vx | *(uint32 *)&wp->tgt_BC.vz)
             {
@@ -324,7 +324,7 @@ void func_80043A8C(SHL_WORK *wp)
                 {
                     func_80033F04(&dir, &nrm, &wp->dir_A4, 0x47, 0x0FFF604C);
                     func_800354E0(wp->slot_D);
-                    wp->flag_3 = 0;
+                    wp->type_3 = 0;
                 }
                 wp->dir_A4 = dir;
                 spd        = D_80097DD4[Player_work[0].rec[1].idx[2]];
@@ -335,22 +335,22 @@ void func_80043A8C(SHL_WORK *wp)
             else
             {
                 func_800354E0(wp->slot_D);
-                wp->flag_3 = 0;
+                wp->type_3 = 0;
             }
         }
         wp->pos_l.vx += wp->spd.vx << 8;
         wp->pos_l.vy += wp->spd.vy << 8;
         wp->pos_l.vz += wp->spd.vz << 8;
-        wp->x_90 = wp->pos.vx = wp->pos_l.vx >> 16;
-        wp->y_92 = wp->pos.vy = wp->pos_l.vy >> 16;
-        wp->z_94 = wp->pos.vz = wp->pos_l.vz >> 16;
+        wp->pos_90[0] = wp->pos.vx = wp->pos_l.vx >> 16;
+        wp->pos_90[1] = wp->pos.vy = wp->pos_l.vy >> 16;
+        wp->pos_90[2] = wp->pos.vz = wp->pos_l.vz >> 16;
         wp->field_9A += 5;
     }
     else
     {
     close:
         func_80031930(wp);
-        if (wp->flag_3 >= 0x80)
+        if (wp->type_3 >= 0x80)
         {
             func_800354E0(wp->slot_D);
         }
@@ -362,11 +362,11 @@ void func_80043A8C(SHL_WORK *wp)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8004324C", func_80043A8C);
 #endif
 
-void func_80043DF8(SHL_WORK *wp, MATRIX *m)
+void func_80043DF8(PL_SHL_WORK *wp, MATRIX *m)
 {
 }
 
-void func_80043E00(SHL_WORK *wp, uint8 arg)
+void func_80043E00(PL_SHL_WORK *wp, uint8 arg)
 {
     W48_82_WORK *e;
 
@@ -383,7 +383,7 @@ void func_80043E00(SHL_WORK *wp, uint8 arg)
     }
 }
 
-void func_80043E78(SHL_WORK *wp)
+void func_80043E78(PL_SHL_WORK *wp)
 {
     uint32 pad;
     sint32 val;

@@ -76,7 +76,7 @@ typedef struct
 
 typedef void (*W48_87_FUNC)(W48_87_WORK *wp);
 
-// Kind 0x88 of the WORK_48 pool (handler func_80047318). A model kind that becomes a sprite: routine 3 (func_80047CD8) steps a sprite animation over the bytes the model used, so 0x14-0x43 are a union like WORK_48.efc.
+// Kind 0x88 of the WORK_48 pool (handler func_80047318). A model kind that becomes a sprite: routine 3 (func_80047CD8) steps a sprite animation over the bytes the model used, so 0x14-0x43 are an EFC, like WORK_48.efc.
 typedef struct
 {
     uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
@@ -94,28 +94,8 @@ typedef struct
     sint8 field_C;
     uint8 pad_D[3];
     uint32 field_10;
-    union
-    {
-        struct
-        {
-            uint8 *data_14; // model data of the EBD entry, set by Model_work_init
-            MATRIX mtx;     // 0x18: rotation and scale (diagonal = pos_38.pad)
-            SVECTOR pos_38; // 0x38: position (x, y = height, z)
-            uint32 rgbc_40; // 0x40: code and colour
-        } model;
-        struct
-        {
-            uint32 code_14;   // packed start word
-            uint32 rgbc_18;   // code and colour
-            uint16 pos_1C[3]; // position (x, y, z)
-            uint8 field_22;
-            uint8 field_23;
-            uint16 field_24;
-            uint16 field_26;
-            uint8 pad_28[0x1C];
-        } sprite;
-    } efc;
-    sint16 hw_44[2]; // hw_44[0] += hw_44[1] each frame, then added to efc.model.pos_38.pad
+    EFC efc;         // 0x14
+    sint16 hw_44[2]; // hw_44[0] += hw_44[1] each frame, then added to efc.model.pos.pad
                      // (func_800477A0)
 } W48_88_WORK;       // 0x48 bytes
 

@@ -193,9 +193,9 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
                 {
                     spread = 0;
                 }
-                e->efc.model.pos_38.vx = pos.vx + ((rcos(a) * spread) >> 12);
-                e->efc.model.pos_38.vy = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->efc.model.pos_38.vz = pos.vz + ((rsin(a) * spread) >> 12);
+                e->efc.model.pos.vx = pos.vx + ((rcos(a) * spread) >> 12);
+                e->efc.model.pos.vy = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->efc.model.pos.vz = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }
@@ -216,9 +216,9 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
                 {
                     spread = 0;
                 }
-                e->efc.sprite.pos_1C[0] = pos.vx + ((rcos(a) * spread) >> 12);
-                e->efc.sprite.pos_1C[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
-                e->efc.sprite.pos_1C[2] = pos.vz + ((rsin(a) * spread) >> 12);
+                e->efc.sprite.pos[0] = pos.vx + ((rcos(a) * spread) >> 12);
+                e->efc.sprite.pos[1] = pos.vy - ((((r & 0xFF) + ((r >> 7) & 0xFF) - 0x100) * (width >> 1)) >> 8);
+                e->efc.sprite.pos[2] = pos.vz + ((rsin(a) * spread) >> 12);
             }
         }
     }

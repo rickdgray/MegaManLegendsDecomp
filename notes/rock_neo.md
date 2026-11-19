@@ -356,15 +356,38 @@ shared code takes the generic `WORK_48`, and callers cast at the boundary (`func
 | 0x89 | `W48_89_WORK` | `func_80047D9C` | sprite | `ang_28[8]`, `idx_38[8]` |
 | 0x8A | `W48_8A_WORK` | `func_80048354` | sprite | `field_C`, `idx_D`, `timer_E` (records `W48_8A_REC`) |
 
-The kinds come in two families laid over 0x14-0x43, which `WORK_48.efc` keeps for the shared code: model (`data_14`
-from `Model_work_init`, `mtx` 0x18, `pos_38`, `rgbc_40`; bit 2 of `routine_0` set) and sprite (`code_14`, `rgbc_18`,
-`pos_1C[3]`, `field_22..26`, kind data from 0x28). `func_8002F928` moves `efc.model.pos_38` or `efc.sprite.pos_1C` by
-that bit. The name follows Capcom's shot code (`wk_p->efc.model.m`, `.sv`, `.rgbc`). The debris kinds copy the whole
+The kinds come in two families laid over 0x14-0x43, the two halves of the `EFC` union that `WORK_48.efc` keeps for
+the shared code (and `SHL_WORK.efc` at 0x88): `EFC_MODEL` (`data` from `Model_work_init`, `mtx`, `pos`, `rgbc`; bit 2
+of `routine_0` set) and `EFC_SPRITE` (`code`, `rgbc`, `pos[3]`, two bytes and two halfwords, kind data from +0x14).
+The kinds' own structs write them out at their offsets (`data_14`, `mtx`, `pos_38`, `rgbc_40`; `code_14`, `rgbc_18`,
+`pos_1C[3]`, `field_22..26`). `func_8002F928` moves `efc.model.pos` or `efc.sprite.pos` by that bit. The name follows Capcom's shot code (`wk_p->efc.model.m`, `.sv`, `.rgbc`). The debris kinds copy the whole
 matrix as a `MATRIX` (`func_80045AB4`), but keep their speed and acceleration in its `t` bytes, so their struct has
 `m[3][3]` plus `vx_2C..az_36` and passes `(MATRIX *)wp->m`. `func_80037890` creates kinds 0x80 and 0x83 through one
 reused local, so it stays generic. `func_80045CE8` and `func_80046B34` are spawners (of 0x86 and 0x87), not
 handlers. The overlays' kinds (below 0x80) use the generic type until they are decompiled. Older entries below use
 the names from before this split (`u_18.s`, `u_18.mtx`, `field_C.rec`, `u_44`, `field_2`/`flag_3` = `id_2`/`type_3`).
+
+## Shot pools: SHL_WORK and PL_SHL_WORK
+
+Capcom's `SHL_WORK` (their shot 0x38: `be_flag`, `id`, `type`, `routine_0..2`, `pos_l`, `pos`, `efc.model.m` /
+`.sv` / `.rgbc`, and `free[]`, over which `SHL38_FREE` is cast) is the slot of the pool `D_8009CF88[32]`, kind 0x60
+(`Open_SHL_WORK` / `Close_SHL_WORK`; the scene code and the overlays). Ours: header, the `MODEL_WORK` layout to 0x87,
+an `EFC` at 0x88 and `free[0x54]` at 0xB8, for the overlays' shot kinds to cast their own structs over. ROCK_NEO has
+no per-kind code for this pool yet.
+
+`EFC` (model or sprite) is the same type as `WORK_48.efc`: the player's shot stores the sprite one's packed start word
+`0x3D48002E` at 0x88, the same value `WORK_48`'s sprite kinds store at 0x14, and the layout after it (code and colour,
+position, two bytes, two halfwords) is the same. Where `EFC` starts and that `free` follows it are inferred from that
+match and from `EFC_MODEL`'s size (0x30); Capcom's offsets for `SHL_WORK` aren't known.
+
+The player's shots, pool `D_800BFB20[16]` (kind 0x10, `func_80031598` / `func_80031930`, spawned by `func_80035724`),
+have their own struct, `PL_SHL_WORK`: same layout, with the sprite `EFC` and the free block written out, because a
+player's shot keeps its own bytes in both (the flight direction `dir_A4` in the EFC's kind bytes, `tgt_BC` and
+`owner_C4` in the free block). Its `id_2` is byte 0xB of the player's action record (`D_80089A8B`); the handlers are
+`func_800433C0` and `func_800437A8` (`code_8004324C`, tables `D_8008A0CC`/`D_8008A0D8`, `PL_SHL_FUNC`).
+
+`SHL_WORK.field_C` stays a byte: `Open_SHL_WORK` clears 0x0C-0x0F with `*(uint32 *)&wp->field_C = 0`, and with a
+`uint32` field the cast folds away and the store is scheduled one slot later.
 
 ## To do
 

@@ -823,13 +823,13 @@ void func_80047354(W48_88_WORK *wp)
 
     if (wp->type_3 == 0xFF)
     {
-        wp->routine_0                        = 3;
-        wp->efc.sprite.rgbc_18               = 0x2C808080;
-        *(uint32 *)&wp->efc.sprite.pos_1C[0] = *(sint32 *)&wp->efc.model.pos_38;
-        wp->efc.sprite.pos_1C[2]             = wp->efc.model.pos_38.vz;
-        wp->routine_8                        = 3;
+        wp->routine_0                     = 3;
+        wp->efc.sprite.rgbc               = 0x2C808080;
+        *(uint32 *)&wp->efc.sprite.pos[0] = *(sint32 *)&wp->efc.model.pos;
+        wp->efc.sprite.pos[2]             = wp->efc.model.pos.vz;
+        wp->routine_8                     = 3;
         func_80047C84(wp);
-        func_80045CE8(&wp->efc.model.pos_38, 3, 0x40404040, 1);
+        func_80045CE8(&wp->efc.model.pos, 3, 0x40404040, 1);
         return;
     }
     if (wp->type_3 == 0xFE)
@@ -848,38 +848,38 @@ void func_80047354(W48_88_WORK *wp)
         case 0:
         case 3:
         default:
-            p[0]                  = 0x37;
-            p[1]                  = -5;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0x37;
+            p[1]               = -5;
+            wp->efc.model.rgbc = 0x02808080;
             break;
         case 1:
-            p[0]                  = 0x37;
-            p[1]                  = -5;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0x37;
+            p[1]               = -5;
+            wp->efc.model.rgbc = 0x02808080;
             break;
         case 2:
-            p[0]                  = 0x46;
-            p[1]                  = -5;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0x46;
+            p[1]               = -5;
+            wp->efc.model.rgbc = 0x02808080;
             break;
         case 4:
-            p[0]                  = 0x8C;
-            p[1]                  = -5;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0x8C;
+            p[1]               = -5;
+            wp->efc.model.rgbc = 0x02808080;
             break;
         case 5:
-            p[0]                  = 0xAE;
-            p[1]                  = -6;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0xAE;
+            p[1]               = -6;
+            wp->efc.model.rgbc = 0x02808080;
             break;
         case 6:
-            p[0]                  = 0x118;
-            p[1]                  = 0;
-            wp->efc.model.rgbc_40 = 0x02808080;
+            p[0]               = 0x118;
+            p[1]               = 0;
+            wp->efc.model.rgbc = 0x02808080;
             break;
     }
-    wp->field_A              = 0;
-    wp->efc.model.pos_38.pad = 0;
+    wp->field_A           = 0;
+    wp->efc.model.pos.pad = 0;
     // Identity matrix by words, then the diagonal cleared
     *(uint32 *)&wp->efc.model.mtx.m[0][0] = 0x1000;
     *(uint32 *)&wp->efc.model.mtx.m[0][2] = 0;
@@ -908,7 +908,7 @@ void func_80047354(W48_88_WORK *wp)
             e->routine_0 = 5;
             e->id_2      = 0x80;
             e->type_3    = 5;
-            e->pos_38    = wp->efc.model.pos_38;
+            e->pos_38    = wp->efc.model.pos;
         }
         e2 = (W48_80_WORK *)func_80031618();
         if (e2 != NULL)
@@ -916,7 +916,7 @@ void func_80047354(W48_88_WORK *wp)
             e2->routine_0 = 5;
             e2->id_2      = 0x80;
             e2->type_3    = 6;
-            e2->pos_38    = wp->efc.model.pos_38;
+            e2->pos_38    = wp->efc.model.pos;
         }
     }
     else
@@ -933,7 +933,7 @@ void func_80047354(W48_88_WORK *wp)
                 sub = 6;
                 break;
             default:
-                if (func_8004920C(&wp->efc.model.pos_38) - wp->efc.model.pos_38.vy < 0x1E)
+                if (func_8004920C(&wp->efc.model.pos) - wp->efc.model.pos.vy < 0x1E)
                 {
                     sub = 0;
                 }
@@ -946,7 +946,7 @@ void func_80047354(W48_88_WORK *wp)
     init:
         Model_work_init((MODEL_WORK *)wp, (uint8 *)&sub);
     }
-    pos         = &wp->efc.model.pos_38;
+    pos         = &wp->efc.model.pos;
     wp->timer_B = 0;
     wp->routine_8++;
     sub = svec_distance(pos, &Player_work[0].pos);
@@ -964,15 +964,15 @@ void func_800476A4(W48_88_WORK *wp)
     D_8008A718[wp->field_9](wp);
     if (wp->type_3 & 0x40)
     {
-        func_800341BC(&wp->efc.model.pos_38, wp->efc.model.pos_38.pad / 2, 0, 0xA000, wp->kind_1, &D_800986D8, 0x10000008, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xA000, wp->kind_1, &D_800986D8, 0x10000008, 0, 0x80);
     }
     else if (wp->type_3 == 6)
     {
-        func_800341BC(&wp->efc.model.pos_38, wp->efc.model.pos_38.pad / 2, 0, 0xC000, wp->kind_1, &D_800986D8, 0x30000000, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->kind_1, &D_800986D8, 0x30000000, 0, 0x80);
     }
     else
     {
-        func_800341BC(&wp->efc.model.pos_38, wp->efc.model.pos_38.pad / 2, 0, 0xC000, wp->kind_1, &D_800986D8, 0x10000008, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->kind_1, &D_800986D8, 0x10000008, 0, 0x80);
     }
 }
 
@@ -994,53 +994,53 @@ void func_800477A0(W48_88_WORK *wp)
         case 3:
         default:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
+            wp->efc.model.pos.pad += p[0];
             g = 0x80;
             if ((sint16)p[0] <= 0)
             {
-                if (wp->efc.model.pos_38.pad < 0x64)
+                if (wp->efc.model.pos.pad < 0x64)
                 {
-                    wp->efc.model.pos_38.pad = 0;
+                    wp->efc.model.pos.pad = 0;
                     wp->routine_8++;
                 }
                 p[1] = 0;
                 p[0] = -0xA;
-                g    = wp->efc.model.pos_38.pad - 0x64;
-                if (wp->efc.model.pos_38.pad >= 0x100)
+                g    = wp->efc.model.pos.pad - 0x64;
+                if (wp->efc.model.pos.pad >= 0x100)
                 {
                     g = 0x80;
                 }
             }
-            wp->efc.model.rgbc_40 = g | (g << 8) | 0x02000000 | (g << 16);
+            wp->efc.model.rgbc = g | (g << 8) | 0x02000000 | (g << 16);
             break;
         case 1:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
-            if (wp->efc.model.pos_38.pad < 0)
+            wp->efc.model.pos.pad += p[0];
+            if (wp->efc.model.pos.pad < 0)
             {
-                wp->efc.model.pos_38.pad = 0;
+                wp->efc.model.pos.pad = 0;
                 wp->routine_8++;
             }
             g = 0x80;
             if ((sint16)p[0] <= 0)
             {
-                if (wp->efc.model.pos_38.pad < 0x100)
+                if (wp->efc.model.pos.pad < 0x100)
                 {
-                    g = wp->efc.model.pos_38.pad >> 1;
+                    g = wp->efc.model.pos.pad >> 1;
                 }
             }
-            wp->efc.model.rgbc_40 = g | (g << 8) | 0x02000000 | (g << 16);
+            wp->efc.model.rgbc = g | (g << 8) | 0x02000000 | (g << 16);
             break;
         case 2:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
+            wp->efc.model.pos.pad += p[0];
             if ((sint16)p[0] <= 0)
             {
-                wp->efc.model.pos_38.pad = 0;
+                wp->efc.model.pos.pad = 0;
                 wp->routine_8++;
             }
             g = 0x80;
-            if (wp->efc.model.pos_38.pad >= 0x10F)
+            if (wp->efc.model.pos.pad >= 0x10F)
             {
                 wp->field_A += 0xE;
                 if (wp->field_A < 0x81)
@@ -1052,32 +1052,32 @@ void func_800477A0(W48_88_WORK *wp)
                     g = 0;
                 }
             }
-            wp->efc.model.rgbc_40 = g | (g << 8) | 0x02000000 | (g << 16);
+            wp->efc.model.rgbc = g | (g << 8) | 0x02000000 | (g << 16);
             break;
         case 4:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
+            wp->efc.model.pos.pad += p[0];
             g = 0x80;
             if ((sint16)p[0] <= 0)
             {
-                if (wp->efc.model.pos_38.pad < 0x64)
+                if (wp->efc.model.pos.pad < 0x64)
                 {
-                    wp->efc.model.pos_38.pad = 0;
+                    wp->efc.model.pos.pad = 0;
                     wp->routine_8++;
                 }
                 p[1] = 0;
                 p[0] = -0x14;
-                g    = wp->efc.model.pos_38.pad >> 3;
-                if (wp->efc.model.pos_38.pad >= 0x401)
+                g    = wp->efc.model.pos.pad >> 3;
+                if (wp->efc.model.pos.pad >= 0x401)
                 {
                     g = 0x80;
                 }
             }
-            wp->efc.model.rgbc_40 = g | (g << 8) | 0x02000000 | (g << 16);
+            wp->efc.model.rgbc = g | (g << 8) | 0x02000000 | (g << 16);
             break;
         case 5:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
+            wp->efc.model.pos.pad += p[0];
             if ((sint16)p[0] < 0x82)
             {
                 wp->field_A++;
@@ -1087,14 +1087,14 @@ void func_800477A0(W48_88_WORK *wp)
                 wp->field_A = 8;
                 wp->routine_8++;
             }
-            g                     = 8 - wp->field_A;
-            wp->efc.model.rgbc_40 = (g << 4) | (g << 12) | 0x02000000 | (g << 20);
+            g                  = 8 - wp->field_A;
+            wp->efc.model.rgbc = (g << 4) | (g << 12) | 0x02000000 | (g << 20);
             break;
         case 6:
             p[0] += p[1];
-            wp->efc.model.pos_38.pad += p[0];
+            wp->efc.model.pos.pad += p[0];
             g = 0x80;
-            if (wp->efc.model.pos_38.pad >= 0x801)
+            if (wp->efc.model.pos.pad >= 0x801)
             {
                 wp->field_A += 0xA;
                 if (wp->field_A < 0x81)
@@ -1106,10 +1106,10 @@ void func_800477A0(W48_88_WORK *wp)
                     g = 0;
                 }
             }
-            wp->efc.model.rgbc_40 = g | (g << 8) | 0x02000000 | (g << 16);
+            wp->efc.model.rgbc = g | (g << 8) | 0x02000000 | (g << 16);
             if (g == 0)
             {
-                wp->efc.model.pos_38.pad = 0;
+                wp->efc.model.pos.pad = 0;
                 wp->routine_8++;
             }
             break;
@@ -1124,7 +1124,7 @@ void func_800477A0(W48_88_WORK *wp)
     m->t[1]                = 0;
     m->t[2]                = 0;
     wp->timer_B++;
-    m->m[0][0] = m->m[1][1] = m->m[2][2] = wp->efc.model.pos_38.pad;
+    m->m[0][0] = m->m[1][1] = m->m[2][2] = wp->efc.model.pos.pad;
     RotMatrixY(wp->timer_B << 7, m);
 }
 #else
@@ -1168,10 +1168,10 @@ void func_80047C84(W48_88_WORK *wp)
 {
     wp->field_9             = 0;
     wp->field_A             = D_8008A6CD[0];
-    wp->efc.sprite.code_14  = D_8008A6C8[0];
-    wp->efc.sprite.field_22 = D_8008A6CE[0];
-    wp->efc.sprite.field_23 = D_8008A6CF[0];
-    wp->efc.sprite.field_24 = D_8008A6CC[0];
+    wp->efc.sprite.code     = D_8008A6C8[0];
+    wp->efc.sprite.field_E  = D_8008A6CE[0];
+    wp->efc.sprite.field_F  = D_8008A6CF[0];
+    wp->efc.sprite.field_10 = D_8008A6CC[0];
 }
 #else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_800456D8", func_80047C84);
@@ -1193,10 +1193,10 @@ void func_80047CD8(W48_88_WORK *wp)
         }
         else
         {
-            wp->efc.sprite.code_14  = D_8008A6C8[i * 2];
-            wp->efc.sprite.field_22 = D_8008A6CE[i * 8];
-            wp->efc.sprite.field_23 = D_8008A6CF[i * 8];
-            wp->efc.sprite.field_24 = D_8008A6CC[i * 8];
+            wp->efc.sprite.code     = D_8008A6C8[i * 2];
+            wp->efc.sprite.field_E  = D_8008A6CE[i * 8];
+            wp->efc.sprite.field_F  = D_8008A6CF[i * 8];
+            wp->efc.sprite.field_10 = D_8008A6CC[i * 8];
         }
     }
 }

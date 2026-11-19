@@ -46,7 +46,7 @@ struct PL_WORK;
 // by func_80033500/func_8003354C.
 
 // Object holding a bitmask of the slots it owns (see func_8003545C). An embedded block, not a
-// whole object: PL_WORK.owner_188, SHL_WORK.owner_C4, D_800986D8, and the owner stored in each
+// whole object: PL_WORK.owner_188, PL_SHL_WORK.owner_C4, D_800986D8, and the owner stored in each
 // SLOT_REQ.
 typedef struct
 {
@@ -175,14 +175,43 @@ typedef struct
     RGB_ENT tbl[13]; // 0x38C
 } WORK_3C0;          // 0x3C0 bytes
 
+// The effect layout of the shot and effect objects (WORK_48 at 0x14, SHL_WORK at 0x88), after
+// Capcom's shot code (wk_p->efc.model.m, .sv, .rgbc). Which one an object uses is its kind's: bit 2
+// of routine_0 is set for the model one. The sprite one's code word is the same packed value in
+// both pools (0x3D48002E).
+typedef struct
+{
+    uint8 *data; // model data of the EBD entry, set by Model_work_init
+    MATRIX mtx;  // 0x04: rotation and scale (diagonal = pos.pad); Capcom's m
+    SVECTOR pos; // 0x24: position (x, y = height, z); Capcom's sv. Passed to Sound_call2.
+    uint32 rgbc; // 0x2C: code and colour (0x02808080)
+} EFC_MODEL;     // 0x30 bytes
+
+typedef struct
+{
+    uint32 code;   // packed start word (0x3D48002E)
+    uint32 rgbc;   // 0x04: code and colour (0x2E808080)
+    uint16 pos[3]; // 0x08: position (x, y, z)
+    uint8 field_E; // 0x0E-0x13: the WORK_48 kinds' field_22..field_26
+    uint8 field_F;
+    uint16 field_10;
+    uint16 field_12;
+    uint8 pad_14[0x1C]; // 0x14-0x2F: depends on the kind
+} EFC_SPRITE;           // 0x30 bytes
+
+typedef union
+{
+    EFC_MODEL model;
+    EFC_SPRITE sprite;
+} EFC;
+
 // A slot of the effect pool D_800A3B40 (func_80031618 / func_80031988), as the code shared by every
 // kind sees it. The kind is id_2: the pool update (game's func_800172F4/func_800173B4) calls
 // handler[id_2], from the stage overlay's table for ids below 0x80 and from D_80089858 for 0x80
 // and up. Each ROCK_NEO kind has its own full struct (W48_80_WORK ... W48_8A_WORK, in the header
 // of the file with its code), cast to WORK_48 for the shared code, as Capcom does with
-// EM_WORK -> MODEL_WORK. 0x14-0x43 hold one of two layouts, the model kinds' or the sprite kinds'
-// (Capcom's shot code writes the model one as efc.model.m / .sv / .rgbc); bit 2 of routine_0 says
-// which, and func_8002F928 moves efc.model.pos_38 or efc.sprite.pos_1C by it.
+// EM_WORK -> MODEL_WORK. 0x14-0x43 hold the EFC layout of the kind (model or sprite); bit 2 of
+// routine_0 says which, and func_8002F928 moves efc.model.pos or efc.sprite.pos by it.
 typedef struct
 {
     uint8 routine_0;
@@ -199,42 +228,68 @@ typedef struct
     uint8 timer_B;   // counts down; routine_8 advances when it reaches 0
     uint32 field_C;  // depends on the kind; cleared on open
     uint32 field_10; // cleared on open
-    union
-    {
-        struct
-        {
-            uint8 *data_14; // model data of the EBD entry, set by Model_work_init
-            MATRIX mtx;     // 0x18: rotation and scale (diagonal = pos_38.pad)
-            SVECTOR pos_38; // 0x38: position (x, y = height, z). Passed to Sound_call2 as the source.
-            uint32 rgbc_40; // 0x40: code and colour (0x02808080)
-        } model;
-        struct
-        {
-            uint32 code_14;   // packed start word (0x3D48002E, func_8004548C)
-            uint32 rgbc_18;   // code and colour (0x2E808080)
-            uint16 pos_1C[3]; // position (x, y, z)
-            uint8 field_22;
-            uint8 field_23;
-            uint16 field_24;
-            uint16 field_26;
-            uint8 pad_28[0x1C]; // 0x28-0x43: depends on the kind
-        } sprite;
-    } efc;
+    EFC efc;         // 0x14: the kind's layout (model or sprite)
     uint32 field_44; // depends on the kind
 } WORK_48;           // 0x48 bytes
 
 typedef void (*WORK48_FUNC)(WORK_48 *wp);
 
-// Capcom's SHL_WORK (their source opens one with `(SHL_WORK *)Open_SHL_WORK()`): a shot. Two pools
-// hold them, with the same allocator code: kind 0x60, D_8009CF88[32] (Open_SHL_WORK /
-// Close_SHL_WORK; the scene code and the stage overlays), and kind 0x10, D_800BFB20[16]
-// (func_80031598 / func_80031930; the player's shots, spawned by func_80035724).
+// Capcom's SHL_WORK (their source opens one with `(SHL_WORK *)Open_SHL_WORK()`): a shot of the
+// pool D_8009CF88[32], kind 0x60 (Open_SHL_WORK / Close_SHL_WORK; the scene code and the stage
+// overlays). Header, the MODEL_WORK layout, the shot's EFC and, from 0xB8, a free block that each
+// shot kind (id_2) lays its own struct over, as Capcom's shot 0x38 does:
+// `fp = (SHL38_FREE *)&sp->free[0];`. The player's shots (pool 0x10) have their own struct,
+// PL_SHL_WORK, with the same layout.
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint8 field_2; // field_2 and flag_3 are cleared together by one halfword store (on open)
-    uint8 flag_3;  // 0x80 while the object holds a slot of D_80098798 (func_80035724)
+    uint8 id_2;   // the shot kind; id_2 and type_3 are cleared together by one halfword store
+    uint8 type_3; // the kind's variant
+    uint8 flag_4;
+    uint8 flag_5;
+    uint8 flags; // 6: see above
+    uint8 pad_7;
+    uint8 routine_8; // routine_8 to timer_B are cleared by one word store (on open)
+    uint8 field_9;
+    uint8 field_A;
+    uint8 timer_B;
+    sint8 field_C; // 0x0C-0x0F: bytes of the shot kind (PL_SHL_WORK: owner, slot), cleared by one
+                   // word store on open; a byte, since a uint32 there changes how that store is
+                   // scheduled (Open_SHL_WORK)
+    uint8 pad_D[3];
+    uint32 field_10; // cleared on open
+    // 0x14-0x5C: the MODEL_WORK layout (a model kind: Model_work_init binds kinds 0x10 and 0x60).
+    SVECTOR pos;  // 0x14: position (x, height, z)
+    VECTOR pos_l; // 0x1C: 16.16 fixed-point position
+    SVECTOR old;  // 0x2C: previous position
+    VECTOR old_l; // 0x34: 16.16 previous position
+    SVECTOR spd;  // 0x44: speed
+    SVECTOR add;  // 0x4C: acceleration
+    SVECTOR ang;  // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
+                  // by func_8001E968
+    uint8 pad_5C[0x18];
+    sint8 field_74; // MODEL_WORK.field_74; 0x74-0x77 cleared by one word store on open
+    uint8 pad_75[3];
+    HIT_ENT *hit_78; // 0x78: collision box (func_80049C24); 0 on open
+    sint16 field_7C; // MODEL_WORK.field_7C
+    uint8 pad_7E[2];
+    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
+    EFC efc;           // 0x88
+    uint8 free[0x54];  // 0xB8: the shot kind's own data
+} SHL_WORK;            // 0x10C bytes
+
+// A player's shot: a slot of the pool D_800BFB20[16], kind 0x10 (func_80031598 / func_80031930),
+// spawned by func_80035724. Its id_2 is byte 0xB of the player's action record (D_80089A8B), and
+// handler[id_2] is func_800433C0 or func_800437A8 (code_8004324C). Same layout as SHL_WORK, with
+// its sprite EFC and free block written out: the flight direction sits in the EFC's kind bytes,
+// the target and slot owner in the free block.
+typedef struct
+{
+    uint8 routine_0;
+    uint8 kind_1;
+    uint8 id_2;   // the shot kind; id_2 and type_3 are cleared together by one halfword store
+    uint8 type_3; // 0x80 while the object holds a slot of D_80098798 (func_80035724)
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -247,18 +302,17 @@ typedef struct
                    // player for the kinds of D_8008A0CC (func_800433C0); read with lb
                    // (func_800435F8, func_80043E78), passed to func_80036294 as (uint8)
     sint8 slot_D;  // slot claimed by func_8003545C
-    sint8 field_E; // set to -0x80 by the event step func_80068728
+    sint8 field_E;
     uint8 pad_F;
     uint32 field_10;
-    // 0x14-0x5C: the MODEL_WORK layout (a model kind: Model_work_init binds kinds 0x10 and 0x60).
+    // 0x14-0x5C: the MODEL_WORK layout.
     SVECTOR pos;  // 0x14: position (x, height, z); pad: set by func_80035724
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position
     SVECTOR old;  // 0x2C: previous position, passed to func_8003430C with pos (func_800435F8)
     VECTOR old_l; // 0x34: 16.16 previous position (moved with pos_l by func_8002F884)
     SVECTOR spd;  // 0x44: speed; added (<< 8) to pos_l each frame by func_80043A8C
     SVECTOR add;  // 0x4C: acceleration
-    SVECTOR ang;  // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
-                  // by func_8001E968
+    SVECTOR ang;  // 0x54: rotation
     uint8 pad_5C[8];
     uint16 field_64; // low 12 bits: Y angle of the launch direction (func_800437F8)
     uint8 pad_66[0xE];
@@ -267,24 +321,25 @@ typedef struct
     HIT_ENT *hit_78; // 0x78: collision box (func_80049C24); 0 on open
     sint16 field_7C; // nonzero ends the flight of func_80043A8C
     uint8 pad_7E[2];
-    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint32 field_88;   // 0x88: set from D_80097DAC (by Player_work[0].rec[1].idx[0])
-    uint32 rgbc_8C;    // 0x8C: code and colour (0x2E808080)
-    sint16 x_90;       // 0x90: copy of pos (func_800437F8, func_80043A8C)
-    sint16 y_92;
-    sint16 z_94;
+    uint32 dist_80[2];
+    // 0x88-0xB7: the sprite EFC.
+    uint32 code_88;   // 0x88: EFC_SPRITE.code, set from D_80097DAC (by Player_work[0].rec[1].idx[0])
+    uint32 rgbc_8C;   // 0x8C: code and colour (0x2E808080)
+    uint16 pos_90[3]; // 0x90: copy of pos (func_800437F8, func_80043A8C)
     uint8 field_96;
     uint8 field_97;
     uint16 field_98; // passed to func_8003430C as both positions' pad (func_80043E78)
     uint16 field_9A; // 0x9A: += 5 each frame by func_80043A8C
     uint8 pad_9C[8];
     SVECTOR dir_A4; // 0xA4: unit direction of flight (func_800437F8), turned toward tgt_BC
-    uint8 pad_AC[0x10];
+    uint8 pad_AC[0xC];
+    // 0xB8-0x10B: the free block.
+    uint8 pad_B8[4];
     SVECTOR tgt_BC;      // 0xBC: target position (0 when none); projected and cleared each frame by
                          // func_80035508 while the object holds a slot of D_80098798
     SLOT_OWNER owner_C4; // 0xC4: slot owner passed to func_8003430C
     uint8 pad_CC[0x40];
-} SHL_WORK; // 0x10C bytes
+} PL_SHL_WORK; // 0x10C bytes
 
 typedef struct
 {
@@ -486,7 +541,7 @@ typedef struct
 
 // Object with a view direction (ang.vy) and a position at 0xC4 (pos_C4); see func_80030418.
 // Kept as a view: func_80030418 is only called from the overlays (ST00, ST03, ...), and
-// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out SHL_WORK (owner_C4
+// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out PL_SHL_WORK (owner_C4
 // there) and PL_WORK has nothing known at 0xC4, so the object is not known. 0x54 is MODEL_WORK.ang.
 typedef struct
 {
@@ -498,13 +553,13 @@ typedef struct
 
 extern SVECTOR D_80097CF4; // zero vector
 extern uint8 D_800899E0[][16];
-extern SHL_WORK D_800BFB22[]; // D_800BFB20 again, based at field_2 (routine_0 is its field_2)
+extern PL_SHL_WORK D_800BFB22[]; // D_800BFB20 again, based at id_2 (routine_0 is its id_2)
 extern WORK_48 D_800A3B40[];
 extern uint32 D_800988C8; // [2] bitmasks, second word is D_800988CC
 extern uint32 D_80098838; // [2] bitmasks, second word is D_8009883C
 extern uint32 D_8009883C;
 extern uint32 D_800988CC;
-extern SHL_WORK D_800BFB20[];
+extern PL_SHL_WORK D_800BFB20[];
 extern WORK_50 D_800BF118[];
 extern WORK_5A4 D_800C3580[];
 extern uint32 D_80098A60;
@@ -550,10 +605,10 @@ void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
 void func_800320B8(struct PL_WORK *wp, uint32 set, sint32 idx);
 void func_800321C8(struct PL_WORK *wp, sint32 unused, uint32 set, sint32 idx);
-WORK_48 *func_80031618(void);     // claims a free slot of D_800A3B40, or 0
-void func_80031930(SHL_WORK *wp); // frees a slot of D_800BFB20
-void func_80031824(WORK_3C0 *wp); // frees a slot of D_8009F108
-WORK_3C0 *func_80031418(void);    // claims a free slot of D_8009F108, or 0
+WORK_48 *func_80031618(void);        // claims a free slot of D_800A3B40, or 0
+void func_80031930(PL_SHL_WORK *wp); // frees a slot of D_800BFB20
+void func_80031824(WORK_3C0 *wp);    // frees a slot of D_8009F108
+WORK_3C0 *func_80031418(void);       // claims a free slot of D_8009F108, or 0
 void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z);
 void func_800322A8(MODEL_WORK *wp, sint32 seq, sint32 step); // starts keyframe sequence seq
 void func_80032488(MODEL_WORK *wp);                          // steps the keyframe sequence

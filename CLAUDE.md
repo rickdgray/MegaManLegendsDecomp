@@ -413,14 +413,16 @@ ways; follow the one the object's layout shows:
   does with `(MODEL_WORK *)ep`. These casts are the deliberate exception to "avoid casts".
   `WORK_48` works this way: `W48_80_WORK` ... `W48_8A_WORK` (notes/rock_neo.md, "WORK_48 kinds").
 - **Kind data in one block at the end: a `free` block plus a per-kind struct cast over it**, as
-  Capcom's `fp = (SHL38_FREE *)&sp->free[0];`. The generic type declares the neutral block.
+  Capcom's `fp = (SHL38_FREE *)&sp->free[0];`. The generic type declares the neutral block
+  (`SHL_WORK.free`). A pool that only ever holds one kind of object gets that object's own full
+  struct instead (`PL_SHL_WORK`, the player's shots).
 - Name a kind's struct after its id (`W48_85_WORK`, `W48_85_FUNC` for its handlers) until its
   purpose is known, and put it in the header of the file with the kind's code. A spawner that
   opens a slot casts the allocator's result to the kind it sets up.
 - A union is still right for one value in two shapes (a word and its bytes: `KEY_CMD`,
-  `CD_XA_POS`), for a family layout the shared code switches on (`WORK_48.efc`: model or sprite,
-  after Capcom's `efc.model`), and for bytes one object uses differently over time
-  (`W48_88_WORK.efc`).
+  `CD_XA_POS`), for a family layout the shared code switches on (`EFC`: model or sprite, after
+  Capcom's `efc.model`; in `WORK_48` and `SHL_WORK`), and for bytes one object uses differently
+  over time (`W48_88_WORK.efc`).
 
 Inside a header, order: include guard, `#include`s, `#define` constants, typedefs and structs,
 `extern` globals, then function prototypes.
