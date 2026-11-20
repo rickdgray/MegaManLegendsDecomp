@@ -1,8 +1,8 @@
 """The project's targets, what each one is built from, and which targets a change can reach.
 
 Executables: slus_006.03 (the boot shim) and rock_neo.exe (the main game, the default target).
-Overlays: the code chunks of CDDATA/DAT/*.BIN (r3_st05, r3_shl0d, r3_sup, ...), listed in
-tools/overlays.txt. They link against rock_neo.exe's registry (HOST), and the shared stage code in
+Overlays: the code chunks of CDDATA/DAT/*.BIN (r3_st05, r3_shl0d, r3_sup, ...): every other
+config/<t>/ folder, its yaml naming the archive. They link against rock_neo.exe's registry (HOST), and the shared stage code in
 src/stage_common/ is compiled into every overlay whose yaml lists it.
 """
 
@@ -19,19 +19,27 @@ SHARED_SRC = "src/stage_common"    # stage code compiled into several overlays
 
 
 def _read_overlays():
-    """({target: (archive, load address, size)}, {archive stem: target}) from tools/overlays.txt,
-    in file order. The archive map includes the duplicate archives (ST03B, ...) that carry the
-    same code chunk as a target's."""
+    """({target: (archive, load address, size)}, {archive stem: target}), in name order.
+
+    Every config/<t>/ that isn't an executable's is an overlay. Its yaml says which archive holds
+    the chunk (`archive:`), which others hold the same bytes (`duplicates:`), where it loads (the
+    first segment's `vram:`) and how big it is (the final `- [end]` offset). Read with regexes, not
+    a yaml parser, so the tools run under any Python."""
     info, archives = {}, {}
-    path = ROOT / "tools" / "overlays.txt"
-    if not path.exists():
-        return info, archives
-    for line in path.read_text().splitlines():
-        parts = line.split()
-        if parts and not parts[0].startswith("#"):
-            info[parts[0]] = (parts[1], int(parts[2], 16), int(parts[3], 16))
-            for archive in [parts[1]] + parts[7:]:
-                archives[Path(archive).stem] = parts[0]
+    for yaml in sorted((ROOT / "config").glob("*/*.yaml")):
+        target = yaml.parent.name
+        if target in EXECUTABLES or yaml.stem != target:
+            continue
+        text = yaml.read_text()
+        archive = re.search(r"^archive:\s*(\S+)", text, re.M)
+        vram = re.search(r"^\s*vram:\s*(0x[0-9A-Fa-f]+)", text, re.M)
+        end = re.findall(r"^\s*- \[(0x[0-9A-Fa-f]+)\]\s*$", text, re.M)
+        if not (archive and vram and end):
+            sys.exit(f"{yaml.relative_to(ROOT)}: an overlay yaml needs archive:, a vram: and a final - [end]")
+        info[target] = (archive.group(1), int(vram.group(1), 16), int(end[-1], 16))
+        dups = re.search(r"^duplicates:\s*\[([^\]]*)\]", text, re.M)
+        for name in [archive.group(1)] + (dups.group(1).replace(",", " ").split() if dups else []):
+            archives[Path(name).stem] = target
     return info, archives
 
 
@@ -54,7 +62,7 @@ def default_target(argv=None):
     # reason to fall back to the default target.
     if len(argv) >= 2 and argv[1] not in TARGETS and re.fullmatch(r"r3_\w+|\w+\.(exe|\d\d)", argv[1]):
         sys.exit(f"unknown target {argv[1]!r}: one of {', '.join(EXECUTABLES)}, or an overlay "
-                 f"from tools/overlays.txt ({OVERLAYS[0]} ... {OVERLAYS[-1]})")
+                 f"(a folder in config/: {OVERLAYS[0]} ... {OVERLAYS[-1]})")
     if len(argv) < 2 or argv[1] not in TARGETS:
         argv.insert(1, DEFAULT)
     return argv

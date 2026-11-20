@@ -10,7 +10,7 @@ There are two executables and 44 code overlays, and every one of them rebuilds b
   `notes/rock_neo_files.md`); every Capcom file is C (`src/rock_neo.exe/<file>.c`), with
   `INCLUDE_ASM` stubs for the functions not yet decompiled. `asm_fastmem` stays assembly.
 - **Overlays** (`r3_st00` … `r3_st1e` stages, `r3_shl02` … `r3_shl0d` weapons, `r3_sup` support;
-  listed in `tools/overlays.txt`): the code chunks of `CDDATA/DAT/*.BIN`, loaded into ROCK_NEO's
+  every other folder in `config/`): the code chunks of `CDDATA/DAT/*.BIN`, loaded into ROCK_NEO's
   memory (stages at `0x80100000`, weapons at `0x800D8800`). Each links against ROCK_NEO's
   registry. Code several stages share lives once in `src/stage_common/` (`stcom01.c`, ...) and is
   compiled into every overlay whose yaml lists it. All overlay code is C, matching, but mostly
@@ -81,8 +81,9 @@ WSL Ubuntu, from the repo root, with the Python venv at `.venv/`. Third-party to
 Every script takes the **target** as an optional first argument: `rock_neo.exe` (the main game,
 the default when it's left out), `slus_006.03` (the shim), or an overlay (`r3_st05`), always
 named. `./tools/build.sh` builds ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. A
-misspelled target (`r3_st5`) is an error, not the default. Paths derive from it (see
-`tools/target.sh`):
+misspelled target (`r3_st5`) is an error, not the default. `build.sh`, `rebuild.sh`, `split.sh`
+and `format.sh` also take several targets or a group: `all`, `executables`, `overlays`. Paths
+derive from the target (see `tools/target.sh`):
 
 | Target `<t>` | Path |
 |---|---|
@@ -92,12 +93,12 @@ misspelled target (`r3_st5`) is an error, not the default. Paths derive from it 
 | assembly | `asm/<t>/` |
 | build output, linker script, map | `build/<t>/` |
 | final binary (keeps the disc file's name) | `build/<t>/<T>`, e.g. `build/slus_006.03/SLUS_006.03`; an overlay's is `build/<t>/<t>.bin` |
-| original (the reference) | `disc/extracted/<T>`; an overlay's chunk is extracted from its archive by `split.sh` to `build/<t>/original/<t>.bin` |
+| original (the reference) | `disc/extracted/<T>`; an overlay's chunk, from the archive its yaml names (`archive:`), is in `disc/overlays/` (`tools/extract.sh`), and `split.sh` copies it to `build/<t>/original/<t>.bin` |
 | diff reference | `expected/<t>/` |
 
 | Command | What it does |
 |---|---|
-| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` (clears `asm/<t>/` first). For an overlay, also extracts its chunk and ROCK_NEO's symbols. |
+| `./tools/split.sh <t> [<t> ...]` | Regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` (clears `asm/<t>/` first). For an overlay, also copies its chunk and writes ROCK_NEO's symbols for it. |
 | `./tools/build.sh <t> [<t> ...]` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH (one line per target when given several). |
 | `.venv/bin/python tools/reach.py [--command]` | The targets your uncommitted changes can reach; `--command` prints the `build.sh` line for them. |
 | `./tools/diff.sh <t> <Func>` | Per-function diff against `expected/<t>/`. Flagged lines are what still differs. |

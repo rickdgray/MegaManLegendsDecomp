@@ -7,7 +7,7 @@ Usage:
     tools/rename.py [target] -f renames.txt       a batch (one "OLD NEW [attr ...]" per line, # comments)
     add -n / --dry-run to only show what would change
 
-target: slus_006.03, rock_neo.exe, or an overlay (r3_st05, r3_shl0d, r3_sup, ...; tools/overlays.txt).
+target: slus_006.03, rock_neo.exe, or an overlay (r3_st05, r3_shl0d, r3_sup, ...; its folder in config/).
 
 attr: splat attributes for the registry line, e.g. size:0x24 or type:func.
 

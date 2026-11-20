@@ -42,25 +42,7 @@ Formatting is modern (Allman braces, always-braced blocks, typedefs for function
 
 Rip the disc to BIN/CUE and verify each track's hash against the Redump entry above. Place the image in `disc/image/`.
 
-### 2. Extract the filesystem
-
-Extract Track 1 with `dumpsxiso` from [mkpsxiso](https://github.com/Lameguy64/mkpsxiso) into `disc/extracted/`:
-
-```powershell
-dumpsxiso -x .\disc\extracted\ -s .\mml.xml ".\disc\image\Mega Man Legends (USA).cue"
-```
-
-This also writes the layout XML (`-s`) used to rebuild the disc.
-
-### 3. Verify the executables
-
-```bash
-sha1sum disc/extracted/SLUS_006.03 disc/extracted/ROCK_NEO.EXE
-```
-
-The hashes must match the `sha1:` line at the top of `config/slus_006.03/slus_006.03.yaml` and `config/rock_neo.exe/rock_neo.exe.yaml`; splat checks them again when it splits.
-
-### 4. Set up the environment
+### 2. Set up the environment
 
 In WSL Ubuntu, install the MIPS binutils and clang-format, create the Python venv, and fetch the pinned tools (`fetch_tools.sh` prints the extra `pip install` lines for m2c and asm-differ):
 
@@ -71,16 +53,27 @@ python3 -m venv .venv
 ./tools/fetch_tools.sh
 ```
 
-### 5. Build
+Also install `dumpsxiso` from [mkpsxiso](https://github.com/Lameguy64/mkpsxiso); the Windows `dumpsxiso.exe` works from WSL (`DUMPSXISO=dumpsxiso.exe`).
 
-Split and build each target; each build prints MATCH or MISMATCH:
+### 3. Extract the game data
+
+Once, in a fresh clone:
 
 ```bash
-./tools/rebuild.sh slus_006.03
-./tools/rebuild.sh rock_neo.exe
+make extract        # tools/extract.sh
 ```
 
-After the first split, `./tools/build.sh <target>` rebuilds without re-splitting.
+This extracts Track 1's filesystem into `disc/extracted/` (the two executables and `CDDATA/`, plus the layout XML `mml.xml` used to rebuild the disc), writes each overlay's code chunk from the `CDDATA/DAT/*.BIN` archives to `disc/overlays/`, and checks every hash against the `sha1:` line of its yaml: both executables, each overlay, and the archives holding a duplicate of an overlay's chunk. A mismatch means the dump differs from Redump.
+
+### 4. Build
+
+Split and build every target (the two executables and the 44 overlays); each prints MATCH or MISMATCH:
+
+```bash
+make                # tools/split.sh all, then tools/build.sh all
+```
+
+Every script also takes one target or a group (`all`, `executables`, `overlays`): `./tools/build.sh rock_neo.exe`, `./tools/rebuild.sh overlays`. After the first split, `./tools/build.sh <target>` rebuilds without re-splitting.
 
 The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolchain.md).
 

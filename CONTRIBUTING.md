@@ -6,9 +6,10 @@ game works.
 
 ## The one rule
 
-`./tools/build.sh <target>` must print **MATCH** for every target your change touches, and
-`make overlays` must pass for changes to shared stage code in `src/stage_common/`, which is built
-into several modules. The SHA-1 check is the only authority on whether something matches.
+`./tools/build.sh <target>` must print **MATCH** for every target your change can reach:
+`.venv/bin/python tools/reach.py --command` prints the build line for your uncommitted changes
+(shared stage code in `src/stage_common/` is built into several modules, and `rock_neo.exe`'s
+registry reaches every overlay). `make build` checks all 46. The SHA-1 check is the only authority on whether something matches.
 Comments and names never change the bytes; types, statement order and expressions often do.
 
 ## Never commit game data
@@ -23,21 +24,21 @@ PsyQ headers.
 |---|---|
 | `slus_006.03` | the boot program |
 | `rock_neo.exe` | the main game |
-| `r3_st00` … `r3_st1e`, `r3_shl02` … `r3_shl0d`, `r3_sup` | stage, weapon and shop code, loaded from `CDDATA/DAT/*.BIN` (`tools/overlays.txt`) |
+| `r3_st00` … `r3_st1e`, `r3_shl02` … `r3_shl0d`, `r3_sup` | stage, weapon and shop code, loaded from `CDDATA/DAT/*.BIN` (the archive is named in the yaml: `archive:`) |
 
 Each target has `config/<t>/<t>.yaml` and `config/<t>/symbol_addrs.txt`, sources in `src/<t>/`
 and headers in `include/<t>/`. Code that several stages share lives once in `src/stage_common/`
 (types in `include/stage_common/`); each stage's yaml links the files it uses.
 
 ```sh
-make split build                # the two executables
-make split-overlays overlays    # the overlays
+make                            # split and build every target
+./tools/build.sh overlays       # a group: all, executables, overlays; or one target
 ./tools/diff.sh <t> <func>      # one function against the last matching build
 ```
 
 Overlays link against `rock_neo.exe`'s registry, so a function or global of the main game has the
-same name in every overlay. Rename it in `config/rock_neo.exe/symbol_addrs.txt` and update the
-overlay sources that use it.
+same name in every overlay. Rename it with `tools/rename.py rock_neo.exe OLD NEW`, which also
+updates the overlay sources, then run the `rebuild.sh` line it prints.
 
 ## Style
 

@@ -1,41 +1,32 @@
 #!/usr/bin/env bash
-# Split, build, and refresh expected/ for one or more targets. Use after any rename or yaml change
-# (tools/rename.py prints the targets to pass). make_expected.sh refuses if a build doesn't match.
-# Then regenerates functions.csv (tools/function_list.py), which needs both executables' ELFs.
-# Usage: tools/rebuild.sh [target ...]
-#   With several targets, each one's split output is kept quiet and one line per target says
-#   MATCH or what failed; the run fails if any target does.
+# Split, build, and refresh expected/ for one or more targets, then format and regenerate
+# functions.csv (tools/function_list.py, which needs both executables' ELFs). Use after any rename
+# or yaml change (tools/rename.py prints the targets to pass). make_expected.sh refuses if a build
+# doesn't match.
+# Usage: tools/rebuild.sh [target ...]    (or a group: all, executables, overlays)
+#   With several targets, each one's output is kept quiet and one line per target says MATCH or
+#   what failed; the run fails if any target does.
 set -euo pipefail
-cd "$(dirname "$0")/.."
+MULTI_TARGET_OK=1
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
 
-rebuild_one() {
-    (
-        source tools/target.sh "$1"
-        rm -rf "$BUILD_DIR"
-        ./tools/split.sh "$TARGET"
-        ./tools/build.sh "$TARGET"
-        ./tools/make_expected.sh "$TARGET"
-        ./tools/format.sh "$TARGET"
-    )
-}
-
-if [[ $# -le 1 ]]; then
-    rebuild_one "${1:-rock_neo.exe}"
-else
-    failed=()
-    for t in "$@"; do
-        if out=$(rebuild_one "$t" 2>&1); then
-            echo "$t: MATCH"
-        else
-            echo "$t: FAILED ($(echo "$out" | grep -E 'MISMATCH|rror|Refusing' | head -n 1))"
-            failed+=("$t")
-        fi
-    done
-    if [[ ${#failed[@]} -gt 0 ]]; then
-        echo "failed: ${failed[*]}" >&2
-        exit 1
-    fi
+if [[ -n "${REBUILD_ONE:-}" ]]; then
+    # One target, called by the loop below: no formatting or functions.csv yet.
+    rm -rf "$BUILD_DIR"
+    ./tools/split.sh "$TARGET"
+    ./tools/build.sh "$TARGET"
+    ./tools/make_expected.sh "$TARGET"
+    exit
 fi
+
+status=0
+if [[ ${#TARGET_LIST[@]} -gt 1 ]]; then
+    REBUILD_ONE=1 EACH_NEEDS_MATCH=1 each_target "$0" || status=1
+else
+    REBUILD_ONE=1 "$0" "$TARGET" || status=1
+fi
+
+./tools/format.sh "${TARGET_LIST[@]}"
 
 if [[ -f build/slus_006.03/slus_006.03.elf && -f build/rock_neo.exe/rock_neo.exe.elf ]]; then
     .venv/bin/python tools/function_list.py \
@@ -43,3 +34,4 @@ if [[ -f build/slus_006.03/slus_006.03.elf && -f build/rock_neo.exe/rock_neo.exe
 else
     echo "note: functions.csv not regenerated; build both executables first" >&2
 fi
+exit $status
