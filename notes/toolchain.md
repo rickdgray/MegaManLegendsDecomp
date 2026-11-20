@@ -110,7 +110,9 @@ Settings that took debugging, in `config/slus_006.03/slus_006.03.yaml` (ROCK_NEO
 
 - The repo is the source of truth for names; each target's `config/<target>/symbol_addrs.txt` is
   hand-maintained (no comments, just splat attributes). Renaming touches the registry,
-  `src/<target>/`, `include/` and `notes/` (`tools/rename.py` does all four); then re-split.
+  `src/<target>/`, `include/` and `notes/` (`tools/rename.py` does all four); then re-split. The
+  overlays link against ROCK_NEO's registry, so a ROCK_NEO rename also rewrites the overlay
+  sources and needs their re-split: `rename.py` prints the `rebuild.sh` line with every target.
 - Names that exist only in C or headers don't exist for the assembly. **PsyQ functions called
   from C need registry entries too** (e.g. `SsQuit`).
 - **`absolute:True`** marks addresses outside the target's image (shim `0x80010000`–`0x8005DA40`,
@@ -131,7 +133,7 @@ Settings that took debugging, in `config/slus_006.03/slus_006.03.yaml` (ROCK_NEO
 
 ## Tools
 
-Every script takes the target as an optional first argument (`<t>`: `rock_neo.exe`, the default when left out, or `slus_006.03`). `progress.py` without one reports both programs.
+Every script takes the target as an optional first argument (`<t>`: `rock_neo.exe`, the default when left out, `slus_006.03`, or an overlay such as `r3_st05`; the overlays are listed in `tools/overlays.txt`, and `tools/targets.py` is the one list the Python tools share). A name shaped like a target that isn't one (`r3_st5`) is an error, not the default. `progress.py` without one reports both programs.
 `tools/target.sh` derives the paths from it: `config/<t>/<t>.yaml`, `config/<t>/symbol_addrs.txt`, `src/<t>/`,
 `asm/<t>/`, `build/<t>/` (linker script, ELF, map, objects, `undefined_*_auto.txt`),
 `assets/<t>/`, `expected/<t>/`, and the final binary `build/<t>/<T>`, named like the disc file
@@ -141,15 +143,16 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | Script | Does |
 |---|---|
 | `tools/split.sh <t>` | Clears `asm/<t>/` and re-runs splat |
-| `tools/build.sh <t>` | Builds the objects the linker script names and compares SHA-1. **The authority on matching** |
+| `tools/build.sh <t> [<t> ...]` | Builds the objects the linker script names and compares SHA-1. **The authority on matching**. Several targets: one MATCH/MISMATCH line each, fails if any doesn't match |
+| `tools/reach.py [PATH ...] [--command]` | Which targets a change can reach (the working tree's uncommitted changes, or the given files), so you know what to build: `config/<t>/`, `src/<t>/` → t; ROCK_NEO's registry → it and every overlay; `src/stage_common/<f>.c` → the overlays whose yaml links it; a header → the targets whose C includes it; `tools/`, `*.inc` → everything. `--command` prints the `build.sh` line |
 | `tools/make_expected.sh <t>` | Snapshots a matching `build/<t>/` into `expected/<t>/build/<t>/`; refuses otherwise |
-| `tools/rebuild.sh <t>` | Split + build + refresh `expected/<t>/`, then regenerate `functions.csv` (if both ELFs exist); use after renames and yaml changes |
+| `tools/rebuild.sh <t> [<t> ...]` | Split + build + refresh `expected/<t>/` + format, then regenerate `functions.csv` (if both ELFs exist); use after renames and yaml changes. Several targets: quiet, one MATCH/FAILED line each |
 | `tools/diff.sh <t> <Func>` | asm-differ against `expected/<t>/`, cut at the function's end |
 | `tools/objdump.sh <t> <Func\|file.o>` | Real-instruction disassembly with relocations |
 | `tools/m2c.sh <t> <Func>` | m2c draft with all headers as context (`--target mipsel-gcc-c`) |
 | `tools/cc.sh <t> <in.c> <out.o>` | Compile one file with the target's matching toolchain |
-| `tools/format.sh <t>` | clang-format on `src/<t>/` and `include/` |
-| `tools/rename.py <t> OLD NEW [attr]` / `<t> -f FILE` | Renames in `config/<t>/symbol_addrs.txt`, `src/<t>/`, `include/`, `notes/`; `-n` for a dry run. New registry lines get `type:func` (for `func_`) and `absolute:True` (outside the image) |
+| `tools/format.sh <t>` | clang-format on `src/<t>/` and `include/`; an overlay also formats `src/stage_common/` |
+| `tools/rename.py <t> OLD NEW [attr]` / `<t> -f FILE` | Renames in `config/<t>/symbol_addrs.txt`, `src/<t>/`, `include/`, `notes/`; `-n` for a dry run. New registry lines get `type:func` (for `func_`) and `absolute:True` (outside the image). ROCK_NEO renames also rewrite the overlay sources; a shared stage-code name is renamed in every overlay registry that has it; an overlay's splat default name stays in that overlay (every stage loads at `0x80100000`, so the same default name means another function elsewhere) and notes mentioning it are only listed. Refuses a name ROCK_NEO and the overlays would both define. Ends with the `rebuild.sh` line to run |
 | `tools/permuter_prep.py <t> <Func> --src FILE` | Builds `permuter/<t>/<Func>/` from a parked `NON_MATCHING` block in `FILE` (e.g. `src/rock_neo.exe/cd.c`; without it, searches `src/<t>/`). `base.c` is the file's preamble plus the draft |
 | `tools/preamble.py FILE` | Prints a C file's preamble: everything before its first function, `INCLUDE_ASM` or parked block (includes, its own small data and pool definitions, file-local prototypes). Used by `permuter_prep.py` and `ctx.sh` |
 | `tools/find_dupes.py [--src S] [--dst D] [--min 0.85]` | Finds functions of one program that are compiled copies of the other's (default shim → ROCK_NEO), by opcode/register shape; immediates and targets ignored. Needs both ELFs built |
@@ -165,7 +168,7 @@ PowerShell scripts aren't per-target. Run the Python tools with `.venv/bin/pytho
 | `tools/progress.py [<t> ...]` | Bytes and functions of Capcom code compiled from matching C, per source file. Excludes PsyQ objects and hand-written assembly (subsegments named `asm_...`). Build first |
 | `tools/batch_run.py <t> <file.c ...> | --all` | Unattended decompilation batches; see [agents.md](agents.md) |
 | `tools/review.py <t> NAME...` | The owner marks functions reviewed (`reviewed.txt`, keyed by address); `--changed` lists reviewed functions whose C was edited since, `--remove` drops reviews. Feeds `functions.csv`'s Reviewed column (Yes / Changed) and `progress.py`. Agents may not run it |
-| `tools/callers.py <t> NAME...` | Who uses a function (other files, data tables, and for ROCK_NEO the stage overlays), and so global or static naming |
+| `tools/callers.py <t> NAME...` | Who uses a function (other files, data tables, and for ROCK_NEO the overlays: their C and assembly, plus a raw scan of `disc/overlays/` for the duplicate archives), and so global or static naming. Works for overlay targets (their own files plus the shared stage code they link) |
 
 Permuter: `.venv/bin/python tools/vendor/decomp-permuter/permuter.py permuter/<t>/<Func> -j N`.
 Its output is preprocessed C; port the *change* into `src/<t>/<file>.c`, don't paste it. Apply

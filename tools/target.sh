@@ -22,6 +22,10 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 if [[ -n "${1:-}" ]] && [[ " $TARGETS " == *" $1 "* ]]; then
     TARGET=$1
     TARGET_ARGC=1
+elif [[ "${1:-}" =~ ^(r3_[A-Za-z0-9_]+|[A-Za-z0-9_]+\.(exe|[0-9][0-9]))$ ]]; then
+    # Shaped like a target but not one (a typo such as r3_st5): don't fall back to the default.
+    echo "unknown target '$1' (targets: slus_006.03, rock_neo.exe, overlays in tools/overlays.txt)" >&2
+    exit 2
 else
     TARGET=$DEFAULT_TARGET
     TARGET_ARGC=0

@@ -4,13 +4,15 @@
 Usage:  .venv/bin/python tools/callers.py [target] NAME [NAME ...]
 
 NAME is a registered name or a splat default (func_XXXXXXXX). Looks in:
-  - src/<target>/*.c and asm/<target>/nonmatchings/<file>/ (other files' code),
+  - the target's C files (for an overlay, also the shared stage code it links) and
+    asm/<target>/nonmatchings/<file>/ (other files' code),
   - asm/<target>/data/ (data tables: function pointers),
-  - for rock_neo.exe, every code overlay in disc/overlays/ (`jal` to the address, or the address
-    as a data word): overlays call into ROCK_NEO, and nothing else shows those calls.
+  - for rock_neo.exe, the overlays: their C and assembly (which name ROCK_NEO's symbols, as they
+    link against its registry), and every code chunk in disc/overlays/ (`jal` to the address, or
+    the address as a data word), which also covers the duplicate archives that have no target.
 Prints the defining file, the outside users, and the style CLAUDE.md's "Names" asks for:
 global (Capitalized_snake_case) when anything outside the defining file uses it, else static
-(lower_snake_case). Overlay hits are raw word matches, so one stray hit can be a coincidence.
+(lower_snake_case). Raw word matches in disc/overlays/ can be a coincidence; source hits can't.
 """
 
 import re
@@ -21,15 +23,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import targets  # noqa: E402  (tools/targets.py)
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = targets.ROOT
 OVERLAYS = ROOT / "disc" / "overlays"
 
 
 def address(target, name):
-    m = re.fullmatch(r"func_([0-9A-Fa-f]{8})", name)
+    m = re.fullmatch(r"(?:func|D|jtbl)_([0-9A-Fa-f]{8})", name)
     if m:
         return int(m.group(1), 16)
-    for line in (ROOT / f"config/{target}/symbol_addrs.txt").read_text().splitlines():
+    for line in targets.registry(target).read_text().splitlines():
         m = re.match(rf"\s*{re.escape(name)}\s*=\s*(0x[0-9A-Fa-f]+)", line)
         if m:
             return int(m.group(1), 16)
@@ -38,11 +40,27 @@ def address(target, name):
 
 def home_file(target, name):
     """The file that defines `name`: its C definition, else its splat asm folder."""
-    for c in (ROOT / "src" / target).glob("*.c"):
+    for c in targets.sources(target):
         if re.search(rf"^\w[^;\n]*\b{re.escape(name)}\s*\([^;]*$", c.read_text(), re.M):
             return c.stem
-    hits = list((ROOT / "asm" / target / "nonmatchings").glob(f"*/{name}.s"))
+    hits = list((ROOT / "asm" / target / "nonmatchings").glob(f"**/{name}.s"))
     return hits[0].parent.name if hits else None
+
+
+def overlay_source_users(name, addr):
+    """Overlays whose C or assembly names `name` (ROCK_NEO's symbol). An overlay whose own range
+    holds the address is skipped: there a default name is its own symbol."""
+    word = re.compile(rf"\b{re.escape(name)}\b")
+    users = set()
+    for ov in targets.OVERLAYS:
+        lo, hi = targets.image(ov)
+        if addr is not None and lo <= addr < hi:
+            continue
+        code = (re.sub(r"//[^\n]*|/\*.*?\*/", "", c.read_text(), flags=re.S) for c in targets.sources(ov))
+        if any(word.search(t) for t in code) or \
+                any(word.search(s.read_text()) for s in (ROOT / "asm" / ov).rglob("*.s")):
+            users.add(ov)
+    return users
 
 
 def overlay_users(addr):
@@ -64,7 +82,7 @@ def outside_users(target, name, home=None):
     home = home or home_file(target, name)
     word = re.compile(rf"\b{re.escape(name)}\b")
     users = {}
-    for c in (ROOT / "src" / target).glob("*.c"):
+    for c in targets.sources(target):
         # Comments don't count (e.g. twins.py's "// Same code as X.").
         code = re.sub(r"//[^\n]*|/\*.*?\*/", "", c.read_text(), flags=re.S)
         if c.stem != home and word.search(code):
@@ -73,9 +91,12 @@ def outside_users(target, name, home=None):
         owner = s.parent.name if "nonmatchings" in s.parts else "data table"
         if owner != home and owner not in users and word.search(s.read_text()):
             users[owner] = "asm"
-    if target == "rock_neo.exe":
-        for ov in overlay_users(address(target, name)):
+    if target == targets.HOST:
+        addr = address(target, name)
+        for ov in overlay_source_users(name, addr):
             users[ov] = "overlay"
+        for stem in overlay_users(addr):
+            users.setdefault(targets.ARCHIVE_TARGET.get(stem, stem), "overlay binary")
     return users
 
 
@@ -84,8 +105,9 @@ def main():
     if len(sys.argv) < 3:
         sys.exit(__doc__)
     target = sys.argv[1]
-    if target == "rock_neo.exe" and not OVERLAYS.is_dir():
-        print("warning: disc/overlays/ missing (tools/extract_overlays.py): overlay callers not checked")
+    if target == targets.HOST and not OVERLAYS.is_dir():
+        print("warning: disc/overlays/ missing (tools/extract_overlays.py): only the overlays' "
+              "sources were checked, not the duplicate archives")
     for name in sys.argv[2:]:
         home = home_file(target, name)
         users = outside_users(target, name, home)

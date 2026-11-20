@@ -55,11 +55,12 @@ several times more because the session had carried hours of earlier work.
   still built, and kept if they match. A killed session reports no cost.
 - Each batch is a **fresh headless session** (`claude -p ... --permission-mode acceptEdits`) with
   a fixed prompt pointing at `CLAUDE.md`, `notes/`, and the shim's C.
-- After each batch it **builds both targets**. If both MATCH, the changes stay in the working tree
-  and a patch is saved to `logs/batch_<timestamp>/NNN_changes.patch`; otherwise the files are
-  restored from the **snapshot** taken before the batch (`src`, `include`, `notes`, both
-  registries and yamls, `CLAUDE.md`, `renames.txt`) and its functions are marked failed. It never
-  runs git: **snapshots and patches instead of commits**; you review and commit.
+- After each batch it **builds every target the batch's changes can reach** (`tools/targets.py`,
+  `reached_by`; at the start of a run it builds all of them). If they all MATCH, the changes stay
+  in the working tree and a patch is saved to `logs/batch_<timestamp>/NNN_changes.patch`; otherwise
+  the files are restored from the **snapshot** taken before the batch (`src`, `include`, `notes`,
+  `config/` with every registry and yaml, `CLAUDE.md`, `renames.txt`) and its functions are marked
+  failed. It never runs git: **snapshots and patches instead of commits**; you review and commit.
 - Stops when nothing is left, at the cost cap, after two failed batches in a row, or after
   `--max-batches`. Per batch, `logs/` keeps the prompt, raw JSON, report and summary.
 - Headless sessions can't answer permission prompts, so the commands they need are on the
@@ -95,7 +96,8 @@ several times more because the session had carried hours of earlier work.
 
 ## Reviewing a run
 
-1. Run `./tools/build.sh` for both targets yourself; don't take the report's word for MATCH.
+1. Run `./tools/build.sh` for every target the batch reached yourself (`.venv/bin/python tools/reach.py
+   --command` prints the line); don't take the report's word for MATCH.
 2. Read `git diff` against the report (and the batch patches, for runner output).
 3. Check new headers, names, and registry lines against the conventions.
 4. Look for code that matches but isn't plausible (aliases, `pad` locals, redundant statements):

@@ -1,25 +1,37 @@
 # CLAUDE.md
 
 Matching decompilation of **Mega Man Legends** (PlayStation, USA, SLUS-00603).
-"Matching" means the C in `src/` compiles back to the original executables **byte for byte**.
-There are two targets, and both rebuild byte-identical:
+"Matching" means the C in `src/` compiles back to the original code **byte for byte**.
+There are two executables and 44 code overlays, and every one of them rebuilds byte-identical:
 
 - `slus_006.03`: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
   One C file, `src/slus_006.03/main.c`; every function is banked or parked.
 - `rock_neo.exe`: `ROCK_NEO.EXE`, the main game. Split into Capcom's source files (see
   `notes/rock_neo_files.md`); every Capcom file is C (`src/rock_neo.exe/<file>.c`), with
   `INCLUDE_ASM` stubs for the functions not yet decompiled. `asm_fastmem` stays assembly.
+- **Overlays** (`r3_st00` … `r3_st1e` stages, `r3_shl02` … `r3_shl0d` weapons, `r3_sup` support;
+  listed in `tools/overlays.txt`): the code chunks of `CDDATA/DAT/*.BIN`, loaded into ROCK_NEO's
+  memory (stages at `0x80100000`, weapons at `0x800D8800`). Each links against ROCK_NEO's
+  registry. Code several stages share lives once in `src/stage_common/` (`stcom01.c`, ...) and is
+  compiled into every overlay whose yaml lists it. All overlay code is C, matching, but mostly
+  unnamed and loosely typed (it came from an AI pass in CoastRedWood's fork): naming and typing
+  it is the work, as in ROCK_NEO.
 
 Background, findings, and open questions live in `notes/` (start with `notes/README.md`; each
-executable has its own file: `notes/shim.md`, `notes/rock_neo.md`). **Search, don't read whole
-files**: `grep -rn -i "<name>\|<address>" notes/`. Addresses never change, so search by both.
+program has its own file: `notes/shim.md`, `notes/rock_neo.md`, `notes/overlays.md`). **Search,
+don't read whole files**: `grep -rn -i "<name>\|<address>" notes/`. Addresses never change, so
+search by both; an overlay's address alone is ambiguous (every stage loads at `0x80100000`), so
+add the overlay's name.
 
 ## The one rule
 
-`./tools/build.sh <t>` must print **MATCH** for every target your change can reach. Shared headers
-(`include/common.h`, `include/psyq/`, `include/cd.h`) reach both, so after touching one, build
-both. Never report a task as done while a build prints MISMATCH. The build's SHA-1 check is the
-only authority on whether something matches.
+`./tools/build.sh <t>` must print **MATCH** for every target your change can reach. To find them,
+run `.venv/bin/python tools/reach.py --command`: it reads the working tree's changes and prints
+the `./tools/build.sh <t> ...` line to run (one MATCH line per target). What reaches what:
+`src/<t>/` reaches t; a header, every target whose C includes it (`include/common.h` and
+`include/psyq/` reach nearly all 46); `src/stage_common/<f>.c`, every overlay that links it;
+ROCK_NEO's registry, ROCK_NEO and every overlay. Never report a task as done while a build prints
+MISMATCH. The build's SHA-1 check is the only authority on whether something matches.
 
 ## Principles
 
@@ -67,8 +79,10 @@ WSL Ubuntu, from the repo root, with the Python venv at `.venv/`. Third-party to
 ## Commands
 
 Every script takes the **target** as an optional first argument: `rock_neo.exe` (the main game,
-the default when it's left out) or `slus_006.03` (the shim, always named). `./tools/build.sh` builds
-ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (see `tools/target.sh`):
+the default when it's left out), `slus_006.03` (the shim), or an overlay (`r3_st05`), always
+named. `./tools/build.sh` builds ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. A
+misspelled target (`r3_st5`) is an error, not the default. Paths derive from it (see
+`tools/target.sh`):
 
 | Target `<t>` | Path |
 |---|---|
@@ -77,20 +91,22 @@ ROCK_NEO; `./tools/build.sh slus_006.03` builds the shim. Paths derive from it (
 | C sources | `src/<t>/` |
 | assembly | `asm/<t>/` |
 | build output, linker script, map | `build/<t>/` |
-| final binary (keeps the disc file's name) | `build/<t>/<T>`, e.g. `build/slus_006.03/SLUS_006.03` |
+| final binary (keeps the disc file's name) | `build/<t>/<T>`, e.g. `build/slus_006.03/SLUS_006.03`; an overlay's is `build/<t>/<t>.bin` |
+| original (the reference) | `disc/extracted/<T>`; an overlay's chunk is extracted from its archive by `split.sh` to `build/<t>/original/<t>.bin` |
 | diff reference | `expected/<t>/` |
 
 | Command | What it does |
 |---|---|
-| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` (clears `asm/<t>/` first). |
-| `./tools/build.sh <t>` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH. |
+| `./tools/split.sh <t>` | Regenerate `asm/<t>/` and the linker script from `config/<t>/<t>.yaml` (clears `asm/<t>/` first). For an overlay, also extracts its chunk and ROCK_NEO's symbols. |
+| `./tools/build.sh <t> [<t> ...]` | Build everything and compare SHA-1 with the original. Prints MATCH or MISMATCH (one line per target when given several). |
+| `.venv/bin/python tools/reach.py [--command]` | The targets your uncommitted changes can reach; `--command` prints the `build.sh` line for them. |
 | `./tools/diff.sh <t> <Func>` | Per-function diff against `expected/<t>/`. Flagged lines are what still differs. |
 | `./tools/m2c.sh <t> <Func>` | Draft C for a function with m2c, using all headers as context. |
 | `./tools/objdump.sh <t> <Func>` | Real-instruction disassembly (no pseudo-ops) of a function in `build/<t>/`. |
 | `./tools/make_expected.sh <t>` | Refresh `expected/<t>/` from a MATCHING build. Refuses otherwise. |
-| `./tools/rebuild.sh <t>` | Split, build, and refresh `expected/<t>/` in one step. Use after any rename or yaml change. |
+| `./tools/rebuild.sh <t> [<t> ...]` | Split, build, and refresh `expected/<t>/` in one step. Use after any rename or yaml change (`rename.py` prints the line to run). |
 | `./tools/cc.sh <t> <in.c> <out.o>` | Compile one C file with the target's matching toolchain. |
-| `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/`. |
+| `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/` (an overlay also formats `src/stage_common/`). |
 | `.venv/bin/python tools/twins.py <t> [--apply]` | Functions whose byte-identical twin is already matched; `--apply` banks them by copying the twin's C (build-checked). |
 
 ### Tool use (unattended runs)
@@ -107,8 +123,8 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `/tmp`: `./tools/cc.sh rock_neo.exe logs/scratch/t.c logs/scratch/t.o`, then
   `mips-linux-gnu-objdump -dr logs/scratch/t.o`.
 - `diff.sh` prints plain text when its output isn't a terminal: there are no colour codes to strip.
-- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py` and
-  `.venv/bin/python tools/callers.py` (see "Names"),
+- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py`,
+  `.venv/bin/python tools/callers.py` (see "Names") and `.venv/bin/python tools/reach.py`,
   `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
   `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
 
@@ -125,7 +141,10 @@ clean, confirm with `build.sh`.
 
 ## Workflow: decompiling one function
 
-`<file>` is the C file's name: `main` in the shim, `cd` for `src/rock_neo.exe/cd.c`.
+`<file>` is the C file's name: `main` in the shim, `cd` for `src/rock_neo.exe/cd.c`, `r3_st05_5E2C`
+for an overlay's file. Shared stage code (`src/stage_common/stcom01.c`) is one file compiled into
+several overlays: build them all (`reach.py`), and pass any one of them as `<t>` to the per-function
+tools.
 
 1. Pick a function still written as `INCLUDE_ASM("asm/<t>/nonmatchings/<file>", Func);` in
    `src/<t>/<file>.c`.
@@ -168,8 +187,9 @@ INCLUDE_ASM("asm/<t>/nonmatchings/<file>", Func);
 #endif
 ```
 
-Update the executable's notes file ("Function status" in `notes/shim.md` or `notes/rock_neo.md`)
-with what remains different. decomp-permuter will handle these later.
+Update the program's notes file ("Function status" in `notes/shim.md` or `notes/rock_neo.md`;
+`notes/overlays.md` for an overlay) with what remains different. decomp-permuter will handle these
+later.
 
 ## Toolchain facts (established; do not change without asking)
 
@@ -180,6 +200,15 @@ with what remains different. decomp-permuter will handle these later.
 - `rock_neo.exe`: `-G32` to `cc1`, `-G32 --use-comm-section` to maspsx, and `-G0` to GNU `as`.
   `extern` globals of any size are still addressed with `lui` + `%lo`; only small data *defined in
   the same file* uses `$gp`. Details and evidence: `notes/toolchain.md`.
+- Overlays: `-G8` to `cc1` (where small initialized data lands), `-G0` for the files listed in
+  `tools/cc.sh` (their constants sit in `.rodata`), and no `-G` to maspsx: overlay code never
+  addresses anything through `$gp`. A blanket `-G0` breaks `r3_st00`, so the per-file choices are
+  real.
+- **Known hack, don't extend it:** `tools/cc.sh` also has a per-file and per-function table
+  (`JT_ALIGN`, `JT_PACKED`, `JT_PAD_AFTER`, ...) that rewrites `cc1`'s jump-table alignment and
+  inserts pad words in about 30 overlay files. It most likely stands in for wrong file
+  boundaries (each Capcom object aligns its own `.rodata`) and is to be removed. If an overlay
+  file needs a new entry there to match, stop and report it instead.
 
 ### Small data (`$gp`) in ROCK_NEO
 
@@ -365,6 +394,8 @@ What decompilers show vs. what to write:
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_*` buttons, `Joy1`/`Joy2`, `Pad_update`; `PAD_WORK` itself is per program (`include/<target>/pad_work.h`: ROCK_NEO's adds the auto-repeat state) |
 | `include/slus_006.03/` | Shim only: `intro.h`, `movie.h`, `pad_work.h` (PAD_WORK), `scratch.h`, `system.h` |
+| `include/stage_common/` | Overlays: the shared stage code's types (`stcom01.h`, ...), `stage.h`, `gte.h`, and `rock_neo.h`, the overlays' own declarations of the ROCK_NEO functions and globals they use (overlays never include `include/rock_neo.exe/`) |
+| `include/shl/`, `include/<overlay>/` | Overlays: the weapon (`SHL`) code's types; each overlay's own header (`include/r3_st05/st05.h`) |
 | `include/rock_neo.exe/` | ROCK_NEO only: `sound.h`, `system.h` (threads), `game.h` (GAME_WORK, partial), `player.h`, `stage.h` (stage IDX table, map window), `scene.h` (Scene_work), `scratch.h` (scratchpad macros), `vram.h` (Clut_buf), `pad_work.h` (PAD_WORK with the auto-repeat state), `fastmem.h` (the hand-written copy routines), `debug.h` (debug.c), `moji.h` (message text, Moji_work), `code_8002E7A8.h` (the work pools and their slot types, MODEL_WORK, HIT_ENT, keyframe tables), `code_800456D8.h` (WORK_48 kinds 0x86-0x8A), `code_8005C258.h`, `code_80037FB4.h`, `code_80027678.h`, `code_8004324C.h`, `code_800133D8.h`, `code_8001786C.h`, `code_8001F828.h`, `code_8006430C.h`, `code_8002D9A0.h`, `code_80037534.h`, `code_80043F34.h` (WORK_48 kinds 0x80-0x85), `code_80048620.h`, `code_80014AC0.h` (the scripted WORK_3C0 objects), `code_800425FC.h`, `code_8003A3B4.h` (files not yet identified; such headers take the file's name, hold that file's declarations, and are renamed with it) |
 
 **Headers are shared unless their definitions conflict.** A declaration a program doesn't use
@@ -445,14 +476,29 @@ state the symbol's job in one line from code you have read (its body, and its ca
 and the name follows the conventions below. The owner reviews every applied name afterwards (the
 batch runner logs them in `logs/renames_applied.txt`), so a wrong name costs a revert.
 
-- Rename only splat defaults (`func_`, `D_`, `jtbl_`). A symbol that already has a name, or a
+- Rename only splat defaults (`func_`, `D_`, `jtbl_`) and the shared stage code's placeholders
+  (`stcom01_func_0000`, `stcom01_D_055C`: file and offset). A symbol that already has a name, or a
   suspected registry error, is the owner's: write it to `renames.txt` (format below) and say why.
 - Apply names **after** the task's functions are banked or parked, one call per name:
   `tools/rename.py <t> OLD NEW [attrs]` (e.g. `tools/rename.py rock_neo.exe func_80012E10
-  Thread_open`). It updates `config/<t>/symbol_addrs.txt`, `src/<t>/`, `include/` and `notes/` together
-  and adds `type:func` / `absolute:True` where needed. Then run `./tools/rebuild.sh <t>` once
-  (re-split, build, refresh `expected/`); it must print MATCH.
+  Thread_open`). It updates `config/<t>/symbol_addrs.txt`, the C and headers that can name the
+  symbol, and `notes/` together, and adds `type:func` / `absolute:True` where needed. Then run the
+  `./tools/rebuild.sh ...` line it prints, once (re-split, build, refresh `expected/`); every
+  target must print MATCH.
 - Struct fields aren't symbols: name them in the header as their uses become clear.
+
+**Overlays and names:**
+
+- A ROCK_NEO function or global keeps its ROCK_NEO name in every overlay (they link against
+  ROCK_NEO's registry). Rename it as `rock_neo.exe`: `rename.py` also rewrites the overlay sources,
+  and the `rebuild.sh` line it prints includes every overlay that uses it.
+- A shared stage-code name is registered under the same name in every overlay that links the
+  file. Rename it with any one of those overlays as `<t>`: `rename.py` updates every registry and
+  `src/stage_common/`.
+- An overlay's splat default name repeats in other overlays and means a different function there
+  (every stage loads at `0x80100000`). `rename.py` keeps it within the overlay and only lists the
+  notes that mention it; in notes and reports, always say whose it is (`r3_st05`'s `func_8010088C`).
+- A name must be unique across ROCK_NEO and the overlays; `rename.py` refuses a clash.
 
 `renames.txt` (repo root; `renames_slus.txt` for the shim) holds only what needs the owner, in
 the format `tools/rename.py <t> -f <file>` reads:
@@ -471,8 +517,9 @@ Before applying a name:
 - **Check for duplicates.** `grep -w` the NEW name in `config/<t>/symbol_addrs.txt` and `renames.txt`.
   If it's taken, pick a more specific name; `rename.py` refuses a clash.
 - **Pick global or `static` style from the callers:** run `.venv/bin/python tools/callers.py <t>
-  NAME`. It checks the other C files, their assembly, data tables and, for ROCK_NEO, every stage
-  overlay (overlays call into ROCK_NEO, and nothing in `asm/` shows it). It reports only users
+  NAME`. It checks the other C files, their assembly, data tables and, for ROCK_NEO, every
+  overlay's C and assembly (overlays call into ROCK_NEO, and nothing in ROCK_NEO's `asm/` shows it).
+  For an overlay it checks that overlay's files and the shared stage code it links. It reports only users
   **outside** the defining file: callers in the same file are never listed, so "outside users:
   none" means static, not unused (to find same-file callers, `grep` the file's C and its
   `asm/<t>/nonmatchings/<file>/` assembly). No outside users means a
@@ -527,7 +574,7 @@ Leave everything uncommitted. Keep the report short; the owner reads the diff it
 Banked: Cd_pause, Cd_read_sync
 Parked: Cd_cmd_dequeue (loop pointer based at p+4, target p+0xc)
 Files:  src/rock_neo.exe/cd.c, include/rock_neo.exe/cd_local.h, include/rock_neo.exe/sound.h (new)
-Build:  slus_006.03 MATCH, rock_neo.exe MATCH
+Build:  slus_006.03 MATCH, rock_neo.exe MATCH   (every target reach.py listed)
 Decisions needed:
 - <only items that need the owner: suspected registry errors, tool bugs, open questions>
 Names:  func_80012E10 -> Thread_open (OpenTh for THREAD_TBL[n]); 0 added to renames.txt

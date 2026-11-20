@@ -4,13 +4,17 @@
 Usage:
     tools/batch_run.py rock_neo.exe src/rock_neo.exe/cd.c [more .c files...]
     tools/batch_run.py rock_neo.exe --all
+    tools/batch_run.py r3_st05 --all --consolidate        (any target: an overlay too)
                        [--batch 6] [--model opus] [--cap 15] [--max-batches 0]
                        [--timeout 30] [--dry-run]
 
 Each batch: pick the next functions, snapshot the files an agent can change, run Claude Code
-headless in a fresh session, then build BOTH targets. If both MATCH, the batch's changes stay in
+headless in a fresh session, then build every target the batch's changes can reach
+(tools/targets.py, reached_by: a ROCK_NEO header reaches ROCK_NEO, shared stage code the overlays that
+link it, ROCK_NEO's registry every overlay). If all of them MATCH, the batch's changes stay in
 the working tree and a patch of them is saved in the log folder; otherwise the batch's changes
 are saved as NNN_failed.patch, the snapshot is restored and its functions are recorded as failed.
+The run starts by building every target, executables and overlays, and refuses a tree that doesn't.
 Each session runs under a fixed session id (NNN_session.txt), so a failed or timed-out batch can be
 inspected or resumed: apply NNN_failed.patch, then `claude --resume <id>` from the repo root.
 
@@ -20,7 +24,9 @@ A batch never spans files: it takes the best function among all the given files,
 best ones in that same file. Functions missing from the CSV go last, smallest first.
 
 Agents may apply names they're sure of (CLAUDE.md, "Names"). When a batch changed a registry, the
-runner re-splits that target (rebuild.sh) before building, and again after reverting the batch.
+runner re-splits that target (rebuild.sh) before building, and again after reverting the batch; after
+a ROCK_NEO rename it also re-splits each overlay whose build then fails (its assembly still has the
+old name).
 --consolidate runs one cleanup session per file instead (merge view structs, fix header placement,
 retry parked functions), with the same snapshot / build / keep-or-revert handling.
 
@@ -66,7 +72,7 @@ except ImportError:      # run with the venv's python (.venv/bin/python) to get 
 
 ROOT = Path(__file__).resolve().parent.parent
 PUSHOVER = ROOT / ".pushover.json"     # {"token": "<app token>", "user": "<user key>"}; gitignored
-TARGETS = ["slus_006.03", "rock_neo.exe"]
+TARGETS = targets.TARGETS
 STATE = ROOT / "logs" / "batch_state.json"
 SCRATCH = ROOT / "logs" / "scratch"     # agents' scratch files (CLAUDE.md, "Tool use")
 # Everything an agent may change; snapshotted before each batch and restored if it fails.
@@ -88,8 +94,8 @@ Don't run git commands. Finish with the usual summary."""
 CONSOLIDATE_PROMPT = """Consolidation pass for `{cfile}`, after its functions were decompiled in batches.
 Don't decompile new functions. Follow `CLAUDE.md`, including "Tool use (unattended runs)", and
 above all "Types and headers" ("One struct per object, not one per view", "Declarations live in
-headers") and "Names". The build must print MATCH for both targets after every step; revert a step
-that doesn't match rather than forcing it.
+headers") and "Names". Every target a step can reach must print MATCH after it (CLAUDE.md, "The
+one rule"); revert a step that doesn't match rather than forcing it.
 
 1. Structs. For each struct the file's code uses that was written for one function's view of an
    object (a partial struct, mostly padding, a comment like "object with ..."), find where the
@@ -154,16 +160,18 @@ def size_of(asm_dir, name):
 def ranks(target, out):
     """{name: (depth, score)} for the target's pending functions, from a fresh functions.csv.
 
-    Written to `out` (the log folder), not the tracked functions.csv. Needs both builds, which the
+    Written to `out` (the log folder), not the tracked functions.csv. Needs both executables built, which the
     runner has just done (or the tree was clean). Empty if the list can't be made."""
     r = run([".venv/bin/python", "tools/function_list.py", "-o", str(out)])
     if r.returncode != 0 or not out.exists():
         print(f"warning: function_list.py failed, ordering by size: {r.stderr.strip()[-200:]}", flush=True)
         return {}
+    # functions.csv names an overlay by its archive (ST05), not its target (r3_st05).
+    program = Path(targets.OVERLAY_INFO[target][0]).stem if targets.is_overlay(target) else target
     result = {}
     with out.open(newline="") as fh:
         for row in csv.DictReader(fh):
-            if row["Program"] != target or not row["Depth"]:
+            if row["Program"] != program or not row["Depth"]:
                 continue
             key = (int(row["Depth"]), int(row["Score"] or 0))
             result[row["Name"] or row["Function"]] = key
@@ -241,21 +249,55 @@ def naming_warnings(renamed):
     return out
 
 
-def resplit(targets):
+def resplit(which):
     """rebuild.sh each target whose registry changed: asm/ and expected/ must carry its names."""
-    for t in targets:
-        r = run(["./tools/rebuild.sh", t])
-        if r.returncode != 0:
-            print(f"warning: rebuild.sh {t} failed: {r.stderr.strip()[-300:]}", flush=True)
+    which = [t for t in TARGETS if t in which]
+    if not which:
+        return
+    r = run(["./tools/rebuild.sh", *which])
+    if r.returncode != 0:
+        print(f"warning: rebuild.sh {' '.join(which)} failed: {(r.stdout + r.stderr).strip()[-300:]}",
+              flush=True)
 
 
-def build_ok():
-    """Build every target; True only if all print MATCH."""
+def build_ok(which=None):
+    """Build the given targets (default: every target); True only if all print MATCH."""
     results = {}
-    for t in TARGETS:
+    for t in (TARGETS if which is None else [t for t in TARGETS if t in which]):
         r = run(["./tools/build.sh", t])
         results[t] = "MATCH" in r.stdout and "MISMATCH" not in r.stdout
     return all(results.values()), results
+
+
+def changed_paths(snap):
+    """Repo-relative paths the batch added, removed or changed (snapshot vs. working tree)."""
+    def files(base):
+        out = {}
+        for item in TRACKED:
+            p = base / item
+            if p.is_dir():
+                out.update({f.relative_to(base): f for f in p.rglob("*") if f.is_file()})
+            elif p.is_file():
+                out[p.relative_to(base)] = p
+        return out
+    before, after = files(snap), files(ROOT)
+    return sorted(rel for rel in set(before) | set(after)
+                  if rel not in before or rel not in after or before[rel].read_bytes() != after[rel].read_bytes())
+
+
+def settle(renamed, changed):
+    """Re-split what the renames made stale, then build every target the changes reach.
+    Returns build_ok()'s (ok, results). An overlay names ROCK_NEO's symbols in assembly that only
+    a fresh split updates, so after a ROCK_NEO rename an overlay that fails gets re-split once."""
+    resplit(renamed)
+    reach = set(targets.reached_by(changed)) | set(renamed)
+    ok, results = build_ok(reach)
+    if not ok and targets.HOST in renamed:
+        stale = [t for t, good in results.items() if not good and targets.is_overlay(t)]
+        if stale:
+            resplit(stale)
+            ok, results = build_ok(reach)
+    return ok, results
 
 
 def snapshot(dest):
@@ -393,7 +435,7 @@ def notify(title, message):
 
 
 def consolidate(args, cfiles, logdir):
-    """One session per file with CONSOLIDATE_PROMPT; kept if both builds match, else reverted."""
+    """One session per file with CONSOLIDATE_PROMPT; kept if every build it reaches matches, else reverted."""
     summary, total_cost = [], 0.0
     progress = Progress(len(cfiles), "files", enabled=not args.dry_run)
     for n, cfile in enumerate(cfiles, 1):
@@ -421,8 +463,8 @@ def consolidate(args, cfiles, logdir):
         total_cost += cost
         (logdir / f"{tag}_report.md").write_text(report)
         renamed = registry_changes(snap)
-        resplit(renamed)
-        ok, results = build_ok()
+        changed = changed_paths(snap)
+        ok, results = settle(renamed, changed)
         before = len(asm_funcs(cfile, parked=True))
         if ok:
             patch(snap, logdir / f"{tag}_changes.patch")
@@ -440,7 +482,7 @@ def consolidate(args, cfiles, logdir):
         else:
             patch(snap, logdir / f"{tag}_failed.patch")   # what the session left, for inspection or resuming
             restore(snap)
-            resplit(renamed)
+            settle(renamed, changed)
             line = f"consolidate {n}: REVERTED ({Path(cfile).stem}, build {results}), ${cost:.2f}, {minutes:.0f} min"
         progress.write("   " + line)
         progress.done(n, total_cost)
@@ -463,7 +505,7 @@ def consolidate(args, cfiles, logdir):
 def main():
     targets.default_target()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("target")
+    ap.add_argument("target", choices=TARGETS, metavar="target")
     ap.add_argument("cfiles", nargs="*", help="C files to work through, e.g. src/rock_neo.exe/cd.c")
     ap.add_argument("--all", action="store_true", help="every C file of the target")
     ap.add_argument("--batch", type=int, default=6, help="functions per batch")
@@ -494,8 +536,9 @@ def main():
     SCRATCH.mkdir(parents=True, exist_ok=True)
 
     if not args.dry_run:
-        # Start from a matching tree: a batch is judged by whether both builds still match. After a
-        # rename (rename.py without rebuild.sh) asm/ is stale, so re-split once before giving up.
+        # Start from a matching tree: a batch is judged by whether every build it reaches still
+        # matches. After a rename (rename.py without rebuild.sh) asm/ is stale, so re-split once
+        # before giving up.
         ok, results = build_ok()
         if not ok:
             print(f"the tree doesn't build ({results}); re-splitting", flush=True)
@@ -560,8 +603,8 @@ def main():
         tag = f", TIMEOUT after {args.timeout:g} min (cost unknown)" if timed_out else ""
 
         renamed = registry_changes(snap)
-        resplit(renamed)      # renames need a fresh split before the build can match
-        ok, results = build_ok()
+        changed = changed_paths(snap)
+        ok, results = settle(renamed, changed)      # renames need a fresh split before the build can match
         if ok:
             batch = [rename_map(renamed).get(n, n) for n in batch]   # follow renamed batch functions
         after = {n for n, _ in remaining(cfile)}
@@ -572,7 +615,7 @@ def main():
             state["failed"] = sorted(failed)
             save_state(state)
             restore(snap)
-            resplit(renamed)
+            settle(renamed, changed)
             failures_in_row += 1
             line = f"batch {batch_no}: NO PROGRESS (functions skipped from now on), ${cost:.2f}, {minutes:.0f} min{tag}"
         elif ok:
@@ -610,7 +653,7 @@ def main():
         else:
             patch(snap, logdir / f"{batch_no:03}_failed.patch")   # what the session left, for inspection or resuming
             restore(snap)
-            resplit(renamed)
+            settle(renamed, changed)
             failed.update(batch)
             state["failed"] = sorted(failed)
             save_state(state)

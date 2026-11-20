@@ -1,8 +1,28 @@
 #!/usr/bin/env bash
 # Rebuild one target from splat's output and C sources, and compare it with the original.
 # Run tools/split.sh [target] first: the object list comes from splat's linker script.
-# Usage: tools/build.sh [target]
+# Usage: tools/build.sh [target ...]
+#   With several targets (e.g. from `tools/reach.py --command`), each prints one line, MATCH or
+#   MISMATCH, and the run fails if any doesn't match.
 set -euo pipefail
+
+if [[ $# -gt 1 ]]; then
+    failed=()
+    for t in "$@"; do
+        if result=$("$0" "$t" 2>&1 | tail -n 1) && [[ "$result" == MATCH ]]; then
+            echo "$t: MATCH"
+        else
+            echo "$t: ${result:-FAILED}"
+            failed+=("$t")
+        fi
+    done
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        echo "not matching: ${failed[*]}" >&2
+        exit 1
+    fi
+    exit 0
+fi
+
 source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
 
 AS="mips-linux-gnu-as -EL -march=r3000 -mtune=r3000 -no-pad-sections -G0 -Iinclude"
