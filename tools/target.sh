@@ -3,8 +3,18 @@
 # The target is optional: when the first argument isn't a target name, it's rock_neo.exe and
 # TARGET_ARGC is 0 (nothing to drop). Changes to the repo root and derives every per-target path.
 # Targets are named after their disc file in lower case: slus_006.03, rock_neo.exe.
+# Overlay targets are code chunks inside CDDATA/DAT/*.BIN archives, named after the chunk without
+# its .bin (r3_shl07); tools/overlays.txt (from tools/overlay_gen.py) says which archive holds each.
 
-TARGETS="slus_006.03 rock_neo.exe"
+declare -A OVERLAY_ARCHIVE=()
+OVERLAY_TARGETS=""
+while read -r _t _archive _rest; do
+    [[ -z "$_t" || "$_t" == \#* ]] && continue
+    OVERLAY_ARCHIVE[$_t]=$_archive
+    OVERLAY_TARGETS+=" $_t"
+done < "$(dirname "${BASH_SOURCE[0]}")/overlays.txt"
+
+TARGETS="slus_006.03 rock_neo.exe$OVERLAY_TARGETS"
 DEFAULT_TARGET=rock_neo.exe
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -29,3 +39,16 @@ MAP=$BUILD_DIR/$TARGET.map
 DISC_NAME=${TARGET^^}                   # slus_006.03 -> SLUS_006.03
 ORIGINAL=disc/extracted/$DISC_NAME
 BINARY=$BUILD_DIR/$DISC_NAME            # the final binary keeps the disc file's name
+
+# Overlays: the original is the chunk's contents, extracted by split.sh into build/ (game data,
+# never tracked). They link against ROCK_NEO.EXE's symbols (HOST_REGISTRY, filtered into
+# HOST_SYMS by split.sh) and, unlike executables, aren't padded to a whole sector.
+IS_OVERLAY=
+if [[ -n "${OVERLAY_ARCHIVE[$TARGET]:-}" ]]; then
+    IS_OVERLAY=1
+    ARCHIVE=disc/extracted/CDDATA/DAT/${OVERLAY_ARCHIVE[$TARGET]}
+    ORIGINAL=$BUILD_DIR/original/$TARGET.bin
+    BINARY=$BUILD_DIR/$TARGET.bin
+    HOST_REGISTRY=config/rock_neo.exe/symbol_addrs.txt
+    HOST_SYMS=$BUILD_DIR/rock_neo_syms.txt
+fi
