@@ -44,8 +44,19 @@ done
 # Symbols marked absolute:True (hardware registers, scratchpad) aren't defined by any
 # object file. Registry lines ("name = 0xADDR; // ...") are valid linker-script
 # assignments once the comment is stripped, so define them that way.
-grep 'absolute:True' "$REGISTRY" | sed 's|//.*||' > "$BUILD_DIR/absolute_syms.ld" || true
+# An overlay also gets ROCK_NEO.EXE's symbols this way (split.sh marks them all absolute).
+grep -h 'absolute:True' "$REGISTRY" ${HOST_SYMS:+"$HOST_SYMS"} | sed 's|//.*||' \
+    > "$BUILD_DIR/absolute_syms.ld" || true
 LD_SCRIPTS+=(-T "$BUILD_DIR/absolute_syms.ld")
+# An overlay may still use a splat default name (D_800BC744) for a ROCK_NEO.EXE address that the
+# registry covers with a larger named object (Sce_camera_work). Such a name is its own address,
+# so define any that no object or registry provides.
+if [[ -n "$IS_OVERLAY" ]]; then
+    grep -o "$BUILD_DIR/[^ )]*\.o" "$LD_SCRIPT" | sort -u | xargs mips-linux-gnu-nm -u 2>/dev/null \
+        | sed -nE 's/^ +U (D|func)_([0-9A-F]{8})$/PROVIDE(\1_\2 = 0x\2);/p' | sort -u \
+        > "$BUILD_DIR/default_name_syms.ld"
+    LD_SCRIPTS+=(-T "$BUILD_DIR/default_name_syms.ld")
+fi
 $LD "${LD_SCRIPTS[@]}" -T "$LD_SCRIPT" -Map "$MAP" -o "$ELF"
 
 # 3. Convert the ELF to a raw binary.
@@ -53,7 +64,10 @@ $OBJCOPY -O binary "$ELF" "$BINARY"
 
 # PS-X EXE files are padded with zeros to a multiple of 2048 bytes (one CD sector).
 # BSS occupies no file space, so the binary ends at the last data byte; pad it back out.
-truncate -s %2048 "$BINARY"
+# An overlay chunk records its exact size, so it isn't padded.
+if [[ -z "$IS_OVERLAY" ]]; then
+    truncate -s %2048 "$BINARY"
+fi
 
 # 4. Compare.
 sha1sum "$ORIGINAL" "$BINARY"
