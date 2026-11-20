@@ -731,8 +731,7 @@ void Sce_event_timer_clear(void);
 void func_80036478(void *track, uint8 arg1, uint32 arg2);
 void func_80030934(void *a0, void *a1, sint16 a2, sint16 a3);
 void func_80047148(void *wp, STCOM_SVECTOR *pos);
-sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void Sce_event_next(void);
 void func_80053AA4(sint32 arg);
 void func_8003697C(void);
@@ -789,8 +788,7 @@ void func_8010C66C(STAGE_OBJ *wp);
 void func_8010D0F4(STAGE_OBJ *wp);
 void func_8010D968(STAGE_OBJ *wp);
 void func_8010FB74(ST03_SPARK *wp);
-ST03_SPARK *func_8010FD1C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise,
-                          uint8 flag);
+ST03_SPARK *func_8010FD1C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag);
 void func_8010D0B4(ST03_ACTOR *wp);
 void func_801013D4(STAGE_OBJ *wp);
 void func_80101418(STAGE_OBJ *wp);

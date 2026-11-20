@@ -855,8 +855,7 @@ void func_8010F6F8(STCOM18_WORK *wp);
 extern STAGE_PL_SCRIPT_FUNC D_80120314[];
 void func_80118854(STAGE_PL_SCRIPT *wp);
 
-ST0B_SPARK *func_801136D4(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide);
+ST0B_SPARK *func_801136D4(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide);
 
 void func_8010403C(STAGE_OBJ *wp);
 void func_801041A8(STAGE_OBJ *wp);
@@ -2303,8 +2302,7 @@ void func_80112004(ST0B_LIFT *wp, ST0B_PATH_D *path);
 extern ST0B_PATH_STEP D_8011BB48[];
 extern STAGE_OBJ Player_work_obj __asm__("Player_work");
 
-sint32 func_80031EF0(STCOM_SVECTOR *pos, sint32 angle, sint32 range, STCOM_SVECTOR *target,
-                     sint32 target_angle, sint32 target_range);
+sint32 func_80031EF0(STCOM_SVECTOR *pos, sint32 angle, sint32 range, STCOM_SVECTOR *target, sint32 target_angle, sint32 target_range);
 
 void func_8003697C(void);
 

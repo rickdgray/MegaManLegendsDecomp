@@ -52,12 +52,12 @@ typedef struct
 // everything else). Retail starts a function's jump tables 8-aligned when it has more than one;
 // tools/cc.sh's jt_align only pads between a function's own tables, so the pad before the
 // first one comes from here.
-#define ST17_RODATA_PAD(NAME)                                                                      \
-    void __maspsx_include_asm_hack_##NAME()                                                        \
-    {                                                                                              \
-        __asm__(".section .rodata # maspsx-keep\n"                                                 \
-                "    .word 0 # maspsx-keep\n"                                                      \
-                ".text # maspsx-keep\n");                                                          \
+#define ST17_RODATA_PAD(NAME)                                                                                                              \
+    void __maspsx_include_asm_hack_##NAME()                                                                                                \
+    {                                                                                                                                      \
+        __asm__(".section .rodata # maspsx-keep\n"                                                                                         \
+                "    .word 0 # maspsx-keep\n"                                                                                              \
+                ".text # maspsx-keep\n");                                                                                                  \
     }
 
 // The absolute value with the positive test first: GCC 2.7 reserves a stack temporary for it.
@@ -564,8 +564,7 @@ void func_801052F8(ST17_SPARK *wp);
 void func_8010534C(ST17_SPARK *wp);
 void func_80105388(ST17_SPARK *wp);
 void func_801054D0(ST17_SPARK *wp);
-ST17_SPARK *func_80105530(STCOM_SVECTOR *pos, sint32 width, sint32 growth, sint16 count,
-                          sint32 rise, uint8 flag);
+ST17_SPARK *func_80105530(STCOM_SVECTOR *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag);
 
 // Records of a table loaded at 0x8015C010; a zero value_4 ends it (func_80116A64).
 typedef struct
@@ -1203,8 +1202,7 @@ extern sint8 D_8011BD48[8];  // frames between bursts
 extern uint8 D_8011BD50[16]; // joints a burst comes from
 
 // func_80105530 as func_8010B68C calls it: without the flag argument.
-typedef ST17_SPARK *(*ST17_SPARK5_FUNC)(STCOM_SVECTOR *pos, sint32 width, sint32 growth,
-                                        sint16 count, sint32 rise);
+typedef ST17_SPARK *(*ST17_SPARK5_FUNC)(STCOM_SVECTOR *pos, sint32 width, sint32 growth, sint16 count, sint32 rise);
 void Sound_key_off_voice(sint32 voice);
 void Pl00_shot_enable_off(void *pl);
 void func_8005D4D4(void);

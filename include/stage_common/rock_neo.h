@@ -189,8 +189,7 @@ void func_80039FAC(STCOM_FIXED_VECTOR *pos, sint32 a1, sint32 angle, sint32 a3);
 // by each file's header: its callers disagree on the return type (sint16 in stcom01, int in
 // stcom04, which retail evidently called without a sint16 prototype).
 // Rotates (x, y, z) by `angle` into `out`.
-STCOM_FIXED_VECTOR *func_80030058(STCOM_FIXED_VECTOR *out, sint32 angle, sint16 x, sint16 y,
-                                  sint16 z);
+STCOM_FIXED_VECTOR *func_80030058(STCOM_FIXED_VECTOR *out, sint32 angle, sint16 x, sint16 y, sint16 z);
 void Model_work_init(void *wp, uint8 *variant);
 void func_800322A8(void *wp, sint32 anim, sint32 arg);
 void func_80032488(void *wp);
@@ -207,8 +206,7 @@ void Sce_flag_on(sint32 flag);
 void Obj_work_flag_change(sint32 mask, sint32 flags);
 void func_8005C150(sint32 index, sint32 mode, sint32 value, sint32 id);
 void func_80017C30(sint32 arg);
-sint32 func_800341BC(void *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, void *tbl,
-                     sint32 arg6, sint32 arg7, sint32 arg8);
+sint32 func_800341BC(void *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, void *tbl, sint32 arg6, sint32 arg7, sint32 arg8);
 void func_80051BAC(void *wp);
 // Allocates an effect record; NULL when none is free.
 STCOM_EFFECT *func_80031618(void);
@@ -225,8 +223,7 @@ sint32 func_80042238(void *pl);
 void Cd_xa_seek_id(sint32 arg);
 // Moves `pos` (and its 16.16 copy) by (x, y, z) turned by `angle`. ROCK_NEO declares sint16
 // offsets, but stcom17 passes 0xFF710 unnarrowed, so the stage code saw int ones.
-void func_8002FFC4(STCOM_SVECTOR *pos, STCOM_FIXED_VECTOR *fixed, sint32 angle, sint32 x, sint32 y,
-                   sint32 z);
+void func_8002FFC4(STCOM_SVECTOR *pos, STCOM_FIXED_VECTOR *fixed, sint32 angle, sint32 x, sint32 y, sint32 z);
 sint32 func_80049C24(void *wp);
 sint32 func_80037BB4(void *wp);
 void func_80037738(sint32 value, uint32 amount);

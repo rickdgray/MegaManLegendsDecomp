@@ -905,8 +905,7 @@ void func_80113A48(STAGE_OBJ *wp);
 void func_80113A68(STAGE_OBJ *wp);
 void func_80113AA4(ST0A_SPARK *wp);
 void func_80113BEC(STAGE_OBJ *wp);
-ST0A_SPARK *func_80113C4C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise,
-                          uint8 flag);
+ST0A_SPARK *func_80113C4C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag);
 void func_8011422C(STAGE_OBJ *wp);
 void func_801043B8(ST0A_EN *wp);
 void func_801043D8(ST0A_EN *wp);

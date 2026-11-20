@@ -622,8 +622,7 @@ extern sint32 D_80116B90[];
 
 void func_80100780(void);
 
-void func_8002FFC4(STCOM_SVECTOR *pos, STCOM_FIXED_VECTOR *fixed, sint32 angle, sint32 x, sint32 y,
-                   sint32 z);
+void func_8002FFC4(STCOM_SVECTOR *pos, STCOM_FIXED_VECTOR *fixed, sint32 angle, sint32 x, sint32 y, sint32 z);
 
 // STCOM_SPRITE's layout, with the direction the 0x10C-byte objects keep at +0x1C.
 typedef struct
@@ -740,8 +739,7 @@ extern STCOM18_PAIR D_80118064[6];
 void func_80109BB4(STCOM18_WORK *wp);
 void func_80109D78(STCOM18_WORK *wp);
 
-ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide);
+ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide);
 
 // func_8010E99C as the turret's caller saw it: retail passes no sixth argument there
 // (func_80106CF4), so that file's declaration had no prototype.
@@ -1580,8 +1578,7 @@ typedef struct
 extern sint16 D_80117A44[]; // the turn speed from each stage
 extern sint16 D_80117A50[]; // the frame each stage starts
 
-uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out,
-                     sint32 angle);
+uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out, sint32 angle);
 
 // The cells a turret can move to (func_80106238): four neighbours by direction, 0xFF for none.
 extern uint8 D_80117B04[][4];
@@ -1648,8 +1645,7 @@ void func_8001F580(sint32 arg0, sint32 arg1, sint32 arg2);
 
 sint32 func_80031CA4(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
 
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 
 void func_80114668(STAGE_OBJ *wp, STAGE_FACE *face, sint32 index);
 

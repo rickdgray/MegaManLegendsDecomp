@@ -15,9 +15,9 @@ typedef union
     sint32 words[8];
 } STCOM21_MATRIX;
 
-#define STCOM21_IDENTITY(mw)                                                                       \
-    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0,     \
-     (mw)->words[4] = 0x1000, (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
+#define STCOM21_IDENTITY(mw)                                                                                                               \
+    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0, (mw)->words[4] = 0x1000,                    \
+     (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
 
 struct STCOM21_WORK
 {
@@ -109,8 +109,7 @@ sint32 MojiTaskExec(sint32 arg0, uint8 *script, sint32 arg2);
 STCOM21_WORK *func_80031734(void);
 void func_80031A4C(STCOM21_WORK *wp);
 STCOM21_OBJ *func_80031418(void);
-sint32 func_80031EF0(STCOM_SVECTOR *pos, sint32 angle, sint32 range, STCOM_SVECTOR *target,
-                     sint32 target_angle, sint32 target_range);
+sint32 func_80031EF0(STCOM_SVECTOR *pos, sint32 angle, sint32 range, STCOM_SVECTOR *target, sint32 target_angle, sint32 target_range);
 sint32 func_8004324C(STCOM_PL_WORK *pl);
 sint32 Money_check(sint32 a0);
 void Money_add(sint32 a0, sint32 a1, sint32 a2);

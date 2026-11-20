@@ -1604,11 +1604,11 @@ void func_8012806C(ST1A_50 *wp);
 
 // Sets a face's mouth and eye scripts as one statement (the do-while changes func_80118270's
 // register allocation; found by the permuter).
-#define ST1A_FACE_SCRIPTS(face, mouth, eyes)                                                       \
-    do                                                                                             \
-    {                                                                                              \
-        func_80117910(face, mouth);                                                                \
-        func_80117930(face, eyes);                                                                 \
+#define ST1A_FACE_SCRIPTS(face, mouth, eyes)                                                                                               \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        func_80117910(face, mouth);                                                                                                        \
+        func_80117930(face, eyes);                                                                                                         \
     } while (0)
 
 // A 0x3C0-byte slot with a talking face's scripts at +0x348 (func_8011259C).
@@ -3701,8 +3701,7 @@ typedef struct
 
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 void func_801169B0(ST1A_STCOM27_WORK_D *wp);
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void func_80116EBC(ST1A_STCOM27_WORK_D *wp);
 
 typedef struct ST1A_VIEW_K ST1A_VIEW_K;
@@ -3967,8 +3966,7 @@ typedef struct
 STAGE_OBJ *func_8011F27C(void);
 sint32 func_80048D08(sint32 a0, STCOM_SVECTOR *pos);
 
-STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 count,
-                        sint32 count_28, uint8 attach, uint8 color);
+STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 count, sint32 count_28, uint8 attach, uint8 color);
 
 STAGE_FX *func_8012B440(sint16 x, sint16 y, uint8 arg2, sint16 arg3, sint16 arg4, sint16 arg5);
 

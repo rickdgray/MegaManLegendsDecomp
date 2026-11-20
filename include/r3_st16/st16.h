@@ -69,7 +69,6 @@ void func_80102730(STAGE_FX *wp);
 void func_80102788(STAGE_FX *wp);
 void func_8010291C(STAGE_FX *wp);
 void func_801029F8(STAGE_FX *wp);
-STAGE_FX *func_80102CF4(STAGE_OBJ *parent, sint16 angle, sint16 radius, sint16 height,
-                        uint8 variant);
+STAGE_FX *func_80102CF4(STAGE_OBJ *parent, sint16 angle, sint16 radius, sint16 height, uint8 variant);
 
 #endif // ST16_H

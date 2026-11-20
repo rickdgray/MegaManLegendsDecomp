@@ -183,15 +183,15 @@ typedef struct
 typedef void (*ST1D_ARM_FUNC)(ST1D_ARM *wp);
 
 // Starts an animation unless it is already running.
-#define ST1D_ARM_ANIM(wp, n)                                                                       \
-    do                                                                                             \
-    {                                                                                              \
-        (wp)->anim_AC = (n);                                                                       \
-        if ((wp)->anim_prev_AD != (n))                                                             \
-        {                                                                                          \
-            (wp)->anim_prev_AD = (n);                                                              \
-            func_80032304((wp), (wp)->anim_AC, 0);                                                 \
-        }                                                                                          \
+#define ST1D_ARM_ANIM(wp, n)                                                                                                               \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        (wp)->anim_AC = (n);                                                                                                               \
+        if ((wp)->anim_prev_AD != (n))                                                                                                     \
+        {                                                                                                                                  \
+            (wp)->anim_prev_AD = (n);                                                                                                      \
+            func_80032304((wp), (wp)->anim_AC, 0);                                                                                         \
+        }                                                                                                                                  \
     } while (0)
 
 // The objects an arm reaches through func_80036294: their bone matrices from +0x208.
@@ -578,12 +578,10 @@ extern STCOM_FIXED_VECTOR D_8011A6A0;
 extern sint16 D_80114BF8[];
 void func_80102F24(ST1D_VIEW *wp);
 
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void func_80103920(ST1D_VIEW *wp);
 
-sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void func_80103D6C(ST1D_VIEW *wp);
 
 void func_80105060(ST1D_VIEW *wp);

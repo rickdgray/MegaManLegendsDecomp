@@ -804,8 +804,7 @@ void func_8010BD90(ST0E_LEVER *wp);
 sint32 func_8003648C(void *track, void *wp);
 
 void func_8010D9F8(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos);
-void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos, sint32 from,
-                   sint32 to);
+void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos, sint32 from, sint32 to);
 void func_80050C2C(void *wp);
 void func_80052528(void *wp);
 

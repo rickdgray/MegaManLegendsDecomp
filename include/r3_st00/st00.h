@@ -1846,8 +1846,7 @@ void func_80104BE4(ST00_ACTOR_B *wp);
 sint32 func_80048E6C(void *wp);
 void func_80104E64(STAGE_STCOM15_WORK_348 *wp);
 
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void func_801050E8(STAGE_STCOM15_WORK_348 *wp);
 
 void func_80105740(STAGE_STCOM15_WORK_348 *wp);
@@ -1881,8 +1880,7 @@ extern ST00_SPARK *D_80122444;
 extern ST00_SPARK *D_80122448;
 extern ST00_SPARK *D_8012244C;
 
-ST00_SPARK *func_80116D60(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide);
+ST00_SPARK *func_80116D60(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide);
 
 // STAGE_ROOM with the effect func_80100EFC keeps at +0x64.
 typedef struct
@@ -1927,8 +1925,7 @@ void func_80107D04(STAGE_STCOM15_WORK_4E0 *wp);
 
 void func_80107FAC(STAGE_STCOM15_WORK_4E0 *wp);
 
-sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 extern sint16 D_8011C14C[];
 void Swing_Camera2(sint32 a0, sint32 a1, sint32 a2, STCOM_SVECTOR *pos);
 void func_801084D4(STAGE_STCOM15_WORK_4E0 *wp);

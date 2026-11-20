@@ -467,7 +467,7 @@ typedef struct
 extern ST08_ANIM D_80113B1C[];
 
 // Scene_work's object slots from +0x24 (the actors a scene drives).
-#define ST08_SCENE_OBJ(i) (*(void **)((uint8 *)&Scene_work + 0x24 + (i) * 4))
+#define ST08_SCENE_OBJ(i) (*(void **)((uint8 *)&Scene_work + 0x24 + (i)*4))
 
 // ST08_EV as a five-layer texture animation: each layer's script step and frames left.
 typedef struct

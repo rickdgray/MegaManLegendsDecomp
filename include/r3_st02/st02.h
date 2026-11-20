@@ -309,8 +309,7 @@ void func_80104210(ST02_SPARK *wp);
 void func_80104264(ST02_SPARK *wp);
 void func_801042A0(ST02_SPARK *wp);
 void func_801043E8(ST02_SPARK *wp);
-ST02_SPARK *func_80104448(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise,
-                          uint8 flag);
+ST02_SPARK *func_80104448(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag);
 
 // A texture animation: frame, then frames to hold it.
 typedef struct

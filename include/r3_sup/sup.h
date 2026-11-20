@@ -227,9 +227,9 @@ typedef struct
 
 extern SUP_CAM D_801DC1B4[];
 extern SVECTOR D_801DC0E8[];
-extern SVECTOR D_801DBF48[]; // sprite positions; pad holds value_3
-extern uint16 D_801DC0A4[];  // value_60 by Player_work.value_172
-extern uint16 D_801DC0C8[];  // per kind: scenario flags (minus 0x4C0) of sprites 13 to 25, part row
+extern SVECTOR D_801DBF48[];  // sprite positions; pad holds value_3
+extern uint16 D_801DC0A4[];   // value_60 by Player_work.value_172
+extern uint16 D_801DC0C8[];   // per kind: scenario flags (minus 0x4C0) of sprites 13 to 25, part row
 extern uint8 D_801DC088[][2]; // message by kind
 extern uint8 D_801DC1E4[];    // message by kind
 extern uint8 D_801DC1F4[];    // message by kind // player start position and direction

@@ -253,8 +253,7 @@ void func_80033F04(SVECTOR *out, SVECTOR *dir, SVECTOR *cur, sint32 a3, sint32 a
 void func_80030150(SHL_FIXED *fpos, SVECTOR *pos);
 void Model_Shadow_Trans(void *obj, sint32 a1, sint32 a2, sint32 a3);
 void Swing_Camera2(sint32 a0, sint32 a1, sint32 a2, SVECTOR *pos);
-sint32 func_800341BC(SVECTOR *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, uint32 *col,
-                     uint32 flags, sint32 arg7, sint32 arg8);
+sint32 func_800341BC(SVECTOR *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, uint32 *col, uint32 flags, sint32 arg7, sint32 arg8);
 sint32 func_8004B414(void *obj);
 void func_8004AC8C(SVECTOR *vel, sint32 flags);
 sint32 func_80048C60(SVECTOR *pos);
@@ -267,7 +266,7 @@ sint32 func_80037694(void *obj, sint32 arg);
 sint32 func_800375D4(void *pl, sint32 arg);
 sint16 func_80039B80(void);
 void func_80051BAC(void *obj);
-void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6,
-                   uint32 *a7, sint32 a8, sint32 a9, sint32 a10);
+void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6, uint32 *a7, sint32 a8, sint32 a9,
+                   sint32 a10);
 
 #endif // SHL_H

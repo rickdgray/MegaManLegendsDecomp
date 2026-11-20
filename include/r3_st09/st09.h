@@ -707,12 +707,10 @@ sint16 func_80048E6C(void *wp);
 sint32 func_801031E8(ST09_VIEW *wp);
 void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
 
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 sint32 func_80103170(ST09_VIEW *wp);
 
-sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 
 sint32 func_800364B0(void *track, void *wp, sint32 angle);
 

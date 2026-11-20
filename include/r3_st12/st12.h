@@ -11,9 +11,9 @@ typedef union
     sint32 words[8];
 } ST12_MATRIX;
 
-#define ST12_IDENTITY(mw)                                                                          \
-    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0,     \
-     (mw)->words[4] = 0x1000, (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
+#define ST12_IDENTITY(mw)                                                                                                                  \
+    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0, (mw)->words[4] = 0x1000,                    \
+     (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
 
 // A 0x50-byte slot (func_80031734) as this stage's objects use it (STCOM21_WORK's layout).
 typedef struct ST12_OBJ50 ST12_OBJ50;

@@ -30,9 +30,9 @@ typedef union
     } f;
 } STCOM22_MATRIX;
 
-#define STCOM22_IDENTITY(mw)                                                                       \
-    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0,     \
-     (mw)->words[4] = 0x1000, (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
+#define STCOM22_IDENTITY(mw)                                                                                                               \
+    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0, (mw)->words[4] = 0x1000,                    \
+     (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
 
 struct STCOM22_WORK
 {
@@ -149,8 +149,8 @@ STCOM22_WORK *func_80031734(void);
 void func_80031A4C(STCOM22_WORK *wp);
 sint32 func_80048EA4(STCOM_SVECTOR *pos, sint16 *box, sint32 dy, sint32 kind);
 void func_80052528(STCOM22_WORK *wp);
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 angle, sint32 range,
-                     STCOM_FIXED_VECTOR *target, sint32 target_angle, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 angle, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_angle,
+                     sint32 target_range);
 sint32 func_80048D08(sint32 a0, STCOM_SVECTOR *pos);
 uint32 func_8003AC9C(sint32 idx, uint32 key);
 

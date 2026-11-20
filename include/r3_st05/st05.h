@@ -735,8 +735,7 @@ extern STCOM_MATRIX D_80137EB0;
 extern STCOM_MATRIX D_80137ED0;
 extern STCOM_MATRIX D_80137EF0;
 extern STCOM_MATRIX D_80137F10;
-extern STCOM_SVECTOR
-    D_80137F30[]; // one vector; an array keeps its address in a register (func_80112284)
+extern STCOM_SVECTOR D_80137F30[]; // one vector; an array keeps its address in a register (func_80112284)
 extern STCOM_FIXED_VECTOR D_80137F38;
 extern STCOM_FIXED_VECTOR D_80137F58;
 extern sint32 D_80137F6C;
@@ -1968,8 +1967,7 @@ void func_801088F4(ST05_VILLAGER *wp);
 
 void func_80108A54(ST05_VILLAGER *wp);
 
-sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void func_80108BA4(ST05_VILLAGER *wp);
 
 void func_80108DFC(ST05_VILLAGER *wp);
@@ -2473,8 +2471,7 @@ typedef struct
 
 void func_80112284(STAGE_OBJ *wp);
 
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 
 STCOM_MATRIX *MulMatrix0(STCOM_MATRIX *m0, STCOM_MATRIX *m1, STCOM_MATRIX *out);
 STCOM_MATRIX *TransposeMatrix(STCOM_MATRIX *m0, STCOM_MATRIX *m1);

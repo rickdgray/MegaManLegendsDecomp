@@ -11,9 +11,9 @@ typedef union
     sint32 words[8];
 } STCOM32_MATRIX;
 
-#define STCOM32_IDENTITY(mw)                                                                       \
-    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0,     \
-     (mw)->words[4] = 0x1000, (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
+#define STCOM32_IDENTITY(mw)                                                                                                               \
+    ((mw)->words[0] = 0x1000, (mw)->words[1] = 0, (mw)->words[2] = 0x1000, (mw)->words[3] = 0, (mw)->words[4] = 0x1000,                    \
+     (mw)->words[5] = 0, (mw)->words[6] = 0, (mw)->words[7] = 0)
 
 // Variants 1..3 are a sprite instead of a model: its record overlays the matrix.
 typedef struct

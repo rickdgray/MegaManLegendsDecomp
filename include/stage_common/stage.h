@@ -140,9 +140,8 @@ typedef union
     sint32 w[8];
 } STAGE_MATRIX;
 
-#define STAGE_MATRIX_IDENTITY(mw)                                                                  \
-    ((mw)[0] = 0x1000, (mw)[1] = 0, (mw)[2] = 0x1000, (mw)[3] = 0, (mw)[4] = 0x1000, (mw)[5] = 0,  \
-     (mw)[6] = 0, (mw)[7] = 0)
+#define STAGE_MATRIX_IDENTITY(mw)                                                                                                          \
+    ((mw)[0] = 0x1000, (mw)[1] = 0, (mw)[2] = 0x1000, (mw)[3] = 0, (mw)[4] = 0x1000, (mw)[5] = 0, (mw)[6] = 0, (mw)[7] = 0)
 
 // The display link record; ordering-table entries from +0x74.
 typedef struct
@@ -1152,10 +1151,9 @@ typedef struct
 // The identity as word stores through casts. The casts make each store a plain (non-struct)
 // memory reference, so GCC 2.7 may schedule a load from the work slot (RotMatrixY's angle) above
 // them; the union stores of STAGE_MATRIX_IDENTITY may alias it. Word 0 is stored last.
-#define STAGE_MATRIX_IDENTITY_SCALAR(mw)                                                           \
-    (*(sint32 *)&(mw)[1] = 0, *(sint32 *)&(mw)[2] = 0x1000, *(sint32 *)&(mw)[3] = 0,               \
-     *(sint32 *)&(mw)[4] = 0x1000, *(sint32 *)&(mw)[5] = 0, *(sint32 *)&(mw)[6] = 0,               \
-     *(sint32 *)&(mw)[7] = 0, *(sint32 *)&(mw)[0] = 0x1000)
+#define STAGE_MATRIX_IDENTITY_SCALAR(mw)                                                                                                   \
+    (*(sint32 *)&(mw)[1] = 0, *(sint32 *)&(mw)[2] = 0x1000, *(sint32 *)&(mw)[3] = 0, *(sint32 *)&(mw)[4] = 0x1000,                         \
+     *(sint32 *)&(mw)[5] = 0, *(sint32 *)&(mw)[6] = 0, *(sint32 *)&(mw)[7] = 0, *(sint32 *)&(mw)[0] = 0x1000)
 // The current room's map in the scratchpad (the STAGE_MAP_* fields as one struct). Room setup
 // writes it through this view: struct stores keep the room-table loads after them, as in retail.
 typedef struct
@@ -1266,8 +1264,8 @@ typedef struct
 } STAGE_SHOT_FX;
 
 sint32 func_800375D4(void *pl, sint32 arg);
-void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6,
-                   void *hit, sint32 flags, sint32 a9, sint32 a10);
+void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, sint32 a5, sint32 a6, void *hit, sint32 flags, sint32 a9,
+                   sint32 a10);
 
 // Player_work while a room routine drives it: the bytes at +0xC to +0xE are its own routine
 // indices and timer (r3_st06, r3_st0b).

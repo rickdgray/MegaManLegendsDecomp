@@ -14,16 +14,16 @@ typedef union
 // A 0x20-byte control block of ST04_ACTOR (at +0x348 and +0x368).
 typedef struct
 {
-    uint16 flags_0;         // 00
-    uint16 value_2;         // 02
-    sint16 timer_4;         // 04
-    sint16 value_6;         // 06
-    uint16 value_8;         // 08: hit kind bits
-    sint16 timer_A;         // 0A
-    STCOM_SVECTOR target_C; // 0C: where the actor turns or walks to
+    uint16 flags_0;          // 00
+    uint16 value_2;          // 02
+    sint16 timer_4;          // 04
+    sint16 value_6;          // 06
+    uint16 value_8;          // 08: hit kind bits
+    sint16 timer_A;          // 0A
+    STCOM_SVECTOR target_C;  // 0C: where the actor turns or walks to
     ST04_ACTOR_CTL_14 at_14; // 14
     uint16 value_1C;         // 1C: the waypoint index in the second block
-    uint16 value_1E;        // 1E
+    uint16 value_1E;         // 1E
 } ST04_ACTOR_CTL;
 
 // A 0x3C0-byte work slot as this stage's villagers use it: STAGE_ACTOR with the blocks at +0x348
@@ -584,8 +584,8 @@ extern sint32 D_800A3988[]; // [0]: the talk camera distance
 extern sint32 D_800A398C;
 extern sint32 D_800A3990;
 extern STCOM_FIXED_VECTOR D_800A39D0; // the talk camera's point
-extern uint8 D_80111D60; // the saved D_800A395A[0]
-extern uint8 D_80111D64; // the saved D_800A395A[1]
+extern uint8 D_80111D60;              // the saved D_800A395A[0]
+extern uint8 D_80111D64;              // the saved D_800A395A[1]
 
 void func_80107264(ST04_ACTOR *wp);
 

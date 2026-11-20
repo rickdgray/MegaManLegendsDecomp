@@ -5,14 +5,14 @@
 #include "stage_common/rock_neo.h"
 
 // d = |a - b|, as a statement (the pitch helpers stcom17_func_22C8..23BC).
-#define STCOM17_ABS_DIFF(d, a, b)                                                                  \
-    do                                                                                             \
-    {                                                                                              \
-        (d) = (a) - (b);                                                                           \
-        if ((d) < 0)                                                                               \
-        {                                                                                          \
-            (d) = -(d);                                                                            \
-        }                                                                                          \
+#define STCOM17_ABS_DIFF(d, a, b)                                                                                                          \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        (d) = (a) - (b);                                                                                                                   \
+        if ((d) < 0)                                                                                                                       \
+        {                                                                                                                                  \
+            (d) = -(d);                                                                                                                    \
+        }                                                                                                                                  \
     } while (0)
 
 // The 0x10C-byte slot stcom17 spawns (Open_SHL_WORK): a shell (kind 1) or a missile (kind 0x2E).
@@ -219,8 +219,7 @@ sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32
 void func_8002F9EC(void *wp, sint32 arg);
 void func_80032304(void *wp, sint32 anim, sint32 arg);
 void func_8003346C(void *wp);
-uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out,
-                     sint32 angle);
+uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out, sint32 angle);
 sint32 func_80030418(void *a, void *b, STCOM_SVECTOR *size, STCOM_FIXED_VECTOR *out);
 void func_80030EE8(void *wp, STCOM_SVECTOR *target, sint32 speed);
 #ifdef __wasm32__
@@ -230,8 +229,7 @@ void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 #endif
 void func_80052528(void *wp);
 sint32 func_800364B0(void *track, void *wp, sint32 angle);
-sint16 func_80030D30(STCOM_SVECTOR *from, STCOM_SVECTOR *to, sint32 speed, sint32 arg3,
-                     sint32 arg4);
+sint16 func_80030D30(STCOM_SVECTOR *from, STCOM_SVECTOR *to, sint32 speed, sint32 arg3, sint32 arg4);
 void func_80030968(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
 sint32 SquareRoot0(sint32 v);
 // Hand-written: copies `count` words.

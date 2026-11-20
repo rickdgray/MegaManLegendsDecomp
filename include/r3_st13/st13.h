@@ -666,8 +666,7 @@ void Sce_flag_off(sint32 flag);
 void func_801004D8(void);
 void func_80100FA4(ST13_STCOM27_WORK *wp);
 void func_8010103C(ST13_STCOM27_WORK *wp);
-sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target,
-                     sint32 target_rot, sint32 target_range);
+sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
 void ApplyMatrix(STCOM_MATRIX *m, STCOM_SVECTOR *v, STCOM_FIXED_VECTOR *out);
 void func_8010CAD4(STCOM16_WORK *wp);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);

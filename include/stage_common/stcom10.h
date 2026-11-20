@@ -108,11 +108,11 @@ typedef void (*STCOM10_FUNC)(STCOM10_WORK *wp);
 
 extern STCOM10_FUNC stcom10_D_0000[];   // routine_0 handlers (stcom10_func_0000)
 extern STCOM10_AREA **stcom10_D_000C[]; // tables by stage (Game_work.value_50) and room (value_51)
-extern uint32 stcom10_E_0000;         // the pools' allocation masks at the last area change: 0x5A4
-extern uint32 stcom10_E_0004;         // 0x3C0
-extern uint32 stcom10_E_0008;         // 0x10C
-extern uint32 stcom10_E_000C;         // 0x50
-extern STCOM10_PAIR stcom10_E_0010[]; // the objects spawned in the area, ended by flag 0xFF
+extern uint32 stcom10_E_0000;           // the pools' allocation masks at the last area change: 0x5A4
+extern uint32 stcom10_E_0004;           // 0x3C0
+extern uint32 stcom10_E_0008;           // 0x10C
+extern uint32 stcom10_E_000C;           // 0x50
+extern STCOM10_PAIR stcom10_E_0010[];   // the objects spawned in the area, ended by flag 0xFF
 
 // The pools' handler tables (scratchpad).
 #define STCOM10_TABLE_3C0 (*(STCOM10_OBJ_FUNC ***)0x1F800058)
