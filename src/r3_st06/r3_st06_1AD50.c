@@ -143,20 +143,17 @@ void func_8011B164(ST06_EVENT *wp)
                 Sce_flag_on(0x621);
                 Sce_flag_on(0x622);
             }
-            else if (level < 0x7E && !Sce_flag_test(0x623) && !Sce_flag_test(0x624) &&
-                     !Sce_flag_test(0x625) && func_80042208())
+            else if (level < 0x7E && !Sce_flag_test(0x623) && !Sce_flag_test(0x624) && !Sce_flag_test(0x625) && func_80042208())
             {
                 Sce_flag_on(0x621);
                 Sce_flag_on(0x623);
             }
-            else if (level < 0x3F && Sce_flag_test(0x623) && !Sce_flag_test(0x624) &&
-                     !Sce_flag_test(0x625) && func_80042208())
+            else if (level < 0x3F && Sce_flag_test(0x623) && !Sce_flag_test(0x624) && !Sce_flag_test(0x625) && func_80042208())
             {
                 Sce_flag_on(0x621);
                 Sce_flag_on(0x624);
             }
-            else if (level == 0 && Sce_flag_test(0x623) && Sce_flag_test(0x624) &&
-                     !Sce_flag_test(0x625) && func_80042208())
+            else if (level == 0 && Sce_flag_test(0x623) && Sce_flag_test(0x624) && !Sce_flag_test(0x625) && func_80042208())
             {
                 Sce_flag_on(0x621);
                 Sce_flag_on(0x625);

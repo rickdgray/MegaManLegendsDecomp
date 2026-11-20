@@ -25,8 +25,7 @@ void func_801228EC(ST05_PROP_B *wp)
     {
         wp->position.y -= 0x20;
         wp->position_fixed.y = wp->position.y << 16;
-        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0,
-                      0x80);
+        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
         wp->position.y += 0x20;
         wp->position_fixed.y = wp->position.y << 16;
     }
@@ -132,7 +131,7 @@ void func_80122C54(ST05_PROP_B *wp)
                 {
                     wp->rotation.v.z = (wp->rotation.v.z + 0x10) & 0xFFF;
                 }
-                wp->position.y = wp->accel.y + (wp->velocity.v.y * D_800BBCF8[ctl->timer_4] >> 12);
+                wp->position.y       = wp->accel.y + (wp->velocity.v.y * D_800BBCF8[ctl->timer_4] >> 12);
                 wp->position_fixed.y = wp->velocity.v.y << 12;
                 ctl->timer_4         = (ctl->timer_4 + 1) & 0x3F;
             } while (0);

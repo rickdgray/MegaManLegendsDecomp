@@ -90,10 +90,8 @@ void func_801113A4(void)
                                 wp->dir_C           = list[k].spawn_E[i] & 0xF;
                                 wp->value_D         = count;
                                 pos                 = STAGE_CELL_TBL[cell].pos;
-                                wp->pos_38.x        = STAGE_CELL_TBL[cell].pos.x + list[k].x_8 +
-                                                      D_80114FF0[wp->dir_C].x;
-                                wp->pos_38.z        = STAGE_CELL_TBL[cell].pos.z + list[k].z_C +
-                                                      D_80114FF0[wp->dir_C].z;
+                                wp->pos_38.x        = STAGE_CELL_TBL[cell].pos.x + list[k].x_8 + D_80114FF0[wp->dir_C].x;
+                                wp->pos_38.z        = STAGE_CELL_TBL[cell].pos.z + list[k].z_C + D_80114FF0[wp->dir_C].z;
                                 wp->pos_38.y        = STAGE_CELL_TBL[cell].pos.y + list[k].y_A;
                                 wp->matrix.words[0] = 0x1000;
                                 wp->matrix.words[1] = 0;

@@ -308,9 +308,7 @@ void func_8010CDB0(ST14_ACTOR *wp)
             break;
         case 1:
             ctl->u_8.h[0]--;
-            wp->rotation.y =
-                (ctl->u_8.h[0] * ctl->value_38 + (ctl->u_8.h[1] - ctl->u_8.h[0]) * ctl->value_3A) /
-                ctl->u_8.h[1];
+            wp->rotation.y = (ctl->u_8.h[0] * ctl->value_38 + (ctl->u_8.h[1] - ctl->u_8.h[0]) * ctl->value_3A) / ctl->u_8.h[1];
             if (ctl->u_8.h[0] == 0)
             {
                 rot              = (uint16)ctl->value_3A;
@@ -349,9 +347,7 @@ void func_8010CDB0(ST14_ACTOR *wp)
             break;
         case 5:
             ctl->u_8.h[0]--;
-            wp->rotation.y =
-                (ctl->u_8.h[0] * ctl->value_38 + (ctl->u_8.h[1] - ctl->u_8.h[0]) * ctl->value_3A) /
-                ctl->u_8.h[1];
+            wp->rotation.y = (ctl->u_8.h[0] * ctl->value_38 + (ctl->u_8.h[1] - ctl->u_8.h[0]) * ctl->value_3A) / ctl->u_8.h[1];
             if (ctl->u_8.h[0] == 0)
             {
                 rot5             = (uint16)ctl->value_3A;
@@ -526,12 +522,10 @@ void func_8010D374(ST14_ACTOR *wp)
             wp->ctl.u_8.h[0]--;
             wp->velocity.v.y += 0x40;
             Obj_pos_set(wp, 0, wp->velocity.v.y, 0);
-            wp->position.x = (wp->ctl.u_8.h[0] * wp->ctl.vec_40.x +
-                              (wp->ctl.u_8.h[1] - wp->ctl.u_8.h[0]) * wp->ctl.vec_48.x) /
-                             wp->ctl.u_8.h[1];
-            wp->rotation.y = (wp->ctl.u_8.h[0] * wp->ctl.value_38 +
-                              (wp->ctl.u_8.h[1] - wp->ctl.u_8.h[0]) * wp->ctl.value_3A) /
-                             wp->ctl.u_8.h[1];
+            wp->position.x =
+                (wp->ctl.u_8.h[0] * wp->ctl.vec_40.x + (wp->ctl.u_8.h[1] - wp->ctl.u_8.h[0]) * wp->ctl.vec_48.x) / wp->ctl.u_8.h[1];
+            wp->rotation.y =
+                (wp->ctl.u_8.h[0] * wp->ctl.value_38 + (wp->ctl.u_8.h[1] - wp->ctl.u_8.h[0]) * wp->ctl.value_3A) / wp->ctl.u_8.h[1];
             if (wp->ctl.u_8.h[0] == 0)
             {
                 wp->position           = wp->ctl.vec_48;
@@ -808,8 +802,7 @@ sint16 func_8010DCCC(ST14_ACTOR *wp)
     {
         pos.z += 0x100;
     }
-    if ((sint16)func_80048EA4(&pos, NULL, 0, wp->value_1) !=
-        (sint16)func_80048EA4(&wp->position, NULL, 0, wp->value_1))
+    if ((sint16)func_80048EA4(&pos, NULL, 0, wp->value_1) != (sint16)func_80048EA4(&wp->position, NULL, 0, wp->value_1))
     {
         blocked = 1;
     }
@@ -834,15 +827,13 @@ sint32 func_8010DDD0(ST14_ACTOR *wp)
     {
         wp->ctl.u_C.h.kind_C = D_80098844[wp->kind_2]->value_B;
         wp->ctl.pos_10       = wp->joint_180[8];
-        func_800341BC(&wp->ctl.pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18,
-                      wp->ctl.u_C.h.kind_C | 0x5880000, 0x800000, 0);
+        func_800341BC(&wp->ctl.pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.u_C.h.kind_C | 0x5880000, 0x800000, 0);
     }
     else
     {
         wp->ctl.u_C.h.kind_C = D_80098844[wp->kind_2]->value_A;
         wp->ctl.pos_10       = wp->joint_180[0];
-        func_800341BC(&wp->ctl.pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18,
-                      wp->ctl.u_C.h.kind_C | 0x4880000, 0x800000, 0);
+        func_800341BC(&wp->ctl.pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.u_C.h.kind_C | 0x4880000, 0x800000, 0);
     }
     return 1;
 }
@@ -1362,13 +1353,11 @@ void func_8010EE98(ST14_VILLAGER *wp)
         ext->pos_C[i]        = wp->joint_180[D_80115DFC[i]];
         if (i == 0)
         {
-            func_800341BC(&ext->pos_C[0], D_80115E04[0], 0, 0x8000, wp->value_1, &ext->hit_3C[0],
-                          ext->value_6C[0] | 0x4080000, 0, 0);
+            func_800341BC(&ext->pos_C[0], D_80115E04[0], 0, 0x8000, wp->value_1, &ext->hit_3C[0], ext->value_6C[0] | 0x4080000, 0, 0);
         }
         else
         {
-            func_800341BC(&ext->pos_C[i], D_80115E04[i], 0, 0x8000, wp->value_1, &ext->hit_3C[i],
-                          ext->value_6C[i] | 0x4080000, 0, 0x80);
+            func_800341BC(&ext->pos_C[i], D_80115E04[i], 0, 0x8000, wp->value_1, &ext->hit_3C[i], ext->value_6C[i] | 0x4080000, 0, 0x80);
         }
     }
 }
@@ -1421,9 +1410,7 @@ void func_8010F110(ST14_VILLAGER *wp)
     {
         return;
     }
-    wp->rotation.y =
-        (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x10)) &
-        0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x10)) & 0xFFF;
     if (wp->ext.value_84 >= 0x600)
     {
         func_8010F900(wp);
@@ -1510,9 +1497,7 @@ void func_8010F268(ST14_VILLAGER *wp)
     }
     if (wp->velocity.x != 0)
     {
-        wp->rotation.y =
-            (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x30)) &
-            0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x30)) & 0xFFF;
         Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, wp->velocity.z);
     }
 }
@@ -1733,10 +1718,8 @@ sint32 func_8010F934(ST14_VILLAGER *wp)
 
 void func_8010F9AC(STAGE_OBJ *wp)
 {
-    wp->rotation.y = ((uint16)wp->rotation.y +
-                      Muku(&wp->position, (STCOM_SVECTOR *)&wp->u_4E0.face.mouth_4,
-                                    (sint32)wp->rotation.y, 0x80)) &
-                     0xFFF;
+    wp->rotation.y =
+        ((uint16)wp->rotation.y + Muku(&wp->position, (STCOM_SVECTOR *)&wp->u_4E0.face.mouth_4, (sint32)wp->rotation.y, 0x80)) & 0xFFF;
 }
 
 void func_8010F9F8(STAGE_OBJ *wp)

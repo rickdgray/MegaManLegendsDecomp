@@ -947,8 +947,7 @@ void func_80102C98(STAGE_FX *wp)
     }
 }
 
-STAGE_FX *func_80102CF4(STAGE_OBJ *parent, sint16 angle, sint16 radius, sint16 height,
-                        uint8 variant)
+STAGE_FX *func_80102CF4(STAGE_OBJ *parent, sint16 angle, sint16 radius, sint16 height, uint8 variant)
 {
     STAGE_FX *ep;
 

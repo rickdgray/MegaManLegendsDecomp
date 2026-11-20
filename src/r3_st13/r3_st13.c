@@ -402,8 +402,7 @@ void func_80100FA4(ST13_STCOM27_WORK *wp)
         wp->ctl.hit_20 = 0;
         wp->ctl.pos_18 = wp->position;
         wp->ctl.pos_18.y -= 0x80;
-        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->index_1, &wp->ctl.hit_20,
-                      wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->index_1, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
     }
 }
 
@@ -503,8 +502,7 @@ void func_8010127C(STAGE_OBJ *wp)
         return;
     }
     func_80032488(wp);
-    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer,
-                  (sint16)wp->value_48.words.fraction);
+    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer, (sint16)wp->value_48.words.fraction);
 }
 
 void func_801012E8(ST13_STCOM27_WORK *wp)
@@ -517,7 +515,7 @@ void func_801012E8(ST13_STCOM27_WORK *wp)
     pl             = &Player_work;
     ctl            = &wp->ctl;
     wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
-    seen = func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, pl->rotation.y, 0x800);
+    seen           = func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, pl->rotation.y, 0x800);
     if (wp->flags_6 & 0x80)
     {
         if (ctl->count_38 < 30)
@@ -582,9 +580,7 @@ void func_801012E8(ST13_STCOM27_WORK *wp)
 void func_8010150C(STAGE_OBJ *wp)
 {
     sint32 step;
-    wp->rotation.y = (wp->rotation.y +
-                      Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x40)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x40)) & 0xFFF;
     if (wp->u_4E0.face16.eyes_10 != NULL && (wp->flags_6 & 0x80))
     {
         if (rand() & 1)
@@ -650,9 +646,7 @@ void func_80101614(ST13_ACTOR *wp)
 
 void func_80101704(ST13_ACTOR *wp)
 {
-    wp->rotation.y = (wp->rotation.y +
-                      Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x80)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x80)) & 0xFFF;
     if (wp->value_A7 != 0)
     {
         func_800322A8(wp, 5, 0);
@@ -890,8 +884,7 @@ void func_80101D78(ST13_EMITTER *wp)
     wp->origin_90.z = wp->position.z = wp->position_fixed.f.z.words.integer;
     wp->position_fixed_prev          = wp->position_fixed.v;
     wp->position_prev                = wp->position;
-    wp->angle_CC =
-        ratan2(Player_work.position.x - wp->position.x, Player_work.position.z - wp->position.z);
+    wp->angle_CC                     = ratan2(Player_work.position.x - wp->position.x, Player_work.position.z - wp->position.z);
 }
 
 void func_80101E4C(ST13_EMITTER *wp)

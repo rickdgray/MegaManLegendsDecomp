@@ -20,8 +20,7 @@ void func_8011FABC(ST1A_EMITTER *wp)
     wp->origin_90.z = wp->position.z = wp->position_fixed.f.z.words.integer;
     wp->position_fixed_prev          = wp->position_fixed.v;
     wp->position_prev                = wp->position;
-    wp->angle_CC =
-        ratan2(Player_work.position.x - wp->position.x, Player_work.position.z - wp->position.z);
+    wp->angle_CC                     = ratan2(Player_work.position.x - wp->position.x, Player_work.position.z - wp->position.z);
 }
 
 void func_8011FB90(ST1A_EMITTER *wp)

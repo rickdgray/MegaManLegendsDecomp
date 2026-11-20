@@ -84,9 +84,7 @@ void func_80129670(STAGE_OBJ *wp)
 {
     uint16 temp_v0;
 
-    wp->position_fixed.f.x.words.integer =
-        -0xC8 -
-        ((sint32)(rcos((sint16)wp->position_fixed.f.pad.words.fraction * 0x10) * 0xC8) >> 0xC);
+    wp->position_fixed.f.x.words.integer = -0xC8 - ((sint32)(rcos((sint16)wp->position_fixed.f.pad.words.fraction * 0x10) * 0xC8) >> 0xC);
     func_80129714(wp);
     temp_v0                                 = wp->position_fixed.f.pad.words.fraction + 1;
     wp->position_fixed.f.pad.words.fraction = temp_v0;
@@ -414,8 +412,7 @@ void func_8012A270(STAGE_OBJ50 *wp)
     {
         color = D_80138EE0[wp->value_E][wp->u_C.b.hi] + 0x20;
     }
-    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->index_1, D_801397DC,
-                  color | 0x10000000, 0, 0x80);
+    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->index_1, D_801397DC, color | 0x10000000, 0, 0x80);
 }
 
 // Packing color within each case preserves the separate brightness clamps.
@@ -793,8 +790,7 @@ void func_8012B284(ST1A_PUFF *wp)
     }
 }
 
-STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 count,
-                        sint32 count_28, uint8 attach, uint8 color)
+STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 count, sint32 count_28, uint8 attach, uint8 color)
 {
     ST1A_PUFF *ep;
     sint32 i;

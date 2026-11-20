@@ -13,8 +13,7 @@ void func_8011227C(ST06_ACTOR *wp)
             wp->turn_64 = 0x20;
             // fall through
         case 1:
-            turn = Muku(&wp->position, &D_801253AC,
-                                 (wp->rotation.y + wp->ctl.timer_A) & 0xFFF, wp->turn_64);
+            turn            = Muku(&wp->position, &D_801253AC, (wp->rotation.y + wp->ctl.timer_A) & 0xFFF, wp->turn_64);
             wp->ctl.timer_A = (wp->ctl.timer_A + turn) & 0xFFF;
             if (turn == 0)
             {
@@ -46,10 +45,7 @@ void func_8011232C(ST06_ACTOR *wp)
             {
                 Sound_call(0xD7, 0, 0);
             }
-            wp->rotation.y =
-                (wp->rotation.y + Muku(&wp->position, &D_8012539C[wp->value_D],
-                                                wp->rotation.y, wp->turn_64)) &
-                0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &D_8012539C[wp->value_D], wp->rotation.y, wp->turn_64)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, wp->velocity.v.z);
             dx = wp->position.x - D_8012539C[wp->value_D].x;
             dz = wp->position.z - D_8012539C[wp->value_D].z;
@@ -136,9 +132,7 @@ void func_801125AC(ST06_ACTOR *wp)
         case 3:
             if (scene->flag_9 == 1)
             {
-                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position,
-                                                                 wp->rotation.y, wp->turn_64)) &
-                                 0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64)) & 0xFFF;
             }
             else
             {
@@ -161,7 +155,7 @@ void func_801125AC(ST06_ACTOR *wp)
             }
             break;
         case 6:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -180,7 +174,7 @@ void func_801125AC(ST06_ACTOR *wp)
                 }
                 else
                 {
-                    turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+                    turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
                     wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
                     if (turn == 0 && func_8003A13C() == 0)
                     {
@@ -225,7 +219,7 @@ void func_8011283C(ST06_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -288,14 +282,11 @@ sint32 func_80112A60(ST06_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -303,8 +294,7 @@ sint32 func_80112A60(ST06_ACTOR *wp)
         D_8012BA60.x = wp->value_180.x;
         D_8012BA60.y = wp->value_180.y - 0x20;
         D_8012BA60.z = wp->value_180.z;
-        func_80039FAC(&D_8012BA60, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_8012BA60, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;
@@ -554,7 +544,7 @@ void func_8011335C(ST06_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -609,14 +599,11 @@ sint32 func_80113548(ST06_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -624,8 +611,7 @@ sint32 func_80113548(ST06_ACTOR *wp)
         D_8012BA78.x = wp->value_180.x;
         D_8012BA78.y = wp->value_180.y - 0x20;
         D_8012BA78.z = wp->value_180.z;
-        func_80039FAC(&D_8012BA78, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_8012BA78, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;
@@ -1163,8 +1149,7 @@ void func_80114880(ST06_ACTOR *wp)
     ST06_CUE *cue;
 
     cue = &D_801254C8[wp->value_D];
-    if (cue->scene_0 != 0xFF && Scene_work.u_8.byte[1] == cue->scene_0 &&
-        Scene_work.value_10 == cue->frame_2)
+    if (cue->scene_0 != 0xFF && Scene_work.u_8.byte[1] == cue->scene_0 && Scene_work.value_10 == cue->frame_2)
     {
         wp->value_D++;
         wp->value_F = 0;
@@ -1332,8 +1317,7 @@ sint32 func_80114F10(ST06_BEAM *wp)
 
 void func_80114F48(ST06_BEAM *wp)
 {
-    func_800341BC(&wp->pos_1A0, 0x20, 0, 0xA000, wp->value_1, &wp->parts_2C8.hit_8, 0x64000010, 0,
-                  0);
+    func_800341BC(&wp->pos_1A0, 0x20, 0, 0xA000, wp->value_1, &wp->parts_2C8.hit_8, 0x64000010, 0, 0);
     wp->parts_2C8.hit_8 = 0;
 }
 
@@ -1484,8 +1468,7 @@ void func_801153B0(STAGE_OBJ *wp)
             wp->value_4C.half[1] = 2;
             // fall through
         case 1:
-            Obj_pos_set(wp, (sint16)(wp->value_44.half[0] << 4),
-                          (sint16)(wp->value_44.half[1] << 4), 0);
+            Obj_pos_set(wp, (sint16)(wp->value_44.half[0] << 4), (sint16)(wp->value_44.half[1] << 4), 0);
             wp->value_44.half[1] += wp->value_4C.half[1];
             if (func_8004B414(wp) & 0x1000)
             {

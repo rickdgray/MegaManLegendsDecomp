@@ -96,7 +96,7 @@ void stcom22_func_0078(STCOM22_WORK *wp)
                 pl->rot_440.y = pl->rotation.y = (ctl->rot.y + 0x800) & 0xFFF;
                 wp->value_E                    = 8;
                 wp->routine_1                  = 2;
-                ctl->value = func_80048EA4(&wp->pos_38, stcom22_D_0000, 0, 0xFFFF);
+                ctl->value                     = func_80048EA4(&wp->pos_38, stcom22_D_0000, 0, 0xFFFF);
                 Sound_call2(0x176, &wp->pos_38);
                 *count = 1;
             }
@@ -206,8 +206,7 @@ void stcom22_func_0530(STCOM22_WORK *wp)
     }
     if (wp->routine_2 == 0)
     {
-        if (pl->rotation.y > ((ctl->rot.y + 0x620) & 0xFFF) &&
-            pl->rotation.y < ((ctl->rot.y + 0x9E0) & 0xFFF) && pl->target_184 == wp)
+        if (pl->rotation.y > ((ctl->rot.y + 0x620) & 0xFFF) && pl->rotation.y < ((ctl->rot.y + 0x9E0) & 0xFFF) && pl->target_184 == wp)
         {
             wp->routine_2  = 1;
             pl->target_184 = NULL;
@@ -676,8 +675,7 @@ void stcom22_func_15C4(STCOM22_WORK *wp)
         fixed.x = wp->pos_38.x << 16;
         fixed.y = wp->pos_38.y << 16;
         fixed.z = wp->pos_38.z << 16;
-        if (func_80031DCC(&fixed, wp->matrix.f.ctl.rot.y + 0x400, 0x100, &pl->position_fixed,
-                          Player_work.rotation.y, 0x800))
+        if (func_80031DCC(&fixed, wp->matrix.f.ctl.rot.y + 0x400, 0x100, &pl->position_fixed, Player_work.rotation.y, 0x800))
         {
             wp->routine_1 = 1;
             if (wp->value_C == 0)

@@ -131,8 +131,7 @@ void func_801197D0(STAGE_OBJ *wp)
                 {
                     crab->u_C.b.byte_C &= ~2;
                     variant = 0;
-                    if (track->u_3C.b.value_7 >= 2 && track->u_3C.b.value_7 < 6 &&
-                        (track->random_6 & 3))
+                    if (track->u_3C.b.value_7 >= 2 && track->u_3C.b.value_7 < 6 && (track->random_6 & 3))
                     {
                         variant = !Sce_flag_test(0x625);
                     }

@@ -118,8 +118,7 @@ void func_80110438(ST0A_10C_B *wp)
     }
     if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14,
-                      D_801163F8[wp->byte_D] | 0x49000000, 0, 0x80);
+        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14, D_801163F8[wp->byte_D] | 0x49000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -159,8 +158,7 @@ STCOM_SVECTOR func_8011092C(ST0A_10C *wp)
     d.x = Player_work.position.x - wp->position.x;
     d.y = Player_work.position.y - wp->position.y;
     d.z = Player_work.position.z - wp->position.z;
-    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E ||
-        d.z < -0x687E)
+    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E || d.z < -0x687E)
     {
         d.x >>= 2;
         d.y >>= 2;
@@ -327,7 +325,7 @@ void func_80111118(ST0A_PIECE *wp)
     STCOM_FIXED_VECTOR scale;
     uint8 variant;
 
-    model     = &wp->model;
+    model      = &wp->model;
     wp->hit_C4 = 0;
     wp->hit_C8 = 0;
     wp->box_78 = D_801164E0;
@@ -347,12 +345,12 @@ void func_80111118(ST0A_PIECE *wp)
     RotMatrixYXZ(&wp->rotation, &model->mtx_4);
     scale.x = scale.y = scale.z = 0x200;
     ScaleMatrix(&wp->model.mtx_4, &scale);
-    wp->vx = (uint32)(-rsin(wp->rotation.y) * 5) >> 2;
-    wp->vy = 0;
-    wp->vz = (uint32)(-rcos(wp->rotation.y) * 5) >> 2;
-    wp->ax = 0;
-    wp->ay = -0x180;
-    wp->az = 0;
+    wp->vx        = (uint32)(-rsin(wp->rotation.y) * 5) >> 2;
+    wp->vy        = 0;
+    wp->vz        = (uint32)(-rcos(wp->rotation.y) * 5) >> 2;
+    wp->ax        = 0;
+    wp->ay        = -0x180;
+    wp->az        = 0;
     wp->routine_2 = 0;
     wp->routine_0++;
     wp->timer_B = (rand() & 7) + 0x14;
@@ -422,7 +420,7 @@ void func_801114D0(ST0A_PIECE *wp)
     wp->model.pos_24.x = wp->position.x = wp->fpos.h.x;
     wp->model.pos_24.y = wp->position.y = wp->fpos.h.y;
     wp->model.pos_24.z = wp->position.z = wp->fpos.h.z;
-    range = wp->range_C * 4;
+    range                               = wp->range_C * 4;
     if (--wp->timer_B == 0 || wp->dist_80 < range * range)
     {
         wp->timer_B = 0xF0;

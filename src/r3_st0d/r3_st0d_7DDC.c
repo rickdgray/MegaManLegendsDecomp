@@ -74,22 +74,19 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
         case 0:
             if (pl->target_184 == wp)
             {
-                wp->turn_64 =
-                    STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >>
-                    3;
+                wp->turn_64    = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
                 pl->target_184 = NULL;
                 pl->flags_0 &= ~2;
                 pl->flags_bd |= 0x80;
                 cam.x = wp->value_180.x;
                 cam.y = wp->value_180.y - 0x20;
                 cam.z = wp->value_180.z;
-                func_80039FAC(&cam, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                              D_800A396C);
+                func_80039FAC(&cam, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
                 wp->routine_1++;
             }
             break;
         case 1:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -767,8 +764,7 @@ void func_80109714(ST0D_BOBBER *wp, ST0D_BOB *bob)
     wp->rotation.y = (wp->rotation.y + bob->turn_6) & 0xFFF;
     if (bob->period_4 > 0)
     {
-        wp->position.y =
-            bob->base_A + ((bob->height_2 * D_800BBCF8[(bob->phase_8 << 6) / bob->period_4]) >> 12);
+        wp->position.y       = bob->base_A + ((bob->height_2 * D_800BBCF8[(bob->phase_8 << 6) / bob->period_4]) >> 12);
         wp->position_fixed.y = wp->position.y << 16;
         bob->phase_8++;
         bob->phase_8 %= bob->period_4;

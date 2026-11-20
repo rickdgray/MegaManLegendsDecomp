@@ -69,8 +69,7 @@ void func_80118308(STAGE_PANEL_WORK *wp)
         STCOM_GTE_RTPS();
         STCOM_GTE_STSXY(&sxy_pos);
         if (b.x != a.x && (b.z - a.z) * (player.x - a.x) / (b.x - a.x) + a.z < player.z &&
-            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) ||
-             (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
+            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) || (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
         {
             wp->color_40 = 0x2404040;
             return;
@@ -108,8 +107,7 @@ void func_80118704(STAGE_PANEL_WORK *wp)
     uint8 frame;
     uint32 color;
 
-    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&STAGE_PL.position) &&
-        Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
+    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&STAGE_PL.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
     {
         wp->routine_0 = 2;
         wp->timer_B   = 0x10;
@@ -281,8 +279,8 @@ void func_80118C3C(ST09_BOX *wp)
         if ((wp->flags_0 & 1) && (wp->matrix.f.ctl.flags_0 & 4))
         {
             wp->pos_38.y -= 0x80;
-            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011E4F4[wp->variant_3 >> 4], wp->index_1,
-                          &wp->matrix.f.ctl.hit_4, D_8011E4EC[wp->variant_3 >> 4], 0, 0x80);
+            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011E4F4[wp->variant_3 >> 4], wp->index_1, &wp->matrix.f.ctl.hit_4,
+                          D_8011E4EC[wp->variant_3 >> 4], 0, 0x80);
             wp->pos_38.y += 0x80;
         }
     }
@@ -441,8 +439,7 @@ void func_80119074(STAGE_PANEL_WORK *wp)
         STCOM_GTE_RTPS();
         STCOM_GTE_STSXY(&sxy_pos);
         if (b.x != a.x && (b.z - a.z) * (player.x - a.x) / (b.x - a.x) + a.z < player.z &&
-            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) ||
-             (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
+            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) || (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
         {
             wp->color_40 = 0x2404040;
             return;
@@ -618,10 +615,8 @@ void func_801196C0(void)
                                 wp->dir_C           = list[k].spawn_E[i];
                                 wp->value_D         = count;
                                 pos                 = STAGE_CELL_TBL[cell].pos;
-                                wp->pos_38.x        = D_8011E5AC[wp->dir_C][wp->value_3].x +
-                                                      (STAGE_CELL_TBL[cell].pos.x + list[k].x_8);
-                                wp->pos_38.z        = D_8011E5AC[wp->dir_C][wp->value_3].z +
-                                                      (STAGE_CELL_TBL[cell].pos.z + list[k].z_C);
+                                wp->pos_38.x        = D_8011E5AC[wp->dir_C][wp->value_3].x + (STAGE_CELL_TBL[cell].pos.x + list[k].x_8);
+                                wp->pos_38.z        = D_8011E5AC[wp->dir_C][wp->value_3].z + (STAGE_CELL_TBL[cell].pos.z + list[k].z_C);
                                 wp->pos_38.y        = STAGE_CELL_TBL[cell].pos.y + list[k].y_A;
                                 wp->matrix.words[0] = 0x1000;
                                 wp->matrix.words[1] = 0;

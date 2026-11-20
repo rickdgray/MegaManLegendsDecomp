@@ -96,8 +96,7 @@ void func_80120AAC(ST06_10C_B *wp)
                         wp->value_D = 8;
                     }
                 }
-                else if (wp->rotation.v.y == 0x400 &&
-                         wp->position.x <= D_8012B91C[wp->value_C].limit_0)
+                else if (wp->rotation.v.y == 0x400 && wp->position.x <= D_8012B91C[wp->value_C].limit_0)
                 {
                     wp->value_D = 8;
                 }

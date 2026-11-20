@@ -78,8 +78,7 @@ void stcom18_func_009C(STCOM18_WORK *wp)
     wp->data_10  = NULL;
     wp->value_78 = 0;
     wp->hit_BC   = 0;
-    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                  wp->kind_E | 0x8000000, 0, 0x80);
+    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
     if (func_80049C24(wp))
     {
         wp->routine_0 = 2;
@@ -141,8 +140,7 @@ void stcom18_func_0260(STCOM18_WORK *wp)
     }
     else
     {
-        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                      wp->kind_E | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
         wp->hit_BC = 0;
         hit        = func_80049C24(wp);
         if (hit)

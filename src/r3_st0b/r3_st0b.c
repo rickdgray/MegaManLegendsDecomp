@@ -980,10 +980,8 @@ void func_80101E90(uint8 r, uint8 g, uint8 b, uint16 abr)
 void func_80101FB4(STAGE_ROOM *wp)
 {
     ST0B_DUST *ep;
-    STCOM_SVECTOR pos[8] = {{-0xB8, -0x64, -0x1F4, 0},  {0x64, -0x2BC, 0xC8, 0},
-                            {0xDC, -0x78, -0xA, 0},     {-0xB4, -0xC8, 0xFA, 0},
-                            {0x82, -0x96, -0x12C, 0},   {-0xDC, -0x1A4, -0xDC, 0},
-                            {-0xC8, -0x190, -0x12C, 0}, {-0x29, -0x320, 0x78, 0}};
+    STCOM_SVECTOR pos[8] = {{-0xB8, -0x64, -0x1F4, 0}, {0x64, -0x2BC, 0xC8, 0},   {0xDC, -0x78, -0xA, 0},     {-0xB4, -0xC8, 0xFA, 0},
+                            {0x82, -0x96, -0x12C, 0},  {-0xDC, -0x1A4, -0xDC, 0}, {-0xC8, -0x190, -0x12C, 0}, {-0x29, -0x320, 0x78, 0}};
 
     switch (wp->frame_10)
     {
@@ -2240,8 +2238,7 @@ void func_801048FC(ST0B_OBJ *wp)
     {
         func_80106550(wp);
     }
-    if ((ctl->flags_0 & 0x1000) && func_80031EF0(&wp->position, wp->rotation.y, 0x20, &pl->position,
-                                                 pl->rotation.y, 0x800) != 0)
+    if ((ctl->flags_0 & 0x1000) && func_80031EF0(&wp->position, wp->rotation.y, 0x20, &pl->position, pl->rotation.y, 0x800) != 0)
     {
         ctl->flags_0 = (ctl->flags_0 & ~0x1000) | 2;
     }
@@ -2320,12 +2317,11 @@ void func_801048FC(ST0B_OBJ *wp)
             ctl->child_D0->position       = wp->position;
             ctl->child_D0->position_fixed = wp->position_fixed;
             ctl->child_D0->rotation.y     = wp->rotation.y;
-            func_8002FFC4(&ctl->child_D0->position, &ctl->child_D0->position_fixed.v,
-                          wp->rotation.y, D_8011AB54.x * 16, D_8011AB54.y * 16, D_8011AB54.z * 16);
+            func_8002FFC4(&ctl->child_D0->position, &ctl->child_D0->position_fixed.v, wp->rotation.y, D_8011AB54.x * 16, D_8011AB54.y * 16,
+                          D_8011AB54.z * 16);
             ctl->hit_90.pos_0   = ctl->child_D0->position;
             ctl->hit_90.pos_0.y = ctl->child_D0->position.y - 0x40;
-            func_800341BC(&ctl->hit_90, 0x60, 0, 0x8000, wp->value_1, &ctl->hit_90.hit_8,
-                          0x04080000, 0, 0x80);
+            func_800341BC(&ctl->hit_90, 0x60, 0, 0x8000, wp->value_1, &ctl->hit_90.hit_8, 0x04080000, 0, 0x80);
         }
         else
         {
@@ -2336,28 +2332,24 @@ void func_801048FC(ST0B_OBJ *wp)
         if (ctl->flags_0 & 4)
         {
             ctl->hit_10[0].pos_0 = ST0B_OBJ_JOINT(wp)[4];
-            func_800341BC(&ctl->hit_10[0], 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_10[0].hit_8,
-                          0x04080000, 0, 0);
+            func_800341BC(&ctl->hit_10[0], 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_10[0].hit_8, 0x04080000, 0, 0);
         }
         if (ctl->flags_0 & 8)
         {
             ctl->hit_10[1].pos_0 = ST0B_OBJ_JOINT(wp)[6];
-            func_800341BC(&ctl->hit_10[1], 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_10[1].hit_8,
-                          0x04080000, 0, 0);
+            func_800341BC(&ctl->hit_10[1], 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_10[1].hit_8, 0x04080000, 0, 0);
         }
         if (ctl->flags_0 & 0x10)
         {
             ctl->hit_68[0].pos_0 = ST0B_OBJ_JOINT(wp)[8];
             ctl->hit_68[0].pos_0.y -= 0x40;
-            func_800341BC(&ctl->hit_68[0], 0x60, 0, 0x8000, wp->value_1, &ctl->hit_68[0].hit_8,
-                          0x04080000, 0, 0);
+            func_800341BC(&ctl->hit_68[0], 0x60, 0, 0x8000, wp->value_1, &ctl->hit_68[0].hit_8, 0x04080000, 0, 0);
         }
         if (ctl->flags_0 & 0x20)
         {
             ctl->hit_68[1].pos_0 = ST0B_OBJ_JOINT(wp)[7];
             ctl->hit_68[1].pos_0.y -= 0x40;
-            func_800341BC(&ctl->hit_68[1], 0x60, 0, 0x8000, wp->value_1, &ctl->hit_68[1].hit_8,
-                          0x04080000, 0, 0);
+            func_800341BC(&ctl->hit_68[1], 0x60, 0, 0x8000, wp->value_1, &ctl->hit_68[1].hit_8, 0x04080000, 0, 0);
         }
     }
     if (wp->u_E.b.byte_E != 0 && (sint32)Moji_flag >= 0)
@@ -2501,8 +2493,7 @@ void func_80105404(ST0B_OBJ *wp)
         case 1:
             if (*flags & 0xC)
             {
-                if (func_80031EF0(&wp->position, wp->rotation.y, 0x100, &pl->position,
-                                  pl->rotation.y, 0x800) != 0)
+                if (func_80031EF0(&wp->position, wp->rotation.y, 0x100, &pl->position, pl->rotation.y, 0x800) != 0)
                 {
                     *flags |= 1;
                 }
@@ -2565,28 +2556,24 @@ void func_8010552C(ST0B_OBJ *wp)
                 ep = func_80031618();
                 if (ep != NULL)
                 {
-                    ep->flags_0   = 9;
-                    ep->kind_2    = 0xF;
-                    ep->variant_3 = 3;
-                    ep->value_C   = 0;
-                    ep->sprite.pos_8[0] =
-                        ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->x;
-                    ep->sprite.pos_8[1] =
-                        ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->y;
-                    ep->sprite.pos_8[2] =
-                        ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->z;
+                    ep->flags_0         = 9;
+                    ep->kind_2          = 0xF;
+                    ep->variant_3       = 3;
+                    ep->value_C         = 0;
+                    ep->sprite.pos_8[0] = ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->x;
+                    ep->sprite.pos_8[1] = ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->y;
+                    ep->sprite.pos_8[2] = ((STCOM_SVECTOR *)((uint8 *)wp + (joint << 3) + 0x180))->z;
                 }
                 func_80106C90(wp);
                 wp->routine_2++;
-                func_800341BC(&pl->position, 0x60, 0, 0x8000, wp->value_1, &wp->value_464,
-                              D_8009884C[wp->kind_2]->hit_E | 0x04000000, 0, 0x80);
+                func_800341BC(&pl->position, 0x60, 0, 0x8000, wp->value_1, &wp->value_464, D_8009884C[wp->kind_2]->hit_E | 0x04000000, 0,
+                              0x80);
             }
             break;
         case 3:
             if (wp->value_A7 < 0)
             {
-                if (func_80031EF0(&wp->position, wp->rotation.y, 0x100, &pl->position,
-                                  Player_work.rotation.y, 0x800) == 0)
+                if (func_80031EF0(&wp->position, wp->rotation.y, 0x100, &pl->position, Player_work.rotation.y, 0x800) == 0)
                 {
                     ctl->flags_0 |= 1;
                 }
@@ -2637,9 +2624,7 @@ void func_80105790(ST0B_OBJ *wp)
             {
                 wp->value_44.half[0] += 0x10;
             }
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) & 0xFFF;
             Obj_pos_set(wp, wp->value_44.half[0], 0, 0);
             if (ctl->time_64 >= 0x5AB)
             {
@@ -2695,9 +2680,7 @@ void func_801058E4(ST0B_OBJ *wp)
             // fall through
         case 1:
             ctl->path_D4   = &D_8011AB24[Game_work.value_51][ctl->index_4];
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, ctl->path_D4, wp->rotation.y, 0x40)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, ctl->path_D4, wp->rotation.y, 0x40)) & 0xFFF;
             if (Dist_xz_sq(&wp->position, &pl->position) <= 0x7FFFFF)
             {
                 if (wp->value_44.half[0] != 0)
@@ -2735,9 +2718,7 @@ void func_801058E4(ST0B_OBJ *wp)
             }
             break;
         case 2:
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, wp->target_454, wp->rotation.y, 0x40)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, wp->target_454, wp->rotation.y, 0x40)) & 0xFFF;
             if (Dist_xz_sq(&wp->position, wp->target_454) <= 0x1FFFF)
             {
                 if (wp->value_44.half[0] != 0)
@@ -2825,8 +2806,8 @@ void func_80105DF4(ST0B_OBJ *wp)
                 if (((act->angle_4 + act->step_6 + 0x190) & 0xFFF) < 0x320)
                 {
                     act->angle_4 = (act->angle_4 + act->step_6) & 0xFFF;
-                    turn = Muku(&ST0B_OBJ_JOINT(wp)[8 - ctl->index_E], &pl->position,
-                                         (wp->rotation.y + act->angle_4 + 0x800) & 0xFFF, 0x800);
+                    turn =
+                        Muku(&ST0B_OBJ_JOINT(wp)[8 - ctl->index_E], &pl->position, (wp->rotation.y + act->angle_4 + 0x800) & 0xFFF, 0x800);
                     if (act->timer_2 == 0 && (uint16)(turn + 0x9F) < 0x7F)
                     {
                         shell = (ST0B_SHELL *)Open_SHL_WORK();
@@ -2840,14 +2821,13 @@ void func_80105DF4(ST0B_OBJ *wp)
                             shell->position_fixed.x = shell->position.x << 16;
                             shell->position_fixed.y = shell->position.y << 16;
                             shell->position_fixed.z = shell->position.z << 16;
-                            shell->angle_64 = (wp->rotation.y + act->angle_4 + 0x800) & 0xFFF;
-                            func_8002FFC4(&shell->position, &shell->position_fixed, shell->angle_64,
-                                          D_8011ABCC.x * 16, D_8011ABCC.y * 16, D_8011ABCC.z * 16);
-                            shell->dist_9C   = Distance_xz(&pl->position.x, &wp->position.x) / 24;
-                            shell->height_A0 = (pl->position.y - wp->position.y >= 0
-                                                    ? pl->position.y - wp->position.y
-                                                    : wp->position.y - pl->position.y) /
-                                               20;
+                            shell->angle_64         = (wp->rotation.y + act->angle_4 + 0x800) & 0xFFF;
+                            func_8002FFC4(&shell->position, &shell->position_fixed, shell->angle_64, D_8011ABCC.x * 16, D_8011ABCC.y * 16,
+                                          D_8011ABCC.z * 16);
+                            shell->dist_9C = Distance_xz(&pl->position.x, &wp->position.x) / 24;
+                            shell->height_A0 =
+                                (pl->position.y - wp->position.y >= 0 ? pl->position.y - wp->position.y : wp->position.y - pl->position.y) /
+                                20;
                             Sound_call2(0x145, &shell->position);
                         }
                     }
@@ -2943,8 +2923,7 @@ void func_80106278(ST0B_OBJ *wp)
             wp->value_43E = 0;
             // fall through
         case 1:
-            if (func_80031EF0(&ctl->child_D0->position, (wp->rotation.y + 0x800) & 0xFFF, 0x400,
-                              &pl->position, pl->rotation.y, 0x800) != 0)
+            if (func_80031EF0(&ctl->child_D0->position, (wp->rotation.y + 0x800) & 0xFFF, 0x400, &pl->position, pl->rotation.y, 0x800) != 0)
             {
                 ctl->slot_60 = (ST0B_10C *)Open_SHL_WORK();
                 if (ctl->slot_60 != NULL)
@@ -2957,8 +2936,8 @@ void func_80106278(ST0B_OBJ *wp)
                     shot->value_D        = 1;
                     shot->position       = wp->position;
                     shot->position_fixed = wp->position_fixed;
-                    func_8002FFC4(&shot->position, &shot->position_fixed.v, wp->rotation.y,
-                                  D_8011ABD4 << 4, D_8011ABD6 << 4, D_8011ABD8 << 4);
+                    func_8002FFC4(&shot->position, &shot->position_fixed.v, wp->rotation.y, D_8011ABD4 << 4, D_8011ABD6 << 4,
+                                  D_8011ABD8 << 4);
                     ctl->flags_0 |= 0x800;
                     st->step_1++;
                 }
@@ -2977,8 +2956,7 @@ void func_80106278(ST0B_OBJ *wp)
                 }
                 shot->position       = wp->position;
                 shot->position_fixed = wp->position_fixed;
-                func_8002FFC4(&shot->position, &shot->position_fixed.v, wp->rotation.y,
-                              D_8011ABD4 << 4, D_8011ABD6 << 4, D_8011ABD8 << 4);
+                func_8002FFC4(&shot->position, &shot->position_fixed.v, wp->rotation.y, D_8011ABD4 << 4, D_8011ABD6 << 4, D_8011ABD8 << 4);
             }
             else
             {
@@ -3003,9 +2981,8 @@ sint32 func_80106550(ST0B_OBJ *wp)
     ST0B_HITBOX *hit;
     sint32 i;
     sint32 damage;
-    ST0B_HITBOX *hits[5] = {&ST0B_OBJ_CTL(wp)->hit_90, &ST0B_OBJ_CTL(wp)->hit_10[0],
-                            &ST0B_OBJ_CTL(wp)->hit_10[1], &ST0B_OBJ_CTL(wp)->hit_68[0],
-                            &ST0B_OBJ_CTL(wp)->hit_68[1]};
+    ST0B_HITBOX *hits[5] = {&ST0B_OBJ_CTL(wp)->hit_90, &ST0B_OBJ_CTL(wp)->hit_10[0], &ST0B_OBJ_CTL(wp)->hit_10[1],
+                            &ST0B_OBJ_CTL(wp)->hit_68[0], &ST0B_OBJ_CTL(wp)->hit_68[1]};
 
     ctl = ST0B_OBJ_CTL(wp);
     for (i = 0; i < 5; i++)
@@ -3036,8 +3013,7 @@ sint32 func_80106550(ST0B_OBJ *wp)
                 if (ctl->flags_0 & 0x80)
                 {
                     ctl->timer_A += damage;
-                    if ((hit->hit_8 & 0x20000000) ||
-                        ctl->timer_A >= D_8009884C[wp->kind_2]->value_9)
+                    if ((hit->hit_8 & 0x20000000) || ctl->timer_A >= D_8009884C[wp->kind_2]->value_9)
                     {
                         Sound_call2(0xA2, &wp->position);
                         ctl->timer_A = 0;
@@ -3189,13 +3165,11 @@ sint32 func_80106B08(ST0B_OBJ *wp, sint32 side)
         fx->position_fixed.v.z = fx->position.z << 16;
         if (side != 0)
         {
-            func_8002FFC4(&fx->position, &fx->position_fixed.v, wp->rotation.y, D_8011ABE4 << 4,
-                          D_8011ABE6 << 4, D_8011ABE8 << 4);
+            func_8002FFC4(&fx->position, &fx->position_fixed.v, wp->rotation.y, D_8011ABE4 << 4, D_8011ABE6 << 4, D_8011ABE8 << 4);
         }
         else
         {
-            func_8002FFC4(&fx->position, &fx->position_fixed.v, wp->rotation.y, D_8011ABE4 << 4,
-                          D_8011ABE6 << 4, -D_8011ABE8 << 4);
+            func_8002FFC4(&fx->position, &fx->position_fixed.v, wp->rotation.y, D_8011ABE4 << 4, D_8011ABE6 << 4, -D_8011ABE8 << 4);
         }
         ctl->rot_48.words[0] = 0;
         ctl->rot_48.words[1] = 0;
@@ -3227,8 +3201,7 @@ void func_80106C90(ST0B_OBJ *wp)
     wp->fixed_3D0 = Player_work.position_fixed;
     dist          = ((rand() & 3) << 7) + 0x100;
     angle         = Angle_xz_svector(&pl->position, &wp->position);
-    func_8002FFC4(&wp->pos_3C8, &wp->fixed_3D0, (angle + ((rand() & 3) << 5)) & 0xFFF, dist << 4, 0,
-                  0);
+    func_8002FFC4(&wp->pos_3C8, &wp->fixed_3D0, (angle + ((rand() & 3) << 5)) & 0xFFF, dist << 4, 0, 0);
     ep = func_80031618();
     if (ep != NULL)
     {

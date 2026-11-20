@@ -59,8 +59,7 @@ void stcom19_func_0000(STCOM19_WORK *wp)
         STCOM_GTE_RTPS();
         STCOM_GTE_STSXY(&sxy_pos);
         if (b.x != a.x && (b.z - a.z) * (player.x - a.x) / (b.x - a.x) + a.z < player.z &&
-            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) ||
-             (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
+            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) || (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
         {
             wp->color_40 = 0x2404040;
             return;
@@ -194,8 +193,7 @@ void stcom19_func_0640(void)
     found = 0;
     for (i = 0; stcom19_D_0000[i].stage != 0xFF; i++)
     {
-        if (Game_work.value_50 == stcom19_D_0000[i].stage &&
-            Game_work.value_51 == stcom19_D_0000[i].room)
+        if (Game_work.value_50 == stcom19_D_0000[i].stage && Game_work.value_51 == stcom19_D_0000[i].room)
         {
             found = 1;
             list  = stcom19_D_0000[i].list;
@@ -236,10 +234,8 @@ void stcom19_func_0640(void)
                                 wp->dir_C           = list[k].spawn_E[i] & 0xF;
                                 wp->value_D         = count;
                                 pos                 = STCOM19_CELL_TBL[cell].pos;
-                                wp->pos_38.x        = STCOM19_CELL_TBL[cell].pos.x + list[k].x_8 +
-                                                      stcom19_D_0140[wp->dir_C].x;
-                                wp->pos_38.z        = STCOM19_CELL_TBL[cell].pos.z + list[k].z_C +
-                                                      stcom19_D_0140[wp->dir_C].z;
+                                wp->pos_38.x        = STCOM19_CELL_TBL[cell].pos.x + list[k].x_8 + stcom19_D_0140[wp->dir_C].x;
+                                wp->pos_38.z        = STCOM19_CELL_TBL[cell].pos.z + list[k].z_C + stcom19_D_0140[wp->dir_C].z;
                                 wp->pos_38.y        = STCOM19_CELL_TBL[cell].pos.y + list[k].y_A;
                                 wp->matrix.words[0] = 0x1000;
                                 wp->matrix.words[1] = 0;

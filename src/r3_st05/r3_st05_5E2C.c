@@ -1068,8 +1068,7 @@ void func_80107E08(STAGE_STCOM15_WORK_348 *wp)
     {
         ctl->pos_C = wp->position;
         ctl->pos_C.y -= 0x28;
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14,
-                      ctl->value_8 | 0x4000000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14, ctl->value_8 | 0x4000000, 0x800000, 0x80);
     }
     ctl->hit_14 = 0;
 }
@@ -1487,8 +1486,7 @@ void func_80108BA4(ST05_VILLAGER *wp)
                 ctl->flags_0 |= 1;
                 break;
             }
-            if (func_80031E60(&pl->position_fixed, pl->rotation.y, 0x800, &wp->position_fixed,
-                              wp->rotation.y, 0x400))
+            if (func_80031E60(&pl->position_fixed, pl->rotation.y, 0x800, &wp->position_fixed, wp->rotation.y, 0x400))
             {
                 wp->spin_66               = 0x80;
                 wp->routine_1             = 5;
@@ -1578,9 +1576,7 @@ void func_80108DFC(ST05_VILLAGER *wp)
                 wp->anim_AC               = wp->anim_prev_AD;
                 break;
             }
-            wp->rotation.y = (wp->rotation.y + Muku(&pl->position, &wp->position,
-                                                             wp->rotation.y, wp->spin_66)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&pl->position, &wp->position, wp->rotation.y, wp->spin_66)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x << 4, 0, 0);
             hit                  = func_8004B414(wp);
             wp->position.y       = func_80048E6C(wp);
@@ -1646,13 +1642,11 @@ void func_801090AC(ST05_ACTOR *wp)
         case 1:
             if (wp->variant_3 < 2 && wp->timer_C == 0)
             {
-                turn =
-                    Muku(&STAGE_PL.position, &wp->position, wp->rotation.y, wp->spin_66);
+                turn = Muku(&STAGE_PL.position, &wp->position, wp->rotation.y, wp->spin_66);
             }
             else
             {
-                turn =
-                    Muku(&wp->position, &STAGE_PL.position, wp->rotation.y, wp->spin_66);
+                turn = Muku(&wp->position, &STAGE_PL.position, wp->rotation.y, wp->spin_66);
             }
             if ((sint16)turn == 0)
             {
@@ -2219,10 +2213,7 @@ void func_80109F84(ST05_VILLAGER *wp)
         case 1:
             if (--ctl->timer_4 >= 0)
             {
-                wp->rotation.y =
-                    (wp->rotation.y +
-                     Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x40)) &
-                    0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x40)) & 0xFFF;
                 wp->position.y -= 4;
                 wp->position_fixed.y            = wp->position.y << 16;
                 ctl->other_38->position.x       = wp->position.x;
@@ -2292,10 +2283,7 @@ void func_8010A21C(ST05_VILLAGER *wp)
             if (--ctl->timer_4 >= 0)
             {
                 wp->rotation.y =
-                    (wp->rotation.y + Muku(&wp->position,
-                                                    &ST05_VILLAGERS[wp->value_E]->position,
-                                                    wp->rotation.y, 0x40)) &
-                    0xFFF;
+                    (wp->rotation.y + Muku(&wp->position, &ST05_VILLAGERS[wp->value_E]->position, wp->rotation.y, 0x40)) & 0xFFF;
                 wp->position.y -= 4;
                 wp->position_fixed.y   = wp->position.y << 16;
                 held->position.x       = wp->position.x;
@@ -2422,8 +2410,7 @@ sint32 func_8010A608(ST05_VILLAGER *wp)
     if (wp->ctl.flags_0 & 8)
     {
         wp->ctl.timer_A += damage;
-        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9 ||
-            wp->position.y != func_80048E6C(wp))
+        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9 || wp->position.y != func_80048E6C(wp))
         {
             if (ctl->from_1C.pad & 1)
             {

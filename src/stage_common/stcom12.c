@@ -150,8 +150,7 @@ void stcom12_func_0304(STCOM12_WORK *wp)
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
             hit = func_8004B414(wp);
             stcom12_func_0E9C(wp, hit);
-            if (wp->param_D != 0 &&
-                wp->param_D < (Distance_xyz(&wp->position, &ctl->home_24) >> 7))
+            if (wp->param_D != 0 && wp->param_D < (Distance_xyz(&wp->position, &ctl->home_24) >> 7))
             {
                 wp->velocity.x = 0x80;
                 if (wp->anim_AC != 2)
@@ -195,7 +194,7 @@ void stcom12_func_0304(STCOM12_WORK *wp)
             }
             break;
         case 10:
-            step = Muku(&wp->position, &ctl->home_24, wp->rotation.y, wp->turn_64);
+            step           = Muku(&wp->position, &ctl->home_24, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             if (step == 0)
             {
@@ -376,8 +375,7 @@ void stcom12_func_08F8(STCOM12_WORK *wp)
             }
             else
             {
-                wp->velocity.x = (wp->velocity.x >= 0) ? wp->velocity.x - ctl->decel_1C
-                                                       : wp->velocity.x + ctl->decel_1C;
+                wp->velocity.x = (wp->velocity.x >= 0) ? wp->velocity.x - ctl->decel_1C : wp->velocity.x + ctl->decel_1C;
             }
             if (Distance_xyz(&wp->position, &ctl->home_24) > 0x1000)
             {
@@ -494,8 +492,7 @@ sint32 stcom12_func_0DE4(STCOM12_WORK *wp)
         stcom12_E_0000.x = target->value_180.x;
         stcom12_E_0000.y = target->value_180.y - 0x20;
         stcom12_E_0000.z = target->value_180.z;
-        func_80039FAC(&stcom12_E_0000, 0x100,
-                      Angle_xz_svector(&pl->position, &target->position) + 0x800, D_800A396C);
+        func_80039FAC(&stcom12_E_0000, 0x100, Angle_xz_svector(&pl->position, &target->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;

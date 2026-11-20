@@ -394,8 +394,7 @@ sint32 func_80100FD4(STAGE_ROOM_WORK *wp)
             Sce_flag_on(0x7E4);
             Sce_flag_on(0x7E5);
         }
-        if ((Sce_flag_test(0x245) || Sce_flag_test(0x243) || Sce_flag_test(0x244)) &&
-            STAGE_GAME_VALUE_52 < 0xB)
+        if ((Sce_flag_test(0x245) || Sce_flag_test(0x243) || Sce_flag_test(0x244)) && STAGE_GAME_VALUE_52 < 0xB)
         {
             func_8001DDE4(0x59);
         }
@@ -534,8 +533,7 @@ void func_80101470(STAGE_ROOM *wp)
     {
         case 0:
             wp->tbl_A4[1](wp);
-            if (STAGE_GAME.value_1 == 2 && wp->child_24->routine_0 != 0 &&
-                wp->child_28->routine_0 != 0)
+            if (STAGE_GAME.value_1 == 2 && wp->child_24->routine_0 != 0 && wp->child_28->routine_0 != 0)
             {
                 Sce_event_timer_clear();
                 D_800BC7F0 = D_80122894;
@@ -1333,8 +1331,7 @@ void func_80102C5C(ST06_OBJ *wp)
     {
         wp->routine_2 |= 1;
     }
-    if ((wp->routine_0 == 0xFF) ||
-        ((temp_v1 = wp->routine_2, ((temp_v1 & 1) != 0)) && !(temp_v1 & 0x80)))
+    if ((wp->routine_0 == 0xFF) || ((temp_v1 = wp->routine_2, ((temp_v1 & 1) != 0)) && !(temp_v1 & 0x80)))
     {
         wp->value_5 = 0;
         wp->value_4++;
@@ -1653,8 +1650,7 @@ void func_80103438(STAGE_ROOM *wp)
             {
                 wp->routine_4++;
             }
-            else if (func_8001DE84() && wp->reserved09[1] == 1 && D_80098A72 == 0 &&
-                     Sound_fade_flags == 0)
+            else if (func_8001DE84() && wp->reserved09[1] == 1 && D_80098A72 == 0 && Sound_fade_flags == 0)
             {
                 func_80017C30(0xA);
                 wp->routine_4++;

@@ -83,8 +83,7 @@ void func_8010FCBC(STAGE_OBJ *wp)
     func_80031988((STCOM_EFFECT *)wp);
 }
 
-ST03_SPARK *func_8010FD1C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise,
-                          uint8 flag)
+ST03_SPARK *func_8010FD1C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag)
 {
     ST03_SPARK *ep;
     sint32 i;
@@ -127,7 +126,7 @@ void func_8010FE24(ST03_PROP *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     wp->color_B4            = 0x808080;
-    wp->hit_BC.h[1]             = rand();
+    wp->hit_BC.h[1]         = rand();
     D_801171E4[wp->routine_0](wp);
     RotMatrix(&wp->rotation, &wp->matrix_8C.m);
     scale.x = 0x200;
@@ -154,9 +153,9 @@ void func_8010FF4C(ST03_PROP *wp)
     wp->speed_44.w  = 0;
     wp->value_48    = 0;
     Model_work_init(wp, &variant);
-    wp->value_6E = 0x400;
+    wp->value_6E    = 0x400;
     wp->hit_BC.h[0] = 0;
-    wp->data_78  = NULL;
+    wp->data_78     = NULL;
     switch (wp->variant_3)
     {
         case 0:
@@ -175,7 +174,7 @@ void func_8010FF4C(ST03_PROP *wp)
             *(uint16 *)&wp->routine_2 = 0;
             break;
     }
-    wp->color_B4              = 0x808080;
+    wp->color_B4 = 0x808080;
     wp->hit_BC.w = 0;
     RotMatrix(&wp->rotation, &wp->matrix_8C.m);
     scale.x = 0x200;
@@ -262,9 +261,7 @@ void func_80110284(ST03_PROP *wp)
             wp->target_CA.z   = D_80117204[wp->path_C].target.z;
             // fall through
         case 1:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->target_CA, wp->rotation.y,
-                                                             D_80117204[wp->path_C].turn_C)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->target_CA, wp->rotation.y, D_80117204[wp->path_C].turn_C)) & 0xFFF;
             Obj_pos_set(wp, wp->speed_44.h[0], 0, 0);
             dx = wp->position.x - wp->target_CA.x;
             dz = wp->position.z - wp->target_CA.z;

@@ -84,9 +84,7 @@ void stcom08_func_0248(STCOM08_WORK *wp)
             }
             break;
         case 1:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->home,
-                                                             wp->rotation.y, wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->home, wp->rotation.y, wp->turn_64)) & 0xFFF;
             if (wp->dist_350 < 2)
             {
                 stcom08_func_0424(wp);

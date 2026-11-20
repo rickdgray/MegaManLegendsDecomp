@@ -209,16 +209,14 @@ void func_8010FEC4(STCOM23_WORK *wp)
         d.x = wp->target_B8->x - wp->position.x;
         d.y = wp->target_B8->y - wp->position.y;
         d.z = wp->target_B8->z - wp->position.z;
-        if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E ||
-            d.z < -0x687E)
+        if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E || d.z < -0x687E)
         {
             d.x >>= 2;
             d.y >>= 2;
             d.z >>= 2;
         }
         VectorNormalS(&d, &unit);
-        func_80033F04(&dir, &unit, &wp->dir_CC, D_8011BF8C[wp->variant_3].turn_8,
-                      D_8011BF8C[wp->variant_3].turn_C);
+        func_80033F04(&dir, &unit, &wp->dir_CC, D_8011BF8C[wp->variant_3].turn_8, D_8011BF8C[wp->variant_3].turn_C);
         wp->dir_CC     = dir;
         speed          = wp->speed_6E;
         wp->velocity.x = (dir.x * speed) >> 4;
@@ -297,8 +295,8 @@ void func_80110414(STAGE_FX *wp)
 // Registers the hit box.
 void func_80110434(STCOM23_WORK *wp)
 {
-    func_800341BC(&wp->position, D_8011BF8C[wp->variant_3].size_1F, 0, 0x8000, wp->index_1,
-                  &wp->hit_C4, D_8011BF8C[wp->variant_3].hit_kind_21 | 0x40A0000, 0, 0x80);
+    func_800341BC(&wp->position, D_8011BF8C[wp->variant_3].size_1F, 0, 0x8000, wp->index_1, &wp->hit_C4,
+                  D_8011BF8C[wp->variant_3].hit_kind_21 | 0x40A0000, 0, 0x80);
     wp->hit_C4 = 0;
 }
 
@@ -433,8 +431,7 @@ void func_80110774(STCOM18_WORK *wp)
     wp->data_10  = NULL;
     wp->value_78 = 0;
     wp->hit_BC   = 0;
-    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                  wp->kind_E | 0x8000000, 0, 0x80);
+    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
     if (func_80049C24(wp))
     {
         wp->routine_0 = 2;
@@ -496,8 +493,7 @@ void func_80110938(STCOM18_WORK *wp)
     }
     else
     {
-        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                      wp->kind_E | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
         wp->hit_BC = 0;
         hit        = func_80049C24(wp);
         if (hit)
@@ -666,8 +662,7 @@ void func_80110E58(ST17_10C_B *wp)
     }
     if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14,
-                      D_8011C110[wp->byte_D] | 0x49000000, 0, 0x80);
+        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14, D_8011C110[wp->byte_D] | 0x49000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -707,8 +702,7 @@ STCOM_SVECTOR func_8011134C(ST17_10C *wp)
     d.x = Player_work.position.x - wp->position.x;
     d.y = Player_work.position.y - wp->position.y;
     d.z = Player_work.position.z - wp->position.z;
-    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E ||
-        d.z < -0x687E)
+    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E || d.z < -0x687E)
     {
         d.x >>= 2;
         d.y >>= 2;
@@ -1152,8 +1146,7 @@ void func_801121CC(ST17_10C *wp, ST17_PART_D0 *part)
             {
                 wp->value_48.half[0] = d - 4;
             }
-            if (STCOM_ABS(part->dx_10) < 0x400 || STCOM_ABS(part->dy_12) < 0x400 ||
-                STCOM_ABS(part->dz_14) < 0x400)
+            if (STCOM_ABS(part->dx_10) < 0x400 || STCOM_ABS(part->dy_12) < 0x400 || STCOM_ABS(part->dz_14) < 0x400)
             {
                 part->value_4 = 0;
                 wp->routine_1++;
@@ -1229,8 +1222,7 @@ void func_801121CC(ST17_10C *wp, ST17_PART_D0 *part)
                 part->value_4 = 0;
                 part->flags_0 |= 1;
             }
-            if (STCOM_ABS(part->dx_10) < 0x28 && STCOM_ABS(part->dy_12) < 0x28 &&
-                STCOM_ABS(part->dz_14) < 0x28)
+            if (STCOM_ABS(part->dx_10) < 0x28 && STCOM_ABS(part->dy_12) < 0x28 && STCOM_ABS(part->dz_14) < 0x28)
             {
                 part->value_4 = 0;
                 part->flags_0 |= 1;
@@ -1271,15 +1263,13 @@ void func_80112748(ST17_10C *wp, ST17_PART_D0 *part)
         {
             if (variant < 2)
             {
-                if ((wp->byte_C == 0 && wp->position.x < part->value_A) ||
-                    (wp->byte_C == 1 && wp->position.x > part->value_A))
+                if ((wp->byte_C == 0 && wp->position.x < part->value_A) || (wp->byte_C == 1 && wp->position.x > part->value_A))
                 {
                     part->flags_0 |= 1;
                 }
             }
         }
-        func_800341BC(&wp->position, 0x40, 0, 0x8000, wp->reserved01, &wp->value_BC,
-                      part->value_C | 0x04000000, 0, flag);
+        func_800341BC(&wp->position, 0x40, 0, 0x8000, wp->reserved01, &wp->value_BC, part->value_C | 0x04000000, 0, flag);
     }
     wp->value_BC = 0;
     if (func_80049C24(wp) != 0)
@@ -1442,18 +1432,15 @@ void func_80112E44(ST17_SHL *wp)
     }
     if (wp->type_3 & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005,
-                      0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_c)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
 }
 

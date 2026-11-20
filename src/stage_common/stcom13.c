@@ -132,8 +132,7 @@ void stcom13_func_01D8(STCOM13_WORK *wp)
         {
             ctl->pos_C.y -= 40;
         }
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14, 0x4000000, 0x800000,
-                      0x80);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14, 0x4000000, 0x800000, 0x80);
     }
 }
 
@@ -315,15 +314,12 @@ void stcom13_func_08B0(STCOM13_WORK *wp)
                         {
                             break;
                         }
-                        effect->flags_0   = 3;
-                        effect->kind_2    = 0x83;
-                        effect->variant_3 = 0;
-                        effect->sprite.pos_8[0] =
-                            wp->joints_180[stcom13_D_0030[wp->routine_3][i]].x;
-                        effect->sprite.pos_8[1] =
-                            wp->joints_180[stcom13_D_0030[wp->routine_3][i]].y - i * 12;
-                        effect->sprite.pos_8[2] =
-                            wp->joints_180[stcom13_D_0030[wp->routine_3][i]].z;
+                        effect->flags_0         = 3;
+                        effect->kind_2          = 0x83;
+                        effect->variant_3       = 0;
+                        effect->sprite.pos_8[0] = wp->joints_180[stcom13_D_0030[wp->routine_3][i]].x;
+                        effect->sprite.pos_8[1] = wp->joints_180[stcom13_D_0030[wp->routine_3][i]].y - i * 12;
+                        effect->sprite.pos_8[2] = wp->joints_180[stcom13_D_0030[wp->routine_3][i]].z;
                     }
                     wp->routine_3 = (wp->routine_3 + 1) & 3;
                 }
@@ -415,9 +411,7 @@ void stcom13_func_0C24(STCOM13_WORK *wp)
             wp->anim_AC      = 9;
             // fall through
         case 1:
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&pl->position, &wp->position, wp->rotation.y, 0x18)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&pl->position, &wp->position, wp->rotation.y, 0x18)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
             hit                  = func_8004B414(wp);
             wp->position.y       = func_80048E6C(wp);

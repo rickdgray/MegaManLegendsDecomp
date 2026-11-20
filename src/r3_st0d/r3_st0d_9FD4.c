@@ -472,8 +472,7 @@ void func_8010AEAC(STAGE_OBJ50 *wp)
 
 uint8 func_8010AF28(ST0D_STCOM21_WORK *wp)
 {
-    if ((wp->u_44.flag == 0 || Sce_flag_test(wp->u_44.flag)) &&
-        !Sce_flag_test(wp->value_C + 0x400) && wp->value_E != -1)
+    if ((wp->u_44.flag == 0 || Sce_flag_test(wp->u_44.flag)) && !Sce_flag_test(wp->value_C + 0x400) && wp->value_E != -1)
     {
         return 1;
     }

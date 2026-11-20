@@ -621,8 +621,7 @@ void func_80117290(ST06_CRAB *wp)
     {
         func_80118B2C(wp);
     }
-    if (!(wp->body.flags_0 & 0x400) && func_80118884(wp) != 0 &&
-        func_8003B360(wp->body.area_8C) > 0)
+    if (!(wp->body.flags_0 & 0x400) && func_80118884(wp) != 0 && func_8003B360(wp->body.area_8C) > 0)
     {
         wp->body.timer_E = 0xB4;
         wp->body.flags_0 |= 0x400;
@@ -715,20 +714,19 @@ void func_80117290(ST06_CRAB *wp)
         if (body->flags_0 & 2)
         {
             body->hit_pos_10 = wp->position;
-            func_800341BC(&body->hit_pos_10, 0xA0, 0, 0x8000, wp->value_1, &body->hit_18, 0x4080000,
-                          0, 0);
+            func_800341BC(&body->hit_pos_10, 0xA0, 0, 0x8000, wp->value_1, &body->hit_18, 0x4080000, 0, 0);
         }
         if (body->flags_0 & 0x40)
         {
             body->hit_pos_68 = wp->joint_180[10];
-            func_800341BC(&body->hit_pos_68, 0x60, 0, 0x8000, wp->value_1, &body->hit_70,
-                          D_8009884C[wp->kind_2]->value_A | 0x5000000, 0, 0x80);
+            func_800341BC(&body->hit_pos_68, 0x60, 0, 0x8000, wp->value_1, &body->hit_70, D_8009884C[wp->kind_2]->value_A | 0x5000000, 0,
+                          0x80);
         }
         if (body->flags_0 & 0x80)
         {
             body->hit_pos_58 = wp->joint_180[5];
-            func_800341BC(&body->hit_pos_58, 0x60, 0, 0x8000, wp->value_1, &body->hit_60,
-                          D_8009884C[wp->kind_2]->value_A | 0x5000000, 0, 0x80);
+            func_800341BC(&body->hit_pos_58, 0x60, 0, 0x8000, wp->value_1, &body->hit_60, D_8009884C[wp->kind_2]->value_A | 0x5000000, 0,
+                          0x80);
         }
     }
     body->ground_78 = func_8004B414(wp);
@@ -778,19 +776,14 @@ void func_801177D0(ST06_CRAB *wp)
             }
             break;
         case 2:
-            wp->rotation.y   = (wp->rotation.y +
-                                Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) &
-                               0xFFF;
-            body->probe_38.v = pl->position;
+            wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) & 0xFFF;
+            body->probe_38.v     = pl->position;
             body->probe_fixed_40 = pl->position_fixed;
-            func_8002FFC4(&body->probe_38.v, &body->probe_fixed_40,
-                          Angle_xz_svector(&pl->position, &wp->position) & 0xFFF, 0x1100, 0, 0);
-            wp->value_4C.half[0] =
-                Distance_xz(&wp->position.x, &body->probe_38.v.x) / (body->u_4.h.timer_4 + 1);
+            func_8002FFC4(&body->probe_38.v, &body->probe_fixed_40, Angle_xz_svector(&pl->position, &wp->position) & 0xFFF, 0x1100, 0, 0);
+            wp->value_4C.half[0] = Distance_xz(&wp->position.x, &body->probe_38.v.x) / (body->u_4.h.timer_4 + 1);
             wp->value_4C.half[0] = (wp->value_4C.half[0] > 0x40) ? 0x40 : wp->value_4C.half[0];
             wp->value_4C.half[1] = pl->position.y - (sint16)(wp->position.y + 0x40);
-            Obj_pos_set(wp, wp->value_4C.half[0] << 4,
-                          (D_800BBCF8[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
+            Obj_pos_set(wp, wp->value_4C.half[0] << 4, (D_800BBCF8[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
             if (func_80118708(wp))
             {
                 wp->routine_2 = 5;
@@ -826,9 +819,7 @@ void func_801177D0(ST06_CRAB *wp)
             {
                 body->target_50 = pl->position;
             }
-            wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &body->target_50,
-                                                                   wp->rotation.y, 0x20)) &
-                                   0xFFF;
+            wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &body->target_50, wp->rotation.y, 0x20)) & 0xFFF;
             wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - func_80048E6C(wp);
             Obj_pos_set(wp, 0, (D_800BBD38[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
             if (--body->u_4.h.timer_4 < 0)
@@ -1057,9 +1048,7 @@ void func_801180F8(ST06_CRAB *wp)
             }
             break;
         case 3:
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) &
-                             0xFFF;
+            wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
             wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - func_80048E6C(wp);
             Obj_pos_set(wp, 0, (D_800BBD38[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
             if (--body->u_4.h.timer_4 < 0)
@@ -1068,9 +1057,7 @@ void func_801180F8(ST06_CRAB *wp)
             }
             break;
         case 4:
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
             if (wp->value_A7 < 0)
             {
                 body->flags_0 |= 1;
@@ -1124,9 +1111,7 @@ void func_8011837C(ST06_CRAB *wp)
             }
             break;
         case 2:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &body->target_50,
-                                                             wp->rotation.y, 0x20)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &body->target_50, wp->rotation.y, 0x20)) & 0xFFF;
             if (body->timer_C == 0 && !(body->flags_0 & 0x400) && wp->dist_80 <= 0x7FFFF)
             {
                 wp->u_C.b.byte_D = 1;
@@ -1168,10 +1153,8 @@ void func_8011837C(ST06_CRAB *wp)
                 {
                     body->timer_80 = 0;
                 }
-                wp->value_4C.half[1] =
-                    (sint16)(func_80048E6C(wp) - 0x200) - body->timer_80 * 8 - wp->position.y;
-                if ((wp->value_4C.half[1] < 0 ? -wp->value_4C.half[1] : wp->value_4C.half[1]) >
-                    0x40)
+                wp->value_4C.half[1] = (sint16)(func_80048E6C(wp) - 0x200) - body->timer_80 * 8 - wp->position.y;
+                if ((wp->value_4C.half[1] < 0 ? -wp->value_4C.half[1] : wp->value_4C.half[1]) > 0x40)
                 {
                     if (wp->value_4C.half[1] < 0)
                     {
@@ -1186,13 +1169,10 @@ void func_8011837C(ST06_CRAB *wp)
                     }
                     else
                     {
-                        wp->value_4C.half[1] =
-                            (wp->value_4C.half[1] > 8) ? 0x80 : wp->value_4C.half[1] << 4;
+                        wp->value_4C.half[1] = (wp->value_4C.half[1] > 8) ? 0x80 : wp->value_4C.half[1] << 4;
                     }
                 }
-                Obj_pos_set(wp, wp->value_4C.half[0] + 0x100,
-                              ((D_800BBCF8[body->u_4.h.timer_4] * 5) >> 7) + wp->value_4C.half[1],
-                              0);
+                Obj_pos_set(wp, wp->value_4C.half[0] + 0x100, ((D_800BBCF8[body->u_4.h.timer_4] * 5) >> 7) + wp->value_4C.half[1], 0);
                 body->u_4.h.timer_4 = (body->u_4.h.timer_4 + 1) & 0x3F;
                 if (wp->value_4C.half[0] < 0x80)
                 {
@@ -1364,8 +1344,7 @@ sint32 func_80118B2C(ST06_CRAB *wp)
             if (body->flags_0 & 8)
             {
                 body->u_8.h.timer_A += damage;
-                if ((body->hit_18 & 0x20000000) ||
-                    body->u_8.h.timer_A >= D_8009884C[wp->kind_2]->limit_9)
+                if ((body->hit_18 & 0x20000000) || body->u_8.h.timer_A >= D_8009884C[wp->kind_2]->limit_9)
                 {
                     Sound_call2(0xA2, &wp->position);
                     body->u_8.h.timer_A = 0;

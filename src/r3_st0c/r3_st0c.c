@@ -19,30 +19,30 @@ void func_80100168(STAGE_ROOM *wp)
     {
         case 0:
             func_8001E6C0(0, 0, 0);
-            D_800BC7F0 = D_8010BF2C;
-            wp->tbl_A4 = (STAGE_ROOM2_FUNC *)D_8010C078;
+            D_800BC7F0  = D_8010BF2C;
+            wp->tbl_A4  = (STAGE_ROOM2_FUNC *)D_8010C078;
             wp->timer_C = 0;
             if (func_80042238(pl) != 0)
             {
-                owner      = (ST0C_VIEW *)Open_SHL_WORK();
-                D_801129A0 = owner;
-                owner->kind_2 = 0x11;
-                owner->position.x = -0x1AFF;
-                i = 3;
-                owner->flags_0 = 1;
-                owner->position.y = -1;
-                owner->variant_3 = 0;
+                owner                   = (ST0C_VIEW *)Open_SHL_WORK();
+                D_801129A0              = owner;
+                owner->kind_2           = 0x11;
+                owner->position.x       = -0x1AFF;
+                i                       = 3;
+                owner->flags_0          = 1;
+                owner->position.y       = -1;
+                owner->variant_3        = 0;
                 owner->position_fixed.x = owner->position.x << 16;
-                owner->value_4 = 0;
-                owner->position.z = 0x21DF;
-                owner->value_5 = 0;
-                owner->u_C.b[0] = 1;
-                owner->u_C.b[1] = 0;
-                owner->u_C.b[2] = 0;
+                owner->value_4          = 0;
+                owner->position.z       = 0x21DF;
+                owner->value_5          = 0;
+                owner->u_C.b[0]         = 1;
+                owner->u_C.b[1]         = 0;
+                owner->u_C.b[2]         = 0;
                 owner->position_fixed.y = owner->position.y << 16;
-                owner->u_C.b[3] = 0;
+                owner->u_C.b[3]         = 0;
                 owner->position_fixed.z = owner->position.z << 16;
-                child = owner->child_CC;
+                child                   = owner->child_CC;
                 for (; i >= 0; i--)
                 {
                     obj = (ST0C_VIEW *)func_80031418();
@@ -121,19 +121,19 @@ void func_80100168(STAGE_ROOM *wp)
                 if (!(Moji_flag & 0xFF))
                 {
                     wp->routine_5++;
-                    pl->routine_0       = 3;
-                    pl->routine_1       = 1;
-                    pl->pos_438.x       = pl->position.x;
-                    pl->flags_bd       |= 0x10;
-                    pl->pos_438.y       = pl->position.y;
-                    pl->value_440       = 0;
-                    pl->value_442       = 0;
-                    pl->value_444       = 0;
-                    pl->value_448       = 0;
-                    pl->pos_438.z       = pl->position.z;
-                    pl->fixed_428.x     = pl->pos_438.x << 16;
-                    pl->fixed_428.y     = pl->pos_438.y << 16;
-                    pl->fixed_428.z     = pl->pos_438.z << 16;
+                    pl->routine_0 = 3;
+                    pl->routine_1 = 1;
+                    pl->pos_438.x = pl->position.x;
+                    pl->flags_bd |= 0x10;
+                    pl->pos_438.y   = pl->position.y;
+                    pl->value_440   = 0;
+                    pl->value_442   = 0;
+                    pl->value_444   = 0;
+                    pl->value_448   = 0;
+                    pl->pos_438.z   = pl->position.z;
+                    pl->fixed_428.x = pl->pos_438.x << 16;
+                    pl->fixed_428.y = pl->pos_438.y << 16;
+                    pl->fixed_428.z = pl->pos_438.z << 16;
                 }
                 else
                 {
@@ -157,9 +157,9 @@ void func_80100168(STAGE_ROOM *wp)
                 D_800C0F96 = 0;
                 D_801129A0->flags_0 |= 6;
                 func_8001E6C0(0, 0, 0);
-                D_800BC7F0 = D_8010BF78;
-                wp->tbl_A4 = (STAGE_ROOM2_FUNC *)D_8010C088;
-                wp->timer_C = 0;
+                D_800BC7F0    = D_8010BF78;
+                wp->tbl_A4    = (STAGE_ROOM2_FUNC *)D_8010C088;
+                wp->timer_C   = 0;
                 wp->routine_6 = 0xF0;
                 wp->routine_5++;
             }
@@ -169,15 +169,15 @@ void func_80100168(STAGE_ROOM *wp)
             {
                 MojiTaskExec2(0, 0xA);
                 wp->routine_5++;
-                pl->pos_438.x       = -0x188C;
-                pl->position.x      = -0x188C;
-                pl->position.y      = -1;
-                pl->pos_438.y       = -1;
-                pl->position.z      = 0x18C0;
-                pl->pos_438.z       = 0x18C0;
-                pl->value_440       = 0x400;
-                pl->value_442       = 0;
-                pl->value_444       = 0;
+                pl->pos_438.x   = -0x188C;
+                pl->position.x  = -0x188C;
+                pl->position.y  = -1;
+                pl->pos_438.y   = -1;
+                pl->position.z  = 0x18C0;
+                pl->pos_438.z   = 0x18C0;
+                pl->value_440   = 0x400;
+                pl->value_442   = 0;
+                pl->value_444   = 0;
                 pl->fixed_428.x = pl->position_fixed.x = pl->pos_438.x << 16;
                 pl->fixed_428.y = pl->position_fixed.y = pl->pos_438.y << 16;
                 pl->fixed_428.z = pl->position_fixed.z = pl->pos_438.z << 16;
@@ -837,28 +837,28 @@ void func_801019A8(STAGE_ROOM *wp)
                 if (Game_work.value_50 == 0xB)
                 {
                     D_800C356C_A[0] = 2;
-                    D_800C356E        = 0x14;
-                    D_800C3560        = 0x100;
-                    D_800C3562        = -1;
-                    D_800C3564        = -0x7300;
-                    D_800C356F        = 0;
-                    D_800C356A        = 0;
-                    D_800C356D        = 0;
-                    D_800C3571        = 0xFF;
-                    D_800C3570        = 2;
+                    D_800C356E      = 0x14;
+                    D_800C3560      = 0x100;
+                    D_800C3562      = -1;
+                    D_800C3564      = -0x7300;
+                    D_800C356F      = 0;
+                    D_800C356A      = 0;
+                    D_800C356D      = 0;
+                    D_800C3571      = 0xFF;
+                    D_800C3570      = 2;
                 }
                 else
                 {
                     D_800C356C_A[0] = 2;
-                    D_800C356E        = 0xE;
-                    D_800C3560        = -0xC6B;
-                    D_800C3562        = -0x181;
-                    D_800C3564        = 0xB00;
-                    D_800C356A        = 0x400;
-                    D_800C356F        = 0;
-                    D_800C356D        = 0;
-                    D_800C3571        = 0xFF;
-                    D_800C3570        = 2;
+                    D_800C356E      = 0xE;
+                    D_800C3560      = -0xC6B;
+                    D_800C3562      = -0x181;
+                    D_800C3564      = 0xB00;
+                    D_800C356A      = 0x400;
+                    D_800C356F      = 0;
+                    D_800C356D      = 0;
+                    D_800C3571      = 0xFF;
+                    D_800C3570      = 2;
                 }
                 wp->flags_0 = 0;
                 Cd_subcmd(0, 1, 0);

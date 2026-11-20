@@ -370,8 +370,7 @@ void func_80100F54(STAGE_ROOM *wp)
             wp->routine_4 = 1;
             // fall through
         case 1:
-            if (Sce_flag_test(0x2C) && !Sce_flag_test(0x2D) && !Sce_flag_test(0x26) &&
-                !Sce_flag_test(0x2E))
+            if (Sce_flag_test(0x2C) && !Sce_flag_test(0x2D) && !Sce_flag_test(0x26) && !Sce_flag_test(0x2E))
             {
                 dx = (Player_work.position.x >> 8) - D_80114F30;
                 dz = (Player_work.position.z >> 8) - D_80114F31;
@@ -712,40 +711,32 @@ void func_80101918(sint32 set)
     switch (set)
     {
         case 0:
-            emit = D_80115148;
-            D_8011CA70[0] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][0].width_8, ST03_EMIT_TBL[0][0].growth_9,
-                              ST03_EMIT_TBL[0][0].count_A, ST03_EMIT_TBL[0][0].rise_C, 0);
+            emit          = D_80115148;
+            D_8011CA70[0] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][0].width_8, ST03_EMIT_TBL[0][0].growth_9,
+                                          ST03_EMIT_TBL[0][0].count_A, ST03_EMIT_TBL[0][0].rise_C, 0);
             emit++;
-            D_8011CA70[1] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][1].width_8, ST03_EMIT_TBL[0][1].growth_9,
-                              ST03_EMIT_TBL[0][1].count_A, ST03_EMIT_TBL[0][1].rise_C, 0);
+            D_8011CA70[1] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][1].width_8, ST03_EMIT_TBL[0][1].growth_9,
+                                          ST03_EMIT_TBL[0][1].count_A, ST03_EMIT_TBL[0][1].rise_C, 0);
             emit++;
-            D_8011CA70[2] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][2].width_8, ST03_EMIT_TBL[0][2].growth_9,
-                              ST03_EMIT_TBL[0][2].count_A, ST03_EMIT_TBL[0][2].rise_C, 0);
+            D_8011CA70[2] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][2].width_8, ST03_EMIT_TBL[0][2].growth_9,
+                                          ST03_EMIT_TBL[0][2].count_A, ST03_EMIT_TBL[0][2].rise_C, 0);
             emit++;
-            D_8011CA70[3] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][3].width_8, ST03_EMIT_TBL[0][3].growth_9,
-                              ST03_EMIT_TBL[0][3].count_A, ST03_EMIT_TBL[0][3].rise_C, 0);
+            D_8011CA70[3] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[0][3].width_8, ST03_EMIT_TBL[0][3].growth_9,
+                                          ST03_EMIT_TBL[0][3].count_A, ST03_EMIT_TBL[0][3].rise_C, 0);
             break;
         case 1:
-            emit = D_80115188;
-            D_8011CA70[0] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][0].width_8, ST03_EMIT_TBL[1][0].growth_9,
-                              ST03_EMIT_TBL[1][0].count_A, ST03_EMIT_TBL[1][0].rise_C, 0);
+            emit          = D_80115188;
+            D_8011CA70[0] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][0].width_8, ST03_EMIT_TBL[1][0].growth_9,
+                                          ST03_EMIT_TBL[1][0].count_A, ST03_EMIT_TBL[1][0].rise_C, 0);
             emit++;
-            D_8011CA70[1] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][1].width_8, ST03_EMIT_TBL[1][1].growth_9,
-                              ST03_EMIT_TBL[1][1].count_A, ST03_EMIT_TBL[1][1].rise_C, 0);
+            D_8011CA70[1] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][1].width_8, ST03_EMIT_TBL[1][1].growth_9,
+                                          ST03_EMIT_TBL[1][1].count_A, ST03_EMIT_TBL[1][1].rise_C, 0);
             emit++;
-            D_8011CA70[2] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][2].width_8, ST03_EMIT_TBL[1][2].growth_9,
-                              ST03_EMIT_TBL[1][2].count_A, ST03_EMIT_TBL[1][2].rise_C, 0);
+            D_8011CA70[2] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][2].width_8, ST03_EMIT_TBL[1][2].growth_9,
+                                          ST03_EMIT_TBL[1][2].count_A, ST03_EMIT_TBL[1][2].rise_C, 0);
             emit++;
-            D_8011CA70[3] =
-                func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][3].width_8, ST03_EMIT_TBL[1][3].growth_9,
-                              ST03_EMIT_TBL[1][3].count_A, ST03_EMIT_TBL[1][3].rise_C, 0);
+            D_8011CA70[3] = func_8010FD1C(&emit->pos, ST03_EMIT_TBL[1][3].width_8, ST03_EMIT_TBL[1][3].growth_9,
+                                          ST03_EMIT_TBL[1][3].count_A, ST03_EMIT_TBL[1][3].rise_C, 0);
             break;
     }
 }
@@ -1129,8 +1120,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             vec.x = obj->position.x;
             vec.y = obj->position.y - 0x50;
             vec.z = obj->position.z;
-            func_80039FFC(&vec, 0x12C, Angle_xz_svector(&pos, &pl->position) + 0x20,
-                          D_800A396C + 0x61);
+            func_80039FFC(&vec, 0x12C, Angle_xz_svector(&pos, &pl->position) + 0x20, D_800A396C + 0x61);
             pl->flags_BD |= 0x40;
             pl->flags_0 &= ~2;
             wp->routine_6++;

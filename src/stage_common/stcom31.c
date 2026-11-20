@@ -151,10 +151,10 @@ void stcom31_func_033C(STCOM31_WORK *wp)
             stcom31_E_0010[0].x = point->x;
             stcom31_E_0010[0].y = 0;
             stcom31_E_0010[0].z = point->z;
-            step             = Muku(&wp->position, stcom31_E_0010, wp->rotation.v.y, 0x20);
-            wp->velocity.v.z = step * 4;
-            wp->rotation.v.z = (uint16)(step << 3) >> 4;
-            wp->rotation.v.y = (wp->rotation.v.y + step) & 0xFFF;
+            step                = Muku(&wp->position, stcom31_E_0010, wp->rotation.v.y, 0x20);
+            wp->velocity.v.z    = step * 4;
+            wp->rotation.v.z    = (uint16)(step << 3) >> 4;
+            wp->rotation.v.y    = (wp->rotation.v.y + step) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, wp->velocity.v.z);
             dx = wp->position.x - (point->x - (point->width >> 1));
             dz = wp->position.z - (point->z - (point->depth >> 1));
@@ -173,9 +173,7 @@ void stcom31_func_033C(STCOM31_WORK *wp)
             }
             stcom31_E_0010[0].x -= wp->position.x;
             stcom31_E_0010[0].z -= wp->position.z;
-            if (stcom31_E_0010[0].x * stcom31_E_0010[0].x +
-                    stcom31_E_0010[0].z * stcom31_E_0010[0].z >
-                0x4000)
+            if (stcom31_E_0010[0].x * stcom31_E_0010[0].x + stcom31_E_0010[0].z * stcom31_E_0010[0].z > 0x4000)
             {
                 if (wp->velocity.v.x < 0x320)
                 {
@@ -203,8 +201,7 @@ void stcom31_func_033C(STCOM31_WORK *wp)
             stcom31_E_0018[0] = wp->position;
             stcom31_E_0000    = wp->position_fixed;
             set               = ctl->random_2 & 3;
-            func_8002FFC4(stcom31_E_0018, &stcom31_E_0000, wp->rotation.v.y,
-                          stcom31_D_0078[set][i].x, stcom31_D_0078[set][i].y,
+            func_8002FFC4(stcom31_E_0018, &stcom31_E_0000, wp->rotation.v.y, stcom31_D_0078[set][i].x, stcom31_D_0078[set][i].y,
                           stcom31_D_0078[set][i].z);
             effect->sprite.pos_8[0] = stcom31_E_0018[0].x;
             effect->sprite.pos_8[1] = stcom31_E_0018[0].y;

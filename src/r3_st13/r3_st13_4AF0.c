@@ -29,11 +29,10 @@ void func_80104B68(ST13_SPARK *wp)
     wp->ctl.origin_10.y = wp->u_1C.spr.y;
     wp->mode_14         = 0x3D08002E;
     wp->ctl.origin_10.z = wp->u_1C.spr.z;
-    wp->color_18 =
-        0x2E000000 | (wp->ctl.shade_18 << 16) | (wp->ctl.shade_18 << 8) | wp->ctl.shade_18;
-    wp->u_1C.spr.u = D_80117644[wp->ctl.frame_19].u;
-    wp->u_1C.spr.v = D_80117644[wp->ctl.frame_19].v;
-    wp->w_24       = 0x20;
+    wp->color_18        = 0x2E000000 | (wp->ctl.shade_18 << 16) | (wp->ctl.shade_18 << 8) | wp->ctl.shade_18;
+    wp->u_1C.spr.u      = D_80117644[wp->ctl.frame_19].u;
+    wp->u_1C.spr.v      = D_80117644[wp->ctl.frame_19].v;
+    wp->w_24            = 0x20;
     func_800341BC(&wp->u_1C.pos, 0x20, 0, 0xA000, wp->index_1, &wp->ctl.hit_8, 0x68000010, 0, 0x80);
 }
 
@@ -45,8 +44,7 @@ void func_80104C9C(ST13_SPARK *wp)
     sint32 c;
 
     ctl = &wp->ctl;
-    if (func_80049C54(&wp->u_1C.pos, &wp->u_1C.pos, D_80117654, wp->index_1) == 0 &&
-        !(ctl->hit_8 & 0x2000000))
+    if (func_80049C54(&wp->u_1C.pos, &wp->u_1C.pos, D_80117654, wp->index_1) == 0 && !(ctl->hit_8 & 0x2000000))
     {
         wp->ctl.shade_18 = (ctl->timer_6 < 6) ? ctl->timer_6 * 16 : 0x80;
         c                = ctl->shade_18;
@@ -72,8 +70,7 @@ void func_80104C9C(ST13_SPARK *wp)
         {
             wp->u_1C.pos.y = pos.y;
         }
-        func_800341BC(&wp->u_1C.pos, wp->w_24, 0, 0xA000, wp->index_1, &ctl->hit_8, 0x68000010, 0,
-                      0x80);
+        func_800341BC(&wp->u_1C.pos, wp->w_24, 0, 0xA000, wp->index_1, &ctl->hit_8, 0x68000010, 0, 0x80);
         ctl->hit_8 = 0;
         if (--ctl->timer_6 != 0)
         {

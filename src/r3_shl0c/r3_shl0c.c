@@ -126,8 +126,7 @@ void func_800D8D74(SHL_WORK *wp)
     p.vy = (wp->fpos.w.y + (wp->vel.vy << 10)) >> 16;
     p.vz = (wp->fpos.w.z + (wp->vel.vz << 10)) >> 16;
     func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0, wp->value_1, &wp->col_c4, 0x2000001, 0, 0x80);
-    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0x4000, wp->value_1, &wp->col_bc, 0x28000001, 0,
-                  0x80);
+    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0x4000, wp->value_1, &wp->col_bc, 0x28000001, 0, 0x80);
     wp->col_bc = 0;
     wp->col_c0 = 0;
     wp->col_c4 = 0;

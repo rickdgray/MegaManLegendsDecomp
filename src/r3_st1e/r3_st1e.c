@@ -647,8 +647,8 @@ void func_80100ED4(STAGE_ROOM *wp)
         case 6:
             if (Sound_fade_flags == 0)
             {
-                Sound_fade_step_size          = 4;
-                Sound_work.volume_6 = 0x7F;
+                Sound_fade_step_size = 4;
+                Sound_work.volume_6  = 0x7F;
                 func_80017C30(0xB);
                 wp->routine_5++;
             }
@@ -1156,15 +1156,13 @@ void func_80102134(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_801098F8.cue_0->u.end != 0xFF && D_801098F8.cue_0->u.scene == scene->u_8.value_8 &&
-        D_801098F8.cue_0->line == scene->value_1C)
+    if (D_801098F8.cue_0->u.end != 0xFF && D_801098F8.cue_0->u.scene == scene->u_8.value_8 && D_801098F8.cue_0->line == scene->value_1C)
     {
         D_801098E8[0] = D_80104C54[D_801098F8.cue_0->index];
         func_80101F54(wp);
         D_801098F8.cue_0++;
     }
-    if (D_801098F8.cue_4->u.end != 0xFF && D_801098F8.cue_4->u.scene == scene->u_8.value_8 &&
-        D_801098F8.cue_4->line == scene->value_1C)
+    if (D_801098F8.cue_4->u.end != 0xFF && D_801098F8.cue_4->u.scene == scene->u_8.value_8 && D_801098F8.cue_4->line == scene->value_1C)
     {
         D_801098F0[0] = D_80104CA8[D_801098F8.cue_4->index];
         func_80101FB0(wp);

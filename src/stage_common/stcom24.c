@@ -59,14 +59,12 @@ void stcom24_func_0000(STCOM24_WORK *wp)
     if (ctl->flags_0 & 1)
     {
         ctl->pos_18 = wp->joints_180[0];
-        func_800341BC(pos, 0x6E, 0, 0x8000, wp->index_1, &ctl->body_20, ctl->kind_10 | 0x4880000,
-                      0x800000, 0);
+        func_800341BC(pos, 0x6E, 0, 0x8000, wp->index_1, &ctl->body_20, ctl->kind_10 | 0x4880000, 0x800000, 0);
         if (ctl->flags_0 & 2)
         {
             ctl->pos_18.x += (rsin(wp->rotation.y + 0x800) * 100) >> 12;
             ctl->pos_18.z += (rcos(wp->rotation.y + 0x800) * 100) >> 12;
-            func_800341BC(pos, 0x50, 0, 0x8000, wp->index_1, &ctl->claw_30,
-                          ctl->kind_14 | 0x4880000, 0x800000, 0);
+            func_800341BC(pos, 0x50, 0, 0x8000, wp->index_1, &ctl->claw_30, ctl->kind_14 | 0x4880000, 0x800000, 0);
         }
     }
     ctl->body_20.hit_0 = 0;
@@ -141,9 +139,7 @@ void stcom24_func_04CC(STCOM24_WORK *wp)
     }
     if (ctl->flags_0 & 0x20)
     {
-        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                         wp->rotation.y, 0x34)) &
-                         0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x34)) & 0xFFF;
         if (wp->flags_A7 < 0)
         {
             wp->anim_AC = 0;
@@ -232,8 +228,7 @@ void stcom24_func_07E4(STCOM24_WORK *wp)
             shot->position_fixed.x = shot->position.x << 16;
             shot->position_fixed.y = shot->position.y << 16;
             shot->position_fixed.z = shot->position.z << 16;
-            func_8002FFC4(&shot->position, &shot->position_fixed, wp->rotation.y & 0xFFF, 0x800,
-                          0x140, 0);
+            func_8002FFC4(&shot->position, &shot->position_fixed, wp->rotation.y & 0xFFF, 0x800, 0x140, 0);
             shot->angle_64 = wp->rotation.y;
         }
         wp->ctl.timer_8 = 15;
@@ -559,9 +554,7 @@ void stcom24_func_1024(STCOM24_WORK *wp)
 {
     if (wp->variant_3 != 0)
     {
-        wp->rotation.y = (wp->rotation.y +
-                          Muku(&wp->position, &wp->ctl.home_50, wp->rotation.y, 0x100)) &
-                         0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->ctl.home_50, wp->rotation.y, 0x100)) & 0xFFF;
     }
     wp->anim_AC = 6;
     wp->ctl.flags_0 |= 2;
@@ -579,9 +572,7 @@ void stcom24_func_109C(STCOM24_WORK *wp)
     ctl = &wp->ctl;
     if (wp->variant_3 != 0)
     {
-        wp->rotation.y =
-            (wp->rotation.y + Muku(&wp->position, &ctl->home_50, wp->rotation.y, 0x100)) &
-            0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->home_50, wp->rotation.y, 0x100)) & 0xFFF;
     }
     if (wp->flags_A7 < 0)
     {

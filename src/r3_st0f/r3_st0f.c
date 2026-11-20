@@ -19,18 +19,18 @@ void func_801000CC(void)
     void *spawn;
     sint16 *cells;
 
-    STAGE_MAP_WORK_PTR->w      = STAGE_MAP_TBL[Game_work.value_51].w;
-    STAGE_MAP_WORK_PTR->h      = STAGE_MAP_TBL[Game_work.value_51].h;
-    STAGE_MAP_WORK_PTR->x0     = STAGE_MAP_TBL[Game_work.value_51].x0;
-    STAGE_MAP_WORK_PTR->z0     = STAGE_MAP_TBL[Game_work.value_51].z0;
-    STAGE_MAP_WORK_PTR->x1     = STAGE_MAP_WORK_PTR->x0 + STAGE_MAP_WORK_PTR->w;
-    STAGE_MAP_WORK_PTR->z1     = STAGE_MAP_WORK_PTR->z0 + STAGE_MAP_WORK_PTR->h;
-    cells                = STAGE_MAP_TBL[Game_work.value_51].cells;
-    STAGE_PL_BYTE(0x44E) = 0;
-    spawn                = D_80104B24[Game_work.value_51];
-    STAGE_MAP_WORK_PTR->info   = STAGE_CELL_INFO;
-    STAGE_MAP_WORK_PTR->cells  = cells;
-    STAGE_MAP_WORK_PTR->exits  = D_80104C54[Game_work.value_51];
+    STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
+    STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
+    STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
+    STAGE_MAP_WORK_PTR->z0    = STAGE_MAP_TBL[Game_work.value_51].z0;
+    STAGE_MAP_WORK_PTR->x1    = STAGE_MAP_WORK_PTR->x0 + STAGE_MAP_WORK_PTR->w;
+    STAGE_MAP_WORK_PTR->z1    = STAGE_MAP_WORK_PTR->z0 + STAGE_MAP_WORK_PTR->h;
+    cells                     = STAGE_MAP_TBL[Game_work.value_51].cells;
+    STAGE_PL_BYTE(0x44E)      = 0;
+    spawn                     = D_80104B24[Game_work.value_51];
+    STAGE_MAP_WORK_PTR->info  = STAGE_CELL_INFO;
+    STAGE_MAP_WORK_PTR->cells = cells;
+    STAGE_MAP_WORK_PTR->exits = D_80104C54[Game_work.value_51];
     func_8002EA50(spawn, D_800C356D);
     func_800371A0(D_80104D04[D_80104D14[Game_work.value_51]], D_80104C64[Game_work.value_51]);
     func_8005DC10(0);
@@ -445,8 +445,7 @@ void func_80100D78(STAGE_ROOM_WORK *wp)
 
 sint32 func_80100DD0(void)
 {
-    if (D_800989F8.routine_4 == 0 && Sce_flag_test(0x27) && Sce_flag_test(0x207) &&
-        !Sce_flag_test(0x545))
+    if (D_800989F8.routine_4 == 0 && Sce_flag_test(0x27) && Sce_flag_test(0x207) && !Sce_flag_test(0x545))
     {
         func_8001EB98(D_80106104);
     }

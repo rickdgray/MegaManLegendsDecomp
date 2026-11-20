@@ -201,8 +201,8 @@ void func_801050E8(ST0D_ORBITER *wp)
         wp->rotation_prev       = wp->rotation;
         wp->orbit.angle_8       = (wp->orbit.angle_8 + wp->orbit.speed_6) & 0xFFF;
         wp->rotation.y          = (wp->rotation.y + wp->orbit.speed_6) & 0xFFF;
-        wp->position.x = wp->orbit.x_0 + ((wp->orbit.radius_C * rsin(wp->orbit.angle_8)) >> 12);
-        wp->position.z = wp->orbit.z_4 + ((wp->orbit.radius_C * rcos(wp->orbit.angle_8)) >> 12);
+        wp->position.x          = wp->orbit.x_0 + ((wp->orbit.radius_C * rsin(wp->orbit.angle_8)) >> 12);
+        wp->position.z          = wp->orbit.z_4 + ((wp->orbit.radius_C * rcos(wp->orbit.angle_8)) >> 12);
     }
     wp->position_fixed.x = wp->position.x << 16;
     wp->position_fixed.y = wp->position.y << 16;

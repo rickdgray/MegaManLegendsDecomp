@@ -61,8 +61,7 @@ void func_8011216C(ST00_STCOM19_WORK *wp)
         STCOM_GTE_RTPS();
         STCOM_GTE_STSXY(&sxy_pos);
         if (b.x != a.x && (b.z - a.z) * (player.x - a.x) / (b.x - a.x) + a.z < player.z &&
-            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) ||
-             (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
+            ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) || (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
         {
             wp->color_40 = 0x2404040;
             return;
@@ -97,8 +96,7 @@ void func_80112568(STAGE_PANEL_WORK *wp)
     uint8 frame;
     uint32 color;
 
-    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&Player_work.position) &&
-        Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
+    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&Player_work.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
     {
         wp->routine_0 = 2;
         wp->timer_B   = 0x10;
@@ -930,8 +928,8 @@ void func_80113FEC(ST00_BOX_B *wp)
         if ((wp->flags_0 & 1) && (wp->matrix.f.ctl.flags_0 & 4))
         {
             wp->pos_38.y -= 0x80;
-            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011CB00[wp->variant_3 >> 4], wp->index_1,
-                          &wp->matrix.f.ctl.hit_4, D_8011CAF8[wp->variant_3 >> 4], 0, 0x80);
+            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011CB00[wp->variant_3 >> 4], wp->index_1, &wp->matrix.f.ctl.hit_4,
+                          D_8011CAF8[wp->variant_3 >> 4], 0, 0x80);
             wp->pos_38.y += 0x80;
         }
     }
@@ -1460,8 +1458,7 @@ void func_801150CC(STAGE_MATRIX_OBJ *wp, ST00_BOX *box)
 
 void func_80115210(STAGE_MATRIX_OBJ *wp, ST00_BOX *box)
 {
-    if (!Sce_flag_test(0x622) && !Sce_flag_test(0x61B) &&
-        (!Sce_flag_test(0x608) || !Sce_flag_test(0x609)))
+    if (!Sce_flag_test(0x622) && !Sce_flag_test(0x61B) && (!Sce_flag_test(0x608) || !Sce_flag_test(0x609)))
     {
         switch (box->state_8)
         {
@@ -1787,8 +1784,7 @@ void func_80115D38(STAGE_MATRIX_OBJ *wp)
     uint32 height;
 
     limit = 0x78;
-    if ((uint32)(STAGE_PL.position.x - wp->pos_38.x + 0x3C) <= limit &&
-        (uint32)(STAGE_PL.position.z - wp->pos_38.z + 0x3C) <= limit)
+    if ((uint32)(STAGE_PL.position.x - wp->pos_38.x + 0x3C) <= limit && (uint32)(STAGE_PL.position.z - wp->pos_38.z + 0x3C) <= limit)
     {
         dy     = STAGE_PL.position.y - wp->pos_38.y + 0xA;
         height = 0xAA;
@@ -1943,8 +1939,7 @@ void func_801161D4(ST00_ORBIT *wp)
         Player_work.target_184 = NULL;
         wp->value_10           = 0;
     }
-    if ((sint32)(wp->routine_2 - damage) < 0 ||
-        (D_80122620[wp->variant_3 & 1].f.hit_0 & 0x20000000))
+    if ((sint32)(wp->routine_2 - damage) < 0 || (D_80122620[wp->variant_3 & 1].f.hit_0 & 0x20000000))
     {
         pos = D_80122620[wp->variant_3 & 1].f.from_8;
         if (pos.pad == 0)
@@ -1975,8 +1970,7 @@ void func_801161D4(ST00_ORBIT *wp)
     }
     pos = wp->pos_38;
     pos.y -= 0x28;
-    func_800341BC(&pos, 0x50, 0, 0x8000, wp->index_1, &D_80122620[wp->variant_3 & 1].f.hit_0,
-                  0x4000000, 0x800000, 0);
+    func_800341BC(&pos, 0x50, 0, 0x8000, wp->index_1, &D_80122620[wp->variant_3 & 1].f.hit_0, 0x4000000, 0x800000, 0);
     func_80051B68(wp, 5, -1, 0);
 }
 
@@ -2014,14 +2008,12 @@ void func_801164A8(ST00_ORBIT *wp)
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x83;
-                ep->variant_3 = 2;
-                ep->sprite.pos_8[0] =
-                    wp->pos_38.x - (((rsin(wp->matrix_18.f.angle_30) << 6) * i) >> 12);
+                ep->flags_0         = 1;
+                ep->kind_2          = 0x83;
+                ep->variant_3       = 2;
+                ep->sprite.pos_8[0] = wp->pos_38.x - (((rsin(wp->matrix_18.f.angle_30) << 6) * i) >> 12);
                 ep->sprite.pos_8[1] = wp->pos_38.y - 0x10;
-                ep->sprite.pos_8[2] =
-                    wp->pos_38.z - (((rcos(wp->matrix_18.f.angle_30) << 6) * i) >> 12);
+                ep->sprite.pos_8[2] = wp->pos_38.z - (((rcos(wp->matrix_18.f.angle_30) << 6) * i) >> 12);
             }
         }
     }
@@ -2124,8 +2116,7 @@ void func_80116750(ST00_POOL *wp)
 // Fades a gray level out.
 void func_80116A08(STAGE_FX *wp)
 {
-    wp->value_40 =
-        0x2000000 | (wp->routine_3 * 8 << 16) | (wp->routine_3 * 8 << 8) | (wp->routine_3 * 8);
+    wp->value_40 = 0x2000000 | (wp->routine_3 * 8 << 16) | (wp->routine_3 * 8 << 8) | (wp->routine_3 * 8);
     if (--wp->routine_3 == 0)
     {
         wp->routine_0 = 9;
@@ -2229,8 +2220,7 @@ void func_80116D00(STAGE_OBJ *wp)
     func_80031988((STCOM_EFFECT *)wp);
 }
 
-ST00_SPARK *func_80116D60(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide)
+ST00_SPARK *func_80116D60(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide)
 {
     ST00_SPARK *ep;
     sint32 i;
@@ -2548,8 +2538,7 @@ void func_80117740(STAGE_FX *wp)
                 ep->z_20    = wp->z_20 + (sint16)((rand() & 0xF) + 0x40) - 7;
                 ep->frame_E = (rand() & 7) + 8;
             }
-            ep->x_1C =
-                wp->x_1C + (sint16)(i % 12 * 64 + 0x40) + (sint16)((rand() & 0x3F) - 0x180) - 0x1F;
+            ep->x_1C      = wp->x_1C + (sint16)(i % 12 * 64 + 0x40) + (sint16)((rand() & 0x3F) - 0x180) - 0x1F;
             ep->y_1E      = wp->y_1E;
             ep->mode_14   = 0x3D48002E;
             ep->color_18  = 0x2E403028;

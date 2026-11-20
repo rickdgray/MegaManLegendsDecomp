@@ -53,8 +53,8 @@ void func_8010E8A0(STAGE_OBJ *wp)
         }
         i++;
     }
-    if (wp->u_C.b.byte_C != -1 && !((STAGE_GAME.value_174 >> wp->u_C.b.byte_C) & 1) &&
-        D_80110C78[wp->u_C.b.byte_C](wp) && !Sce_flag_test(D_80110CA8[wp->u_C.b.byte_C]))
+    if (wp->u_C.b.byte_C != -1 && !((STAGE_GAME.value_174 >> wp->u_C.b.byte_C) & 1) && D_80110C78[wp->u_C.b.byte_C](wp) &&
+        !Sce_flag_test(D_80110CA8[wp->u_C.b.byte_C]))
     {
         if ((3 >> wp->u_C.b.byte_C) & 1)
         {
@@ -142,8 +142,7 @@ void func_8010EB78(STAGE_OBJ *wp)
 
 sint32 func_8010ECB0(STAGE_OBJ *wp, ST0E_BOX *box)
 {
-    if ((uint16)((sint8)wp->position.x - box->x) < box->w &&
-        (uint16)((sint8)wp->position.z - box->z) < box->h)
+    if ((uint16)((sint8)wp->position.x - box->x) < box->w && (uint16)((sint8)wp->position.z - box->z) < box->h)
     {
         return 1;
     }

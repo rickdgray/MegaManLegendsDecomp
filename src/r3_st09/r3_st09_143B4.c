@@ -110,8 +110,8 @@ void func_801144E8(ST09_PART *wp)
         ctl->pos_C         = wp->position;
         wp->position       = D_8011E988[0];
         wp->position_fixed = D_8011E990[0];
-        func_8003430C(&ctl->pos_C, 0x50, &wp->position, 0x40, 0x200, 0xA000, wp->index_1,
-                      &ctl->hit_14, ctl->value_8 | 0x9880000, 0x800000, 0);
+        func_8003430C(&ctl->pos_C, 0x50, &wp->position, 0x40, 0x200, 0xA000, wp->index_1, &ctl->hit_14, ctl->value_8 | 0x9880000, 0x800000,
+                      0);
     }
 }
 
@@ -383,8 +383,7 @@ void func_80115014(ST09_PART *wp)
                     Sound_call2(0xC6, &wp->position);
                 }
             }
-            if (func_80031E60(&pl->position_fixed, pl->rotation.y, 0x800, &wp->position_fixed,
-                              wp->rotation.y, 0x400))
+            if (func_80031E60(&pl->position_fixed, pl->rotation.y, 0x800, &wp->position_fixed, wp->rotation.y, 0x400))
             {
                 wp->routine_2 = 4;
             }
@@ -411,8 +410,7 @@ void func_80115014(ST09_PART *wp)
             {
                 break;
             }
-            turn           = Muku(&ctl->parent_34->joint_180[wp->index_D], &wp->position,
-                                           wp->rotation.y, 0x20);
+            turn           = Muku(&ctl->parent_34->joint_180[wp->index_D], &wp->position, wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn != 0)
             {
@@ -602,8 +600,7 @@ void func_80115A0C(ST09_SLIDER *wp)
     }
     if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, 0x50, 0, 0xE000, wp->index_1, &wp->hit_BC,
-                      ((wp->variant_3 & 0x7F) * 2) | 0x29000000, 0, 0x80);
+        func_800341BC(&wp->position, 0x50, 0, 0xE000, wp->index_1, &wp->hit_BC, ((wp->variant_3 & 0x7F) * 2) | 0x29000000, 0, 0x80);
     }
 }
 
@@ -631,8 +628,7 @@ void func_80115BF0(ST09_SLIDER *wp)
             if (wp->hit_BC & 0x4000000)
             {
                 ctl->speed_A = -ctl->speed_A;
-                ctl->count_6 = (wp->param_D - ctl->count_6 < 0) ? ctl->count_6 - wp->param_D
-                                                                : wp->param_D - ctl->count_6;
+                ctl->count_6 = (wp->param_D - ctl->count_6 < 0) ? ctl->count_6 - wp->param_D : wp->param_D - ctl->count_6;
             }
             if (--ctl->count_6 >= 0)
             {

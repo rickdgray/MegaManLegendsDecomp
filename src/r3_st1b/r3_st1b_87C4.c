@@ -55,15 +55,13 @@ void func_801089A4(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_80113EA4.cue_0->u.end != 0xFF && D_80113EA4.cue_0->u.scene == scene->u_8.value_8 &&
-        D_80113EA4.cue_0->line == scene->value_1C)
+    if (D_80113EA4.cue_0->u.end != 0xFF && D_80113EA4.cue_0->u.scene == scene->u_8.value_8 && D_80113EA4.cue_0->line == scene->value_1C)
     {
         D_80113E94[0] = D_8010E864[D_80113EA4.cue_0->index];
         func_801087C4(wp);
         D_80113EA4.cue_0++;
     }
-    if (D_80113EA4.cue_4->u.end != 0xFF && D_80113EA4.cue_4->u.scene == scene->u_8.value_8 &&
-        D_80113EA4.cue_4->line == scene->value_1C)
+    if (D_80113EA4.cue_4->u.end != 0xFF && D_80113EA4.cue_4->u.scene == scene->u_8.value_8 && D_80113EA4.cue_4->line == scene->value_1C)
     {
         D_80113E9C[0] = D_8010E870[D_80113EA4.cue_4->index];
         func_80108820(wp);
@@ -281,9 +279,7 @@ void func_8010915C(ST1B_TALKER *wp)
 
 void func_80109228(ST1B_TALKER *wp)
 {
-    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                     wp->rotation.y, wp->talk.turn_6)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->talk.turn_6)) & 0xFFF;
     if (Moji_flag & 0x200000)
     {
         wp->anim_AC = 9;
@@ -299,9 +295,7 @@ void func_80109228(ST1B_TALKER *wp)
 
 void func_801092C8(ST1B_TALKER *wp)
 {
-    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                     wp->rotation.y, wp->talk.turn_6)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->talk.turn_6)) & 0xFFF;
     if (wp->value_A7 < 0)
     {
         wp->anim_AC = 0;
@@ -399,15 +393,13 @@ void func_80109600(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_80113EBC.cue_0->u.end != 0xFF && D_80113EBC.cue_0->u.scene == scene->u_8.value_8 &&
-        D_80113EBC.cue_0->line == scene->value_1C)
+    if (D_80113EBC.cue_0->u.end != 0xFF && D_80113EBC.cue_0->u.scene == scene->u_8.value_8 && D_80113EBC.cue_0->line == scene->value_1C)
     {
         D_80113EAC[0] = D_8010E990[D_80113EBC.cue_0->index];
         func_80109420(wp);
         D_80113EBC.cue_0++;
     }
-    if (D_80113EBC.cue_4->u.end != 0xFF && D_80113EBC.cue_4->u.scene == scene->u_8.value_8 &&
-        D_80113EBC.cue_4->line == scene->value_1C)
+    if (D_80113EBC.cue_4->u.end != 0xFF && D_80113EBC.cue_4->u.scene == scene->u_8.value_8 && D_80113EBC.cue_4->line == scene->value_1C)
     {
         D_80113EB4[0] = D_8010E9A0[D_80113EBC.cue_4->index];
         func_8010947C(wp);

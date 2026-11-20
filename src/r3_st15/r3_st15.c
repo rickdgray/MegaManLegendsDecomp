@@ -484,15 +484,13 @@ void func_80100EA8(STAGE_WORK *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_80108504.cue_0->u.end != 0xFF && D_80108504.cue_0->u.scene == scene->u_8.value_8 &&
-        D_80108504.cue_0->line == scene->value_1C)
+    if (D_80108504.cue_0->u.end != 0xFF && D_80108504.cue_0->u.scene == scene->u_8.value_8 && D_80108504.cue_0->line == scene->value_1C)
     {
         D_801084F4[0] = D_80102BFC[D_80108504.cue_0->index];
         func_80100CC8(wp);
         D_80108504.cue_0++;
     }
-    if (D_80108504.cue_4->u.end != 0xFF && D_80108504.cue_4->u.scene == scene->u_8.value_8 &&
-        D_80108504.cue_4->line == scene->value_1C)
+    if (D_80108504.cue_4->u.end != 0xFF && D_80108504.cue_4->u.scene == scene->u_8.value_8 && D_80108504.cue_4->line == scene->value_1C)
     {
         D_801084FC[0] = D_80102C20[D_80108504.cue_4->index];
         func_80100D24(wp);
@@ -612,15 +610,13 @@ void func_801013DC(STAGE_WORK *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_8010851C.cue_0->u.end != 0xFF && D_8010851C.cue_0->u.scene == scene->u_8.value_8 &&
-        D_8010851C.cue_0->line == scene->value_1C)
+    if (D_8010851C.cue_0->u.end != 0xFF && D_8010851C.cue_0->u.scene == scene->u_8.value_8 && D_8010851C.cue_0->line == scene->value_1C)
     {
         D_8010850C[0] = D_80102DD0[D_8010851C.cue_0->index];
         func_801011FC(wp);
         D_8010851C.cue_0++;
     }
-    if (D_8010851C.cue_4->u.end != 0xFF && D_8010851C.cue_4->u.scene == scene->u_8.value_8 &&
-        D_8010851C.cue_4->line == scene->value_1C)
+    if (D_8010851C.cue_4->u.end != 0xFF && D_8010851C.cue_4->u.scene == scene->u_8.value_8 && D_8010851C.cue_4->line == scene->value_1C)
     {
         D_80108514[0] = D_80102DD0[D_8010851C.cue_4->index];
         func_80101258(wp);

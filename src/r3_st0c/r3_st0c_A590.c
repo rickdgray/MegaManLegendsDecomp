@@ -155,18 +155,15 @@ void func_8010AB60(ST0C_SHOT *wp)
     }
     if (wp->type_3 & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_C4, 0x8000005,
-                      0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_C4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_C)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_C4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_C4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_C4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_C4, flags | 0x8000000, 0, 0x80);
     }
 }
 

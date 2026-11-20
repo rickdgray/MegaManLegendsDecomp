@@ -537,8 +537,7 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
             func_8010102C(wp);
             func_8001EC0C();
             Sce_event_update();
-            if (D_80098A72 == 0 &&
-                ((wp->reserved09[0] == 0x13 && wp->frame_10 == 0x2C) || func_8001DE84() != 0))
+            if (D_80098A72 == 0 && ((wp->reserved09[0] == 0x13 && wp->frame_10 == 0x2C) || func_8001DE84() != 0))
             {
                 func_80017C30(0xA);
                 wp->routine_4++;

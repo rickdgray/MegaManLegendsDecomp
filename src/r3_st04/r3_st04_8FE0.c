@@ -477,8 +477,7 @@ void func_80109EB8(STAGE_OBJ50 *wp)
 // Whether the box still has something to give.
 uint8 func_80109F34(STAGE_OBJ50 *wp)
 {
-    if ((wp->value_44 == 0 || Sce_flag_test(wp->value_44)) &&
-        !Sce_flag_test(wp->u_C.b.lo + 0x400) && wp->value_E != -1)
+    if ((wp->value_44 == 0 || Sce_flag_test(wp->value_44)) && !Sce_flag_test(wp->u_C.b.lo + 0x400) && wp->value_E != -1)
     {
         return 1;
     }

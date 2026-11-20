@@ -497,8 +497,7 @@ void stcom21_func_0768(STCOM21_WORK *wp)
 // Whether the player faces the villager from the front.
 uint8 stcom21_func_0CE8(STCOM21_WORK *wp, STCOM_PL_WORK *pl)
 {
-    return func_80031EF0(&wp->pos_38, ((wp->variant_3 << 10) - 0x400) & 0xC00, 0x1FF, &pl->position,
-                         pl->rotation.y, 0x1FF);
+    return func_80031EF0(&wp->pos_38, ((wp->variant_3 << 10) - 0x400) & 0xC00, 0x1FF, &pl->position, pl->rotation.y, 0x1FF);
 }
 
 // Whether the player talks to the villager: picks the conversation.
@@ -852,8 +851,7 @@ uint8 stcom21_func_1880(STCOM21_WORK *wp)
     {
         return 0;
     }
-    if ((flag == 0 || Sce_flag_test(flag)) && !Sce_flag_test(wp->value_C + 0x400) &&
-        wp->value_E != -1)
+    if ((flag == 0 || Sce_flag_test(flag)) && !Sce_flag_test(wp->value_C + 0x400) && wp->value_E != -1)
     {
         return 1;
     }
@@ -1006,8 +1004,7 @@ void stcom21_func_1D60(STCOM21_WORK *wp)
 // Whether the box still has something to give.
 uint8 stcom21_func_1DDC(STCOM21_WORK *wp)
 {
-    if ((wp->u_44.flag == 0 || Sce_flag_test(wp->u_44.flag)) &&
-        !Sce_flag_test(wp->value_C + 0x400) && wp->value_E != -1)
+    if ((wp->u_44.flag == 0 || Sce_flag_test(wp->u_44.flag)) && !Sce_flag_test(wp->value_C + 0x400) && wp->value_E != -1)
     {
         return 1;
     }

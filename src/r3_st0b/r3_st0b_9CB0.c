@@ -570,8 +570,7 @@ void func_8010AF98(ST0B_BOBBER *wp, ST0B_BOB_B *bob)
     wp->rotation.y = (wp->rotation.y + bob->turn_6) & 0xFFF;
     if (bob->period_4 > 0)
     {
-        wp->position.y =
-            bob->base_A + ((bob->height_2 * D_800BBCF8[(bob->phase_8 << 6) / bob->period_4]) >> 12);
+        wp->position.y       = bob->base_A + ((bob->height_2 * D_800BBCF8[(bob->phase_8 << 6) / bob->period_4]) >> 12);
         wp->position_fixed.y = wp->position.y << 16;
         bob->phase_8++;
         bob->phase_8 %= bob->period_4;
@@ -733,8 +732,7 @@ void func_8010B4BC(STAGE_OBJ *wp)
     bob->pos_2C.z += wp->position.z;
     bob->pos_2C.y = wp->position.y - 0x80;
     flag          = (bob->flags_14 & 0xC00) != 0;
-    func_800341BC(&bob->pos_2C, 0x100, 0, 0x8000, wp->value_1, &bob->hit_34, 0x04880000, 0,
-                  flag << 7);
+    func_800341BC(&bob->pos_2C, 0x100, 0, 0x8000, wp->value_1, &bob->hit_34, 0x04880000, 0, flag << 7);
     bob->hit_34 = 0;
 }
 
@@ -1637,8 +1635,7 @@ void func_8010CEE0(ST0B_OBJ *wp)
     }
     flag          = ctl->flags_14 & 0x80;
     ctl->value_34 = ground != -1;
-    func_800341BC(ST0B_OBJ_POS_180(wp), 0xC0, 0, 0x8000, wp->value_1, &ctl->hit_38,
-                  ctl->life_1E | 0x05880000, 0x800000, flag);
+    func_800341BC(ST0B_OBJ_POS_180(wp), 0xC0, 0, 0x8000, wp->value_1, &ctl->hit_38, ctl->life_1E | 0x05880000, 0x800000, flag);
     ctl->hit_38 = 0;
 }
 
@@ -2016,8 +2013,7 @@ void func_8010DA20(ST0B_OBJ *wp, ST0B_HIT_B *ctl)
 
 sint32 func_8010DB7C(STAGE_OBJ *wp)
 {
-    if (STCOM_ABS(wp->rotation.y -
-                  Angle_xz_vector(&wp->position_fixed, &Player_work.position_fixed)) < 0x50)
+    if (STCOM_ABS(wp->rotation.y - Angle_xz_vector(&wp->position_fixed, &Player_work.position_fixed)) < 0x50)
     {
         return 1;
     }
@@ -2253,8 +2249,7 @@ void func_8010E36C(STAGE_OBJ *wp)
             wp->position.y -= wp->u_E.b.byte_E;
             wp->position.z -= wp->u_E.b.byte_F;
         }
-        wp->position.y = height[wp->u_C.b.byte_C] +
-                         ((D_800BBCF8[(wp->routine_3 + wp->u_C.b.byte_C * 7) & 0x3F] << 8) >> 16);
+        wp->position.y = height[wp->u_C.b.byte_C] + ((D_800BBCF8[(wp->routine_3 + wp->u_C.b.byte_C * 7) & 0x3F] << 8) >> 16);
     }
     else if (wp->u_C.b.byte_D != 0)
     {

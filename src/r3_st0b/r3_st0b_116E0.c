@@ -624,8 +624,7 @@ void func_80112F18(ST0B_TRAIL5 *wp)
     wp->sprite.pos_8[0] = wp->position.x = wp->position_fixed.f.x.words.integer;
     wp->sprite.pos_8[1] = wp->position.y = wp->position_fixed.f.y.words.integer;
     wp->sprite.pos_8[2] = wp->position.z = wp->position_fixed.f.z.words.integer;
-    wp->rotation.y +=
-        Muku(&wp->position, &ST0B_PL_PTR->pos_3A8, wp->rotation.y & 0xFFF, 0x40);
+    wp->rotation.y += Muku(&wp->position, &ST0B_PL_PTR->pos_3A8, wp->rotation.y & 0xFFF, 0x40);
     wp->speed_44[0] = (uint32)(-rsin(wp->rotation.y) * 5) >> 1;
     wp->speed_44[1] = 0;
     wp->speed_44[2] = (uint32)(-rcos(wp->rotation.y) * 5) >> 1;
@@ -650,8 +649,8 @@ void func_80113120(ST0B_10C *wp)
 {
     STCOM_FIXED_VECTOR unused;
 
-    if ((wp->value_C4 & 0x1A000000) || func_80048EA4(&wp->position, NULL, 0, 0xFFFF) < -0x10 ||
-        wp->value_7C != 0 || (uint32)wp->value_80 <= 0xFFFF)
+    if ((wp->value_C4 & 0x1A000000) || func_80048EA4(&wp->position, NULL, 0, 0xFFFF) < -0x10 || wp->value_7C != 0 ||
+        (uint32)wp->value_80 <= 0xFFFF)
     {
         func_8011325C((STAGE_OBJ *)wp);
         Close_SHL_WORK(wp);
@@ -666,8 +665,7 @@ void func_80113120(ST0B_10C *wp)
 
 void func_801131F0(ST0B_10C *wp)
 {
-    func_800341BC(&wp->position, 0x64, 0, 0x8000, wp->value_1, &wp->value_C4,
-                  D_80098928[wp->kind_2]->value_9 | 0x4000000, 0, 0);
+    func_800341BC(&wp->position, 0x64, 0, 0x8000, wp->value_1, &wp->value_C4, D_80098928[wp->kind_2]->value_9 | 0x4000000, 0, 0);
 }
 
 void func_8011325C(STAGE_OBJ *wp)
@@ -801,8 +799,7 @@ void func_80113674(STAGE_OBJ *wp)
     func_80031988((STCOM_EFFECT *)wp);
 }
 
-ST0B_SPARK *func_801136D4(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide)
+ST0B_SPARK *func_801136D4(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide)
 {
     ST0B_SPARK *ep;
     sint32 i;

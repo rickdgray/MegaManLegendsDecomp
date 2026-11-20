@@ -16,10 +16,8 @@ void func_80116DA4(ST05_ACTOR *wp)
             wp->turn_64 = *(sint16 *)&wp->timer_C; // timer_C and value_D as one halfword
             // fall through
         case 1:
-            ctl->timer_A = (ctl->timer_A + Muku(&wp->position, &pl->position,
-                                                         (wp->rotation.y + ctl->timer_A) & 0xFFF,
-                                                         wp->turn_64)) &
-                           0xFFF;
+            ctl->timer_A =
+                (ctl->timer_A + Muku(&wp->position, &pl->position, (wp->rotation.y + ctl->timer_A) & 0xFFF, wp->turn_64)) & 0xFFF;
             break;
     }
     if (wp->value_F & 2)
@@ -74,7 +72,7 @@ void func_80116F7C(ST05_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0)
             {
@@ -144,14 +142,11 @@ sint32 func_801171D0(ST05_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -159,8 +154,7 @@ sint32 func_801171D0(ST05_ACTOR *wp)
         D_80137F68.x = wp->value_180.x;
         D_80137F68.y = wp->value_180.y - 0x20;
         D_80137F68.z = wp->value_180.z;
-        func_80039FAC(&D_80137F68, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_80137F68, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;
@@ -354,9 +348,7 @@ void func_8011777C(ST05_ACTOR *wp)
                 Sound_call(0x111, 0, 0);
             }
             target         = &D_80131858[1];
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, target, wp->rotation.y, wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, target, wp->rotation.y, wp->turn_64)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, wp->velocity.v.z);
             dx = wp->position.x - target->x;
             dz = wp->position.z - target->z;
@@ -1014,8 +1006,7 @@ void func_80118DE0(ST05_BOAT *wp)
         ctl->ground_1C = 1;
     }
     mask = (ctl->flags_0 >> 2) & 0x80;
-    func_800341BC(&wp->value_180, 0xC0, 0, 0x8000, wp->value_1, &ctl->hit_20,
-                  ctl->value_10 | 0x5880000, 0x800000, mask);
+    func_800341BC(&wp->value_180, 0xC0, 0, 0x8000, wp->value_1, &ctl->hit_20, ctl->value_10 | 0x5880000, 0x800000, mask);
     ctl->hit_20 = 0;
 }
 
@@ -1205,8 +1196,7 @@ void func_8011948C(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
     }
     if (ctl->flags_0 & 8)
     {
-        if (func_8011953C(wp->position.x, wp->position.z,
-                          ((wp->rotation.y + 0x200) & 0xFFF) / 0x400) != 0)
+        if (func_8011953C(wp->position.x, wp->position.z, ((wp->rotation.y + 0x200) & 0xFFF) / 0x400) != 0)
         {
             ctl->flags_0 &= ~8;
         }
@@ -1522,8 +1512,7 @@ void func_80119BE0(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
 
 sint32 func_80119D90(ST05_BOAT *wp)
 {
-    if (STCOM_ABS(wp->rotation.y -
-                  Angle_xz_vector(&wp->position_fixed, &Player_work.position_fixed)) < 0x50)
+    if (STCOM_ABS(wp->rotation.y - Angle_xz_vector(&wp->position_fixed, &Player_work.position_fixed)) < 0x50)
     {
         return 1;
     }
@@ -1656,9 +1645,7 @@ void func_8011A194(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
             vec.x += wp->position_fixed.x;
             vec.z += wp->position_fixed.z;
             func_80030150(&vec, &pos);
-            wp->routine_2 =
-                (func_8011953C(pos.x, pos.z, ((wp->rotation.y + 0x200) & 0xFFF) / 0x400) != 0) ? 1
-                                                                                               : 2;
+            wp->routine_2 = (func_8011953C(pos.x, pos.z, ((wp->rotation.y + 0x200) & 0xFFF) / 0x400) != 0) ? 1 : 2;
             break;
         case 1:
             wp->rotation.y = (wp->rotation.y + 0x20) & 0xFFF;
@@ -2255,17 +2242,14 @@ void func_8011B534(ST05_BOSS *wp)
     switch (wp->routine_2)
     {
         case 0:
-            wp->rotation.y = (wp->ctl.timer_4 * wp->ctl.target_C0.pad +
-                              (14 - wp->ctl.timer_4) * wp->ctl.home_B8.pad) /
-                             14;
+            wp->rotation.y = (wp->ctl.timer_4 * wp->ctl.target_C0.pad + (14 - wp->ctl.timer_4) * wp->ctl.home_B8.pad) / 14;
             wp->ctl.timer_4++;
             if (wp->value_A7 == -1)
             {
                 wp->routine_2++;
-                wp->routine_3  = 0;
-                wp->rotation.y = wp->ctl.target_C0.pad;
-                wp->ctl.timer_4 =
-                    D_80131A14[wp->ctl.value_EE].pad + D_80131A14[wp->ctl.value_ED].pad;
+                wp->routine_3   = 0;
+                wp->rotation.y  = wp->ctl.target_C0.pad;
+                wp->ctl.timer_4 = D_80131A14[wp->ctl.value_EE].pad + D_80131A14[wp->ctl.value_ED].pad;
             }
             break;
         case 1:
@@ -2285,7 +2269,7 @@ void func_8011B534(ST05_BOSS *wp)
                 wp->ctl.size_C8.y    = 9;
                 wp->ctl.size_C8.z    = 4;
                 side                 = func_80030418(wp, pl, &wp->ctl.size_C8, &wp->ctl.out_D0);
-                angle = (Angle_xz_svector(&wp->position, &pl->position) + 0x1000) & 0xFFF;
+                angle                = (Angle_xz_svector(&wp->position, &pl->position) + 0x1000) & 0xFFF;
                 if (side & 1)
                 {
                     // The two one-pass loops order the rotation load first and give it
@@ -2408,12 +2392,10 @@ void func_8011B8F8(ST05_BOSS *wp)
         }
         wp->value_44.half[1] += 0x80;
         Obj_pos_set(wp, 0, wp->value_44.half[1], 0);
-        wp->position.x =
-            (ctl->timer_4 * ctl->target_C0.x + (steps - ctl->timer_4) * ctl->home_B8.x) / steps;
-        wp->position.z =
-            (ctl->timer_4 * ctl->target_C0.z + (steps - ctl->timer_4) * ctl->home_B8.z) / steps;
-        from = ctl->home_B8.pad;
-        to   = ctl->target_C0.pad;
+        wp->position.x = (ctl->timer_4 * ctl->target_C0.x + (steps - ctl->timer_4) * ctl->home_B8.x) / steps;
+        wp->position.z = (ctl->timer_4 * ctl->target_C0.z + (steps - ctl->timer_4) * ctl->home_B8.z) / steps;
+        from           = ctl->home_B8.pad;
+        to             = ctl->target_C0.pad;
         if (to - ctl->home_B8.pad >= 0x800)
         {
             from += 0x1000;
@@ -2704,8 +2686,7 @@ void func_8011C198(ST05_BOSS *wp)
                     ctl->timer_4 = 0x90;
                 }
             }
-            if ((func_8011D0E8(wp, 2, !(ctl->flags_0 & 0x400) ? 8 : 0x10) & 2) &&
-                ctl->value_E9 == 0)
+            if ((func_8011D0E8(wp, 2, !(ctl->flags_0 & 0x400) ? 8 : 0x10) & 2) && ctl->value_E9 == 0)
             {
                 ctl->timer_4  = 0x40;
                 ctl->value_E8 = 0;
@@ -2831,9 +2812,8 @@ void func_8011C5D8(ST05_BOSS *wp)
             func_8004B414(wp);
             wp->position.y         = func_80048E6C(wp);
             wp->position_fixed.v.y = wp->position.y << 16;
-            if (((wp->position.y - wp->position_prev.y >= 0)
-                     ? wp->position.y - wp->position_prev.y
-                     : wp->position_prev.y - wp->position.y) > 0x20)
+            if (((wp->position.y - wp->position_prev.y >= 0) ? wp->position.y - wp->position_prev.y
+                                                             : wp->position_prev.y - wp->position.y) > 0x20)
             {
                 wp->position         = wp->position_prev;
                 wp->position_fixed.v = wp->position_fixed_prev;
@@ -3006,23 +2986,21 @@ void func_8011CC64(ST05_BOSS *wp)
     ctl  = &wp->ctl;
     if (fx != NULL)
     {
-        fx->flags_0   = 7;
-        fx->kind_2    = 0x80;
-        fx->variant_3 = 0xFE;
-        work          = rcos(wp->rotation.y + 0x800);
-        pos.x = wp->position.x + ((rsin(wp->rotation.y + 0x800) * (wp->routine_2 + 4)) >> 6);
-        pos.y = -1;
-        pos.z = wp->position.z + ((work * (wp->routine_2 + 4)) >> 6);
-        work  = (sint32)&fx->sprite;
+        fx->flags_0                      = 7;
+        fx->kind_2                       = 0x80;
+        fx->variant_3                    = 0xFE;
+        work                             = rcos(wp->rotation.y + 0x800);
+        pos.x                            = wp->position.x + ((rsin(wp->rotation.y + 0x800) * (wp->routine_2 + 4)) >> 6);
+        pos.y                            = -1;
+        pos.z                            = wp->position.z + ((work * (wp->routine_2 + 4)) >> 6);
+        work                             = (sint32)&fx->sprite;
         ((STCOM_SPRITE *)work)->position = pos;
     }
-    if (Distance_xyz(&wp->position, &((STCOM_SPRITE *)work)->position) > wp->ctl.dist_E0 + 0x200 &&
-        wp->routine_2 >= 0x3D)
+    if (Distance_xyz(&wp->position, &((STCOM_SPRITE *)work)->position) > wp->ctl.dist_E0 + 0x200 && wp->routine_2 >= 0x3D)
     {
         wp->ctl.flags_0 &= ~0x40;
     }
-    hit = func_80049C54(&((STCOM_SPRITE *)work)->position, &((STCOM_SPRITE *)work)->position, NULL,
-                        0xFFFF);
+    hit = func_80049C54(&((STCOM_SPRITE *)work)->position, &((STCOM_SPRITE *)work)->position, NULL, 0xFFFF);
     if (hit != 0)
     {
         if ((sint16)func_80037BB4((void *)hit) != 0)
@@ -3047,17 +3025,16 @@ void func_8011CE1C(ST05_BOSS *wp)
     obj = Open_SHL_WORK();
     if (obj != NULL)
     {
-        obj->flags_0       = 3;
-        obj->kind_2        = 1;
-        obj->reserved04[0] = 0;
-        obj->value_F       = 1;
-        r                  = wp->ctl.random_2;
-        angle              = r & 0xFFF;
-        c                  = rcos(angle);
-        wp->value_C4.x =
-            STAGE_PL.position.x + ((rsin(angle) * (((uint16)(r << 2) >> 6) + 0x80)) >> 12);
-        wp->value_C4.y = STAGE_PL.position.y;
-        wp->value_C4.z = STAGE_PL.position.z + ((c * (((uint16)(r << 2) >> 6) + 0x80)) >> 12);
+        obj->flags_0            = 3;
+        obj->kind_2             = 1;
+        obj->reserved04[0]      = 0;
+        obj->value_F            = 1;
+        r                       = wp->ctl.random_2;
+        angle                   = r & 0xFFF;
+        c                       = rcos(angle);
+        wp->value_C4.x          = STAGE_PL.position.x + ((rsin(angle) * (((uint16)(r << 2) >> 6) + 0x80)) >> 12);
+        wp->value_C4.y          = STAGE_PL.position.y;
+        wp->value_C4.z          = STAGE_PL.position.z + ((c * (((uint16)(r << 2) >> 6) + 0x80)) >> 12);
         obj->position_fixed.v.x = wp->joint_180[0].x;
         obj->position_fixed.v.y = wp->joint_180[0].y - 0x104;
         obj->position_fixed.v.z = wp->joint_180[0].z;
@@ -3175,8 +3152,7 @@ void func_8011D1E0(ST05_BOSS *wp)
                 ctl->target_C0     = D_80131A14[ctl->value_ED];
                 ctl->home_B8.pad   = wp->rotation.y;
                 ctl->target_C0.pad = angle;
-                if (wp->position.x == D_80131A14[ctl->value_ED].x &&
-                    wp->position.z == D_80131A14[ctl->value_ED].z)
+                if (wp->position.x == D_80131A14[ctl->value_ED].x && wp->position.z == D_80131A14[ctl->value_ED].z)
                 {
                     wp->routine_1 = 3;
                 }
@@ -3217,8 +3193,7 @@ void func_8011D1E0(ST05_BOSS *wp)
             ctl->timer_4  = 0x5A;
             break;
         case 9:
-            if ((ctl->flags_0 & 0x200) && wp->position.x == D_80131A14[1].x &&
-                wp->position.z == D_80131A14[1].z)
+            if ((ctl->flags_0 & 0x200) && wp->position.x == D_80131A14[1].x && wp->position.z == D_80131A14[1].z)
             {
                 wp->routine_1             = 1;
                 *(uint16 *)&wp->routine_2 = 0;
@@ -3362,14 +3337,12 @@ sint32 func_8011D830(ST05_BOSS *wp)
         {
             ctl->hit_pos_B0 = wp->joint_180[(i - 4) * 3 + 2];
         }
-        func_800341BC(&ctl->hit_pos_B0, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_10[i],
-                      ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->hit_pos_B0, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_10[i], ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->hit_pos_B0 = wp->joint_180[0];
     ctl->hit_pos_B0.x += rsin(wp->rotation.y + 0x800) >> 5;
     ctl->hit_pos_B0.z += rcos(wp->rotation.y + 0x800) >> 5;
-    func_800341BC(&ctl->hit_pos_B0, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_10[8],
-                  ctl->value_8 | 0x4880000, 0x800000, 0);
+    func_800341BC(&ctl->hit_pos_B0, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_10[8], ctl->value_8 | 0x4880000, 0x800000, 0);
     return 1;
 }
 
@@ -4344,8 +4317,7 @@ void func_8011F720(ST05_OBJ *wp, ST05_FACE *face)
                 func_80120348(wp);
             }
             func_80032488(wp);
-            if (Scene_work.reserved00[5] == 4 && Scene_work.u_8.byte[1] == 0 &&
-                Scene_work.value_10 == 1)
+            if (Scene_work.reserved00[5] == 4 && Scene_work.u_8.byte[1] == 0 && Scene_work.value_10 == 1)
             {
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
@@ -4374,8 +4346,7 @@ void func_8011F988(ST05_OBJ *wp, ST05_FACE *face)
     {
         func_80032488(wp);
     }
-    if (scene->u_8.byte[1] == 0 &&
-        (scene->value_10 == 0xE || scene->value_10 == 0x18 || scene->value_10 == 0x28))
+    if (scene->u_8.byte[1] == 0 && (scene->value_10 == 0xE || scene->value_10 == 0x18 || scene->value_10 == 0x28))
     {
         func_801200DC(&face->face, 1);
         func_80120434(wp);

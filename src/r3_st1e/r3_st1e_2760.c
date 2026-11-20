@@ -55,15 +55,13 @@ void func_80102940(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_80109910.cue_0->u.end != 0xFF && D_80109910.cue_0->u.scene == scene->u_8.value_8 &&
-        D_80109910.cue_0->line == scene->value_1C)
+    if (D_80109910.cue_0->u.end != 0xFF && D_80109910.cue_0->u.scene == scene->u_8.value_8 && D_80109910.cue_0->line == scene->value_1C)
     {
         D_80109900[0] = D_80105098[D_80109910.cue_0->index];
         func_80102760(wp);
         D_80109910.cue_0++;
     }
-    if (D_80109910.cue_4->u.end != 0xFF && D_80109910.cue_4->u.scene == scene->u_8.value_8 &&
-        D_80109910.cue_4->line == scene->value_1C)
+    if (D_80109910.cue_4->u.end != 0xFF && D_80109910.cue_4->u.scene == scene->u_8.value_8 && D_80109910.cue_4->line == scene->value_1C)
     {
         D_80109908[0] = D_801050EC[D_80109910.cue_4->index];
         func_801027BC(wp);

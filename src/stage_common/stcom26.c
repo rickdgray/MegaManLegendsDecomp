@@ -370,29 +370,25 @@ sint16 stcom26_func_0B50(uint16 *cell, sint16 dir, sint32 n, sint32 range)
     switch (dir)
     {
         case 0:
-            if ((sint16)z1 == (sint16)z0 - (sint16)n && (sint16)x1 >= (sint16)x0 - (sint16)range &&
-                (sint16)x0 + 1 >= (sint16)x1)
+            if ((sint16)z1 == (sint16)z0 - (sint16)n && (sint16)x1 >= (sint16)x0 - (sint16)range && (sint16)x0 + 1 >= (sint16)x1)
             {
                 result = 0;
             }
             break;
         case 1:
-            if ((sint16)x1 == (sint16)x0 - (sint16)n && (sint16)z1 >= (sint16)z0 - 1 &&
-                (sint16)z0 + (sint16)range >= (sint16)z1)
+            if ((sint16)x1 == (sint16)x0 - (sint16)n && (sint16)z1 >= (sint16)z0 - 1 && (sint16)z0 + (sint16)range >= (sint16)z1)
             {
                 result = 0;
             }
             break;
         case 2:
-            if ((sint16)z1 == (sint16)z0 + (sint16)n && (sint16)x1 >= (sint16)x0 - 1 &&
-                (sint16)x0 + (sint16)range >= (sint16)x1)
+            if ((sint16)z1 == (sint16)z0 + (sint16)n && (sint16)x1 >= (sint16)x0 - 1 && (sint16)x0 + (sint16)range >= (sint16)x1)
             {
                 result = 0;
             }
             break;
         case 3:
-            if ((sint16)x1 == (sint16)x0 + (sint16)n && (sint16)z1 >= (sint16)z0 - (sint16)range &&
-                (sint16)z0 + 1 >= (sint16)z1)
+            if ((sint16)x1 == (sint16)x0 + (sint16)n && (sint16)z1 >= (sint16)z0 - (sint16)range && (sint16)z0 + 1 >= (sint16)z1)
             {
                 result = 0;
             }

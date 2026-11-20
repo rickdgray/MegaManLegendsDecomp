@@ -127,8 +127,7 @@ void func_80104864(STAGE_STCOM15_WORK_348 *wp)
     if ((wp->flags_0 & 1) && (ctl->flags_0 & 4))
     {
         ctl->pos_C = wp->joints_180[0];
-        func_800341BC(&ctl->pos_C, 0x30, 0, 0x8000, wp->value_1, &ctl->hit_14,
-                      ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->pos_C, 0x30, 0, 0x8000, wp->value_1, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->hit_14 = 0;
 }
@@ -337,9 +336,8 @@ void func_80104E64(STAGE_STCOM15_WORK_348 *wp)
                 *(uint16 *)&wp->routine_2 = 0;
                 break;
             }
-            if (!(((wp->position.y - wp->position_prev.y < 0)
-                       ? wp->position_prev.y - wp->position.y
-                       : wp->position.y - wp->position_prev.y) < 0x21))
+            if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                              : wp->position.y - wp->position_prev.y) < 0x21))
             {
                 wp->rotation.y     = (wp->rotation.y + 0x800) & 0xFFF;
                 wp->position       = wp->position_prev;
@@ -377,9 +375,7 @@ void func_801050E8(STAGE_STCOM15_WORK_348 *wp)
                 wp->velocity.v.x = 0x100;
                 ctl->timer_4     = 0xC;
             }
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &pl->position, wp->rotation.y, 0x30)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x30)) & 0xFFF;
             Obj_pos_set(wp, (uint8)wp->value_A6, 0, 0);
             wp->velocity.v.x += wp->accel.x;
             hit                  = func_8004B414(wp);
@@ -400,9 +396,8 @@ void func_801050E8(STAGE_STCOM15_WORK_348 *wp)
                 wp->anim_AC               = wp->anim_prev_AD;
                 break;
             }
-            if (!(((wp->position.y - wp->position_prev.y < 0)
-                       ? wp->position_prev.y - wp->position.y
-                       : wp->position.y - wp->position_prev.y) < 0x21))
+            if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                              : wp->position.y - wp->position_prev.y) < 0x21))
             {
                 wp->rotation.y     = (wp->rotation.y + 0x800) & 0xFFF;
                 wp->position       = wp->position_prev;
@@ -410,8 +405,7 @@ void func_801050E8(STAGE_STCOM15_WORK_348 *wp)
             }
             if (wp->value_80 < 0x1E848)
             {
-                if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x40, &pl->position_fixed,
-                                  pl->rotation.y, 0x400))
+                if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x40, &pl->position_fixed, pl->rotation.y, 0x400))
                 {
                     wp->routine_1             = 5;
                     *(uint16 *)&wp->routine_2 = 0;
@@ -461,9 +455,8 @@ void func_801053B8(STAGE_STCOM15_WORK_348 *wp)
                 func_8004B414(wp);
                 wp->position.y       = func_80048E6C(wp);
                 wp->position_fixed.y = wp->position.y << 16;
-                if (!(((wp->position.y - wp->position_prev.y < 0)
-                           ? wp->position_prev.y - wp->position.y
-                           : wp->position.y - wp->position_prev.y) < 0x21))
+                if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                                  : wp->position.y - wp->position_prev.y) < 0x21))
                 {
                     wp->position       = wp->position_prev;
                     wp->position_fixed = wp->position_fixed_prev;
@@ -479,8 +472,7 @@ void func_801053B8(STAGE_STCOM15_WORK_348 *wp)
             wp->routine_2 = 3;
             wp->anim_AC += 2;
             ctl->timer_4 = (ctl->rand_2 & 7) + 8;
-            if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed,
-                              pl->rotation.y, 0x800))
+            if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, pl->rotation.y, 0x800))
             {
                 ctl->level_6 = (ctl->rand_2 & 3) + 1;
             }
@@ -519,9 +511,8 @@ void func_801053B8(STAGE_STCOM15_WORK_348 *wp)
             func_8004B414(wp);
             wp->position.y       = func_80048E6C(wp);
             wp->position_fixed.y = wp->position.y << 16;
-            if (!(((wp->position.y - wp->position_prev.y < 0)
-                       ? wp->position_prev.y - wp->position.y
-                       : wp->position.y - wp->position_prev.y) < 0x21))
+            if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                              : wp->position.y - wp->position_prev.y) < 0x21))
             {
                 wp->position       = wp->position_prev;
                 wp->position_fixed = wp->position_fixed_prev;
@@ -639,9 +630,8 @@ void func_80105974(STAGE_STCOM15_WORK_348 *wp)
                 func_8004B414(wp);
                 wp->position.y       = func_80048E6C(wp);
                 wp->position_fixed.y = wp->position.y << 16;
-                if (!(((wp->position.y - wp->position_prev.y < 0)
-                           ? wp->position_prev.y - wp->position.y
-                           : wp->position.y - wp->position_prev.y) < 0x21))
+                if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                                  : wp->position.y - wp->position_prev.y) < 0x21))
                 {
                     wp->position       = wp->position_prev;
                     wp->position_fixed = wp->position_fixed_prev;
@@ -697,9 +687,8 @@ void func_80105974(STAGE_STCOM15_WORK_348 *wp)
             func_8004B414(wp);
             wp->position.y       = func_80048E6C(wp);
             wp->position_fixed.y = wp->position.y << 16;
-            if (!(((wp->position.y - wp->position_prev.y < 0)
-                       ? wp->position_prev.y - wp->position.y
-                       : wp->position.y - wp->position_prev.y) < 0x21))
+            if (!(((wp->position.y - wp->position_prev.y < 0) ? wp->position_prev.y - wp->position.y
+                                                              : wp->position.y - wp->position_prev.y) < 0x21))
             {
                 wp->position       = wp->position_prev;
                 wp->position_fixed = wp->position_fixed_prev;
@@ -768,8 +757,7 @@ sint32 func_80105DEC(ST00_ACTOR_B *wp)
             if (wp->ctl.flags_0 & 8)
             {
                 wp->ctl.timer_A += damage;
-                if ((wp->ctl.hit_14 & 0x20000000) ||
-                    wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9)
+                if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9)
                 {
                     Sound_call2(0xA2, &wp->position);
                     if (wp->ctl.target_1C.pad & 1)
@@ -800,10 +788,7 @@ sint32 func_80105DEC(ST00_ACTOR_B *wp)
             }
             else
             {
-                Sound_call2(((wp->ctl.hit_14 & 0x20000000) ||
-                             wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9)
-                                ? 0xA2
-                                : 0xA0,
+                Sound_call2(((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9) ? 0xA2 : 0xA0,
                             &wp->position);
             }
             wp->scale.v.pad = 0x7FFF;
@@ -890,8 +875,7 @@ void func_801062EC(ST00_ACTOR_B *wp)
     if (ctl->flags_0 & 8)
     {
         ctl->pos_C = wp->value_180;
-        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->index_1, &ctl->hit_14,
-                      ctl->value_8 | 0x4880000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->index_1, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0x80);
     }
     ctl->hit_14 = 0;
 }

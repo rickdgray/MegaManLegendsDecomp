@@ -25,8 +25,7 @@ void func_80107788(ST1D_VIEW *wp)
     if ((wp->flags_0 & 1) && (ext->flags_0 & 4))
     {
         ext->pos_C = wp->vec_180[1];
-        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->value_1, &ext->value_14,
-                      ext->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->value_1, &ext->value_14, ext->value_8 | 0x4880000, 0x800000, 0);
     }
     if ((wp->flags_0 & 1) && !((uint8)wp->value_F & 0x40))
     {
@@ -110,24 +109,17 @@ void func_80107AF0(ST1D_VIEW *wp)
             ((STAGE_OBJ *)ext->u_4C.p)->value_4         = rec->value_4;
             ((STAGE_OBJ *)ext->u_4C.p)->reserved05      = rec->value_5;
             *(sint32 *)&((STAGE_OBJ *)ext->u_4C.p)->u_C = rec->value_8;
-            ((STAGE_OBJ *)ext->u_4C.p)->position = ((STAGE_OBJ *)ext->u_4C.p)->position_prev =
-                rec->position;
-            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.x =
-                ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.x =
-                    ((STAGE_OBJ *)ext->u_4C.p)->position.x << 16;
-            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.y =
-                ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.y =
-                    ((STAGE_OBJ *)ext->u_4C.p)->position.y << 16;
-            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.z =
-                ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.z =
-                    ((STAGE_OBJ *)ext->u_4C.p)->position.z << 16;
-            ((STAGE_OBJ *)ext->u_4C.p)->rotation.x = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.x =
-                0;
-            ((STAGE_OBJ *)ext->u_4C.p)->rotation.y = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.y =
-                rec->rotation_7 << 4;
-            ((STAGE_OBJ *)ext->u_4C.p)->rotation.z = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.z =
-                0;
-            ((STAGE_OBJ *)ext->u_4C.p)->u_C.b.byte_D = wp->value_1;
+            ((STAGE_OBJ *)ext->u_4C.p)->position = ((STAGE_OBJ *)ext->u_4C.p)->position_prev = rec->position;
+            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.x = ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.x =
+                ((STAGE_OBJ *)ext->u_4C.p)->position.x << 16;
+            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.y = ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.y =
+                ((STAGE_OBJ *)ext->u_4C.p)->position.y << 16;
+            ((STAGE_OBJ *)ext->u_4C.p)->position_fixed.v.z = ((STAGE_OBJ *)ext->u_4C.p)->position_fixed_prev.z =
+                ((STAGE_OBJ *)ext->u_4C.p)->position.z << 16;
+            ((STAGE_OBJ *)ext->u_4C.p)->rotation.x = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.x = 0;
+            ((STAGE_OBJ *)ext->u_4C.p)->rotation.y = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.y = rec->rotation_7 << 4;
+            ((STAGE_OBJ *)ext->u_4C.p)->rotation.z = ((STAGE_OBJ *)ext->u_4C.p)->rotation_prev.z = 0;
+            ((STAGE_OBJ *)ext->u_4C.p)->u_C.b.byte_D                                             = wp->value_1;
         }
         else
         {
@@ -262,11 +254,8 @@ void func_8010802C(ST1D_VIEW *wp)
                         piece->variant_3      = 1;
                         piece->position       = wp->position;
                         piece->position_fixed = wp->position_fixed;
-                        piece->angle_64       = (i ? wp->rotation.y + ext->u_44.h[1] + 0x800
-                                                   : wp->rotation.y + ext->u_44.h[1]) &
-                                                0xFFF;
-                        func_8002FFC4(&piece->position, &piece->position_fixed, piece->angle_64,
-                                      0x600, -0x7C0, 0);
+                        piece->angle_64       = (i ? wp->rotation.y + ext->u_44.h[1] + 0x800 : wp->rotation.y + ext->u_44.h[1]) & 0xFFF;
+                        func_8002FFC4(&piece->position, &piece->position_fixed, piece->angle_64, 0x600, -0x7C0, 0);
                     }
                     i++;
                 } while (i < 2);

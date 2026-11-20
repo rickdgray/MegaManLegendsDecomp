@@ -130,8 +130,7 @@ void func_80112ECC(STAGE_OBJ *wp)
 
 sint32 func_80113084(STAGE_OBJ *wp, ST14_BOX *box)
 {
-    if ((uint16)((sint8)wp->position.x - box->x) < box->w &&
-        (uint16)((sint8)wp->position.z - box->z) < box->h &&
+    if ((uint16)((sint8)wp->position.x - box->x) < box->w && (uint16)((sint8)wp->position.z - box->z) < box->h &&
         (box->room == Game_work.value_51 || box->room == -1))
     {
         return 1;

@@ -149,8 +149,8 @@ void func_80103168(STAGE_OBJ *wp, STAGE_ROOM *arg1, sint16 *arg2)
             wp->routine_1++;
             break;
         case 4:
-            wp->anim_AC                  = 8;
-            wp->position.y               = -0x34;
+            wp->anim_AC            = 8;
+            wp->position.y         = -0x34;
             wp->position_fixed.v.y = -0x340000;
             if (wp->value_A7 == -1)
             {
@@ -697,32 +697,32 @@ void func_80104030(ST0A_EN *wp)
 
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
-    wp->scale.words[0]           = 0x2000200;
-    wp->scale.words[1]           = 0x200;
-    wp->scale.v.pad              = 0x4210;
-    wp->rotation.x               = 0;
-    wp->rotation.z               = 0;
-    *(uint32 *)&wp->turn_64      = 0;
-    wp->velocity.words[0]        = 0;
-    wp->velocity.words[1]        = 0;
-    wp->ctl.flags_0              = 0xE;
-    *(uint32 *)&wp->ctl.timer_4  = 0;
-    *(uint32 *)&wp->ctl.value_8  = 0;
-    wp->ctl.hit_14               = 0;
-    wp->ctl.value_18             = 0;
+    wp->scale.words[0]          = 0x2000200;
+    wp->scale.words[1]          = 0x200;
+    wp->scale.v.pad             = 0x4210;
+    wp->rotation.x              = 0;
+    wp->rotation.z              = 0;
+    *(uint32 *)&wp->turn_64     = 0;
+    wp->velocity.words[0]       = 0;
+    wp->velocity.words[1]       = 0;
+    wp->ctl.flags_0             = 0xE;
+    *(uint32 *)&wp->ctl.timer_4 = 0;
+    *(uint32 *)&wp->ctl.value_8 = 0;
+    wp->ctl.hit_14              = 0;
+    wp->ctl.value_18            = 0;
     func_80036478(wp->ctl.track_24, 0, -0x60);
-    wp->ctl.home_34  = wp->position;
-    wp->ctl.held_3C  = NULL;
-    wp->ctl.owner_40 = func_80036294(wp->byte_C);
-    life             = D_80098844[wp->kind_2]->life_28;
-    wp->data_78      = D_80115988;
-    wp->routine_0    = 1;
-    wp->data_10      = NULL;
-    wp->routine_1    = 2;
+    wp->ctl.home_34           = wp->position;
+    wp->ctl.held_3C           = NULL;
+    wp->ctl.owner_40          = func_80036294(wp->byte_C);
+    life                      = D_80098844[wp->kind_2]->life_28;
+    wp->data_78               = D_80115988;
+    wp->routine_0             = 1;
+    wp->data_10               = NULL;
+    wp->routine_1             = 2;
     *(uint16 *)&wp->routine_2 = 0;
-    wp->life_6E      = life;
-    wp->life_max_B0  = life;
-    wp->life_prev_B2 = life;
+    wp->life_6E               = life;
+    wp->life_max_B0           = life;
+    wp->life_prev_B2          = life;
     func_800322A8(wp, 0, 0);
     func_80104154(wp);
 }
@@ -737,7 +737,7 @@ void func_80104154(ST0A_EN *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     wp->scale.v.pad         = 0x4210;
-    ctl->rand_2          = rand();
+    ctl->rand_2             = rand();
     if (func_8003648C(ctl->track_24, wp))
     {
         ctl->flags_0 |= 0x10;
@@ -906,11 +906,11 @@ void func_80104740(ST0A_EN *wp)
     {
         case 0:
             wp->routine_2++;
-            wp->anim_AC = 0x25;
+            wp->anim_AC    = 0x25;
             wp->rotation.y = (ctl->owner_40->rotation.y + 0x800) & 0xFFF;
             wp->value_110  = 7;
             ctl->flags_0 &= ~8;
-            ctl->timer_4   = 4;
+            ctl->timer_4 = 4;
             Sound_call2(0xDA, &wp->position);
             break;
         case 1:

@@ -199,8 +199,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
     }
     else if (wp->variant_3 == 2)
     {
-        if ((!Sce_flag_test(0x604) || !Sce_flag_test(0x605) || !Sce_flag_test(0x606)) &&
-            wp->matrix_18.f.lit_1C != 0)
+        if ((!Sce_flag_test(0x604) || !Sce_flag_test(0x605) || !Sce_flag_test(0x606)) && wp->matrix_18.f.lit_1C != 0)
         {
             vec.x = -0x2100;
             vec.y = -0xC81;
@@ -269,8 +268,8 @@ void func_8010C1C0(ST0E_PANEL *wp)
     else
     {
         wp->color_40 = 0x02000000;
-        if (wp->variant_3 == 2 && Sce_flag_test(0x604) && Sce_flag_test(0x605) &&
-            Sce_flag_test(0x606) && wp->variant_3 == 2 && wp->matrix_18.f.lit_1C == 0)
+        if (wp->variant_3 == 2 && Sce_flag_test(0x604) && Sce_flag_test(0x605) && Sce_flag_test(0x606) && wp->variant_3 == 2 &&
+            wp->matrix_18.f.lit_1C == 0)
         {
             wp->matrix_18.f.lit_1C = 1;
             vec.x                  = -0x2100;

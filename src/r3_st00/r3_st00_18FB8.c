@@ -74,8 +74,7 @@ void func_8011917C(ST00_CLUT_SCROLL *wp)
     }
     for (i = 0; i < 4; i++)
     {
-        u = func_8002DC84((void *)func_8003AC24(D_8011CE88[i].key), D_8011CE88[i].i,
-                          D_8011CE88[i].j);
+        u = func_8002DC84((void *)func_8003AC24(D_8011CE88[i].key), D_8011CE88[i].i, D_8011CE88[i].j);
         for (k = 0; k < D_8011CE88[i].count; k++)
         {
             uv = func_8002DD1C(u.c, k);

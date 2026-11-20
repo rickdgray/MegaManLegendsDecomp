@@ -12,13 +12,11 @@ void func_800D8804(SHL_WORK *wp)
     p.vz = wp->draw.spr.z_94;
     if (wp->index_c)
     {
-        func_800341BC(&p, 8, 0, 0x6000, wp->value_1, &wp->col_c4,
-                      D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x6000, wp->value_1, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_800341BC(&p, 8, 0, 0x4000, wp->value_1, &wp->col_c4,
-                      D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x4000, wp->value_1, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     Model_Shadow_Trans(wp, 0x18, 0x200, 0);
     func_80051BAC(wp);

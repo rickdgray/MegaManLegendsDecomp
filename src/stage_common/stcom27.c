@@ -189,8 +189,7 @@ void stcom27_func_0578(STCOM27_WORK *wp)
     wp->ctl.hit_20 = 0;
     wp->ctl.pos_18 = wp->position;
     wp->ctl.pos_18.y -= 0x50;
-    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->index_1, &wp->ctl.hit_20,
-                  wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->index_1, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
 }
 
 // Keeps it on the ground: back to its last position at a ledge.
@@ -295,12 +294,9 @@ void stcom27_func_0870(STCOM27_WORK *wp)
         stcom27_func_0E78(wp);
         return;
     }
-    wp->rotation.y =
-        (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) &
-        0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x40)) & 0xFFF;
     Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, wp->velocity.z);
-    if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed,
-                      Player_work.rotation.y, 0x800) != 0 &&
+    if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, Player_work.rotation.y, 0x800) != 0 &&
         wp->value_80 <= 1000000)
     {
         wp->ctl.timer_38 = 0x10;
@@ -320,10 +316,9 @@ void stcom27_func_0990(STCOM27_WORK *wp)
     STCOM_SVECTOR *pos;
     sint32 step;
 
-    pos = &wp->position;
-    wp->rotation.y =
-        (wp->rotation.y + Muku(pos, &Player_work.position, wp->rotation.y, 0x40)) & 0xFFF;
-    step = wp->frame_A4 == 0;
+    pos            = &wp->position;
+    wp->rotation.y = (wp->rotation.y + Muku(pos, &Player_work.position, wp->rotation.y, 0x40)) & 0xFFF;
+    step           = wp->frame_A4 == 0;
     if (wp->frame_A4 == 4)
     {
         step = 1;
@@ -409,9 +404,7 @@ void stcom27_func_0BE4(STCOM27_WORK *wp)
         stcom27_func_0E4C(wp);
         return;
     }
-    wp->rotation.y =
-        (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x80)) &
-        0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x80)) & 0xFFF;
     Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, wp->velocity.z);
 }
 

@@ -64,9 +64,8 @@ void stcom20_func_0148(STCOM20_WORK *wp)
         wp->angle_66     = wp->rotation.y;
     }
     wp->ctl.angle_10 += 0x22;
-    wp->position_fixed.y =
-        ((wp->ctl.ground_12 + wp->ctl.height_14) << 16) + rsin(wp->ctl.angle_10) * 400;
-    wp->rotation.y = (wp->rotation.y + 0x14) & 0xFFF;
+    wp->position_fixed.y = ((wp->ctl.ground_12 + wp->ctl.height_14) << 16) + rsin(wp->ctl.angle_10) * 400;
+    wp->rotation.y       = (wp->rotation.y + 0x14) & 0xFFF;
     wp->velocity.v.x -= 5;
     if (wp->velocity.v.x < 0)
     {
@@ -92,8 +91,7 @@ void stcom20_func_0148(STCOM20_WORK *wp)
         {
             ctl->ground_12 = y;
         }
-        wp->position_fixed.y =
-            ((ctl->ground_12 + ctl->height_14) << 16) + rsin(ctl->angle_10) * 400;
+        wp->position_fixed.y = ((ctl->ground_12 + ctl->height_14) << 16) + rsin(ctl->angle_10) * 400;
         func_80030150(&wp->position_fixed, &wp->position);
     }
 }
@@ -146,8 +144,7 @@ void stcom20_func_02F8(STCOM20_WORK *wp)
     pos.x          = wp->position_fixed.x >> 16;
     pos.y          = wp->position_fixed.y >> 16;
     pos.z          = wp->position_fixed.z >> 16;
-    wp->angle_66 =
-        (wp->angle_66 + Muku(&wp->position, &pl->position, wp->angle_66, 0x20)) & 0xFFF;
+    wp->angle_66   = (wp->angle_66 + Muku(&wp->position, &pl->position, wp->angle_66, 0x20)) & 0xFFF;
     wp->velocity.v.x += 5;
     if (wp->velocity.v.x > 0xA0)
     {
@@ -244,8 +241,7 @@ void stcom20_func_06E8(STCOM20_WORK *wp)
         }
     }
     stcom20_D_000C[wp->routine_1](wp);
-    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &ctl->hit_1C, 0x4080000, 0x800000,
-                  0);
+    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &ctl->hit_1C, 0x4080000, 0x800000, 0);
     ctl->hit_1C = 0;
 }
 

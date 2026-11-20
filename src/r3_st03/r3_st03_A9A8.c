@@ -108,10 +108,8 @@ void func_8010AB8C(ST03_ACTOR *wp)
             }
             break;
         case 2:
-            target = &D_801170A4;
-            wp->rotation.y =
-                (wp->rotation.y + Muku(&wp->position, target, wp->rotation.y, 0x50)) &
-                0xFFF;
+            target         = &D_801170A4;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, target, wp->rotation.y, 0x50)) & 0xFFF;
             Obj_pos_set(wp, 0x140, 0, 0);
             func_8004B414(wp);
             dx = wp->position.x - target->x;
@@ -167,16 +165,13 @@ void func_8010ACFC(ST03_ACTOR *wp)
             wp->routine_3 = 0x10;
             wp->anim_AC   = 0;
             wp->routine_2++;
-            wp->turn_64 =
-                (uint32)STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
+            wp->turn_64      = (uint32)STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
             wp->velocity.v.x = 0;
             wp->velocity.v.y = 0;
             wp->velocity.v.z = 0;
             break;
         case 3:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y,
-                                                             wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64)) & 0xFFF;
             if (Moji_flag & 0x200000)
             {
                 wp->anim_AC = 8;
@@ -184,9 +179,7 @@ void func_8010ACFC(ST03_ACTOR *wp)
             }
             break;
         case 4:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y,
-                                                             wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64)) & 0xFFF;
             if (wp->value_A7 < 0)
             {
                 wp->anim_AC = 0;
@@ -234,9 +227,9 @@ void func_8010AFC0(ST03_ACTOR *wp)
         case 1:
             if (pl->target_184 == wp)
             {
-                pl->target_184        = NULL;
-                D_800989F8.routine_4  = 4;
-                wp->routine_2         = 5;
+                pl->target_184       = NULL;
+                D_800989F8.routine_4 = 4;
+                wp->routine_2        = 5;
                 wp->routine_0++;
             }
             break;
@@ -401,8 +394,7 @@ void func_8010B444(ST03_ACTOR *wp)
         case 0:
             func_8010B63C(wp);
             wp->routine_0++;
-            wp->rotation.y += Muku(&wp->position, &((STAGE_OBJ *)STAGE_SCENE_OBJ(0))->position,
-                                            wp->rotation.y, 0x800);
+            wp->rotation.y += Muku(&wp->position, &((STAGE_OBJ *)STAGE_SCENE_OBJ(0))->position, wp->rotation.y, 0x800);
             break;
         case 1:
             if (Scene_work.u_8.byte[1] == 3)
@@ -448,9 +440,9 @@ void func_8010B444(ST03_ACTOR *wp)
             if (Scene_work.reserved00[0] == 0)
             {
                 wp->routine_0 = wp->routine_1 = wp->routine_2 = wp->routine_3 = 0;
-                wp->timer_C                                              = 0x5C;
+                wp->timer_C                                                   = 0x5C;
                 wp->value_D = wp->value_E = wp->value_F = 0;
-                wp->value_4                                              = 0;
+                wp->value_4                             = 0;
             }
             break;
     }
@@ -480,24 +472,24 @@ void func_8010B63C(ST03_ACTOR *wp)
 
 void func_8010B6D0(ST03_OBJ *wp)
 {
-    wp->variant_3                  = 1;
-    wp->scale.words[1]             = 0x200;
-    wp->scale.words[0]             = 0x02000200;
-    wp->value_64                   = 0;
-    *(uint32 *)&wp->rotation.x     = 0;
-    *(uint32 *)&wp->rotation.z     = 0;
-    wp->value_44.value             = 0;
-    wp->value_48.value             = 0;
-    wp->value_64                   = 0;
-    wp->value_70                   = 0;
-    wp->value_74                   = 0;
-    wp->rotation.y                 = 0x800;
+    wp->variant_3              = 1;
+    wp->scale.words[1]         = 0x200;
+    wp->scale.words[0]         = 0x02000200;
+    wp->value_64               = 0;
+    *(uint32 *)&wp->rotation.x = 0;
+    *(uint32 *)&wp->rotation.z = 0;
+    wp->value_44.value         = 0;
+    wp->value_48.value         = 0;
+    wp->value_64               = 0;
+    wp->value_70               = 0;
+    wp->value_74               = 0;
+    wp->rotation.y             = 0x800;
     wp->flags_0 |= 2;
-    wp->rotation_prev = wp->rotation;
-    wp->position.x    = -0x9C0;
-    wp->position.y    = -1;
-    wp->position.z    = -0x5277;
-    wp->scale.v.pad   = 0x4210;
+    wp->rotation_prev      = wp->rotation;
+    wp->position.x         = -0x9C0;
+    wp->position.y         = -1;
+    wp->position.z         = -0x5277;
+    wp->scale.v.pad        = 0x4210;
     wp->position_fixed.v.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.v.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.v.y = wp->position_fixed_prev.y = wp->position.y << 16;
@@ -527,7 +519,7 @@ void func_8010B858(ST03_ACTOR *wp)
             Sound_call2(0x10D, &wp->position);
         }
         Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-        wp->position.y         = func_80048E6C(wp);
+        wp->position.y       = func_80048E6C(wp);
         wp->position_fixed.y = wp->position.y << 0x10;
     }
     else

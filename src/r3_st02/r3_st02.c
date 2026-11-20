@@ -1379,14 +1379,12 @@ void func_80102C44(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_8010A608.cue_0->u.end != 0xFF && D_8010A608.cue_0->u.scene == scene->u_8.value_8 &&
-        D_8010A608.cue_0->line == scene->value_1C)
+    if (D_8010A608.cue_0->u.end != 0xFF && D_8010A608.cue_0->u.scene == scene->u_8.value_8 && D_8010A608.cue_0->line == scene->value_1C)
     {
         func_801029F4(wp, D_8010A608.cue_0->index);
         D_8010A608.cue_0++;
     }
-    if (D_8010A608.cue_4->u.end != 0xFF && D_8010A608.cue_4->u.scene == scene->u_8.value_8 &&
-        D_8010A608.cue_4->line == scene->value_1C)
+    if (D_8010A608.cue_4->u.end != 0xFF && D_8010A608.cue_4->u.scene == scene->u_8.value_8 && D_8010A608.cue_4->line == scene->value_1C)
     {
         func_80102A68(wp, D_8010A608.cue_4->index);
         D_8010A608.cue_4++;
@@ -1646,14 +1644,12 @@ void func_801035F4(STAGE_OBJ *wp)
     STAGE_SCENE_WORK *scene;
 
     scene = &Scene_work;
-    if (D_8010A620.cue_0->u.end != 0xFF && D_8010A620.cue_0->u.scene == scene->u_8.value_8 &&
-        D_8010A620.cue_0->line == scene->value_1C)
+    if (D_8010A620.cue_0->u.end != 0xFF && D_8010A620.cue_0->u.scene == scene->u_8.value_8 && D_8010A620.cue_0->line == scene->value_1C)
     {
         func_801033A4(wp, D_8010A620.cue_0->index);
         D_8010A620.cue_0++;
     }
-    if (D_8010A620.cue_4->u.end != 0xFF && D_8010A620.cue_4->u.scene == scene->u_8.value_8 &&
-        D_8010A620.cue_4->line == scene->value_1C)
+    if (D_8010A620.cue_4->u.end != 0xFF && D_8010A620.cue_4->u.scene == scene->u_8.value_8 && D_8010A620.cue_4->line == scene->value_1C)
     {
         func_80103418(wp, D_8010A620.cue_4->index);
         D_8010A620.cue_4++;
@@ -2098,8 +2094,7 @@ void func_801043E8(ST02_SPARK *wp)
     }
 }
 
-ST02_SPARK *func_80104448(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise,
-                          uint8 flag)
+ST02_SPARK *func_80104448(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 count, sint32 rise, uint8 flag)
 {
     ST02_SPARK *ep;
     sint32 i;
@@ -2179,8 +2174,7 @@ void func_8010469C(STAGE_OBJ *wp)
         {
             if (rec->f.on != 0)
             {
-                x = ((sint16)wp->position_fixed.f.x.words.fraction - 0xA0) * rec->f.scale / 100 +
-                    0xA0;
+                x = ((sint16)wp->position_fixed.f.x.words.fraction - 0xA0) * rec->f.scale / 100 + 0xA0;
                 y = (wp->position_fixed.f.x.words.integer - 0x78) * rec->f.scale / 100 + 0x78;
                 p = (*STAGE_PACKET_PTR)++;
                 setlen(p, 9);

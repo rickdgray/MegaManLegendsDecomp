@@ -29,8 +29,7 @@ void func_80111814(STAGE_STCOM15_WORK_4E0 *wp)
     if ((wp->flags_0 & 1) && (ctl->flags_0 & 8))
     {
         ctl->pos_C = wp->joints_180[0];
-        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_14,
-                      ctl->value_8 | 0x5880000, 0x800000, 0);
+        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_14, ctl->value_8 | 0x5880000, 0x800000, 0);
     }
     ctl->hit_14 = 0;
 }
@@ -56,8 +55,7 @@ void func_801119CC(STAGE_STCOM15_WORK_4E0 *wp)
     *(uint32 *)&wp->ctl.timer_34 = 0;
     *(uint32 *)&wp->ctl.timer_38 = 0;
     wp->ctl.u_3C.flag            = wp->position.pad;
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_8009884C[wp->kind_2][wp->param_D].life_8
-                                                       << 4;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_8009884C[wp->kind_2][wp->param_D].life_8 << 4;
     wp->data_78                                      = D_8011860C;
     wp->data_10                                      = NULL;
     if (!(wp->variant_3 & 0x7F))
@@ -265,8 +263,7 @@ void func_80111F88(STAGE_STCOM15_WORK_4E0 *wp)
         case 2:
             if (--wp->ctl.timer_4 < 0)
             {
-                if (wp->routine_3 >= 4 &&
-                    ((wp->variant_3 & 0x80) || Sce_flag_test(wp->ctl.u_3C.flag)))
+                if (wp->routine_3 >= 4 && ((wp->variant_3 & 0x80) || Sce_flag_test(wp->ctl.u_3C.flag)))
                 {
                     wp->ctl.flags_0 |= 1;
                 }
@@ -275,8 +272,7 @@ void func_80111F88(STAGE_STCOM15_WORK_4E0 *wp)
             }
             break;
     }
-    if (((wp->variant_3 & 0x80) || Sce_flag_test(ctl->u_3C.flag)) &&
-        (wp->value_80 <= 0x1FFFF || (ctl->hit_14 & 0xFFFFFF)))
+    if (((wp->variant_3 & 0x80) || Sce_flag_test(ctl->u_3C.flag)) && (wp->value_80 <= 0x1FFFF || (ctl->hit_14 & 0xFFFFFF)))
     {
         wp->routine_1             = 4;
         *(uint16 *)&wp->routine_2 = 0;
@@ -754,9 +750,9 @@ void func_80112F78(STAGE_STCOM15_WORK_4E0 *wp)
     switch (wp->routine_2)
     {
         case 0:
-            wp->routine_2 = 1;
-            wp->anim_AC   = 4;
-            wp->turn_66   = Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 4;
+            wp->routine_2   = 1;
+            wp->anim_AC     = 4;
+            wp->turn_66     = Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 4;
             wp->ctl.timer_4 = 0x10;
             wp->ctl.value_8 = 0;
             // fall through
@@ -785,9 +781,9 @@ void func_8011305C(STAGE_STCOM15_WORK_4E0 *wp)
     switch (wp->routine_2)
     {
         case 0:
-            wp->routine_2 = 1;
-            wp->anim_AC   = 7;
-            wp->turn_66   = Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 4;
+            wp->routine_2    = 1;
+            wp->anim_AC      = 7;
+            wp->turn_66      = Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 4;
             wp->velocity.v.y = -0x200;
             wp->accel.y      = 0x40;
             ctl->timer_4     = 0x10;
@@ -842,9 +838,7 @@ void func_801131F8(STAGE_STCOM15_WORK_4E0 *wp)
         case 1:
             if (--ctl->timer_4 >= 0)
             {
-                wp->rotation.y = (wp->rotation.y +
-                                  Muku(&wp->position, &D_80118D2C, wp->rotation.y, 0x80)) &
-                                 0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &D_80118D2C, wp->rotation.y, 0x80)) & 0xFFF;
                 break;
             }
             wp->routine_2 = 2;
@@ -853,9 +847,7 @@ void func_801131F8(STAGE_STCOM15_WORK_4E0 *wp)
             ctl->timer_4  = 300;
             // fall through
         case 2:
-            wp->rotation.y =
-                (wp->rotation.y + Muku(&wp->position, &D_80118D2C, wp->rotation.y, 0x20)) &
-                0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &D_80118D2C, wp->rotation.y, 0x20)) & 0xFFF;
             Obj_pos_set(wp, 0x70, 0, 0);
             func_8004B414(wp);
             if (wp->value_A6 != 0)
@@ -979,10 +971,7 @@ sint32 func_801134E4(STAGE_STCOM15_WORK_4E0 *wp)
             }
             else
             {
-                Sound_call2((wp->ctl.timer_A >= D_8009884C[wp->kind_2][wp->param_D].value_9 << 4)
-                                ? 0xA2
-                                : 0xA0,
-                            &wp->position);
+                Sound_call2((wp->ctl.timer_A >= D_8009884C[wp->kind_2][wp->param_D].value_9 << 4) ? 0xA2 : 0xA0, &wp->position);
             }
             wp->scale.v.pad = 0x7FFF;
         }

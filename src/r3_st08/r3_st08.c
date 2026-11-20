@@ -617,8 +617,7 @@ void func_80101604(STAGE_ROOM *wp)
     }
     mask = D_800C0C2A_A;
     *mask &= pl->key_12C | pl->key_12E | (pl->key_13A | pl->key_13C) | 9;
-    D_800C0C26_S.value &=
-        pl->key_134 | (pl->key_12C | pl->key_12E | (pl->key_13A | pl->key_13C)) | 9;
+    D_800C0C26_S.value &= pl->key_134 | (pl->key_12C | pl->key_12E | (pl->key_13A | pl->key_13C)) | 9;
     if (Player_work.position.x < -200)
     {
         D_800C0C26_S.value &= ~pl->key_12C;
@@ -668,8 +667,7 @@ void func_80101858(STAGE_ROOM *wp)
 {
     if (ST08_GAME_WORD(0x120) == 3)
     {
-        func_8005C224(D_80113220 +
-                      (Scene_work.value_A - D_80113224) * (Scene_work.value_A - D_80113224) * 2);
+        func_8005C224(D_80113220 + (Scene_work.value_A - D_80113224) * (Scene_work.value_A - D_80113224) * 2);
     }
     else
     {

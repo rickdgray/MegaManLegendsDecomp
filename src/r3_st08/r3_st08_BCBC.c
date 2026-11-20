@@ -196,8 +196,7 @@ void func_8010C4AC(ST08_10C *wp)
     STCOM_SVECTOR pos;
 
     pos = wp->position;
-    func_800341BC(&pos, 0x78 - wp->value_D * 0x1E, 0, 0x8000, wp->value_1, &wp->hit_BC, 0x4880000,
-                  0x800000, 0x80);
+    func_800341BC(&pos, 0x78 - wp->value_D * 0x1E, 0, 0x8000, wp->value_1, &wp->hit_BC, 0x4880000, 0x800000, 0x80);
     wp->hit_BC = 0;
 }
 

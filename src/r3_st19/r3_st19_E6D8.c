@@ -83,8 +83,7 @@ void func_8010E93C(STAGE_OBJ *wp)
     func_80031988((STCOM_EFFECT *)wp);
 }
 
-ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise,
-                          uint8 hide)
+ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 count, sint32 rise, uint8 hide)
 {
     ST19_SPARK *ep;
     sint32 i;

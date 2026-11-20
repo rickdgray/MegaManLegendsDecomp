@@ -187,8 +187,7 @@ void stcom28_func_0574(STCOM28_WORK *wp)
     wp->ctl.hit_2C = 0;
     wp->ctl.pos_24 = wp->position;
     wp->ctl.pos_24.y -= 0x28;
-    func_800341BC(&wp->ctl.pos_24, 0x28, 0, 0x8000, wp->index_1, &wp->ctl.hit_2C,
-                  wp->ctl.kind_3C | 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->ctl.pos_24, 0x28, 0, 0x8000, wp->index_1, &wp->ctl.hit_2C, wp->ctl.kind_3C | 0x4080000, 0x800000, 0);
 }
 
 void stcom28_func_05FC(STCOM28_WORK *wp)
@@ -404,8 +403,7 @@ void stcom28_func_0A88(STCOM28_WORK *wp)
     {
         wp->ctl.timer_6--;
         Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, wp->velocity.z);
-        if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed,
-                          Player_work.rotation.y, 0x800) != 0)
+        if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, Player_work.rotation.y, 0x800) != 0)
         {
             if (wp->value_80 <= 40000)
             {

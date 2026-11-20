@@ -16,10 +16,10 @@ void func_80111A2C(ST08_EV *wp)
     }
     wp->value_14 = wp->value_16 = wp->value_17 = wp->value_18 = wp->value_15 = 0;
     wp->value_19                                                             = D_80118345;
-    wp->value_1A = D_8011837F[wp->value_15 * 2];
-    wp->value_1B = D_801183B9[wp->value_16 * 2];
-    wp->value_1C = D_801183F3[wp->value_17 * 2];
-    wp->value_1D = D_8011842D[wp->value_18 * 2];
+    wp->value_1A                                                             = D_8011837F[wp->value_15 * 2];
+    wp->value_1B                                                             = D_801183B9[wp->value_16 * 2];
+    wp->value_1C                                                             = D_801183F3[wp->value_17 * 2];
+    wp->value_1D                                                             = D_8011842D[wp->value_18 * 2];
     wp->routine_0++;
 }
 
@@ -65,10 +65,10 @@ void func_80111D60(ST08_EV1C *wp)
     }
     wp->value_14 = wp->value_16 = wp->value_17 = wp->value_18 = wp->value_15 = 0;
     wp->value_16                                                             = D_80118485;
-    wp->value_17 = D_801184BF[wp->value_15 * 2];
-    wp->value_18 = D_801184F9[wp->value_16 * 2];
-    wp->value_19 = D_80118533[wp->value_17 * 2];
-    wp->value_1A = D_8011856D[wp->value_18 * 2];
+    wp->value_17                                                             = D_801184BF[wp->value_15 * 2];
+    wp->value_18                                                             = D_801184F9[wp->value_16 * 2];
+    wp->value_19                                                             = D_80118533[wp->value_17 * 2];
+    wp->value_1A                                                             = D_8011856D[wp->value_18 * 2];
     wp->routine_0++;
 }
 

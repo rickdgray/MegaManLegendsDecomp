@@ -145,19 +145,17 @@ void func_8010CAD4(STCOM16_WORK *wp)
         else
         {
             wp->scale.v.pad = 0x7FFF;
-            if ((!(wp->ground.flags_6 & 0x10) &&
-                 wp->stun.damage_0 >= D_80098844[wp->kind_2]->limit_9) ||
-                (wp->ctl.hit_8 & 0x20000000))
+            if ((!(wp->ground.flags_6 & 0x10) && wp->stun.damage_0 >= D_80098844[wp->kind_2]->limit_9) || (wp->ctl.hit_8 & 0x20000000))
             {
                 if (wp->routine_1 != 5)
                 {
                     Sound_call2(0xA2, &wp->position);
-                    ground->flags_6 = (ground->flags_6 | 0x10) & ~0x20;
-                    stun->damage_0  = 0;
-                    stun->hits_4    = 0;
-                    stun->timer_5   = 30;
-                    wp->routine_1   = 6;
-                    dir = func_80031F84(&wp->position, &ctl->target_10, wp->rotation.y, 0);
+                    ground->flags_6  = (ground->flags_6 | 0x10) & ~0x20;
+                    stun->damage_0   = 0;
+                    stun->hits_4     = 0;
+                    stun->timer_5    = 30;
+                    wp->routine_1    = 6;
+                    dir              = func_80031F84(&wp->position, &ctl->target_10, wp->rotation.y, 0);
                     wp->velocity.v.x = 0xC0;
                     wp->velocity.v.y = -0xC0;
                     ground->flags_6 &= ~2;
@@ -194,14 +192,12 @@ void func_8010CAD4(STCOM16_WORK *wp)
                 {
                     wp->stun.timer_5 = 30;
                     wp->stun.hits_4  = 0;
-                    if (!func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400,
-                                       &pl->position_fixed, Player_work.rotation.y, 0x400) &&
+                    if (!func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, Player_work.rotation.y, 0x400) &&
                         wp->routine_1 != 8)
                     {
                         wp->routine_1 = 6;
                         wp->routine_2 = 4;
-                        Muku(&wp->position, &pl->position, wp->rotation.y,
-                                      wp->ctl.turn_3A);
+                        Muku(&wp->position, &pl->position, wp->rotation.y, wp->ctl.turn_3A);
                         wp->anim_AC = 13;
                         func_800322A8(wp, 13, 0);
                     }
@@ -209,8 +205,8 @@ void func_8010CAD4(STCOM16_WORK *wp)
             }
         }
     }
-    else if (!(wp->routine_1 == 2 || wp->routine_1 == 3 || wp->routine_1 == 4 ||
-               wp->routine_1 == 5 || (wp->ground.flags_6 & 0x10) || wp->routine_1 == 8))
+    else if (!(wp->routine_1 == 2 || wp->routine_1 == 3 || wp->routine_1 == 4 || wp->routine_1 == 5 || (wp->ground.flags_6 & 0x10) ||
+               wp->routine_1 == 8))
     {
         if (wp->ctl.timer_3E != 0)
         {
@@ -220,8 +216,7 @@ void func_8010CAD4(STCOM16_WORK *wp)
         {
             if (wp->routine_1 != 1)
             {
-                if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed,
-                                  Player_work.rotation.y, 0x400))
+                if (func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, Player_work.rotation.y, 0x400))
                 {
                     if (wp->value_80 > 0x80000)
                     {
@@ -331,21 +326,18 @@ void func_8010CAD4(STCOM16_WORK *wp)
         if (!(wp->flags_0 & 2))
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8,
-                          wp->power_73 | 0x4080000, 0x800000, 0x80);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0x80);
         }
         else
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8,
-                          wp->power_73 | 0x4080000, 0x800000, 0);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
         }
     }
     else
     {
         ctl->pos_0 = wp->joints_180[0];
-        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8,
-                      wp->power_73 | 0x4080000, 0x800000, 0);
+        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
     }
     if (ground->flags_6 & 2)
     {
@@ -356,14 +348,12 @@ void func_8010CAD4(STCOM16_WORK *wp)
         ctl->pos_0.x = wp->joints_180[2].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[2].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[2].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18,
-                      ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
         ApplyMatrix(&wp->mats_1E8[4], &claw, &ofs);
         ctl->pos_0.x = wp->joints_180[4].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[4].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[4].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18,
-                      ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
     }
     if (wp->variant_3 != 2 && (wp->flags_0 & 2))
     {
@@ -406,8 +396,7 @@ void func_8010D4C4(STCOM16_WORK *wp)
     D_801184B4[wp->routine_2](wp);
     if (wp->variant_3 == 2)
     {
-        wp->scale.v.pad =
-            (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+        wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.r_0 -= 4;
         wp->fade.g_1 -= 4;
         if (wp->fade.r_0 < 0)
@@ -580,9 +569,7 @@ void func_8010D928(STCOM16_WORK *wp)
     {
         if (wp->ground.count_7 < 0xB4)
         {
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                             wp->rotation.y, ctl->turn_3A)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, ctl->turn_3A)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
             wp->ground.count_7++;
         }
@@ -596,9 +583,7 @@ void func_8010D928(STCOM16_WORK *wp)
     }
     else
     {
-        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                         wp->rotation.y, ctl->turn_3A)) &
-                         0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, ctl->turn_3A)) & 0xFFF;
         Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
     }
 }
@@ -610,8 +595,7 @@ void func_8010DA34(STCOM16_WORK *wp)
     {
         if (wp->ctl.timer_3F == 0)
         {
-            wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) |
-                              ((wp->fade.b_2 & 0x1F) << 10);
+            wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
             wp->fade.b_2++;
             wp->scale.v.pad |= 0x8000;
             if (wp->fade.b_2 >= 16)
@@ -650,9 +634,7 @@ void func_8010DB94(STCOM16_WORK *wp)
     if (wp->ctl.timer_3D != 0)
     {
         wp->ctl.timer_3D--;
-        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                         wp->rotation.y, 0x80)) &
-                         0xFFF;
+        wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x80)) & 0xFFF;
     }
     else
     {
@@ -673,8 +655,7 @@ void func_8010DB94(STCOM16_WORK *wp)
 
 void func_8010DC5C(STCOM16_WORK *wp)
 {
-    if (!func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &Player_work.position_fixed,
-                       Player_work.rotation.y, 0x400) ||
+    if (!func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &Player_work.position_fixed, Player_work.rotation.y, 0x400) ||
         wp->stun.timer_6 == 0)
     {
         if (wp->variant_3 == 2 && wp->stun.timer_6 == 0)
@@ -776,8 +757,7 @@ void func_8010DEF4(STCOM16_WORK *wp)
     }
     if (wp->variant_3 == 2)
     {
-        wp->scale.v.pad =
-            (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+        wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.b_2++;
         wp->scale.v.pad |= 0x8000;
         if (wp->fade.b_2 >= 16)
@@ -820,7 +800,7 @@ void func_8010E084(STCOM16_WORK *wp)
 {
     sint16 turn;
 
-    turn = Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->ctl.turn_3A);
+    turn           = Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->ctl.turn_3A);
     wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
     if (turn == 0)
     {
@@ -894,9 +874,8 @@ void func_8010E244(STCOM16_WORK *wp)
 {
     wp->anim_AC = 5;
     func_800322A8(wp, 5, 0);
-    wp->routine_2 = 6;
-    wp->scale.v.pad =
-        (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+    wp->routine_2   = 6;
+    wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
     wp->fade.b_2++;
     wp->scale.v.pad |= 0x8000;
     if (wp->fade.b_2 >= 16)
@@ -913,15 +892,12 @@ void func_8010E244(STCOM16_WORK *wp)
 
 void func_8010E30C(STCOM16_WORK *wp)
 {
-    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                     wp->rotation.y, wp->ctl.turn_3A)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->ctl.turn_3A)) & 0xFFF;
     if (wp->flags_A7 == -1)
     {
         wp->routine_2 = 0;
     }
-    wp->scale.v.pad =
-        (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+    wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
     wp->fade.b_2++;
     wp->scale.v.pad |= 0x8000;
     if (wp->fade.b_2 >= 16)
@@ -938,9 +914,7 @@ void func_8010E30C(STCOM16_WORK *wp)
 
 void func_8010E3F8(STCOM16_WORK *wp)
 {
-    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                     wp->rotation.y, wp->ctl.turn_3A)) &
-                     0xFFF;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, wp->ctl.turn_3A)) & 0xFFF;
     if (wp->flags_A7 == -1)
     {
         wp->routine_1 = 1;
@@ -948,8 +922,7 @@ void func_8010E3F8(STCOM16_WORK *wp)
     }
     if (wp->variant_3 == 2)
     {
-        wp->scale.v.pad =
-            (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+        wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.r_0 -= 4;
         wp->fade.g_1 -= 4;
         if (wp->fade.r_0 < 0)
@@ -984,8 +957,7 @@ void func_8010E504(STCOM16_WORK *wp)
         }
         else
         {
-            wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) |
-                              ((wp->fade.b_2 & 0x1F) << 10);
+            wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
             wp->fade.r_0 -= 4;
             wp->fade.g_1 -= 4;
             if (wp->fade.r_0 < 0)
@@ -1055,9 +1027,7 @@ void func_8010E730(STCOM16_WORK *wp)
     {
         if (wp->stun.hits_4 == 2)
         {
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position,
-                                                             wp->rotation.y, 0x10)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x10)) & 0xFFF;
         }
         wp->ground.flags_6 &= ~0x40;
     }
@@ -1089,8 +1059,7 @@ void func_8010E83C(STCOM16_WORK *wp)
     ground = &wp->ground;
     if (wp->variant_3 == 2)
     {
-        wp->scale.v.pad =
-            (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+        wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.b_2++;
         wp->scale.v.pad |= 0x8000;
         if (wp->fade.b_2 >= 16)
@@ -1107,13 +1076,11 @@ void func_8010E83C(STCOM16_WORK *wp)
     switch (wp->routine_2)
     {
         case 0:
-            func_8002FFC4(&wp->position, &wp->position_fixed, (wp->rotation.y + 0x800) & 0xFFF,
-                          wp->velocity.v.x, wp->velocity.v.y, 0);
+            func_8002FFC4(&wp->position, &wp->position_fixed, (wp->rotation.y + 0x800) & 0xFFF, wp->velocity.v.x, wp->velocity.v.y, 0);
             wp->velocity.v.y += wp->accel.y;
             break;
         case 1:
-            func_8002FFC4(&wp->position, &wp->position_fixed, wp->rotation.y & 0xFFF,
-                          wp->velocity.v.x, wp->velocity.v.y, 0);
+            func_8002FFC4(&wp->position, &wp->position_fixed, wp->rotation.y & 0xFFF, wp->velocity.v.x, wp->velocity.v.y, 0);
             wp->velocity.v.y += wp->accel.y;
             break;
         case 2:
@@ -1149,10 +1116,7 @@ void func_8010E83C(STCOM16_WORK *wp)
             }
             if (wp->routine_2 == 4)
             {
-                wp->rotation.y =
-                    (wp->rotation.y +
-                     Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x80)) &
-                    0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x80)) & 0xFFF;
             }
             break;
     }
@@ -1202,8 +1166,7 @@ void func_8010EB98(STCOM16_WORK *wp)
     D_8011850C[wp->routine_2](wp);
     if (wp->ctl.timer_3F == 0)
     {
-        wp->scale.v.pad =
-            (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
+        wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.r_0 -= 4;
         wp->fade.g_1 -= 4;
         if (wp->fade.r_0 < 0)

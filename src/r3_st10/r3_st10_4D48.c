@@ -123,7 +123,7 @@ void func_80105088(ST10_ACTOR *wp)
             ctl->timer_4 = 0x1E;
             // fall through
         case 1:
-            step = Muku(&wp->position, &ctl->target_C, wp->rotation.y, wp->turn_64);
+            step           = Muku(&wp->position, &ctl->target_C, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             if ((sint16)step == 0)
             {
@@ -161,9 +161,7 @@ void func_801051A0(ST10_ACTOR *wp)
             ctl->timer_4 = (ctl->value_2 & 0x3F) + 8;
             break;
         case 1:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position,
-                                                             wp->rotation.y, wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64)) & 0xFFF;
             if (--wp->ctl.timer_4 < 0)
             {
                 wp->anim_AC = 8;
@@ -175,9 +173,7 @@ void func_801051A0(ST10_ACTOR *wp)
             }
             break;
         case 2:
-            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position,
-                                                             wp->rotation.y, wp->turn_64)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64)) & 0xFFF;
             if (wp->value_A7 < 0)
             {
                 wp->anim_AC = 0;

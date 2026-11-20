@@ -84,8 +84,7 @@ void stcom05_func_029C(STCOM05_WORK *wp)
     }
     stcom05_func_0ED0(wp);
     stcom05_D_0018[wp->routine_1](wp);
-    if (ctl->value_24 == 0 && Player_work.value_6E < Player_work.value_B0 / 2 &&
-        !(Moji_flag & 0x8000000))
+    if (ctl->value_24 == 0 && Player_work.value_6E < Player_work.value_B0 / 2 && !(Moji_flag & 0x8000000))
     {
         MojiTaskExec2(0, 0x15);
         ctl->value_24 = 1;
@@ -160,8 +159,7 @@ void stcom05_func_05B8(STCOM05_WORK *wp)
 {
     wp->rotation.y  = Angle_xz_svector(&wp->position, &stcom05_D_003C[wp->ctl.index_20]) & 0xFFF;
     wp->routine_1   = 1;
-    wp->ctl.dist_14 = wp->ctl.dist_10 =
-        Distance_xyz(&stcom05_D_003C[wp->ctl.index_20 - 1], &stcom05_D_003C[wp->ctl.index_20]);
+    wp->ctl.dist_14 = wp->ctl.dist_10 = Distance_xyz(&stcom05_D_003C[wp->ctl.index_20 - 1], &stcom05_D_003C[wp->ctl.index_20]);
 }
 
 void stcom05_func_0630(STCOM05_WORK *wp)
@@ -187,9 +185,8 @@ void stcom05_func_0630(STCOM05_WORK *wp)
         }
         else
         {
-            wp->routine_1 = 2;
-            wp->ctl.rot_goal_18 =
-                Angle_xz_svector(&wp->position, &stcom05_D_003C[wp->ctl.index_20]) & 0xFFF;
+            wp->routine_1       = 2;
+            wp->ctl.rot_goal_18 = Angle_xz_svector(&wp->position, &stcom05_D_003C[wp->ctl.index_20]) & 0xFFF;
             diff                = wp->rotation.y - wp->ctl.rot_goal_18;
             wp->ctl.rot_diff_1A = STCOM_ABS(diff) & 0xFFF;
             if (wp->ctl.rot_diff_1A >= 0x800)
@@ -211,8 +208,7 @@ void stcom05_func_0790(STCOM05_WORK *wp)
         if (wp->ctl.rot_goal_18 < wp->rotation.y)
         {
             wp->rotation.y = (wp->rotation.y + 20) & 0xFFF;
-            if (abs(wp->rotation.y - wp->ctl.rot_goal_18) < 0x800 &&
-                wp->rotation.y >= wp->ctl.rot_goal_18)
+            if (abs(wp->rotation.y - wp->ctl.rot_goal_18) < 0x800 && wp->rotation.y >= wp->ctl.rot_goal_18)
             {
                 wp->rotation.y = wp->ctl.rot_goal_18;
                 wp->routine_1  = 3;
@@ -222,8 +218,7 @@ void stcom05_func_0790(STCOM05_WORK *wp)
         else
         {
             wp->rotation.y = (wp->rotation.y - 20) & 0xFFF;
-            if (abs(wp->rotation.y - wp->ctl.rot_goal_18) < 0x800 &&
-                wp->rotation.y <= wp->ctl.rot_goal_18)
+            if (abs(wp->rotation.y - wp->ctl.rot_goal_18) < 0x800 && wp->rotation.y <= wp->ctl.rot_goal_18)
             {
                 wp->rotation.y = wp->ctl.rot_goal_18;
                 wp->routine_1  = 3;
@@ -406,8 +401,7 @@ void stcom05_func_0938(STCOM05_WORK *wp)
                 }
                 wp->routine_2++;
                 MojiTaskExec2(0, 0x18);
-                ctl->dist_14 = ctl->dist_10 = Distance_xyz(&stcom05_D_003C[ctl->index_20 - 1],
-                                                            &stcom05_D_003C[ctl->index_20 + 1]);
+                ctl->dist_14 = ctl->dist_10 = Distance_xyz(&stcom05_D_003C[ctl->index_20 - 1], &stcom05_D_003C[ctl->index_20 + 1]);
                 wp->velocity.v.x            = 0;
             }
             else if (wp->routine_2 == 1)
@@ -473,18 +467,16 @@ void stcom05_func_0D44(STCOM05_WORK *wp)
             wp->rotation.y = 0x800;
         }
     }
-    func_8002FFC4(&wp->position, &wp->position_fixed, wp->rotation.y + 0x800, wp->velocity.v.x, 0,
-                  0);
+    func_8002FFC4(&wp->position, &wp->position_fixed, wp->rotation.y + 0x800, wp->velocity.v.x, 0, 0);
     stcom05_func_0E64(wp);
     ctl->dist_10 = Distance_xyz(&wp->position, &stcom05_D_0044[ctl->index_20]);
     if (ctl->dist_10 < 0x25D)
     {
-        ctl->dist_14 = ctl->dist_10 =
-            Distance_xyz(&wp->position, &stcom05_D_0044[ctl->index_20 - 1]);
-        wp->routine_1    = 3;
-        ctl->timer_21    = 0x3C;
-        ctl->value_1E    = 0x400;
-        wp->velocity.v.x = 0;
+        ctl->dist_14 = ctl->dist_10 = Distance_xyz(&wp->position, &stcom05_D_0044[ctl->index_20 - 1]);
+        wp->routine_1               = 3;
+        ctl->timer_21               = 0x3C;
+        ctl->value_1E               = 0x400;
+        wp->velocity.v.x            = 0;
     }
 }
 
@@ -582,9 +574,7 @@ void stcom05_func_1178(STCOM05_WORK *wp)
             if (STCOM_PLAYER_WORK_PTR->target_184 == wp)
             {
                 STCOM_PLAYER_WORK_PTR->target_184 = NULL;
-                if ((((STCOM_PLAYER_WORK_PTR->rotation.y & 0xFFF) - (wp->rotation.y & 0xFFF) +
-                      0x180) &
-                     0xFFF) < 0x300 &&
+                if ((((STCOM_PLAYER_WORK_PTR->rotation.y & 0xFFF) - (wp->rotation.y & 0xFFF) + 0x180) & 0xFFF) < 0x300 &&
                     !(Moji_flag & 0x8000000))
                 {
                     func_80063BC8(&Player_work, 0, 0, 0xD2);
@@ -608,8 +598,7 @@ void stcom05_func_1178(STCOM05_WORK *wp)
     else if (STCOM_PLAYER_WORK_PTR->target_184 == wp)
     {
         STCOM_PLAYER_WORK_PTR->target_184 = NULL;
-        if ((((STCOM_PLAYER_WORK_PTR->rotation.y & 0xFFF) - (wp->rotation.y & 0xFFF) + 0x180) &
-             0xFFF) < 0x300)
+        if ((((STCOM_PLAYER_WORK_PTR->rotation.y & 0xFFF) - (wp->rotation.y & 0xFFF) + 0x180) & 0xFFF) < 0x300)
         {
             Game_work.value_81 = 1;
         }

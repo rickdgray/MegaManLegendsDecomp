@@ -20,7 +20,7 @@ void func_80103F60(ST0F_OBJ *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->value_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->value_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0)
             {
@@ -71,7 +71,7 @@ void func_801040E0(ST0F_OBJ *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->value_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->value_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0)
             {
@@ -188,16 +188,14 @@ sint32 func_80104490(ST0F_OBJ *wp)
     pl = &Player_work;
     if (pl->target_184 == wp)
     {
-        wp->value_64 =
-            STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
+        wp->value_64   = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
         pl->flags_bd |= 0x40;
         D_801061B0.x = wp->value_180.x;
         D_801061B0.y = wp->value_180.y - 0x20;
         D_801061B0.z = wp->value_180.z;
-        func_80039FAC(&D_801061B0, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_801061B0, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;

@@ -304,14 +304,14 @@ void stcom25_func_0A38(STCOM25_WORK *wp)
     max = 8;
     ctl = &wp->ctl;
     // Index first, base last: &nodes_0[node_E] adds the other way round.
-    node   = (STCOM25_NODE *)(wp->ctl.node_E * sizeof(STCOM25_NODE) + (uint32)wp->ctl.nodes_0);
-    target = wp->ctl.speed_10;
-    px     = wp->position.x;
-    pz     = wp->position.z;
-    dx     = abs(((node->x_0 - 0x40) << 9) - px);
-    kind   = node->flags_2;
-    dz     = abs(((node->z_1 - 0x40) << 9) - pz);
-    dist   = dx + dz;
+    node            = (STCOM25_NODE *)(wp->ctl.node_E * sizeof(STCOM25_NODE) + (uint32)wp->ctl.nodes_0);
+    target          = wp->ctl.speed_10;
+    px              = wp->position.x;
+    pz              = wp->position.z;
+    dx              = abs(((node->x_0 - 0x40) << 9) - px);
+    kind            = node->flags_2;
+    dz              = abs(((node->z_1 - 0x40) << 9) - pz);
+    dist            = dx + dz;
     wp->ctl.dist_14 = dist + 0x1FF;
     if (wp->ctl.flags_F & 4)
     {

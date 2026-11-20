@@ -183,8 +183,7 @@ void func_8012AB24(ST05_PRIZE *wp)
             }
             break;
         case 13:
-            func_80063BC8(&wp->pos_38, 2, 0,
-                          (Sce_flag_test(0x671) || Sce_flag_test(0x672)) ? 0x40 : 0x3F);
+            func_80063BC8(&wp->pos_38, 2, 0, (Sce_flag_test(0x671) || Sce_flag_test(0x672)) ? 0x40 : 0x3F);
             wp->routine_1++;
             break;
         case 14:
@@ -575,12 +574,10 @@ uint8 func_8012BA14(STAGE_OBJ50 *wp)
         {
             for (j = 2; i < j; j--)
             {
-                Game_work_84[wp->value_F * 3 + j].score_0 =
-                    Game_work_84[wp->value_F * 3 + j - 1].score_0;
+                Game_work_84[wp->value_F * 3 + j].score_0 = Game_work_84[wp->value_F * 3 + j - 1].score_0;
                 for (k = 0; k < 4; k++)
                 {
-                    Game_work_84[wp->value_F * 3 + j].name_4[k] =
-                        Game_work_84[wp->value_F * 3 + j - 1].name_4[k];
+                    Game_work_84[wp->value_F * 3 + j].name_4[k] = Game_work_84[wp->value_F * 3 + j - 1].name_4[k];
                 }
             }
             Game_work_84[wp->value_F * 3 + i].score_0 = wp->value_48;
@@ -750,8 +747,7 @@ void func_8012BF74(ST05_RACE *wp)
             wp->routine_1++;
             if (D_80138018 != 0)
             {
-                if (Game_work_90[wp->value_F].kind_0 == 3 &&
-                    Sce_flag_test(wp->value_F + 0x201) == 0)
+                if (Game_work_90[wp->value_F].kind_0 == 3 && Sce_flag_test(wp->value_F + 0x201) == 0)
                 {
                     wp->routine_2 = 3;
                 }
@@ -762,8 +758,7 @@ void func_8012BF74(ST05_RACE *wp)
             }
             else
             {
-                if (Game_work_90[wp->value_F].kind_0 == 3 &&
-                    Sce_flag_test(wp->value_F + 0x201) == 0)
+                if (Game_work_90[wp->value_F].kind_0 == 3 && Sce_flag_test(wp->value_F + 0x201) == 0)
                 {
                     wp->routine_2 = 5;
                 }

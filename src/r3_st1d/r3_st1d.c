@@ -300,8 +300,7 @@ void func_80100920(ST1D_VIEW *wp)
         spark->pos_0.y  = spark->pos_10.y << 16;
         spark->pos_0.z  = spark->pos_10.z << 16;
         func_8002FFC4(&spark->pos_10, &spark->pos_0, wp->rotation.y & 0xFFF, -0x320, 0, 0);
-        func_800341BC(&spark->pos_10, 0xC8, 0, 0x8000, wp->value_1, &spark->hit_18[0],
-                      wp->u_70.b[3] | 0x04080000, 0, 0x80);
+        func_800341BC(&spark->pos_10, 0xC8, 0, 0x8000, wp->value_1, &spark->hit_18[0], wp->u_70.b[3] | 0x04080000, 0, 0x80);
         spark->pos_10.x = wp->value_1E0;
         spark->pos_10.y = wp->value_1E2 + 0x78;
         spark->pos_10.z = wp->value_1E4;
@@ -309,8 +308,7 @@ void func_80100920(ST1D_VIEW *wp)
         spark->pos_0.y  = spark->pos_10.y << 16;
         spark->pos_0.z  = spark->pos_10.z << 16;
         func_8002FFC4(&spark->pos_10, &spark->pos_0, wp->rotation.y & 0xFFF, -0xB40, 0, 0x820);
-        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[2],
-                      wp->u_70.b[3] | 0x04080000, 0, 0x80);
+        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[2], wp->u_70.b[3] | 0x04080000, 0, 0x80);
         spark->pos_10.x = wp->value_1E0;
         spark->pos_10.y = wp->value_1E2 + 0x78;
         spark->pos_10.z = wp->value_1E4;
@@ -318,8 +316,7 @@ void func_80100920(ST1D_VIEW *wp)
         spark->pos_0.y  = spark->pos_10.y << 16;
         spark->pos_0.z  = spark->pos_10.z << 16;
         func_8002FFC4(&spark->pos_10, &spark->pos_0, wp->rotation.y & 0xFFF, -0xB40, 0, -0x820);
-        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[3],
-                      wp->u_70.b[3] | 0x04080000, 0, 0x80);
+        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[3], wp->u_70.b[3] | 0x04080000, 0, 0x80);
         spark->pos_10.x = wp->value_1E0;
         spark->pos_10.y = wp->value_1E2 + 0x78;
         spark->pos_10.z = wp->value_1E4;
@@ -327,8 +324,7 @@ void func_80100920(ST1D_VIEW *wp)
         spark->pos_0.y  = spark->pos_10.y << 16;
         spark->pos_0.z  = spark->pos_10.z << 16;
         func_8002FFC4(&spark->pos_10, &spark->pos_0, wp->rotation.y & 0xFFF, -0xB40, 0, 0);
-        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[1],
-                      wp->u_70.b[3] | 0x04080000, 0, 0);
+        func_800341BC(&spark->pos_10, 0x46, 0, 0x8000, wp->value_1, &spark->hit_18[1], wp->u_70.b[3] | 0x04080000, 0, 0);
         if (!(wp->value_C & 1) && (wp->value_A6 & 2))
         {
             Sound_call2(0x1C3, &wp->position);
@@ -468,8 +464,7 @@ void func_8010101C(ST1D_VIEW *wp)
                     func_800322A8(child, 1, 0);
                 }
             }
-            else if (D_80114AB0[spark->node_58].value_8 == 1 &&
-                     wp->position.x <= D_80114AB0[spark->node_58].x)
+            else if (D_80114AB0[spark->node_58].value_8 == 1 && wp->position.x <= D_80114AB0[spark->node_58].x)
             {
                 if (spark->rand_52.h & 1)
                 {
@@ -1463,8 +1458,7 @@ void func_80102B54(ST1D_VIEW *wp)
                 if (!(spark->timer_4C & 3))
                 {
                     joint            = D_80114B50[spark->rand_52.b & 7].joint_0;
-                    spark->offset_38 = D_80114B50[(sint8)(spark->rand_52.b & 7)]
-                                           .offset_2; // indexed again, not reused
+                    spark->offset_38 = D_80114B50[(sint8)(spark->rand_52.b & 7)].offset_2; // indexed again, not reused
                     fx               = func_80031618();
                     if (fx != NULL)
                     {
@@ -1523,9 +1517,9 @@ void func_80102E10(ST1D_VIEW *wp)
 {
     sint32 temp_lo;
 
-    wp->rotation.y = ((uint16)wp->rotation.y + wp->value_426) & 0xFFF;
-    wp->position.x = wp->value_420 + ((sint32)(wp->value_42A * rsin((sint32)wp->value_428)) >> 0xC);
-    temp_lo        = wp->value_42A * rcos((sint32)wp->value_428);
+    wp->rotation.y       = ((uint16)wp->rotation.y + wp->value_426) & 0xFFF;
+    wp->position.x       = wp->value_420 + ((sint32)(wp->value_42A * rsin((sint32)wp->value_428)) >> 0xC);
+    temp_lo              = wp->value_42A * rcos((sint32)wp->value_428);
     wp->position_fixed.x = wp->position.x << 0x10;
     wp->position.z       = wp->value_424 + (temp_lo >> 0xC);
     wp->position_fixed.y = wp->position.y << 0x10;
@@ -1592,8 +1586,7 @@ void func_80102F24(ST1D_VIEW *wp)
     {
         ext->pos_C = wp->vec_180[0];
         ext->pos_C.y += 30;
-        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->value_1, &ext->value_14,
-                      ext->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->value_1, &ext->value_14, ext->value_8 | 0x4880000, 0x800000, 0);
     }
     ext->value_14 = 0;
 }
@@ -1655,8 +1648,7 @@ void func_801033E4(ST1D_VIEW *wp)
     {
         func_80105318(wp);
     }
-    wp->u_64.h[0] = Muku(&wp->position, &Player_work.position,
-                                  (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x40);
+    wp->u_64.h[0] = Muku(&wp->position, &Player_work.position, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x40);
     if (((ext->u_3C.h[0] + wp->u_64.h[0] + 0x500) & 0xFFF) < 0xA00)
     {
         ext->u_3C.h[0] += wp->u_64.h[0];
@@ -1844,8 +1836,7 @@ void func_80103920(ST1D_VIEW *wp)
             {
                 Sound_call2(0xB6, &wp->position);
             }
-            wp->u_64.h[0] =
-                Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x10);
+            wp->u_64.h[0]  = Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x10);
             wp->rotation.y = (wp->rotation.y + wp->u_64.h[0]) & 0xFFF;
             Obj_pos_set(wp, 0x100, 0, 0);
             ext->u_5C.w          = func_8004B414(wp);
@@ -1889,8 +1880,8 @@ void func_80103920(ST1D_VIEW *wp)
                 break;
             }
             if (wp->variant_3 == 0 && ext->u_34.h[1] == 0 &&
-                func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x100,
-                              &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y, 0x100))
+                func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x100, &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y,
+                              0x100))
             {
                 switch (func_801052A0(wp))
                 {
@@ -1913,8 +1904,8 @@ void func_80103920(ST1D_VIEW *wp)
                 }
             }
             if (wp->variant_3 == 1 && ext->u_34.h[0] == 0 &&
-                func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x18,
-                              &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y, 0x300))
+                func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x18, &ext->u_58.obj->position_fixed.v,
+                              ext->u_58.obj->rotation.y, 0x300))
             {
                 ext->piece_54 = (STAGE_PIECE *)Open_SHL_WORK();
                 if (ext->piece_54 != NULL)
@@ -1924,8 +1915,8 @@ void func_80103920(ST1D_VIEW *wp)
                     ext->piece_54->variant_3      = 0;
                     ext->piece_54->position       = wp->position;
                     ext->piece_54->position_fixed = wp->position_fixed;
-                    func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed,
-                                  (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x6E0, -0xD00, 0);
+                    func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF,
+                                  0x6E0, -0xD00, 0);
                     ext->piece_54->angle_64 = wp->rotation.y;
                     ext->u_34.h[0]          = 60;
                     ext->obj_40->u_E.b.byte_F |= 1;
@@ -1986,9 +1977,8 @@ void func_80103D6C(ST1D_VIEW *wp)
                 *(uint16 *)&wp->routine_2 = 0;
                 break;
             }
-            if ((uint32)wp->value_80 > 0x480000 &&
-                func_80031E60(&ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y, 0x800,
-                              &wp->position_fixed, wp->rotation.y, 0x400))
+            if ((uint32)wp->value_80 > 0x480000 && func_80031E60(&ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y, 0x800,
+                                                                 &wp->position_fixed, wp->rotation.y, 0x400))
             {
                 wp->routine_1             = 13;
                 *(uint16 *)&wp->routine_2 = 0;
@@ -2024,11 +2014,9 @@ void func_80103FD8(ST1D_VIEW *wp)
     switch (wp->routine_2)
     {
         case 0:
-            wp->routine_2 = 1;
-            wp->value_AC  = 5;
-            wp->u_64.h[1] =
-                Muku(&wp->position, &wp->ext.u_58.obj->position, wp->rotation.y, 0x800) >>
-                2;
+            wp->routine_2    = 1;
+            wp->value_AC     = 5;
+            wp->u_64.h[1]    = Muku(&wp->position, &wp->ext.u_58.obj->position, wp->rotation.y, 0x800) >> 2;
             wp->ext.u_4.h[0] = 4;
             wp->ext.value_8  = 0;
             wp->ext.obj_40->u_E.b.byte_F |= 1;
@@ -2040,9 +2028,8 @@ void func_80103FD8(ST1D_VIEW *wp)
             {
                 ext->flags_0 |= 1;
             }
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y,
-                                            wp->u_64.h[1] < 0 ? -wp->u_64.h[1] : wp->u_64.h[1])) &
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y,
+                                                    wp->u_64.h[1] < 0 ? -wp->u_64.h[1] : wp->u_64.h[1])) &
                              0xFFF;
             break;
     }
@@ -2410,8 +2397,7 @@ void func_80104974(ST1D_VIEW *wp)
                 break;
             }
             wp->routine_2 = 4;
-            wp->u_64.h[1] =
-                Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x800) / 3;
+            wp->u_64.h[1] = Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x800) / 3;
             ext->u_4.h[0] = 3;
             // fall through
         case 4:
@@ -2420,9 +2406,7 @@ void func_80104974(ST1D_VIEW *wp)
                 ext->flags_0 |= 1;
             }
             wp->rotation.y =
-                (wp->rotation.y + Muku(&wp->position, &ext->u_58.obj->position,
-                                                wp->rotation.y, STCOM_ABS(wp->u_64.h[1]))) &
-                0xFFF;
+                (wp->rotation.y + Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, STCOM_ABS(wp->u_64.h[1]))) & 0xFFF;
             break;
     }
 }
@@ -2529,10 +2513,8 @@ void func_80104C7C(ST1D_VIEW *wp)
             if (func_8004B414(wp) & 0x1000)
             {
                 Sound_call2(0xB8, &wp->position);
-                if ((ext->flags_0 & 0x200) &&
-                    func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF,
-                                  0x18, &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y,
-                                  0x300))
+                if ((ext->flags_0 & 0x200) && func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x18,
+                                                            &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y, 0x300))
                 {
                     ext->flags_0 &= ~0x200;
                     ext->piece_54 = (STAGE_PIECE *)Open_SHL_WORK();
@@ -2543,8 +2525,8 @@ void func_80104C7C(ST1D_VIEW *wp)
                         ext->piece_54->variant_3      = 0;
                         ext->piece_54->position       = wp->position;
                         ext->piece_54->position_fixed = wp->position_fixed;
-                        func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed,
-                                      (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x6E0, -0xD00, 0);
+                        func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF,
+                                      0x6E0, -0xD00, 0);
                         ext->piece_54->angle_64 = wp->rotation.y;
                         ext->obj_40->u_E.b.byte_F |= 1;
                         ext->u_44.fx[0]->routine_1 = 0;
@@ -2641,8 +2623,7 @@ void func_80105060(ST1D_VIEW *wp)
                 break;
             }
             wp->routine_2 = 3;
-            wp->u_64.h[1] =
-                Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x800) / 3;
+            wp->u_64.h[1] = Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x800) / 3;
             ext->u_4.h[0] = 3;
             // fall through
         case 3:
@@ -2651,9 +2632,7 @@ void func_80105060(ST1D_VIEW *wp)
                 ext->flags_0 |= 1;
             }
             wp->rotation.y =
-                (wp->rotation.y + Muku(&wp->position, &ext->u_58.obj->position,
-                                                wp->rotation.y, STCOM_ABS(wp->u_64.h[1]))) &
-                0xFFF;
+                (wp->rotation.y + Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, STCOM_ABS(wp->u_64.h[1]))) & 0xFFF;
             break;
     }
 }
@@ -2699,8 +2678,7 @@ sint32 func_80105318(ST1D_VIEW *wp)
             if (wp->ext.flags_0 & 0x20)
             {
                 wp->ext.value_A += wp->ext.u_4C.i;
-                if ((wp->ext.value_14 & 0x20000000) ||
-                    wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
+                if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
                 {
                     Sound_call2(0xA2, &wp->position);
                     if (wp->ext.from_1C.pad & 1)
@@ -2739,8 +2717,7 @@ sint32 func_80105318(ST1D_VIEW *wp)
                     Sound_call2(0xA0, &wp->position);
                 }
             }
-            else if ((wp->ext.value_14 & 0x20000000) ||
-                     wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
+            else if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
             {
                 Sound_call2(0xA2, &wp->position);
             }

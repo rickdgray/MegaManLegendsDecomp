@@ -69,10 +69,10 @@ void func_801216D8(STAGE_FX *wp)
                 D_8012BB88[wp->frame_E][i].z -= rand() & 3;
             }
             D_8012BB88[wp->frame_E][i].y -= rand() & 7;
-            color     = 0x2E404040 - (frac / 8) * 0x10101;
-            p->code_4 = color - shade * 0x40404;
-            p->xy_8   = (uint16)D_8012BB88[wp->frame_E][i].x | (D_8012BB88[wp->frame_E][i].y << 16);
-            p->z_10   = D_8012BB88[wp->frame_E][i].z;
+            color      = 0x2E404040 - (frac / 8) * 0x10101;
+            p->code_4  = color - shade * 0x40404;
+            p->xy_8    = (uint16)D_8012BB88[wp->frame_E][i].x | (D_8012BB88[wp->frame_E][i].y << 16);
+            p->z_10    = D_8012BB88[wp->frame_E][i].z;
             p->size_18 = shade * 16 + 0x100 + frac / 2;
             p->uv_C    = 0x3D48001F;
             p->uv_1C   = 0x201F;

@@ -227,8 +227,7 @@ void stcom09_func_06A0(STCOM09_WORK *wp)
     }
     else
     {
-        func_800341BC(&hit->pos_8, hit->size_16, 0, 0x8000, wp->value_1, &hit->hit_18, hit->value_4,
-                      0, 0);
+        func_800341BC(&hit->pos_8, hit->size_16, 0, 0x8000, wp->value_1, &hit->hit_18, hit->value_4, 0, 0);
     }
     if (wp->anim_prev_AD == wp->anim_AC)
     {

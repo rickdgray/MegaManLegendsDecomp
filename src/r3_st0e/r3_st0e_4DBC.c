@@ -8,11 +8,11 @@ void func_80104DBC(STAGE_OBJ *wp)
 
 void func_80104DF8(ST0E_ACTOR *wp)
 {
-    wp->scale.v.x  = 0x200;
-    wp->scale.v.y  = 0x200;
-    wp->scale.v.z  = 0x200;
+    wp->scale.v.x   = 0x200;
+    wp->scale.v.y   = 0x200;
+    wp->scale.v.z   = 0x200;
     wp->scale.v.pad = 0x4210;
-    wp->rotation.x = 0;
+    wp->rotation.x  = 0;
     wp->flags_0 |= 2;
     wp->rotation.y   = (rand() & 0x1F) << 7;
     wp->rotation.z   = 0;
@@ -20,16 +20,16 @@ void func_80104DF8(ST0E_ACTOR *wp)
     wp->value_4C = wp->value_4E = wp->value_50 = 0;
     Model_work_init(wp, NULL);
     func_80036478(&wp->ctl, 9, -0x60);
-    wp->data_78          = D_801103A4;
+    wp->data_78  = D_801103A4;
     wp->value_6E = wp->value_B0 = D_80098844[wp->kind_2]->life_8 * 16;
-    wp->position.y       = -0x200;
-    wp->value_74         = 1;
-    wp->ctl.value_10     = 0;
-    wp->ctl.hit_14       = 0;
-    wp->ctl.hit.flags_0      = 0;
-    wp->ctl.hit.value_4      = 0;
-    wp->ctl.hit.value_8      = 0;
-    wp->position_fixed.y = -0x2000000;
+    wp->position.y              = -0x200;
+    wp->value_74                = 1;
+    wp->ctl.value_10            = 0;
+    wp->ctl.hit_14              = 0;
+    wp->ctl.hit.flags_0         = 0;
+    wp->ctl.hit.value_4         = 0;
+    wp->ctl.hit.value_8         = 0;
+    wp->position_fixed.y        = -0x2000000;
     func_800322A8(wp, 3, 0);
     wp->routine_0 = 1;
     func_801056B8(wp);
@@ -129,9 +129,8 @@ void func_80105148(ST0E_ACTOR *wp)
 void func_801051B0(ST0E_ACTOR *wp)
 {
     wp->ctl.hit.flags_0 = 0;
-    wp->ctl.pos_18  = wp->position;
-    func_800341BC(&wp->ctl.pos_18, 0x40, 0, 0x8000, wp->value_1, &wp->ctl.hit,
-                  wp->ctl.hit.value_8 | 0x4000000, 0, 0);
+    wp->ctl.pos_18      = wp->position;
+    func_800341BC(&wp->ctl.pos_18, 0x40, 0, 0x8000, wp->value_1, &wp->ctl.hit, wp->ctl.hit.value_8 | 0x4000000, 0, 0);
 }
 
 void func_80105228(ST0E_ACTOR *wp)
@@ -165,8 +164,7 @@ void func_80105228(ST0E_ACTOR *wp)
 
 void func_801052EC(STAGE_OBJ *wp)
 {
-    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer,
-                  (sint16)wp->value_48.words.fraction);
+    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer, (sint16)wp->value_48.words.fraction);
     func_8010576C(wp);
     if (wp->value_A7 != 0)
     {
@@ -192,8 +190,7 @@ void func_80105344(ST0E_ACTOR *wp)
 
 void func_801053AC(STAGE_OBJ *wp)
 {
-    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer,
-                  (sint16)wp->value_48.words.fraction);
+    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer, (sint16)wp->value_48.words.fraction);
     func_80105798(wp);
     if (wp->routine_2 == 0)
     {
@@ -239,11 +236,8 @@ void func_80105580(ST0E_ACTOR *wp);
 
 void func_801054F0(STAGE_OBJ *wp)
 {
-    wp->rotation.y = (wp->rotation.y +
-                      Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x60)) &
-                     0xFFF;
-    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer,
-                  (sint16)wp->value_48.words.fraction);
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x60)) & 0xFFF;
+    Obj_pos_set(wp, (sint16)wp->value_44.words.fraction, wp->value_44.words.integer, (sint16)wp->value_48.words.fraction);
     func_80105798(wp);
     if (wp->routine_2 == 0)
     {
@@ -309,32 +303,32 @@ void func_801055F8(ST0E_ACTOR *wp)
 
 void func_801056B8(ST0E_ACTOR *wp)
 {
-    wp->anim_AC      = 3;
-    wp->velocity.v.x = 0x100;
-    wp->velocity.v.y = -0xF0;
-    wp->value_4E     = 0;
-    wp->ctl.hit.value_C  = D_801103C4[rand() & 3];
-    wp->routine_1    = 0;
-    wp->routine_2    = 0;
+    wp->anim_AC         = 3;
+    wp->velocity.v.x    = 0x100;
+    wp->velocity.v.y    = -0xF0;
+    wp->value_4E        = 0;
+    wp->ctl.hit.value_C = D_801103C4[rand() & 3];
+    wp->routine_1       = 0;
+    wp->routine_2       = 0;
 }
 
 void func_8010571C(ST0E_ACTOR *wp)
 {
     wp->ctl.hit.timer_E = 0x80;
-    wp->anim_AC     = 0;
-    wp->routine_1   = 1;
-    wp->routine_2   = 0;
+    wp->anim_AC         = 0;
+    wp->routine_1       = 1;
+    wp->routine_2       = 0;
 }
 
 void func_80105738(ST0E_ACTOR *wp)
 {
-    wp->anim_AC      = 1;
-    wp->velocity.v.y = -0xF0;
+    wp->anim_AC          = 1;
+    wp->velocity.v.y     = -0xF0;
     wp->ctl.hit.timer_10 = 0x3C;
-    wp->value_4E     = 0;
-    wp->routine_1    = 2;
-    wp->routine_2    = 0;
-    wp->velocity.v.x = wp->ctl.hit.value_C;
+    wp->value_4E         = 0;
+    wp->routine_1        = 2;
+    wp->routine_2        = 0;
+    wp->velocity.v.x     = wp->ctl.hit.value_C;
 }
 
 void func_8010576C(STAGE_OBJ *wp)
@@ -387,8 +381,7 @@ void func_801057F8(ST0E_PROP *wp)
     {
         wp->position.y -= 0x20;
         wp->position_fixed.y = wp->position.y << 16;
-        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0,
-                      0x80);
+        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
         wp->position.y += 0x20;
         wp->position_fixed.y = wp->position.y << 16;
     }
@@ -412,8 +405,8 @@ void func_801059A8(ST0E_PROP *wp)
     wp->flags_0 |= 6;
     wp->rotation.v.y = (wp->param_C << 9) & 0xE00;
     Model_work_init(wp, NULL);
-    m                = &wp->matrix;
-    wp->ctl.flags_0  = 0;
+    m                           = &wp->matrix;
+    wp->ctl.flags_0             = 0;
     *(uint32 *)&wp->ctl.timer_4 = 0;
     RotMatrixYXZ(&wp->rotation.v, m);
     scale.x = 0x200;
@@ -494,7 +487,7 @@ void func_80105B60(ST0E_PROP *wp)
                 {
                     wp->rotation.v.z = (wp->rotation.v.z + 0x10) & 0xFFF;
                 }
-                wp->position.y = wp->accel.y + (wp->velocity.v.y * D_800BBCF8[ctl->timer_4] >> 12);
+                wp->position.y       = wp->accel.y + (wp->velocity.v.y * D_800BBCF8[ctl->timer_4] >> 12);
                 wp->position_fixed.y = wp->velocity.v.y << 12;
                 ctl->timer_4         = (ctl->timer_4 + 1) & 0x3F;
             } while (0);

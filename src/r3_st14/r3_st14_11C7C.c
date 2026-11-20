@@ -58,9 +58,9 @@ void func_80111E7C(ST14_PROP *wp)
         case 0:
             if (func_80042238(pl))
             {
-                Player_work.routine_0  = 3;
-                Player_work.routine_1  = 0;
-                Player_work.value_C    = 0;
+                Player_work.routine_0 = 3;
+                Player_work.routine_1 = 0;
+                Player_work.value_C   = 0;
                 func_80063BC8(&wp->position, 2, 0, 0xA);
                 Player_work.target_184 = NULL;
                 wp->routine_1++;
@@ -119,18 +119,18 @@ void func_80111FF4(ST14_PROP *wp)
     wp->position.x += wp->velocity.x;
     wp->position.y += wp->velocity.y;
     wp->position.z += wp->velocity.z;
-    wp->accel.x                = 0;
-    wp->accel.y                = 0;
-    wp->accel.z                = 0;
-    wp->model.pos_AC.x         = wp->position.x;
-    wp->model.pos_AC.y         = wp->position.y;
-    wp->model.pos_AC.z         = wp->position.z;
-    wp->position_fixed.v.x     = wp->position.x << 16;
-    wp->position_fixed.v.y     = wp->position.y << 16;
-    wp->position_fixed.v.z     = wp->position.z << 16;
-    wp->position_fixed_prev    = wp->position_fixed.v;
-    wp->position_prev          = wp->position;
-    wp->model.color_B4         = 0x2808080;
+    wp->accel.x             = 0;
+    wp->accel.y             = 0;
+    wp->accel.z             = 0;
+    wp->model.pos_AC.x      = wp->position.x;
+    wp->model.pos_AC.y      = wp->position.y;
+    wp->model.pos_AC.z      = wp->position.z;
+    wp->position_fixed.v.x  = wp->position.x << 16;
+    wp->position_fixed.v.y  = wp->position.y << 16;
+    wp->position_fixed.v.z  = wp->position.z << 16;
+    wp->position_fixed_prev = wp->position_fixed.v;
+    wp->position_prev       = wp->position;
+    wp->model.color_B4      = 0x2808080;
     Model_work_init(wp, NULL);
     func_801123AC(wp);
     wp->count_F = 0;
@@ -182,8 +182,7 @@ void func_801121D0(ST14_PROP *wp)
 
 void func_801123AC(ST14_PROP *wp)
 {
-    func_800341BC(&wp->position, wp->count_F * 3 + 0x40, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                  0x8000020, 0, 0x80);
+    func_800341BC(&wp->position, wp->count_F * 3 + 0x40, 0, 0xA000, wp->value_1, &wp->hit_BC, 0x8000020, 0, 0x80);
     wp->hit_BC = 0;
     wp->hit_C0 = 0;
     wp->hit_C4 = 0;

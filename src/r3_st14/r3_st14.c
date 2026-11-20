@@ -434,8 +434,7 @@ void func_80100D00(STAGE_ROOM *wp)
 // func_80116D94).
 void func_80100EF0(STAGE_ROOM *wp)
 {
-    if (wp->routine_8 == 0xFF || (wp->tbl_A4[1](wp), func_8001DE84() != 0) ||
-        wp->reserved09[1] == 1)
+    if (wp->routine_8 == 0xFF || (wp->tbl_A4[1](wp), func_8001DE84() != 0) || wp->reserved09[1] == 1)
     {
         wp->routine_5 = 0;
         wp->routine_4++;

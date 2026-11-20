@@ -390,13 +390,11 @@ void func_80125D68(ST05_PROP *wp)
     {
         wp->velocity.v.x = 0x300;
     }
-    row      = D_801322E4[wp->routine_2];
-    target.x = D_801322CC[row[0]][0] << 8;
-    target.z = D_801322CC[row[0]][1] << 8;
-    target.y = wp->position.y;
-    wp->rotation.y =
-        (wp->rotation.y + Muku(&wp->position, &target, wp->rotation.y, wp->turn_64)) &
-        0xFFF;
+    row            = D_801322E4[wp->routine_2];
+    target.x       = D_801322CC[row[0]][0] << 8;
+    target.z       = D_801322CC[row[0]][1] << 8;
+    target.y       = wp->position.y;
+    wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &target, wp->rotation.y, wp->turn_64)) & 0xFFF;
     if ((sint16)func_80125F34(wp) != 0)
     {
         wp->routine_1 = 2;
@@ -885,18 +883,15 @@ void func_80126F10(STAGE_SHOT *wp)
     }
     if (wp->type_3 & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005,
-                      0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_c)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4,
-                      flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
 }
 

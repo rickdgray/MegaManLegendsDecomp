@@ -120,7 +120,7 @@ void func_8010C994(STAGE_OBJ *wp, ST17_BOSS *ext)
         ext->hit_D0[i].value_0 = 0;
         ext->timer_130[i]      = 0xFF;
     }
-    life = ext->life_max_B8[9] + ext->life_max_B8[0] + ext->life_max_B8[1] + ext->life_max_B8[2];
+    life             = ext->life_max_B8[9] + ext->life_max_B8[0] + ext->life_max_B8[1] + ext->life_max_B8[2];
     wp->life_max_B0  = life;
     wp->life_prev_B2 = life;
     wp->life_6E      = life;
@@ -721,8 +721,7 @@ void func_8010DA94(STAGE_OBJ *wp, ST17_BOSS *ext)
             wp->routine_2++;
             break;
         case 3:
-            if ((ext->arm_4 != NULL && ext->arm_4->value_C != 0) ||
-                (ext->arm_8 != NULL && ext->arm_8->value_C != 0))
+            if ((ext->arm_4 != NULL && ext->arm_4->value_C != 0) || (ext->arm_8 != NULL && ext->arm_8->value_C != 0))
             {
                 ext->timer_18 = 0;
                 wp->routine_2++;
@@ -1054,8 +1053,7 @@ void func_8010E514(STAGE_OBJ *wp, ST17_BOSS *ext)
     }
     for (i = 0; i < 12; i++)
     {
-        func_800341BC(&ext->pos_20[i], D_8011BE40[i].pad, 0, 0x8000, wp->value_1, &ext->hit_D0[i],
-                      0x04880000, 0, 0x80);
+        func_800341BC(&ext->pos_20[i], D_8011BE40[i].pad, 0, 0x8000, wp->value_1, &ext->hit_D0[i], 0x04880000, 0, 0x80);
     }
     func_80051B68(wp, 1, -1, 0);
 }
@@ -1072,8 +1070,7 @@ void func_8010E660(STAGE_OBJ *wp, ST17_BOSS *ext)
             }
             for (ext->value_13F = 0; ext->value_13F < 7; ext->value_13F++)
             {
-                if (((ext->flags_140 >> ext->value_13F) & 1) &&
-                    !((ext->flags_141 >> ext->value_13F) & 1))
+                if (((ext->flags_140 >> ext->value_13F) & 1) && !((ext->flags_141 >> ext->value_13F) & 1))
                 {
                     wp->routine_3 = 1;
                     break;

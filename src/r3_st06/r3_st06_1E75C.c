@@ -5,8 +5,7 @@ void func_8011E75C(ST06_BOAT *wp)
 {
     wp->color_B4 = 0x808080;
     D_8012B7CC[wp->routine_0](wp, &wp->ctl_CC);
-    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->value_1, &wp->ctl_CC.hit_10, 0x4880000, 0,
-                  0x80);
+    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->value_1, &wp->ctl_CC.hit_10, 0x4880000, 0, 0x80);
     wp->ctl_CC.hit_10 = 0;
 }
 

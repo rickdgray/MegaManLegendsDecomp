@@ -97,9 +97,7 @@ void func_80104E28(ST04_ACTOR *wp)
             func_80063BC8(&wp->position, 2, 0, wp->timer_C);
             // fall through
         case 1:
-            wp->rotation.y = (wp->rotation.y +
-                              Muku(&wp->position, &ctl->target_C, wp->rotation.y, 0x20)) &
-                             0xFFF;
+            wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_C, wp->rotation.y, 0x20)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
             dx = wp->position.x - ctl->target_C.x;
             dz = wp->position.z - ctl->target_C.z;
@@ -159,7 +157,7 @@ void func_8010506C(ST04_ACTOR *wp)
             }
             break;
         case 2:
-            step = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            step           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             if ((sint16)step == 0 && !func_8003A13C())
             {
@@ -219,14 +217,11 @@ sint32 func_8010528C(ST04_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -234,8 +229,7 @@ sint32 func_8010528C(ST04_ACTOR *wp)
         D_80111D50.x = wp->value_180.x;
         D_80111D50.y = wp->value_180.y - 0x20;
         D_80111D50.z = wp->value_180.z;
-        func_80039FAC(&D_80111D50, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_80111D50, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;

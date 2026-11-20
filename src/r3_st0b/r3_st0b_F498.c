@@ -73,8 +73,7 @@ void func_8010F534(STCOM18_WORK *wp)
     wp->data_10  = NULL;
     wp->value_78 = 0;
     wp->hit_BC   = 0;
-    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                  wp->kind_E | 0x8000000, 0, 0x80);
+    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
     if (func_80049C24(wp))
     {
         wp->routine_0 = 2;
@@ -136,8 +135,7 @@ void func_8010F6F8(STCOM18_WORK *wp)
     }
     else
     {
-        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC,
-                      wp->kind_E | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
         wp->hit_BC = 0;
         hit        = func_80049C24(wp);
         if (hit)
@@ -307,8 +305,7 @@ void func_8010FC18(ST0B_10C_B *wp)
     }
     if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14,
-                      D_8011B640[wp->byte_D] | 0x49000000, 0, 0x80);
+        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14, D_8011B640[wp->byte_D] | 0x49000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -348,8 +345,7 @@ STCOM_SVECTOR func_8011010C(ST0B_10C_B *wp)
     d.x = Player_work.position.x - wp->position.x;
     d.y = Player_work.position.y - wp->position.y;
     d.z = Player_work.position.z - wp->position.z;
-    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E ||
-        d.z < -0x687E)
+    if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E || d.z < -0x687E)
     {
         d.x >>= 2;
         d.y >>= 2;

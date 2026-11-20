@@ -412,8 +412,7 @@ void func_80100F00(STAGE_ROOM *wp)
             if (wp->routine_8 != 0xFF)
             {
                 wp->tbl_A4[1](wp);
-                if (func_8001DE84() && !(wp->reserved09[1] & 0x80) && Sound_fade_flags == 0 &&
-                    D_80098A72 == 0)
+                if (func_8001DE84() && !(wp->reserved09[1] & 0x80) && Sound_fade_flags == 0 && D_80098A72 == 0)
                 {
                     wp->reserved09[1] |= 1;
                     func_80101548(1, 0);
@@ -2123,8 +2122,8 @@ void func_801042D0(ST0D_LIFT *wp, ST0D_PATH *path)
         fx->value_C   = wp->value_1;
         fx->flags_6 |= 0x20;
     }
-    origin[1] = &wp->position;
-    origin[0] = &wp->position;
+    origin[1]     = &wp->position;
+    origin[0]     = &wp->position;
     path->grid_28 = func_80108468((STAGE_OBJ *)wp, 2, origin[0]);
     wp->routine_1 = 0;
     wp->routine_0++;

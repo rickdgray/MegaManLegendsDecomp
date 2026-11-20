@@ -26,13 +26,11 @@ void stcom06_func_0000(STCOM06_WORK *wp)
     {
         if (wp->routine_2 != 0)
         {
-            func_800341BC(&pos, 0x20, 0, 0x4000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0,
-                          0x80);
+            func_800341BC(&pos, 0x20, 0, 0x4000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         else
         {
-            func_800341BC(&pos, 0x20, 0, 0x8000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0,
-                          0x80);
+            func_800341BC(&pos, 0x20, 0, 0x8000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         func_80051BAC(wp);
     }

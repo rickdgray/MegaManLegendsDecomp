@@ -54,16 +54,12 @@ void stcom32_func_004C(STCOM32_WORK *wp)
         wp->u_14.sprite.z_C     = wp->pos_38.z;
         if (wp->variant_3 != 3)
         {
-            wp->u_14.sprite.tpage_0 =
-                ((stcom32_D_0078[i].clut_y6 << 6) | (stcom32_D_0078[i].clut_x4 / 16)) << 16 |
-                (stcom32_D_0078[i].tp_1 << 7 | stcom32_D_0078[i].abr_2 << 5 |
-                 stcom32_D_0078[i].page_3);
+            wp->u_14.sprite.tpage_0 = ((stcom32_D_0078[i].clut_y6 << 6) | (stcom32_D_0078[i].clut_x4 / 16)) << 16 |
+                                      (stcom32_D_0078[i].tp_1 << 7 | stcom32_D_0078[i].abr_2 << 5 | stcom32_D_0078[i].page_3);
         }
         else
         {
-            wp->u_14.sprite.tpage_0 = (stcom32_D_0078[i].tp_1 << 7 | stcom32_D_0078[i].abr_2 << 5 |
-                                       stcom32_D_0078[i].page_3) |
-                                      0x3EC00000;
+            wp->u_14.sprite.tpage_0 = (stcom32_D_0078[i].tp_1 << 7 | stcom32_D_0078[i].abr_2 << 5 | stcom32_D_0078[i].page_3) | 0x3EC00000;
             wp->u_14.sprite.y_A -= wp->u_14.sprite.w_10;
         }
     }

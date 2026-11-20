@@ -51,7 +51,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -97,7 +97,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             }
             break;
         case 8:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -129,7 +129,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             }
             break;
         case 12:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -147,7 +147,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             }
             break;
         case 15:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -215,7 +215,7 @@ void func_8010D680(ST06_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -278,14 +278,11 @@ sint32 func_8010D8A4(ST06_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -293,8 +290,7 @@ sint32 func_8010D8A4(ST06_ACTOR *wp)
         D_8012BA20.x = wp->value_180.x;
         D_8012BA20.y = wp->value_180.y - 0x20;
         D_8012BA20.z = wp->value_180.z;
-        func_80039FAC(&D_8012BA20, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_8012BA20, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;
@@ -1046,7 +1042,7 @@ void func_8010EE38(ST06_ACTOR *wp)
             }
             break;
         case 2:
-            turn = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
+            turn           = Muku(&wp->position, &pl->position, wp->rotation.y, wp->turn_64);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
@@ -1101,14 +1097,11 @@ sint32 func_8010F024(ST06_ACTOR *wp)
     {
         if ((sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) < 0)
         {
-            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position,
-                                                           wp->rotation.y, 0x800) >>
-                          3;
+            wp->turn_64 = (uint32) - (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         else
         {
-            wp->turn_64 =
-                (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
+            wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
         pl->flags_0 &= ~2;
@@ -1116,8 +1109,7 @@ sint32 func_8010F024(ST06_ACTOR *wp)
         D_8012BA40.x = wp->value_180.x;
         D_8012BA40.y = wp->value_180.y - 0x20;
         D_8012BA40.z = wp->value_180.z;
-        func_80039FAC(&D_8012BA40, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800,
-                      D_800A396C);
+        func_80039FAC(&D_8012BA40, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
         return 1;
     }
     return 0;
@@ -1429,8 +1421,7 @@ void func_8010F8B0(ST06_CRAB *wp)
                 probe.z += 0x6C;
             }
             front = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->value_1);
-            if ((front - wp->position_prev.y < 0 ? wp->position_prev.y - front
-                                                 : front - wp->position_prev.y) > 0)
+            if ((front - wp->position_prev.y < 0 ? wp->position_prev.y - front : front - wp->position_prev.y) > 0)
             {
                 done = 1;
                 ctl->flags_4 |= 0x1000;
@@ -1447,8 +1438,7 @@ void func_8010F8B0(ST06_CRAB *wp)
                     probe.x += 0x6C;
                 }
                 side = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->value_1);
-                if ((side - wp->position_prev.y < 0 ? wp->position_prev.y - side
-                                                    : side - wp->position_prev.y) > 0)
+                if ((side - wp->position_prev.y < 0 ? wp->position_prev.y - side : side - wp->position_prev.y) > 0)
                 {
                     done = 1;
                     ctl->flags_4 |= 0x1000;
@@ -2003,8 +1993,7 @@ sint32 func_80110A54(ST06_CRAB *wp)
 {
     wp->ctl.kind_C     = D_80098844[wp->kind_2]->value_A;
     wp->ctl.hit_pos_10 = wp->joint_180[0];
-    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18,
-                  wp->ctl.kind_C | 0x4880000, 0x800000, 0);
+    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
     return 1;
 }
 
@@ -2268,13 +2257,11 @@ void func_80111264(ST06_CRAB *wp)
             side         = func_80030418(wp, pl, &size, &out);
             if (side & 1)
             {
-                wp->rotation.y =
-                    (sint16)(wp->rotation.y - 0x10) - ((wp->u_C.ub.byte_D << 24) >> 22);
+                wp->rotation.y = (sint16)(wp->rotation.y - 0x10) - ((wp->u_C.ub.byte_D << 24) >> 22);
             }
             else if (!(side & 2))
             {
-                wp->rotation.y =
-                    (sint16)(wp->rotation.y + 0x10) + ((wp->u_C.ub.byte_D << 24) >> 22);
+                wp->rotation.y = (sint16)(wp->rotation.y + 0x10) + ((wp->u_C.ub.byte_D << 24) >> 22);
             }
             wp->value_44.half[0] = 0x200;
             wp->rotation.y &= 0xFFF;
@@ -2620,8 +2607,7 @@ sint32 func_80111D54(ST06_CRAB *wp)
 {
     wp->ctl.kind_C     = D_80098844[wp->kind_2]->value_A;
     wp->ctl.hit_pos_10 = wp->joint_180[0];
-    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18,
-                  wp->ctl.kind_C | 0x4880000, 0x800000, 0);
+    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
     return 1;
 }
 

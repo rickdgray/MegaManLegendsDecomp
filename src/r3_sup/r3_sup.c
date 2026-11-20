@@ -114,8 +114,7 @@ void func_801D8490(void)
 
 void func_801D8524(void)
 {
-    func_80023728(&D_801DC208.vec_0c, D_801DC208.value_1c, D_801DC208.value_20,
-                  D_801DC208.value_24);
+    func_80023728(&D_801DC208.vec_0c, D_801DC208.value_1c, D_801DC208.value_20, D_801DC208.value_24);
 }
 
 void func_801D8564(void)
@@ -283,24 +282,12 @@ void func_801D8824(void)
 
 void func_801D8B68(void)
 {
-    D_801DC208.vec_0c.vx = (D_801DC208.vec_28.vx * D_801DC208.value_0a +
-                            D_801DC208.value_44 * (16 - D_801DC208.value_0a)) >>
-                           4;
-    D_801DC208.vec_0c.vy = (D_801DC208.vec_28.vy * D_801DC208.value_0a +
-                            D_801DC208.value_48 * (16 - D_801DC208.value_0a)) >>
-                           4;
-    D_801DC208.vec_0c.vz = (D_801DC208.vec_28.vz * D_801DC208.value_0a +
-                            D_801DC208.value_4c * (16 - D_801DC208.value_0a)) >>
-                           4;
-    D_801DC208.value_1c  = (D_801DC208.value_38 * D_801DC208.value_0a +
-                            D_801DC208.value_54 * (16 - D_801DC208.value_0a)) >>
-                           4;
-    D_801DC208.value_20  = (D_801DC208.value_3c * D_801DC208.value_0a +
-                            D_801DC208.value_58 * (16 - D_801DC208.value_0a)) >>
-                           4;
-    D_801DC208.value_24  = (D_801DC208.value_40 * D_801DC208.value_0a +
-                            D_801DC208.value_5c * (16 - D_801DC208.value_0a)) >>
-                           4;
+    D_801DC208.vec_0c.vx = (D_801DC208.vec_28.vx * D_801DC208.value_0a + D_801DC208.value_44 * (16 - D_801DC208.value_0a)) >> 4;
+    D_801DC208.vec_0c.vy = (D_801DC208.vec_28.vy * D_801DC208.value_0a + D_801DC208.value_48 * (16 - D_801DC208.value_0a)) >> 4;
+    D_801DC208.vec_0c.vz = (D_801DC208.vec_28.vz * D_801DC208.value_0a + D_801DC208.value_4c * (16 - D_801DC208.value_0a)) >> 4;
+    D_801DC208.value_1c  = (D_801DC208.value_38 * D_801DC208.value_0a + D_801DC208.value_54 * (16 - D_801DC208.value_0a)) >> 4;
+    D_801DC208.value_20  = (D_801DC208.value_3c * D_801DC208.value_0a + D_801DC208.value_58 * (16 - D_801DC208.value_0a)) >> 4;
+    D_801DC208.value_24  = (D_801DC208.value_40 * D_801DC208.value_0a + D_801DC208.value_5c * (16 - D_801DC208.value_0a)) >> 4;
 }
 
 void func_801D8CC8(sint32 i)
@@ -666,10 +653,7 @@ void func_801D9794(void)
     if (Joy1.pressed & 0x4008)
     {
         func_80053AA4(0);
-        func_8005C224(
-            (D_8008D8EC +
-             D_801DC208.value_60 * 20)[Player_work.level_4f4[D_801DC0C8[D_801DC208.value_60]][0]] *
-            10);
+        func_8005C224((D_8008D8EC + D_801DC208.value_60 * 20)[Player_work.level_4f4[D_801DC0C8[D_801DC208.value_60]][0]] * 10);
         MojiTaskExec(0, SUP_SCRIPT, 0x99);
         D_801DC208.anim_94  = 8;
         D_801DC208.value_90 = 1;
@@ -840,8 +824,7 @@ void func_801D9C74(void)
     }
     if (D_801DC208.routine_2 == 3 && D_801DC208.routine_3 >= 5 && D_801DC208.routine_3 < 8)
     {
-        j = (D_8008D7E8[i][D_801DC208.value_96] +
-             1)[*(Player_work.level_4f4[D_801DC0C8[i]] + D_801DC208.value_96)];
+        j = (D_8008D7E8[i][D_801DC208.value_96] + 1)[*(Player_work.level_4f4[D_801DC0C8[i]] + D_801DC208.value_96)];
         if (j != 0)
         {
             func_801DA7DC(j, D_801DC208.value_96 * 12, 1);
@@ -1360,8 +1343,7 @@ sint32 func_801DB43C(void)
                 goto clear_2;
             }
         }
-        else if (Sce_flag_test(key.b[0] | 0x500) && Sce_flag_test(key.b[1] | 0x500) &&
-                 Sce_flag_test(key.b[2] | 0x500))
+        else if (Sce_flag_test(key.b[0] | 0x500) && Sce_flag_test(key.b[1] | 0x500) && Sce_flag_test(key.b[2] | 0x500))
         {
             Sce_flag_off(key.b[2] | 0x500);
         clear_2:

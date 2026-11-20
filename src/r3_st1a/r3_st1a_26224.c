@@ -598,8 +598,7 @@ void func_8012751C(ST1A_50 *wp)
     STCOM_GTE_RTPS();
     STCOM_GTE_STSXY(&sxy_pos);
     if (b.x != a.x && (b.z - a.z) * (player.x - a.x) / (b.x - a.x) + a.z < player.z &&
-        ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) ||
-         (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
+        ((sxy_player.x < sxy_edge.x && sxy_pos.x < sxy_player.x) || (sxy_edge.x < sxy_player.x && sxy_player.x < sxy_pos.x)))
     {
         wp->color_40 = 0x2404040;
         return;

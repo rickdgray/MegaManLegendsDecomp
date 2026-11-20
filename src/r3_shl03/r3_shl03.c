@@ -157,12 +157,10 @@ void func_800D8D5C(SHL_WORK *wp)
     flags = func_800375D4(&Player_work, 3);
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->value_1, &wp->col_c4,
-                      flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->value_1, &wp->col_c4,
-                      flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }

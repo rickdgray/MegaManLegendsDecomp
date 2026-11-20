@@ -127,8 +127,7 @@ void func_80121418(ST1A_PIECES *wp)
         prev.x = (wp->position_fixed.v.x + step.x * n) >> 16;
         prev.y = (wp->position_fixed.v.y + step.y * n) >> 16;
         prev.z = (wp->position_fixed.v.z + step.z * n) >> 16;
-        func_8003430C(&pos, 0x48, &prev, 0x48, 0x200, 0xA000, wp->value_1,
-                      (uint32 *)wp->piece_CC + i, 0x9000030, 0, 0x80);
+        func_8003430C(&pos, 0x48, &prev, 0x48, 0x200, 0xA000, wp->value_1, (uint32 *)wp->piece_CC + i, 0x9000030, 0, 0x80);
         (wp->piece_CC + i)->words[0] = 0;
         (wp->piece_CC + i)->words[1] = 0;
     }
@@ -142,8 +141,7 @@ void func_80121418(ST1A_PIECES *wp)
         prev.x = (wp->position_fixed.v.x + step.x * n) >> 16;
         prev.y = (wp->position_fixed.v.y + step.y * n) >> 16;
         prev.z = (wp->position_fixed.v.z + step.z * n) >> 16;
-        func_8003430C(&pos, 0x48, &prev, 0x48, 0x200, 0xA000, wp->value_1,
-                      (uint32 *)wp->piece_CC + i, 0x9000030, 0, 0x80);
+        func_8003430C(&pos, 0x48, &prev, 0x48, 0x200, 0xA000, wp->value_1, (uint32 *)wp->piece_CC + i, 0x9000030, 0, 0x80);
         (wp->piece_CC + i)->words[0] = 0;
         (wp->piece_CC + i)->words[1] = 0;
     }
@@ -665,8 +663,7 @@ void func_801226E4(ST1A_DART *wp)
             v.x = wp->target_B8->x - wp->position.x;
             v.y = wp->target_B8->y - wp->position.y;
             v.z = wp->target_B8->z - wp->position.z;
-            if ((uint32)(v.x + 0x687E) > 0xD0FC || (uint32)(v.y + 0x687E) > 0xD0FC ||
-                (uint32)(v.z + 0x687E) > 0xD0FC)
+            if ((uint32)(v.x + 0x687E) > 0xD0FC || (uint32)(v.y + 0x687E) > 0xD0FC || (uint32)(v.z + 0x687E) > 0xD0FC)
             {
                 v.x >>= 2;
                 v.y >>= 2;
@@ -735,8 +732,7 @@ void func_80122A24(ST1A_10C *wp)
         {
             Sound_call2(0x1F6, &wp->position);
             count = 3;
-            angle = ratan2(Player_work.position.x - wp->position.x,
-                           Player_work.position.z - wp->position.z);
+            angle = ratan2(Player_work.position.x - wp->position.x, Player_work.position.z - wp->position.z);
             if (STAGE_GAME.value_5B >= 2)
             {
                 count = 5;
@@ -769,13 +765,11 @@ void func_80122BC8(ST1A_10C *wp)
 {
     if (STAGE_GAME.value_5B >= 2)
     {
-        func_800341BC(&wp->position, wp->position_AC.pad / 2, 0, 0xA000, wp->value_1, &wp->value_C4,
-                      0x040A0060, 0, 0x80);
+        func_800341BC(&wp->position, wp->position_AC.pad / 2, 0, 0xA000, wp->value_1, &wp->value_C4, 0x040A0060, 0, 0x80);
     }
     else
     {
-        func_800341BC(&wp->position, wp->position_AC.pad / 2, 0, 0xA000, wp->value_1, &wp->value_C4,
-                      0x040A0040, 0, 0x80);
+        func_800341BC(&wp->position, wp->position_AC.pad / 2, 0, 0xA000, wp->value_1, &wp->value_C4, 0x040A0040, 0, 0x80);
     }
     wp->value_C4 = 0;
 }
@@ -857,10 +851,8 @@ void func_80122DEC(STAGE_PROP *wp)
         return;
     }
     rest = n - i;
-    func_80036A88((wp->position_prev.x * rest + wp->position.x * i) / n,
-                  (wp->position_prev.y * rest + wp->position.y * i) / n,
-                  (wp->position_prev.z * rest + wp->position.z * i) / n,
-                  (wp->position_prev.pad * rest + wp->position.pad * i) / n);
+    func_80036A88((wp->position_prev.x * rest + wp->position.x * i) / n, (wp->position_prev.y * rest + wp->position.y * i) / n,
+                  (wp->position_prev.z * rest + wp->position.z * i) / n, (wp->position_prev.pad * rest + wp->position.pad * i) / n);
     if (++wp->routine_2 > wp->routine_3)
     {
         Close_SHL_WORK(wp);
@@ -882,10 +874,8 @@ void func_80122FA0(STAGE_PROP *wp)
         return;
     }
     rest = n - i;
-    func_80036A88((wp->position_prev.x * rest + wp->position.x * i) / n,
-                  (wp->position_prev.y * rest + wp->position.y * i) / n,
-                  (wp->position_prev.z * rest + wp->position.z * i) / n,
-                  (wp->position_prev.pad * rest + wp->position.pad * i) / n);
+    func_80036A88((wp->position_prev.x * rest + wp->position.x * i) / n, (wp->position_prev.y * rest + wp->position.y * i) / n,
+                  (wp->position_prev.z * rest + wp->position.z * i) / n, (wp->position_prev.pad * rest + wp->position.pad * i) / n);
     if (++wp->routine_2 > wp->routine_3)
     {
         Close_SHL_WORK(wp);
@@ -1186,13 +1176,11 @@ void func_80123C00(ST1A_COPY *wp)
             wp->color_B4 = 0x808080;
             wp->speed_4C = 0x60;
             wp->routine_2++;
-            ctl->timer_4 = Distance_xz(&ctl->owner_34->position, &Player_work.position) /
-                           (wp->speed_4C + 0x10);
+            ctl->timer_4 = Distance_xz(&ctl->owner_34->position, &Player_work.position) / (wp->speed_4C + 0x10);
             Sound_call2(0x1DA, &wp->position);
             // fall through
         case 1:
-            func_8002FFC4(&wp->position, &wp->position_fixed.v, ctl->owner_34->rotation.y,
-                          wp->speed_4C * 16, 0, 0);
+            func_8002FFC4(&wp->position, &wp->position_fixed.v, ctl->owner_34->rotation.y, wp->speed_4C * 16, 0, 0);
             if (--ctl->timer_4 < 0)
             {
                 wp->routine_2++;
@@ -1201,8 +1189,7 @@ void func_80123C00(ST1A_COPY *wp)
             }
             break;
         case 2:
-            func_8002FFC4(&wp->position, &wp->position_fixed.v, ctl->owner_34->rotation.y,
-                          wp->speed_4C * 16, 0, 0);
+            func_8002FFC4(&wp->position, &wp->position_fixed.v, ctl->owner_34->rotation.y, wp->speed_4C * 16, 0, 0);
             wp->color_B4 -= 0x101010;
             if (--ctl->timer_4 < 0)
             {

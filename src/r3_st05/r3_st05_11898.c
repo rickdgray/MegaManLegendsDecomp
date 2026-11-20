@@ -32,7 +32,7 @@ void func_80111898(ST05_WAGON *wp)
         wp->position_fixed.v.y = wp->position.y << 16;
         wp->position_fixed.v.z = wp->position.z << 16;
         link                   = (ST05_WALKER *)ctl->link_34;
-        wp->rotation.y = (wp->rotation.y + (link->rotation.y - link->rotation_prev.y)) & 0xFFF;
+        wp->rotation.y         = (wp->rotation.y + (link->rotation.y - link->rotation_prev.y)) & 0xFFF;
     }
     D_80131380[wp->routine_0](wp);
     if (wp->anim_prev_AD != wp->anim_AC)
@@ -77,8 +77,7 @@ void func_80111898(ST05_WAGON *wp)
     {
         ctl->hit_pos_C = wp->joint_180[0];
         ctl->hit_pos_C.y += 0x38;
-        func_800341BC(&ctl->hit_pos_C, 0x100, 0, 0x8000, wp->value_1, &ctl->value_14,
-                      ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->hit_pos_C, 0x100, 0, 0x8000, wp->value_1, &ctl->value_14, ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->value_14 = 0;
 }
@@ -294,8 +293,7 @@ void func_80112284(STAGE_OBJ *obj)
             wp->ctl.timer_4 = 0x20;
             D_80137F30[0]   = owner->position;
             D_80137F38      = ((STAGE_OBJ *)wp->ctl.link_34)->position_fixed.v;
-            func_8002FFC4(D_80137F30, &D_80137F38, ((STAGE_OBJ *)wp->ctl.link_34)->rotation.y,
-                          0x100, 0, 0);
+            func_8002FFC4(D_80137F30, &D_80137F38, ((STAGE_OBJ *)wp->ctl.link_34)->rotation.y, 0x100, 0, 0);
             wp->turn_66 = Muku(&wp->position, D_80137F30, wp->rotation.y, 0x800) >> 5;
             // fall through
         case 1:
@@ -412,11 +410,9 @@ void func_801126CC(ST05_WAGON *wp)
             wp->routine_2 = 2;
             // fall through
         case 2:
-            turn           = Muku(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8],
-                                           wp->rotation.y, 0x20);
+            turn           = Muku(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8], wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
-            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8],
-                                           *ctl->value_3C, 0x10);
+            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8], *ctl->value_3C, 0x10);
             *ctl->value_3C = (*ctl->value_3C + pitch) & 0xFFF;
             if (ctl->timer_38 != 0)
             {
@@ -429,8 +425,7 @@ void func_801126CC(ST05_WAGON *wp)
             }
             break;
         case 3:
-            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8],
-                                           *ctl->value_3C, 0x10);
+            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8], *ctl->value_3C, 0x10);
             *ctl->value_3C = (*ctl->value_3C + pitch) & 0xFFF;
             if (D_80138024 == wp->variant_3 && ctl->timer_38 == 0 && wp->value_80 < 0xC80000)
             {
@@ -514,11 +509,9 @@ void func_80112B58(ST05_WAGON *wp)
             wp->routine_2 = 2;
             // fall through
         case 2:
-            turn           = Muku(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8],
-                                           wp->rotation.y, 0x20);
+            turn           = Muku(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8], wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
-            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8],
-                                           *ctl->value_3C, 0x10);
+            pitch          = func_80031CA4(&wp->joint_180[ctl->side_3A], &ctl->pl_54->joint_3A8[8], *ctl->value_3C, 0x10);
             *ctl->value_3C = (*ctl->value_3C + pitch) & 0xFFF;
             if (ctl->timer_38 != 0)
             {
@@ -531,8 +524,7 @@ void func_80112B58(ST05_WAGON *wp)
             }
             break;
         case 3:
-            pitch = func_80031CA4(&wp->joint_180[wp->ctl.side_3A], &wp->ctl.pl_54->joint_3A8[8],
-                                  *wp->ctl.value_3C, 0x10);
+            pitch             = func_80031CA4(&wp->joint_180[wp->ctl.side_3A], &wp->ctl.pl_54->joint_3A8[8], *wp->ctl.value_3C, 0x10);
             *wp->ctl.value_3C = (*wp->ctl.value_3C + pitch) & 0xFFF;
             if (wp->ctl.timer_38 == 0 && wp->value_80 < D_801313C8[wp->variant_3])
             {
@@ -579,9 +571,8 @@ void func_80112B58(ST05_WAGON *wp)
                 {
                     break;
                 }
-                if (func_80031DCC(&wp->position_fixed.v, ((STAGE_OBJ *)ctl->link_34)->rotation.y,
-                                  0x600, &ctl->pl_54->position_fixed, ctl->pl_54->rotation.y,
-                                  0x800) != 0)
+                if (func_80031DCC(&wp->position_fixed.v, ((STAGE_OBJ *)ctl->link_34)->rotation.y, 0x600, &ctl->pl_54->position_fixed,
+                                  ctl->pl_54->rotation.y, 0x800) != 0)
                 {
                     break;
                 }
@@ -645,8 +636,7 @@ void func_80113100(ST05_WAGON *wp)
             ctl->value_8  = 0;
             // fall through
         case 1:
-            turn           = Muku(&wp->position, &D_801380A0[wp->u_C.b.byte_D]->position,
-                                           wp->rotation.y, 0x20);
+            turn           = Muku(&wp->position, &D_801380A0[wp->u_C.b.byte_D]->position, wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn < 0)
             {
@@ -711,8 +701,7 @@ void func_801132AC(ST05_WAGON *wp)
             wp->u_E.b.byte_E |= 0x80;
             // fall through
         case 1:
-            turn           = Muku(&wp->position, &D_801380A0[wp->u_C.b.byte_D]->position,
-                                           wp->rotation.y, 0x20);
+            turn           = Muku(&wp->position, &D_801380A0[wp->u_C.b.byte_D]->position, wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (ctl->timer_4 == 0)
             {
@@ -787,13 +776,11 @@ void func_801134E0(ST05_WAGON *wp)
             Sound_call2(0xE2, &wp->position);
             // fall through
         case 2:
-            turn = Muku(&wp->position, &ctl->pl_54->joint_3A8[8], wp->rotation.y, 0x80);
-            wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
-            pitch =
-                func_80031CA4(&wp->joint_180[3], &ctl->pl_54->joint_3A8[8], ctl->value_40[0], 0x80);
+            turn             = Muku(&wp->position, &ctl->pl_54->joint_3A8[8], wp->rotation.y, 0x80);
+            wp->rotation.y   = (wp->rotation.y + turn) & 0xFFF;
+            pitch            = func_80031CA4(&wp->joint_180[3], &ctl->pl_54->joint_3A8[8], ctl->value_40[0], 0x80);
             ctl->value_40[0] = (ctl->value_40[0] + pitch) & 0xFFF;
-            roll =
-                func_80031CA4(&wp->joint_180[5], &ctl->pl_54->joint_3A8[8], ctl->value_40[1], 0x80);
+            roll             = func_80031CA4(&wp->joint_180[5], &ctl->pl_54->joint_3A8[8], ctl->value_40[1], 0x80);
             ctl->value_40[1] = (ctl->value_40[1] + roll) & 0xFFF;
             if (turn == 0 && pitch == 0 && roll == 0)
             {
@@ -900,8 +887,7 @@ void func_801137AC(ST05_WALKER *wp)
     {
         ctl->hit_pos_C = wp->pos_180;
         ctl->hit_pos_C.y -= 0x40;
-        func_800341BC(&ctl->hit_pos_C, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_14,
-                      ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->hit_pos_C, 0xC8, 0, 0x8000, wp->value_1, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->hit_14 = 0;
 }
@@ -969,13 +955,12 @@ void func_801139EC(ST05_WALKER *wp)
     }
     wp->u_C.b.byte_C &= 0xF0;
     // Pointer arithmetic, not life_A[...]: it keeps retail's addu operand order.
-    wp->value_B2 = wp->value_B0 = wp->value_6E =
-        *(D_80098844[wp->kind_2]->life_A + wp->variant_3) * 32;
-    wp->data_78            = D_8013143C;
-    wp->value_10           = 0;
-    wp->position.y         = func_80048E6C(wp);
-    wp->position_fixed.v.y = wp->position.y << 16;
-    wp->scale.v.pad        = 0x4210;
+    wp->value_B2 = wp->value_B0 = wp->value_6E = *(D_80098844[wp->kind_2]->life_A + wp->variant_3) * 32;
+    wp->data_78                                = D_8013143C;
+    wp->value_10                               = 0;
+    wp->position.y                             = func_80048E6C(wp);
+    wp->position_fixed.v.y                     = wp->position.y << 16;
+    wp->scale.v.pad                            = 0x4210;
     Model_work_init(wp, &wp->variant_3);
     wp->scale.words[0]          = 0x2000200;
     wp->scale.words[1]          = 0x200;
@@ -1052,8 +1037,8 @@ void func_80113E6C(ST05_WALKER *wp)
                     D_80137F4C = D_801380A0[D_801317C0[i][1]];
                     D_80137F50 = D_801380B8[D_801317C0[i][0]];
                     D_80137F54 = D_801380B8[D_801317C0[i][1]];
-                    if (((D_80137F48->u_E.b.byte_F | D_80137F4C->u_E.b.byte_F) & 0x40) &&
-                        !(D_80137F48->u_E.b.byte_E & 0x4C) && !(D_80137F4C->u_E.b.byte_E & 0x4C))
+                    if (((D_80137F48->u_E.b.byte_F | D_80137F4C->u_E.b.byte_F) & 0x40) && !(D_80137F48->u_E.b.byte_E & 0x4C) &&
+                        !(D_80137F4C->u_E.b.byte_E & 0x4C))
                     {
                         D_80137F48->u_C.b.byte_D = D_801317C0[i][1];
                         D_80137F48->u_E.b.byte_E |= 2;
@@ -1114,8 +1099,7 @@ void func_80113E6C(ST05_WALKER *wp)
                 wp->routine_1 = D_801317C8[wp->variant_3];
                 break;
             case 9:
-                if (func_80031DCC(&wp->position_fixed.v, wp->rotation.y, 0x400,
-                                  &ST05_PL.position_fixed, ST05_PL.rotation.y, 0x800))
+                if (func_80031DCC(&wp->position_fixed.v, wp->rotation.y, 0x400, &ST05_PL.position_fixed, ST05_PL.rotation.y, 0x800))
                 {
                     func_80116528(wp);
                 }
@@ -1321,15 +1305,13 @@ void func_8011476C(ST05_WALKER *wp)
             }
             // fall through
         case 2:
-            if ((((wp->rotation.y - (sint16)Angle_xz_svector(&wp->position, &ctl->target_40)) +
-                  0x200) &
-                 0xFFF) < 0x400)
+            if ((((wp->rotation.y - (sint16)Angle_xz_svector(&wp->position, &ctl->target_40)) + 0x200) & 0xFFF) < 0x400)
             {
                 wp->routine_2 = 3;
             }
             // fall through
         case 3:
-            turn = Muku(&wp->position, &ctl->target_40, wp->rotation.y, wp->turn_66);
+            turn           = Muku(&wp->position, &ctl->target_40, wp->rotation.y, wp->turn_66);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             Obj_pos_set(wp, wp->speed_44, 0, 0);
             if (turn == 0)
@@ -1376,8 +1358,7 @@ void func_8011493C(ST05_WALKER *wp)
             }
             // fall through
         case 2:
-            turn = Muku(&wp->position, &ctl->target_40, (wp->rotation.y + 0x800) & 0xFFF,
-                                 wp->turn_66);
+            turn           = Muku(&wp->position, &ctl->target_40, (wp->rotation.y + 0x800) & 0xFFF, wp->turn_66);
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             Obj_pos_set(wp, -wp->speed_44, 0, 0);
             if (turn == 0)
@@ -1524,9 +1505,7 @@ void func_80114DB8(ST05_WALKER *wp)
             }
             else
             {
-                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40,
-                                                                 wp->rotation.y, 0x800)) &
-                                 0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40, wp->rotation.y, 0x800)) & 0xFFF;
             }
             if (wp->speed_44 < D_8013179C[wp->variant_3])
             {
@@ -1582,9 +1561,7 @@ void func_80114FF4(ST05_WALKER *wp)
             }
             else
             {
-                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40,
-                                                                 wp->rotation.y, 0x800)) &
-                                 0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40, wp->rotation.y, 0x800)) & 0xFFF;
             }
             if (wp->speed_44 < D_8013179C[wp->variant_3])
             {
@@ -1637,9 +1614,7 @@ void func_801151E8(ST05_WALKER *wp)
             }
             else
             {
-                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40,
-                                                                 wp->rotation.y, 0x800)) &
-                                 0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40, wp->rotation.y, 0x800)) & 0xFFF;
             }
             if (wp->speed_44 < D_8013179C[wp->variant_3])
             {
@@ -1672,8 +1647,7 @@ void func_80115430(ST05_WALKER *wp)
             wp->routine_3 = 2;
             wp->accel_4C  = D_801317A4[wp->variant_3] >> 1;
             wp->ctl.flags_0 |= 0x100;
-            if ((wp->ctl.flags_0 & 0x40) &&
-                wp->ctl.node_3C->link_C[(wp->ctl.dir_4A + 2) & 3] != dist)
+            if ((wp->ctl.flags_0 & 0x40) && wp->ctl.node_3C->link_C[(wp->ctl.dir_4A + 2) & 3] != dist)
             {
                 wp->routine_3 = 3;
                 wp->ctl.mask_50 |= 0x8000 >> ((wp->ctl.value_4B + 2) & 3);
@@ -1716,10 +1690,7 @@ void func_80115430(ST05_WALKER *wp)
             }
             else
             {
-                wp->rotation.y =
-                    (wp->rotation.y + Muku(&wp->position, &ctl->target_40,
-                                                    (wp->rotation.y + 0x800) & 0xFFF, 0x800)) &
-                    0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40, (wp->rotation.y + 0x800) & 0xFFF, 0x800)) & 0xFFF;
             }
             goto move;
         case 3:
@@ -1779,8 +1750,7 @@ void func_801157E4(ST05_WALKER *wp)
             wp->routine_3 = 2;
             wp->accel_4C  = D_801317A4[wp->variant_3] >> 1;
             wp->ctl.flags_0 |= 0x100;
-            if ((wp->ctl.flags_0 & 0x40) &&
-                wp->ctl.node_3C->link_C[(wp->ctl.dir_4A + 2) & 3] != dist)
+            if ((wp->ctl.flags_0 & 0x40) && wp->ctl.node_3C->link_C[(wp->ctl.dir_4A + 2) & 3] != dist)
             {
                 wp->routine_3 = 3;
                 wp->ctl.mask_50 |= 0x8000 >> ((wp->ctl.value_4B + 2) & 3);
@@ -1823,10 +1793,7 @@ void func_801157E4(ST05_WALKER *wp)
             }
             else
             {
-                wp->rotation.y =
-                    (wp->rotation.y + Muku(&wp->position, &ctl->target_40,
-                                                    (wp->rotation.y + 0x800) & 0xFFF, 0x800)) &
-                    0xFFF;
+                wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->target_40, (wp->rotation.y + 0x800) & 0xFFF, 0x800)) & 0xFFF;
             }
             goto move;
         case 3:
@@ -1998,7 +1965,7 @@ sint32 func_80115E98(ST05_WALKER *wp)
     ctl  = &wp->ctl;
     if (wp->variant_3 == 1)
     {
-        dir = (uint32)((Angle_xz_svector(&wp->position, &Player_work.position) + 0x200) & 0xFFF) >> 10;
+        dir  = (uint32)((Angle_xz_svector(&wp->position, &Player_work.position) + 0x200) & 0xFFF) >> 10;
         link = wp->ctl.node_38->link_C[dir];
         if (link != -1 && wp->ctl.node_id_49 != link && !(wp->ctl.mask_50 & (0x8000 >> dir)))
         {
@@ -2023,9 +1990,7 @@ sint32 func_80115E98(ST05_WALKER *wp)
     }
     if (wp->variant_3 == 0)
     {
-        p = &open.dir[(uint32)((Angle_xz_svector(&wp->position, &Player_work.position) + 0x200) &
-                               0xFFF) >>
-                      10];
+        p = &open.dir[(uint32)((Angle_xz_svector(&wp->position, &Player_work.position) + 0x200) & 0xFFF) >> 10];
         if (*p != 0 && count >= 2)
         {
             *p = 0;
@@ -2104,8 +2069,7 @@ sint32 func_80116254(ST05_WALKER *wp)
         if (ctl->hit_14 & 0x38000000)
         {
             wp->ctl.part_34->u_E.b.byte_F |= 1;
-            if ((wp->value_6E <= 0 ||
-                 (wp->value_B2 = wp->value_6E, (wp->value_6E -= damage) <= 0)) &&
+            if ((wp->value_6E <= 0 || (wp->value_B2 = wp->value_6E, (wp->value_6E -= damage) <= 0)) &&
                 !(wp->ctl.part_34->u_E.b.byte_E & 0x80))
             {
                 Sound_call2(0xA2, &wp->position);

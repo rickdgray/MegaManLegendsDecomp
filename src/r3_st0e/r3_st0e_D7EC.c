@@ -37,7 +37,7 @@ void func_8010D8E4(STAGE_OBJ *wp)
     sint16 temp_v0;
 
     wp->position_fixed.f.x.words.fraction += wp->position_fixed.f.pad.words.fraction;
-    temp_v0 = (uint16)wp->position_fixed.f.pad.words.integer + (uint16)wp->position_prev.y;
+    temp_v0                                = (uint16)wp->position_fixed.f.pad.words.integer + (uint16)wp->position_prev.y;
     wp->position_fixed.f.pad.words.integer = temp_v0;
     wp->position_fixed.f.x.words.integer += temp_v0;
     wp->position_fixed.f.y.words.fraction += (uint16)wp->position_prev.x;
@@ -115,8 +115,7 @@ void func_8010D9F8(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
     }
 }
 
-void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos, sint32 from,
-                   sint32 to)
+void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos, sint32 from, sint32 to)
 {
     ST0E_GLOW *fx;
     ST0E_SPARK *spark;

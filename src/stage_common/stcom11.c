@@ -45,8 +45,7 @@ void stcom11_func_003C(STCOM11_WORK *wp)
             wp->routine_3  = 120;
             wp->timer_E    = 0;
             wp->velocity.x = (uint32)(-rsin(wp->angle_64) * 9) >> 10;
-            wp->velocity.y =
-                (pl->value_3EA - wp->position.y) / (((sint32)func_80030254(wp, pl) + 36) / 36);
+            wp->velocity.y = (pl->value_3EA - wp->position.y) / (((sint32)func_80030254(wp, pl) + 36) / 36);
             wp->velocity.z = (uint32)(-rcos(wp->angle_64) * 9) >> 10;
             wp->accel.x    = 0;
             wp->accel.y    = 0;
@@ -149,8 +148,8 @@ void stcom11_func_0308(STCOM11_WORK *wp)
     }
     else if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1,
-                      &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
+                      0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -208,8 +207,8 @@ void stcom11_func_0564(STCOM11_WORK *wp)
     }
     else if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1,
-                      &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
+                      0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -267,8 +266,8 @@ void stcom11_func_077C(STCOM11_WORK *wp)
     }
     else if (wp->flags_0 & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1,
-                      &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
+                      0x80);
     }
     wp->sprite.hit_14 = 0;
 }

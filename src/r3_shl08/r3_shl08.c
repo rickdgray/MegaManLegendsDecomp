@@ -89,8 +89,7 @@ void func_800D8AE0(SHL08_WORK *wp)
                 d.vx = wp->target.pos.vx - wp->pos.vx;
                 d.vy = wp->target.pos.vy - wp->pos.vy;
                 d.vz = wp->target.pos.vz - wp->pos.vz;
-                if (d.vx < -0x687E || d.vx > 0x687E || d.vy < -0x687E || d.vy > 0x687E ||
-                    d.vz < -0x687E || d.vz > 0x687E)
+                if (d.vx < -0x687E || d.vx > 0x687E || d.vy < -0x687E || d.vy > 0x687E || d.vz < -0x687E || d.vz > 0x687E)
                 {
                     d.vx >>= 2;
                     d.vy >>= 2;
@@ -138,13 +137,11 @@ void func_800D8E38(SHL08_WORK *wp)
     p.vz  = wp->old_pos.vz;
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->value_1, &wp->col_c4,
-                      flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->value_1, &wp->col_c4,
-                      flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }
 

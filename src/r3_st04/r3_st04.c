@@ -30,8 +30,8 @@ void func_80100268(void)
     STAGE_MAP_WORK_PTR->z0    = STAGE_MAP_TBL[Game_work.value_51].z0;
     STAGE_MAP_WORK_PTR->x1    = STAGE_MAP_WORK_PTR->x0 + STAGE_MAP_WORK_PTR->w;
     STAGE_MAP_WORK_PTR->z1    = STAGE_MAP_WORK_PTR->z0 + STAGE_MAP_WORK_PTR->h;
-    cells               = STAGE_MAP_TBL[Game_work.value_51].cells;
-    pl                  = ST04_PL;
+    cells                     = STAGE_MAP_TBL[Game_work.value_51].cells;
+    pl                        = ST04_PL;
     STAGE_MAP_WORK_PTR->info  = STAGE_CELL_INFO;
     STAGE_MAP_WORK_PTR->cells = cells;
     if (Game_work.value_51 == 0)
@@ -53,8 +53,8 @@ void func_80100268(void)
             D_8010AAA2 = 0x1B;
         }
     }
-    pl->value_44E       = 0;
-    spawn               = D_8010AA84[Game_work.value_51];
+    pl->value_44E             = 0;
+    spawn                     = D_8010AA84[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8010AC4C[Game_work.value_51];
     func_8002EA50(spawn, D_800C356D);
     func_800371A0(D_8010AD54[D_8010AD9C[Game_work.value_51]], D_8010AC64[Game_work.value_51]);
@@ -143,11 +143,11 @@ void func_80100594(STAGE_ROOM *wp)
                 stcom36_func_0028(2);
                 if (!Sce_flag_test(0x20))
                 {
-                    lead            = func_8001EB98(&D_8010C9DC[0]);
-                    ep              = func_8001EB98(&D_8010C9DC[1]);
-                    ep->value_C4    = lead->position;
-                    ep              = func_8001EB98(&D_8010C9DC[2]);
-                    ep->value_C4    = lead->position;
+                    lead         = func_8001EB98(&D_8010C9DC[0]);
+                    ep           = func_8001EB98(&D_8010C9DC[1]);
+                    ep->value_C4 = lead->position;
+                    ep           = func_8001EB98(&D_8010C9DC[2]);
+                    ep->value_C4 = lead->position;
                     func_8001EB98(&D_8010C9DC[3]);
                     wp->routine_4 = 10;
                 }
@@ -899,14 +899,14 @@ void func_80101C1C(STAGE_ROOM *wp)
             {
                 Sce_event_timer_clear();
                 func_8001E6C0(0, 0, 0);
-                D_800BC7F0               = D_8010BFE8;
-                wp->tbl_A4               = D_8010BFD8;
-                STAGE_PL.routine_0       = 3;
-                STAGE_PL.routine_1       = 1;
-                STAGE_PL.fixed_428.x     = -0x20 << 16;
-                STAGE_PL.fixed_428.y     = -1 << 16;
-                STAGE_PL.fixed_428.z     = 0x130 << 16;
-                STAGE_PL.flags_bd       |= 0x10;
+                D_800BC7F0           = D_8010BFE8;
+                wp->tbl_A4           = D_8010BFD8;
+                STAGE_PL.routine_0   = 3;
+                STAGE_PL.routine_1   = 1;
+                STAGE_PL.fixed_428.x = -0x20 << 16;
+                STAGE_PL.fixed_428.y = -1 << 16;
+                STAGE_PL.fixed_428.z = 0x130 << 16;
+                STAGE_PL.flags_bd |= 0x10;
                 func_80030150(&pl->fixed_428, &pl->pos_438);
                 STAGE_PL.value_440 = 0;
                 STAGE_PL.value_442 = 0;

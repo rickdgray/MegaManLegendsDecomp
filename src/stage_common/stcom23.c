@@ -98,16 +98,14 @@ void stcom23_func_03E4(STCOM23_WORK *wp)
         d.x = wp->target_B8->x - wp->position.x;
         d.y = wp->target_B8->y - wp->position.y;
         d.z = wp->target_B8->z - wp->position.z;
-        if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E ||
-            d.z < -0x687E)
+        if (d.x > 0x687E || d.x < -0x687E || d.y > 0x687E || d.y < -0x687E || d.z > 0x687E || d.z < -0x687E)
         {
             d.x >>= 2;
             d.y >>= 2;
             d.z >>= 2;
         }
         VectorNormalS(&d, &unit);
-        func_80033F04(&dir, &unit, &wp->dir_CC, stcom23_D_0000[wp->variant_3].turn_8,
-                      stcom23_D_0000[wp->variant_3].turn_C);
+        func_80033F04(&dir, &unit, &wp->dir_CC, stcom23_D_0000[wp->variant_3].turn_8, stcom23_D_0000[wp->variant_3].turn_C);
         wp->dir_CC     = dir;
         speed          = wp->speed_6E;
         wp->velocity.x = (dir.x * speed) >> 4;
@@ -186,8 +184,8 @@ void stcom23_func_0934(STCOM23_WORK *wp)
 // Registers the hit box.
 void stcom23_func_0954(STCOM23_WORK *wp)
 {
-    func_800341BC(&wp->position, stcom23_D_0000[wp->variant_3].size_1F, 0, 0x8000, wp->index_1,
-                  &wp->hit_C4, stcom23_D_0000[wp->variant_3].hit_kind_21 | 0x40A0000, 0, 0x80);
+    func_800341BC(&wp->position, stcom23_D_0000[wp->variant_3].size_1F, 0, 0x8000, wp->index_1, &wp->hit_C4,
+                  stcom23_D_0000[wp->variant_3].hit_kind_21 | 0x40A0000, 0, 0x80);
     wp->hit_C4 = 0;
 }
 
