@@ -10,7 +10,7 @@ void func_8011AD8C(STAGE_OBJ *wp)
 {
     uint32 temp_v0;
 
-    temp_v0                = func_8003AC24(0x200000);
+    temp_v0                = Stage_hed_model_get(0x200000);
     D_8012BB18             = 0;
     wp->position_fixed.v.x = (sint32)temp_v0;
     wp->routine_0++;

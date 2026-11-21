@@ -19,7 +19,7 @@ void func_80106108(STAGE_EV *wp)
             ep->step_D    = 0;
             ep->timer_C   = 0;
             ep->value_F   = 1;
-            ep->key_1C    = func_8003AC24(D_80107E24[i + base]);
+            ep->key_1C    = Stage_hed_model_get(D_80107E24[i + base]);
             if (wp->flags_6 & 0x20)
             {
                 ep->flags_6 |= 0x20;

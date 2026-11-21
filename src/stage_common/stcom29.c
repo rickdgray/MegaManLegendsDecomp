@@ -15,7 +15,7 @@ void stcom29_func_0000(STCOM29_WORK *wp)
 
 void stcom29_func_0048(STCOM29_WORK *wp)
 {
-    wp->key_20 = func_8003AC24(stcom29_D_0000[wp->variant_3]);
+    wp->key_20 = Stage_hed_model_get(stcom29_D_0000[wp->variant_3]);
     if (wp->key_20 == 0)
     {
         Close_EVE_WORK(wp);
@@ -189,8 +189,8 @@ void stcom29_func_05E0(STCOM29_ANIM_WORK *wp)
 
 void stcom29_func_061C(STCOM29_ANIM_WORK *wp)
 {
-    wp->key_1C[0] = func_8003AC24(0x130000);
-    if (wp->key_1C[0] == 0 || (wp->key_1C[1] = func_8003AC24(0x130200)) == 0)
+    wp->key_1C[0] = Stage_hed_model_get(0x130000);
+    if (wp->key_1C[0] == 0 || (wp->key_1C[1] = Stage_hed_model_get(0x130200)) == 0)
     {
         Close_EVE_WORK(wp);
         return;

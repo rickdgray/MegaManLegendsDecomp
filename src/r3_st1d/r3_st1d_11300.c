@@ -101,7 +101,7 @@ void func_801113A4(void)
                                 RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
                                 wp->cell_44         = cell;
                                 wp->matrix.words[5] = (uint32)STAGE_CELL_TBL[cell].info;
-                                wp->matrix.words[6] = func_8003AC24(list[k].key_0);
+                                wp->matrix.words[6] = Stage_hed_model_get(list[k].key_0);
                             }
                         }
                         count++;
@@ -396,7 +396,7 @@ void func_80111D78(void)
                         if (match)
                         {
                             D_8011A758                = rec->key_0;
-                            STAGE_CELL_TBL[cell].info = (uint32 *)func_8003AC24(rec->type_4);
+                            STAGE_CELL_TBL[cell].info = (uint32 *)Stage_hed_model_get(rec->type_4);
                         }
                         wp = func_80031734();
                         if (wp != NULL)
@@ -426,7 +426,7 @@ void func_80111D78(void)
                             RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
                             wp->cell_44         = cell;
                             wp->matrix.words[5] = (uint32)STAGE_CELL_TBL[cell].info;
-                            wp->matrix.words[6] = func_8003AC24(rec->key_0);
+                            wp->matrix.words[6] = Stage_hed_model_get(rec->key_0);
                         }
                     }
                 }
@@ -445,7 +445,7 @@ void func_80111D78(void)
                             if (match)
                             {
                                 D_8011A758                = rec->key_0;
-                                STAGE_CELL_TBL[cell].info = (uint32 *)func_8003AC24(rec->type_4);
+                                STAGE_CELL_TBL[cell].info = (uint32 *)Stage_hed_model_get(rec->type_4);
                             }
                             wp = func_80031734();
                             if (wp != NULL)
@@ -475,7 +475,7 @@ void func_80111D78(void)
                                 RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
                                 wp->cell_44         = cell;
                                 wp->matrix.words[5] = (uint32)STAGE_CELL_TBL[cell].info;
-                                wp->matrix.words[6] = func_8003AC24(rec->key_0);
+                                wp->matrix.words[6] = Stage_hed_model_get(rec->key_0);
                             }
                         }
                     }

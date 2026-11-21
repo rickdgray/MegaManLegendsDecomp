@@ -8,7 +8,7 @@ void func_801119F0(STAGE_WORK *wp)
 
 void func_80111A2C(ST08_EV *wp)
 {
-    wp->key_20 = func_8003AC24(0x40100);
+    wp->key_20 = Stage_hed_model_get(0x40100);
     if (wp->key_20 == 0)
     {
         Close_EVE_WORK(wp);
@@ -57,7 +57,7 @@ void func_80111D24(STAGE_WORK *wp)
 
 void func_80111D60(ST08_EV1C *wp)
 {
-    wp->key_1C = func_8003AC24(0x30100);
+    wp->key_1C = Stage_hed_model_get(0x30100);
     if (wp->key_1C == 0)
     {
         Close_EVE_WORK(wp);

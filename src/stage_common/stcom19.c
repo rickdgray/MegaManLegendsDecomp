@@ -245,7 +245,7 @@ void stcom19_func_0640(void)
                                 RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
                                 wp->cell_44         = cell;
                                 wp->matrix.words[5] = (uint32)STCOM19_CELL_TBL[cell].info;
-                                wp->matrix.words[6] = func_8003AC24(list[k].key_0);
+                                wp->matrix.words[6] = Stage_hed_model_get(list[k].key_0);
                             }
                         }
                         count++;

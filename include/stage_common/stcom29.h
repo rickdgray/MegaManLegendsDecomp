@@ -26,7 +26,7 @@ typedef struct
     sint8 step_D;           // 0D
     sint8 timer_E;          // 0E
     uint8 reserved0F[0x11]; // 0F
-    uint32 key_20;          // 20: the model (func_8003AC24)
+    uint32 key_20;          // 20: the model (Stage_hed_model_get)
 } STCOM29_WORK;
 
 // The 0x24-byte event slot of the five-layer texture animation.
@@ -42,7 +42,7 @@ typedef struct
     uint8 step_C[5];     // 0C: each layer's step in stcom29_D_0110
     uint8 timer_11[5];   // 11
     uint8 reserved16[6]; // 16
-    uint32 key_1C[2];    // 1C: the models (func_8003AC24)
+    uint32 key_1C[2];    // 1C: the models (Stage_hed_model_get)
 } STCOM29_ANIM_WORK;
 
 // The record func_8002DC84 returns.
@@ -83,7 +83,7 @@ uint8 stcom29_func_055C(void);
 // ROCK_NEO.EXE.
 extern uint8 *D_8008CE04; // a message script
 extern uint8 *D_8008CE3C; // a message script
-uint32 func_8003AC24(uint32 key);
+uint32 Stage_hed_model_get(uint32 key);
 sint32 Sce_flag_test(sint32 flag);
 void Sce_flag_off(sint32 flag);
 sint32 func_8003B2D4(sint32 row, sint32 bit);

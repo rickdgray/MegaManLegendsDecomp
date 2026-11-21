@@ -229,7 +229,7 @@ typedef struct
         struct
         {
             uint8 reserved00[0x14];
-            uint32 key_14;   // 2C: the model (func_8003AC24)
+            uint32 key_14;   // 2C: the model (Stage_hed_model_get)
             sint32 value_18; // 30
             sint32 lit_1C;   // 34: nonzero once all three flags lit the panel
         } f;

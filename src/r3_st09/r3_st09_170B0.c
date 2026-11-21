@@ -10,7 +10,7 @@ void func_801170EC(ST09_EVENT *wp)
 {
     ST09_MODEL *model;
 
-    model = (ST09_MODEL *)func_8003AC24(0x50000);
+    model = (ST09_MODEL *)Stage_hed_model_get(0x50000);
     if (model == NULL)
     {
         Close_EVE_WORK(wp);

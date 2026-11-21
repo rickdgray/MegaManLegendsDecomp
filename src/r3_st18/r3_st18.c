@@ -805,6 +805,6 @@ void func_80101D94(void)
         ep->kind_2  = 0xB;
         ep->step_D  = 0;
         ep->timer_C = 0;
-        ep->key_1C  = func_8003AC24(0xC0000);
+        ep->key_1C  = Stage_hed_model_get(0xC0000);
     }
 }

@@ -334,6 +334,17 @@ Declaration order, `for (n = 0, i = 0; ...)` and a separate break-code local don
 permuter run from the `i`-reuse version is the next step. Moving `msg`'s assignment into the loop
 makes it longer (317).
 
+`code_8003AC24`: banked `Stage_hed_model_get` (the `Stage_hed_tbl` entry with a given id: its model word),
+`func_8003ACF4` (sets `Stage_idx_tbl[i].ptr`; no callers), `func_8003B278`, `func_8003B2D4`,
+`func_8003B360`, `func_8003B420`, `func_8003B4BC`, `func_8003B540`, `func_8003BDC0`.
+`D_800BD3B8` (`uint32[7][0x80]`) holds a 2-bit state for each of the 0x800 `Stage_idx_tbl` entries,
+one row per stage: `D_80089F04[stage_no]` (0x20 bytes) gives the row, or -1. `func_8003B2D4`/`B420`
+read a state (`B420`, `B360` for `Game_work.stage_no`; `B360` gives 0 when the entry's `val & 0xFFF`
+is 0), `B4BC` raises it by one up to 3, `B540` sets it; `func_8003B278(0)` sets every state to 3,
+`func_8003B278(1)` restores the rows from `Cd_ring_buf + 0x480` (shared memory, see "To do").
+What the states mean is open. `func_8003BDC0` counts entries 1.. whose shape's `head & 0xFFFF0000`
+is one of two kinds and whose `val` is 0, read signed (`lh`: a `(sint16)` cast in the C).
+
 ## WORK_48 kinds
 
 A slot of the effect pool `D_800A3B40` (`func_80031618` / `func_80031988`) is an object whose kind is `id_2`: the

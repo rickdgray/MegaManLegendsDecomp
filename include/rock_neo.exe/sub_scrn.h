@@ -101,7 +101,7 @@ extern MAP_SCREEN_WORK Map_screen_work;
 extern RB_PARTS Rock_buster_parts_tbl[];
 
 // The cursor's place on the map screen, per stage (vx, vy).
-extern DVECTOR D_8008DB34[];
+extern DVECTOR map_cursor_pos[];
 
 SPRT *Sub_screen_basic_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);
 SPRT *Sub_screen_status_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);

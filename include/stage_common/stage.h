@@ -228,7 +228,7 @@ void func_80039820(void);
 void func_80012F78(STAGE_THREAD_FUNC entry);
 sint32 func_8002D404(sint32 id, sint32 a1, sint32 a2, sint32 a3);
 void func_8002D320(void *model, uint32 idx, sint32 delta);
-uint32 func_8003AC24(uint32 key);
+uint32 Stage_hed_model_get(uint32 key);
 // Allocates a 0x24-byte event slot; NULL when none is free.
 void *Open_EVE_WORK(void);
 

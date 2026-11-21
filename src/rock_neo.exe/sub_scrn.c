@@ -280,7 +280,7 @@ void map_screen_set(void)
     AddPrim(&Disp_env_ptr->ot[2], ft4_buff_ptr);
 }
 
-// The blinking cursor on the map: a 16x16 POLY_FT4 at D_8008DB34's place for the current stage
+// The blinking cursor on the map: a 16x16 POLY_FT4 at map_cursor_pos's place for the current stage
 // (the area within stages 3 and 0x1B; none in stages 0x17 and 0x1D), animated by System_timer.
 void map_cursor_set(void)
 {
@@ -328,8 +328,8 @@ void map_cursor_set(void)
             break;
     }
 
-    x0           = D_8008DB34[d0].vx + 32;
-    y0           = D_8008DB34[d0].vy;
+    x0           = map_cursor_pos[d0].vx + 32;
+    y0           = map_cursor_pos[d0].vy;
     d1           = (System_timer & 7) * 16;
     ft4_buff_ptr = Map_prim_ptr++;
 

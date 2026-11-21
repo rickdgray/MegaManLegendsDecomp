@@ -92,7 +92,7 @@ void func_8011864C(STAGE_PANEL_WORK *wp)
     wp->routine_0++;
     wp->matrix.words[5] = STAGE_CELLS[wp->cell_44].value;
     // The cell's record pointer, kept without its segment bits.
-    wp->matrix.words[6] = func_8003AC24(*(uint32 *)(wp->matrix.words[5] & 0xFFFFFF) & ~0x1000);
+    wp->matrix.words[6] = Stage_hed_model_get(*(uint32 *)(wp->matrix.words[5] & 0xFFFFFF) & ~0x1000);
 }
 
 // Starts the panel turning when the player stands on it; panel 4 also draws a sprite.
@@ -626,7 +626,7 @@ void func_801196C0(void)
                                 RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
                                 wp->cell_44         = cell;
                                 wp->matrix.words[5] = (uint32)STAGE_CELL_TBL[cell].info;
-                                wp->matrix.words[6] = func_8003AC24(list[k].key_0);
+                                wp->matrix.words[6] = Stage_hed_model_get(list[k].key_0);
                             }
                         }
                         count++;

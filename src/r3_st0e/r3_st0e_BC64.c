@@ -163,7 +163,7 @@ void func_8010BFB4(ST0E_PANEL *wp)
     wp->value_A            = (wp->variant_3 - 1) * 16;
     wp->cell_44            = func_80048C60(&wp->pos_38);
     wp->cell_C             = STAGE_CELLS[wp->cell_44].value;
-    wp->matrix_18.f.key_14 = func_8003AC24(D_80110698[0]);
+    wp->matrix_18.f.key_14 = Stage_hed_model_get(D_80110698[0]);
     wp->routine_0          = 1;
     wp->routine_1          = 0;
     wp->routine_3          = 0;

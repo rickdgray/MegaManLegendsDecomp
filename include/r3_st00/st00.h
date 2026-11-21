@@ -1982,7 +1982,7 @@ typedef struct
     uint32 data_8;       // 08
 } ST00_TEX_REC;
 
-// A loaded texture set (func_8003AC24): the two CLUT records the scroller copies and animates.
+// A loaded texture set (Stage_hed_model_get): the two CLUT records the scroller copies and animates.
 typedef struct
 {
     uint8 reserved00[0x18]; // 00

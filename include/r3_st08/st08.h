@@ -201,7 +201,7 @@ sint32 func_80101360(STAGE_ROOM_WORK *wp);
 
 void func_80110C28(STAGE_OBJ50 *wp);
 
-uint32 func_8003AC24(uint32 key);
+uint32 Stage_hed_model_get(uint32 key);
 void Close_EVE_WORK(void *wp);
 extern uint8 D_80118345;
 extern uint8 D_8011837F[];

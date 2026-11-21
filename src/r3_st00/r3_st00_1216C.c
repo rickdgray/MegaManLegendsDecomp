@@ -83,7 +83,7 @@ void func_801124B0(ST00_STCOM19_WORK *wp)
     wp->cell_44 = func_80048C60(&wp->pos_38);
     wp->routine_0++;
     wp->matrix.words[5] = ST00_SLOTS[wp->cell_44].value_0;
-    wp->matrix.words[6] = func_8003AC24(*(uint32 *)(wp->matrix.words[5] & 0xFFFFFF) & ~0x1000);
+    wp->matrix.words[6] = Stage_hed_model_get(*(uint32 *)(wp->matrix.words[5] & 0xFFFFFF) & ~0x1000);
 }
 
 void func_80112568(STAGE_PANEL_WORK *wp)
@@ -1720,7 +1720,7 @@ void func_80115A88(STAGE_PANEL_WORK *wp)
         wp->matrix.m.m[1][1] = 0;
         wp->cell_44          = func_80048C60(&wp->pos_38);
         wp->matrix.words[5]  = ST00_SLOTS[wp->cell_44].value_0;
-        wp->matrix.words[6]  = func_8003AC24(0x40500);
+        wp->matrix.words[6]  = Stage_hed_model_get(0x40500);
     }
     Sce_flag_off(0x607);
 }
@@ -1897,7 +1897,7 @@ void func_80115EAC(ST00_POOL *wp)
         {
             wp->cell_44            = func_80048C60(&wp->pos_38);
             wp->cell_C             = ST00_SLOTS[wp->cell_44].value_0;
-            wp->matrix_18.f.key_14 = func_8003AC24(D_8011CD0C[wp->variant_3 & 0xF]);
+            wp->matrix_18.f.key_14 = Stage_hed_model_get(D_8011CD0C[wp->variant_3 & 0xF]);
         }
     }
     else

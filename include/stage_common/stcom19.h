@@ -107,6 +107,6 @@ STCOM_MATRIX *RotMatrixY(sint32 r, STCOM_MATRIX *m);
 STCOM19_WORK *func_80031734(void);
 void func_80031A4C(STCOM19_WORK *wp);
 void ApplyMatrix(STCOM_MATRIX *m, STCOM_SVECTOR *v, STCOM_FIXED_VECTOR *out);
-uint32 func_8003AC24(uint32 key);
+uint32 Stage_hed_model_get(uint32 key);
 
 #endif // STCOM19_H
