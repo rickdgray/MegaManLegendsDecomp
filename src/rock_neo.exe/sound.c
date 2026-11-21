@@ -160,7 +160,7 @@ void Sound_stage_slot_set(sint32 which)
 
     if (which == 0)
     {
-        stage = Game_work.unk051;
+        stage = Game_work.area_no;
     }
     else
     {
@@ -196,7 +196,7 @@ void Sound_stage_check(void)
     if (list != 0)
     {
         id = list[D_800C356F];
-        if (id == 0xFFFF || Sound_stage_id_tbl[Game_work.unk050][Game_work.unk051] != id)
+        if (id == 0xFFFF || Sound_stage_id_tbl[Game_work.stage_no][Game_work.area_no] != id)
         {
             changed = 1;
         }
@@ -222,16 +222,16 @@ void Sound_stage_play(void)
     sint32 ok;
     uint16 id;
 
-    if (Sound_stage_func_tbl[Game_work.unk050] != 0)
+    if (Sound_stage_func_tbl[Game_work.stage_no] != 0)
     {
-        Sound_stage_func_tbl[Game_work.unk050](0);
+        Sound_stage_func_tbl[Game_work.stage_no](0);
     }
-    list = Sound_stage_id_tbl[Game_work.unk050];
+    list = Sound_stage_id_tbl[Game_work.stage_no];
     id   = 0;
     ok   = 0;
     if (list != 0)
     {
-        id = list[Game_work.unk051];
+        id = list[Game_work.area_no];
         ok = id != 0xFFFF;
     }
     if (ok)
@@ -305,9 +305,9 @@ void Sound_reverb_set(sint32 idx)
 void func_80019FB4(void)
 {
     D_80098958 |= 0x800;
-    if (Sound_stage_func_tbl[Game_work.unk050] != 0)
+    if (Sound_stage_func_tbl[Game_work.stage_no] != 0)
     {
-        Sound_stage_func_tbl[Game_work.unk050](0);
+        Sound_stage_func_tbl[Game_work.stage_no](0);
     }
 }
 

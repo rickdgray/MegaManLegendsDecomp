@@ -29,14 +29,14 @@ void func_80013578(CODE_800133D8_WORK *wp)
     wp->routine_3 ^= 1;
     if (wp->routine_3 != 0)
     {
-        Game_work.unk050 = 1;
-        Game_work.unk051 = 0;
+        Game_work.stage_no = 1;
+        Game_work.area_no  = 0;
     }
     else
     {
-        // Each arm sets both bytes: one shared unk051 store after the join schedules differently.
-        Game_work.unk050 = 7;
-        Game_work.unk051 = 0;
+        // Each arm sets both bytes: one shared area_no store after the join schedules differently.
+        Game_work.stage_no = 7;
+        Game_work.area_no  = 0;
     }
     Game_work.unk082 = -0x80;
     func_80012F78(func_800155A4);

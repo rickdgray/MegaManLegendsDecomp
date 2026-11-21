@@ -1,5 +1,8 @@
 #include "common.h"
 #include "code_8006430C.h"
+#include "psyq/libapi.h"
+#include "game.h"
+#include "pad.h"
 
 // Small data (.sdata 0x8009808C-0x8009809C): reached through $gp in this file.
 sint32 D_8009808C = 0x30307562;
@@ -22,19 +25,97 @@ static sint32 D_80098720;
 static sint32 D_80098724;
 static sint16 D_80098728[4];
 
+// Pool variables reached through $gp in this file.
+SPEC_ENT **D_80098844;
+SPEC_ENT **D_8009884C;
+CODE_8006430C_WORK D_80098910;
+SPEC_ENT **D_80098928;
+SPEC_ENT **D_8009892C;
+uint8 D_80098A04;
+
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006430C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006471C);
+void func_8006471C(void)
+{
+    if (Game_work.unk05B == 2)
+    {
+        D_80098844 = D_8008F060;
+        D_8009884C = D_8008F200;
+        D_80098928 = D_8008F260;
+        D_8009892C = D_8008F2E4;
+    }
+    else
+    {
+        D_80098844 = D_8008EDC4;
+        D_8009884C = D_8008EF64;
+        D_80098928 = D_8008EFC4;
+        D_8009892C = D_8008F048;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006479C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006491C);
+sint32 func_8006491C(void)
+{
+    for (;;)
+    {
+        if (TestEvent(D_80098708) != 0)
+        {
+            return 0;
+        }
+        if (TestEvent(D_80098710) != 0)
+        {
+            return 1;
+        }
+        if (TestEvent(D_80098714) != 0)
+        {
+            return 2;
+        }
+        if (TestEvent(D_8009870C) != 0)
+        {
+            return 3;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80064984);
+sint32 func_80064984(void)
+{
+    for (;;)
+    {
+        if (TestEvent(D_80098718) != 0)
+        {
+            return 0;
+        }
+        if (TestEvent(D_80098720) != 0)
+        {
+            return 1;
+        }
+        if (TestEvent(D_8009871C) != 0)
+        {
+            return 2;
+        }
+        if (TestEvent(D_80098724) != 0)
+        {
+            return 3;
+        }
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800649EC);
+void func_800649EC(void)
+{
+    TestEvent(D_80098708);
+    TestEvent(D_80098710);
+    TestEvent(D_8009870C);
+    TestEvent(D_80098714);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80064A34);
+void func_80064A34(void)
+{
+    TestEvent(D_80098718);
+    TestEvent(D_80098720);
+    TestEvent(D_8009871C);
+    TestEvent(D_80098724);
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80064A7C);
 
@@ -64,9 +145,21 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80065E08);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800664BC);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800665E8);
+void func_800665E8(void)
+{
+    D_80098910.active_0              = 0;
+    *(uint32 *)&D_80098910.routine_0 = 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800665FC);
+// Returns the routine's result (1 once it is done): the in-game save screen (r3_sup) adds it to
+// its routine.
+sint32 func_800665FC(sint16 mode)
+{
+    D_80098910.mode_2    = mode;
+    D_80098910.pad_on_A  = PAD_ON(Joy1);
+    D_80098910.pad_now_8 = PAD_NOW(Joy1);
+    return D_8008FD10[D_80098910.routine_0](&D_80098910);
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066664);
 
@@ -83,7 +176,13 @@ sint32 func_80066714(CODE_8006430C_WORK *wp)
     return 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066750);
+sint32 func_80066750(CODE_8006430C_WORK *wp)
+{
+    wp->active_0              = 0;
+    *(uint32 *)&wp->routine_0 = 0;
+    wp->routine_0             = 0; // the build needs this store after the word clear
+    return 1;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066764);
 
@@ -105,9 +204,24 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_800679B8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067B7C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067D10);
+void func_80067D10(void)
+{
+    D_8008FA84[0] = D_80098124[D_80098A04 + 1];
+    D_8008FA84[9] = D_80098124[D_80098805];
+    D_8008FA84[8] = D_80098124[D_80098804];
+    D_8008FA84[6] = D_80098124[D_80098803];
+    D_8008FA84[5] = D_80098124[D_80098802];
+    D_8008FA84[3] = D_80098124[D_80098801];
+    D_8008FA84[2] = D_80098124[D_80098800];
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067E18);
+void func_80067E18(void)
+{
+    D_800BE428 = 0x3F00;
+    D_800BE42C = 0x18;
+    D_800BE430 = 0x80;
+    D_800BE434 = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067E4C);
 

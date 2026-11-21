@@ -84,7 +84,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FA94);
 
 void func_8001FB24(void)
 {
-    if (Game_work.unk052 == 6)
+    if (Game_work.sce_no == 6)
     {
         D_80098208[0] = D_80098208[1] = D_8009820C[0] = D_8009820C[1] = 0x67;
     }
@@ -98,7 +98,7 @@ void func_8001FB54(void)
 {
     sint16 id;
 
-    switch (Game_work.unk052)
+    switch (Game_work.sce_no)
     {
         case 0:
         case 1:
@@ -123,7 +123,7 @@ void func_8001FB8C(void)
 {
     sint16 id;
 
-    switch (Game_work.unk052)
+    switch (Game_work.sce_no)
     {
         case 0:
         case 1:
@@ -150,7 +150,7 @@ void func_8001FCA4(void)
 {
     sint16 id;
 
-    switch (Game_work.unk052)
+    switch (Game_work.sce_no)
     {
         case 0:
         case 1:

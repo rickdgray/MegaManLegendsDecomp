@@ -8,7 +8,7 @@
 typedef struct SCENE_WORK SCENE_WORK;
 
 typedef void (*SCENE_EVENT_FUNC)(SCENE_WORK *sw);
-typedef void (*STAGE_FUNC)(void); // one per Game_work.unk050 (D_8008980C)
+typedef void (*STAGE_FUNC)(void); // one per Game_work.stage_no (D_8008980C)
 
 // One 8-byte entry of an event table (D_8009039C).
 typedef struct
@@ -135,7 +135,7 @@ extern sint16 D_80089200[];
 extern sint16 D_80089204[];
 extern sint16 D_80089208[];
 
-// One function per Game_work.unk050, called by func_8001F740 after func_8001F798(unk050).
+// One function per Game_work.stage_no, called by func_8001F740 after func_8001F798(stage_no).
 extern STAGE_FUNC D_8008980C[];
 
 sint32 Sce_flag_test(sint32 flag);

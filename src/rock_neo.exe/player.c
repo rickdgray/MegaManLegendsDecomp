@@ -1,4 +1,7 @@
 #include "common.h"
+#include "code_80043F34.h"
+#include "game.h"
+#include "player.h"
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003BE40);
 
@@ -128,7 +131,19 @@ void func_800402BC(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800402C4);
+sint32 func_800402C4(PL_WORK *pl)
+{
+    if (pl->unk11C & pl->keys_124[0])
+    {
+        if (pl->unk11C & pl->keys_124[8])
+        {
+            pl->routine_9           = 1;
+            *(uint16 *)&pl->field_A = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8004030C);
 
@@ -142,13 +157,40 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800404FC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040574);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800405F4);
+sint32 func_800405F4(PL_WORK *pl)
+{
+    if (pl->unk11C & (pl->keys_124[2] | pl->keys_124[3]))
+    {
+        pl->routine_9           = 4;
+        *(uint16 *)&pl->field_A = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040630);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800406A8);
+sint32 func_800406A8(PL_WORK *pl)
+{
+    if (pl->unk11E & pl->keys_124[10])
+    {
+        pl->routine_9           = 7;
+        *(uint16 *)&pl->field_A = 0;
+        return 1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800406DC);
+sint32 func_800406DC(PL_WORK *pl)
+{
+    if (pl->unk11E & pl->keys_124[10])
+    {
+        pl->routine_9           = 8;
+        *(uint16 *)&pl->field_A = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040710);
 
@@ -156,9 +198,30 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040764);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040818);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040AEC);
+sint32 func_80040AEC(PL_WORK *pl)
+{
+    uint16 pad;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040B34);
+    pad = pl->unk11C;
+    if (Game_work.unk083 == 1 || (pad & pl->keys_124[14]))
+    {
+        pl->routine_9           = 14;
+        *(uint16 *)&pl->field_A = 0;
+        return 1;
+    }
+    return 0;
+}
+
+sint32 func_80040B34(PL_WORK *pl)
+{
+    if (pl->unk11C & pl->keys_124[13])
+    {
+        pl->routine_9           = 5;
+        *(uint16 *)&pl->field_A = 0;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040B68);
 
@@ -200,20 +263,44 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042094);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042154);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042208);
+sint32 func_80042208(void)
+{
+    if (Player_work[0].unk6E >= 0)
+    {
+        Player_work[0].unk449 = 1;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042238);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042314);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", Pl00_shot_enable_off);
+void Pl00_shot_enable_off(PL_WORK *pl)
+{
+    pl->unk174 = 0;
+    pl->unk177 = 0;
+    pl->unk175 &= ~1;
+    pl->set_104      = pl->idx_AC;
+    pl->cmd_100.b.b0 = pl->cmd_A4.b.b0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", Pl00_shot_enable_on);
+void Pl00_shot_enable_on(PL_WORK *pl)
+{
+    pl->unk175 |= 1;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800423DC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042458);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800424D4);
+void func_800424D4(PL_WORK *pl, W48_80_WORK *wp)
+{
+    wp->routine_0 = 7;
+    wp->id_2      = 0x80;
+    wp->type_3    = 2;
+    wp->pos_38    = pl->joint_pos[pl->field_A >> 1];
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042528);

@@ -26,8 +26,13 @@ typedef struct PL_WORK
     uint8 unk00;
     uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (func_80035724)
     uint8 unk02[7];
-    uint8 unk09; // 0x09: lbu; 3 while the pad-driven state of func_800482A8 applies
-    uint8 unk0A[0x14 - 0x0A];
+    uint8 routine_9; // 0x09: player state; the state checks (func_800402C4, ...) set it and clear
+                     // field_A and field_B with one halfword store; 3 is the pad-driven state of
+                     // func_800482A8
+    uint8 field_A;   // 0x0A: step within the state; field_A >> 1 picks the joint_pos func_800424D4
+                     // copies
+    uint8 field_B;
+    uint8 unk0C[0x14 - 0x0C];
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
     SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
@@ -40,7 +45,9 @@ typedef struct PL_WORK
     uint8 unk70[0x74 - 0x70];
     sint8 field_74; // 0x74: same as MODEL_WORK.field_74; nonzero makes func_80042B58 call
                     // Pl00_shot_enable_off, and func_800441CC leave owner_188 alone
-    uint8 unk75[0xAC - 0x75];
+    uint8 unk75[0xA4 - 0x75];
+    KEY_CMD cmd_A4; // 0xA4: same as MODEL_WORK.cmd_A4; Pl00_shot_enable_off copies b0 to cmd_100
+    uint8 unkA8[0xAC - 0xA8];
     uint8 idx_AC; // 0xAC: same as MODEL_WORK.idx_AC; passed to func_800320B8 with a set
     uint8 unkAD[0xB0 - 0xAD];
     sint16 unkB0; // 0xB0: upper limit of unk6E (func_80043340)
@@ -57,7 +64,8 @@ typedef struct PL_WORK
     uint16 unk116; // 0x116: lhu; added to ang.vy for the camera yaw (func_800355F0)
     uint8 unk118[0x11C - 0x118];
     uint16 unk11C; // 0x11C: lhu; mask tested against keys_124[2] and [3] (func_800482A8)
-    uint8 unk11E[0x124 - 0x11E];
+    uint16 unk11E; // 0x11E: lhu; mask tested against keys_124[10] (func_800406A8, func_800406DC)
+    uint8 unk120[0x124 - 0x120];
     uint16 keys_124[16];   // 0x124: pad-bit masks, one row of D_8008A04C (func_800425FC)
     uint16 key_pair[8][2]; // 0x144: [0] is the OR of two keys_124 masks, [1] one of the two
                            // (func_800425FC)
@@ -90,15 +98,21 @@ typedef struct PL_WORK
     uint8 unk420[0x428 - 0x420];
     VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
     SVECTOR svec_438; // 0x438: rounded copy of pos_428
-    uint8 unk440[0x44C - 0x440];
+    uint8 unk440[0x449 - 0x440];
+    sint8 unk449; // 0x449: sb; set to 1 by func_80042208 when unk6E is not negative
+    uint8 unk44A[0x44C - 0x44A];
     sint8 unk44C; // 0x44C: bits read and cleared by func_80042B58 (bit 1: spd.vx = -0x280,
                   // bit 0: unk110 = -1)
     uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8
     uint8 unk44E[0x450 - 0x44E];
-    uint8 ids_450[3]; // 0x450: entries of ids_454; Sce_flag_off clears the flag's id here too
+    // 0x450: the equipped buster parts (ids as in rb_parts_sort_data; Capcom's name, sub_scrn.c);
+    // Sce_flag_off clears the flag's id here too
+    uint8 rb_parts_equip_data[3];
     uint8 unk453;
-    uint8 ids_454[32]; // 0x454: ids (flag - 0x4FF) of the set scene flags 0x500-0x51F, 0 = empty;
-                       // Sce_flag_on adds to the first empty entry, Sce_flag_off removes
+    // 0x454: the buster parts owned (ids = scene flag 0x500-0x51F - 0x4FF, 0 = empty; index of
+    // Rock_buster_parts_tbl + 1), in the sub screen's sort order (Capcom's name, sub_scrn.c).
+    // Sce_flag_on adds to the first empty entry, Sce_flag_off removes
+    uint8 rb_parts_sort_data[32];
     uint8 unk474[0x4F4 - 0x474];
     TBL_IDX rec[16]; // 0x4F4
     uint8 unk574[0x5F4 - 0x574];
@@ -111,7 +125,9 @@ extern PL_WORK *Player_work_ptr; // 0x80098A50
 void func_80041E90(PL_WORK *pl, sint16 x, sint16 y, sint16 z);
 sint32 func_80042238(PL_WORK *pl);
 void func_80042314(PL_WORK *pl);
+sint32 func_80042208(void);
 void Pl00_shot_enable_off(PL_WORK *pl);
+void Pl00_shot_enable_on(PL_WORK *pl);
 sint32 func_800423DC(PL_WORK *pl); // keyframe set for func_80042F78 (0x40-0x43)
 sint32 func_80042458(PL_WORK *pl); // keyframe set for func_80042770 (0x40-0x43)
 

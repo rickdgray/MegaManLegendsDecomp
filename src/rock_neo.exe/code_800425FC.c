@@ -243,7 +243,7 @@ void func_80042B58(PL_WORK *pl)
                 }
                 pl->unk44C = 0;
             }
-            if (pl->unk09 == 0 || pl->unk09 == 4 || pl->unk09 == 14)
+            if (pl->routine_9 == 0 || pl->routine_9 == 4 || pl->routine_9 == 14)
             {
                 pl->spd.vx += 0x80;
                 if (pl->spd.vx > 0)

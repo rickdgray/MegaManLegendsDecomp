@@ -111,6 +111,7 @@ long CloseTh(u_long thread);
 long ChangeTh(u_long thread);
 long OpenEvent(u_long desc, long spec, long mode, EVENT_FUNC func);
 long EnableEvent(u_long event);
+long TestEvent(u_long event);
 void EnterCriticalSection(void);
 void ExitCriticalSection(void);
 

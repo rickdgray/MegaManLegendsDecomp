@@ -510,7 +510,7 @@ sint32 func_80055A78(MOJI_WORK *wp)
 {
     uint8 mes_no;
 
-    if (Game_work.unk050 == wp->cmd_ptr_6C[1] && Game_work.unk051 == wp->cmd_ptr_6C[2])
+    if (Game_work.stage_no == wp->cmd_ptr_6C[1] && Game_work.area_no == wp->cmd_ptr_6C[2])
     {
         mes_no = wp->cmd_ptr_6C[3];
     }
@@ -1055,7 +1055,7 @@ sint32 func_8005958C(MOJI_WORK *wp)
     wp->call_stk_4C[wp->call_sp_C0++] = wp->cmd_ptr_6C + 3;
     if (wp->cmd_ptr_6C[1] != 0)
     {
-        wp->cmd_ptr_6C = D_8008CBA4[(sint8)Player_work[0].ids_454[wp->cmd_ptr_6C[2] + D_8009899C] - 1];
+        wp->cmd_ptr_6C = D_8008CBA4[(sint8)Player_work[0].rb_parts_sort_data[wp->cmd_ptr_6C[2] + D_8009899C] - 1];
     }
     else
     {
@@ -1064,7 +1064,7 @@ sint32 func_8005958C(MOJI_WORK *wp)
         {
             wp->cmd_ptr_6C[-1] = 3;
         }
-        wp->cmd_ptr_6C = D_8008CBA4[(sint8)Player_work[0].ids_450[wp->cmd_ptr_6C[2]] - 1];
+        wp->cmd_ptr_6C = D_8008CBA4[(sint8)Player_work[0].rb_parts_equip_data[wp->cmd_ptr_6C[2]] - 1];
     }
     return 1;
 }
@@ -1075,7 +1075,7 @@ void func_80059660(MOJI_WORK *mp)
     mp->call_stk_18[mp->call_sp_BE++] = mp->mes_ptr_14 + 3;
     if (mp->mes_ptr_14[1] != 0)
     {
-        mp->mes_ptr_14 = D_8008CBA4[(sint8)Player_work[0].ids_454[mp->mes_ptr_14[2] + D_8009899C] - 1];
+        mp->mes_ptr_14 = D_8008CBA4[(sint8)Player_work[0].rb_parts_sort_data[mp->mes_ptr_14[2] + D_8009899C] - 1];
     }
     else
     {
@@ -1084,7 +1084,7 @@ void func_80059660(MOJI_WORK *mp)
         {
             mp->mes_ptr_14[-1] = 3;
         }
-        mp->mes_ptr_14 = D_8008CBA4[(sint8)Player_work[0].ids_450[mp->mes_ptr_14[2]] - 1];
+        mp->mes_ptr_14 = D_8008CBA4[(sint8)Player_work[0].rb_parts_equip_data[mp->mes_ptr_14[2]] - 1];
     }
 }
 

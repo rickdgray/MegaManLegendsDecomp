@@ -32,12 +32,13 @@ typedef struct
     // [9 - n]); count not confirmed (9 fills the gap)
     uint32 unk028[9];
     uint32 unk04C; // 0x4C: func_80043340 adds the amount when player 0's unk6E is lowered
-    sint8 unk050;  // 0x50: lb; indexes Sound_stage_func_tbl in func_80019FB4
-    sint8 unk051;  // 0x51: lb; indexes the list at Sound_stage_id_tbl[unk050] in Sound_stage_play
-    sint8 unk052;  // 0x52: lb; picks the ids func_8001FB24, func_8001FB54, func_8001FB8C, func_8001FCA4 set
-    sint8 unk053;  // 0x53: lb; 1 selects a different value in func_8001997C
-    uint8 unk054;  // 0x54: cleared by func_8001326C
-    uint8 unk055;  // 0x55: cleared by func_8001326C
+    // 0x50-0x52: Capcom's names (sub_scrn.c's Map_screen_init and map_cursor_set)
+    sint8 stage_no; // 0x50: lb; indexes Sound_stage_func_tbl in func_80019FB4
+    sint8 area_no;  // 0x51: lb; indexes the list at Sound_stage_id_tbl[stage_no] in Sound_stage_play
+    sint8 sce_no;   // 0x52: lb; scenario; picks the ids func_8001FB24, func_8001FB54, func_8001FB8C, func_8001FCA4 set
+    sint8 unk053;   // 0x53: lb; 1 selects a different value in func_8001997C
+    uint8 unk054;   // 0x54: cleared by func_8001326C
+    uint8 unk055;   // 0x55: cleared by func_8001326C
     uint8 unk056[2];
     sint8 mono; // 0x58: mono sound output (volume_update: SsSetMono, CD mixed to both sides; calc_vol)
     uint8 unk059;

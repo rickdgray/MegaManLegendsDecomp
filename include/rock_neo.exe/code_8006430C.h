@@ -2,6 +2,7 @@
 #define CODE_8006430C_H
 
 #include "common.h"
+#include "code_800456D8.h"
 
 // State of this file's module: the global D_80098910, a pool common owned by this file
 // (func_800665E8 reaches offset 0 through $gp; maspsx keeps a common with an offset lui-based).
@@ -21,9 +22,40 @@ typedef struct
 } CODE_8006430C_WORK;
 
 typedef void (*CODE_8006430C_FUNC)(CODE_8006430C_WORK *wp);
+// routine_0 handlers (D_8008FD10); func_800665FC returns their result.
+typedef sint32 (*CODE_8006430C_ROUTINE_FUNC)(CODE_8006430C_WORK *wp);
 
-extern CODE_8006430C_WORK D_80098910;   // the module's state
-extern CODE_8006430C_FUNC D_8008FD20[]; // routine_1 steps of routines 1 and 2
+extern CODE_8006430C_WORK D_80098910;           // the module's state
+extern CODE_8006430C_ROUTINE_FUNC D_8008FD10[]; // routine_0 handlers
+extern CODE_8006430C_FUNC D_8008FD20[];         // routine_1 steps of routines 1 and 2
+
+// The four SPEC_ENT tables (code_800456D8.h's D_80098844, D_8009884C, D_80098928, D_8009892C)
+// func_8006471C selects: one set when Game_work.unk05B is 2, the other otherwise.
+extern SPEC_ENT *D_8008EDC4[];
+extern SPEC_ENT *D_8008EF64[];
+extern SPEC_ENT *D_8008EFC4[];
+extern SPEC_ENT *D_8008F048[];
+extern SPEC_ENT *D_8008F060[];
+extern SPEC_ENT *D_8008F200[];
+extern SPEC_ENT *D_8008F260[];
+extern SPEC_ENT *D_8008F2E4[];
+
+// Set by func_80067E18 (0x3F00, 0x18, 0x80, 0).
+extern sint32 D_800BE428;
+extern sint32 D_800BE42C;
+extern sint32 D_800BE430;
+extern sint32 D_800BE434;
+
+// func_80067D10 fills entries 0, 2, 3, 5, 6, 8 and 9 of D_8008FA84 from D_80098124, indexed by
+// D_80098A04 + 1 and by the bytes D_80098800-D_80098805.
+extern uint16 D_8008FA84[];
+extern uint16 D_80098124[];
+extern uint8 D_80098800;
+extern uint8 D_80098801;
+extern uint8 D_80098802;
+extern uint8 D_80098803;
+extern uint8 D_80098804;
+extern uint8 D_80098805;
 
 void func_8006479C(void); // opens events (OpenEvent) inside a critical section; called at init
 void func_800665E8(void); // clears active_0 and the word at 0x4

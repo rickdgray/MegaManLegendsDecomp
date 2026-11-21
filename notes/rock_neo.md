@@ -798,13 +798,13 @@ the step when `ev_ptr_A4->frame_2` (not -1) equals `timer_10`) matches with a lo
 The step has to read `sw->ev_ptr_A4->ev_0` after `sw->ev_ptr_A4++` (old pointer + 8), not a stepped local.
 Banked `Sce_event_next` the same way: written exactly as `Sce_event_update`'s step through `sw`, it matches.
 
-Also banked in `scene.c`: `func_8001F740` (`func_8001F798(Game_work.unk050)`, then
-`D_8008980C[unk050]()`, `STAGE_FUNC`), `func_8001F5E4` (reloads three files with `Cd_read_comb` when
+Also banked in `scene.c`: `func_8001F740` (`func_8001F798(Game_work.stage_no)`, then
+`D_8008980C[stage_no]()`, `STAGE_FUNC`), `func_8001F5E4` (reloads three files with `Cd_read_comb` when
 they change: `D_80089200[Player_work[0].unk16A]` → `Game_work.file_070`,
 `D_80089204[(sint8)unk16B >> 1]` → `file_072`, and when `tbl_sel >= 2`, `D_80089208[tbl_sel]` →
 `file_074`; the `file` local must be `sint32`, a `sint16` reloads the table for the store),
 `Sce_flag_off` (clears the bit; for flags 0x500-0x51F also removes `flag - 0x4FF` from
-`Player_work[0].ids_454[32]` and `ids_450[3]`; needs `p = Sce_flag; p += flag >> 3;` and `mask`/`bit`
+`Player_work[0].rb_parts_sort_data[32]` and `rb_parts_equip_data[3]`; needs `p = Sce_flag; p += flag >> 3;` and `mask`/`bit`
 locals assigned in that order), and the camera pair on `Sce_camera_work` (`SCENE_CAM_WORK`, `scene.h`; one
 object from 0x800BC730 to at least 0x800BC7F3, which splat splits into many labels; `D_800BC7F0` is its
 `arg_C0`): `func_8001E550` hands position and angles (`func_80038324`) or look-at point
@@ -838,7 +838,7 @@ split into several labels), `func_80057DF4` (writes the low bytes of `Game_work.
 into its own command's argument bytes; `sltiu`, so the counter is unsigned) and `func_80056778`.
 `func_80055BB0` needs the bit-set path written first.
 Also banked, matching: `func_800553F0` (`Sce_flag_off` of the 16-bit argument), `func_80055A78` and
-`func_8005A598` (pick byte 3 or 4 as a message of `mes_file_44` by `Game_work.unk050/051` equal to bytes
+`func_8005A598` (pick byte 3 or 4 as a message of `mes_file_44` by `Game_work.stage_no/area_no` equal to bytes
 1/2, or `Game_work.unk060` within [byte 1, byte 2]; 0xFF skips; `cmd_top_48 = cmd_ptr_6C = ...`, chained, so
 `cmd_ptr_6C` is stored first), `func_80053AA4` (`MojiTaskKill` for one entry `n`; clears Moji_flag bits
 `0x403E0000` and `0x08000000 >> n`), `func_80058C28`/`func_80058CC8` (command/text twins: push, then call into
@@ -869,7 +869,7 @@ pool words `D_80098B2C` (bytes OR'd in per entry by `func_80053B40`, read as byt
 a file; `cmd_ptr_6C = cmd_top_48 = ...`, so `cmd_top_48` is stored first; clears `unk_3E`, `unk_3C`,
 `unk_72`), `func_800557B8` (`func_80054700`'s wait, also ending once bit `0x40000` (XA) clears; clears bits
 `0x11000000`), and the twins `func_8005958C`/`func_80059660` (push, then call into `D_8008CBA4[id - 1]` with
-`id = Player_work[0].ids_454[arg2 + D_8009899C]` if `arg1`, else `ids_450[arg2]` after setting the code's
+`id = Player_work[0].rb_parts_sort_data[arg2 + D_8009899C]` if `arg1`, else `rb_parts_equip_data[arg2]` after setting the code's
 byte -1 to 0 (or 3 when `Moji_flag & 0x20000` and the next byte equals `unk_71`). The id bytes load with
 `lb`: cast to `sint8`, since typing the fields `sint8` breaks `Sce_flag_off`).
 Banked, this round: `func_800548C4` (XA wait command: first pass sets bit `0x01000000` and starts

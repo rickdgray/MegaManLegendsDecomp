@@ -94,17 +94,17 @@ void Sce_flag_off(sint32 flag)
     {
         for (i = 0; i < 32; i++)
         {
-            if (Player_work[0].ids_454[i] == flag - 0x4FF)
+            if (Player_work[0].rb_parts_sort_data[i] == flag - 0x4FF)
             {
-                Player_work[0].ids_454[i] = 0;
+                Player_work[0].rb_parts_sort_data[i] = 0;
                 break;
             }
         }
         for (i = 0; i < 3; i++)
         {
-            if (Player_work[0].ids_450[i] == flag - 0x4FF)
+            if (Player_work[0].rb_parts_equip_data[i] == flag - 0x4FF)
             {
-                Player_work[0].ids_450[i] = 0;
+                Player_work[0].rb_parts_equip_data[i] = 0;
                 break;
             }
         }
@@ -398,8 +398,8 @@ void func_8001F6C4(void)
 
 void func_8001F740(void)
 {
-    func_8001F798(Game_work.unk050);
-    D_8008980C[Game_work.unk050]();
+    func_8001F798(Game_work.stage_no);
+    D_8008980C[Game_work.stage_no]();
 }
 
 void func_8001F798(sint32 n)

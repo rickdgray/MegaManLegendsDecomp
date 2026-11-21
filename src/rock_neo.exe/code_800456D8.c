@@ -1354,7 +1354,7 @@ sint32 func_800482A8(W48_89_WORK *wp)
 {
     uint32 hit;
 
-    if (Player_work[0].unk09 == 3)
+    if (Player_work[0].routine_9 == 3)
     {
         if (wp->type_3 != 0)
         {
