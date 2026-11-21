@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Decompilation progress: bytes and functions of Capcom code compiled from matching C.
 
-Usage:  tools/progress.py [target ...]        (default: every target)
+Usage:  tools/progress.py [target ...]        (default: all; groups: all, executables, overlays)
 
 A function counts as decompiled when the linked ELF has no `NAME.NON_MATCHING` symbol for it
 (splat's macro adds one to every function still in assembly, including INCLUDE_ASM and parked
 ones). Code is attributed to source files by the yaml's code subsegments. PsyQ library objects
 (psyq/...) and hand-written assembly (subsegments named asm_...) are reported but excluded from
 the totals: neither is meant to become C. Build each target first.
+
+One target gets a table per source file; several get one line each, and a total in which the
+shared stage code (src/stage_common/, linked into several overlays) counts once.
 """
 
 import subprocess
@@ -16,16 +19,19 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import targets  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
-TARGETS = ["slus_006.03", "rock_neo.exe"]
-VRAM_BASE, ROM_BASE = 0x80010000, 0x800
+GROUPS = {"all": targets.TARGETS, "executables": targets.EXECUTABLES, "overlays": targets.OVERLAYS}
 CODE_TYPES = {"c", "asm", "hasm"}
 
 
 def subsegments(target):
-    """[(start vram, end vram, name, type)] for the main segment's subsegments, in file order."""
+    """[(start vram, end vram, name, type)] for the code segment's subsegments, in file order."""
     doc = yaml.safe_load((ROOT / f"config/{target}/{target}.yaml").read_text())
     main = next(s for s in doc["segments"] if isinstance(s, dict) and s.get("type") == "code")
+    rom, vram = main["start"], main["vram"]
     rows = []
     for sub in main["subsegments"]:
         if isinstance(sub, dict):
@@ -38,7 +44,7 @@ def subsegments(target):
     out = []
     for (off, typ, name), nxt in zip(rows, rows[1:] + [(None, None, None)]):
         if typ in CODE_TYPES and nxt[0] is not None:
-            out.append((VRAM_BASE + off - ROM_BASE, VRAM_BASE + nxt[0] - ROM_BASE, name, typ))
+            out.append((vram + off - rom, vram + nxt[0] - rom, name, typ))
     return out
 
 
@@ -72,9 +78,10 @@ def pct(a, b):
     return 100.0 * a / b if b else 0.0
 
 
-def report(target):
+def tally(target):
+    """([(file, type, done bytes, bytes, done functions, functions)], {excluded kind: [bytes, n]})."""
     funcs, asm = functions(target)
-    rows, tot = [], {"done": 0, "total": 0, "fdone": 0, "ftotal": 0}
+    rows = []
     excluded = {"psyq": [0, 0], "hand-written": [0, 0]}
     for lo, hi, name, typ in subsegments(target):
         members = [(s, n) for a, (s, n) in funcs.items() if lo <= a < hi]
@@ -88,43 +95,64 @@ def report(target):
             excluded["hand-written"][1] += len(members)
             continue
         done = [(s, n) for s, n in members if n not in asm]
-        d = sum(s for s, _ in done)
-        rows.append((name, typ, d, size, len(done), len(members)))
-        tot["done"] += d
-        tot["total"] += size
-        tot["fdone"] += len(done)
-        tot["ftotal"] += len(members)
+        rows.append((name, typ, sum(s for s, _ in done), size, len(done), len(members)))
+    return rows, excluded
 
+
+def total(rows):
+    return [sum(r[i] for r in rows) for i in (2, 3, 4, 5)]
+
+
+def line(label, d, size, fd, ft, mark=""):
+    return (f"  {label:22} {d:>8}/{size:<8} {pct(d, size):6.2f}%   "
+            f"{fd:>5}/{ft:<5} {pct(fd, ft):6.2f}%{mark}")
+
+
+def report(target):
+    import review  # tools/review.py: the owner's reviews
+
+    rows, excluded = tally(target)
+    d, size, fd, ft = total(rows)
     print(f"\n{target}")
     print(f"  {'file':22} {'bytes':>17}  {'%':>7}   {'functions':>11}  {'%':>7}")
-    print(f"  {'all Capcom code':22} {tot['done']:>8}/{tot['total']:<8} {pct(tot['done'], tot['total']):6.2f}%   "
-          f"{tot['fdone']:>5}/{tot['ftotal']:<5} {pct(tot['fdone'], tot['ftotal']):6.2f}%")
+    print(line("all Capcom code", d, size, fd, ft))
     for name, typ, d, size, fd, ft in sorted(rows, key=lambda r: (-pct(r[2], r[3]), r[0])):
-        if size == 0:
-            continue
-        mark = "" if typ == "c" else "  (asm)"
-        print(f"  {name:22} {d:>8}/{size:<8} {pct(d, size):6.2f}%   {fd:>5}/{ft:<5} {pct(fd, ft):6.2f}%{mark}")
+        if size:
+            print(line(name, d, size, fd, ft, "" if typ == "c" else "  (asm)"))
     for what, (size, n) in excluded.items():
         if n:
             print(f"  {'(excluded) ' + what:22} {size:>17}           {n:>11} functions")
-    import review  # tools/review.py: the owner's reviews
-
     st = review.status(target)
     rev = sum(v == "Yes" for v in st.values())
     chg = len(st) - rev
-    print(f"  reviewed: {rev}/{tot['fdone']} functions with C" + (f", {chg} changed since review" if chg else ""))
-    return tot
+    print(f"  reviewed: {rev}/{total(rows)[2]} functions with C" + (f", {chg} changed since review" if chg else ""))
 
 
 def main():
-    targets = sys.argv[1:] or TARGETS
-    grand = {"done": 0, "total": 0}
-    for t in targets:
-        tot = report(t)
-        grand["done"] += tot["done"]
-        grand["total"] += tot["total"]
-    if len(targets) > 1:
-        print(f"\nall targets: {grand['done']}/{grand['total']} bytes, {pct(grand['done'], grand['total']):.2f}%")
+    names = []
+    for arg in sys.argv[1:] or ["all"]:
+        if arg in GROUPS:
+            names += GROUPS[arg]
+        elif arg in targets.TARGETS:
+            names.append(arg)
+        else:
+            sys.exit(f"unknown target {arg!r}: a target, or one of {', '.join(GROUPS)}")
+    if len(names) == 1:
+        report(names[0])
+        return
+    print(f"  {'target':22} {'bytes':>17}  {'%':>7}   {'functions':>11}  {'%':>7}")
+    grand, shared = [], {}
+    for t in names:
+        rows, _ = tally(t)
+        print(line(t, *total(rows)))
+        common = set(targets.shared_files(t))
+        grand += [r for r in rows if r[0] not in common]
+        for r in rows:
+            if r[0] in common:
+                shared.setdefault(r[0], r)
+    if shared:
+        print(line("(shared stage code)", *total(shared.values())))
+    print(line("all, each file once", *total(grand + list(shared.values()))))
 
 
 if __name__ == "__main__":

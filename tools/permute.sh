@@ -13,13 +13,10 @@
 # compare one with the base using tools/permuter_diff.sh. Run it inside tmux for long runs.
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
-
-# The target is optional (rock_neo.exe when the first argument isn't a target name).
-case "${1:-}" in
-    slus_006.03 | rock_neo.exe) target=$1; shift ;;
-    *) target=rock_neo.exe ;;
-esac
+# The target is optional (rock_neo.exe when the first argument isn't a target name); target.sh
+# also changes to the repo root.
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+target=$TARGET
 
 if [ $# -lt 1 ]; then
     sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
@@ -35,14 +32,6 @@ if [ $# -gt 0 ] && [ "$1" != "--" ]; then
     shift
 fi
 [ $# -gt 0 ] && [ "$1" = "--" ] && shift
-
-case "$target" in
-    slus_006.03 | rock_neo.exe) ;;
-    *)
-        echo "unknown target: $target (slus_006.03 or rock_neo.exe)" >&2
-        exit 1
-        ;;
-esac
 
 dir="permuter/$target/$func"
 if [ ! -d "$dir" ]; then

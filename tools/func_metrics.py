@@ -9,8 +9,8 @@ each thing that makes matching harder":
     instructions + 4 per conditional branch + 12 per loop (backward branch)
     + 15 per jump table (`jr` on a register other than `ra`) + 6 per indirect call (`jalr`)
     + 2 per direct call + 3 per GTE instruction (cop2, lwc2, swc2) + 2 per mult/div
-    + 20 if it reads or writes small data through `$gp` and that data isn't in C yet (ROCK_NEO's
-      is, see rock_neo_files.md, "Small data in C"; overlays: all, untested)
+    + 20 if it reads or writes small data through `$gp` and that data isn't in C yet (never now:
+      every target's small data is defined in C; see rock_neo_files.md, "Small data in C")
 
 The weights are a first guess, checked only against the functions done so far (parked ones score
 higher than matched ones; --top prints the comparison).
@@ -21,17 +21,27 @@ call each other in a cycle share one depth. Overlays' calls into ROCK_NEO count 
 addresses are the same everywhere); indirect calls (`jalr`, tables) are invisible. Functions that
 already have C get no depth. Doing functions in increasing depth gives each one its callees'
 prototypes first.
+
+Functions come from each target's linked ELF and its yaml (build every target first); the
+instructions from the original binary (disc/extracted/ for the executables, disc/overlays/ for
+the overlays). Keys are (target, address); a shared stage file is measured in every overlay that
+links it.
 """
 
 import argparse
+import struct
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import dupe_scan  # noqa: E402
 import function_list  # noqa: E402
 import progress  # noqa: E402
+import targets  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent.parent
+EXE_DISC = {"slus_006.03": "disc/extracted/SLUS_006.03", "rock_neo.exe": "disc/extracted/ROCK_NEO.EXE"}
+EXE_VRAM, EXE_HEADER = 0x80010000, 0x800
 
 JR_RA = 0x03E00008
 W_BRANCH, W_LOOP, W_JTBL, W_JALR, W_CALL, W_GTE, W_MULDIV, W_GP = 4, 12, 15, 6, 2, 3, 2, 20
@@ -50,7 +60,7 @@ def counts(ws, base, f, e):
         c["insns"] += 1
         if op in (4, 5, 6, 7) or (op == 1 and rt in (0, 1, 16, 17)):
             c["branch"] += 1
-            if dupe_scan.find_dupes.simm16(w) < 0:
+            if w & 0x8000:   # negative offset
                 c["loop"] += 1
         elif op == 3:
             c["call"] += 1
@@ -75,33 +85,54 @@ def score(c):
             + W_MULDIV * c["muldiv"] + W_GP * c["gp"])
 
 
+def programs():
+    """[(target, words, base, [(first word, end word, name, matched, hand)])] for every target.
+
+    hand: PsyQ's library or hand-written assembly (outside Capcom's C subsegments)."""
+    progs = []
+    for t in targets.TARGETS:
+        if targets.is_overlay(t):
+            archive, base, _ = targets.OVERLAY_INFO[t]
+            data = (ROOT / "disc/overlays" / archive).read_bytes()
+        else:
+            base = EXE_VRAM
+            data = (ROOT / EXE_DISC[t]).read_bytes()[EXE_HEADER:]
+        ws = struct.unpack_from(f"<{len(data) // 4}I", data)
+        syms, asm = progress.functions(t)
+        subs = progress.subsegments(t)
+        funcs = []
+        for addr in sorted(syms):
+            size, name = syms[addr]
+            sub = next((s for s in subs if s[0] <= addr < s[1]), None)
+            hand = sub is None or sub[2].startswith(("psyq/", "asm_"))
+            f = (addr - base) // 4
+            funcs.append((f, f + size // 4, name, name not in asm, hand))
+        progs.append((t, ws, base, funcs))
+    return progs
+
+
 def metrics():
-    """{(program, address): {"score", "depth", "done", ...}} for every Capcom function."""
+    """{(target, address): {"score", "depth", "done", "parked", ...}} for every function."""
     info = {}
     edges = {}
-    for prog, ws, base, funcs, _local in dupe_scan.programs():
-        target = function_list.TARGET_OF.get(prog)
-        subs = progress.subsegments(target) if target else []
-        attempts = function_list.parked(target) if target else set()
-        starts = {base + f * 4 for f, _, _, _ in funcs}
-        for f, e, name, matched in funcs:
+    progs = programs()
+    starts = {t: {base + f * 4 for f, *_ in funcs} for t, _, base, funcs in progs}
+    for t, ws, base, funcs in progs:
+        attempts = function_list.parked(t)
+        for f, e, name, matched, hand in funcs:
             addr = base + f * 4
-            hand = False
-            if target:
-                sub = next((s for s in subs if s[0] <= addr < s[1]), None)
-                hand = sub is None or sub[2].startswith(("psyq/", "asm_"))
             c, calls = counts(ws, base, f, e)
-            if target:
-                c["gp"] = 0  # its file defines its small data in C (or it's in the common pool)
-            info[(prog, addr)] = {"score": score(c), "features": c, "hand": hand,
-                                  "done": hand or matched or name in attempts}
+            c["gp"] = 0  # every target's small data is defined in C
+            info[(t, addr)] = {"score": score(c), "features": c, "hand": hand,
+                               "done": hand or matched or name in attempts,
+                               "parked": not matched and name in attempts}
             out = []
-            for t in calls:
-                if t in starts:
-                    out.append((prog, t))
-                elif prog not in ("SLUS", "ROCK_NEO") and t < dupe_scan.SHARED_END:
-                    out.append(("ROCK_NEO", t))
-            edges[(prog, addr)] = out
+            for a in calls:
+                if a in starts[t]:
+                    out.append((t, a))
+                elif targets.is_overlay(t) and a in starts[targets.HOST]:
+                    out.append((targets.HOST, a))
+            edges[(t, addr)] = out
     pending = {k for k, v in info.items() if not v["done"]}
     graph = {k: [t for t in edges[k] if t in pending] for k in pending}
     for k, d in depths(graph).items():
@@ -178,17 +209,6 @@ def main():
     s = sorted(v["score"] for v in pending)
     q = lambda p: s[min(len(s) - 1, int(p * len(s)))]
     print(f"pending scores: median {q(0.5)}, 90th percentile {q(0.9)}, max {s[-1]}")
-    # Check against what was done: parked (decompiled, not matched) vs matched.
-    for target, prog in (("slus_006.03", "SLUS"), ("rock_neo.exe", "ROCK_NEO")):
-        names = function_list.parked(target)
-        for k, v in info.items():
-            if k[0] == prog:
-                v["parked"] = False
-        for p, ws, base, funcs, _ in dupe_scan.programs():
-            if p != prog:
-                continue
-            for f, e, name, matched in funcs:
-                info[(p, base + f * 4)]["parked"] = name in names
     done = [v for v in rows if v["done"] and not v["hand"]]
     m = sorted(v["score"] for v in done if not v.get("parked"))
     pk = sorted(v["score"] for v in done if v.get("parked"))
@@ -196,7 +216,7 @@ def main():
     print(f"done so far: matched {len(m)} (median score {med(m)}), parked {len(pk)} (median {med(pk)})")
     if args.top:
         for k, v in sorted(info.items(), key=lambda kv: -kv[1]["score"])[: args.top]:
-            print(f"  {k[0]:9} {k[1]:08X} score {v['score']:5} depth {v.get('depth', '-')}")
+            print(f"  {k[0]:12} {k[1]:08X} score {v['score']:5} depth {v.get('depth', '-')}")
 
 
 if __name__ == "__main__":

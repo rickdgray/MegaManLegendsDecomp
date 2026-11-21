@@ -160,18 +160,19 @@ def size_of(asm_dir, name):
 def ranks(target, out):
     """{name: (depth, score)} for the target's pending functions, from a fresh functions.csv.
 
-    Written to `out` (the log folder), not the tracked functions.csv. Needs both executables built, which the
+    Written to `out` (the log folder), not the tracked functions.csv. Needs every target built, which the
     runner has just done (or the tree was clean). Empty if the list can't be made."""
     r = run([".venv/bin/python", "tools/function_list.py", "-o", str(out)])
     if r.returncode != 0 or not out.exists():
         print(f"warning: function_list.py failed, ordering by size: {r.stderr.strip()[-200:]}", flush=True)
         return {}
-    # functions.csv names an overlay by its archive (ST05), not its target (r3_st05).
-    program = Path(targets.OVERLAY_INFO[target][0]).stem if targets.is_overlay(target) else target
+    # An overlay's rows, and those of the shared stage files it links (Program stage_common).
+    shared = set(targets.shared_files(target))
     result = {}
     with out.open(newline="") as fh:
         for row in csv.DictReader(fh):
-            if row["Program"] != program or not row["Depth"]:
+            mine = row["Program"] == target or (row["Program"] == "stage_common" and row["File"] in shared)
+            if not mine or not row["Depth"]:
                 continue
             key = (int(row["Depth"]), int(row["Score"] or 0))
             result[row["Name"] or row["Function"]] = key

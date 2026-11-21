@@ -101,7 +101,7 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 
 - **Confirmed: the CD module is shared.** The shim's CD code and ROCK_NEO's `cd` file compile
   identically for `Cd_init`, `Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`,
-  `Cd_read_sync2`, and their offsets and constants agree (`find_dupes.py --imm`), so
+  `Cd_read_sync2`, and their offsets and constants agree (`find_dupes.py --imm`, since retired), so
   `include/cd.h` is shared. `cd.c` was ported from the shim's C with `find_dupes.py --map`.
 - **Two source differences between "identical" functions** (Capcom kept two versions of these
   files):
@@ -950,7 +950,7 @@ pools: `D_800C3580` and `D_8009F108` hold `WORK_5A4[4]` and `WORK_3C0[16]` (clea
 would put the 16th entry's end at 0x800A4708, over `Cd_cmd_queue` (0x800A3A40). So `PARTS_WORK` is
 the layout of an older build, not a view of `WORK_5A4`/`WORK_3C0`; the stale object would also
 explain the two functions' `ori` encodings.
-Banked by `tools/twins.py` (byte-identical to a matched function; C copied, build-checked):
+Banked by `tools/twins.py` (since retired; byte-identical to a matched function; C copied, build-checked):
 `func_8004E488` (same code as `func_80054BAC`: `return 0;`), `func_8005B85C` (same code as
 `func_8005AB78`), and after the twins run below `func_800181D4`, `func_8005B98C`, `func_80066714`.
 Named `func_8001D888` -> `Sce_read_sync`: waits a frame at a time (`Thread_wait(1)`) until

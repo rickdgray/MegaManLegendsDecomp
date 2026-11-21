@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Prepare a decomp-permuter directory for a parked function.
 
-Usage:  tools/permuter_prep.py [target] FunctionName --src src/<target>/<file>.c
+Usage:  tools/permuter_prep.py [target] FunctionName [--src FILE]
 
---src is required: the C file that holds the parked function (e.g. src/slus_006.03/main.c,
-src/rock_neo.exe/cd.c).
+target: an executable or an overlay (r3_shl0d). --src names the C file that holds the parked
+function (src/rock_neo.exe/cd.c); without it, every C file the target compiles is searched,
+including the shared stage code an overlay links (src/stage_common/).
 
 The function must be parked in the source like this:
 
@@ -13,6 +14,9 @@ The function must be parked in the source like this:
     #else
     INCLUDE_ASM("asm/<target>/nonmatchings/<file>", FunctionName);
     #endif
+
+(or, in src/stage_common/, INCLUDE_ASM(ASM_DIR, FunctionName) with the file's ASM_DIR: the
+overlay's own copy of the assembly).
 
 Creates permuter/<target>/<FunctionName>/ with base.c, target.s, target.o, compile.sh and
 settings.toml, then run:
@@ -32,7 +36,6 @@ from preamble import preamble  # noqa: E402  (tools/preamble.py)
 
 ROOT = Path(__file__).resolve().parent.parent
 INCLUDE = ROOT / "include"
-TARGETS = ["slus_006.03", "rock_neo.exe"]
 
 AS = [
     "mips-linux-gnu-as", "-EL", "-march=r3000", "-mtune=r3000",
@@ -42,9 +45,11 @@ AS = [
 # One parked block: the draft, then the INCLUDE_ASM fallback naming the function.
 BLOCK = re.compile(
     r"#ifdef NON_MATCHING\n(.*?)#else\s*\n"
-    r'INCLUDE_ASM\("([^"]+)",\s*(\w+)\);\s*\n#endif',
+    r'INCLUDE_ASM\(("[^"]+"|\w+),\s*(\w+)\);\s*\n#endif',
     re.S,
 )
+# src/stage_common/: the assembly folder under the overlay's own asm/<target>/ (cc.sh's TARGET_ASM).
+ASM_DIR = re.compile(r'^#define ASM_DIR TARGET_ASM "([^"]+)"', re.M)
 
 ASM_PRELUDE = '.include "macro.inc"\n.set noat\n.set noreorder\n.section .text\n\n'
 
@@ -52,25 +57,32 @@ ASM_PRELUDE = '.include "macro.inc"\n.set noat\n.set noreorder\n.section .text\n
 def main() -> None:
     targets.default_target()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("target", choices=TARGETS)
+    ap.add_argument("target", choices=targets.TARGETS)
     ap.add_argument("function")
-    ap.add_argument("--src", help="C file containing the parked function (default: search src/<target>/)")
+    ap.add_argument("--src", help="C file containing the parked function (default: search the target's C files)")
     args = ap.parse_args()
     fn = args.function
 
     if args.src:
         candidates = [ROOT / args.src]
     else:
-        candidates = sorted((ROOT / "src" / args.target).glob("**/*.c"))
+        candidates = targets.sources(args.target)
 
     for src_path in candidates:
         text = src_path.read_text()
         m = next((m for m in BLOCK.finditer(text) if m.group(3) == fn), None)
         if m:
             body, asm_dir = m.group(1), m.group(2)
+            if asm_dir.startswith('"'):
+                asm_dir = asm_dir.strip('"')
+            else:
+                d = ASM_DIR.search(text)
+                if asm_dir != "ASM_DIR" or not d:
+                    sys.exit(f"{src_path}: INCLUDE_ASM({asm_dir}, {fn}): no #define ASM_DIR TARGET_ASM \"...\"")
+                asm_dir = f"asm/{args.target}" + d.group(1)
             break
     else:
-        where = args.src or f"src/{args.target}/"
+        where = args.src or f"the C files of {args.target}"
         sys.exit(f"{fn}: no '#ifdef NON_MATCHING ... INCLUDE_ASM(..., {fn}) ... #endif' block in {where}")
 
     out = ROOT / "permuter" / args.target / fn
@@ -82,7 +94,8 @@ def main() -> None:
     # PERMUTER makes include_asm.h define INCLUDE_ASM as nothing.
     raw = preamble(text) + "\n" + body
     pre = subprocess.run(
-        ["cpp", "-P", "-undef", "-nostdinc", f"-I{INCLUDE / args.target}", f"-I{INCLUDE}", "-DPERMUTER", "-DNON_MATCHING", "-"],
+        ["cpp", "-P", "-undef", "-nostdinc", f"-I{INCLUDE / args.target}", f"-I{INCLUDE}", "-DPERMUTER",
+         "-DNON_MATCHING", f'-DTARGET_ASM="asm/{args.target}"', "-"],
         input=raw, text=True, capture_output=True,
     )
     if pre.returncode != 0:

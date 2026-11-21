@@ -3,6 +3,7 @@
 #
 # Usage: tools/ctx.sh [target] <file.c> [out]     (out defaults to ctx.c in the repo root)
 #   e.g. tools/ctx.sh rock_neo.exe src/rock_neo.exe/cd.c
+#        tools/ctx.sh r3_st05 src/stage_common/stcom36.c   (a shared file, as that overlay compiles it)
 #
 # Only the file's preamble is preprocessed (tools/preamble.py: everything before its first function,
 # INCLUDE_ASM or parked block, i.e. its #includes, its own small data and pool definitions and its
@@ -13,13 +14,10 @@
 # since decomp.me's compiler defines those itself.
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
-
-# The target is optional (rock_neo.exe when the first argument isn't a target name).
-case "${1:-}" in
-    slus_006.03 | rock_neo.exe) target=$1; shift ;;
-    *) target=rock_neo.exe ;;
-esac
+# The target is optional (rock_neo.exe when the first argument isn't a target name); target.sh
+# also changes to the repo root.
+source "$(dirname "$0")/target.sh" "$@"; shift "$TARGET_ARGC"
+target=$TARGET
 
 if [ $# -lt 1 ]; then
     echo "usage: $0 [target] <file.c> [out]" >&2
@@ -28,14 +26,6 @@ fi
 
 src=$1
 out=${2:-ctx.c}
-
-case "$target" in
-    slus_006.03 | rock_neo.exe) ;;
-    *)
-        echo "unknown target: $target (slus_006.03 or rock_neo.exe)" >&2
-        exit 1
-        ;;
-esac
 
 if [ ! -f "$src" ]; then
     echo "no such file: $src" >&2

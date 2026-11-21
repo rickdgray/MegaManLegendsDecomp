@@ -5,7 +5,7 @@ Matching decompilation of **Mega Man Legends** (PlayStation, USA, SLUS-00603).
 There are two executables and 44 code overlays, and every one of them rebuilds byte-identical:
 
 - `slus_006.03`: `SLUS_006.03`, the boot shim (intro screens, then `LoadExec` of `ROCK_NEO.EXE`).
-  One C file, `src/slus_006.03/main.c`; every function is banked or parked.
+  One C file, `src/slus_006.03/main.c`; every function is matched.
 - `rock_neo.exe`: `ROCK_NEO.EXE`, the main game. Split into Capcom's source files (see
   `notes/rock_neo_files.md`); every Capcom file is C (`src/rock_neo.exe/<file>.c`), with
   `INCLUDE_ASM` stubs for the functions not yet decompiled. `asm_fastmem` stays assembly.
@@ -108,7 +108,6 @@ derive from the target (see `tools/target.sh`):
 | `./tools/rebuild.sh <t> [<t> ...]` | Split, build, and refresh `expected/<t>/` in one step. Use after any rename or yaml change (`rename.py` prints the line to run). |
 | `./tools/cc.sh <t> <in.c> <out.o>` | Compile one C file with the target's matching toolchain. |
 | `./tools/format.sh <t>` | `clang-format-15 -i` on `src/<t>/` and `include/` (an overlay also formats `src/stage_common/`). |
-| `.venv/bin/python tools/twins.py <t> [--apply]` | Functions whose byte-identical twin is already matched; `--apply` banks them by copying the twin's C (build-checked). |
 
 ### Tool use (unattended runs)
 
@@ -129,7 +128,7 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
   `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
 
-The owner's tools (`find_dupes.py`, `progress.py`, `batch_run.py`, `rename.py`, `review.py`,
+The owner's tools (`dupe_scan.py`, `progress.py`, `batch_run.py`, `rename.py`, `review.py`,
 `permuter_prep.py`, `ctx.sh` and `permute.sh`) are described in `notes/toolchain.md`.
 
 **After any rename or re-split, refresh `expected/`** (`./tools/rebuild.sh <t>`). Otherwise the
@@ -338,8 +337,7 @@ What decompilers show vs. what to write:
   one only if the initializer form doesn't match.
 - **Duplicate functions.** Byte-identical functions in one program are separate functions, each
   with its own C: Capcom copied code. Write the copy with `// Same code as X.` above it, and give
-  twins parallel names. `tools/twins.py --apply` banks every still-assembly function whose twin is
-  already matched, so don't spend a cycle on one; `--unsolved` lists twins still all in assembly.
+  twins parallel names. `tools/dupe_scan.py` lists the duplicate groups.
   Near twins (same logic on different fields, like `moji`'s command and text handlers) are
   written separately.
 - **`switch` fall-through** (no `break`) is deliberate in places. Keep it, with a `// fall through`

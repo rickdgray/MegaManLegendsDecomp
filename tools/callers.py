@@ -83,7 +83,7 @@ def outside_users(target, name, home=None):
     word = re.compile(rf"\b{re.escape(name)}\b")
     users = {}
     for c in targets.sources(target):
-        # Comments don't count (e.g. twins.py's "// Same code as X.").
+        # Comments don't count (e.g. "// Same code as X.").
         code = re.sub(r"//[^\n]*|/\*.*?\*/", "", c.read_text(), flags=re.S)
         if c.stem != home and word.search(code):
             users[c.stem] = "C"

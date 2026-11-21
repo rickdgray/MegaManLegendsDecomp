@@ -70,13 +70,13 @@ Results (2026-11-10; empty `jr ra; nop` functions, 363 of them, left out):
 - **Not near-copies:** `ST0C`/`ST0D` share 48 exact keys of 219, `ST11`/`ST12` 61 of 162. Equal
   `jr ra` counts were a coincidence.
 - The shim's addresses mean nothing elsewhere, so here a shim function only matches when it
-  uses no addresses; `find_dupes.py` covers shim ↔ ROCK_NEO with relocations.
+  uses no addresses; the retired `find_dupes.py` compared shim ↔ ROCK_NEO with relocations.
 
 ## Source files
 
-Boundaries inside the overlays, from two kinds of evidence. `tools/overlay_files.py` computes the
-split (method in its docstring) and `functions.csv` carries it (Program, File, Confidence). With the
-current thresholds: 344 shared segments, 263 regions without evidence, 2 files from source.
+Boundaries inside the overlays, from two kinds of evidence. The yamls' subsegments are the split
+the build uses (and `functions.csv` lists); `tools/overlay_files.py` is the research tool that
+proposes boundaries from the raw chunks (method in its docstring). With its current thresholds: 344 shared segments, 263 regions without evidence, 2 files from source.
 
 ### Confirmed by Capcom's source (TCRF)
 

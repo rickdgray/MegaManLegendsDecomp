@@ -7,7 +7,7 @@ Needs both executables built (for their function lists) and disc/overlays/ extra
 (tools/extract_overlays.py). Byte-identical overlays (ST03B, ...) are left out; see notes/disc.md.
 
 Functions:
-- Executables: FUNC symbols of the Capcom ranges, from build/<t>/<t>.elf (as find_dupes.py).
+- Executables: FUNC symbols of the Capcom ranges, from build/<t>/<t>.elf (functions() below).
 - Overlays: no symbols, so they are split here. The code starts after the read-only data that
   opens each overlay (pointer tables and the like), at the first word of an unbroken run of
   plausible instructions ending at the first `jr ra`, and never before word 1 (word 0 is the
@@ -24,7 +24,7 @@ Two keys per function, both blind to where the function itself sits:
   replaced by that function's key (refined over a few rounds), so two wrappers match only if
   their callees do. Same exact key = same C, same data layout, same calls into ROCK_NEO; the C
   ports as is (own statics may live at other addresses).
-- shape: opcodes and registers only (find_dupes.py's tokens). Same shape, different exact key =
+- shape: opcodes and registers only (tokens() below). Same shape, different exact key =
   the same code with different constants, calls or globals; port and adjust. For small
   functions a shared shape is weak evidence (every `g();` wrapper has the same one).
 
@@ -42,9 +42,6 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import find_dupes  # noqa: E402
-
 ROOT = Path(__file__).resolve().parent.parent
 OVERLAYS = ROOT / "disc/overlays"
 # Byte-identical copies of another overlay (notes/disc.md, "Code overlays").
@@ -55,6 +52,70 @@ SPECIAL_OK = {0, 2, 3, 4, 6, 7, 8, 9, 12, 13, 16, 17, 18, 19, 24, 25, 26, 27,
 OP_OK = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18,
          32, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 46, 50, 58}
 
+
+# Per executable: disc file and the ranges of Capcom code (not PsyQ's library).
+EXECUTABLES = {
+    "slus_006.03": {
+        "disc": "disc/extracted/SLUS_006.03",
+        "ranges": [(0x800107E8, 0x80012624)],
+        "src": "src/slus_006.03",
+    },
+    "rock_neo.exe": {
+        "disc": "disc/extracted/ROCK_NEO.EXE",
+        "ranges": [(0x80011C90, 0x80067FF8), (0x800680BC, 0x80069038)],
+        "src": "src/rock_neo.exe",
+    },
+}
+VRAM_BASE = 0x80010000
+HEADER = 0x800
+
+
+def functions(target):
+    """[(addr, size, name)] for FUNC symbols in the target's Capcom ranges, from the linked ELF."""
+    elf = ROOT / "build" / target / f"{target}.elf"
+    if not elf.exists():
+        sys.exit(f"{elf} not found: build {target} first")
+    out = subprocess.run(["mips-linux-gnu-readelf", "-sW", str(elf)], capture_output=True, text=True,
+                         check=True).stdout
+    syms = {}
+    for line in out.splitlines():
+        f = line.split()
+        if len(f) >= 8 and f[3] == "FUNC":
+            addr, size, name = int(f[1], 16), int(f[2], 0), f[7]
+            if any(lo <= addr < hi for lo, hi in EXECUTABLES[target]["ranges"]):
+                syms[addr] = (size, name)
+    # Fill in missing sizes from the next function's address.
+    addrs = sorted(syms)
+    result = []
+    for i, a in enumerate(addrs):
+        size, name = syms[a]
+        if size == 0 and i + 1 < len(addrs):
+            size = addrs[i + 1] - a
+        if size >= 8:
+            result.append((a, size, name))
+    return result
+
+
+def tokens(data, addr, size):
+    """One token per instruction: opcode, registers, function code; immediates and targets dropped."""
+    off = addr - VRAM_BASE + HEADER
+    toks = []
+    for (w,) in struct.iter_unpack("<I", data[off:off + size]):
+        op = w >> 26
+        if op == 0:                      # R-type: keep rs, rt, rd, shamt-free funct
+            toks.append((0, (w >> 21) & 31, (w >> 16) & 31, (w >> 11) & 31, w & 63))
+        elif op in (2, 3):               # j, jal: target differs between programs
+            toks.append((op,))
+        elif op == 0x0F:                 # lui: keep the register only
+            toks.append((op, (w >> 16) & 31))
+        else:                            # I-type: keep rs and rt, drop the immediate
+            toks.append((op, (w >> 21) & 31, (w >> 16) & 31))
+    return tuple(toks)
+
+
+def simm16(word):
+    v = word & 0xFFFF
+    return v - 0x10000 if v & 0x8000 else v
 
 def overlay_base(name):
     if name.startswith("SUPPORT"):
@@ -105,7 +166,7 @@ def plausible(w):
 def branch_target(w, pc):
     op = w >> 26
     if op in (4, 5, 6, 7) or (op == 1 and ((w >> 16) & 31) in (0, 1, 16, 17)):
-        return pc + 4 + find_dupes.simm16(w) * 4
+        return pc + 4 + simm16(w) * 4
     if op == 2:
         return (pc & 0xF0000000) | ((w & 0x3FFFFFF) << 2)
     return None
@@ -180,7 +241,7 @@ def keys(ws, base, f, e, local, callee_keys):
                 hi.pop(rt, None)
                 toks.append(w)
         elif op not in (0, 1, 4, 5, 6, 7) and (rs in hi or rs == 28):
-            a = ((hi[rs] << 16) if rs != 28 else ROCK_NEO_GP) + find_dupes.simm16(w)
+            a = ((hi[rs] << 16) if rs != 28 else ROCK_NEO_GP) + simm16(w)
             a &= 0xFFFFFFFF
             toks.append((op, rs, rt, "local" if local(a) else a))
             if op < 0x28:                   # loads and addiu/ori write rt; stores don't
@@ -192,7 +253,7 @@ def keys(ws, base, f, e, local, callee_keys):
             elif 8 <= op < 0x28:
                 hi.pop(rt, None)
     data = b"".join(struct.pack("<I", w) for w in ws[f:e])
-    shape = find_dupes.tokens(b"\0" * find_dupes.HEADER + data, find_dupes.VRAM_BASE, len(data))
+    shape = tokens(b"\0" * HEADER + data, VRAM_BASE, len(data))
     h = lambda x: hashlib.sha1(repr(x).encode()).hexdigest()[:12]
     return h(toks), h(shape)
 
@@ -214,17 +275,17 @@ def programs():
     """[(prog, words, base, [(first, end, name, matched)], local)] for every program."""
     progs = []
     for target, prog in (("slus_006.03", "SLUS"), ("rock_neo.exe", "ROCK_NEO")):
-        data = (ROOT / find_dupes.TARGETS[target]["disc"]).read_bytes()
-        n = (len(data) - find_dupes.HEADER) // 4
-        ws = struct.unpack_from(f"<{n}I", data, find_dupes.HEADER)
+        data = (ROOT / EXECUTABLES[target]["disc"]).read_bytes()
+        n = (len(data) - HEADER) // 4
+        ws = struct.unpack_from(f"<{n}I", data, HEADER)
         asm = in_assembly(target)
         funcs = []
-        for addr, size, name in find_dupes.functions(target):
-            f = (addr - find_dupes.VRAM_BASE) // 4
+        for addr, size, name in functions(target):
+            f = (addr - VRAM_BASE) // 4
             funcs.append((f, f + size // 4, name, name not in asm))
         # The shim's addresses mean nothing elsewhere; ROCK_NEO's are the shared ones.
         local = (lambda a: True) if prog == "SLUS" else (lambda a: a >= SHARED_END)
-        progs.append((prog, ws, find_dupes.VRAM_BASE, funcs, local))
+        progs.append((prog, ws, VRAM_BASE, funcs, local))
     if not OVERLAYS.is_dir():
         sys.exit("disc/overlays/ not found: run tools/extract_overlays.py first")
     for path in sorted(OVERLAYS.glob("*.BIN")):

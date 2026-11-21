@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Split, build, and refresh expected/ for one or more targets, then format and regenerate
-# functions.csv (tools/function_list.py, which needs both executables' ELFs). Use after any rename
+# functions.csv (tools/function_list.py, which needs every target's ELF). Use after any rename
 # or yaml change (tools/rename.py prints the targets to pass). make_expected.sh refuses if a build
 # doesn't match.
 # Usage: tools/rebuild.sh [target ...]    (or a group: all, executables, overlays)
@@ -28,10 +28,14 @@ fi
 
 ./tools/format.sh "${TARGET_LIST[@]}"
 
-if [[ -f build/slus_006.03/slus_006.03.elf && -f build/rock_neo.exe/rock_neo.exe.elf ]]; then
+missing=()
+for t in "${EXECUTABLES[@]}" "${OVERLAYS[@]}"; do
+    [[ -f build/$t/$t.elf ]] || missing+=("$t")
+done
+if [[ ${#missing[@]} -eq 0 ]]; then
     .venv/bin/python tools/function_list.py \
         || echo "warning: functions.csv not regenerated (open in Excel?)" >&2
 else
-    echo "note: functions.csv not regenerated; build both executables first" >&2
+    echo "note: functions.csv not regenerated; ${#missing[@]} target(s) not built (${missing[0]} ...): make build" >&2
 fi
 exit $status
