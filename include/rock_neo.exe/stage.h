@@ -9,7 +9,7 @@
 #define Map_org_y (*(uint8 *)0x1F800041)
 #define Map_w     (*(uint16 *)0x1F800044)
 #define Map_h     (*(uint16 *)0x1F800046)
-#define Map_cells (*(uint16 **)0x1F800048)
+#define Map_cells (*(sint16 **)0x1F800048)
 // The block grid: 0x40 rows of 0x20 MAP_BLOCKs (map_blocks_draw draws the rows' set bits).
 #define Map_blocks (*(MAP_BLOCK **)0x1F80004C)
 

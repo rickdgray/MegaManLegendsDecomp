@@ -72,7 +72,7 @@ extern sint32 D_800D9BD0; // VSync(1) at the start of the frame (main)
 void System_init(void);
 void Thread_wait(sint32 arg);
 void Vsync_handler(void);
-void func_80012F78(sint32 arg);
+void func_80012F78(TH_FUNC func);
 void func_80012FA4(sint32 n);
 void func_80012FC8(sint32 n);
 void func_80012424(void);

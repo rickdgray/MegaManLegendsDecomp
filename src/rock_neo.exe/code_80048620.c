@@ -1,5 +1,6 @@
 #include "common.h"
 #include "code_80048620.h"
+#include "stage.h"
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048620);
 
@@ -17,7 +18,10 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048BEC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048C60);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048CEC);
+sint32 func_80048CEC(sint32 index)
+{
+    return Map_cells[index];
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80048D08);
 
@@ -107,13 +111,25 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050A90);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050AFC);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050B68);
+sint32 func_80050B68(SVECTOR *v)
+{
+    return v->vy != 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050B74);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050BB4);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050BF4);
+sint32 func_80050BF4(SVECTOR *v)
+{
+    if (v->vy > 0)
+    {
+        D_1F8000FF = 0x10;
+        return 0;
+    }
+    D_1F8000FF = 0x20;
+    return 1;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80050C2C);
 
@@ -125,11 +141,26 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_800519E4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051A78);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051B40);
+void func_80051B40(void)
+{
+    D_80098894 = D_800BC058;
+    D_80098898 = D_800BC360;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051B68);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051BAC);
+void func_80051BAC(MODEL_WORK *obj)
+{
+    MODEL_WORK **list;
+
+    if (obj->routine_0 & 3)
+    {
+        list       = D_80098898;
+        *list      = obj;
+        D_80098898 = list + 1;
+    }
+    obj->field_7C = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051BE4);
 
@@ -137,7 +168,14 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80051F08);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80052528);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80052644);
+void func_80052644(sint32 key, MODEL_WORK *obj)
+{
+    if (obj->field_76 != 0 && key == obj->field_C0)
+    {
+        obj->field_76 = 0;
+        obj->field_C0 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_80052674);
 
