@@ -508,7 +508,6 @@ void Cd_sync_cb(u_char status, u_char *result)
     }
 }
 
-#ifdef NON_MATCHING
 void Movie_start(sint32 file)
 {
     CdlLOC loc;
@@ -535,11 +534,7 @@ void Movie_start(sint32 file)
     Cd_controlb_retry(CdlSetloc, (u_char *)&loc, Cd_result);
     Cd_controlb_retry(CdlReadS, NULL, Cd_result);
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_start);
-#endif
 
-#ifdef NON_MATCHING
 void Movie_sector_cb(u_char status, u_char *result)
 {
     sint32 i;
@@ -579,8 +574,9 @@ void Movie_sector_cb(u_char status, u_char *result)
             *dst++ = *src++;
         }
 
-        // Frame data goes after the table, one sector's worth per sector.
-        src = sec->data;
+        // Frame data goes after the table, one sector's worth per sector. The target builds the
+        // source as a literal address (lui/ori), not from sec.
+        src = (u_long *)(STR_SECTOR_BUF + sizeof(StHEADER));
         dst = (u_long *)((StHEADER *)Movie_write_ptr + sec->hdr.nSectors) + sec->hdr.secCount * STR_DATA_WORDS;
         for (i = 0; i < STR_DATA_WORDS; i++)
         {
@@ -601,9 +597,6 @@ void Movie_sector_cb(u_char status, u_char *result)
         CdReadyCallback(0);
     }
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Movie_sector_cb);
-#endif
 
 void Cd_control_retry(u_char com, u_char *param, u_char *result)
 {
@@ -657,7 +650,6 @@ sint32 Cd_read_sync2(void)
     return Cd_cmd_write_ptr != Cd_cmd_queue;
 }
 
-#ifdef NON_MATCHING
 void Intro_init(void)
 {
     RECT rect;
@@ -667,6 +659,8 @@ void Intro_init(void)
     uint32 k;
     SPRT *p0;
     SPRT *p1;
+    DR_MODE *d0;
+    DR_MODE *d1;
 
     img                         = copyright_tim;
     *(uint32 *)&Intro_routine_0 = 2;
@@ -710,15 +704,16 @@ void Intro_init(void)
         }
     }
 
+    d0 = copyright_dr_mode[0];
+    d1 = copyright_dr_mode[1];
     for (i = 0; i < 5; i++)
     {
-        SetDrawMode(&copyright_dr_mode[0][i], 0, 0, (i + 10) | 0x80, NULL);
-        SetDrawMode(&copyright_dr_mode[1][i], 0, 0, (i + 10) | 0x80, NULL);
+        SetDrawMode(d0, 0, 0, (i + 10) | 0x80, NULL);
+        SetDrawMode(d1, 0, 0, (i + 10) | 0x80, NULL);
+        d0++;
+        d1++;
     }
 }
-#else
-INCLUDE_ASM("asm/slus_006.03/nonmatchings/main", Intro_init);
-#endif
 
 void intro_copyright_draw(uint8 brightness)
 {

@@ -196,8 +196,9 @@ later.
 
 - gcc 2.7.2 (PSX build, `cc1`) → maspsx `--aspsx-version=2.56 --expand-div` → GNU `as`, at `-O2`.
   Equivalent to decomp.me's `PSYQ4.0` preset (gcc 2.7.2 + aspsx 2.56).
-- `slus_006.03`: `-G0`. `cc1` defaults to `-G 8`, so `-G0` must always be passed. The shim never
-  addresses globals through `$gp`.
+- `slus_006.03`: `-G8` to `cc1` (its default), and no `-G` to maspsx: the shim never addresses
+  globals through `$gp`. The value still steers GCC's cost choices: `Movie_start` matches only
+  with `-G8`, while every other shim function matches with `-G0` too.
 - `rock_neo.exe`: `-G32` to `cc1`, `-G32 --use-comm-section` to maspsx, and `-G0` to GNU `as`.
   `extern` globals of any size are still addressed with `lui` + `%lo`; only small data *defined in
   the same file* uses `$gp`. Details and evidence: `notes/toolchain.md`.

@@ -36,13 +36,17 @@ fi
 # power of two, up to 16), but psylink packed the pool without that (D_80098AA8, 16 bytes,
 # sits at 0x80098AA8). The asm definition is 4-aligned, so a multi-word common (moji's
 # D_800989E0[4]) made ld warn "alignment 4 ... is smaller than 16". The bytes never depended on it.
+# The shim: -G8, cc1's own default (what Capcom got by not passing -G), and no -G to maspsx, so
+# nothing is addressed through $gp. The value still matters: it changes GCC's cost estimates, and
+# Movie_start only matches with it (it rebuilds &Cd_result before each call instead of keeping it
+# in a saved register). Every other shim function matches with -G0 and -G8 alike.
 JT_ALIGN=3
 DEFINES=""
 case "$target" in
-    slus_006.03)  GFLAGS="-G0"; MASPSX_EXTRA="" ;;
+    slus_006.03)  GFLAGS="-G8"; MASPSX_EXTRA="" ;;
     rock_neo.exe) GFLAGS="-G32"; MASPSX_EXTRA="-G32 --use-comm-section --max-comm-alignment 4" ;;
     # Overlay code chunks never address anything through $gp, so maspsx gets
-    # no -G, as for the shim. cc1's -G8 is copied from the other targets, not yet confirmed.
+    # no -G, as for the shim. cc1 gets the same default -G8 as the shim.
     # Shared stage code (src/stage_common/) finds this stage's copy of its
     # assembly through TARGET_ASM.
     # r3_st17.c, r3_st02.c, r3_st04_5474.c, r3_st04_8FE0.c, r3_st06_D1F8.c, r3_st16.c, r3_st1b_603C.c, r3_st1a_CBC.c

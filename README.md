@@ -27,7 +27,7 @@ Other regions and disc revisions are not supported.
 - [x] Extracted filesystem and confirmed boot executable
 - [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); the 44 code overlays (`ST*`, `ARM*R`, `SUPPORT`) mapped into functions (not yet split or built)
 - [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` and `ROCK_NEO.EXE` **match**)
-- [ ] Decompilation (m2c, permuter, agent-assisted batches): every `SLUS_006.03` function is matched or parked; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly. `tools/progress.py` and `functions.csv` have the numbers
+- [ ] Decompilation (m2c, permuter, agent-assisted batches): every `SLUS_006.03` function is matched; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly. `tools/progress.py` and `functions.csv` have the numbers
 - [ ] Naming and documentation
 
 ## Code style

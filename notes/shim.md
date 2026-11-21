@@ -17,7 +17,8 @@ PsyQ 4.0 library. The rebuild is byte-identical (see [toolchain.md](toolchain.md
 
 - **Confirmed:** the file image is sector-padded to `0x8005a000`; its last `0x4c0` bytes
   (`0x80059b40`–`0x80059fff`, all zeros) overlap BSS.
-- **Confirmed:** `gp` = `0x80059b14` is set but never used (`-G0`).
+- **Confirmed:** `gp` = `0x80059b14` is set but never used: nothing is addressed through `$gp`
+  (the build passes `cc1` its default `-G8`, and maspsx no `-G`).
 - **Suspected:** `"CAPCOMAug 16 1998 12:35:16CAPCOM"` at `0x8001d3b4` is `__DATE__`/`__TIME__`,
   the build timestamp of Capcom's object. Compare with `ROCK_NEO.EXE`.
 
@@ -157,52 +158,29 @@ functions called from Capcom code and identified by hand: `SsInit` (`0x8001a864`
 
 ## Function status
 
+All 34 functions are matched; nothing is parked.
+
 Banked: `main`, `System_init`, `Disp_env_set`, `Disp_env_init`, `Pad_update`, `Pad_update_all`,
 `Vsync_handler`, `Disp_adjust`, `Cd_init`, `cd_cmd_nop`, `Movie_buf_get`, `Movie_buf_release`,
 `cd_cmd_play_movie`, `Movie_dct_out_callback`, `Cd_cmd_exec`, `Cd_set_volume`, `Cd_stop`,
 `Cd_sync_cb`, `Cd_control_retry`, `Cd_controlb_retry`, `Cd_set_mode`, `Cd_cmd_set_movie`,
 `Cd_read_sync2`, `intro_copyright_draw`, `intro_copyright`, `intro_wait_idle`, `intro_play_movie`,
-`intro_launch_game`, `Intro_task`, `Cd_cmd_dequeue`.
+`intro_launch_game`, `Intro_task`, `Cd_cmd_dequeue`, `Movie_frame_upload`, `Movie_start`,
+`Movie_sector_cb`, `Intro_init`.
 
-Parked (`NON_MATCHING`; the build keeps `INCLUDE_ASM`):
+The last three were parked until 2026-11-20; what matched them came from CoastRedWood's fork:
 
-- `Intro_init`: best draft uses chained assignments for the two sprite buffers, `getClut(0, 240)`,
-  and one counter `i` for both the sprite loop and the draw-mode loop (asm-differ 210). Same length
-  and instruction stream as the target; only the first loop's `i` and the hoisted constant `4`
-  (sprite length) swap `s1`/`s2`, which also costs the second loop one extra `move`.
-  - Permuter (10 h): best 175, by moving `rect.x = 0` into the loop (breaks the first `LoadImage`;
-    shows that store timing affects allocation, not a fix). Matching the target's store order for
-    the first `RECT` changed nothing.
-  - Ruled out: a separate counter for the draw-mode loop (`j`): the target keeps both loops'
-    counters in the same register (`s2`), so the original reuses one variable.
-  - Remaining: an `s1`/`s2` priority tie between `i` and the constant. Long permuter run; it's
-    slow here (~10 outputs per night vs ~50 for `Cd_cmd_dequeue`), so a good server job.
-- `Movie_frame_upload`: one line from matching. Draft: `i = 0;`, then `rect` (computed once from
-  `Dbl_buff_idx`), then a variable holding 1, then `img` (a walking pointer stepping one column,
-  `0x1E00` bytes), then `for (; i < 20; i++)` with `(one - Movie_frame_idx) * 0x25800`. All
-  registers and instruction order match; only `addu a1,a1,s1` (target) vs `addu a1,s1,a1` (ours)
-  at the image address differs. The variable holding 1 is a marked hack (it makes GCC create the
-  constant before the image pointer). Tried: operand order in the source, the variable before
-  `rect`, declared last; the indexed form reloads `Dbl_buff_idx` in the loop. History: ablation of
-  a permuter output showed its `do`/`while (0)` mattered; `i = 0` before the pointer setup fixed
-  all registers.
-- `Movie_sector_cb` (`0x80011A64`): body matches; in the last `else` arm (the CD error path) the
-  target emits `move a0,zero` first and leaves the branch delay slot as a `nop`, where ours fills
-  it. Needs the STR sector header read through a struct pointer assigned after `CdGetSector`, and
-  the payload source as a literal `0x800F0020`. A delay-slot difference: candidate for an
-  assembler (maspsx `--aspsx-version`) test.
-- `Movie_start` (`0x80011940`): body matches exactly. Only difference: the target rebuilds
-  `Cd_result`'s address (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls; our
-  compiler keeps it in `s0`. `Cd_status = 1` must come first (it hoists `li s1,1`); the filter
-  stores follow `Movie_end_frame`. Tried `&Cd_result[0]`. No source construct found that controls
-  this; it's GCC's cost choice between rematerializing a constant and keeping it in a saved
-  register.
-  - Probe results (three calls passing the same buffer): GCC keeps a symbol's address in a saved
-    register, with or without an offset (struct member). A literal address (`(u_char *)0x80059C40`)
-    is rebuilt per call like the target, but as `lui`+`ori`; the target's `lui`+`addiu` proves a
-    symbol. No effect: `volatile`, an unsized array, no prototype, `do`/`while (0)` wrappers.
-    `-fno-expensive-optimizations` reproduces it but breaks other functions; all gcc
-    2.6.0–2.7.2.3 builds behave alike ([toolchain.md](toolchain.md)). Next: permuter.
+- `Movie_start` (`0x80011940`): the C was already right. The target rebuilds `Cd_result`'s address
+  (`lui`/`addiu`) before each of the three `Cd_controlb_retry` calls, where our build kept it in
+  `s0`: GCC's cost choice, which no source construct changed. It was the flag: the shim is built
+  with `-G8`, `cc1`'s default, not the `-G0` the build used to pass
+  ([toolchain.md](toolchain.md)).
+- `Movie_sector_cb` (`0x80011A64`): the frame-data source is the literal address
+  `STR_SECTOR_BUF + sizeof(StHEADER)` (`0x800F0020`, built with `lui`/`ori`), not `sec->data`.
+  That changed the error arm's delay slot, which was the last difference.
+- `Intro_init`: the draw-mode loop walks two pointers (`d0++`, `d1++`) like the sprite loop
+  before it, instead of indexing `copyright_dr_mode[0][i]`. That settled the `s1`/`s2` tie between
+  the loop counter and the hoisted constant.
 
 ## Hacks to revisit
 

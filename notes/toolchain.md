@@ -3,7 +3,7 @@
 ## Compiler and flags
 
 **Confirmed for both executables:** gcc 2.7.2 (PSX build) + ASPSX 2.56, `-O2`. Equivalent to
-decomp.me's `PSYQ4.0` preset. The shim is compiled with `-G0`, `ROCK_NEO.EXE` with `-G32` (below).
+decomp.me's `PSYQ4.0` preset. The shim is compiled with `-G8` (`cc1`'s default), `ROCK_NEO.EXE` with `-G32` (below).
 
 Evidence:
 - **GCC version:** on the probe `Cd_cmd_dequeue`, gcc 2.6.0 through 2.7.2 produce identical output
@@ -11,8 +11,12 @@ Evidence:
   libraries Ghidra identified. See also "Compiler versions" under Gotchas.
 - **Assembler version:** `li v1,5` must assemble to `addiu v1,zero,5`. Plain maspsx defaults give
   `ori`; `--aspsx-version=2.56` gives `addiu`. Another PSX project landed on 2.56 too.
-- **Shim, `-G0`:** the shim never addresses globals through `$gp`, not even in library code.
-  `cc1` defaults to **`-G 8`**, so `-G0` must always be passed.
+- **Shim, `-G8`:** `cc1`'s default, so what Capcom got by not passing `-G`. The shim never
+  addresses globals through `$gp`, not even in library code: maspsx gets no `-G`. Until
+  2026-11-20 the build passed `-G0`; the whole shim matches either way, but `Movie_start` only
+  with `-G8`: the value changes GCC's cost estimates, and with `-G8` it rebuilds `&Cd_result` before
+  each `Cd_controlb_retry` call, as the target does, instead of keeping it in a saved register
+  (found in CoastRedWood's fork).
 - **Not needed:** `-mips1 -mcpu=3000` (the `cc1` defaults: R3000, ISA 1, `-mgas -msoft-float`).
 - Flags that made no difference on probes: `-f[no-]schedule-insns`, `-O1`.
 - **Untested** for ROCK_NEO: the flags ChrisNonyminus guessed (`-funsigned-char -fpeephole
