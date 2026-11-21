@@ -9,7 +9,7 @@
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
       "Bash(clang-format-15 -i:*)",
       "Bash(./tools/cc.sh:*)", "Bash(mips-linux-gnu-objdump:*)", "Bash(xxd:*)",
-      "Bash(tools/rename.py:*)", "Bash(./tools/rename.py:*)",
+      "Bash(tools/rename.py:*)", "Bash(./tools/rename.py:*)", "Bash(.venv/bin/python tools/reach.py:*)",
       "Bash(.venv/bin/python tools/callers.py:*)", "Bash(tools/callers.py:*)", "Bash(./tools/callers.py:*)"
     ],
     "deny": [

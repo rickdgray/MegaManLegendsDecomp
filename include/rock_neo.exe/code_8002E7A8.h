@@ -475,7 +475,9 @@ typedef struct
     SVECTOR ang;  // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
     uint8 pad_5C[0x18];
     sint8 field_74; // read with lb by func_8004B414, passed to func_8004B6AC
-    uint8 pad_75[3];
+    uint8 pad_75;
+    sint8 field_76; // cleared with field_C0 by func_80052644
+    uint8 pad_77;
     HIT_ENT *hit_78; // 0x78: collision box (func_80049C24, func_8004B414)
     sint16 field_7C; // cleared by func_80051BAC
     uint8 pad_7E[0xA];
@@ -489,7 +491,8 @@ typedef struct
     KEY_CMD cmd_A4; // copy of the current step's command; time counts down
     uint8 pad_A8[4];
     uint8 idx_AC;
-    uint8 pad_AD[0x17];
+    uint8 pad_AD[0x13];
+    sint32 field_C0; // func_80052644 clears it (and field_76) when it equals its key
     uint32 field_C4; // top byte nonzero: func_80037694 skips the stage collision
     uint8 pad_C8[0x30];
     uint8 buf_F8[0x18]; // 0x18 bytes of the model data (kinds 0x20 and 0x40, func_8002FA38)

@@ -82,7 +82,7 @@ char D_800979BC[]    = "%08x %04x %04x %04x %04x";
 sint32 D_800979D8    = 0;
 
 // Small uninitialized statics (.sbss 0x80098158-0x80098160).
-static sint32 D_80098158[2];
+static TH_FUNC D_80098158[2]; // [0]: where func_80012F78 reopens the current thread
 
 // Pool variable (0x800988D8): the event handle func_80012938 opens.
 sint32 D_800988D8;
@@ -611,7 +611,7 @@ void thread_dispatch(void)
                     D_800979D8 = 0;
                     EnterCriticalSection();
                     CloseTh(Thread_current->th);
-                    Thread_current->th = OpenTh((TH_FUNC)D_80098158[0], Thread_current->sp, Thread_current->exec.gp);
+                    Thread_current->th = OpenTh(D_80098158[0], Thread_current->sp, Thread_current->exec.gp);
                     ExitCriticalSection();
                 }
                 break;
@@ -651,9 +651,9 @@ void func_80012F24(sint32 n)
     ExitCriticalSection();
 }
 
-void func_80012F78(sint32 arg)
+void func_80012F78(TH_FUNC func)
 {
-    D_80098158[0] = arg;
+    D_80098158[0] = func;
     D_800979D8    = 1;
     ChangeTh(0xFF000000);
 }
@@ -709,7 +709,7 @@ void Thread_exec_file(char *name)
     }
     PCclose(fd);
     FlushCache();
-    func_80012F78(Thread_current->exec.pc0);
+    func_80012F78((TH_FUNC)Thread_current->exec.pc0);
 }
 
 void func_8001319C(void)

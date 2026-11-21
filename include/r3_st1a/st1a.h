@@ -7,11 +7,6 @@
 #include "stage_common/stcom23.h"
 #include "stage_common/gte.h"
 
-// PsyQ's setPolyFT4 (libgpu.h): length 9 words, code 0x2C.
-#ifndef setPolyFT4
-#define setPolyFT4(p) (setlen(p, 9), setcode(p, 0x2C))
-#endif
-
 // A 0x5A4-byte slot's hit state at +0x440: flags (bit 9 set while the player is down), and a
 // word at +0x18 cleared every frame (func_8011925C).
 typedef struct

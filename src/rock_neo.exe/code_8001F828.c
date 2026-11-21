@@ -1,5 +1,6 @@
 #include "common.h"
 #include "code_8001F828.h"
+#include "game.h"
 #include "psyq/inline_c.h"
 #include "scratch.h"
 #include "stage.h"
@@ -81,17 +82,92 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001F9AC);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FA94);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FB24);
+void func_8001FB24(void)
+{
+    if (Game_work.unk052 == 6)
+    {
+        D_80098208[0] = D_80098208[1] = D_8009820C[0] = D_8009820C[1] = 0x67;
+    }
+    else
+    {
+        D_80098208[0] = D_80098208[1] = D_8009820C[0] = D_8009820C[1] = 0x66;
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FB54);
+void func_8001FB54(void)
+{
+    sint16 id;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FB8C);
+    switch (Game_work.unk052)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            id = 0x69;
+            break;
+        case 6:
+        case 7:
+            id = 0x6A;
+            break;
+        default:
+            id = 0x6B;
+            break;
+    }
+    D_80098210[1] = id;
+}
+
+void func_8001FB8C(void)
+{
+    sint16 id;
+
+    switch (Game_work.unk052)
+    {
+        case 0:
+        case 1:
+            id = 0x76;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            id = 0x77;
+            break;
+        default:
+            id = 0x78;
+            break;
+    }
+    D_80098234[1] = id;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FBC4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FC50);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FCA4);
+void func_8001FCA4(void)
+{
+    sint16 id;
+
+    switch (Game_work.unk052)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            id = 0x85;
+            break;
+        case 5:
+            id = 0x86;
+            break;
+        default:
+            id = 0x87;
+            break;
+    }
+    D_80098258[1] = id;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FCE4);
 
@@ -103,13 +179,22 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FDE4);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FE38);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8002037C);
+void func_8002037C(void)
+{
+    D_800BEAD8[0] = 0;
+    D_8009893C    = D_800BEAD8;
+    D_800987D4    = 0;
+    D_800987DC    = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_800203A8);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_800207F8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80020A40);
+void func_80020A40(void)
+{
+    D_80097C3C = 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80020A4C);
 
@@ -351,13 +436,8 @@ __asm__(".text\n"
         ".globl D_800981E2\n.set D_800981E2, D_800981E0+2\n"
         ".globl D_800981EE\n.set D_800981EE, D_800981EC+2\n"
         ".globl D_800981F2\n.set D_800981F2, D_800981EC+6\n"
-        ".globl D_8009820A\n.set D_8009820A, D_80098208+2\n"
-        ".globl D_8009820E\n.set D_8009820E, D_8009820C+2\n"
-        ".globl D_80098212\n.set D_80098212, D_80098210+2\n"
-        ".globl D_80098236\n.set D_80098236, D_80098234+2\n"
         ".globl D_8009823A\n.set D_8009823A, D_80098238+2\n"
         ".globl D_8009823E\n.set D_8009823E, D_80098238+6\n"
-        ".globl D_8009825A\n.set D_8009825A, D_80098258+2\n"
         ".globl D_80098276\n.set D_80098276, D_80098270+6\n"
         ".globl D_8009827E\n.set D_8009827E, D_8009827C+2\n"
         ".globl D_8009828E\n.set D_8009828E, D_8009828C+2\n"

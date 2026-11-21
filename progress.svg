@@ -4,13 +4,13 @@
 <rect x="12" y="36" width="10" height="10" fill="#3fb950"/>
 <text x="26" y="45" font-size="11" fill="#8b949e">reviewed 0.9%</text>
 <rect x="114.60000000000001" y="36" width="10" height="10" fill="#d29922"/>
-<text x="128.60000000000002" y="45" font-size="11" fill="#8b949e">matched, not reviewed 82.8%</text>
+<text x="128.60000000000002" y="45" font-size="11" fill="#8b949e">matched, not reviewed 83.1%</text>
 <rect x="304.0" y="36" width="10" height="10" fill="#da3633"/>
-<text x="318.0" y="45" font-size="11" fill="#8b949e">not matched 16.3%</text>
+<text x="318.0" y="45" font-size="11" fill="#8b949e">not matched 16.1%</text>
 <text x="988" y="45" font-size="11" fill="#8b949e" text-anchor="end">area: bytes of Capcom code, one block per source file</text>
-<g><title>rock_neo.exe code_80048620: 45416 bytes, 0% matched, not reviewed, 100% not matched</title>
-<rect x="2.0" y="57.0" width="108.8" height="0.0" fill="#d29922"/>
-<rect x="2.0" y="57.0" width="108.8" height="128.9" fill="#da3633"/>
+<g><title>rock_neo.exe code_80048620: 45416 bytes, 1% matched, not reviewed, 99% not matched</title>
+<rect x="2.0" y="57.0" width="108.8" height="0.7" fill="#d29922"/>
+<rect x="2.0" y="57.7" width="108.8" height="128.2" fill="#da3633"/>
 <rect x="2.0" y="57.0" width="108.8" height="129.0" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
 <g><title>rock_neo.exe code_8002E7A8: 36236 bytes, 37% matched, not reviewed, 63% not matched</title>
 <rect x="110.8" y="57.0" width="86.8" height="47.9" fill="#d29922"/>
@@ -20,9 +20,9 @@
 <rect x="197.5" y="57.0" width="85.1" height="38.1" fill="#d29922"/>
 <rect x="197.5" y="95.1" width="85.1" height="90.9" fill="#da3633"/>
 <rect x="197.5" y="57.0" width="85.1" height="129.0" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
-<g><title>rock_neo.exe code_8001F828: 32336 bytes, 0% matched, not reviewed, 100% not matched</title>
-<rect x="2.0" y="186.0" width="98.9" height="0.0" fill="#d29922"/>
-<rect x="2.0" y="186.0" width="98.9" height="101.0" fill="#da3633"/>
+<g><title>rock_neo.exe code_8001F828: 32336 bytes, 1% matched, not reviewed, 99% not matched</title>
+<rect x="2.0" y="186.0" width="98.9" height="0.9" fill="#d29922"/>
+<rect x="2.0" y="186.9" width="98.9" height="100.1" fill="#da3633"/>
 <rect x="2.0" y="186.0" width="98.9" height="101.0" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
 <g><title>rock_neo.exe player: 26556 bytes, 0% matched, not reviewed, 100% not matched</title>
 <rect x="2.0" y="287.0" width="0.3" height="83.0" fill="#d29922"/>
@@ -71,8 +71,9 @@
 <rect x="155.4" y="309.5" width="45.5" height="36.3" fill="#d29922"/>
 <rect x="155.4" y="345.8" width="45.5" height="10.9" fill="#da3633"/>
 <rect x="155.4" y="309.5" width="45.5" height="47.2" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
-<g><title>rock_neo.exe debug: 6444 bytes, 100% not matched</title>
-<rect x="200.9" y="309.5" width="42.2" height="47.2" fill="#da3633"/>
+<g><title>rock_neo.exe debug: 6444 bytes, 23% matched, not reviewed, 77% not matched</title>
+<rect x="200.9" y="309.5" width="42.2" height="10.8" fill="#d29922"/>
+<rect x="200.9" y="320.4" width="42.2" height="36.4" fill="#da3633"/>
 <rect x="200.9" y="309.5" width="42.2" height="47.2" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
 <g><title>rock_neo.exe code_80043F34: 6052 bytes, 69% matched, not reviewed, 31% not matched</title>
 <rect x="243.0" y="309.5" width="39.6" height="32.5" fill="#d29922"/>
@@ -82,9 +83,9 @@
 <rect x="155.4" y="356.7" width="39.5" height="32.7" fill="#d29922"/>
 <rect x="155.4" y="389.5" width="39.5" height="13.9" fill="#da3633"/>
 <rect x="155.4" y="356.7" width="39.5" height="46.6" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
-<g><title>rock_neo.exe code_800133D8: 5864 bytes, 1% matched, not reviewed, 99% not matched</title>
-<rect x="155.4" y="403.3" width="39.5" height="0.4" fill="#d29922"/>
-<rect x="155.4" y="403.7" width="39.5" height="45.5" fill="#da3633"/>
+<g><title>rock_neo.exe code_800133D8: 5864 bytes, 36% matched, not reviewed, 64% not matched</title>
+<rect x="155.4" y="403.3" width="39.5" height="16.5" fill="#d29922"/>
+<rect x="155.4" y="419.8" width="39.5" height="29.4" fill="#da3633"/>
 <rect x="155.4" y="403.3" width="39.5" height="45.9" fill="none" stroke="#0d1117" stroke-width="0.6"/></g>
 <g><title>rock_neo.exe code_8003AC24: 4636 bytes, 0% matched, not reviewed, 100% not matched</title>
 <rect x="194.9" y="356.7" width="0.1" height="30.3" fill="#d29922"/>
