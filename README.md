@@ -8,26 +8,30 @@ The long-term goal is a *matching* decompilation: C source that compiles to a by
 
 ## Target
 
-| | |
-|---|---|
 | Title | Mega Man Legends (USA) |
+|---|---|
 | Serial | SLUS-00603 |
 | Executables | `SLUS_006.03` (boot shim), `ROCK_NEO.EXE` (main game) |
 | Redump entry | <http://redump.org/disc/2773/> |
 | Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
 | Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
 
-Other regions and disc revisions are not supported.
+Other regions and disc revisions are not yes supported.
 
 ## Status
 
-🛠️ **Decompiling.** Both executables rebuild byte-for-byte; C is replacing the assembly one source file at a time.
+**Clean up.** Both executables and all 44 code overlays rebuild byte-for-byte, nearly all of it from C. The work now is making that C readable (names, types, structure) and reviewing it by hand.
+
+![Progress: every source file, sized by its bytes of code; green is reviewed, amber matches but isn't reviewed yet, red isn't matched](progress.svg)
+
+Progress counts a function as done once it matches and a person has reviewed it. `functions.csv` has the details per function; `tools/progress.py` prints the totals and redraws the picture.
 
 - [x] Verified clean disc image against Redump
 - [x] Extracted filesystem and confirmed boot executable
-- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); the 44 code overlays (`ST*`, `ARM*R`, `SUPPORT`) mapped into functions (not yet split or built)
-- [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03` and `ROCK_NEO.EXE` **match**)
-- [ ] Decompilation (m2c, permuter, agent-assisted batches): every `SLUS_006.03` function is matched; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly. `tools/progress.py` and `functions.csv` have the numbers
+- [x] Recon: code/data boundaries, PsyQ version (`SLUS_006.03`, `ROCK_NEO.EXE`); the 44 code overlays (`ST*`, `ARM*R`, `SUPPORT`) mapped
+- [x] Split with splat; rebuild matches original byte-for-byte (`SLUS_006.03`, `ROCK_NEO.EXE` and every overlay **match**)
+- [ ] Decompilation (m2c, permuter, agent-assisted batches): `SLUS_006.03` and the overlays are all C; `ROCK_NEO.EXE` is split into Capcom's source files, all of them C, with the functions not yet decompiled still included as assembly
+- [ ] Review: every function's C read and cleaned up by hand (the picture above)
 - [ ] Naming and documentation
 
 ## Code style
@@ -83,7 +87,8 @@ The toolchain and its setup are documented in [`notes/toolchain.md`](notes/toolc
 ├── CLAUDE.md                  # rules and patterns for writing matching C (read by agents and people)
 ├── config/<target>/           # per target: <target>.yaml (splat config, with its SHA-1) and
 │                              #   symbol_addrs.txt (symbol registry)
-├── functions.csv              # every function with its status (decompiled, matched, reviewed)
+├── functions.csv              # every function with its size and status (decompiled, matched, reviewed)
+├── progress.svg               # the progress picture (tools/progress.py, from functions.csv)
 ├── reviewed.txt               # functions a person has reviewed (tools/review.py)
 ├── diff_settings.py           # asm-differ settings (tools/diff.sh)
 ├── mml.xml                    # mkpsxiso disc layout (metadata only)

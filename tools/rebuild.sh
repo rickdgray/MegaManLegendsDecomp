@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Split, build, and refresh expected/ for one or more targets, then format and regenerate
-# functions.csv (tools/function_list.py, which needs every target's ELF). Use after any rename
-# or yaml change (tools/rename.py prints the targets to pass). make_expected.sh refuses if a build
+# functions.csv (tools/function_list.py, which needs every target's ELF) and progress.svg
+# (tools/progress.py). Use after any rename or yaml change (tools/rename.py prints the targets to
+# pass). make_expected.sh refuses if a build
 # doesn't match.
 # Usage: tools/rebuild.sh [target ...]    (or a group: all, executables, overlays)
 #   With several targets, each one's output is kept quiet and one line per target says MATCH or
@@ -33,8 +34,11 @@ for t in "${EXECUTABLES[@]}" "${OVERLAYS[@]}"; do
     [[ -f build/$t/$t.elf ]] || missing+=("$t")
 done
 if [[ ${#missing[@]} -eq 0 ]]; then
-    .venv/bin/python tools/function_list.py \
-        || echo "warning: functions.csv not regenerated (open in Excel?)" >&2
+    if .venv/bin/python tools/function_list.py; then
+        .venv/bin/python tools/progress.py > /dev/null && echo "redrew progress.svg"
+    else
+        echo "warning: functions.csv not regenerated (open in Excel?)" >&2
+    fi
 else
     echo "note: functions.csv not regenerated; ${#missing[@]} target(s) not built (${missing[0]} ...): make build" >&2
 fi

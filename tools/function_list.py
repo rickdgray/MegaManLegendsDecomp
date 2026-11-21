@@ -3,7 +3,7 @@
 
 Usage:  tools/function_list.py [-o functions.csv]
 
-Columns: Program, File, Confidence, Function, Name, Decompiled, Matched, Reviewed, Score, Depth. One row per
+Columns: Program, File, Confidence, Function, Name, Size, Decompiled, Matched, Reviewed, Score, Depth. One row per
 Capcom function: the executables, then the overlays, in address order, then the shared stage code.
 
 - Program: the target (`slus_006.03`, `rock_neo.exe`, `r3_st05`, ...), or `stage_common` for a
@@ -16,6 +16,7 @@ Capcom function: the executables, then the overlays, in address order, then the 
   blank if none).
 - Function: splat's default name (`func_<ADDRESS>`; `<file>_func_<OFFSET>` in stage_common);
   Name: the name it was given, blank if none.
+- Size: the function's bytes (its ELF symbol's size).
 - Decompiled: the function has C, matching or parked in a `#ifdef NON_MATCHING` block.
 - Matched: its C builds byte-identical (no NAME.NON_MATCHING symbol in the ELF).
 - Reviewed: the owner has read and approved its C (tools/review.py, reviewed.txt): Yes, or
@@ -33,7 +34,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import progress  # noqa: E402
+import target_code  # noqa: E402
 import review  # noqa: E402
 import targets  # noqa: E402
 
@@ -75,12 +76,12 @@ def main():
     yn = lambda b: "Yes" if b else "No"
     rows, shared, seen = [], [], set()
     for t in targets.TARGETS:
-        funcs, asm = progress.functions(t)
-        subs = progress.subsegments(t)
+        funcs, asm = target_code.functions(t)
+        subs = target_code.subsegments(t)
         common = set(targets.shared_files(t))
         conf, attempts, reviewed = confidence(t), parked(t), review.status(t)
         for addr in sorted(funcs):
-            name = funcs[addr][1]
+            size, name = funcs[addr]
             sub = next((s for s in subs if s[0] <= addr < s[1]), None)
             if sub is None or sub[2].startswith(("psyq/", "asm_")):
                 continue
@@ -94,7 +95,7 @@ def main():
                 program, default, out = t, f"func_{addr:08X}", rows
             matched = name not in asm
             m = metrics[(t, addr)]
-            out.append((program, file, conf.get(file, ""), default, "" if name == default else name,
+            out.append((program, file, conf.get(file, ""), default, "" if name == default else name, size,
                         yn(matched or name in attempts), yn(matched), reviewed.get(addr, ""),
                         m["score"], m.get("depth", "")))
     rows += sorted(shared, key=lambda r: (r[1], r[3]))
@@ -102,14 +103,14 @@ def main():
     with open(ROOT / args.out if not Path(args.out).is_absolute() else args.out, "w",
               newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["Program", "File", "Confidence", "Function", "Name", "Decompiled", "Matched",
+        w.writerow(["Program", "File", "Confidence", "Function", "Name", "Size", "Decompiled", "Matched",
                     "Reviewed", "Score", "Depth"])
         w.writerows(rows)
 
-    dec = sum(r[5] == "Yes" for r in rows)
-    mat = sum(r[6] == "Yes" for r in rows)
-    rev = sum(r[7] == "Yes" for r in rows)
-    chg = sum(r[7] == "Changed" for r in rows)
+    dec = sum(r[6] == "Yes" for r in rows)
+    mat = sum(r[7] == "Yes" for r in rows)
+    rev = sum(r[8] == "Yes" for r in rows)
+    chg = sum(r[8] == "Changed" for r in rows)
     print(f"wrote {args.out}: {len(rows)} functions, {dec} decompiled, {mat} matched, "
           f"{rev} reviewed{f' ({chg} changed since review)' if chg else ''}, "
           f"{len({(r[0], r[1]) for r in rows})} files")

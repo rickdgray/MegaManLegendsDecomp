@@ -36,7 +36,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import function_list  # noqa: E402
-import progress  # noqa: E402
+import target_code  # noqa: E402
 import targets  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -98,8 +98,8 @@ def programs():
             base = EXE_VRAM
             data = (ROOT / EXE_DISC[t]).read_bytes()[EXE_HEADER:]
         ws = struct.unpack_from(f"<{len(data) // 4}I", data)
-        syms, asm = progress.functions(t)
-        subs = progress.subsegments(t)
+        syms, asm = target_code.functions(t)
+        subs = target_code.subsegments(t)
         funcs = []
         for addr in sorted(syms):
             size, name = syms[addr]
