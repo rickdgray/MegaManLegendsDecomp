@@ -811,8 +811,8 @@ extern void *D_8012E1F4[];
 extern uint8 D_8012E208[][0x28];
 extern uint8 D_8012E2D0[][8];
 extern STCOM_SVECTOR D_8012E44C[];
-uint32 func_8003AC9C(sint32 idx, uint32 key);
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 
 void Sound_call(sint32 id, sint32 a1, sint32 a2);
 void func_8003187C(void *wp);
@@ -1790,7 +1790,7 @@ typedef struct
         uint8 routine_0; // 08
         uint32 word;
     } u_8;
-    uint16 cell_C[3];    // 0C: per lift, its map object (func_80048C60)
+    uint16 cell_C[3];    // 0C: per lift, its map object (Map_cell_get)
     uint8 reserved12[2]; // 12
     sint16 value_14[3];  // 14
     uint8 reserved1A[2]; // 1A
@@ -2111,7 +2111,7 @@ typedef struct
 
 void func_8011986C(ST05_BOAT *wp, ST05_BOAT_CTL *ctl);
 
-// The scratchpad angles func_8003346C tilts a model by: x and z.
+// The scratchpad angles Model_parts_mtx_set_y tilts a model by: x and z.
 #define ST05_SP_TILT ((STCOM_SVECTOR *)0x1F800128)
 
 // The same scratchpad angles as an array by joint (func_80111898): its model's draw reads them.

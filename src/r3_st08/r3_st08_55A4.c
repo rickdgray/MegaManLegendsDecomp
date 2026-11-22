@@ -291,7 +291,7 @@ void func_80105F1C(ST08_ACTOR *wp)
     func_80032538(wp);
     func_80033A28(wp);
     ST08_SP_ROT_Z = wp->rotation.v.z;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     Model_Shadow_Trans(wp, 0x28, 0x200, 0);
 }
 
@@ -322,7 +322,7 @@ void func_801060C0(ST08_ACTOR *wp)
     func_80032538(wp);
     func_80033A28(wp);
     ST08_SP_ROT_X = wp->rotation.v.x;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     Model_Shadow_Trans(wp, 0x28, 0x200, 0);
 }
 

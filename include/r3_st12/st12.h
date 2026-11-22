@@ -76,8 +76,8 @@ extern STAGE_ROOM_FUNC *D_801083D0[]; // room scripts by script set, then room
 void func_8001EB98(void *entry);
 extern STCOM_SVECTOR D_80108AC0[];
 extern uint32 D_80108AE0[];
-sint32 func_80048D08(sint32 a0, STCOM_SVECTOR *pos);
-uint32 func_8003AC9C(sint32 idx, uint32 key);
+sint32 Stage_map_cell_get(sint32 a0, STCOM_SVECTOR *pos);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
 extern uint8 D_801088F4[];
 extern STAGE_ROOM2_FUNC D_80108AF0[];
 extern STAGE_SCRIPT_ENTRY D_80108804[];
@@ -90,7 +90,7 @@ void func_80100CC4(STAGE_ROOM *wp);
 
 extern STCOM_SVECTOR D_801087C0[];
 extern uint32 D_801087E0[];
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 void func_8001E20C(sint32 arg);
 void func_801005BC(STAGE_ROOM_WORK *wp);
 

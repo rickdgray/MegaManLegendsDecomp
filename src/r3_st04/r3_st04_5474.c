@@ -591,7 +591,7 @@ void func_801065FC(ST04_ACTOR *wp)
         func_80032538(wp);
     }
     ST04_SP_132 = ctl[1].value_1E;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (ctl->flags_0 & 8)
     {
         ctl->target_C = wp->value_180;

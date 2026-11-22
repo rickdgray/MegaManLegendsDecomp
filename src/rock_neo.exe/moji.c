@@ -1,5 +1,6 @@
 #include "common.h"
 #include "cd.h"
+#include "psyq/rand.h"
 #include "game.h"
 #include "moji.h"
 #include "player.h"
@@ -7,6 +8,7 @@
 #include "sound.h"
 #include "code_80037FB4.h"
 #include "code_8004324C.h"
+#include "code_8005C258.h"
 
 // Small uninitialized statics (.sbss 0x800986E0-0x800986F8).
 static uint8 D_800986E0[4];
@@ -180,7 +182,41 @@ sint32 get_le32(uint8 *p)
     return p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80054450);
+// Waits the command's 16-bit argument in frames, then skips it; with flags_0 bit 0x04000000 it
+// runs the entry's D_8008AAC0 handler instead. Stops XA audio if the entry was playing it.
+sint32 func_80054450(MOJI_WORK *wp)
+{
+    if (!(wp->flags_0 & 0x1000000))
+    {
+        wp->flags_0 |= 0x1000000;
+        wp->timer_4 = get_le16(wp->cmd_ptr_6C + 1);
+    }
+    wp->flags_0 |= 0x10000000;
+    if (wp->timer_4 <= 0)
+    {
+        wp->flags_0 |= 0x20000;
+        if (wp->flags_0 & 0x4000000)
+        {
+            wp->flags_0 |= 0x100000;
+            D_8008AAC0[wp->unk_7C](wp);
+            return 0;
+        }
+        wp->flags_0 &= ~0x20000;
+        wp->flags_0 &= ~0x81000000;
+        wp->cmd_ptr_6C += 3;
+        if (wp->flags_0 & 0x40000)
+        {
+            Cd_subcmd(0, CD_SUBCMD_XA_STOP, 0);
+        }
+        wp->mes_no_C2 = 0xFF;
+        wp->flags_0 &= ~0x40000;
+    }
+    else
+    {
+        wp->timer_4 -= 1;
+    }
+    return 0;
+}
 
 sint32 func_8005457C(MOJI_WORK *wp)
 {
@@ -607,11 +643,27 @@ void func_80056180(MOJI_WORK *mp)
     mp->mes_ptr_14 += 2;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005619C);
+sint32 func_8005619C(MOJI_WORK *wp)
+{
+    if (func_8005DA78(1) != 0)
+    {
+        wp->cmd_ptr_6C += 1;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800561E8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80056234);
+sint32 func_80056234(MOJI_WORK *wp)
+{
+    if (func_8005DA1C(1) != 0)
+    {
+        wp->cmd_ptr_6C += 1;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80056280);
 
@@ -681,7 +733,48 @@ sint32 func_8005721C(MOJI_WORK *wp)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800572C8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057408);
+// Jumps to a message: after code 0xD5, one picked at random from its count byte's list, else the
+// argument byte's. 0xFF skips the command.
+sint32 func_80057408(MOJI_WORK *wp)
+{
+    uint8 mes_no;
+
+    if (wp->cmd_ptr_6C[0] == 0xD5)
+    {
+        mes_no = wp->cmd_ptr_6C[rand() % wp->cmd_ptr_6C[1] + 2];
+    }
+    else
+    {
+        mes_no = wp->cmd_ptr_6C[2];
+    }
+    if (mes_no == 0xFF)
+    {
+        if (wp->cmd_ptr_6C[0] == 0xD5)
+        {
+            wp->cmd_ptr_6C += wp->cmd_ptr_6C[1] + 2;
+        }
+        else
+        {
+            wp->cmd_ptr_6C += 3;
+        }
+    }
+    else
+    {
+        wp->mes_no_C2 = mes_no;
+        if (wp->mes_file_44 != NULL)
+        {
+            wp->cmd_ptr_6C = wp->cmd_top_48 = wp->mes_file_44 + ((uint16 *)wp->mes_file_44)[mes_no];
+        }
+        else
+        {
+            wp->cmd_ptr_6C = wp->cmd_top_48 = D_8008CACC[mes_no];
+        }
+        wp->unk_3E = 0;
+        wp->unk_3C = 0;
+        wp->unk_72 = 0;
+    }
+    return 1;
+}
 
 void func_8005753C(MOJI_WORK *mp)
 {
@@ -695,7 +788,29 @@ void func_8005753C(MOJI_WORK *mp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057574);
+void func_80057574(MOJI_WORK *mp)
+{
+    if (Sce_flag_test(0x2EE) != 0)
+    {
+        if (D_80098850 == 0)
+        {
+            six_digit_set(0, D_8008FD3C[D_800BE2F8[D_8009899C + mp->unk_73 - 1]] >> 2, mp->mes_ptr_14 + 1);
+        }
+        else
+        {
+            six_digit_set(0, D_8008FD7C[D_800BE2F8[D_8009899C + mp->unk_73 - 1]] >> 2, mp->mes_ptr_14 + 1);
+        }
+    }
+    else if (D_80098850 == 0)
+    {
+        six_digit_set(0, D_8008FD3C[D_800BE2F8[D_8009899C + mp->unk_73 - 1]], mp->mes_ptr_14 + 1);
+    }
+    else
+    {
+        six_digit_set(0, D_8008FD7C[D_800BE2F8[D_8009899C + mp->unk_73 - 1]], mp->mes_ptr_14 + 1);
+    }
+    mp->mes_ptr_14 += 1;
+}
 
 sint32 func_800576C4(MOJI_WORK *wp)
 {
@@ -744,7 +859,43 @@ sint32 func_80057744(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800577FC);
+sint32 func_800577FC(MOJI_WORK *wp)
+{
+    uint8 mes_no;
+
+    if (Money_check(-((Game_work.unk07D - Game_work.unk07C) * 10)) == 0)
+    {
+        mes_no = wp->cmd_ptr_6C[1];
+    }
+    else if (Game_work.unk060 >= 0x80 && Money_check(-1) == 0)
+    {
+        mes_no = wp->cmd_ptr_6C[3];
+    }
+    else
+    {
+        mes_no = wp->cmd_ptr_6C[2];
+    }
+    if (mes_no == 0xFF)
+    {
+        wp->cmd_ptr_6C += 4;
+    }
+    else
+    {
+        wp->mes_no_C2 = mes_no;
+        if (wp->mes_file_44 != NULL)
+        {
+            wp->cmd_ptr_6C = wp->cmd_top_48 = wp->mes_file_44 + ((uint16 *)wp->mes_file_44)[mes_no];
+        }
+        else
+        {
+            wp->cmd_ptr_6C = wp->cmd_top_48 = D_8008CACC[mes_no];
+        }
+        wp->unk_3E = 0;
+        wp->unk_3C = 0;
+        wp->unk_72 = 0;
+    }
+    return 1;
+}
 
 sint32 func_80057924(MOJI_WORK *wp)
 {
@@ -877,7 +1028,7 @@ sint32 func_80057DF4(MOJI_WORK *wp)
 
     for (i = 0; i < 3; i++)
     {
-        wp->cmd_ptr_6C[i + 1] = Game_work.unk084[D_800989D4][i + 2];
+        wp->cmd_ptr_6C[i + 1] = Game_work.records_84.h[D_800989D4][i + 2];
     }
     wp->cmd_ptr_6C += 1;
     return 1;
@@ -887,7 +1038,44 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057E50);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057FF8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005851C);
+sint32 func_8005851C(MOJI_WORK *wp)
+{
+    uint16 *val;
+    sint8 *idx;
+    uint8 *src;
+    uint8 n;
+    sint32 i;
+
+    n   = wp->cmd_ptr_6C[1];
+    val = D_8008D8EC[D_800989D4][n];
+    if (D_800989D4 != 0)
+    {
+        idx = &Player_work[0].rec[D_800989D4 + 1].idx[n];
+    }
+    else
+    {
+        idx = &Player_work[0].rec[0].idx[n];
+    }
+    if (val[0] == 0)
+    {
+        src = D_80097FEC;
+    }
+    else if (val[*idx] == 0)
+    {
+        src = D_80097FE4;
+    }
+    else
+    {
+        D_80097FE2[0] = D_8008D028[*idx + 1];
+        src           = D_80097FDC;
+    }
+    for (i = 0; i < 8; i++)
+    {
+        wp->cmd_ptr_6C[i + 2] = src[i];
+    }
+    wp->cmd_ptr_6C += 2;
+    return 1;
+}
 
 sint32 func_8005861C(MOJI_WORK *wp)
 {
@@ -943,7 +1131,43 @@ sint32 func_80058788(MOJI_WORK *wp)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800587F8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80058AEC);
+sint32 func_80058AEC(MOJI_WORK *wp)
+{
+    if (!(wp->flags_0 & 0x1000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x1000000) & ~0x8000;
+        wp->timer_4 = 5;
+    }
+    wp->flags_0 &= ~0x400000;
+    if (Moji_flag & 0x8000000)
+    {
+        Moji_flag |= 0x20000;
+    }
+    else
+    {
+        Moji_flag &= ~0x20000;
+    }
+    if (wp->timer_4 <= 0)
+    {
+        if (wp->unk_BA & 0x4000)
+        {
+            Moji_flag &= ~0xFF;
+            // The target reads unk_71 unsigned here (lbu), signed everywhere else.
+            Moji_flag |= 0x40000000 | (uint8)wp->unk_71;
+        }
+        else if (wp->unk_BA & 0x1000)
+        {
+            Moji_flag &= ~0xFF;
+            Moji_flag |= 0x20000000 | ((wp->unk_72 - 1) & 0xFF);
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    wp->unk_78 = 0x80;
+    return 0;
+}
 
 sint32 func_80058C08(MOJI_WORK *wp)
 {
@@ -1252,7 +1476,54 @@ void func_8005AB78(MOJI_WORK *wp)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005ACA8);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B454);
+// Fades a full-screen (320 x 240) quad in to grey 0x80 (unk_7D 0 sets it up, 1 fades in and
+// skips the command) and out again (2).
+void func_8005B454(MOJI_WORK *mp)
+{
+    switch (mp->unk_7D)
+    {
+        case 0:
+            mp->corner_88[1].vx = 320;
+            mp->corner_88[2].vy = 240;
+            mp->corner_88[3].vx = 320;
+            mp->corner_88[3].vy = 240;
+            mp->r_B0            = 0;
+            mp->g_B1            = 0;
+            mp->b_B2            = 0;
+            mp->corner_88[0].vx = 0;
+            mp->corner_88[0].vy = 0;
+            mp->corner_88[1].vy = 0;
+            mp->corner_88[2].vx = 0;
+            mp->flags_0 |= 0x14000000;
+            mp->unk_80 = mp->flags_0 & 0x08000000;
+            mp->unk_7D++;
+            mp->flags_0 |= 0x08000000;
+            break;
+        case 1:
+            mp->flags_0 |= 0x10000000;
+            mp->r_B0 += 8;
+            mp->g_B1 += 8;
+            mp->b_B2 += 8;
+            if (mp->r_B0 == 0x80)
+            {
+                mp->flags_0 |= 0x12000000;
+                mp->flags_0 = (mp->flags_0 & ~0x08000000) | mp->unk_80;
+                mp->unk_7D++;
+                mp->cmd_ptr_6C += 3;
+            }
+            break;
+        case 2:
+            mp->flags_0 |= 0x10000000;
+            mp->r_B0 -= 8;
+            mp->g_B1 -= 8;
+            mp->b_B2 -= 8;
+            if (mp->r_B0 == 0)
+            {
+                mp->flags_0 &= ~0x06000000;
+            }
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005B5D8);
 
@@ -1374,7 +1645,25 @@ void six_digit_set(sint32 pad, uint32 n, uint8 *dst)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", six_digit_set);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005BFC0);
+// Writes a frame count (30 per second) as a time: minutes' last digit at [0], seconds at [2] and
+// [3], tenths at [5] and hundredths (0, 3 or 6) at [6]. One index variable serves every digit.
+void time_digit_set(uint32 frames, uint8 *dst)
+{
+    uint32 sec;
+    uint32 idx;
+
+    sec    = frames / 30;
+    idx    = (frames % 3) * 3;
+    dst[6] = D_8008D028[idx];
+    idx    = (frames % 30) / 3;
+    dst[5] = D_8008D028[idx];
+    idx    = sec % 10;
+    dst[3] = D_8008D028[idx];
+    idx    = (sec % 60) / 10;
+    dst[2] = D_8008D028[idx];
+    idx    = (sec / 60) % 10;
+    dst[0] = D_8008D028[idx];
+}
 
 void two_digit_set(uint32 n, uint8 *dst)
 {

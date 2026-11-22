@@ -1,6 +1,7 @@
 #include "common.h"
 #include "code_8002E7A8.h"
 #include "fastmem.h"
+#include "game.h"
 #include "psyq/inline_c.h"
 #include "player.h"
 #include "stage.h"
@@ -19,6 +20,13 @@ void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
 VECTOR *func_80030058(VECTOR *out, sint32 angle, sint32 x, sint32 y, sint32 z);
 PL_SHL_WORK *func_80031598(void);
 sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
+void func_800309E0(SVECTOR *from, SVECTOR *to, SVECTOR *out, sint16 *time, sint16 speed, sint16 max, sint16 grav);
+void func_800331A0(PL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off);
+void func_800333A0(void);
+void matrix_push(MATRIX *src);
+void matrix_pop(MATRIX *dst);
+void func_80035508(void);
+void func_80035724(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 flag);
 
 // Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
 sint32 D_80097CFC = 0x200;
@@ -137,7 +145,114 @@ void Work_pools_init(sint32 players)
     Mem_clear(D_8015BC00, D_8015BC00 + 0x3FC);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002EA50);
+#ifdef NON_MATCHING
+// Opens the objects of a room's spawn table (ended by routine_0 == -1), each in the pool its kind_1
+// names, and copies the entry into it. Players (kind 0) are only set up when `players` is set.
+// Differs only in the 0x60 case: GCC relates &Game_work.stage_no to &Game_work.unk078, keeps one
+// base for both in a saved register (s2, hoisted out of the loop; one more saved register), where
+// the target builds Game_work+0x78 in v1 each time and reaches 0x50 with its own lui. Reading
+// 0x78 through a second declaration of Game_work (`__asm__("Game_work")`, CoastRedWood's draft)
+// matches, so the original reached one of the two through another symbol.
+void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
+{
+    PL_WORK *pl;
+    MODEL_WORK *o;
+    WORK_48 *fx;
+    EVE_WORK *ev;
+
+    while (e->routine_0 != -1)
+    {
+        switch (e->kind_1)
+        {
+            case 0x00:
+                if (players != 0)
+                {
+                    pl = &Player_work[1];
+                    D_8009888C |= 0x80000000U >> e->type_3;
+                    if (e->type_3 == 0)
+                    {
+                        pl--;
+                    }
+                    pl->unk00                 = e->routine_0;
+                    *(uint16 *)&pl->id_2      = *(uint16 *)&e->id_2;
+                    *(uint16 *)&pl->flag_4    = *(uint16 *)&e->flag_4;
+                    pl->field_C               = e->field_8;
+                    *(uint32 *)&pl->routine_8 = 0;
+                    pl->pos_l.vx = pl->old_l.vx = e->pos.vx << 16;
+                    pl->pos_l.vy = pl->old_l.vy = e->pos.vy << 16;
+                    pl->pos_l.vz = pl->old_l.vz = e->pos.vz << 16;
+                    pl->old                     = e->pos;
+                    pl->pos                     = pl->old;
+                    pl->ang.vx = pl->old_ang.vx = 0;
+                    pl->ang.vy = pl->old_ang.vy = e->ang_7 << 4;
+                    pl->ang.vz = pl->old_ang.vz = 0;
+                }
+                break;
+            case 0x20:
+                o = (MODEL_WORK *)func_80031418();
+                goto fill_model;
+            case 0x40:
+                o = (MODEL_WORK *)func_80031498();
+                goto fill_model;
+            case 0x60:
+                if (e->id_2 != 0x11 ||
+                    (Game_work.unk078.b.flag != 0 && ((sint32)(Game_work.unk078.word << 8) >> 16) == *(sint16 *)&Game_work.stage_no))
+                {
+                    o = (MODEL_WORK *)Open_SHL_WORK();
+                fill_model:
+                    if (o != NULL)
+                    {
+                        o->routine_0          = e->routine_0;
+                        *(uint16 *)&o->id_2   = *(uint16 *)&e->id_2;
+                        *(uint16 *)&o->flag_4 = *(uint16 *)&e->flag_4;
+                        o->field_C            = e->field_8;
+                        o->pos_l.vx = o->old_l.vx = e->pos.vx << 16;
+                        o->pos_l.vy = o->old_l.vy = e->pos.vy << 16;
+                        o->pos_l.vz = o->old_l.vz = e->pos.vz << 16;
+                        o->old                    = e->pos;
+                        o->pos                    = o->old;
+                        o->ang.vx = o->old_ang.vx = 0;
+                        o->ang.vy = o->old_ang.vy = e->ang_7 << 4;
+                        o->ang.vz = o->old_ang.vz = 0;
+                    }
+                }
+                break;
+            case 0x80:
+                fx = func_80031618();
+                goto fill_efc;
+            case 0xC0:
+                ev = Open_EVE_WORK();
+                if (ev != NULL)
+                {
+                    ev->routine_0          = e->routine_0;
+                    *(uint16 *)&ev->id_2   = *(uint16 *)&e->id_2;
+                    *(uint16 *)&ev->flag_4 = *(uint16 *)&e->flag_4;
+                    ev->field_C            = e->field_8;
+                    ev->pos                = e->pos;
+                }
+                break;
+            case 0xE0:
+                fx = (WORK_48 *)func_80031734();
+            fill_efc:
+                if (fx != NULL)
+                {
+                    fx->routine_0          = e->routine_0;
+                    *(uint16 *)&fx->id_2   = *(uint16 *)&e->id_2;
+                    *(uint16 *)&fx->flag_4 = *(uint16 *)&e->flag_4;
+                    fx->field_C            = e->field_8;
+                    fx->efc.model.pos      = e->pos;
+                    fx->efc.sprite.pos[0]  = e->pos.vx;
+                    fx->efc.sprite.pos[1]  = e->pos.vy;
+                    fx->efc.sprite.pos[2]  = e->pos.vz;
+                }
+                break;
+        }
+        e++;
+    }
+}
+#else
+INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Obj_spawn_tbl_set);
+#endif
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", Obj_work_flag_change);
 
@@ -161,7 +276,205 @@ void func_8002F3A8(MODEL_WORK *wp, uint32 f)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8002F420);
+// For each pool picked in `flag` (2 WORK_3C0, 4 WORK_5A4, 8 PL_SHL_WORK, 0x10 SHL_WORK, 0x20 and
+// 0x40 WORK_48 of id 0x80 and up / below 0x80, 0x80 EVE_WORK, 0x100 WORK_50): every live slot
+// whose flags bit 5 is set is moved by d (when given), every other one is closed.
+void func_8002F420(sint32 flag, SVECTOR *d)
+{
+    sint32 i;
+    sint32 j;
+    uint32 mask;
+    WORK_3C0 *w3;
+    WORK_5A4 *w5;
+    PL_SHL_WORK *ps;
+    SHL_WORK *sh;
+    WORK_48 *fx;
+    EVE_WORK *ev;
+    WORK_50 *w50;
+
+    if (flag & 2)
+    {
+        w3   = D_8009F108;
+        mask = D_800987E8;
+        for (i = 0; i < 16; i++, w3++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (w3->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F884((MODEL_WORK *)w3, d);
+                    }
+                }
+                else
+                {
+                    func_80031824(w3);
+                }
+            }
+        }
+    }
+    if (flag & 4)
+    {
+        w5   = D_800C3580;
+        mask = D_80098B20;
+        for (i = 0; i < 4; i++, w5++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (w5->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F884((MODEL_WORK *)w5, d);
+                    }
+                }
+                else
+                {
+                    func_8003187C(w5);
+                }
+            }
+        }
+    }
+    if (flag & 8)
+    {
+        ps   = D_800BFB20;
+        mask = D_800989F0;
+        for (i = 0; i < 16; i++, ps++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (ps->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F884((MODEL_WORK *)ps, d);
+                    }
+                }
+                else
+                {
+                    func_80031930(ps);
+                }
+            }
+        }
+    }
+    if (flag & 0x10)
+    {
+        sh   = D_8009CF88;
+        mask = D_800987CC;
+        for (i = 0; i < 32; i++, sh++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (sh->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F884((MODEL_WORK *)sh, d);
+                    }
+                }
+                else
+                {
+                    Close_SHL_WORK(sh);
+                }
+            }
+        }
+    }
+    if (flag & 0x20)
+    {
+        fx = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            mask = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, fx++)
+            {
+                if ((sint32)(mask << j) < 0 && fx->id_2 >= 0x80)
+                {
+                    if (fx->flags & 0x20)
+                    {
+                        if (d != NULL)
+                        {
+                            func_8002F928(fx, d);
+                        }
+                    }
+                    else
+                    {
+                        func_80031988(fx);
+                    }
+                }
+            }
+        }
+    }
+    if (flag & 0x40)
+    {
+        fx = D_800A3B40;
+        for (i = 0; i < 2; i++)
+        {
+            mask = (&D_80098838)[i];
+            for (j = 0; j < 32; j++, fx++)
+            {
+                if ((sint32)(mask << j) < 0 && fx->id_2 < 0x80)
+                {
+                    if (fx->flags & 0x20)
+                    {
+                        if (d != NULL)
+                        {
+                            func_8002F928(fx, d);
+                        }
+                    }
+                    else
+                    {
+                        func_80031988(fx);
+                    }
+                }
+            }
+        }
+    }
+    if (flag & 0x80)
+    {
+        ev   = D_800A2D08;
+        mask = D_800987EC;
+        for (i = 0; i < 16; i++, ev++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (ev->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F998(ev, d);
+                    }
+                }
+                else
+                {
+                    Close_EVE_WORK(ev);
+                }
+            }
+        }
+    }
+    if (flag & 0x100)
+    {
+        w50  = D_800BF118;
+        mask = D_800989CC;
+        for (i = 0; i < 32; i++, w50++)
+        {
+            if ((sint32)(mask << i) < 0)
+            {
+                if (w50->flags & 0x20)
+                {
+                    if (d != NULL)
+                    {
+                        func_8002F928((WORK_48 *)w50, d);
+                    }
+                }
+                else
+                {
+                    func_80031A4C(w50);
+                }
+            }
+        }
+    }
+}
 
 // Moves the position and the previous position (both forms) by d in x and z.
 void func_8002F884(MODEL_WORK *wp, SVECTOR *d)
@@ -621,9 +934,21 @@ sint32 func_8003081C(SVECTOR *from, SVECTOR *to, sint16 *shift, sint16 angle)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003081C);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80030934);
+// Obj_launch_set with a gravity of 0x100.
+void func_80030934(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max)
+{
+    Obj_launch_set(wp, to, speed, max, 0x100);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80030968);
+// Launches wp at to's position (func_800309E0, the flight time to to->pos_C4.pad), with gravity
+// grav in add.vy.
+void Obj_launch_set(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max, sint16 grav)
+{
+    func_800309E0(&wp->pos, &to->pos_C4, &wp->spd, &to->pos_C4.pad, speed, max, grav);
+    wp->add.vz = 0;
+    wp->add.vx = 0;
+    wp->add.vy = grav;
+}
 
 // Launch velocity (out, three components) and flight time (*time) from `from` to `to` at `speed`;
 // `max` caps the horizontal distance when nonzero, `grav` is the drop per half-distance.
@@ -822,7 +1147,7 @@ sint32 func_8003129C(SVECTOR *a, SVECTOR *b)
 
 void func_80031324(WORK_5A4 *parent, CHILD_WORK *child, sint16 n)
 {
-    child->blk_8C    = parent->blk_240[n];
+    child->mtx_8C    = parent->mtx_240[n];
     child->ent_88    = (ENT_14 *)((uint8 *)parent->info_88->tbl_70 + (n + 1) * 0x14);
     child->color_B4  = 0x808080;
     child->parent_B8 = parent;
@@ -864,8 +1189,8 @@ WORK_3C0 *func_80031418(void)
 }
 
 #ifdef NON_MATCHING
-// Only the field_2 store is scheduled earlier than in the target (before the D_80098B20 store);
-// its three twins match with the same code.
+// Only the id_2/type_3 store is scheduled earlier than in the target (before the D_80098B20
+// store); its three twins match with the same code.
 WORK_5A4 *func_80031498(void)
 {
     sint32 i;
@@ -881,7 +1206,7 @@ WORK_5A4 *func_80031498(void)
             wp->field_10 = 0;
             wp->hit_78   = 0;
             D_80098B20 |= 0x80000000 >> i;
-            wp->field_2               = 0;
+            *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
             *(uint32 *)&wp->routine_8 = 0;
@@ -999,7 +1324,7 @@ EVE_WORK *Open_EVE_WORK(void)
             wp           = &D_800A2D08[i];
             wp->field_10 = 0;
             D_800987EC |= 0x80000000 >> i;
-            wp->field_2            = 0;
+            *(uint16 *)&wp->id_2   = 0;
             *(uint32 *)&wp->flag_4 = 0;
             wp->field_C            = 0;
             wp->field_8            = 0;
@@ -1029,7 +1354,7 @@ WORK_50 *func_80031734(void)
             wp           = &D_800BF118[i];
             wp->field_10 = 0;
             D_800989CC |= 0x80000000 >> i;
-            wp->field_2             = 0;
+            *(uint16 *)&wp->id_2    = 0;
             *(uint32 *)&wp->flag_4  = 0;
             *(uint32 *)&wp->field_C = 0;
             wp->field_8             = 0;
@@ -1053,7 +1378,7 @@ WORK_50 *func_800317AC(sint32 i)
         {
             wp = &D_800BF118[i];
             D_800989CC |= 0x80000000 >> i;
-            wp->field_2             = 0;
+            *(uint16 *)&wp->id_2    = 0;
             *(uint32 *)&wp->flag_4  = 0;
             *(uint32 *)&wp->field_C = 0;
             wp->field_8             = 0;
@@ -1379,7 +1704,54 @@ sint32 func_80031F84(SVECTOR *from, SVECTOR *to, sint16 base, uint16 mode)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80031F84);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800320B8);
+// Starts the player's keyframe set `set` at step idx (the table bank by set >> 4, as
+// func_800321C8), then unpacks the pose and builds the skeleton.
+void func_800320B8(PL_WORK *wp, uint32 set, sint32 idx)
+{
+    KEY_ENT *base;
+
+    switch (set >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            base = Key_tbl_a[set];
+            break;
+        case 4:
+        case 5:
+            if (wp->unk170 != 0)
+            {
+                base = Key_tbl_c_alt[set];
+            }
+            else
+            {
+                base = Key_tbl_c[set];
+            }
+            break;
+        case 6:
+        case 7:
+            if (wp->unk171 != 0)
+            {
+                base = Key_tbl_d_alt[set];
+            }
+            else
+            {
+                base = Key_tbl_d[set];
+            }
+            break;
+        case 8:
+        default:
+            base = Key_tbl_b[set];
+            break;
+    }
+    wp->seq_94      = base;
+    wp->ptr_98      = &base[idx];
+    wp->idx_AC      = set;
+    wp->cmd_A4.word = base[idx].cmd.word;
+    Pl_pose_unpack(wp);
+    Pl_joint_mtx_set(wp);
+}
 
 void func_800321C8(PL_WORK *wp, sint32 unused, uint32 set, sint32 idx)
 {
@@ -1428,7 +1800,21 @@ void func_800321C8(PL_WORK *wp, sint32 unused, uint32 set, sint32 idx)
     wp->cmd_100.word = ent->cmd.word;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800322A8);
+// Starts keyframe sequence idx at step (as func_80032304), then unpacks the pose and builds the
+// parts' matrices.
+void func_800322A8(MODEL_WORK *wp, sint32 idx, sint32 step)
+{
+    KEY_ENT *ent;
+
+    ent        = wp->seq_tbl_90[idx];
+    wp->idx_AC = idx;
+    wp->seq_94 = ent;
+    ent        = ent + step;
+    wp->ptr_98 = ent;
+    wp->cmd_A4 = ent->cmd;
+    func_80033A28(wp);
+    Model_parts_mtx_set_y(wp);
+}
 
 void func_80032304(MODEL_WORK *wp, sint32 idx, sint32 step)
 {
@@ -1443,7 +1829,41 @@ void func_80032304(MODEL_WORK *wp, sint32 idx, sint32 step)
     func_80033A28(wp);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003234C);
+// Steps the player's keyframe sequence (as func_80032538), then unpacks the pose and builds the
+// skeleton.
+void func_8003234C(PL_WORK *wp)
+{
+    KEY_ENT *ent;
+    KEY_ENT *next;
+    sint8 ctl;
+
+    ent = wp->ptr_98;
+    if (--wp->cmd_A4.b.time == 0)
+    {
+        ctl = ent->cmd.b.ctl;
+        if (ctl < 0)
+        {
+            if (ctl == -1)
+            {
+                wp->cmd_A4.b.time = ent->cmd.b.time;
+            }
+            else
+            {
+                ent             = &wp->seq_94[ctl & 0x7F];
+                wp->ptr_98      = ent;
+                wp->cmd_A4.word = ent->cmd.word;
+            }
+        }
+        else
+        {
+            next            = wp->ptr_98;
+            wp->ptr_98      = next + 1;
+            wp->cmd_A4.word = next[1].cmd.word;
+        }
+    }
+    Pl_pose_unpack(wp);
+    Pl_joint_mtx_set(wp);
+}
 
 #ifdef NON_MATCHING
 // Only the first two loads differ: the target loads cmd_100.b.time (lbu) before ent_FC (lw).
@@ -1455,8 +1875,8 @@ void func_800323FC(PL_WORK *wp, sint32 a)
     sint32 ctl;
     uint32 pad[2];
 
-    wp->unk106 = a;
-    ent        = wp->ent_FC;
+    wp->pose_mix = a;
+    ent          = wp->ent_FC;
     if (--wp->cmd_100.b.time == 0)
     {
         ctl = ent->cmd.b.ctl;
@@ -1486,7 +1906,41 @@ void func_800323FC(PL_WORK *wp, sint32 a)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800323FC);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80032488);
+// Steps the keyframe sequence (as func_80032538), then unpacks the pose and builds the parts'
+// matrices.
+void func_80032488(MODEL_WORK *wp)
+{
+    KEY_ENT *ent;
+    KEY_ENT *next;
+    sint8 ctl;
+
+    ent = wp->ptr_98;
+    if (--wp->cmd_A4.b.time == 0)
+    {
+        ctl = ent->cmd.b.ctl;
+        if (ctl < 0)
+        {
+            if (ctl == -1)
+            {
+                wp->cmd_A4.b.time = ent->cmd.b.time;
+            }
+            else
+            {
+                ent             = &wp->seq_94[ctl & 0x7F];
+                wp->ptr_98      = ent;
+                wp->cmd_A4.word = ent->cmd.word;
+            }
+        }
+        else
+        {
+            next            = wp->ptr_98;
+            wp->ptr_98      = next + 1;
+            wp->cmd_A4.word = next[1].cmd.word;
+        }
+    }
+    func_80033A28(wp);
+    Model_parts_mtx_set_y(wp);
+}
 
 #ifdef NON_MATCHING
 // Differs: registers only. The target has ent in v1, ctl in a2 and the copy (jump) in a1.
@@ -1526,9 +1980,287 @@ void func_80032538(MODEL_WORK *wp)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80032538);
 #endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800325D4);
+// Builds the player's skeleton: the body matrix from pos and ang.vy, then each joint's matrix and
+// position (func_800331A0) from the scratchpad pose and Joint_ofs_tbl, pushing and popping the
+// matrix stack per limb. pose_mix picks the second pose for some limbs.
+void Pl_joint_mtx_set(PL_WORK *wp)
+{
+    SVECTOR rot;
+    VECTOR out;
+    SVECTOR *pose_a;
+    SVECTOR *pose_b;
+    SVECTOR *pose_c;
+    SVECTOR *ofs;
+    SVECTOR *root;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800329D4);
+    func_800333A0();
+    Scratch_mtx.t[0] = wp->pos.vx << Scratch_scale_shift;
+    Scratch_mtx.t[1] = wp->pos.vy << Scratch_scale_shift;
+    Scratch_mtx.t[2] = wp->pos.vz << Scratch_scale_shift;
+    rot.vx           = 0;
+    rot.vy           = wp->ang.vy - wp->unk116;
+    rot.vz           = 0;
+    RotMatrix(&rot, &Scratch_mtx);
+    root         = Scratch_pose; // kept in a register for the second joint 0 call
+    wp->base_mtx = Scratch_mtx;
+    ofs          = Joint_ofs_tbl;
+    matrix_push(&Scratch_mtx);
+    func_800331A0(wp, 0, &Scratch_pose[1], &Scratch_pose[0]);
+    func_800331A0(wp, 8, &Scratch_pose[9], &ofs[8]);
+    matrix_push(&Scratch_mtx);
+    func_800331A0(wp, 9, &Scratch_pose[10], &ofs[9]);
+    func_800331A0(wp, 10, &Scratch_pose[11], &ofs[10]);
+    func_800331A0(wp, 11, &Scratch_pose[12], &ofs[11]);
+    matrix_pop(&Scratch_mtx);
+    func_800331A0(wp, 12, &Scratch_pose[13], &ofs[12]);
+    func_800331A0(wp, 13, &Scratch_pose[14], &ofs[13]);
+    func_800331A0(wp, 14, &Scratch_pose[15], &ofs[14]);
+    matrix_pop(&Scratch_mtx);
+    switch (wp->pose_mix)
+    {
+        case 0:
+        default:
+            pose_a = Scratch_pose;
+            pose_b = Scratch_pose;
+            pose_c = Scratch_pose;
+            break;
+        case 1:
+            pose_a = Scratch_pose + 16;
+            pose_b = Scratch_pose + 16;
+            pose_c = Scratch_pose;
+            break;
+        case 2:
+            pose_a = Scratch_pose + 16;
+            pose_b = Scratch_pose;
+            pose_c = Scratch_pose + 16;
+            break;
+        case 3:
+            pose_a = Scratch_pose + 16;
+            pose_b = Scratch_pose + 16;
+            pose_c = Scratch_pose + 16;
+            break;
+    }
+    func_800331A0(wp, 0, &pose_a[1], root);
+    matrix_push(&Scratch_mtx);
+    rot = pose_a[2];
+    rot.vy += wp->turn_B4 * 5;
+    func_800331A0(wp, 1, &rot, &ofs[1]);
+    rot.vx = 0;
+    rot.vy = -0x96;
+    rot.vz = 0;
+    ApplyMatrix(&Scratch_mtx, &rot, &out);
+    wp->pos_420.vx = Scratch_mtx.t[0] + out.vx;
+    wp->pos_420.vy = Scratch_mtx.t[1] + out.vy;
+    wp->pos_420.vz = Scratch_mtx.t[2] + out.vz;
+    matrix_pop(&Scratch_mtx);
+    matrix_push(&Scratch_mtx);
+    func_800331A0(wp, 2, &pose_b[3], &ofs[2]);
+    func_800331A0(wp, 3, &pose_b[4], &ofs[3]);
+    func_800331A0(wp, 4, &pose_b[5], &ofs[4]);
+    matrix_pop(&Scratch_mtx);
+    matrix_push(&Scratch_mtx);
+    func_800331A0(wp, 5, &pose_c[6], &ofs[5]);
+    func_800331A0(wp, 6, &pose_c[7], &ofs[6]);
+    func_800331A0(wp, 7, &pose_c[8], &ofs[7]);
+    matrix_pop(&Scratch_mtx);
+}
+
+// Unpacks the player's two current poses into Scratch_pose: the pose of keyframe set idx_AC (step
+// ptr_98) into [0..15] and the pose of set set_104 (step ent_FC) into [16..24], 12 bits per value
+// (the slots left at 0 are angles the pose doesn't carry); the root rotation is sign-extended.
+void Pl_pose_unpack(PL_WORK *wp)
+{
+    uint32 ***tbl;
+    uint32 ***tbl2;
+    uint8 set;
+    uint8 set2;
+    uint32 *src;
+    uint16 *dst;
+
+    set = wp->idx_AC;
+    switch ((sint8)set >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            tbl = Pose_tbl_a;
+            break;
+        case 4:
+        case 5:
+            tbl = wp->unk170 ? Pose_tbl_c_alt : Pose_tbl_c;
+            set -= 0x40;
+            break;
+        case 6:
+        case 7:
+            tbl = wp->unk171 ? Pose_tbl_d_alt : Pose_tbl_d;
+            set -= 0x60;
+            break;
+        case 8:
+        default:
+            tbl = Pose_tbl_b;
+            set -= 0x80;
+            break;
+    }
+    set2 = wp->set_104;
+    switch ((sint8)set2 >> 4)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            tbl2 = Pose_tbl_a;
+            break;
+        case 4:
+        case 5:
+            tbl2 = wp->unk170 ? Pose_tbl_c_alt : Pose_tbl_c;
+            set2 -= 0x40;
+            break;
+        case 6:
+        case 7:
+            tbl2 = wp->unk171 ? Pose_tbl_d_alt : Pose_tbl_d;
+            set2 -= 0x60;
+            break;
+        case 8:
+        default:
+            tbl2 = Pose_tbl_b;
+            set2 -= 0x80;
+            break;
+    }
+    Mem_copy4(tbl[(sint8)set][wp->ptr_98->cmd.b.b0], Scratch_pl_pose_packed, 0x12);
+    Mem_copy4(tbl2[(sint8)set2][wp->ent_FC->cmd.b.b0], Scratch_pl_pose_packed2, 0xC);
+    // A uint16 pointer, not Scratch_pose's fields: the stores are scalars, which keeps the
+    // target's scheduling.
+    dst    = (uint16 *)Scratch_pose;
+    src    = Scratch_pl_pose_packed;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    dst++;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    dst++;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    dst++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    src    = Scratch_pl_pose_packed2;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    dst++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    dst++;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    dst++;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = ((*src & 0xF0000000) >> 28) | ((src[1] & 0xFF) << 4);
+    src++;
+    *dst++ = (*src & 0xFFF00) >> 8;
+    dst++;
+    *dst++ = (*src & 0xFFF00000) >> 20;
+    src++;
+    *dst++ = *src & 0xFFF;
+    *dst++ = (*src & 0xFFF000) >> 12;
+    dst++;
+    *dst++ = ((*src & 0xFF000000) >> 24) | ((src[1] & 0xF) << 8);
+    src++;
+    *dst++ = 0;
+    *dst++ = 0;
+    dst++;
+    *dst++ = 0;
+    *dst++ = (*src & 0xFFF0) >> 4;
+    *dst++ = (*src & 0xFFF0000) >> 16;
+    dst++;
+    // The root rotation's components are signed 12-bit values. x as a plain halfword, y and z as
+    // fields: that keeps the target's order against the last stores above.
+    *(uint16 *)Scratch_pose = (sint32)(*(uint16 *)Scratch_pose << 20) >> 20;
+    Scratch_pose->vy        = (sint32)((uint16)Scratch_pose->vy << 20) >> 20;
+    Scratch_pose->vz        = (sint32)((uint16)Scratch_pose->vz << 20) >> 20;
+}
 
 void func_800331A0(PL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off)
 {
@@ -1578,9 +2310,27 @@ void matrix_pop(MATRIX *dst)
     D_80098A80++;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003346C);
+// Builds a model object's part matrices, turned by its Y angle only.
+void Model_parts_mtx_set_y(MODEL_WORK *wp)
+{
+    SVECTOR rot;
+    MATRIX m;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800334C4);
+    rot.vx = 0;
+    rot.vy = wp->ang.vy;
+    rot.vz = 0;
+    RotMatrix(&rot, &m);
+    Model_parts_mtx_set(wp, &m);
+}
+
+// Builds a model object's part matrices, turned by its full rotation (Y, X, Z order).
+void Model_parts_mtx_set_yxz(MODEL_WORK *wp)
+{
+    MATRIX m;
+
+    RotMatrixYXZ(&wp->ang, &m);
+    Model_parts_mtx_set(wp, &m);
+}
 
 void func_80033500(WORK_5A4 *wp)
 {
@@ -1606,7 +2356,127 @@ void func_8003354C(WORK_3C0 *wp)
     wp->flags |= 0x40;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80033598);
+// Builds a model object's part matrices from its body rotation m: the body (mtx_160, part 0) gets
+// m times the root pose rotation, each part its parent's matrix times its pose rotation (or the
+// root's rotation when part_2 is 0); then scales them (scale_158, per part with the scale table
+// when flags bit 6 is set) and places each part at its parent's position plus its offset.
+void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
+{
+    SVECTOR scale;
+    MATRIX rot;
+    VECTOR v;
+    SVECTOR *ofs;
+    SVECTOR *pose;
+    MATRIX *mtx;
+    RGB_ENT *sc;
+    CHILD_SLOT *slot;
+    uint32 count;
+    sint8 parent;
+    uint32 part;
+    uint32 i;
+    uint16 z;
+
+    if (func_8002FE74(wp->kind_1) == 0x40)
+    {
+        mtx = ((WORK_5A4 *)wp)->mtx_240;
+    }
+    else
+    {
+        mtx = ((WORK_3C0 *)wp)->mtx_1E8;
+    }
+    pose        = Scratch_pose;
+    ofs         = wp->ofs_9C;
+    wp->mtx_160 = *m;
+    scale.vx    = wp->scale_158.vx << Scratch_scale_shift;
+    scale.vy    = wp->scale_158.vy << Scratch_scale_shift;
+    scale.vz    = wp->scale_158.vz << Scratch_scale_shift;
+    RotMatrix(&Scratch_pose[1], &rot);
+    MulMatrix0(m, &rot, mtx);
+    count = wp->slot_F8[0].child_id;
+    for (i = 1; i < count; i++)
+    {
+        // The slot's byte offset from wp, not &wp->slot_F8[i]: the target steps the offset
+        // (0xFC, +4) and adds wp each pass.
+        slot   = (CHILD_SLOT *)((uint8 *)wp + (i * 4 + 0xF8));
+        parent = slot->child_id;
+        part   = slot->part_2;
+        if (parent >= 0)
+        {
+            if (part != 0)
+            {
+                RotMatrix(&pose[part + 1], &rot);
+                MulMatrix0(&mtx[parent], &rot, &mtx[i]);
+            }
+            else
+            {
+                *(MATRIX_ROT *)&mtx[i] = *(MATRIX_ROT *)&mtx[0];
+            }
+        }
+    }
+    if (wp->flags & 0x40)
+    {
+        if (func_8002FE74(wp->kind_1) == 0x40)
+        {
+            sc = &((WORK_5A4 *)wp)->base;
+        }
+        else
+        {
+            sc = &((WORK_3C0 *)wp)->base;
+        }
+        v.vx = ((wp->scale_158.vx * sc[0].r) << Scratch_scale_shift) >> 5;
+        v.vy = ((wp->scale_158.vy * sc[0].g) << Scratch_scale_shift) >> 5;
+        v.vz = ((wp->scale_158.vz * sc[0].b) << Scratch_scale_shift) >> 5;
+        ScaleMatrix(&wp->mtx_160, &v);
+        for (i = 0; i < count; i++)
+        {
+            v.vx = ((wp->scale_158.vx * sc[i + 1].r) << Scratch_scale_shift) >> 5;
+            v.vy = ((wp->scale_158.vy * sc[i + 1].g) << Scratch_scale_shift) >> 5;
+            v.vz = ((wp->scale_158.vz * sc[i + 1].b) << Scratch_scale_shift) >> 5;
+            ScaleMatrix(&mtx[i], &v);
+        }
+    }
+    else
+    {
+        v.vx = scale.vx;
+        v.vy = scale.vy;
+        v.vz = scale.vz;
+        ScaleMatrix(&wp->mtx_160, &v);
+        for (i = 0; i < count; i++)
+        {
+            ScaleMatrix(&mtx[i], &v);
+        }
+    }
+    pose->vx = (uint16)pose->vx * 8;
+    pose->vy = (uint16)pose->vy * 8;
+    pose->vz = (uint16)pose->vz * 8;
+    ApplyMatrix(&wp->mtx_160, pose, &v);
+    wp->part_180[0].vx = v.vx + (wp->pos.vx << Scratch_scale_shift);
+    wp->part_180[0].vy = v.vy + (wp->pos.vy << Scratch_scale_shift);
+    wp->part_180[0].vz = v.vz + (wp->pos.vz << Scratch_scale_shift);
+    for (i = 1; i < count; i++)
+    {
+        slot   = (CHILD_SLOT *)((uint8 *)wp + (i * 4 + 0xF8));
+        parent = slot->child_id;
+        part   = slot->part_2;
+        if (parent >= 0)
+        {
+            if (part != 0)
+            {
+                ApplyMatrix(&mtx[parent], &ofs[part], &v);
+                wp->part_180[i].vx = wp->part_180[parent].vx + v.vx;
+                wp->part_180[i].vy = wp->part_180[parent].vy + v.vy;
+                z                  = wp->part_180[parent].vz + v.vz;
+            }
+            else
+            {
+                wp->part_180[i].vx = wp->part_180[0].vx;
+                wp->part_180[i].vy = wp->part_180[0].vy;
+                z                  = wp->part_180[0].vz;
+            }
+            wp->part_180[i].vz = z;
+        }
+    }
+}
 
 // Unpacks 75 twelve-bit values (three per SVECTOR) of the pose selected by wp into the scratchpad.
 #ifdef NON_MATCHING
@@ -1842,9 +2712,293 @@ sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint3
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_8003450C);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800346AC);
+// Hit test between the queued requests D_800A2F48[*pi] and [*pj]: spheres (radius pad & 0x1FF), or
+// capsules when pad bits 9-10 are set (the next entry is the other end, tested in eighths, and
+// *pi / *pj step past it). On a hit, each side's owner gets the other's top flag byte and, unless
+// masked by the kind bits, its damage in hit_0, and, when its word has bit 23, where it was hit.
+void hit_pair_check(uint32 *pi, uint32 *pj)
+{
+    SVECTOR a[2];
+    SVECTOR b[2];
+    SLOT_OWNER *m;
+    uint32 cap_a;
+    uint32 cap_b;
+    uint32 word;
+    uint32 other;
+    uint32 flags;
+    uint32 ra;
+    uint32 rb;
+    sint32 step_a;
+    sint32 step_b;
+    sint32 ta;
+    sint32 tb;
+    sint32 x;
+    sint32 y;
+    sint32 z;
+    sint32 r;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80034EB8);
+    do
+    {
+        a[0] = D_800A2F48[*pi].v;
+    } while (0);
+    b[0]     = D_800A2F48[*pj].v;
+    ra       = a[0].pad & 0x1FF;
+    rb       = b[0].pad & 0x1FF;
+    ta       = (uint16)((rb + ra) * 4); // the radius sum, then the first loop's counter
+    cap_a    = (a[0].pad & 0x600) >> 9;
+    cap_b    = (b[0].pad & 0x600) >> 9;
+    a[0].pad = ra * 4;
+    b[0].pad = rb * 4;
+    flags    = ta * 2;
+    if ((uint32)(a[0].vx - b[0].vx + ta) > flags || (uint32)(a[0].vy - b[0].vy + ta) > flags || (uint32)(a[0].vz - b[0].vz + ta) > flags)
+    {
+        if (cap_a)
+        {
+            (*pi)++;
+        }
+        if (cap_b)
+        {
+            (*pj)++;
+        }
+        return;
+    }
+    step_b = 9;
+    step_a = 9;
+    if (cap_a)
+    {
+        a[1].vx  = D_800A2F48[*pi + 1].v.vx;
+        a[1].vy  = D_800A2F48[*pi + 1].v.vy;
+        a[1].vz  = D_800A2F48[*pi + 1].v.vz;
+        a[1].pad = (D_800A2F48[*pi + 1].v.pad & 0x1FF) * 4;
+        step_a   = 8 >> cap_a;
+        (*pi)++;
+    }
+    if (cap_b)
+    {
+        b[1].vx  = D_800A2F48[*pj + 1].v.vx;
+        b[1].vy  = D_800A2F48[*pj + 1].v.vy;
+        b[1].vz  = D_800A2F48[*pj + 1].v.vz;
+        b[1].pad = (D_800A2F48[*pj + 1].v.pad & 0x1FF) * 4;
+        step_b   = 8 >> cap_b;
+        (*pj)++;
+    }
+    for (ta = 0; ta < 9; ta += step_a)
+    {
+        for (tb = 0; tb < 9; tb += step_b)
+        {
+            x = ((a[0].vx * (8 - ta) + a[1].vx * ta) - (b[0].vx * (8 - tb) + b[1].vx * tb)) / 8;
+            y = ((a[0].vy * (8 - ta) + a[1].vy * ta) - (b[0].vy * (8 - tb) + b[1].vy * tb)) / 8;
+            z = ((a[0].vz * (8 - ta) + a[1].vz * ta) - (b[0].vz * (8 - tb) + b[1].vz * tb)) / 8;
+            r = (a[0].pad * (8 - ta) + a[1].pad * ta + b[0].pad * (8 - tb) + b[1].pad * tb) / 8;
+            if (r * r < x * x + y * y + z * z)
+            {
+                continue;
+            }
+            word  = D_800A2F48[*pi].flags;
+            other = D_800A32E0[*pj];
+            m     = (SLOT_OWNER *)(word & 0x7FFFFF);
+            flags = m->hit_0;
+            flags |= other & 0xFF000000;
+            // v.pad read as halfword 3 of each entry (see lock_on_search).
+            if ((sint32)((D_800A32E0[*pi] & 0xFF0000) << ((((uint16 *)D_800A2F48)[*pj * 6 + 3] >> 13) + 8)) >= 0)
+            {
+                flags += other & 0xFFFF;
+            }
+            m->hit_0 = flags;
+            do
+            {
+                if (word & 0x800000)
+                {
+                    x = b[0].vx - b[1].vx;
+                    y = b[0].vy - b[1].vy;
+                    z = b[0].vz - b[1].vz;
+                    if (cap_b == 0)
+                    {
+                        m->vec_8.vx  = (b[0].vx * (8 - tb) + b[1].vx * tb) / 8;
+                        m->vec_8.vy  = (b[0].vy * (8 - tb) + b[1].vy * tb) / 8;
+                        m->vec_8.vz  = (b[0].vz * (8 - tb) + b[1].vz * tb) / 8;
+                        m->vec_8.pad = 1;
+                    }
+                    else
+                    {
+                        m->vec_8.vx  = x;
+                        m->vec_8.vy  = y;
+                        m->vec_8.vz  = z;
+                        m->vec_8.pad = 0;
+                    }
+                }
+            } while (0);
+            word  = D_800A2F48[*pj].flags;
+            other = D_800A32E0[*pi];
+            m     = (SLOT_OWNER *)(word & 0x7FFFFF);
+            flags = m->hit_0;
+            flags |= other & 0xFF000000;
+            if ((sint32)((D_800A32E0[*pj] & 0xFF0000) << ((((uint16 *)D_800A2F48)[*pi * 6 + 3] >> 13) + 8)) >= 0)
+            {
+                flags += other & 0xFFFF;
+            }
+            m->hit_0 = flags;
+            do
+            {
+                if (word & 0x800000)
+                {
+                    x = a[0].vx - a[1].vx;
+                    y = a[0].vy - a[1].vy;
+                    z = a[0].vz - a[1].vz;
+                    if (cap_a == 0)
+                    {
+                        m->vec_8.vx  = (a[0].vx * (8 - tb) + a[1].vx * tb) / 8;
+                        m->vec_8.vy  = (a[0].vy * (8 - tb) + a[1].vy * tb) / 8;
+                        m->vec_8.vz  = (a[0].vz * (8 - tb) + a[1].vz * tb) / 8;
+                        m->vec_8.pad = 1;
+                    }
+                    else
+                    {
+                        m->vec_8.vx  = x;
+                        m->vec_8.vy  = y;
+                        m->vec_8.vz  = z;
+                        m->vec_8.pad = 0;
+                    }
+                }
+            } while (0);
+            return;
+        }
+    }
+}
+
+// Lock-on search: projects the queued requests (D_800A2F48; a pair flagged in pad bits 9-10 counts
+// as its midpoint) whose kind bit is in the player's mask, and picks the one nearest the screen's
+// centre column in two windows: a fixed one (target a, kept when unk174 bit 5 is set) and the
+// LOCK_BOX of the special level (target b, unk174 bit 4). Each found target, or none, is handed to
+// func_80035724.
+void lock_on_search(void)
+{
+    MATRIX unused;
+    sint16 sxy[2];
+    SVECTOR pos_a;
+    SVECTOR pos_b;
+    SVECTOR c;
+    sint32 sz;
+    sint32 z;
+    uint32 n;
+    sint32 box;
+    uint32 i;
+    uint32 j;
+    sint32 best_a;
+    sint32 best_b;
+    sint32 x_a;
+    sint32 x_b;
+    uint8 mask;
+
+    func_80035508();
+    n = D_800988E0;
+    if (Player_work[0].unk170 == 8)
+    {
+        box = Player_work[0].rec[8].sp_perform;
+    }
+    else
+    {
+        box = 0;
+    }
+    for (i = 0; i < 1; i++)
+    {
+        if (!(Player_work[i].unk00 & 1))
+        {
+            continue;
+        }
+        x_b    = 0x7FFFFFFF;
+        x_a    = 0x7FFFFFFF;
+        best_b = -1;
+        best_a = -1;
+        gte_SetRotMatrix(&Scratch_view_mtx);
+        gte_SetTransMatrix(&Scratch_view_mtx);
+        if (i != 0)
+        {
+            mask = D_80097D03;
+        }
+        else
+        {
+            mask = D_80097D02;
+        }
+        gte_ldv0(&Player_work[i].pos);
+        gte_rtps();
+        gte_stszotz(&sz);
+        sz += 50;
+        for (j = 0; j < n; j++)
+        {
+            // v.pad read as halfword 3 of the 6 in each entry: the target reaches it through a
+            // base kept in a register, unlike the v.pad test below.
+            if (!((mask << (((uint16 *)D_800A2F48)[j * 6 + 3] >> 13)) & 0x80))
+            {
+                continue;
+            }
+            if (D_800A2F48[j].v.pad & 0x600)
+            {
+                c.vx = (D_800A2F48[j].v.vx + D_800A2F48[j + 1].v.vx) >> 1;
+                c.vy = (D_800A2F48[j].v.vy + D_800A2F48[j + 1].v.vy) >> 1;
+                c.vz = (D_800A2F48[j].v.vz + D_800A2F48[j + 1].v.vz) >> 1;
+                j++;
+            }
+            else
+            {
+                c = D_800A2F48[j].v;
+            }
+            if (((SLOT_OWNER *)(D_800A2F48[j].flags & 0x7FFFFF))->mask_4 & 0x80)
+            {
+                continue;
+            }
+            gte_ldv0(&c);
+            gte_rtps();
+            gte_stszotz(&z);
+            gte_stsxy(sxy);
+            if (!(z > sz))
+            {
+                continue;
+            }
+            if (z < 0x500 && (uint16)(sxy[0] - 0x83) < 0x3B && (uint16)(sxy[1] - 1) < 0xEF)
+            {
+                if (ABS(0xA0 - x_a) > ABS(0xA0 - sxy[0]))
+                {
+                    best_a = j;
+                    x_a    = sxy[0];
+                    pos_a  = c;
+                }
+            }
+            if (z > sz && z < D_8008994C[box].z_max && sxy[0] > D_8008994C[box].x_min && sxy[0] < D_8008994C[box].x_max &&
+                sxy[1] > D_8008994C[box].y_min && sxy[1] < D_8008994C[box].y_max)
+            {
+                if (ABS(0xA0 - x_b) > ABS(0xA0 - sxy[0]))
+                {
+                    best_b = j;
+                    x_b    = sxy[0];
+                    pos_b  = c;
+                }
+            }
+        }
+        if (best_a >= 0)
+        {
+            if (Player_work[i].unk174 & 0x20)
+            {
+                func_80035724(&c, 1, &Player_work[i], best_a, 0);
+            }
+        }
+        else if (Player_work[i].unk174 & 0x20)
+        {
+            func_80035724(&c, 0, &Player_work[i], -1, 0);
+        }
+        if (best_b >= 0)
+        {
+            if (Player_work[i].unk174 & 0x10)
+            {
+                func_80035724(&c, 1, &Player_work[i], best_b, 1);
+            }
+        }
+        else if (Player_work[i].unk174 & 0x10)
+        {
+            func_80035724(&c, 0, &Player_work[i], -1, 1);
+        }
+    }
+}
 
 // Claims the first free bit of D_80098798 (24 slots), marks it in owner->mask_4 and stores value in D_800BE478[slot].
 sint32 func_8003545C(uint32 value, SLOT_OWNER *owner)
@@ -1930,7 +3084,7 @@ MATRIX *func_800355F0(MATRIX *out, sint32 n, sint32 yaw)
 // store) and reaches the record through it; ours computes it once after the merge, hoisted early.
 // Retyping to SHL_WORK / PL_WORK.joint_pos changed nothing; a TBL_IDX pointer set in each branch
 // moves the computation there but adds 0x4F4 to the pointer (the target folds it into the offset).
-void func_80035724(sint32 unused0, sint32 unused1, PL_WORK *pl, sint32 idx, sint32 flag)
+void func_80035724(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 flag)
 {
     PL_SHL_WORK *wp;
     sint32 sel;
@@ -1987,7 +3141,96 @@ void func_800358E8(void)
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_800358F0);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8002E7A8", func_80035C90);
+// Picks the live WORK_3C0 or WORK_5A4 object (dist_80[0] at most max_dist) most straight ahead of
+// the player (facing ang.vy + unk116), on the inner side of the edge direction turned by arc and
+// with a facing dot product of at least min_dot; a WORK_5A4 wins over a WORK_3C0 only with a
+// larger dot product. Returns it, or 0.
+void *front_obj_search(PL_WORK *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
+{
+    SVECTOR unused[5];
+    SVECTOR pos;
+    SVECTOR fwd;
+    SVECTOR unused2;
+    SVECTOR edge;
+    SVECTOR norm;
+    SVECTOR other;
+    SVECTOR mark;
+    VECTOR delta;
+    WORK_3C0 *w3;
+    WORK_5A4 *w5;
+    void *found;
+    sint32 best;
+    sint32 dot;
+    sint32 hit;
+    uint32 i;
+
+    found   = NULL;
+    best    = 0;
+    fwd.vx  = -rsin(pl->ang.vy + pl->unk116);
+    fwd.vy  = 0;
+    fwd.vz  = -rcos(pl->ang.vy + pl->unk116);
+    edge.vx = -rsin(pl->ang.vy + pl->unk116 + arc);
+    edge.vy = 0;
+    edge.vz = -rcos(pl->ang.vy + pl->unk116 + arc);
+    pos     = pl->pos;
+    hit     = -1;
+    for (i = 0; i < 16; i++)
+    {
+        w3 = &D_8009F108[i];
+        if ((w3->routine_0 & 3) && max_dist >= w3->dist_80[0])
+        {
+            other    = w3->pos;
+            delta.vy = 0;
+            delta.vx = other.vx - pos.vx;
+            delta.vz = other.vz - pos.vz;
+            VectorNormalS(&delta, &norm);
+            if (edge.vx * norm.vx + edge.vz * norm.vz >= 0)
+            {
+                dot = fwd.vx * norm.vx + fwd.vz * norm.vz;
+                if (dot >= min_dot && best < dot)
+                {
+                    best = dot;
+                    hit  = i;
+                }
+            }
+        }
+    }
+    if (hit >= 0)
+    {
+        mark     = D_8009F108[hit].pos;
+        mark.pad = 1;
+        found    = &D_8009F108[hit];
+    }
+    hit = -1;
+    for (i = 0; i < 4; i++)
+    {
+        w5 = &D_800C3580[i];
+        if ((w5->routine_0 & 3) && max_dist >= w5->dist_80[0])
+        {
+            other    = w5->pos;
+            delta.vy = 0;
+            delta.vx = other.vx - pos.vx;
+            delta.vz = other.vz - pos.vz;
+            VectorNormalS(&delta, &norm);
+            if (edge.vx * norm.vx + edge.vz * norm.vz >= 0)
+            {
+                dot = fwd.vx * norm.vx + fwd.vz * norm.vz;
+                if (dot >= min_dot && best < dot)
+                {
+                    best = dot;
+                    hit  = i;
+                }
+            }
+        }
+    }
+    if (hit >= 0)
+    {
+        mark     = D_800C3580[hit].pos;
+        mark.pad = 1;
+        found    = &D_800C3580[hit];
+    }
+    return found;
+}
 
 #ifdef NON_MATCHING
 void func_8003606C(void)
@@ -2279,7 +3522,7 @@ uint32 func_80037440(void)
     }
     if (sel == 6)
     {
-        idx = (sint8)Player_work[0].rec[6].unk04[0];
+        idx = Player_work[0].rec[6].sp_perform;
     }
     else
     {

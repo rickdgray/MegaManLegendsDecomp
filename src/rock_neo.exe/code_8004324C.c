@@ -97,7 +97,7 @@ void func_800433FC(PL_SHL_WORK *wp)
     func_800354E0(wp->slot_D);
     wp->timer_B = 11;
     wp->routine_8++;
-    wp->owner_C4.pad_0  = 0;
+    wp->owner_C4.hit_0  = 0;
     wp->owner_C4.mask_4 = 0;
     wp->hit_78          = 0;
     if (wp->field_E)
@@ -212,7 +212,7 @@ void func_800437F8(PL_SHL_WORK *wp)
     wp->routine_0 |= 0x2A;
     wp->flags |= 0x20;
     func_8005D97C();
-    wp->owner_C4.pad_0  = 0;
+    wp->owner_C4.hit_0  = 0;
     wp->owner_C4.mask_4 = 0;
     wp->hit_78          = &D_80097DA0;
     v.vx                = func_80039B80();

@@ -647,14 +647,14 @@ void stcom22_func_14A8(STCOM22_WORK *wp)
         pos.x = -0x900;
         pos.y = -0x12B;
         pos.z = -0x2300;
-        func_8003AC9C(func_80048D08(2, &pos), 0x61302);
+        Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x61302);
     }
     else
     {
         pos.x = -0x1700;
         pos.y = -0x2AB;
         pos.z = -0x2300;
-        func_8003AC9C(func_80048D08(2, &pos), 0x61402);
+        Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x61402);
     }
 }
 
@@ -683,14 +683,14 @@ void stcom22_func_15C4(STCOM22_WORK *wp)
                 pos.x = -0x900;
                 pos.y = -0x12B;
                 pos.z = -0x2300;
-                func_8003AC9C(func_80048D08(2, &pos), 0x60302);
+                Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x60302);
             }
             else
             {
                 pos.x = -0x1700;
                 pos.y = -0x2AB;
                 pos.z = -0x2300;
-                func_8003AC9C(func_80048D08(2, &pos), 0x60402);
+                Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x60402);
             }
             Sound_call2(0x175, &wp->pos_38);
         }

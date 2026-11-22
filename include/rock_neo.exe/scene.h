@@ -5,6 +5,9 @@
 #include "psyq/libgte.h"
 #include "code_8002E7A8.h"
 
+// Scene flags (Sce_flag_test), Capcom's names (disc/tcrf.txt).
+#define PL_KEY_ITEM_06 0x526 // set: three buster parts slots instead of two (sub_scrn.c)
+
 typedef struct SCENE_WORK SCENE_WORK;
 
 typedef void (*SCENE_EVENT_FUNC)(SCENE_WORK *sw);
@@ -49,11 +52,12 @@ struct SCENE_WORK
     uint8 unk02[2];
     uint8 routine_4; // 0x04: state of the scene's main function (func_80068DAC); bytes 4-7
                      // cleared at once by func_8001DDE4
-    uint8 unk05[3];
-    uint8 ev_08; // 0x08: byte 0 of the current event-table entry (Sce_event_set, Sce_event_update)
-    uint8 ev_09; // 0x09: byte 1 of the current event-table entry
-    uint8 unk0A;
-    uint8 unk0B;
+    uint8 routine_5; // 0x05: state within routine_4's step (func_80048620, func_80048704)
+    uint8 unk06[2];
+    uint8 ev_08;     // 0x08: byte 0 of the current event-table entry (Sce_event_set, Sce_event_update)
+    uint8 ev_09;     // 0x09: byte 1 of the current event-table entry
+    uint8 step_0A;   // 0x0A: state of func_80048A9C
+    uint8 time_0B;   // 0x0B: frame count func_80048A9C waits for (timer_10), per stage (D_8008AA04)
     sint32 field_0C; // 0x0C: cleared by func_8001DDE4; tested by the event step func_8006849C
     sint32 timer_10; // 0x10: frames since the current event-table step began (Sce_event_update)
     sint32 timer_14; // 0x14: frames since the scene started (Sce_event_update)

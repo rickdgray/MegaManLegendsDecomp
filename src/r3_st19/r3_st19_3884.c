@@ -105,7 +105,7 @@ void func_80103B3C(ST19_OBJ *wp)
     func_80032538(wp);
     ST19_SP_ROT[1].x = wp->value_330;
     ST19_SP_ROT[3].x = wp->value_332;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     spin->pos_8 = ST19_OBJ_JOINT(wp)[0];
     spin->pos_8.y -= 0xB8;
     func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
@@ -556,7 +556,7 @@ void func_80104D38(ST19_WHEELS *wp)
     func_80032538(wp);
     STAGE_WHEEL_SP->wheel_138 = wp->ctl.wheel_68;
     STAGE_WHEEL_SP->wheel_148 = wp->ctl.wheel_6A;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
 }
 
 void func_80104E94(ST19_OBJ *wp)
@@ -655,7 +655,7 @@ void func_80105154(STAGE_OBJ *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
 }
 
@@ -671,7 +671,7 @@ void func_8010522C(STAGE_OBJ *wp)
         Model_work_init(wp, &wp->variant_3);
         func_800322A8(wp, 8, 0);
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->u_C.b.byte_D++;
         wp->routine_2++;
         if (STAGE_SCENE_BYTE(8) == 5)
@@ -688,7 +688,7 @@ void func_801052E8(STAGE_OBJ *wp)
     {
         wp->position.y = -0x82;
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_2++;
     }
 }
@@ -699,7 +699,7 @@ void func_8010533C(STAGE_OBJ *wp)
     {
         wp->position.y = 0x46;
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_2++;
     }
 }
@@ -793,7 +793,7 @@ void func_8010556C(ST19_OBJ *wp)
     wp->anim_AC      = 3;
     wp->anim_prev_AD = 3;
     func_80032304(wp, wp->anim_AC, 0);
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     child = func_80031418();
     if (child != NULL)
     {
@@ -861,7 +861,7 @@ void func_80105818(ST19_TURRET *wp)
         func_80032538(wp);
         ST19_SP_ROT[3].y = ctl->turn_68[0];
         ST19_SP_ROT[6].y = ctl->turn_68[1];
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
         ctl->pos_1C = wp->joint_180[0];
         ctl->pos_1C.y += 0x40;
         func_800341BC(&ctl->pos_1C, 0xB4, 0, 0x8000, wp->value_1, &ctl->hit_2C, wp->hit_kind_73 | 0x5080000, 0, 0);
@@ -925,7 +925,7 @@ void func_80105818(ST19_TURRET *wp)
     else
     {
         func_80032538(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     if (wp->flags_0 & 2)
     {
@@ -1516,7 +1516,7 @@ void func_80107090(ST19_TURRET *wp)
     func_80106CF4(wp);
     D_80117B70[wp->routine_1](wp);
     func_80032538(wp);
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     wp->ctl.hit_2C.hit    = 0;
     wp->ctl.hit_34[0].hit = 0;
     wp->ctl.hit_34[1].hit = 0;
@@ -1625,7 +1625,7 @@ void func_801073CC(STAGE_OBJ *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
 }
 
@@ -1641,7 +1641,7 @@ void func_801074A4(STAGE_OBJ *wp)
         Model_work_init(wp, &wp->variant_3);
         func_800322A8(wp, 8, 0);
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->u_C.b.byte_D++;
         wp->routine_2++;
         if (STAGE_SCENE_BYTE(8) == 5)
@@ -1658,7 +1658,7 @@ void func_80107560(STAGE_OBJ *wp)
     {
         wp->position.y = -0x50;
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_2++;
     }
 }
@@ -1669,7 +1669,7 @@ void func_801075B4(STAGE_OBJ *wp)
     {
         wp->position.y = 0;
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_2++;
     }
 }

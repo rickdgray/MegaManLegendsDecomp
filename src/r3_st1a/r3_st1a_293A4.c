@@ -115,7 +115,7 @@ void func_80129714(STAGE_OBJ *wp)
         pos.x      = i * 50 - 200;
         pos.z      = 0x200;
         pos.y      = wp->position_fixed.f.x.words.integer;
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = 0x2E202020;
         p->uv_C    = (v << 8) | (u | 0x3D480000);
         tp         = (u + 0x1F) | 0x2E0000;
@@ -644,7 +644,7 @@ void func_8012A984(ST1A_SHARDS *wp)
                 u1         = u0 + D_80138F48[rec->tex_10].w;
                 v0         = D_80138F48[rec->tex_10].v;
                 v1         = v0 + D_80138F48[rec->tex_10].h;
-                p          = func_8002D464();
+                p          = Billboard_get();
                 p->code_4  = 0x2C808080 - rec->shade_11 * 0x80808;
                 p->xy_8    = (uint16)pos.x | (pos.y << 16);
                 p->z_10    = pos.z;

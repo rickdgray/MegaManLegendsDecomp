@@ -11,6 +11,9 @@
 // D_80089EAC[n][pl->rec[n].idx[0]].val[0]. Returns sint32: func_80043E78 uses the result without
 // re-extending it.
 sint32 func_800375D4(PL_WORK *pl, sint32 n);
+// Weapon n's bullet maximum, D_80089EAC[n][pl->rec[n].idx[1]].val[1] (0x7FFF: unlimited);
+// Capcom's name (sub_scrn.c). Returns sint32 for the same reason (Sub_screen_status_param_set).
+sint32 Player_weapon_bullet_calc(PL_WORK *pl, sint32 n);
 // D_80089EAC[n][pl->rec[n].idx[2]].val[2]. Returns sint32 for the same reason (func_80043A8C).
 sint32 func_80037634(PL_WORK *pl, sint32 n);
 // D_80089EAC[n][pl->rec[n].idx[3]].val[3]. Returns sint32 for the same reason (func_80042770).

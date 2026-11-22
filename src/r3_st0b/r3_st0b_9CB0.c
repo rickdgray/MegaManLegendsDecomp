@@ -466,7 +466,7 @@ void func_8010AB6C(ST0B_CELL *cell, sint32 color)
 {
     STCOM23_PACKET *p;
 
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = color - cell->shade_5 * 0x10101;
     p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
     p->z_10    = cell->z_E;
@@ -484,7 +484,7 @@ void func_8010AC10(ST0B_CELL *cell, sint32 color)
     sint32 u;
 
     u          = D_8011B3D8[cell->frame_6 >> 2];
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = color - cell->shade_5 * 0x10101;
     p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
     p->z_10    = cell->z_E;
@@ -504,7 +504,7 @@ void func_8010ACE0(ST0B_CELL *cell, sint32 color)
     if (cell->state_4 < 2)
     {
         u          = D_8011B3D8[cell->frame_6 >> 2];
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = color - cell->shade_5 * 0x10101;
         p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
         p->z_10    = cell->z_E;
@@ -716,7 +716,7 @@ void func_8010B4BC(STAGE_OBJ *wp)
             func_80032538(wp);
         }
         rot->y = (bob->angle_1A - (sint16)(wp->rotation.y - 0x800)) & 0xFFF;
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     else if (wp->anim_AC != wp->anim_prev_AD)
     {
@@ -1623,7 +1623,7 @@ void func_8010CEE0(ST0B_OBJ *wp)
         }
         tilt->x = wp->rotation.x;
         tilt->z = wp->rotation.x == 0 ? wp->rotation.z : 0;
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     ground        = func_80048E6C(wp);
     ctl->value_30 = 0;

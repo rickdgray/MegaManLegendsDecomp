@@ -37,7 +37,7 @@ void func_80100384(void)
             pl->value_44E = 0;
             if (STAGE_GAME_VALUE_52 >= 5)
             {
-                func_8003AC9C(func_80048C60(&D_80112974), 0x93300);
+                Stage_idx_model_set(Map_cell_get(&D_80112974), 0x93300);
             }
             break;
         case 4:
@@ -51,7 +51,7 @@ void func_80100384(void)
     }
     spawn                     = D_8011262C[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_801127DC[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_801128E4[D_8011295C[Game_work.value_51]], D_801127F4[Game_work.value_51]);
     func_8005DC10(0);
     func_80100578();
@@ -529,7 +529,7 @@ void func_80101424(void)
 {
     STCOM_SVECTOR pos = {0x1900, 0, 0x300, 0};
 
-    func_8003AC9C(func_80048C60(&pos), 0x80100000);
+    Stage_idx_model_set(Map_cell_get(&pos), 0x80100000);
 }
 
 // Puts the player at (x, y, z) facing `angle`.

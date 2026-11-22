@@ -53,8 +53,8 @@ extern STCOM07_FUNC stcom07_D_0000[]; // routine_0 handlers (stcom07_func_0000)
 extern STCOM07_STEP stcom07_D_001C[]; // v steps per quad
 
 // ROCK_NEO.EXE.
-STCOM07_QUAD *func_8002D22C(uint32 model, sint32 arg);
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+STCOM07_QUAD *Model_face_get(uint32 model, sint32 arg);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 sint32 Sce_flag_test(sint32 flag);
 // PsyQ libgte.
 STCOM_MATRIX *RotMatrixY(sint32 r, STCOM_MATRIX *m);

@@ -673,7 +673,7 @@ void func_80109324(ST0D_CELL *cell, sint32 color)
 {
     STCOM23_PACKET *p;
 
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = color - cell->shade_5 * 0x10101;
     p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
     p->z_10    = cell->z_E;
@@ -691,7 +691,7 @@ void func_801093C8(ST0D_CELL *cell, sint32 color)
     sint32 u;
 
     u          = D_8010E4C0[cell->frame_6 >> 2];
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = color - cell->shade_5 * 0x10101;
     p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
     p->z_10    = cell->z_E;
@@ -711,7 +711,7 @@ void func_80109498(ST0D_CELL *cell, sint32 color)
     if (cell->state_4 < 2)
     {
         u          = D_8010E4C0[cell->frame_6 >> 2];
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = color - cell->shade_5 * 0x10101;
         p->xy_8    = (uint16)cell->x_A | (cell->y_C << 16);
         p->z_10    = cell->z_E;

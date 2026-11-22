@@ -354,9 +354,9 @@ void mesh_draw(MESH *m)
             p3->tag            = (u_long *)(*ot | 0x07000000);
             *ot                = (u_long)p3 & 0xFFFFFF;
             *(u_long *)&p3->r0 = code;
-            *(u_long *)&p3->u0 = (ct & 0xFFFF0000) | f->uv[0] | SXY_CLUT_BITS(sxy);
-            *(u_long *)&p3->u1 = (ct << 16) | f->uv[1] | (getTPage(0, 1, 0, 0) << 16);
-            *(u_long *)&p3->u2 = f->uv[2];
+            *(u_long *)&p3->u0 = (ct & 0xFFFF0000) | f->uv.pair[0] | SXY_CLUT_BITS(sxy);
+            *(u_long *)&p3->u1 = (ct << 16) | f->uv.pair[1] | (getTPage(0, 1, 0, 0) << 16);
+            *(u_long *)&p3->u2 = f->uv.pair[2];
         }
     }
 
@@ -387,10 +387,10 @@ void mesh_draw(MESH *m)
             p4->tag            = (u_long *)(*ot | 0x09000000);
             *ot                = (u_long)p4 & 0xFFFFFF;
             *(u_long *)&p4->r0 = code;
-            *(u_long *)&p4->u0 = (ct & 0xFFFF0000) | f->uv[0] | SXY_CLUT_BITS(sxy);
-            *(u_long *)&p4->u1 = (ct << 16) | f->uv[1] | (getTPage(0, 1, 0, 0) << 16);
-            *(u_long *)&p4->u2 = f->uv[2];
-            *(u_long *)&p4->u3 = f->uv[3];
+            *(u_long *)&p4->u0 = (ct & 0xFFFF0000) | f->uv.pair[0] | SXY_CLUT_BITS(sxy);
+            *(u_long *)&p4->u1 = (ct << 16) | f->uv.pair[1] | (getTPage(0, 1, 0, 0) << 16);
+            *(u_long *)&p4->u2 = f->uv.pair[2];
+            *(u_long *)&p4->u3 = f->uv.pair[3];
         }
     }
 }

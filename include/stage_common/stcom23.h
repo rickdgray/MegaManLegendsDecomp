@@ -76,7 +76,7 @@ typedef struct
 
 typedef void (*STCOM23_FUNC)(STCOM23_WORK *wp);
 
-// A smoke puff's sprite packet (func_8002D464).
+// A smoke puff's sprite packet (Billboard_get).
 typedef struct
 {
     uint32 tag_0;   // 00
@@ -121,6 +121,6 @@ sint32 SquareRoot0(sint32 v);
 sint32 ratan2(sint32 y, sint32 x);
 sint32 func_80037694(STCOM23_WORK *wp, sint32 arg);
 void func_80033F04(STCOM_SVECTOR *out, STCOM_SVECTOR *dir, STCOM_SVECTOR *cur, sint32 a3, sint32 a4);
-STCOM23_PACKET *func_8002D464(void);
+STCOM23_PACKET *Billboard_get(void);
 
 #endif // STCOM23_H

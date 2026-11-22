@@ -4,13 +4,13 @@
 void func_80102760(STAGE_OBJ *wp)
 {
     D_80109904[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80109900[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80109900[0]->id, 0x33, 0x37, 5));
 }
 
 void func_801027BC(STAGE_OBJ *wp)
 {
     D_8010990C[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80109908[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80109908[0]->id, 0x33, 0x37, 5));
 }
 
 void func_80102818(STAGE_OBJ *wp)

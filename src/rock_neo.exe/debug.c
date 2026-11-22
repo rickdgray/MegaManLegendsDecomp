@@ -198,7 +198,7 @@ void func_800640F0(LOGO_WORK *wp)
     {
         p->tag     = (((uint32)(p + 1)) & 0xFFFFFF) | 0x04000000;
         p->rgbc    = 0x64808080;
-        p->xy      = rec->xy_4;
+        p->xy      = rec->xy_4.word;
         p->uv_clut = rec->uv_8;
         p->wh      = rec->wh_c;
         switch ((sint8)(rec->head_0 >> 8))

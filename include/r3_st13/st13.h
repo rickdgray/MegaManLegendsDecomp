@@ -5,7 +5,7 @@
 #include "stage_common/stage.h"
 #include "stage_common/stcom16.h"
 
-// A scratchpad halfword func_80111814 sets before func_8003346C.
+// A scratchpad halfword func_80111814 sets before Model_parts_mtx_set_y.
 #define ST13_SP_13C (*(uint16 *)0x1F80013C)
 
 // From r3_st10 (ST10_ACTOR_CTL), itself from r3_st04.

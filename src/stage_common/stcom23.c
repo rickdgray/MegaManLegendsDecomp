@@ -236,7 +236,7 @@ void stcom23_func_0B18(STCOM23_WORK *wp)
     {
         u          = stcom23_D_014C[i].u;
         v          = stcom23_D_014C[i].v;
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = 0x2E808080;
         p->xy_8    = wp->trail[i].words[0];
         p->z_10    = wp->trail[i].words[1];

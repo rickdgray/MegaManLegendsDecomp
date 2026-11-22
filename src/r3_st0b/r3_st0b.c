@@ -38,7 +38,7 @@ void func_801003E4(void)
     }
     spawns    = D_80119554[room];
     mw->exits = D_801195EC[room];
-    func_8002EA50(spawns, D_800C356D);
+    Obj_spawn_tbl_set(spawns, D_800C356D);
     func_800371A0(D_8011974C[D_80119774[Game_work.value_51]], D_8011960C[Game_work.value_51]);
     func_8005DC10(0);
     func_80100570();
@@ -1399,7 +1399,7 @@ void func_80102DD8(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x10000F, func_8002D404(face->shape_0, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->model_88, 0x10000F, Model_uv_cell(face->shape_0, 0x33, 0x37, 5));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -1416,7 +1416,7 @@ void func_80102DD8(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x120011, func_8002D404(face->shape_6, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->model_88, 0x120011, Model_uv_cell(face->shape_6, 0x33, 0x37, 5));
     }
     face->prev_8 = face->shape_6;
 }
@@ -1580,7 +1580,7 @@ void func_80103410(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x10000F, func_8002D404(face->shape_0, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->model_88, 0x10000F, Model_uv_cell(face->shape_0, 0x33, 0x37, 5));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -1597,7 +1597,7 @@ void func_80103410(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x120011, func_8002D404(face->shape_6, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->model_88, 0x120011, Model_uv_cell(face->shape_6, 0x33, 0x37, 5));
     }
     face->prev_8 = face->shape_6;
 }
@@ -1823,7 +1823,7 @@ void func_80103C10(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(face->shape_0, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(face->shape_0, 0x2A, 0x40, 6));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -1840,7 +1840,7 @@ void func_80103C10(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(face->shape_6, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(face->shape_6, 0x2A, 0x40, 6));
     }
     face->prev_8 = face->shape_6;
 }
@@ -2076,7 +2076,7 @@ void func_8010444C(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(face->shape_0, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(face->shape_0, 0x2A, 0x40, 6));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -2093,7 +2093,7 @@ void func_8010444C(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(face->shape_6, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(face->shape_6, 0x2A, 0x40, 6));
     }
     face->prev_8 = face->shape_6;
 }
@@ -2301,12 +2301,12 @@ void func_801048FC(ST0B_OBJ *wp)
         }
         ST0B_SP_160->value_A = ctl->act_A4[0].angle_4;
         ST0B_SP_160->value_2 = ctl->act_A4[1].angle_4;
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     func_80051B68(wp, 1, 0, 0);
     if (wp->flags_0 & 1)
@@ -2453,7 +2453,7 @@ void func_80105118(ST0B_OBJ *wp)
     {
         func_80033A28(wp);
     }
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     func_80051B68(wp, 1, 0, 0);
     func_80106E4C(wp);
 }

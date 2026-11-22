@@ -30,7 +30,7 @@ void func_8010023C(void)
     }
     STAGE_PL_BYTE(0x44E) = 0;
     STAGE_MAP_EXITS      = D_801081D4[Game_work.value_51];
-    func_8002EA50(D_80108160[Game_work.value_51], D_800C356D);
+    Obj_spawn_tbl_set(D_80108160[Game_work.value_51], D_800C356D);
     func_800371A0(D_801082B0[D_80108330[Game_work.value_51]], D_801081E8[Game_work.value_51]);
     func_8005DC10(0);
     func_801003B8();
@@ -102,7 +102,7 @@ void func_801005BC(STAGE_ROOM_WORK *wp)
     {
         for (i = 0; i < 4; i++)
         {
-            func_8003AC9C(func_80048C60(&D_801087C0[i]), D_801087E0[i]);
+            Stage_idx_model_set(Map_cell_get(&D_801087C0[i]), D_801087E0[i]);
         }
         func_8001DF10(D_801087A8);
         wp->routine_4++;
@@ -117,7 +117,7 @@ void func_80100664(STAGE_ROOM_WORK *wp)
     {
         for (i = 0; i < 4; i++)
         {
-            func_8003AC9C(func_80048C60(&D_801087C0[i]), D_801087E0[i]);
+            Stage_idx_model_set(Map_cell_get(&D_801087C0[i]), D_801087E0[i]);
         }
         func_8001DF10(D_801087B0);
         wp->routine_4++;
@@ -132,7 +132,7 @@ void func_8010070C(STAGE_ROOM_WORK *wp)
     {
         for (i = 0; i < 4; i++)
         {
-            func_8003AC9C(func_80048C60(&D_801087C0[i]), D_801087E0[i]);
+            Stage_idx_model_set(Map_cell_get(&D_801087C0[i]), D_801087E0[i]);
         }
         func_8001DF10(D_801087B8);
         wp->routine_4++;
@@ -294,7 +294,7 @@ void func_80100B60(STAGE_ROOM *wp)
         wp->child_28->flags_0 = 0;
         for (i = 0; i < 4; i++)
         {
-            func_8003AC9C(func_80048D08(0, &D_80108AC0[i]), D_80108AE0[i]);
+            Stage_idx_model_set(Stage_map_cell_get(0, &D_80108AC0[i]), D_80108AE0[i]);
         }
         func_80100828(0);
     }

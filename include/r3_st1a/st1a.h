@@ -3883,7 +3883,7 @@ typedef struct
 #define ST1A_TILE_PTR ((ST1A_TILE **)0x1F800070)
 #define ST1A_MODE_PTR ((DR_MODE **)0x1F800070)
 
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 
 void func_8001F580(sint32 arg0, sint32 arg1, sint32 arg2);
 
@@ -3959,7 +3959,7 @@ typedef struct
 } ST1A_ROOM_A0;
 
 STAGE_OBJ *func_8011F27C(void);
-sint32 func_80048D08(sint32 a0, STCOM_SVECTOR *pos);
+sint32 Stage_map_cell_get(sint32 a0, STCOM_SVECTOR *pos);
 
 STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 count, sint32 count_28, uint8 attach, uint8 color);
 
@@ -4129,7 +4129,7 @@ sint32 func_80036A88(sint32 a0, sint32 a1, sint32 a2, sint32 a3);
 
 void func_8001DF10(uint8 *script);
 
-uint32 func_8003AC9C(sint32 idx, uint32 key);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
 
 // The timers at +0x1D8 of the turning enemy (func_80110778; STCOM16_STUN's place in stcom16).
 typedef struct
@@ -4354,7 +4354,7 @@ typedef struct
 
 void func_80030EE8(void *wp, STCOM_SVECTOR *target, sint32 speed);
 
-void func_80030968(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
+void Obj_launch_set(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
 
 // The boss's block at +0x440 of its slot as its setup writes it (func_80119320).
 typedef struct

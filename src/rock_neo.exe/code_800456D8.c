@@ -342,7 +342,7 @@ void func_8004602C(W48_87_WORK *wp)
         b    = D_80097EC0[wp->field_9][1];
         c    = D_80097EC0[wp->field_9][2];
         d    = D_80097EC0[wp->field_9][3];
-        p    = func_8002D464();
+        p    = Billboard_get();
         p[1] = 0x2C808080;
         p[2] = *(sint32 *)&wp->pos_38;
         p[4] = *(uint32 *)&wp->pos_38.vz;
@@ -1311,7 +1311,7 @@ void func_80047EC8(W48_89_WORK *wp)
                 v1.vy = wp->pos_1C[1] - (t - 0x10);
                 if (rand() & 1)
                 {
-                    prim    = func_8002D4B8();
+                    prim    = Billboard_line_get();
                     prim[1] = 0x52104080;
                     prim[0] = (v0.vy << 16) + v0.vx;
                     prim[2] = (v1.vy << 16) + v1.vx;

@@ -154,7 +154,7 @@ void main(void)
         func_80064060();
         DrawSync(0);
         func_80017B24();
-        func_800178FC();
+        Clut_buf_load();
 
         if (D_80097864[0] != 0)
         {
@@ -184,7 +184,7 @@ void System_init(void)
     *(uint32 *)Joy1.unk34 = 0x4001;
     *(uint32 *)Joy2.unk34 = 0x4001;
     StartPAD();
-    func_8006479C();
+    Card_init();
     Sound_init();
     ChangeClearPAD(0);
     Disp_env_setup();
@@ -757,7 +757,7 @@ void func_8001326C(sint8 *routine)
     Game_work.unk05B    = 1;
     Scratch_scale_shift = 0;
     Game_work.unk010    = 0;
-    Game_work.unk014    = 0;
+    Game_work.timer_14  = 0;
     Game_work.unk018    = 0;
     Game_work.unk01A    = 0;
     Game_work.unk054    = 0;

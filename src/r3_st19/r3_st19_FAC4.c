@@ -101,7 +101,7 @@ void func_8010FCD4(ST19_TRAIL *wp)
         pos.v.z = wp->z_20;
         pos.v.y = wp->y_1E - trail[i][0] * 4;
         i++;
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = 0x2E000000 | (shade << 16) | (shade << 8) | shade;
         p->uv_C    = 0x3D480000 | (v << 8) | u;
         p->uv_14   = 0x2E0000 | (v << 8) | (u + 0x1F);

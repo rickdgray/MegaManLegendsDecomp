@@ -54,7 +54,7 @@ void func_80100768(void)
     }
     spawns                    = D_8012E0E0[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8012E4CC[Game_work.value_51];
-    func_8002EA50(spawns, D_800C356D);
+    Obj_spawn_tbl_set(spawns, D_800C356D);
     func_800371A0(D_8012E7B8[D_8012E810[Game_work.value_51]], D_8012E510[Game_work.value_51]);
     func_8005DC10(D_8012CF28[Game_work.value_51]);
     func_8010097C();
@@ -114,7 +114,7 @@ void func_80100A80(STAGE_ROOM *wp)
         case 0:
             if (Sce_flag_test(0x35))
             {
-                func_8003AC9C(func_80048C60(&pos), 0x31500);
+                Stage_idx_model_set(Map_cell_get(&pos), 0x31500);
                 wp->routine_4 = 0xFF;
             }
             else

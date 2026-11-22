@@ -237,7 +237,7 @@ void func_80100818(void)
     }
     spawn                     = D_8010CB18[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8010CD7C[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_8010CF08[D_8010D108[Game_work.value_51]], D_8010CDA0[Game_work.value_51]);
     func_8005DC10(0);
     func_80100A20();

@@ -71,7 +71,7 @@ void func_8010FF58(ST05_ACTOR *wp)
         func_80032538(wp);
     }
     *(uint16 *)0x1F800132 = wp->ctl2.timer_A;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
@@ -304,7 +304,7 @@ void func_8011061C(ST05_OBJ *wp, STAGE_SCENE_WORK *scene, ST05_FALL *fall)
     }
     func_80032538(wp);
     *(uint16 *)0x1F800130 = fall->value_8;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
 }
 
 void func_8011070C(ST05_OBJ *wp, STAGE_SCENE_WORK *scene, ST05_FALL *fall)
@@ -332,7 +332,7 @@ void func_8011070C(ST05_OBJ *wp, STAGE_SCENE_WORK *scene, ST05_FALL *fall)
     }
     func_80032538(wp);
     *(uint16 *)0x1F800130 = fall->value_8;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
 }
 
 void func_801107D8(STAGE_OBJ *wp, void *arg1, ST05_FALL *fall)

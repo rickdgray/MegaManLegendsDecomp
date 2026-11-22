@@ -44,12 +44,12 @@ void func_80100354(void)
         if (Sce_flag_test(0x21B))
         {
             D_8010F5D4 = D_8010F604;
-            func_8003AC9C(func_80048C60(&D_8010F90C), 0x180300);
+            Stage_idx_model_set(Map_cell_get(&D_8010F90C), 0x180300);
         }
         else if (Sce_flag_test(0x218))
         {
             D_8010F5D4 = D_8010F5EC;
-            func_8003AC9C(func_80048C60(&D_8010F90C), 0x180200);
+            Stage_idx_model_set(Map_cell_get(&D_8010F90C), 0x180200);
         }
         pl->value_44E = 1;
     }
@@ -59,7 +59,7 @@ void func_80100354(void)
     }
     spawn                     = D_8010F58C[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8010F754[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_8010F85C[D_8010F8F4[Game_work.value_51]], D_8010F76C[Game_work.value_51]);
     func_8005DC10(0);
     func_801006B0();

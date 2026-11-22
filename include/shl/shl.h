@@ -256,7 +256,7 @@ void Swing_Camera2(sint32 a0, sint32 a1, sint32 a2, SVECTOR *pos);
 sint32 func_800341BC(SVECTOR *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, uint32 *col, uint32 flags, sint32 arg7, sint32 arg8);
 sint32 func_8004B414(void *obj);
 void func_8004AC8C(SVECTOR *vel, sint32 flags);
-sint32 func_80048C60(SVECTOR *pos);
+sint32 Map_cell_get(SVECTOR *pos);
 sint32 func_80048E6C(void *obj);
 sint32 func_80050C2C(void *obj);
 sint32 func_8004324C(SHL_PLAYER *pl);

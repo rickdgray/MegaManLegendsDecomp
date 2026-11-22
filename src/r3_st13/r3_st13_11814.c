@@ -21,7 +21,7 @@ void func_80111814(STAGE_STCOM15_WORK_4E0 *wp)
         func_80032538(wp);
     }
     ST13_SP_13C = ctl->timer_38;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x80, 0x200, 0);

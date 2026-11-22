@@ -9,7 +9,7 @@ void func_8010D7EC(ST0E_GLOW *wp)
     D_80110BF0[wp->routine_0](wp);
     if (wp->variant_3 != 0)
     {
-        packet          = func_8002D464();
+        packet          = Billboard_get();
         packet->code_4  = wp->color_18;
         packet->xy_8    = wp->xy_1C.w;
         packet->z_10    = wp->z_20.w;

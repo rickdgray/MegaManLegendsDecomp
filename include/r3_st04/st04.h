@@ -572,7 +572,7 @@ extern ST04_AREA D_8010CA7C[];
 
 void func_8010754C(ST04_ACTOR *wp);
 
-// A scratchpad halfword this stage's villagers set before func_8003346C.
+// A scratchpad halfword this stage's villagers set before Model_parts_mtx_set_y.
 #define ST04_SP_132 (*(uint16 *)0x1F800132)
 
 extern ST04_ACTOR_FUNC D_8010CA34[];

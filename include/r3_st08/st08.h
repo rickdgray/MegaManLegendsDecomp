@@ -289,8 +289,8 @@ extern ST08_MUSIC D_8011297C[];
 extern uint8 D_801131A4[];
 void func_80101424(void);
 void func_80101478(sint16 x, sint16 y, sint16 z, sint16 angle);
-uint32 func_8003AC9C(sint32 idx, uint32 key);
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 
 // A ranking entry: a score (time) and four values kept with it.
 typedef struct
@@ -374,7 +374,7 @@ typedef struct
 
 typedef void (*ST08_ACTOR_FUNC)(ST08_ACTOR *wp);
 
-// The scratchpad's copy of the rotation func_8003346C draws a model with.
+// The scratchpad's copy of the rotation Model_parts_mtx_set_y draws a model with.
 #define ST08_SP_ROT_X (*(sint16 *)0x1F800128)
 #define ST08_SP_ROT_Z (*(sint16 *)0x1F80012C)
 void func_80105B9C(ST08_ACTOR *wp, ST08_HIT *hit);

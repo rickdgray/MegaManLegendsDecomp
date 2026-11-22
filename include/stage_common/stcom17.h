@@ -218,7 +218,7 @@ sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 void func_8002F9EC(void *wp, sint32 arg);
 void func_80032304(void *wp, sint32 anim, sint32 arg);
-void func_8003346C(void *wp);
+void Model_parts_mtx_set_y(void *wp);
 uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out, sint32 angle);
 sint32 func_80030418(void *a, void *b, STCOM_SVECTOR *size, STCOM_FIXED_VECTOR *out);
 void func_80030EE8(void *wp, STCOM_SVECTOR *target, sint32 speed);
@@ -230,7 +230,7 @@ void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 void func_80052528(void *wp);
 sint32 func_800364B0(void *track, void *wp, sint32 angle);
 sint16 func_80030D30(STCOM_SVECTOR *from, STCOM_SVECTOR *to, sint32 speed, sint32 arg3, sint32 arg4);
-void func_80030968(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
+void Obj_launch_set(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
 sint32 SquareRoot0(sint32 v);
 // Hand-written: copies `count` words.
 void Mem_copy4(void *src, void *dst, sint32 count);

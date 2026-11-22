@@ -80,7 +80,7 @@ void func_801124B0(ST00_STCOM19_WORK *wp)
     wp->matrix.words[3] = 0;
     wp->matrix.words[4] = 0x1000;
     RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-    wp->cell_44 = func_80048C60(&wp->pos_38);
+    wp->cell_44 = Map_cell_get(&wp->pos_38);
     wp->routine_0++;
     wp->matrix.words[5] = ST00_SLOTS[wp->cell_44].value_0;
     wp->matrix.words[6] = Stage_hed_model_get(*(uint32 *)(wp->matrix.words[5] & 0xFFFFFF) & ~0x1000);
@@ -96,7 +96,7 @@ void func_80112568(STAGE_PANEL_WORK *wp)
     uint8 frame;
     uint32 color;
 
-    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&Player_work.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
+    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == Map_cell_get(&Player_work.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
     {
         wp->routine_0 = 2;
         wp->timer_B   = 0x10;
@@ -166,7 +166,7 @@ void func_801127A0(ST00_STCOM19_WORK *wp)
             Sound_call2(0x106, &wp->pos_38);
         }
     }
-    else if (wp->cell_44 != func_80048C60(&Player_work.position))
+    else if (wp->cell_44 != Map_cell_get(&Player_work.position))
     {
         wp->timer_B          = 16;
         wp->matrix.words[0]  = 0x1000;
@@ -695,14 +695,14 @@ void func_8011381C(ST00_MATRIX_OBJ *wp)
     if (++wp->count_D == 3)
     {
         wp->count_D = 0;
-        uv          = func_8002D22C(wp->model_14, 0x10001);
+        uv          = Model_face_get(wp->model_14, 0x10001);
         uv[0] = uv[2] = D_8011CA94[wp->frame_E][0] + 1;
         uv[4] = uv[6] = D_8011CA94[wp->frame_E][0] + 0x1F;
         uv[1]         = D_8011CA94[wp->frame_E][1] + 0x2F;
         uv[3]         = D_8011CA94[wp->frame_E][1] + 0x10;
         uv[5]         = D_8011CA94[wp->frame_E][1] + 0x3E;
         uv[7]         = D_8011CA94[wp->frame_E][1] + 1;
-        uv            = func_8002D22C(wp->model_14, 0x10000);
+        uv            = Model_face_get(wp->model_14, 0x10000);
         uv[0] = uv[2] = D_8011CA94[wp->frame_E][0] + 0x1F;
         uv[4] = uv[6] = D_8011CA94[wp->frame_E][0] + 0x3E;
         uv[1]         = D_8011CA94[wp->frame_E][1] + 0x3E;
@@ -1718,7 +1718,7 @@ void func_80115A88(STAGE_PANEL_WORK *wp)
     {
         wp->routine_0        = 1;
         wp->matrix.m.m[1][1] = 0;
-        wp->cell_44          = func_80048C60(&wp->pos_38);
+        wp->cell_44          = Map_cell_get(&wp->pos_38);
         wp->matrix.words[5]  = ST00_SLOTS[wp->cell_44].value_0;
         wp->matrix.words[6]  = Stage_hed_model_get(0x40500);
     }
@@ -1882,7 +1882,7 @@ void func_80115EAC(ST00_POOL *wp)
         {
             for (i = 0; i < 16; i++)
             {
-                D_8012256C[i] = *(ST00_UV8 *)func_8002D22C((uint32)wp->model_14, i | 0x10000);
+                D_8012256C[i] = *(ST00_UV8 *)Model_face_get((uint32)wp->model_14, i | 0x10000);
             }
             rec = wp->model_14->parts_70->recs_24;
             for (i = 0; i < 25; i++)
@@ -1895,7 +1895,7 @@ void func_80115EAC(ST00_POOL *wp)
         wp->value_A = 0;
         if (wp->variant_3 & 0x4F)
         {
-            wp->cell_44            = func_80048C60(&wp->pos_38);
+            wp->cell_44            = Map_cell_get(&wp->pos_38);
             wp->cell_C             = ST00_SLOTS[wp->cell_44].value_0;
             wp->matrix_18.f.key_14 = Stage_hed_model_get(D_8011CD0C[wp->variant_3 & 0xF]);
         }
@@ -2072,7 +2072,7 @@ void func_80116750(ST00_POOL *wp)
             uv.b[2] = D_8012256C[i].b[2] + anim;
             uv.b[4] = D_8012256C[i].b[4] + anim;
             uv.b[6] = D_8012256C[i].b[6] + anim;
-            func_8002D27C(wp->model_14, i | 0x10000, &uv);
+            Model_face_uv_set(wp->model_14, i | 0x10000, &uv);
         }
         rec = wp->model_14->parts_70->recs_24;
         for (i = 0; i < 25; i++)

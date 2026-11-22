@@ -25,12 +25,12 @@ void func_80037534(PL_WORK *pl)
 
     for (i = 0; i < 16; i++, p++)
     {
-        p->idx[0]   = 0;
-        p->idx[1]   = 0;
-        p->idx[2]   = 0;
-        p->idx[3]   = 0;
-        p->unk04[0] = 0;
-        p->val      = D_80089EAC[i][p->idx[1]].val[1];
+        p->idx[0]     = 0;
+        p->idx[1]     = 0;
+        p->idx[2]     = 0;
+        p->idx[3]     = 0;
+        p->sp_perform = 0;
+        p->val        = D_80089EAC[i][p->idx[1]].val[1];
     }
 }
 
@@ -53,7 +53,7 @@ sint32 func_800375D4(PL_WORK *pl, sint32 n)
     return D_80089EAC[n][pl->rec[n].idx[0]].val[0];
 }
 
-sint16 func_80037604(PL_WORK *pl, sint32 n)
+sint32 Player_weapon_bullet_calc(PL_WORK *pl, sint32 n)
 {
     return D_80089EAC[n][pl->rec[n].idx[1]].val[1];
 }

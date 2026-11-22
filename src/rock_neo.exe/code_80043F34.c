@@ -149,7 +149,7 @@ void func_800441CC(W48_80_WORK *wp)
                     r  = wp->pos_38.pad / 2;
                     if ((uint32)(r * r) >= (uint32)(dx * dx + dy * dy + dz * dz) && Player_work[0].field_74 == 0)
                     {
-                        Player_work[0].owner_188.pad_0 |= 0x10000000;
+                        Player_work[0].owner_188.hit_0 |= 0x10000000;
                         switch (wp->level_F)
                         {
                             case 1:
@@ -163,8 +163,8 @@ void func_800441CC(W48_80_WORK *wp)
                                 size = 0x40;
                                 break;
                         }
-                        Player_work[0].owner_188.pad_0 = (Player_work[0].owner_188.pad_0 & 0xFF000000) |
-                                                         ((Player_work[0].owner_188.pad_0 & 0xFFFFFF) + size) | 0x01000000;
+                        Player_work[0].owner_188.hit_0 = (Player_work[0].owner_188.hit_0 & 0xFF000000) |
+                                                         ((Player_work[0].owner_188.hit_0 & 0xFFFFFF) + size) | 0x01000000;
                     }
                 }
                 else

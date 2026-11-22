@@ -1360,7 +1360,7 @@ typedef struct
 
 void func_80112BDC(ST00_MATRIX_OBJ *wp);
 
-// A scratchpad halfword func_8010A68C sets before func_8003346C.
+// A scratchpad halfword func_8010A68C sets before Model_parts_mtx_set_y.
 #define ST00_SP_13C (*(uint16 *)0x1F80013C)
 
 void func_801182C0(STAGE_FX *wp);
@@ -2065,11 +2065,11 @@ typedef struct
 sint32 func_80042208(void);
 
 // ROCK_NEO: a model's UV block (stcom07's STCOM07_QUAD): u0, v0, u1, v1, u2, v2, u3, v3.
-uint8 *func_8002D22C(uint32 model, sint32 arg);
+uint8 *Model_face_get(uint32 model, sint32 arg);
 
 void func_8005D620(void *wp, sint32 a1, sint32 a2, sint32 a3, sint32 color);
 
-// Eight bytes of texture coordinates of a model face (func_8002D22C, func_8002D27C; r3_st0e's
+// Eight bytes of texture coordinates of a model face (Model_face_get, Model_face_uv_set; r3_st0e's
 // ST0E_UV8).
 typedef struct
 {
@@ -2133,7 +2133,7 @@ typedef struct
 extern ST00_UV8 D_8012256C[16]; // the surface's texture coordinates
 extern uint16 D_801225EC[25];   // its vertices' heights
 
-void func_8002D27C(void *model, sint32 id, ST00_UV8 *uv);
+void Model_face_uv_set(void *model, sint32 id, ST00_UV8 *uv);
 
 // A 0x10C-byte slot (Open_SHL_WORK) as func_8010B1C0 fires it: STAGE_PIECE with two more words.
 typedef struct

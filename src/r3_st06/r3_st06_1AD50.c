@@ -122,7 +122,7 @@ void func_8011B00C(ST06_EVENT *wp)
     }
     for (i = 0; i < 7; i++)
     {
-        D_8012BB3C[i] = func_80037C14(func_80048C60(&D_80125A80[i]));
+        D_8012BB3C[i] = func_80037C14(Map_cell_get(&D_80125A80[i]));
     }
     wp->routine_1 = 0;
     wp->routine_0++;
@@ -206,7 +206,7 @@ sint32 func_8011B444(void)
     best = 0xBB;
     for (; i < 7; i++)
     {
-        d = func_80037C14(func_80048C60(&D_80125A80[i]));
+        d = func_80037C14(Map_cell_get(&D_80125A80[i]));
         if (d < D_8012BB3C[i] && d < best)
         {
             best = d;

@@ -1267,7 +1267,7 @@ typedef void (*ST0B_BOB2_FUNC)(STAGE_OBJ *wp, ST0B_BOB *bob);
 // The control block a bobbing object keeps at +0x308 (func_8010B4BC passes it to its routines).
 #define ST0B_OBJ_BOB(wp) ((ST0B_BOB *)((uint8 *)(wp) + 0x308))
 
-// A scratchpad vector func_8003346C reads (its y is a turn angle).
+// A scratchpad vector Model_parts_mtx_set_y reads (its y is a turn angle).
 #define ST0B_SP_ROT ((STCOM_SVECTOR *)0x1F800140)
 
 void func_8010BE88(STAGE_OBJ *wp, ST0B_BOB *bob);
@@ -2603,7 +2603,7 @@ void Sce_event_timer_clear(void);
 #define ST0B_OBJ_HIT_B(wp)   ((ST0B_HIT_B *)((uint8 *)(wp) + 0x308))
 #define ST0B_OBJ_POS_180(wp) ((STCOM_SVECTOR *)((uint8 *)(wp) + 0x180))
 
-// A scratchpad vector func_8003346C reads (x and z: a tilt).
+// A scratchpad vector Model_parts_mtx_set_y reads (x and z: a tilt).
 #define ST0B_SP_TILT ((STCOM_SVECTOR *)0x1F800128)
 
 extern ST0B_HIT_B_FUNC D_8011B43C[];
@@ -2656,7 +2656,7 @@ void func_801048FC(ST0B_OBJ *wp);
 
 sint32 func_80106550(ST0B_OBJ *wp);
 
-// A scratchpad block func_8003346C reads (func_801048FC sets two halfwords).
+// A scratchpad block Model_parts_mtx_set_y reads (func_801048FC sets two halfwords).
 typedef struct
 {
     uint8 reserved0[2]; // 0 (0x1F800160)

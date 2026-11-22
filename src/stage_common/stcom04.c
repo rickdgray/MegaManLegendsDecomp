@@ -371,7 +371,7 @@ void stcom04_func_0A10(STCOM04_WORK *wp, sint32 hit)
 uint8 stcom04_func_0A84(STCOM04_WORK *wp, uint32 *hit)
 {
     Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, 0);
-    if (func_80048DAC(&wp->position) != 0)
+    if (Map_area_check(&wp->position) != 0)
     {
         func_80031824(wp);
         return 1;
@@ -389,7 +389,7 @@ void stcom04_func_0AF4(STCOM04_WORK *wp)
         wp->rotation.x = 0x400;
     }
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void stcom04_func_0B58(STCOM04_WORK *wp)

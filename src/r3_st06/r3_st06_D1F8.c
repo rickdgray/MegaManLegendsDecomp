@@ -1152,7 +1152,7 @@ void func_8010F154(ST06_CRAB *wp)
             ST06_SP->angle_150 = ctl->u_38.h.lo;
             ST06_SP->angle_158 = ctl->u_38.h.hi;
         }
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     else
     {
@@ -2709,7 +2709,7 @@ void func_8011201C(ST06_ACTOR *wp)
         func_80032538(wp);
     }
     *(uint16 *)0x1F800132 = wp->ctl.timer_A;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 1)
     {
         func_80051B68(wp, 3, -1, 0);

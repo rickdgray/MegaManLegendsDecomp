@@ -143,7 +143,7 @@ void func_8010BFB4(ST0E_PANEL *wp)
         for (i = 0; i < 16; i++)
         {
             uv = D_80110CF4[wp->variant_3][i];
-            func_8002D27C(wp->model_14, i | 0x10000, &uv);
+            Model_face_uv_set(wp->model_14, i | 0x10000, &uv);
         }
     }
     if (wp->variant_3 == 3)
@@ -152,7 +152,7 @@ void func_8010BFB4(ST0E_PANEL *wp)
     }
     for (i = 0; i < 16; i++)
     {
-        D_80110CF4[wp->variant_3][i] = *func_8002D22C(wp->model_14, i | 0x10000);
+        D_80110CF4[wp->variant_3][i] = *Model_face_get(wp->model_14, i | 0x10000);
     }
     rec = wp->model_14->parts_70->recs_24;
     for (i = 0; i < 25; i++)
@@ -161,7 +161,7 @@ void func_8010BFB4(ST0E_PANEL *wp)
         rec++;
     }
     wp->value_A            = (wp->variant_3 - 1) * 16;
-    wp->cell_44            = func_80048C60(&wp->pos_38);
+    wp->cell_44            = Map_cell_get(&wp->pos_38);
     wp->cell_C             = STAGE_CELLS[wp->cell_44].value;
     wp->matrix_18.f.key_14 = Stage_hed_model_get(D_80110698[0]);
     wp->routine_0          = 1;
@@ -204,7 +204,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
             vec.x = -0x2100;
             vec.y = -0xC81;
             vec.z = 0x1500;
-            func_8003AC9C(func_80048D08(0, &vec), 0x71202);
+            Stage_idx_model_set(Stage_map_cell_get(0, &vec), 0x71202);
             wp->matrix_18.f.lit_1C = 0;
         }
         if (Sce_flag_test(0x606))
@@ -256,7 +256,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
             uv.b[3] = D_80110D74[wp->variant_3 - 1][i].b[3] - (wp->variant_3 - 1) * 16;
             uv.b[5] = D_80110D74[wp->variant_3 - 1][i].b[5] - (wp->variant_3 - 1) * 16;
             uv.b[7] = D_80110D74[wp->variant_3 - 1][i].b[7] - (wp->variant_3 - 1) * 16;
-            func_8002D27C(wp->model_14, i | 0x10000, &uv);
+            Model_face_uv_set(wp->model_14, i | 0x10000, &uv);
         }
         rec = wp->model_14->parts_70->recs_24;
         for (i = 0; i < 25; i++)
@@ -275,7 +275,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
             vec.x                  = -0x2100;
             vec.y                  = -0xC81;
             vec.z                  = 0x1500;
-            func_8003AC9C(func_80048D08(0, &vec), 0x70202);
+            Stage_idx_model_set(Stage_map_cell_get(0, &vec), 0x70202);
         }
     }
     if (pl->position.x >= -0x211F)

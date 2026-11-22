@@ -510,7 +510,7 @@ void func_80106E38(STAGE_ROOM *wp)
     switch (wp->routine_4)
     {
         case 0:
-            func_8003AC9C(func_80048C60(&D_80130A3C), 0xB0E00);
+            Stage_idx_model_set(Map_cell_get(&D_80130A3C), 0xB0E00);
             if (Sce_flag_test(0x59))
             {
                 wp->routine_4 = 5;
@@ -1033,7 +1033,7 @@ void func_80107DB4(void)
 {
     STCOM_SVECTOR pos = {-0x100, 0, 0x1B00, 0};
 
-    func_8003AC9C(func_80048C60(&pos), 0x80100000);
+    Stage_idx_model_set(Map_cell_get(&pos), 0x80100000);
 }
 
 void func_80107E08(STAGE_STCOM15_WORK_348 *wp)

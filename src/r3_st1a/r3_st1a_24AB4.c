@@ -369,7 +369,7 @@ void func_801254E8(ST1A_50 *wp, STAGE_SCENE_WORK *scene)
 
     pos    = &wp->pos_38;
     step   = (uint8)(scene->value_10 - 5);
-    packet = func_8002D464();
+    packet = Billboard_get();
     if (step < 0x10)
     {
         packet->code_4 = (step * 8) | 0x2E000000;

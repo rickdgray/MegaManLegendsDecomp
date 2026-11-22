@@ -76,7 +76,7 @@ void func_800D8AAC(SHL_WORK *wp)
 {
     sint32 hit;
 
-    if (func_80037694(wp, 0) == 0x7FFF || wp->hit_7c || !func_80048C60(&wp->pos))
+    if (func_80037694(wp, 0) == 0x7FFF || wp->hit_7c || !Map_cell_get(&wp->pos))
     {
         func_800D8EF4(wp);
         func_80031930(wp);

@@ -777,7 +777,7 @@ void func_80106FCC(ST09_VIEW_B *wp)
     wp->ext.u_2.h           = rand();
     D_8011DF0C[wp->routine_0](wp);
     Mem_copy4(&wp->ext.u_34, (void *)0x1F800120, 6);
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);

@@ -24,7 +24,7 @@ void stcom07_func_003C(STCOM07_WORK *wp)
     RotMatrixY(wp->rot_C << 10, &wp->matrix.m);
     wp->color_40 = 0x808080;
     wp->routine_0++;
-    wp->quad_44 = func_8002D22C(wp->model_14, 0x10000);
+    wp->quad_44 = Model_face_get(wp->model_14, 0x10000);
     switch (wp->type_3)
     {
         case 0:
@@ -72,7 +72,7 @@ void stcom07_func_003C(STCOM07_WORK *wp)
 
 void stcom07_func_02F4(STCOM07_WORK *wp)
 {
-    if (func_80048C60(&wp->position) == func_80048C60(&Player_work.position) && Sce_flag_test(0x7B1) != 0)
+    if (Map_cell_get(&wp->position) == Map_cell_get(&Player_work.position) && Sce_flag_test(0x7B1) != 0)
     {
         wp->timer_B = 24;
         wp->routine_0++;
@@ -112,7 +112,7 @@ void stcom07_func_0360(STCOM07_WORK *wp)
 
 void stcom07_func_0488(STCOM07_WORK *wp)
 {
-    if (func_80048C60(&wp->position) == func_80048C60(&Player_work.position) && Sce_flag_test(0x7B1) == 0)
+    if (Map_cell_get(&wp->position) == Map_cell_get(&Player_work.position) && Sce_flag_test(0x7B1) == 0)
     {
         wp->timer_B = 0;
         wp->routine_0++;

@@ -118,7 +118,7 @@ void stcom34_func_04CC(STCOM_SVECTOR a, STCOM_SVECTOR b, uint8 shade)
     bl   = ((rand() & 7) + 6) * shade;
     g    = ((rand() & 7) + 6) * shade;
     r    = ((rand() & 7) + 6) * shade;
-    line = func_8002D4B8();
+    line = Billboard_line_get();
     // Struct-field reads of the x/y words keep them ordered against the packet stores.
     line->xy1_0   = ((STCOM34_XY *)&b)->xy;
     line->xy0_8   = ((STCOM34_XY *)&a)->xy;

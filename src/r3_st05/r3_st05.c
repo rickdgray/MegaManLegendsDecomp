@@ -57,8 +57,8 @@ void func_801008F4(void)
             if (Sce_flag_test(0x214) && !Sce_flag_test(0x24A))
             {
                 pos = D_8012E44C;
-                func_8003AC9C(func_80048C60(&pos[0]), 0xF0000);
-                func_8003AC9C(func_80048C60(&pos[1]), 0xF0100);
+                Stage_idx_model_set(Map_cell_get(&pos[0]), 0xF0000);
+                Stage_idx_model_set(Map_cell_get(&pos[1]), 0xF0100);
             }
             break;
         case 1:
@@ -70,7 +70,7 @@ void func_801008F4(void)
     }
     spawns                    = D_8012DFB8[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8012E1F4[Game_work.value_51];
-    func_8002EA50(spawns, D_800C356D);
+    Obj_spawn_tbl_set(spawns, D_800C356D);
     func_800371A0(D_8012E2D0[D_8012E438[Game_work.value_51]], D_8012E208[Game_work.value_51]);
     func_8005DC10(0);
     func_80106B28();
@@ -130,8 +130,8 @@ void func_80100C9C(STAGE_ROOM *wp)
     }
     if (wp->frame_10 == 0xAC)
     {
-        func_8002D320(wp->child_24->model_88, 0x10000F, func_8002D404(D_8012E45E, 0x33, 0x37, 5));
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E45F, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x10000F, Model_uv_cell(D_8012E45E, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E45F, 0x33, 0x37, 5));
     }
 }
 
@@ -159,13 +159,13 @@ void func_80100E08(STAGE_ROOM *wp)
     }
     if (wp->frame_10 >= 3 && wp->frame_10 < 6)
     {
-        func_8002D320(wp->child_24->model_88, 0x10000F, func_8002D404(D_8012E45C[(wp->frame_10 - 1) << 1], 0x33, 0x37, 5));
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E45D[(wp->frame_10 - 1) << 1], 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x10000F, Model_uv_cell(D_8012E45C[(wp->frame_10 - 1) << 1], 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E45D[(wp->frame_10 - 1) << 1], 0x33, 0x37, 5));
     }
     if (wp->frame_10 == 0xF)
     {
-        func_8002D320(wp->child_24->model_88, 0x10000F, func_8002D404(D_8012E466, 0x33, 0x37, 5));
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E467, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x10000F, Model_uv_cell(D_8012E466, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E467, 0x33, 0x37, 5));
     }
     if (wp->frame_10 == 0x1E)
     {
@@ -182,12 +182,12 @@ void func_80100E08(STAGE_ROOM *wp)
         {
             wp->reserved09[1] = i - D_8012E468[i + 1];
         }
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E468[wp->reserved09[1]], 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E468[wp->reserved09[1]], 0x33, 0x37, 5));
         wp->reserved09[1]++;
     }
     if (wp->frame_10 == 0x89)
     {
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E467, 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E467, 0x33, 0x37, 5));
     }
 }
 
@@ -251,8 +251,8 @@ void func_8010127C(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        func_8002D320(wp->child_24->model_88, 0x10000FU, func_8002D404(D_8012E45C[0], 0x33, 0x37, 5));
-        func_8002D320(wp->child_24->model_88, 0x120011, func_8002D404(D_8012E45D[0], 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x10000FU, Model_uv_cell(D_8012E45C[0], 0x33, 0x37, 5));
+        Model_mesh_uv_copy(wp->child_24->model_88, 0x120011, Model_uv_cell(D_8012E45D[0], 0x33, 0x37, 5));
         MojiTaskExec2(0, 8);
         wp->child_24->u_E.b.byte_F = 0;
         wp->child_24->routine_0    = 4;

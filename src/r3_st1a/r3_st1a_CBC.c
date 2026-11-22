@@ -73,7 +73,7 @@ void func_80100DFC(STAGE_ROOM *wp)
             {
                 Obj_work_flag_change(0x15E, 0x80);
                 wp->reserved09[1]  = 0x80;
-                D_801396F4         = func_80048C60(&D_8012F708);
+                D_801396F4         = Map_cell_get(&D_8012F708);
                 D_801396F8         = STAGE_CELL_TBL[D_801396F4].pos.y;
                 STAGE_PL.routine_0 = 3;
                 STAGE_PL.routine_1 = 0;
@@ -185,7 +185,7 @@ void func_801010E8(STAGE_ROOM *wp)
                 if (wp->reserved09[1] & 1)
                 {
                     STAGE_CELL_TBL[D_801396F4].pos.y = D_801396F8;
-                    func_8003AC9C(D_801396F4, 0x31500);
+                    Stage_idx_model_set(D_801396F4, 0x31500);
                 }
                 func_80042314(pl);
                 wp->routine_5++;
@@ -247,7 +247,7 @@ void func_801013DC(ST1A_ROOM *wp)
 
     if (wp->frame_10 == 0)
     {
-        func_8003AC9C(D_801396F4, 0x70000);
+        Stage_idx_model_set(D_801396F4, 0x70000);
         for (i = 1; i < 11; i++)
         {
             func_8001EAE8(&D_8012E958[i]);
@@ -375,7 +375,7 @@ void func_8010160C(ST1A_ROOM_LIFT *wp)
             wp->slot_2C->flags_0 &= ~2;
             wp->slot_4C->flags_0 &= ~2;
             STAGE_CELL_TBL[D_801396F4].pos.y = D_801396F8;
-            func_8003AC9C(D_801396F4, 0x31500);
+            Stage_idx_model_set(D_801396F4, 0x31500);
             wp->routine_6++;
             break;
     }
@@ -2039,11 +2039,11 @@ void func_801047D0(STAGE_ROOM *wp)
                 pos.x = -0xF9;
                 pos.y = -1;
                 pos.z = -0x12;
-                STAGE_CELL_TBL[func_80048C60(&pos)].pos.x -= 2;
+                STAGE_CELL_TBL[Map_cell_get(&pos)].pos.x -= 2;
                 pos.x = 0xF9;
                 pos.y = -1;
                 pos.z = -0x12;
-                STAGE_CELL_TBL[func_80048C60(&pos)].pos.x += 2;
+                STAGE_CELL_TBL[Map_cell_get(&pos)].pos.x += 2;
             }
             else
             {
@@ -2133,11 +2133,11 @@ void func_80104A80(STAGE_ROOM *wp)
     pos.x = -0xF9;
     pos.y = -1;
     pos.z = -0x12;
-    STAGE_CELL_TBL[func_80048C60(&pos)].pos.x += 3;
+    STAGE_CELL_TBL[Map_cell_get(&pos)].pos.x += 3;
     pos.x = 0xF9;
     pos.y = -1;
     pos.z = -0x12;
-    STAGE_CELL_TBL[func_80048C60(&pos)].pos.x -= 3;
+    STAGE_CELL_TBL[Map_cell_get(&pos)].pos.x -= 3;
 }
 
 void func_80104BAC(STAGE_ROOM *wp)
@@ -2306,13 +2306,13 @@ void func_80104EC8(ST1A_ROOM_A0 *wp)
             pos.x = -0x100;
             pos.y = 0;
             pos.z = 0xB00;
-            func_8003AC9C(func_80048D08(2, &pos), 0x40A00);
-            func_8003AC9C(func_80048D08(0xF, &pos), 0x40A00);
+            Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x40A00);
+            Stage_idx_model_set(Stage_map_cell_get(0xF, &pos), 0x40A00);
             pos.x = 0x100;
             pos.y = 0;
             pos.z = 0xB00;
-            func_8003AC9C(func_80048D08(2, &pos), 0x40B00);
-            func_8003AC9C(func_80048D08(0xF, &pos), 0x40B00);
+            Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x40B00);
+            Stage_idx_model_set(Stage_map_cell_get(0xF, &pos), 0x40B00);
             D_800C356C = -1;
             D_800C356E = 0x1A;
             D_800C356F = 0xF;

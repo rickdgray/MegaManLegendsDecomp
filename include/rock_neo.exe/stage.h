@@ -13,16 +13,26 @@
 // The block grid: 0x40 rows of 0x20 MAP_BLOCKs (map_blocks_draw draws the rows' set bits).
 #define Map_blocks (*(MAP_BLOCK **)0x1F80004C)
 
+// The current room's exits: MAP_EXITs, ended by one whose id is -1 (func_80050C2C).
+#define Map_exits (*(MAP_EXIT **)0x1F800050)
+
+// The rooms' maps, loaded from the stage archive at 0x80164004 (one STAGE_MAP per room; the
+// overlays' stage_common/stage.h has the same type). Addressed by literal address.
+#define Stage_map_tbl ((STAGE_MAP *)0x80164004)
+
 // The stage's IDX file, loaded at 0x8015C000 (notes/disc.md): 12-byte entries, position in
 // 1/512 units. Addressed by literal address, like the scratchpad: the target builds it with
 // lui/ori, and maspsx gives `addu at,idx,at` only for a constant (notes/rock_neo.md).
 #define Stage_idx_tbl ((IDX_ENT *)0x8015C000)
 
 // The 0x400 bytes below Stage_idx_tbl, cleared by Work_pools_init. The first 0x200 are two row
-// masks of the block grid (0x40 words each, one bit per MAP_BLOCK): func_80023C08 passes
+// masks of the block grid (0x40 words each, one bit per MAP_BLOCK): map_block_masks_draw passes
 // 0x8015BC00 and 0x8015BD00 to map_blocks_draw/map_blocks_draw2, which draw the set blocks. The rest's
 // use is unknown.
 #define D_8015BC00 ((uint8 *)0x8015BC00)
+// The same two row masks as words: rows 0..0x3F, then the second mask at Map_block_mask + MAP_BLOCK_ROWS.
+#define Map_block_mask ((uint32 *)0x8015BC00)
+#define MAP_BLOCK_ROWS 0x40
 
 // EBD files (notes/disc.md): a count word, then that many 16-byte entries that bind an object's
 // kind and id to its model data (searched by func_8002FA38). The stage has two, SUPPORT one.
@@ -59,6 +69,29 @@ typedef struct
     uint32 id;    // 0x0: STG_MODEL.id
     uint32 model; // 0x4: the STG_MODEL in the low 24 bits; 0 ends the list
 } HED_ENT;
+
+// One room's map (Stage_map_tbl): its window in the cell grid and its cells (w * h, row by row).
+typedef struct
+{
+    uint8 x0;      // 0
+    uint8 z0;      // 1
+    uint8 w;       // 2
+    uint8 h;       // 3
+    sint16 *cells; // 4
+} STAGE_MAP;
+
+// One exit of the current room (Map_exits). func_80050C2C matches the player's position and
+// facing against pos; func_800519E4 tests the scene flags 0x7E0 | (id & 0x1F) and
+// 0x7C0 | (id & 0x1F).
+typedef struct
+{
+    sint16 id; // 0x00: -1 ends the list
+    uint8 unk02[2];
+    sint16 val_4; // 0x04: passed to func_80063BC8 by func_800519E4
+    uint8 unk06[2];
+    SVECTOR pos; // 0x08: position, pad the facing angle
+    uint8 unk10[8];
+} MAP_EXIT; // 0x18 bytes
 
 // One block of the map grid (Map_blocks): its position, and its STG_MODEL in the low 24 bits. The
 // draw uses lod[0..2] by distance, or lod[3..5] when pos.pad is 0.

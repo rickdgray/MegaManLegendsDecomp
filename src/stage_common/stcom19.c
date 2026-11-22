@@ -81,7 +81,7 @@ void stcom19_func_0310(STCOM19_WORK *wp)
     STCOM_FIXED_VECTOR out;
     STCOM_MATRIX m;
 
-    if (Sce_flag_test(0x7B1) && wp->cell_44 == func_80048C60(&Player_work.position))
+    if (Sce_flag_test(0x7B1) && wp->cell_44 == Map_cell_get(&Player_work.position))
     {
         wp->routine_0 = 2;
         wp->timer_B   = 16;
@@ -129,7 +129,7 @@ void stcom19_func_0448(STCOM19_WORK *wp)
             Sound_call2(0x106, &wp->pos_38);
         }
     }
-    else if (wp->cell_44 != func_80048C60(&Player_work.position))
+    else if (wp->cell_44 != Map_cell_get(&Player_work.position))
     {
         wp->timer_B          = 16;
         wp->matrix.words[0]  = 0x1000;

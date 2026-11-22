@@ -73,7 +73,7 @@ void func_80117248(ST09_EVENT *wp)
 
     for (i = 0; i < 3; i++)
     {
-        wp->cell_C[i]                  = func_80048C60(&D_8011E3C8[i]);
+        wp->cell_C[i]                  = Map_cell_get(&D_8011E3C8[i]);
         wp->value_14[i]                = 0x80;
         wp->delay_5[i]                 = i << 6;
         ST09_MAP_OBJS[wp->cell_C[i]].y = -0x180;
@@ -84,7 +84,7 @@ void func_80117248(ST09_EVENT *wp)
 
 void func_80117300(ST09_EVENT *wp)
 {
-    if (func_80048C60(&Player_work.position) == wp->cell_C[0])
+    if (Map_cell_get(&Player_work.position) == wp->cell_C[0])
     {
         wp->value_4++;
     }

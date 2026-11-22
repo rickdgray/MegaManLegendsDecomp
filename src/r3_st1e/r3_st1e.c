@@ -34,7 +34,7 @@ void func_8010011C(void)
     STAGE_MAP_WORK_PTR->info  = STAGE_CELL_INFO;
     STAGE_MAP_WORK_PTR->cells = cells;
     STAGE_MAP_WORK_PTR->exits = D_8010426C[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_801043A0[D_801043B8[Game_work.value_51]], D_80104288[Game_work.value_51]);
     func_8005DC10(0);
     func_8010028C();
@@ -1093,7 +1093,7 @@ void func_80101EC4(STAGE_OBJ *wp)
         if (wp->routine_1 == 4)
         {
             func_80032538(wp);
-            func_800334C4(wp);
+            Model_parts_mtx_set_yxz(wp);
         }
         else
         {
@@ -1105,13 +1105,13 @@ void func_80101EC4(STAGE_OBJ *wp)
 void func_80101F54(STAGE_OBJ *wp)
 {
     D_801098EC[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_801098E8[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_801098E8[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_80101FB0(STAGE_OBJ *wp)
 {
     D_801098F4[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_801098F0[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_801098F0[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010200C(STAGE_OBJ *wp)

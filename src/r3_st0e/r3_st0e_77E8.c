@@ -139,14 +139,14 @@ void func_80107C94(ST0E_VIEW *wp)
         pos.x = -0xB00;
         pos.y = -0x181;
         pos.z = -0xD00;
-        func_8003AC9C(func_80048D08(1, &pos), 0x31802);
+        Stage_idx_model_set(Stage_map_cell_get(1, &pos), 0x31802);
     }
     else
     {
         pos.x = -0x1B00;
         pos.y = -0x181;
         pos.z = -0x1100;
-        func_8003AC9C(func_80048D08(1, &pos), 0x31702);
+        Stage_idx_model_set(Stage_map_cell_get(1, &pos), 0x31702);
     }
     hit->flags_8 = 0;
 }
@@ -265,14 +265,14 @@ void func_801080AC(ST0E_VIEW *wp)
             pos.x = -0xB00;
             pos.y = -0x181;
             pos.z = -0xD00;
-            func_8003AC9C(func_80048D08(1, &pos), 0x30802);
+            Stage_idx_model_set(Stage_map_cell_get(1, &pos), 0x30802);
         }
         else
         {
             pos.x = -0x1B00;
             pos.y = -0x181;
             pos.z = -0x1100;
-            func_8003AC9C(func_80048D08(1, &pos), 0x30702);
+            Stage_idx_model_set(Stage_map_cell_get(1, &pos), 0x30702);
         }
     }
 }
@@ -371,14 +371,14 @@ void func_80108448(STAGE_OBJ *wp)
             pos.x = -0x900;
             pos.y = -0x12B;
             pos.z = -0x2300;
-            func_8003AC9C(func_80048D08(2, &pos), 0x60302);
+            Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x60302);
         }
         else
         {
             pos.x = -0x1700;
             pos.y = -0x2AB;
             pos.z = -0x2300;
-            func_8003AC9C(func_80048D08(2, &pos), 0x60402);
+            Stage_idx_model_set(Stage_map_cell_get(2, &pos), 0x60402);
         }
     }
 }

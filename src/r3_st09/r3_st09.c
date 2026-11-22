@@ -66,7 +66,7 @@ void func_80100398(void)
     pl->value_44E   = 1;
     spawn           = D_8011D488[Game_work.value_51];
     STAGE_MAP_EXITS = D_8011DAAC[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_8011DC38[D_8011DC90[Game_work.value_51]], D_8011DAD0[Game_work.value_51]);
     func_8005DC10(D_8011BBB4[Game_work.value_51]);
     func_801005F4();
@@ -324,7 +324,7 @@ void func_80100DF4(ST09_VIEW *wp)
         func_80032538(wp);
     }
     STAGE_SP_13A = ext->u_3C.h[0];
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);

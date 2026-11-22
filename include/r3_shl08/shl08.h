@@ -47,7 +47,7 @@ typedef struct
     SVECTOR trail[4]; // D4
 } SHL08_WORK;
 
-// A coloured 3D line packet from func_8002D4B8.
+// A coloured 3D line packet from Billboard_line_get.
 typedef struct
 {
     uint32 xy0;       // 00
@@ -67,7 +67,7 @@ extern SHL08_FUNC D_800D90E8[]; // routine_0 handlers
 extern uint8 D_800D90F0[];      // effect value by Player_work.value_534
 extern uint32 D_800D90F8[];     // trail colours
 
-SHL08_LINE *func_8002D4B8(void);
+SHL08_LINE *Billboard_line_get(void);
 
 void func_800D8E38(SHL08_WORK *wp);
 void func_800D8F0C(SHL08_WORK *wp);

@@ -182,7 +182,7 @@ struct ST0E_LEVER
     uint8 reserved44[0xC];  // 44
 };
 
-// Eight bytes of texture coordinates of a model face (func_8002D22C, func_8002D27C).
+// Eight bytes of texture coordinates of a model face (Model_face_get, Model_face_uv_set).
 typedef struct
 {
     uint8 b[8];
@@ -798,8 +798,8 @@ void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 void func_80105AB0(ST0E_PROP *wp);
 
 extern sint16 D_800BBCF8[]; // ROCK_NEO.EXE: a sine table
-sint32 func_80048D08(sint32 a0, STCOM_SVECTOR *pos);
-uint32 func_8003AC9C(sint32 idx, uint32 key);
+sint32 Stage_map_cell_get(sint32 a0, STCOM_SVECTOR *pos);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
 void func_8010BD90(ST0E_LEVER *wp);
 sint32 func_8003648C(void *track, void *wp);
 
@@ -821,8 +821,8 @@ extern ST0E_KIND10C **D_80098928;
 
 void func_8001E460(sint32 a0, sint32 a1, sint32 a2);
 
-ST0E_UV8 *func_8002D22C(void *model, sint32 id);
-void func_8002D27C(void *model, sint32 id, ST0E_UV8 *uv);
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+ST0E_UV8 *Model_face_get(void *model, sint32 id);
+void Model_face_uv_set(void *model, sint32 id, ST0E_UV8 *uv);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 
 #endif

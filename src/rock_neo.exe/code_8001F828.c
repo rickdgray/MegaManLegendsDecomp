@@ -2,6 +2,7 @@
 #include "code_8001F828.h"
 #include "game.h"
 #include "psyq/inline_c.h"
+#include "scene.h"
 #include "scratch.h"
 #include "stage.h"
 
@@ -74,13 +75,121 @@ static sint8 D_80098344[4];
 static uint8 D_80098348[4];
 static uint8 D_8009834C[8];
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001F828);
+// Called only from this file
+void map_blocks_draw(uint32 *rows, sint32 kind);
+void map_blocks_draw2(uint32 *rows, sint32 kind);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001F8DC);
+void func_8001F828(void)
+{
+    sint16 id;
+
+    switch (Game_work.sce_no)
+    {
+        case 0:
+            if (Sce_flag_test(0xC))
+            {
+                D_800981BC[0] = 0x32;
+            }
+            else
+            {
+                D_800981BC[0] = 0x31;
+            }
+            return;
+        case 1:
+            D_800981BC[0] = 0x32;
+            id            = 0x36;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            D_800981BC[0] = 0x32;
+            id            = 0x34;
+            break;
+        default:
+            D_800981BC[0] = 0x32;
+            id            = 0x35;
+            break;
+    }
+    D_800981BC[1] = D_800981C0[0] = D_800981C0[1] = id;
+}
+
+void func_8001F8DC(void)
+{
+    sint16 id;
+
+    switch (Game_work.sce_no)
+    {
+        case 0:
+            if (Sce_flag_test(6) && !Sce_flag_test(0x59))
+            {
+                D_800981D0[0] = 0x3D;
+            }
+            else
+            {
+                D_800981D0[0] = 0x3C;
+            }
+            return;
+        case 1:
+            D_800981D0[0] = 0x3C;
+            id            = 0x3F;
+            break;
+        case 2:
+        case 3:
+            D_800981D0[0] = 0x3C;
+            id            = 0x40;
+            break;
+        case 4:
+        case 5:
+            D_800981D0[0] = 0x3C;
+            id            = 0x41;
+            break;
+        case 11:
+            D_800981D0[0] = 0x3C;
+            id            = 0x43;
+            break;
+        default:
+            D_800981D0[0] = 0x3C;
+            id            = 0x42;
+            break;
+    }
+    D_800981D0[1] = id;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001F9AC);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FA94);
+void func_8001FA94(void)
+{
+    sint16 id;
+
+    switch (Game_work.sce_no)
+    {
+        case 0:
+            D_800981EC[1] = 0x59;
+            if (Sce_flag_test(0x630))
+            {
+                D_800981EC[3] = 0x61;
+            }
+            else
+            {
+                D_800981EC[3] = 0x5F;
+            }
+            return;
+        case 1:
+            id = 0x5A;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            id = 0x5B;
+            break;
+        default:
+            id = 0x5C;
+            break;
+    }
+    D_800981EC[1] = id;
+}
 
 void func_8001FB24(void)
 {
@@ -142,9 +251,55 @@ void func_8001FB8C(void)
     D_80098234[1] = id;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FBC4);
+void func_8001FBC4(void)
+{
+    sint16 id;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FC50);
+    if (Game_work.sce_no == 5)
+    {
+        if (Sce_flag_test(0x1C))
+        {
+            D_80098238[1] = 0x7A;
+            D_80098238[3] = 0x7C;
+            D_80098240[0] = -1;
+            return;
+        }
+        if (Sce_flag_test(0x1B))
+        {
+            D_80098238[1] = D_80098238[3] = D_80098240[0] = -1;
+            return;
+        }
+        id = 0x7A;
+    }
+    else
+    {
+        id = 0x7B;
+    }
+    D_80098238[3] = D_80098240[0] = id;
+}
+
+void func_8001FC50(void)
+{
+    sint16 id;
+
+    switch (Game_work.sce_no)
+    {
+        case 1:
+        case 2:
+        case 3:
+            if (!Sce_flag_test(0x30))
+            {
+                id = 0x82;
+                break;
+            }
+            // fall through
+        case 0:
+        default:
+            id = 0x81;
+            break;
+    }
+    D_8009824C[0] = id;
+}
 
 void func_8001FCA4(void)
 {
@@ -169,13 +324,112 @@ void func_8001FCA4(void)
     D_80098258[1] = id;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FCE4);
+void func_8001FCE4(void)
+{
+    sint16 id;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FD3C);
+    switch (Game_work.sce_no)
+    {
+        case 0:
+            id = 0x8E;
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            id = 0x8F;
+            break;
+        case 6:
+        case 7:
+            id = 0x90;
+            break;
+        default:
+            id = 0x91;
+            break;
+    }
+    D_80098270[3] = id;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FD90);
+void func_8001FD3C(void)
+{
+    switch (Game_work.sce_no)
+    {
+        case 1:
+            D_8009827C[0] = 0x93;
+            break;
+        default:
+            D_8009827C[0] = 0x94;
+            break;
+    }
+    switch (Game_work.sce_no)
+    {
+        case 0:
+        case 1:
+            D_8009827C[1] = 0x95;
+            break;
+        case 2:
+        case 3:
+        case 4:
+            D_8009827C[1] = 0x96;
+            break;
+        default:
+            D_8009827C[1] = 0x97;
+            break;
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FDE4);
+void func_8001FD90(void)
+{
+    switch (Game_work.sce_no)
+    {
+        case 1:
+            D_8009828C[0] = 0x9D;
+            break;
+        default:
+            D_8009828C[0] = 0x9E;
+            break;
+    }
+    switch (Game_work.sce_no)
+    {
+        case 0:
+        case 1:
+            D_8009828C[1] = 0x9F;
+            break;
+        case 2:
+        case 3:
+        case 4:
+            D_8009828C[1] = 0xA0;
+            break;
+        default:
+            D_8009828C[1] = 0xA1;
+            break;
+    }
+}
+
+void func_8001FDE4(void)
+{
+    sint16 id;
+
+    switch (Game_work.sce_no)
+    {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            id = 0xC3;
+            break;
+        case 4:
+            id = 0xC4;
+            break;
+        case 11:
+            id = 0xC4;
+            break;
+        default:
+            return;
+    }
+    D_800982F8[1] = D_800982FC[0] = D_800982FC[1] = id;
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_8001FE38);
 
@@ -226,7 +480,33 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80023728);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_800238B4);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80023C08);
+void map_block_masks_draw(void)
+{
+    switch (D_1F800075)
+    {
+        case 0:
+        default:
+            D_1F800004 = 0x400;
+            map_blocks_draw(Map_block_mask, 0);
+            map_blocks_draw(Map_block_mask + MAP_BLOCK_ROWS, 1);
+            break;
+        case 1:
+            D_1F800004 = 0;
+            map_blocks_draw(Map_block_mask, 1);
+            map_blocks_draw(Map_block_mask + MAP_BLOCK_ROWS, 1);
+            break;
+        case 2:
+            D_1F800004 = 0;
+            map_blocks_draw2(Map_block_mask, 2);
+            map_blocks_draw2(Map_block_mask + MAP_BLOCK_ROWS, 2);
+            break;
+        case 3:
+            D_1F800004 = 0;
+            map_blocks_draw2(Map_block_mask, 3);
+            map_blocks_draw2(Map_block_mask + MAP_BLOCK_ROWS, 3);
+            break;
+    }
+}
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8001F828", func_80023CF0);
 
@@ -430,16 +710,4 @@ __asm__(".text\n"
         ".globl D_8009830C\n"
         ".globl D_80098314\n"
         ".globl D_80098324\n"
-        ".globl D_800981BE\n.set D_800981BE, D_800981BC+2\n"
-        ".globl D_800981C2\n.set D_800981C2, D_800981C0+2\n"
-        ".globl D_800981D2\n.set D_800981D2, D_800981D0+2\n"
-        ".globl D_800981E2\n.set D_800981E2, D_800981E0+2\n"
-        ".globl D_800981EE\n.set D_800981EE, D_800981EC+2\n"
-        ".globl D_800981F2\n.set D_800981F2, D_800981EC+6\n"
-        ".globl D_8009823A\n.set D_8009823A, D_80098238+2\n"
-        ".globl D_8009823E\n.set D_8009823E, D_80098238+6\n"
-        ".globl D_80098276\n.set D_80098276, D_80098270+6\n"
-        ".globl D_8009827E\n.set D_8009827E, D_8009827C+2\n"
-        ".globl D_8009828E\n.set D_8009828E, D_8009828C+2\n"
-        ".globl D_800982FA\n.set D_800982FA, D_800982F8+2\n"
-        ".globl D_800982FE\n.set D_800982FE, D_800982FC+2\n");
+        ".globl D_800981E2\n.set D_800981E2, D_800981E0+2\n");

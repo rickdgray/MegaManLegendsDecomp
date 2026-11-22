@@ -1576,11 +1576,11 @@ void func_8010F520(STAGE_OBJ *wp)
         wp->routine_0++;
     }
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void func_8010F5D0(STAGE_OBJ *wp)
 {
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }

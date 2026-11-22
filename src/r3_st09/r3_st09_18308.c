@@ -88,7 +88,7 @@ void func_8011864C(STAGE_PANEL_WORK *wp)
     wp->matrix.words[3] = 0;
     wp->matrix.words[4] = 0x1000;
     RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-    wp->cell_44 = func_80048C60(&wp->pos_38);
+    wp->cell_44 = Map_cell_get(&wp->pos_38);
     wp->routine_0++;
     wp->matrix.words[5] = STAGE_CELLS[wp->cell_44].value;
     // The cell's record pointer, kept without its segment bits.
@@ -107,7 +107,7 @@ void func_80118704(STAGE_PANEL_WORK *wp)
     uint8 frame;
     uint32 color;
 
-    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == func_80048C60(&STAGE_PL.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
+    if (Sce_flag_test(0x7B1) != 0 && wp->cell_44 == Map_cell_get(&STAGE_PL.position) && Sce_flag_test((sint8)wp->value_D + 0x7E0) == 0)
     {
         wp->routine_0 = 2;
         wp->timer_B   = 0x10;
@@ -177,7 +177,7 @@ void func_8011893C(STAGE_PANEL_WORK *wp)
             Sound_call2(0x106, &wp->pos_38);
         }
     }
-    else if (wp->cell_44 != func_80048C60(&Player_work.position))
+    else if (wp->cell_44 != Map_cell_get(&Player_work.position))
     {
         wp->timer_B          = 16;
         wp->matrix.words[0]  = 0x1000;
@@ -461,7 +461,7 @@ void func_80119390(STAGE_PANEL_WORK *wp)
     STCOM_FIXED_VECTOR out;
     STCOM_MATRIX m;
 
-    if (Sce_flag_test(0x7B1) && wp->cell_44 == func_80048C60(&Player_work.position))
+    if (Sce_flag_test(0x7B1) && wp->cell_44 == Map_cell_get(&Player_work.position))
     {
         wp->routine_0 = 2;
         wp->timer_B   = 16;
@@ -509,7 +509,7 @@ void func_801194C8(STAGE_PANEL_WORK *wp)
             Sound_call2(0x106, &wp->pos_38);
         }
     }
-    else if (wp->cell_44 != func_80048C60(&Player_work.position))
+    else if (wp->cell_44 != Map_cell_get(&Player_work.position))
     {
         wp->timer_B          = 16;
         wp->matrix.words[0]  = 0x1000;

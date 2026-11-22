@@ -68,7 +68,7 @@ void func_80116B70(ST05_VILLAGER *wp)
         func_80032538(wp);
     }
     *(uint16 *)0x1F800132 = wp->ctl.timer_A;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);

@@ -115,4 +115,51 @@ long TestEvent(u_long event);
 void EnterCriticalSection(void);
 void ExitCriticalSection(void);
 
+// Event descriptors, causes and modes (kernel.h's values).
+#define DescHW     0xF0000000
+#define DescSW     0xF4000000
+#define HwCARD     (DescHW | 0x11) // Memory Card hardware
+#define SwCARD     (DescSW | 0x01) // Memory Card BIOS
+#define EvSpIOE    0x0004          // end of I/O
+#define EvSpTIMOUT 0x0100          // time-out
+#define EvSpNEW    0x2000          // new device
+#define EvSpERROR  0x8000          // error
+#define EvMdNOINTR 0x2000          // no handler: test with TestEvent
+
+// File system: a file's directory entry (firstfile, nextfile).
+struct DIRENTRY
+{
+    char name[20];         // 0x00
+    long attr;             // 0x14
+    long size;             // 0x18: file size in bytes
+    struct DIRENTRY *next; // 0x1C
+    char system[8];        // 0x20
+};                         // 0x28
+
+struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir);
+struct DIRENTRY *nextfile(struct DIRENTRY *dir);
+
+// open() modes (sys/file.h). On a memory card, O_CREAT takes the file's size in 8 KB blocks in
+// bits 16 and up.
+#define O_RDONLY 0x0001
+#define O_WRONLY 0x0002
+#define O_CREAT  0x0200
+
+long open(char *devname, int flag);
+int close(int fd);
+long read(long fd, void *buf, long n);
+int write(int fd, char *buf, int n);
+long format(char *fs);
+
+// Memory Card (libcard). chan is port x 16 + card number.
+void InitCARD(long val); // InitCARD
+void StartCARD(void);    // StartCARD
+void _bu_init(void);
+long _card_info(long chan);
+long _card_load(long chan);
+long _card_clear(long chan);
+// The Library Reference types buf as long *; the game passes its byte buffer.
+long _card_write(long chan, long block, u_char *buf);
+void _new_card(void);
+
 #endif // PSYQ_LIBAPI_H

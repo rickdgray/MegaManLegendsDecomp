@@ -102,7 +102,7 @@ void stcom19_func_0640(void);
 sint32 Sce_flag_test(sint32 flag);
 void Sce_flag_off(sint32 flag);
 void Sound_call(sint32 id, sint32 a1, sint32 a2);
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 STCOM_MATRIX *RotMatrixY(sint32 r, STCOM_MATRIX *m);
 STCOM19_WORK *func_80031734(void);
 void func_80031A4C(STCOM19_WORK *wp);

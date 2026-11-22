@@ -68,10 +68,16 @@ typedef struct
     DVECTOR corner_88[4]; // 0x88: window corners relative to the text origin, set by
                           // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12;
                           // func_8005ACA8 copies each x, y into the primitives at 0xA0-0xAC
-    uint8 pad_98[0x1C];
-    uint16 unk_B4; // 0xB4: window margin x (func_8005AB78, from a command's argument byte)
-    uint16 unk_B6; // 0xB6: window margin y (set with unk_B4)
-    uint8 pad_B8[0x4];
+    uint8 pad_98[0x18];
+    uint8 r_B0; // 0xB0: colour of func_8005B5D8's semi-transparent POLY_F4 (r0, g0, b0);
+    uint8 g_B1; // func_8005B454 fades all three from 0 up to 0x80 and back by 8 per frame
+    uint8 b_B2;
+    uint8 pad_B3;
+    uint16 unk_B4;     // 0xB4: window margin x (func_8005AB78, from a command's argument byte)
+    uint16 unk_B6;     // 0xB6: window margin y (set with unk_B4)
+    uint16 unk_B8;     // 0xB8: lhu; cleared with unk_BA (func_80056820); some code loads both as one word
+    uint16 unk_BA;     // 0xBA: lhu; bits 0x4000 and 0x1000 tested by func_80058AEC and func_80054BEC;
+                       // func_80055CFC clears 0x4000
     uint16 unk_BC;     // 0xBC: cleared by func_80054BB4, func_80055CC4 and func_80058788
     uint16 call_sp_BE; // 0xBE: depth of call_stk_18
     uint16 call_sp_C0; // 0xC0: depth of call_stk_4C
@@ -104,6 +110,31 @@ extern uint8 D_8008AF3C[];
 // its message by entry [row][n]: [0] zero, or [Player_work[0].rec[..].idx[n]] zero, or neither.
 // Defining file unknown: it sits in sub_scrn's .data range, but moji's code is its only user.
 extern uint16 D_8008D8EC[13][5][4];
+
+// Eight-byte font strings in .sdata (0x80097FDC-0x80097FF3) that func_8005851C copies into its
+// command: D_80097FEC when D_8008D8EC's entry [0] is zero, D_80097FE4 when the level's entry is,
+// else D_80097FDC with the level digit (level + 1) stored in D_80097FE2, its seventh byte.
+// Reached with lui + %lo, each by its own label; moji's code is their only user.
+extern uint8 D_80097FDC[6];
+extern uint8 D_80097FE2[2];
+extern uint8 D_80097FE4[8];
+extern uint8 D_80097FEC[8];
+
+// Two eight-byte "hh:mm:ss" font strings in the same .sdata, on either side of those (0x13 is the
+// colon): func_800679B8 writes Game_work.timer_0c's digits into the first, func_80067B7C
+// timer_14's into the second, which func_80057E50 reads. Each digit is reached by its own label.
+extern uint8 D_80097FD4; // hours, tens
+extern uint8 D_80097FD5; // hours, ones
+extern uint8 D_80097FD7; // minutes, tens
+extern uint8 D_80097FD8; // minutes, ones
+extern uint8 D_80097FDA; // seconds, tens
+extern uint8 D_80097FDB; // seconds, ones
+extern uint8 D_80097FF4;
+extern uint8 D_80097FF5;
+extern uint8 D_80097FF7;
+extern uint8 D_80097FF8;
+extern uint8 D_80097FFA;
+extern uint8 D_80097FFB;
 
 // Message pointers; func_80057708 calls into entry D_80098830 as a sub-message.
 extern uint8 *D_8008CBA4[];
@@ -150,6 +181,10 @@ extern uint32 Moji_flag3;
 // Halfword table in the tail of small tables (0x8008FD3C); func_8005721C tests whether the money
 // covers entry D_80098930 (a price).
 extern uint16 D_8008FD3C[];
+
+// Halfword table right after D_8008FD3C (0x40 bytes on); func_80057574 prints its entry instead
+// of D_8008FD3C's when D_80098850 is set (both divided by 4 when scene flag 0x2EE is set).
+extern uint16 D_8008FD7C[];
 
 // Pool variables (0x80098930, 0x80098B6C), defined tentatively in moji.c. func_8005721C sets
 // D_80098930 to D_800BE2F8[D_8009899C + unk_71] plus its command's argument byte, and

@@ -30,8 +30,8 @@ void func_8010ADCC(ST1D_ARM *wp)
     func_80032304(wp, 0, 0);
     owner          = (ST1D_ARM_OWNER *)func_80036294(wp->owner_D);
     wp->matrix_160 = *ST1D_BONE_MATRIX(owner, wp->variant_3);
-    func_80033598(wp,
-                  (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208))); // offset first
+    Model_parts_mtx_set(wp,
+                        (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208))); // offset first
     wp->scale.v.pad  = 0x4210;
     wp->value_78     = 0;
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 6;
@@ -161,12 +161,12 @@ void func_8010AF10(ST1D_ARM *wp)
     {
         func_80032538(wp);
         wp->matrix_160 = *ST1D_BONE_MATRIX(owner, wp->variant_3);
-        func_80033598(wp, (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208)));
+        Model_parts_mtx_set(wp, (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208)));
         if (parent->flags_C & 0x80)
         {
             func_80032538(wp);
             wp->matrix_160 = *ST1D_BONE_MATRIX(owner, wp->variant_3);
-            func_80033598(wp, (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208)));
+            Model_parts_mtx_set(wp, (STCOM_MATRIX *)((uint8 *)owner + (wp->variant_3 * 32 + 0x208)));
         }
         ctl->pos_10.x = wp->joints_180[0].x;
         ctl->pos_10.y = wp->joints_180[0].y + 0x28;
@@ -204,7 +204,7 @@ void func_8010AF10(ST1D_ARM *wp)
     else
     {
         func_80032538(wp);
-        func_80033598(wp, &wp->matrix_160);
+        Model_parts_mtx_set(wp, &wp->matrix_160);
     }
 }
 
@@ -1019,7 +1019,7 @@ void func_8010C9AC(ST1D_VIEW *wp, uint8 kind)
             pl->value_C4.x = obj->position.x + (s * ((ctl->rand_6A & 0x3FF) + 0x80) >> 12);
             pl->value_C4.y = obj->position.y;
             pl->value_C4.z = obj->position.z + (c * ((ctl->rand_6A & 0x3FF) + 0x80) >> 12);
-            func_80030968(obj, pl, 0x14, 0, 0xFF);
+            Obj_launch_set(obj, pl, 0x14, 0, 0xFF);
         }
     }
 }

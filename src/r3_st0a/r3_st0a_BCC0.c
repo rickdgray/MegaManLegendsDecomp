@@ -247,7 +247,7 @@ void func_8010C0A0(ST0A_EM *wp)
         func_80032538(wp);
     }
     ST0A_SP_182 = ext->angle_42;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (ext->obj_80[0] != NULL)
     {
         func_8010ED90(wp, 3);
@@ -1276,9 +1276,9 @@ void func_8010E9C8(ST0A_EM *wp, sint32 side)
     ext = &wp->ext;
     for (i = 0; i < 3; i++)
     {
-        ext->uv_34  = func_8002D22C(wp->model_88, (i << 24) | 0x10E01);
-        ext->vtx_38 = func_8002D2DC(wp->model_88, (i << 24) | 0x10E04);
-        ext->vtx_3C = func_8002D2DC(wp->model_88, (i << 24) | 0x10E05);
+        ext->uv_34  = Model_face_get(wp->model_88, (i << 24) | 0x10E01);
+        ext->vtx_38 = Model_vertex_get(wp->model_88, (i << 24) | 0x10E04);
+        ext->vtx_3C = Model_vertex_get(wp->model_88, (i << 24) | 0x10E05);
         if (side == 0)
         {
             ext->vtx_38[1] -= 0x58;

@@ -26,7 +26,7 @@ void func_8010FBB8(STAGE_STCOM15_WORK_4E0 *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     if (wp->flags_0 & 2)
     {

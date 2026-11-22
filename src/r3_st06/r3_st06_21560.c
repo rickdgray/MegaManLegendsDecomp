@@ -62,7 +62,7 @@ void func_801216D8(STAGE_FX *wp)
             {
                 shade = i + n + wp->routine_2 * 8;
             }
-            p = func_8002D464();
+            p = Billboard_get();
             if (!(wp->routine_1 & 1))
             {
                 D_8012BB88[wp->frame_E][i].x -= rand() & 7;

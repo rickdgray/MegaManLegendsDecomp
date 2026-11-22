@@ -705,7 +705,7 @@ void func_80113324(ST0B_TRAIL5 *wp)
     {
         u          = D_8011BC4C[i + 1].u;
         v          = D_8011BC4C[i + 1].v;
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = 0x2E808080;
         p->xy_8    = (wp->trail_CC + i)->words[0];
         p->z_10    = (wp->trail_CC + i)->words[1];

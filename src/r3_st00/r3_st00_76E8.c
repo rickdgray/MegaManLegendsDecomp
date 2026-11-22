@@ -30,7 +30,7 @@ void func_801076E8(STAGE_STCOM15_WORK_4E0 *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     if (wp->flags_0 & 2)
     {
@@ -1480,7 +1480,7 @@ void func_8010A68C(STAGE_STCOM15_WORK_4E0 *wp)
         func_80032538(wp);
     }
     ST00_SP_13C = ctl->timer_38;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x80, 0x200, 0);
@@ -2451,14 +2451,14 @@ void func_8010C5D0(STAGE_OBJ *wp, sint32 index)
 {
     D_80122460[0] = D_8011C2A8[index];
     D_80122464[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80122460[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80122460[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010C644(STAGE_OBJ *wp, sint32 index)
 {
     D_80122468[0] = D_8011C2E0[index];
     D_8012246C[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80122468[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80122468[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010C6B8(STAGE_OBJ *wp)
@@ -2480,7 +2480,7 @@ void func_8010C6B8(STAGE_OBJ *wp)
     {
         D_80122460_S = p + 1;
         *cnt         = 0;
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(p[1].id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(p[1].id, 0x2A, 0x33, 6));
     }
     count = D_80122468_S->count;
     if (count <= 0)
@@ -2495,7 +2495,7 @@ void func_8010C6B8(STAGE_OBJ *wp)
     {
         D_80122468_S = p + 1;
         *cnt         = 0;
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(p[1].id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(p[1].id, 0x2A, 0x33, 6));
     }
 }
 
@@ -3012,14 +3012,14 @@ void func_8010D8C0(STAGE_OBJ *wp, sint32 index)
 {
     D_80122478[0] = D_8011C5CC[index];
     D_8012247C[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80122478[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80122478[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010D934(STAGE_OBJ *wp, sint32 index)
 {
     D_80122480[0] = D_8011C5F4[index];
     D_80122484[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80122480[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80122480[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010D9A8(STAGE_OBJ *wp)
@@ -3040,7 +3040,7 @@ void func_8010D9A8(STAGE_OBJ *wp)
         }
         step = D_80122478_S;
         *cnt = 0;
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(step->id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(step->id, 0x2A, 0x33, 6));
     }
     cnt = D_80122484;
     (*cnt)++;
@@ -3054,7 +3054,7 @@ void func_8010D9A8(STAGE_OBJ *wp)
         }
         step = D_80122480_S;
         *cnt = 0;
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(step->id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(step->id, 0x2A, 0x33, 6));
     }
 }
 
@@ -3337,7 +3337,7 @@ void func_8010E474(STAGE_OBJ *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     Model_Shadow_Trans(wp, 0x32, 0x2AB, 0);
 }
@@ -3381,14 +3381,14 @@ void func_8010E5F8(STAGE_OBJ *wp, sint32 index)
 {
     D_80122490[0] = D_8011C784[index];
     D_80122494[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80122490[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80122490[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010E66C(STAGE_OBJ *wp, sint32 index)
 {
     D_80122498[0] = D_8011C790[index];
     D_8012249C[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80122498[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80122498[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010E6E0(STAGE_OBJ *wp)
@@ -3409,7 +3409,7 @@ void func_8010E6E0(STAGE_OBJ *wp)
         }
         step = D_80122490_S;
         *cnt = 0;
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(step->id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(step->id, 0x2A, 0x33, 6));
     }
     cnt = D_8012249C;
     (*cnt)++;
@@ -3423,7 +3423,7 @@ void func_8010E6E0(STAGE_OBJ *wp)
         }
         step = D_80122498_S;
         *cnt = 0;
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(step->id, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(step->id, 0x2A, 0x33, 6));
     }
 }
 
@@ -3678,7 +3678,7 @@ void func_8010F140(STAGE_OBJ *wp)
         return;
     }
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void func_8010F1A0(STAGE_OBJ *wp)
@@ -3690,7 +3690,7 @@ void func_8010F1A0(STAGE_OBJ *wp)
         return;
     }
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void func_8010F200(STAGE_OBJ *wp)
@@ -3702,7 +3702,7 @@ void func_8010F200(STAGE_OBJ *wp)
         return;
     }
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void func_8010F260(STAGE_OBJ *wp)

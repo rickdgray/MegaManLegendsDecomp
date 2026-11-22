@@ -17,8 +17,31 @@
 #define Key_tbl_d     ((KEY_ENT **)0x800DCB80)
 #define Key_tbl_d_alt ((KEY_ENT **)0x800DD000)
 
+// Offsets of the player's joints (15 SVECTORs, one per PL_WORK.joint_pos), loaded with the keyframe
+// tables (Pl_joint_mtx_set). The weapon overlay r3_shl04 reads the same word as its own model pointer.
+#define Joint_ofs_tbl (*(SVECTOR **)0x800DD600)
+
+// The player's packed poses, per keyframe set (Pose_tbl_x[set - first set of the range][step's
+// b0] is a packed pose), in the same set ranges as the Key_tbl_* above (Pl_pose_unpack).
+#define Pose_tbl_a     ((uint32 ***)0x800DD604)
+#define Pose_tbl_b     ((uint32 ***)0x800E9600)
+#define Pose_tbl_c     ((uint32 ***)0x800ED600)
+#define Pose_tbl_c_alt ((uint32 ***)0x800EF600)
+#define Pose_tbl_d     ((uint32 ***)0x800F1600)
+#define Pose_tbl_d_alt ((uint32 ***)0x800F3600)
+
 // Obj_work_flag_change's flag: close the slots (Capcom's name, from eve19.c).
 #define WORK_KILL 0x80
+
+// Handler tables of the work pools, kept on the scratchpad (func_800135DC stores Work_3C0_tbl).
+// Each pool's update loop (game.c) calls tbl[id_2] (tbl[id_2][flag_4] for the two-level ones)
+// for every slot whose routine_0 and flags both have bit 0 set.
+#define Work_3C0_tbl (*(WORK3C0_FUNC ***)0x1F800058) // D_8009F108's
+#define Work_5A4_tbl (*(WORK5A4_FUNC ***)0x1F80005C) // D_800C3580's
+#define Eve_work_tbl (*(EVE_FUNC **)0x1F800068)      // D_800A2D08's
+#define Work_50_tbl  (*(WORK50_FUNC **)0x1F80006C)   // D_800BF118's
+
+#define ABS(x) ((x) < 0 ? -(x) : (x))
 
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
@@ -50,15 +73,19 @@ struct PL_WORK;
 // SLOT_REQ.
 typedef struct
 {
-    uint32 pad_0;
+    uint32 hit_0; // hits taken: top byte ORed from the other request's word, low 16 bits its
+                  // damage summed (hit_pair_check; func_80043F34's code adds to it too)
     uint32 mask_4;
+    SVECTOR vec_8; // where the hit came from (pad 1), or the other capsule's axis (pad 0)
 } SLOT_OWNER;
 
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint16 field_2;
+    uint8 id_2; // the kind: index of Eve_work_tbl (eve_work_exec); id_2 and type_3 are cleared
+                // by one halfword store (on open)
+    uint8 type_3;
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -70,10 +97,19 @@ typedef struct
     uint8 pad_1C[8];
 } EVE_WORK; // 0x24 bytes
 
+typedef void (*EVE_FUNC)(EVE_WORK *wp);
+
 typedef struct
 {
     uint8 r, g, b, pad;
 } RGB_ENT;
+
+// The rotation part of a MATRIX (m and its pad, 0x14 bytes), copied as one block without t
+// (Model_parts_mtx_set).
+typedef struct
+{
+    sint32 w[5];
+} MATRIX_ROT;
 
 // Model data of a WORK_5A4 (info_88): tbl_70 holds one 0x14-byte entry per part, after one for
 // the body (func_80031324 takes entry n + 1).
@@ -88,18 +124,14 @@ typedef struct
     ENT_14 *tbl_70;
 } PARENT_INFO;
 
-// Per-part 0x20-byte block (WORK_5A4.blk_240), copied whole into a detached part (func_80031324).
-typedef struct
-{
-    uint32 w[8];
-} CHILD_BLK;
-
-// Per-part entries of a model object (WORK_5A4.slot_F8/pos_180).
+// Per-part entries of a model object (MODEL_WORK.slot_F8, WORK_5A4.slot_F8/pos_180). slot_F8[0]'s
+// child_id is the part count; for the other parts it is the parent part (negative: none) and
+// part_2 the index of the part's offset (MODEL_WORK.ofs_9C) and pose rotation (Model_parts_mtx_set).
 typedef struct
 {
     uint8 pad_0;
     sint8 child_id;
-    uint8 pad_2;
+    uint8 part_2;
     sint8 field_3; // set to -1 or 0 by the event steps (func_80068388, func_8006854C)
 } CHILD_SLOT;
 
@@ -132,7 +164,7 @@ typedef struct
     uint8 kind_1;
     uint8 id_2;   // MODEL_WORK.id_2; id_2 and type_3 are cleared by one halfword store (on open)
     uint8 type_3; // MODEL_WORK.type_3; func_80015428 sets it to the object's index (0..15)
-    uint8 flag_4;
+    uint8 flag_4; // second index of Work_3C0_tbl (first: id_2): the kind's routine (func_80016FD4)
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
@@ -167,13 +199,17 @@ typedef struct
     uint8 pad_AE[0x62];
     uint8 field_110; // set from script.field_13 when it changes
     uint8 pad_111[0x47];
-    SVECTOR vec_158; // moved by script.add_A/C/E each frame (func_800150E0)
-    uint8 pad_160[0x1E8];
+    SVECTOR vec_158; // MODEL_WORK.scale_158; moved by script.add_A/C/E each frame (func_800150E0)
+    MATRIX mtx_160;  // 0x160: MODEL_WORK.mtx_160
+    CHILD_POS pos_180[13];
+    MATRIX mtx_1E8[11]; // 0x1E8: the parts' matrices (Model_parts_mtx_set)
     SCRIPT_WORK script; // 0x348: command script run by script_exec
     uint8 pad_360[0x28];
-    RGB_ENT base;    // 0x388
+    RGB_ENT base;    // 0x388: also the scales of Model_parts_mtx_set (x, y, z in r, g, b; 0x20 = 1)
     RGB_ENT tbl[13]; // 0x38C
 } WORK_3C0;          // 0x3C0 bytes
+
+typedef void (*WORK3C0_FUNC)(WORK_3C0 *wp);
 
 // The effect layout of the shot and effect objects (WORK_48 at 0x14, SHL_WORK at 0x88), after
 // Capcom's shot code (wk_p->efc.model.m, .sv, .rgbc). Which one an object uses is its kind's: bit 2
@@ -338,14 +374,16 @@ typedef struct
     SVECTOR tgt_BC;      // 0xBC: target position (0 when none); projected and cleared each frame by
                          // func_80035508 while the object holds a slot of D_80098798
     SLOT_OWNER owner_C4; // 0xC4: slot owner passed to func_8003430C
-    uint8 pad_CC[0x40];
+    uint8 pad_D4[0x38];
 } PL_SHL_WORK; // 0x10C bytes
 
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint16 field_2;
+    uint8 id_2; // the kind: index of Work_50_tbl (func_80017528); id_2 and type_3 are cleared
+                // by one halfword store (on open)
+    uint8 type_3;
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -356,15 +394,20 @@ typedef struct
     sint8 field_E; // set to -0x80 by the event step func_80068728
     uint8 pad_F;
     uint32 field_10;
-    uint8 pad_14[0x3C];
+    EFC efc; // 0x14: drawn by work_50_draw, like WORK_48's
+    uint8 pad_44[0xC];
 } WORK_50; // 0x50 bytes
+
+typedef void (*WORK50_FUNC)(WORK_50 *wp);
 
 typedef struct
 {
     uint8 routine_0;
     uint8 kind_1;
-    uint16 field_2;
-    uint8 flag_4;
+    uint8 id_2; // the kind: first index of Work_5A4_tbl (func_80017094); id_2 and type_3 are
+                // cleared by one halfword store (on open)
+    uint8 type_3;
+    uint8 flag_4; // second index of Work_5A4_tbl: the kind's routine
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
@@ -394,12 +437,15 @@ typedef struct
     uint8 pad_8C[0x6C];
     // 24 parts, like tbl (func_80031324 detaches part n into a CHILD_WORK).
     CHILD_SLOT slot_F8[24]; // 0xF8: child_id at +1
-    uint8 pad_158[0x28];
-    CHILD_POS pos_180[24]; // 0x180
-    CHILD_BLK blk_240[24]; // 0x240
-    RGB_ENT base;          // 0x540
-    RGB_ENT tbl[24];       // 0x544
-} WORK_5A4;                // 0x5A4 bytes
+    SVECTOR scale_158;      // 0x158: MODEL_WORK.scale_158
+    MATRIX mtx_160;         // 0x160: MODEL_WORK.mtx_160
+    CHILD_POS pos_180[24];  // 0x180
+    MATRIX mtx_240[24];     // 0x240: the parts' matrices (Model_parts_mtx_set); copied into a detached part
+    RGB_ENT base;           // 0x540: also the scales of Model_parts_mtx_set (x, y, z in r, g, b; 0x20 = 1)
+    RGB_ENT tbl[24];        // 0x544
+} WORK_5A4;                 // 0x5A4 bytes
+
+typedef void (*WORK5A4_FUNC)(WORK_5A4 *wp);
 
 // 0x28-byte fog/far-colour block (copied by func_80036B40); far colour RGB at +0x20, near at +0x24.
 typedef struct
@@ -463,17 +509,21 @@ typedef struct
     uint8 kind_1; // pool kind (0x10 * pool number) ORed with the slot index
     uint8 id_2;   // id: matched against the EBD entries (func_8002FA38)
     uint8 type_3; // type: Model_work_init's `sub` usually points here
-    uint8 pad_4[2];
+    uint8 flag_4;
+    uint8 flag_5;
     uint8 flags; // 6: bits 0-1 changed by func_8002F3A8 (see "Work pool slots" above)
-    uint8 pad_7[0xD];
-    SVECTOR pos;  // 0x14: position (vx and vz horizontal, vy the height)
-    VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
-    SVECTOR old;  // 0x2C: previous position
-    VECTOR old_l; // 0x34: previous 16.16 position (moved with pos_l by func_8002F884)
-    SVECTOR spd;  // 0x44: speed; pad: frames to the target (func_80030EE8)
-    SVECTOR add;  // 0x4C: acceleration
-    SVECTOR ang;  // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
-    uint8 pad_5C[0x18];
+    uint8 pad_7[5];
+    uint32 field_C; // set from SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
+    uint32 field_10;
+    SVECTOR pos;     // 0x14: position (vx and vz horizontal, vy the height)
+    VECTOR pos_l;    // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
+    SVECTOR old;     // 0x2C: previous position
+    VECTOR old_l;    // 0x34: previous 16.16 position (moved with pos_l by func_8002F884)
+    SVECTOR spd;     // 0x44: speed; pad: frames to the target (func_80030EE8)
+    SVECTOR add;     // 0x4C: acceleration
+    SVECTOR ang;     // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
+    SVECTOR old_ang; // 0x5C: previous rotation
+    uint8 pad_64[0x10];
     sint8 field_74; // read with lb by func_8004B414, passed to func_8004B6AC
     uint8 pad_75;
     sint8 field_76; // cleared with field_C0 by func_80052644
@@ -486,17 +536,54 @@ typedef struct
     KEY_ENT **seq_tbl_90; // keyframe sequences, indexed by idx_AC (func_80032304)
     KEY_ENT *seq_94;      // start of the sequence chosen by idx_AC (func_80032304)
     KEY_ENT *ptr_98;      // current step; b0 indexes the entry of ptr_A0[idx_AC] (func_80033A28)
-    sint32 val_9C;
-    sint32 *ptr_A0; // table of tables of packed pose data (func_80033A28)
-    KEY_CMD cmd_A4; // copy of the current step's command; time counts down
+    SVECTOR *ofs_9C;      // offset of each part from its parent, by CHILD_SLOT.part_2 (Model_parts_mtx_set)
+    sint32 *ptr_A0;       // table of tables of packed pose data (func_80033A28)
+    KEY_CMD cmd_A4;       // copy of the current step's command; time counts down
     uint8 pad_A8[4];
     uint8 idx_AC;
     uint8 pad_AD[0x13];
     sint32 field_C0; // func_80052644 clears it (and field_76) when it equals its key
     uint32 field_C4; // top byte nonzero: func_80037694 skips the stage collision
     uint8 pad_C8[0x30];
-    uint8 buf_F8[0x18]; // 0x18 bytes of the model data (kinds 0x20 and 0x40, func_8002FA38)
+    // 0xF8: the part tree; func_8002FA38 copies 0x18 bytes of the model data here (kinds 0x20
+    // and 0x40). The count of parts depends on the kind (WORK_5A4: 24).
+    CHILD_SLOT slot_F8[24];
+    SVECTOR scale_158; // 0x158: scale (0x400 = 1, func_80014AC0), shifted by Scratch_scale_shift
+    MATRIX mtx_160;    // 0x160: body matrix, scaled (Model_parts_mtx_set)
+    // 0x180: part positions (WORK_5A4.pos_180); func_800536B0 reads part n's, for the objects
+    // that queue a part on the D_80098894 list. Only objects with parts have them.
+    SVECTOR part_180[24];
 } MODEL_WORK;
+
+// One 0x14-byte entry of a room's spawn table (the stage overlays pass theirs to Obj_spawn_tbl_set),
+// ended by routine_0 == -1. kind_1 picks the pool (0 a player, then 0x20 WORK_3C0, 0x40 WORK_5A4,
+// 0x60 SHL_WORK, 0x80 WORK_48, 0xC0 EVE_WORK, 0xE0 WORK_50); the rest is copied into the slot.
+typedef struct
+{
+    sint8 routine_0; // the slot's routine_0; -1 ends the table
+    uint8 kind_1;
+    uint8 id_2;   // the slot's id_2 (copied with type_3 by one halfword store)
+    uint8 type_3; // the slot's type_3; for a player, its index
+    uint8 flag_4; // the slot's flag_4 and flag_5 (one halfword store)
+    uint8 flag_5;
+    uint8 pad_6;
+    uint8 ang_7;    // Y angle >> 4
+    uint32 field_8; // the slot's field_C
+    SVECTOR pos;    // 0xC: position
+} SPAWN_ENT;
+
+// Screen box of the lock-on search (D_8008994C, by the special level when Player_work[0].unk170
+// is 8): a target is taken when its depth is below z_max and its screen point lies strictly inside
+// (lock_on_search).
+typedef struct
+{
+    sint16 z_max;
+    sint16 x_min;
+    sint16 x_max;
+    sint16 y_min;
+    sint16 y_max;
+    sint16 pad;
+} LOCK_BOX;
 
 // Queued request (func_800341BC): vector plus packed flags.
 typedef struct
@@ -521,7 +608,7 @@ typedef struct
     sint32 z_24;
     uint8 pad_28[0x60];
     ENT_14 *ent_88;
-    CHILD_BLK blk_8C;
+    MATRIX mtx_8C; // the parent's part matrix (WORK_5A4.mtx_240)
     uint16 x_AC;
     uint16 y_AE;
     uint16 z_B0;
@@ -572,7 +659,13 @@ extern uint32 D_800989CC;
 extern uint32 D_80098B64;
 extern uint32 D_80098B20;
 extern EVE_WORK D_800A2D08[];
-extern uint8 D_800BBA90[]; // 0x268 bytes, cleared by Work_pools_init
+// The slot each pool's update loop (game.c) is running, one per pool.
+extern WORK_3C0 *D_80098820;    // D_8009F108[16] (func_80016FD4)
+extern WORK_5A4 *D_800989D0;    // D_800C3580[4] (func_80017094)
+extern PL_SHL_WORK *D_800988F8; // D_800BFB20[16] (func_80017154)
+extern EVE_WORK *D_800988F0;    // D_800A2D08[16] (eve_work_exec)
+extern WORK_50 *D_80098924;     // D_800BF118[32] (func_80017528)
+extern uint8 D_800BBA90[];      // 0x268 bytes, cleared by Work_pools_init
 extern WORK_3C0 D_8009F108[];
 extern SHL_WORK D_8009CF88[];
 extern uint32 D_80098818;
@@ -601,6 +694,8 @@ extern uint8 D_8009A371;
 extern uint8 D_8009A372;
 extern uint16 D_8009A374;
 extern MATRIX D_800BC728[]; // matrix stack; D_80098A80 starts at its end (func_800333A0)
+extern uint32 D_8009888C;   // bit 0x80000000 >> n set when player n is spawned (Obj_spawn_tbl_set)
+extern LOCK_BOX D_8008994C[];
 
 SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint32 limit);
 void Model_work_init(MODEL_WORK *wp, uint8 *sub);
@@ -608,13 +703,32 @@ void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_80031988(WORK_48 *wp);
 void func_800320B8(struct PL_WORK *wp, uint32 set, sint32 idx);
 void func_800321C8(struct PL_WORK *wp, sint32 unused, uint32 set, sint32 idx);
-WORK_48 *func_80031618(void);        // claims a free slot of D_800A3B40, or 0
-void func_80031930(PL_SHL_WORK *wp); // frees a slot of D_800BFB20
-void func_80031824(WORK_3C0 *wp);    // frees a slot of D_8009F108
-WORK_3C0 *func_80031418(void);       // claims a free slot of D_8009F108, or 0
+WORK_48 *func_80031618(void);                   // claims a free slot of D_800A3B40, or 0
+void func_80031930(PL_SHL_WORK *wp);            // frees a slot of D_800BFB20
+void func_80031824(WORK_3C0 *wp);               // frees a slot of D_8009F108
+WORK_3C0 *func_80031418(void);                  // claims a free slot of D_8009F108, or 0
+WORK_5A4 *func_80031498(void);                  // claims a free slot of D_800C3580, or 0
+SHL_WORK *Open_SHL_WORK(void);                  // claims a free slot of D_8009CF88, or 0
+EVE_WORK *Open_EVE_WORK(void);                  // claims a free slot of D_800A2D08, or 0
+WORK_50 *func_80031734(void);                   // claims a free slot of D_800BF118, or 0
+void func_8003187C(WORK_5A4 *wp);               // frees a slot of D_800C3580
+void Close_SHL_WORK(SHL_WORK *wp);              // frees a slot of D_8009CF88
+void Close_EVE_WORK(EVE_WORK *wp);              // frees a slot of D_800A2D08
+void func_80031A4C(WORK_50 *wp);                // frees a slot of D_800BF118
+void func_8002F884(MODEL_WORK *wp, SVECTOR *d); // moves pos, pos_l, old, old_l by d (x, z)
+void func_8002F928(WORK_48 *wp, SVECTOR *d);    // moves the EFC position by d (x, z)
+void func_8002F998(EVE_WORK *wp, SVECTOR *d);   // moves pos by d (x, z)
 void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z);
 void func_800322A8(MODEL_WORK *wp, sint32 seq, sint32 step); // starts keyframe sequence seq
 void func_80032488(MODEL_WORK *wp);                          // steps the keyframe sequence
+void Obj_launch_set(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max, sint16 grav);
+void func_80030934(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max);
+void func_8003234C(struct PL_WORK *wp);
+void Pl_joint_mtx_set(struct PL_WORK *wp);
+void Pl_pose_unpack(struct PL_WORK *wp);
+void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m);
+void Model_parts_mtx_set_y(MODEL_WORK *wp);
+void Model_parts_mtx_set_yxz(MODEL_WORK *wp);
 // mask: pool bits (1 Player_work, 2 D_8009F108, ...); flag WORK_KILL closes every live slot.
 void Obj_work_flag_change(sint32 mask, sint32 flag);
 void *func_80036294(uint32 id); // object of an id byte (kind | index), or 0

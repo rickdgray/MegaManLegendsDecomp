@@ -30,7 +30,7 @@ void func_801000B0(void)
     mw->cells = STAGE_MAP_TBL[Game_work.value_51].cells;
     mw->info  = STAGE_CELL_INFO;
     mw->exits = D_80105760[Game_work.value_51];
-    func_8002EA50(spawns, D_800C356D);
+    Obj_spawn_tbl_set(spawns, D_800C356D);
     func_800371A0(D_801058C0[D_80105B00[Game_work.value_51]], D_80105780[Game_work.value_51]);
     func_8005DC10(0);
     func_8010020C();
@@ -1624,13 +1624,13 @@ void func_801030FC(STAGE_OBJ *wp)
 void func_80103138(STAGE_OBJ *wp)
 {
     D_80108C14[0] = 0;
-    func_8002D320(wp->model_88, 0x10000F, func_8002D404(D_80108C10[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x10000F, Model_uv_cell(D_80108C10[0]->id, 0x33, 0x37, 5));
 }
 
 void func_80103194(STAGE_OBJ *wp)
 {
     D_80108C1C[0] = 0;
-    func_8002D320(wp->model_88, 0x120011, func_8002D404(D_80108C18[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x120011, Model_uv_cell(D_80108C18[0]->id, 0x33, 0x37, 5));
 }
 
 void func_801031F0(STAGE_OBJ *wp)
@@ -1885,7 +1885,7 @@ void func_80103A6C(STAGE_OBJ *wp, ST07_FACE *face)
     face->shape_8 = face->mouth_0[face->index_A];
     if (face->shape_8 != face->prev_9)
     {
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(face->shape_8, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(face->shape_8, 0x2A, 0x40, 6));
     }
     face->prev_9 = face->shape_8;
     if (face->eyes_4[face->index_D + 1] != 0x7E)
@@ -1902,7 +1902,7 @@ void func_80103A6C(STAGE_OBJ *wp, ST07_FACE *face)
     face->shape_B = face->eyes_4[face->index_D];
     if (face->shape_B != face->prev_C)
     {
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(face->shape_B, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(face->shape_B, 0x2A, 0x40, 6));
     }
     face->prev_C = face->shape_B;
 }
@@ -1910,13 +1910,13 @@ void func_80103A6C(STAGE_OBJ *wp, ST07_FACE *face)
 void func_80103BB4(STAGE_OBJ *wp)
 {
     D_80108C2C[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80108C28[0]->id, 0x2A, 0x40, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80108C28[0]->id, 0x2A, 0x40, 6));
 }
 
 void func_80103C10(STAGE_OBJ *wp)
 {
     D_80108C34[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80108C30[0]->id, 0x2A, 0x40, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80108C30[0]->id, 0x2A, 0x40, 6));
 }
 
 void func_80103C6C(STAGE_OBJ *wp)

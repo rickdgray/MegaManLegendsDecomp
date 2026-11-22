@@ -12,11 +12,14 @@ typedef struct
 } TBL_ROW;
 
 // Record at PL_WORK 0x4F4, 8 bytes each (four index bytes used): rec[n].idx[k] selects
-// D_80089EAC[n][idx[k]].val[k].
+// D_80089EAC[n][idx[k]].val[k]. Capcom's pp->weapon_data[n] (sub_scrn.c): idx[0..3] are its
+// attack_level, bullet_level (energy), dist_level (range) and repeat_level (rapid); rec[1] is the
+// buster's, the sum of its equipped parts (Sub_screen_rb_parts_set).
 typedef struct
 {
     sint8 idx[4];
-    uint8 unk04[2];
+    sint8 sp_perform; // 0x04: Capcom's name; the special level, index of the sub screen's gauges
+    uint8 unk05;
     sint16 val; // 0x06: copy of D_80089EAC[n][idx[1]].val[1]; 0x7FFF is never counted down (func_80035724)
 } TBL_IDX;
 
@@ -25,43 +28,63 @@ typedef struct PL_WORK
 {
     uint8 unk00;
     uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (func_80035724)
-    uint8 unk02[7];
+    uint8 id_2;  // 0x02: id_2 to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
+    uint8 type_3;
+    uint8 flag_4;
+    uint8 flag_5;
+    uint8 unk06[2];
+    uint8 routine_8; // 0x08: 3 makes player_entry_set also set the saved position (pos_428 ...)
     uint8 routine_9; // 0x09: player state; the state checks (func_800402C4, ...) set it and clear
                      // field_A and field_B with one halfword store; 3 is the pad-driven state of
                      // func_800482A8
     uint8 field_A;   // 0x0A: step within the state; field_A >> 1 picks the joint_pos func_800424D4
                      // copies
     uint8 field_B;
-    uint8 unk0C[0x14 - 0x0C];
+    uint32 field_C; // 0x0C: SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
+    uint8 unk10[0x14 - 0x10];
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
     SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
-    uint8 unk2C[0x44 - 0x2C];
-    SVECTOR spd; // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
+    SVECTOR old;  // 0x2C: previous position
+    VECTOR old_l; // 0x34: 16.16 previous position
+    SVECTOR spd;  // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
     uint8 unk4C[0x54 - 0x4C];
-    SVECTOR ang; // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
-    uint8 unk5C[0x6E - 0x5C];
+    SVECTOR ang;     // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
+    SVECTOR old_ang; // 0x5C: previous rotation
+    uint8 unk64[0x6E - 0x64];
     sint16 unk6E; // 0x6E: sh; copy of unkB0 (func_8005D9EC); func_8001DDE4 does nothing while negative
     uint8 unk70[0x74 - 0x70];
     sint8 field_74; // 0x74: same as MODEL_WORK.field_74; nonzero makes func_80042B58 call
                     // Pl00_shot_enable_off, and func_800441CC leave owner_188 alone
-    uint8 unk75[0xA4 - 0x75];
+    sint8 field_75; // 0x75: cleared with field_74 when player_entry_set is asked to reset
+    uint8 unk76[0x94 - 0x76];
+    KEY_ENT *seq_94; // 0x94: same as MODEL_WORK.seq_94: start of the sequence (func_800320B8)
+    KEY_ENT *ptr_98; // 0x98: same as MODEL_WORK.ptr_98; b0 picks the packed pose (Pl_pose_unpack)
+    uint8 unk9C[0xA4 - 0x9C];
     KEY_CMD cmd_A4; // 0xA4: same as MODEL_WORK.cmd_A4; Pl00_shot_enable_off copies b0 to cmd_100
     uint8 unkA8[0xAC - 0xA8];
     uint8 idx_AC; // 0xAC: same as MODEL_WORK.idx_AC; passed to func_800320B8 with a set
     uint8 unkAD[0xB0 - 0xAD];
     sint16 unkB0; // 0xB0: upper limit of unk6E (func_80043340)
-    uint8 unkB2[0xF8 - 0xB2];
+    uint8 unkB2[2];
+    sint16 turn_B4; // 0xB4: added (* 5) to the Y rotation of joint 1 (Pl_joint_mtx_set)
+    uint8 unkB6[0xBD - 0xB6];
+    uint8 flags_BD; // 0xBD: func_80048A9C sets bit 5, then swaps it for bit 6
+    uint8 unkBE[0xF8 - 0xBE];
     KEY_ENT *tbl_F8; // 0xF8: keyframe table in use (func_800321C8)
     KEY_ENT *ent_FC; // 0xFC: current keyframe
     KEY_CMD cmd_100; // 0x100: copy of the current keyframe's command; time counts down (func_800323FC)
     uint8 set_104;   // 0x104: index of the keyframe table set in use
     uint8 unk105;    // 0x105: set_104 when func_800321C8 last ran (func_8003C418)
-    sint16 unk106;   // 0x106: set by func_800323FC
+    uint16 pose_mix; // 0x106: set by func_800323FC; 1-3 give limbs the second pose (Pl_joint_mtx_set)
     uint8 unk108[0x110 - 0x108];
     sint8 unk110; // 0x110: sb; set to -1 or 0 by func_80042B58
-    uint8 unk111[0x116 - 0x111];
-    uint16 unk116; // 0x116: lhu; added to ang.vy for the camera yaw (func_800355F0)
+    uint8 unk111;
+    uint8 unk112; // 0x112: lbu; set to 0 or 2 by the state checks that enter state 2, which save
+                  // the old value in unk113 (func_80040380, func_800404FC)
+    uint8 unk113; // 0x113: previous unk112
+    uint8 unk114[0x116 - 0x114];
+    sint16 unk116; // 0x116: added to ang.vy for the camera yaw (func_800355F0); lh in front_obj_search
     uint8 unk118[0x11C - 0x118];
     uint16 unk11C; // 0x11C: lhu; mask tested against keys_124[2] and [3] (func_800482A8)
     uint16 unk11E; // 0x11E: lhu; mask tested against keys_124[10] (func_800406A8, func_800406DC)
@@ -85,22 +108,25 @@ typedef struct PL_WORK
     uint8 unk176;
     sint8 unk177; // 0x177: lb; nonzero tested by func_8004324C
     sint8 unk178; // 0x178: lb; step of func_80042A40 and func_80042DF8
-    uint8 unk179[0x188 - 0x179];
+    uint8 unk179[0x184 - 0x179];
+    uint32 unk184;        // 0x184: lw; func_80051970 answers 0 unless it is 0
     SLOT_OWNER owner_188; // 0x188: slot owner passed to func_800341BC (func_8003C2D8)
-    uint8 unk190[0x198 - 0x190];
-    uint32 unk198; // 0x198: cleared by func_800433FC/func_800435BC, set to 1 by func_800434F0
-                   // (state of the player's SHL_WORK slot of D_8008A0CC)
+    uint32 unk198;        // 0x198: cleared by func_800433FC/func_800435BC, set to 1 by func_800434F0
+                          // (state of the player's SHL_WORK slot of D_8008A0CC)
     uint8 unk19C[0x1A8 - 0x19C];
-    MATRIX base_mtx;       // 0x1A8: body matrix, copied from the scratchpad matrix (func_800325D4)
+    MATRIX base_mtx;       // 0x1A8: body matrix, copied from the scratchpad matrix (Pl_joint_mtx_set)
     MATRIX joint_mtx[15];  // 0x1C8: joint matrices (func_800331A0)
     SVECTOR joint_pos[15]; // 0x3A8: joint positions (func_800331A0); [4] and [7] are copied to the
                            // objects func_80035724 spawns, [11] and [14] by func_80047EC8
-    uint8 unk420[0x428 - 0x420];
-    VECTOR pos_428;   // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
-    SVECTOR svec_438; // 0x438: rounded copy of pos_428
-    uint8 unk440[0x449 - 0x440];
+    SVECTOR pos_420;       // 0x420: point 0x96 above joint 1, in scaled world units (Pl_joint_mtx_set)
+    VECTOR pos_428;        // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
+    SVECTOR svec_438;      // 0x438: rounded copy of pos_428
+    SVECTOR ang_440;       // 0x440: rotation saved with pos_428 and svec_438 (player_entry_set)
+    uint8 unk448;
     sint8 unk449; // 0x449: sb; set to 1 by func_80042208 when unk6E is not negative
-    uint8 unk44A[0x44C - 0x44A];
+    uint8 unk44A; // 0x44A: frames keys_124[8] has been held (func_80040574 enters state 3 at 9);
+                  // cleared on release
+    uint8 unk44B; // 0x44B: nonzero keeps func_80040574 from entering state 3
     sint8 unk44C; // 0x44C: bits read and cleared by func_80042B58 (bit 1: spd.vx = -0x280,
                   // bit 0: unk110 = -1)
     uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8
@@ -121,6 +147,9 @@ typedef struct PL_WORK
 extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
 extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *Player_work_ptr; // 0x80098A50
+// The pad bits the player sees this frame (read by func_8003C07C); func_80048A9C sets [0] to
+// Player_work[0].keys_124[0] while its scene step runs, 0 otherwise.
+extern uint16 D_800C0F96[];
 
 void func_80041E90(PL_WORK *pl, sint16 x, sint16 y, sint16 z);
 sint32 func_80042238(PL_WORK *pl);

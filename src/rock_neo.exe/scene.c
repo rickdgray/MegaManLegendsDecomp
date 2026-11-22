@@ -146,8 +146,8 @@ void func_8001DDE4(uint8 arg)
     Scene_work.timer_18              = 0;
     Scene_work.timer_14              = 0;
     *(uint32 *)&Scene_work.routine_4 = 0;
-    Scene_work.unk0B                 = 0;
-    Scene_work.unk0A                 = 0;
+    Scene_work.time_0B               = 0;
+    Scene_work.step_0A               = 0;
     Scene_work.ev_ptr_A4             = NULL;
     for (i = 15; i >= 0; i--)
     {

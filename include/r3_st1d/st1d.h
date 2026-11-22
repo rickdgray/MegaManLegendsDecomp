@@ -604,9 +604,9 @@ void func_8005D620(void *wp, sint32 a1, sint32 a2, sint32 a3, sint32 a4);
 void Mem_copy4(void *src, void *dst, sint32 count);
 void func_8010C9AC(ST1D_VIEW *wp, uint8 kind);
 void func_80030EE8(void *wp, STCOM_SVECTOR *target, sint32 speed);
-void func_80030968(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
+void Obj_launch_set(void *shot, void *target, sint32 speed, sint32 arg3, sint32 arg4);
 void func_8001D974(void);
-void func_80033598(void *wp, STCOM_MATRIX *m);
+void Model_parts_mtx_set(void *wp, STCOM_MATRIX *m);
 
 extern uint32 D_800987E8; // allocation masks: 0x3C0 slots
 extern uint32 D_80098B20; // 0x5A4

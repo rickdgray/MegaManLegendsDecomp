@@ -26,7 +26,15 @@ uint32 Stage_hed_model_get(uint32 id)
     return 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003AC9C);
+// Points Stage_idx_tbl[idx] at the model of the HED entry `id`; returns the old pointer.
+IDX_SHAPE *Stage_idx_model_set(sint32 idx, uint32 id)
+{
+    IDX_SHAPE *old;
+
+    old                    = Stage_idx_tbl[idx].ptr;
+    Stage_idx_tbl[idx].ptr = (IDX_SHAPE *)Stage_hed_model_get(id);
+    return old;
+}
 
 void func_8003ACF4(sint32 idx, IDX_SHAPE *ptr)
 {
@@ -201,7 +209,28 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003BA58);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003BC44);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003BD0C);
+// Clears *flag if a Stage_idx_tbl entry after the first, whose shape's kind (high half of head)
+// is `kind` and whose val is 0, has a state above 0 (func_8003B420).
+void func_8003BD0C(uint32 *flag, uint32 kind)
+{
+    uint32 i;
+
+    for (i = 1; i < 0x800; i++)
+    {
+        if (Stage_idx_tbl[i].ptr == NULL)
+        {
+            break;
+        }
+        if ((Stage_idx_tbl[i].ptr->head & 0xFFFF0000) == kind && (sint16)Stage_idx_tbl[i].val == 0)
+        {
+            if (func_8003B420(i) > 0)
+            {
+                *flag = 0;
+                break;
+            }
+        }
+    }
+}
 
 // Counts into *count the Stage_idx_tbl entries after the first whose shape's kind (high half of
 // head) is kind0 or kind1 and whose val is 0.

@@ -119,16 +119,16 @@ void func_8012AB24(ST05_PRIZE *wp)
                 Sound_call(0xA4, 0, 0);
                 if (wp->variant_3 == 0)
                 {
-                    func_80037738(func_80048C60(&wp->pos_38) | 0xF0000, 10000);
+                    func_80037738(Map_cell_get(&wp->pos_38) | 0xF0000, 10000);
                 }
                 else if (wp->variant_3 == 1)
                 {
-                    func_80037738(func_80048C60(&wp->pos_38) | 0xF0000, 10000);
+                    func_80037738(Map_cell_get(&wp->pos_38) | 0xF0000, 10000);
                     Sce_flag_on(0x671);
                 }
                 else if (wp->variant_3 == 2)
                 {
-                    func_80037738(func_80048C60(&D_80137820[wp->value_E]) | 0xF0000, 10000);
+                    func_80037738(Map_cell_get(&D_80137820[wp->value_E]) | 0xF0000, 10000);
                     Sce_flag_on(0x672);
                 }
                 func_8012AFA0();

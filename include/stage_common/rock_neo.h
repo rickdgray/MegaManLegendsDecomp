@@ -237,8 +237,8 @@ STCOM_MATRIX *ScaleMatrix(STCOM_MATRIX *m, STCOM_FIXED_VECTOR *v);
 // Distance between two work slots' positions.
 uint32 func_80030254(void *a, void *b);
 void func_80032538(void *wp);
-void func_800334C4(void *wp);
-sint32 func_80048DAC(STCOM_SVECTOR *pos);
+void Model_parts_mtx_set_yxz(void *wp);
+sint32 Map_area_check(STCOM_SVECTOR *pos);
 sint32 func_8004B414(void *wp);
 // Frees a 0x3C0-byte work slot.
 void func_80031824(void *wp);

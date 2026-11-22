@@ -1202,7 +1202,7 @@ void func_80114988(ST06_BEAM *wp)
     wp->routine_3          = 0;
     wp->routine_0++;
     func_80032304(wp, 0, 0);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
     ahead.x = 0;
     ahead.y = 0;
     ahead.z = -0x1000;
@@ -1232,7 +1232,7 @@ void func_80114B30(ST06_BEAM *wp)
     wp->position.y = wp->parts_2C8.origin_0.y + ((wp->dir_44.y * d) >> 12);
     wp->position.z = wp->parts_2C8.origin_0.z + ((wp->dir_44.z * d) >> 12);
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
     if (func_80114F10(wp))
     {
         Sound_key_off_voice(0x12);
@@ -1240,7 +1240,7 @@ void func_80114B30(ST06_BEAM *wp)
         wp->position_prev = wp->position;
         wp->routine_0 += 2;
         func_80032304(wp, 2, 0);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_3 *= 2;
         return;
     }
@@ -1249,7 +1249,7 @@ void func_80114B30(ST06_BEAM *wp)
         Sound_key_off_voice(0x12);
         wp->routine_0++;
         func_80032304(wp, 1, 0);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_2 = 0xF;
     }
     func_80114F48(wp);
@@ -1264,13 +1264,13 @@ void func_80114CFC(ST06_BEAM *wp)
         wp->position_prev = wp->position;
         wp->routine_0++;
         func_80032304(wp, 2, 0);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         wp->routine_3 *= 2;
     }
     else
     {
         func_80032538(wp);
-        func_800334C4(wp);
+        Model_parts_mtx_set_yxz(wp);
         func_80114F48(wp);
     }
 }
@@ -1296,7 +1296,7 @@ void func_80114DC4(ST06_BEAM *wp)
     }
     parts->lit_14 = wp->routine_3;
     func_80032538(wp);
-    func_800334C4(wp);
+    Model_parts_mtx_set_yxz(wp);
 }
 
 void func_80114EE4(STAGE_OBJ *wp)

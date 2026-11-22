@@ -146,6 +146,36 @@ splat writes these to `build/rock_neo.exe/undefined_*_auto.txt`, which the link 
 - `Cd_read_sync` waits for the CD queue to drain, calling `Thread_wait(1)` on each pass;
   `Cd_read_sync2` only tests whether the queue is empty.
 
+## Memory card (`code_8006430C`)
+
+- `Card_init` (`0x8006479C`) opens and enables the eight card events (`SwCARD`/`HwCARD` x
+  `EvSpIOE`, `EvSpERROR`, `EvSpTIMOUT`, `EvSpNEW`, kept in `.sbss` `0x80098708`-`0x80098724`), then
+  `InitCARD(1)`, `StartCARD`, `_bu_init`. `func_8006491C`/`func_80064984` wait for the software/hardware
+  event and return 0 (IOE), 1 (TIMOUT), 2 (NEW), 3 (ERROR).
+- `func_80064A7C` (connect + `_card_clear` on a new card + `_card_load`), `func_80064B60`,
+  `func_80064BB4` (`_card_info` result mapped to small codes), `func_80064FF0` (writes block 0
+  from `D_8009AB30` with bytes 0-1 = 0xFF). `card_free_blocks` counts free 8 KB blocks of 15 with
+  `firstfile`/`nextfile`; its `strcpy` of `"bu00:*"`/`"bu10:*"` is GCC's inline builtin, and those
+  two literals are the file's whole `.sdata` (`0x8009808C`-`0x8009809B`).
+- `card_header_set` builds a save block's header sector: `"SC"`, 0x11, 1 block, 64-byte title, icon
+  CLUT `D_8008FA3C` at 0x60 and icon image `D_8008F9BC` at 0x80.
+- File I/O on a card, by port (device names `D_8008FA5C`, `"bu00:"`/`"bu10:"`): `card_file_write`
+  (`0x80064D74`; creates the file in 8 KB blocks if needed; 2 = card too full), `card_file_read`
+  (`0x80064EA4`; 3 = read failed), `card_format` (`0x80064F8C`).
+- **Save image** (`SAVE_IMAGE`, `Save_image`/`Save_words` over `Cd_ring_buf`, 0x1F00 bytes): six
+  checksummed word blocks, each followed by a random key and three sums; `save_sum_set`
+  (`0x80065384`) seals it, `save_sum_check` (`0x80065E08`) returns 0 or 3. `Save_image_restore`
+  (`0x80065AA8`, called by game's `func_80015634`) copies it into `Game_work` and `D_800C3558`;
+  `func_80067E6C` sets `Game_work.records_84` for a new game or from image offset 0x1D40.
+  `func_80067884` resets the five 0x180-byte slots `D_800BAF38` (`CARD_SLOT`).
+- `func_8006430C` (`0x8006430C`) is `LOGO_FUNC` 1 (`D_8008DD64`): a logo's sprites in a 6-column
+  grid, chosen by three scene flags each (`LOGO_SPRITE.flag_2`). **Parked**: the instructions match,
+  but the frame is 0x48 against 0x50 (an unused reload slot at 0x18 between the spills of `wp` and
+  `start`); CoastRedWood's fork matched it only with a FAKE loop condition.
+- `func_800679B8`/`func_80067B7C` write `Game_work.timer_0c`/`timer_14` (30 per second) as hh:mm:ss
+  into the font strings at `D_80097FD4`/`D_80097FF4` (`moji.h`); `func_800679B8` keeps the digits in
+  `D_80098800`-`D_80098805` for `func_80067D10`.
+
 ## CD module
 
 Constants, types and variables: `include/cd.h` (shared with the shim). This section is the map.
@@ -586,7 +616,7 @@ kind_1, flags at 6, position at 0x14, 16.16 position at 0x1C, angle at 0x56, mod
 keyframes at 0xF8-0x106). `Obj_work_flag_change` and `func_8002F420` apply `func_8002F3A8`/`func_8002F884`/
 `func_8002F928` to several pools, `func_8002FA38` writes by kind, so `FLAG_WORK`, `MOVE_WORK`, `POS_WORK`,
 `ATTACH_WORK`, `TURN_WORK` and `POS14_WORK` stay views until that header has a type. Merged: the keyframe and
-joint views into `PL_WORK` (`tbl_F8`..`unk106`, `owner_188`, `base_mtx`, `joint_mtx[15]`, `joint_pos[15]`,
+joint views into `PL_WORK` (`tbl_F8`..`pose_mix`, `owner_188`, `base_mtx`, `joint_mtx[15]`, `joint_pos[15]`,
 `pos_1C`, `pos_428`, `svec_438`), `OBJ_10C` into `SHL_WORK`, `func_8002F998`'s pointer into `EVE_WORK`.
 `func_800323FC` is down to the order of its first two loads (lbu time before lw ent_FC) after reusing the
 parameter as the copy of ctl.
@@ -606,6 +636,23 @@ MODEL_WORK has the byte `idx_AC`). `SLOT_ENT`/`SLOT_VAL` merged into one `SLOT_E
 Retried with the new types (no new matches): `func_80036C50` (now two registers from matching),
 `func_8002FA38`, `func_80032538`, `func_80033A28`, `func_80035724`, `func_8003606C` (unchanged).
 
+`code_8002E7A8.c` (batch 6, from CoastRedWood's drafts): banked `Obj_launch_set`, `Pl_joint_mtx_set`,
+`front_obj_search`, `Model_parts_mtx_set`, `lock_on_search`, `Pl_pose_unpack`, `func_8002F420`,
+`hit_pair_check`. Types found: `SPAWN_ENT` (room spawn table entry), `LOCK_BOX` (`D_8008994C`),
+`MATRIX_ROT`; `CHILD_BLK` was the parts' `MATRIX` (`WORK_5A4.mtx_240`, `WORK_3C0.mtx_1E8`); MODEL_WORK
+gained `flag_4/5`, `field_C`, `old_ang`, `ofs_9C`, `slot_F8[24]` (the part tree), `scale_158`, `mtx_160`;
+`SLOT_OWNER` is 0x10 bytes (`hit_0`, `mask_4`, `vec_8`); `GAME_WORK.unk078` is a union (flag byte, and
+bytes 0x79-0x7A read in the word as a halfword). Three need a form GCC can't get from the plain field:
+`Pl_joint_mtx_set` a `root` local, `Model_parts_mtx_set` the part slot as `wp + (i * 4 + 0xF8)` (the
+target steps the byte offset), `lock_on_search`/`hit_pair_check` `v.pad` as halfword `j * 6 + 3` of
+`D_800A2F48` (the target keeps that base in a register).
+Parked `Obj_spawn_tbl_set` (`func_8002EA50`, `NON_MATCHING`): only the 0x60 case differs. GCC relates
+`&Game_work.stage_no` to `&Game_work.unk078`, hoists one base into a saved register (s2) and reaches 0x50
+as `-0x28(s2)`; the target builds `Game_work+0x78` in v1 each time and reaches 0x50 with its own `lui`.
+It matches when 0x78 is read through a second declaration of `Game_work`
+(`extern GAME_WORK x __asm__("Game_work");`, the draft's way), so the original reached one of the two
+through another symbol; that alias is the owner's call.
+
 `code_8005C258.c` (small functions): banked `func_8005DCB4` (calls `func_8005DCDC`, `func_8005DE28`),
 `func_8005D9EC` (`Player_work+0x6E = +0xB0`, then `func_8005D9C4`), `func_8005D844` (arms slot
 `D_800BBE2C`..`E46`), `func_8005D98C`, `func_8005C720` (dispatch through `D_8008D7B4[wp[4]]`).
@@ -614,6 +661,18 @@ base register (`$v1`), but GCC folds `&D_800BBD85` into `lui`+`%lo` on each acce
 a `volatile` pointer both fold the same way. The store to `D_800BBD81` uses its own `lui`. So `D_800BBD81`, `D_800BBD85`, ... are separate globals,
 not fields of one struct (declared in `code_8005C258.h`). `func_8005C720`'s `wp` is the 9-byte object at
 `D_800BBD78` (byte +4 indexes `D_8008D7B4`); it stays `uint8 *` until that object's layout is known.
+
+Later batch (from CoastRedWood's drafts): banked `func_8005C258` (clears `D_800BBD78` through +0xD4
+with `Mem_clear`, i.e. 0xD8 bytes, apparently six 0x24-byte slots), `func_8005C868`/`func_8005C978`
+(dispatch through `D_8008D7C0`/`D_8008D7C4`), `func_8005D528`, `func_8005D87C` (clears the eight
+words `D_800BBE2C`..`E48`), `func_8005DA1C`, `func_8005DA78` (steps `Player_work.unk6E` by 2 up to
+`unkB0`), `func_8005DBB4` (fills `D_800BC9B8` with -1, or restores it from `Cd_ring_buf + 0x1280`),
+`func_8005E9F8` (translucent grey `POLY_F4` over a `SCREEN_RECT`), `func_8005EBE4`.
+**Base-register finding:** `func_8005DA1C` matched only once `D_800BBD84` became an array of
+*unknown size* (`extern uint8 D_800BBD84[];`, `[1]` = old `D_800BBD85`, `[3]` = old `D_800BBD87`): GCC
+then keeps `&D_800BBD84[3]` in a register (`lui`+`addiu`), while a scalar or a sized array
+(`[4]`) folds to `lui`+`%lo` each time. An extern struct field behaves like the unknown-size array.
+This is likely what parked `func_8005D4F8` needs too (its text now uses `D_800BBD84[1]`; not retried).
 
 `code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.timer_B` countdown, then `routine_8`
 += 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->pos_38)` then `func_80031988`), `func_80047318`
@@ -641,7 +700,7 @@ local with `goto fail`, and `== 0` forms).
 
 Batch (`func_80046A0C`, `_8004602C`, `_80047EC8`): banked `func_80046A0C` (proximity test like `func_80045BC8`, then
 calls `Money_add`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][field_A]`; `field_A` is kept in a
-local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_8]`, then one `func_8002D464` primitive
+local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_8]`, then one `Billboard_get` primitive
 filled from the four columns `D_80097EC0/C2/C4/C6`, each its own symbol). Parked `func_80047EC8` (`NON_MATCHING`;
 eight spark lines around the player's position at `Player_work+0x400`/`+0x418`): structure matches; the else-branch
 angle `- 0x100 + rand` becomes `li 0xff00; addu` (as in `func_80047DD8`), the `y - (sin - 0x10)` is folded to
@@ -916,9 +975,22 @@ D_800BE2F8[arg] < 4`, else `unk062[9 - i] * D_8008AF00[i] - unk028[9 - i]`, at `
 `D_8008AF00[i]`; ours recomputes it (best form `(&arr[9])[-i]`, which at least folds the 9 into the
 symbol offset as the target does).
 
+`code_80027678.c`: banked `work_48_draw` / `work_50_draw` (draw every slot of `D_800A3B40` /
+`D_800BF118` whose `routine_0` and `flags` both have bit 1 (`WORK_DRAW`), through
+`D_800898D0[(routine_0 >> 2) & 7](&wp->efc, (sint8)routine_0)`; so `WORK_50` has an `EFC` at 0x14;
+called by `func_80027678` with `func_80029A38` for `D_800BFB20`), `func_8002CFA4` (clears the map
+block masks at `0x8015BC00`, the billboard count and some scratchpad state; fog bytes to 0xE00),
+the model-data accessors the overlays use on `MODEL_WORK.data_88` (a `PARTS_MODEL`; packed id
+`lod << 24 | list << 16 | mesh << 8 | n`, mesh n being entry n + 1 of the level): `Model_face_get`,
+`Model_face_uv_set`, `Model_vertex_get`, `Model_mesh_uv_copy` (copy a mesh's face uvs from another
+mesh plus a uv offset: face/lip animation) and `Model_uv_cell` (uv offset word of a grid cell), and
+`Billboard_get` / `Billboard_line_get` (take 0x28 / 0x20 bytes from `Map_prim_ptr` and list them in
+`D_800BE6D8`, at most 0x100). `Model_mesh_uv_copy` matches only with the entries addressed in
+integers (`(MESH *)(n * sizeof(MESH) + (uint32)lod[0])`) and the header word read once.
+
 `code_8002D9A0.c`: banked `func_8002DC84` (overlay accessor: returns a 16-byte `BLK_ENT` from block
 `src->blk_tbl[blk]`, entry `idx` after the header; needs one reused `uint32 *p` and one reused word
-local) and `billboard_draw` (projects the `BILLBOARD`s queued by `func_8002D464` in `D_800BE6D8`, links
+local) and `billboard_draw` (projects the `BILLBOARD`s queued by `Billboard_get` in `D_800BE6D8`, links
 them as POLY_FT4 into `Scratch_ot[z / 8]`, depth cue and fog CLUT unless flag 8; the list entry is
 re-read through `D_800BE6D8[i]` for the flag and `rgbc`, and the three `vz` stores are one chained
 assignment). Neither function has a caller in the code or data (dead, or reached some other way).
@@ -970,6 +1042,18 @@ Named `func_8001D888` -> `Sce_read_sync`: waits a frame at a time (`Thread_wait(
 (`func_80013420`), which loads `a0 = 1` in the call's delay slot, so Capcom's version probably took an
 argument it never used.
 
+game.c from CoastRedWood's drafts: `game_timer_count` (`Game_work.timer_0c`, capped at
+`GAME_TIMER_MAX`, 50 hours of frames), `func_80016434`, `func_80016D64`, `func_80016DAC`,
+`player_entry_set` (the player from the area entry `D_800C3558`, `AREA_ENTRY`), and the pool updates
+`func_80016FD4` (WORK_3C0), `func_80017094` (WORK_5A4), `func_80017154` (PL_SHL_WORK),
+`eve_work_exec` (EVE_WORK), `func_80017528` (WORK_50). The pools' handler tables sit on the
+scratchpad at `0x1F800058`-`0x1F80006C` (`Work_3C0_tbl` ..., code_8002E7A8.h; `0x1F800060`/`0x64`
+are used by func_80017210/func_800172F4). The loops read `routine_0` signed (`lb`), so they cast.
+`func_80017154` calls `D_80089820[id_2]`, a table of scene functions that take nothing
+(`func_8001F9AC`, `func_8001F820`): an odd pairing, but it is what the bytes say.
+EVE_WORK, WORK_50, WORK_5A4: `field_2` split into `id_2`/`type_3` (the allocators store both at
+once with `*(uint16 *)&wp->id_2`; `func_800317AC` still matches).
+
 Twins run (one of each all-assembly twin group, then `twins.py --apply`):
 - `func_80013F60` (`code_800133D8`; `routine_1++` of `D_80098AA8` unless `D_80098A72`) and its
   game.c copies `func_80016D0C`/`func_80016D38`, the same bytes on `Game_work` (`GAME_WORK.routine_0`/`_1`,
@@ -979,6 +1063,14 @@ Twins run (one of each all-assembly twin group, then `twins.py --apply`):
 - `func_800180D4` (`code_8001786C`, `D_800821BC[0]`): once `Dbl_buff_idx` is 1, zeroes both buffers'
   vertical offsets, clip y and the isbg/dfe flags, `MojiTaskKill`, sets three pool words, calls
   `func_800196A0`. `Dbl_buff_idx`/`Vsync_wait` added to ROCK_NEO's `scratch.h` (the shim's names).
+- `code_8001786C` drafts banked (all matched as adapted): `clut_buf_dirty_copy` (0x8001786C, no callers),
+  `Clut_buf_load` (0x800178FC), `Clut_buf_stp_set` (0x80017944), `func_80017994`, `func_80017B24`,
+  `func_80017E94`, `func_80018050` (thread body: `D_800821BC[D_800821E0[D_80098A69][D_80098A6A]]()`
+  then `Thread_wait(1)`, forever), `func_800182D4`/`func_8001840C` (`D_800821BC[1]`/`[8]`),
+  `func_800196A0`. `Clut_buf` (0x800AD168) holds both copies: `clut_buf_dirty_copy` reaches the
+  second (0x800B1168) through Clut_buf's own `lui`, and `Clut_buf_stp_set` matches as a plain
+  `Clut_buf[i]` loop with `i` from 0x2000 to 0x3FFF, so `vram.h` declares it `[2 * 32 * 256]`
+  (`CLUT_BUF_COPY` is the second copy's index); the registry's `size:0x4000` is the first copy only.
 - `func_8005A874` (moji window kind 0): opens a window from a flat line `unk_85` (8) pixels a frame, then
   closes it. New `MOJI_WORK.unk_80`/`unk_85`; `unk_A` is `sint16` (`lh`). Matching needed `unk_7D++` at the
   end of state 1's block and `c[0][1] > c[2][1]` (not `<` swapped) in state 2.
@@ -988,6 +1080,12 @@ Twins run (one of each all-assembly twin group, then `twins.py --apply`):
   `sxy = 0x1F800100` in s3. Needed: the first row's `&= 0x7FFFFFFF` before the loop, `row_end` set
   inside the `if`, the inner loop as `for (...; bits <<= 1, b++)`, the table indexed inline, and the
   drawn word read back into the `lod` local. Permuter candidate.
+- `map_block_masks_draw` (0x80023C08): draws both row masks (`Map_block_mask`, 0x8015BC00 and
+  +`MAP_BLOCK_ROWS` words) with `map_blocks_draw` (kinds 0/1, 1/1) or `map_blocks_draw2` (2/2, 3/3) by
+  scratch byte `D_1F800075`; mode 0 sets `D_1F800004 = 0x400`, the others 0.
+- `func_8001F828` ... `func_8001FDE4` (code_8001F828, called through the `.data` table at 70EC4): each
+  stores per-scenario ids (`Game_work.sce_no`, some also `Sce_flag_test`) into this file's `.sbss` id
+  slots; the ids' meaning is still unknown, so they keep their splat names.
 - Not attempted: `func_8002466C`/`func_8002626C` (0x540 bytes) and `func_80023EA8`/`func_80026B04`
   (0x7C4): scratchpad polygon subdivision with GTE, every access off one 0x1F800100 base register, the
   same pattern that parks `mesh_draw`.

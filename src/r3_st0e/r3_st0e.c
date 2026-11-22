@@ -35,7 +35,7 @@ void func_80100174(void)
     }
     spawn                     = D_8010FC8C[Game_work.value_51];
     STAGE_MAP_WORK_PTR->exits = D_8010FE18[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_8010FE9C[D_8010FED4[Game_work.value_51]], D_8010FE24[Game_work.value_51]);
     func_8005DC10(D_8010F294[Game_work.value_51]);
     func_8010030C();
@@ -545,7 +545,7 @@ void func_801010D8(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(face->shape_0, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(face->shape_0, 0x2A, 0x33, 6));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -562,7 +562,7 @@ void func_801010D8(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(face->shape_6, 0x2A, 0x33, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(face->shape_6, 0x2A, 0x33, 6));
     }
     face->prev_8 = face->shape_6;
 }

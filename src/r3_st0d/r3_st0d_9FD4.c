@@ -608,7 +608,7 @@ void func_8010B29C(ST0D_FLAMES *wp, sint16 angle, sint8 arg)
     {
         pos.y = wp->y_1E;
     }
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2E000000 | (b << 16) | (g << 8) | r;
     p->uv_C    = 0x3D480000 | (v << 8) | u;
     p->uv_14   = 0xE0000 | (v << 8) | (u + 0x1F);
@@ -621,7 +621,7 @@ void func_8010B29C(ST0D_FLAMES *wp, sint16 angle, sint8 arg)
     p->pad_20  = 0;
     pos.x      = wp->x_1C + ((rsin(rot) * len) >> 12);
     pos.z      = wp->z_20 + ((rcos(rot) * len) >> 12);
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2E000000 | (b << 16) | (g << 8) | r;
     p->uv_C    = 0x3D480000 | (v << 8) | u;
     p->uv_14   = 0xE0000 | (v << 8) | (u + 0x1F);
@@ -696,7 +696,7 @@ void func_8010B6E8(ST0D_FLAMES *wp, sint32 angle, sint8 frame)
     pos.y = wp->y_1E + y;
     pos.x += (rsin(side) * 100) >> 12;
     pos.z += (rcos(side) * 100) >> 12;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->uv_1C   = 0x5F80;
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
@@ -713,7 +713,7 @@ void func_8010B6E8(ST0D_FLAMES *wp, sint32 angle, sint8 frame)
     pos.z      = wp->z_20 + ((v * frame) >> 12);
     pos.x += (rsin(side) * 100) >> 12;
     pos.z += (rcos(side) * 100) >> 12;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->uv_1C   = 0x5F80;
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
@@ -783,7 +783,7 @@ void func_8010BB48(ST0D_FLAMES *wp, sint16 angle, sint8 frame)
     pos.v.z    = wp->z_20 + ((v * frame) >> 12);
     v          = frame * 4;
     pos.v.y    = wp->y_1E + v;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
     p->uv_14   = 0xE409F;

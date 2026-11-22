@@ -16,6 +16,7 @@ extern sint8 D_80089F04[0x20];
 extern uint32 D_800BD3B8[IDX_STATE_ROWS][IDX_STATE_WORDS];
 
 uint32 Stage_hed_model_get(uint32 id);
+IDX_SHAPE *Stage_idx_model_set(sint32 idx, uint32 id);
 void func_8003ACF4(sint32 idx, IDX_SHAPE *ptr);
 void func_8003B278(sint32 mode);
 sint32 func_8003B2D4(sint32 stage, sint32 idx);
@@ -23,6 +24,7 @@ sint32 func_8003B360(sint32 idx);
 sint32 func_8003B420(sint32 idx);
 sint32 func_8003B4BC(sint32 stage, sint32 idx);
 sint32 func_8003B540(sint32 stage, sint32 idx, uint32 state);
+void func_8003BD0C(uint32 *flag, uint32 kind);
 void func_8003BDC0(uint8 *count, uint32 kind0, uint32 kind1);
 
 #endif // CODE_8003AC24_H

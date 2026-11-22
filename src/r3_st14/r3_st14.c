@@ -31,7 +31,7 @@ void func_80100250(void)
     STAGE_MAP_WORK_PTR->info  = STAGE_CELL_INFO;
     STAGE_MAP_WORK_PTR->cells = cells;
     STAGE_MAP_WORK_PTR->exits = D_80114E70[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_80114F4C[D_80114F7C[Game_work.value_51]], D_80114E84[Game_work.value_51]);
     func_8005DC10(D_80113F94[Game_work.value_51]);
     func_801003B0();

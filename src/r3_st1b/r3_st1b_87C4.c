@@ -4,13 +4,13 @@
 void func_801087C4(STAGE_WORK *wp)
 {
     D_80113E98[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80113E94[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80113E94[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_80108820(STAGE_WORK *wp)
 {
     D_80113EA0[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80113E9C[0]->id, 0x2A, 0x33, 6));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80113E9C[0]->id, 0x2A, 0x33, 6));
 }
 
 void func_8010887C(STAGE_OBJ *wp)
@@ -149,8 +149,8 @@ void func_80108D3C(STAGE_OBJ *wp)
 void func_80108D94(STAGE_OBJ *wp)
 {
     D_8010E8FC[wp->routine_0](wp);
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(0, 0x33, 0x37, 5));
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(0, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(0, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(0, 0x33, 0x37, 5));
 }
 
 void func_80108E2C(ST1B_VIEW *wp)
@@ -342,13 +342,13 @@ void func_801093EC(ST1B_TALKER *wp)
 void func_80109420(STAGE_WORK *wp)
 {
     D_80113EB0[0] = 0;
-    func_8002D320(wp->model_88, 0x110010, func_8002D404(D_80113EAC[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(D_80113EAC[0]->id, 0x33, 0x37, 5));
 }
 
 void func_8010947C(STAGE_WORK *wp)
 {
     D_80113EB8[0] = 0;
-    func_8002D320(wp->model_88, 0x130012, func_8002D404(D_80113EB4[0]->id, 0x33, 0x37, 5));
+    Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(D_80113EB4[0]->id, 0x33, 0x37, 5));
 }
 
 void func_801094D8(STAGE_OBJ *wp)

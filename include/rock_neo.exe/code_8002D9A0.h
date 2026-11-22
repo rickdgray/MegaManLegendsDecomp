@@ -68,11 +68,19 @@ typedef struct
     uint32 addr1; // entry word 1 as an address
 } BLK_ENT;
 
-// Face of a MESH: texture coordinates (u, v byte pairs) of its corners, then its vertex
-// indices packed as bytes (corner n in bits 8n..8n+7; the fourth only for quads).
+// Texture coordinates of a face's corners: (u, v) byte pairs, or two corners per word (the
+// words are copied and offset whole by Model_face_uv_set and Model_mesh_uv_copy).
+typedef union
+{
+    uint16 pair[4];
+    uint32 word[2];
+} MESH_UV;
+
+// Face of a MESH: texture coordinates of its corners, then its vertex indices packed as bytes
+// (corner n in bits 8n..8n+7; the fourth only for quads).
 typedef struct
 {
-    uint16 uv[4];
+    MESH_UV uv;
     uint32 idx;
 } MESH_FACE;
 
@@ -94,7 +102,8 @@ typedef struct
 } MESH;
 
 // Model data of a PARTS_WORK: three levels of detail, each a MESH array whose entry 0 is skipped
-// (parts_model_draw uses &lod[n][1], entry 1 for part mesh 0).
+// (parts_model_draw uses &lod[n][1], entry 1 for part mesh 0). The overlays pass an object's model
+// data (MODEL_WORK.data_88) as one to code_80027678's face and vertex accessors (Model_face_get ...).
 typedef struct
 {
     uint8 pad_0[0x70];

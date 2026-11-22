@@ -33,7 +33,7 @@ void func_801002F8(void)
     STAGE_MAP_WORK_PTR->info  = STAGE_CELL_INFO;
     STAGE_MAP_WORK_PTR->cells = cells;
     STAGE_MAP_WORK_PTR->exits = D_80114858[Game_work.value_51];
-    func_8002EA50(spawn, D_800C356D);
+    Obj_spawn_tbl_set(spawn, D_800C356D);
     func_800371A0(D_80114960[D_801149E0[Game_work.value_51]], D_80114870[Game_work.value_51]);
     func_8005DC10(0);
     func_80100460();
@@ -1556,7 +1556,7 @@ void func_80102F24(ST1D_VIEW *wp)
         func_80032538(wp);
     }
     STAGE_SP_13A = ext->u_3C.h[0];
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);

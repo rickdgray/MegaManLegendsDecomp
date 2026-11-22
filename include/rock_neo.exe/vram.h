@@ -17,9 +17,11 @@
 
 extern uint32 Clut_buf_dirty;
 
-// func_80017734 copies rows to the same position 0x4000 further on, so a
-// second copy sits right after it (0x800B1168). The two may really be one array,
-// Clut_buf[2][...], double-buffered.
-extern uint16 Clut_buf[CLUT_BUF_ROWS * CLUT_BUF_COLS];
+// Index of the second copy (0x800B1168, 0x4000 bytes on). clut_buf_dirty_copy copies the dirty
+// rows there through the same base as the first; Clut_buf_stp_set walks it as Clut_buf[0x2000..
+// 0x3FFF] and Clut_buf_load uploads it to VRAM. So it is one array holding both copies.
+#define CLUT_BUF_COPY (CLUT_BUF_ROWS * CLUT_BUF_COLS)
+
+extern uint16 Clut_buf[2 * CLUT_BUF_ROWS * CLUT_BUF_COLS];
 
 #endif // VRAM_H

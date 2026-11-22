@@ -227,7 +227,7 @@ void func_80114E5C(ST0B_DRIFT *wp)
     D_8011BE20[wp->routine_0](wp);
     if (wp->variant_3 != 0)
     {
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = wp->color_18;
         p->xy_8    = *(uint32 *)&wp->x_1C;
         p->z_10    = *(uint32 *)&wp->z_20;
@@ -509,7 +509,7 @@ void func_80115780(ST0B_FLAMES *wp, sint16 angle, sint8 arg)
     {
         pos.y = wp->y_1E;
     }
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2E000000 | (b << 16) | (g << 8) | r;
     p->uv_C    = 0x3D480000 | (v << 8) | u;
     p->uv_14   = 0xE0000 | (v << 8) | (u + 0x1F);
@@ -522,7 +522,7 @@ void func_80115780(ST0B_FLAMES *wp, sint16 angle, sint8 arg)
     p->pad_20  = 0;
     pos.x      = wp->x_1C + ((rsin(rot) * len) >> 12);
     pos.z      = wp->z_20 + ((rcos(rot) * len) >> 12);
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2E000000 | (b << 16) | (g << 8) | r;
     p->uv_C    = 0x3D480000 | (v << 8) | u;
     p->uv_14   = 0xE0000 | (v << 8) | (u + 0x1F);
@@ -596,7 +596,7 @@ void func_80115BCC(ST0B_FLAMES *wp, sint32 angle, sint32 frame)
     side  = (angle + 0x400) & 0xFFF;
     pos.x += (rsin(side) * 100) >> 12;
     pos.z += (rcos(side) * 100) >> 12;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->uv_1C   = 0x5F80;
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
@@ -614,7 +614,7 @@ void func_80115BCC(ST0B_FLAMES *wp, sint32 angle, sint32 frame)
     side       = (side - 0x800) & 0xFFF;
     pos.x += (rsin(side) * 100) >> 12;
     pos.z += (rcos(side) * 100) >> 12;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->uv_1C   = 0x5F80;
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
@@ -681,7 +681,7 @@ void func_8011602C(ST0B_FLAMES *wp, sint16 angle, sint32 frame)
     t          = rcos(angle) * 30;
     pos.z      = wp->z_20 + ((t * (sint8)frame) >> 12);
     pos.y      = wp->y_1E + (sint8)frame * 4;
-    p          = func_8002D464();
+    p          = Billboard_get();
     p->code_4  = 0x2EF0A0A0;
     p->uv_C    = 0x3D484080;
     p->uv_14   = 0xE409F;

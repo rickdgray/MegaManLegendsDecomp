@@ -755,7 +755,7 @@ typedef struct
         uint8 routine_0; // 08
         uint32 word;
     } u_8;
-    uint16 cell_C[3];    // 0C: per lift, its map object (func_80048C60)
+    uint16 cell_C[3];    // 0C: per lift, its map object (Map_cell_get)
     uint8 reserved12[2]; // 12
     sint16 value_14[3];  // 14
     uint8 reserved1A[2]; // 1A
@@ -1047,7 +1047,7 @@ typedef struct
 
 #define ST09_PATROL_DATA (*(ST09_PATROL *)D_8011E1C8)
 
-// ROCK_NEO's sprite list (func_8002D464 fills it the same way).
+// ROCK_NEO's sprite list (Billboard_get fills it the same way).
 extern uint32 D_800988FC;
 extern uint32 *D_800BE6D8[];
 #define ST09_PACKET_PTR ((uint32 **)0x1F800070)

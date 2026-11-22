@@ -107,7 +107,7 @@ void stcom08_func_0348(STCOM08_WORK *wp)
     uint16 wobble;
 
     Obj_pos_set(wp, wp->velocity.x, wp->velocity.y, 0);
-    if (func_80048DAC(&wp->position))
+    if (Map_area_check(&wp->position))
     {
         func_80031824(wp);
         return;

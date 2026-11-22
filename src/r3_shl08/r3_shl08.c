@@ -168,7 +168,7 @@ void func_800D8F98(SHL08_WORK *wp)
     SHL08_LINE *lp;
     sint32 i;
 
-    lp = func_8002D4B8();
+    lp = Billboard_line_get();
     if (lp)
     {
         lp->xy0       = *(uint32 *)&wp->pos;
@@ -180,7 +180,7 @@ void func_800D8F98(SHL08_WORK *wp)
     }
     for (i = 0; i < 3; i++)
     {
-        lp = func_8002D4B8();
+        lp = Billboard_line_get();
         if (lp)
         {
             lp->xy0       = *(uint32 *)&wp->trail[i];

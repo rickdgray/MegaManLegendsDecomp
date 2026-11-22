@@ -11,6 +11,9 @@ typedef void (*PL_SHL_FUNC)(PL_SHL_WORK *wp);
 
 extern PL_SHL_FUNC D_8008A0CC[]; // routine_8 dispatch table of func_800433C0
 extern PL_SHL_FUNC D_8008A0D8[]; // routine_8 dispatch table of func_800437A8: func_800437F8, func_80043A8C
+// Called by id_2 for each live slot of D_800BFB20 (func_80017154, func_80017210), but its entries
+// are scene functions that take nothing (func_8001F9AC, func_8001F820, ...).
+extern PL_SHL_FUNC D_80089820[];
 
 sint32 func_8004324C(PL_WORK *pl);
 sint32 Money_check(sint32 amount); // -1 when Game_work.money can't cover the (negative) amount, else 0

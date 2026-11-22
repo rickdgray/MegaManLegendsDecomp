@@ -58,7 +58,7 @@ void func_80111898(ST05_WAGON *wp)
             MulMatrix0(&D_80137EF0, &D_80137F10, &wp->matrix_1E8[ctl->joint_48].m);
         }
     }
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x80, 0x200, 1);
@@ -878,7 +878,7 @@ void func_801137AC(ST05_WALKER *wp)
     }
     STAGE_WHEEL_SP->wheel_138 = ctl->angle_4E;
     STAGE_WHEEL_SP->wheel_148 = ctl->angle_4E * 2;
-    func_8003346C(wp);
+    Model_parts_mtx_set_y(wp);
     if (wp->flags_0 & 2)
     {
         Model_Shadow_Trans(wp, 0x80, 0x200, 1);

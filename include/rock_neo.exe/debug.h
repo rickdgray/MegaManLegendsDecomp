@@ -33,12 +33,26 @@ typedef struct
 
 typedef sint32 (*DEBUG_FUNC)(DEBUG_WORK *wp);
 
+// A sprite's screen position: copied as a word (func_800640F0) or read as x and y (func_8006430C).
+typedef union
+{
+    uint32 word;
+    struct
+    {
+        sint16 x;
+        sint16 y;
+    } s;
+} LOGO_XY;
+
 // One sprite of a logo (0x10 bytes); a negative head ends the list.
 typedef struct
 {
-    uint16 head_0; // high byte = type (1 blinks with System_timer, 2 blinks with Game_work.timer_0c, 3 grows with Player_work's unkB0)
-    uint8 pad2[2];
-    uint32 xy_4;
+    // High byte = type: for func_800640F0, 1 blinks with System_timer, 2 blinks with
+    // Game_work.timer_0c, 3 grows with Player_work's unkB0; for func_8006430C, 0-13 picks how the
+    // scene flags at flag_2 choose the image (low byte = the slot in a grid of 6 columns).
+    uint16 head_0;
+    sint16 flag_2; // 0x02: first of three scene flags (func_8006430C)
+    LOGO_XY xy_4;
     uint32 uv_8;
     uint32 wh_c;
 } LOGO_SPRITE;

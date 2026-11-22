@@ -390,7 +390,7 @@ void func_80116AD4(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_0 = face->mouth_C[face->index_4];
     if (face->shape_0 != face->prev_2)
     {
-        func_8002D320(wp->model_88, 0x110010, func_8002D404(face->shape_0, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x110010, Model_uv_cell(face->shape_0, 0x2A, 0x40, 6));
     }
     face->prev_2 = face->shape_0;
     if (face->eyes_10[face->index_A + 1] != 0x3FFF)
@@ -407,7 +407,7 @@ void func_80116AD4(STAGE_OBJ *wp, STAGE_FACE16 *face)
     face->shape_6 = face->eyes_10[face->index_A];
     if (face->shape_6 != face->prev_8)
     {
-        func_8002D320(wp->model_88, 0x130012, func_8002D404(face->shape_6, 0x2A, 0x40, 6));
+        Model_mesh_uv_copy(wp->model_88, 0x130012, Model_uv_cell(face->shape_6, 0x2A, 0x40, 6));
     }
     face->prev_8 = face->shape_6;
 }
@@ -590,7 +590,7 @@ void func_80117160(ST06_CRAB *wp)
     wp->body.timer_80         = 0;
     wp->body.timer_82         = 0;
     wp->body.value_88         = 0;
-    wp->body.area_8C          = func_80048C60(&D_801258B8);
+    wp->body.area_8C          = Map_cell_get(&D_801258B8);
     life                      = D_8009884C[wp->kind_2]->life_8 << 5;
     wp->data_78               = D_801258AC;
     wp->routine_0             = 1;
@@ -700,7 +700,7 @@ void func_80117290(ST06_CRAB *wp)
     else
     {
         func_80033A28(wp);
-        func_8003346C(wp);
+        Model_parts_mtx_set_y(wp);
     }
     wp->value_44.half[0] = (wp->position.x - wp->position_prev.x) << 4;
     wp->value_44.half[1] = (wp->position.y - wp->position_prev.y) << 4;
@@ -1391,7 +1391,7 @@ void func_80118D9C(ST06_MATRIX_OBJ *wp)
     wp->value_D += 4;
     for (i = 0; i < 0x20; i++)
     {
-        uv = func_8002D22C(wp->model_14, i + 0x10000);
+        uv = Model_face_get(wp->model_14, i + 0x10000);
         if (wrap != 0 || (i == 0 && uv[0] >= 0xA0))
         {
             wrap = 1;

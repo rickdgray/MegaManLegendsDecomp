@@ -534,8 +534,8 @@ typedef struct
     ST0A_EM_HIT hit_C;          // 0C
     uint8 reserved1C[8];        // 1C
     uint8 track_24[0x10];       // 24: func_80036478
-    uint8 *uv_34;               // 34: a face's texture coordinates (func_8002D22C)
-    sint16 *vtx_38;             // 38: vertices (func_8002D2DC)
+    uint8 *uv_34;               // 34: a face's texture coordinates (Model_face_get)
+    sint16 *vtx_38;             // 38: vertices (Model_vertex_get)
     sint16 *vtx_3C;             // 3C
     sint16 value_40;            // 40
     uint16 angle_42;            // 42
@@ -974,13 +974,13 @@ sint32 func_8010E95C(ST0A_EM *wp);
 void func_8010ED90(ST0A_EM *wp, sint32 index);
 void func_8010E9C8(ST0A_EM *wp, sint32 side);
 sint32 func_8010EE60(ST0A_EM *wp, sint32 index);
-uint8 *func_8002D22C(void *model, sint32 id);
+uint8 *Model_face_get(void *model, sint32 id);
 sint32 func_80042208(void);
 void func_8005D4C0(void);
 void func_80111788(ST0A_PIECE *wp);
 void func_80111864(ST0A_PIECE *wp);
 void func_801118B4(ST0A_PIECE *wp);
-// A scratchpad halfword func_8003346C reads: the enemy's turn.
+// A scratchpad halfword Model_parts_mtx_set_y reads: the enemy's turn.
 #define ST0A_SP_182 (*(uint16 *)0x1F800182)
 void func_80052528(void *wp);
 void func_8005D6E8(void *wp);
@@ -988,7 +988,7 @@ void func_8005D6E8(void *wp);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
 sint32 func_8010EBE8(ST0A_EM *wp);
 sint32 func_8010EF3C(ST0A_EM *wp);
-sint16 *func_8002D2DC(void *model, sint32 id);
+sint16 *Model_vertex_get(void *model, sint32 id);
 
 sint32 func_80101BB4(sint32 arg);
 sint32 func_80101A78(sint32 down);

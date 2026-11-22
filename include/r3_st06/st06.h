@@ -1209,7 +1209,7 @@ typedef struct
     STAGE_OBJ *child_84;               // 4C4: func_80117BF0
     uint16 value_88;                   // 4C8
     uint8 reserved8A[2];               // 4CA
-    sint32 area_8C;                    // 4CC: func_80048C60's result
+    sint32 area_8C;                    // 4CC: Map_cell_get's result
 } ST06_CRAB_BODY;
 
 // A 0x3C0-byte enemy slot of this stage (STAGE_OBJ's fields, then ST06_CRAB_CTL at +0x328).
@@ -1576,7 +1576,7 @@ void func_8011201C(ST06_ACTOR *wp);
 
 void func_8001E390(sint32 id);
 
-sint32 func_80048C60(STCOM_SVECTOR *pos);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
 
 sint32 func_80037C14(sint32 cell);
 
@@ -1598,7 +1598,7 @@ void func_8003A264(void);
 
 void func_8001E460(sint32 a0, sint32 a1, sint32 a2);
 
-uint8 *func_8002D22C(void *model, sint32 id);
+uint8 *Model_face_get(void *model, sint32 id);
 
 extern ST06_KIND **D_8009884C; // the same record layout as D_80098844 (func_80117160)
 
@@ -1739,7 +1739,7 @@ void func_8001B314(void);
 
 void func_8005D7C0(void);
 
-// A smoke puff's sprite packet (func_8002D464; stcom23's STCOM23_PACKET).
+// A smoke puff's sprite packet (Billboard_get; stcom23's STCOM23_PACKET).
 typedef struct
 {
     uint32 tag_0;   // 00
@@ -1754,7 +1754,7 @@ typedef struct
     uint32 uv_24;   // 24
 } ST06_PUFF;
 
-ST06_PUFF *func_8002D464(void); // ROCK_NEO.EXE: a smoke puff packet
+ST06_PUFF *Billboard_get(void); // ROCK_NEO.EXE: a smoke puff packet
 
 // The room-entry request at D_800C3558 (stcom22's STCOM22_ENTRY; only the fields used here).
 typedef struct

@@ -362,7 +362,7 @@ void func_8010A86C(ST19_10C_B *wp)
 
     for (i = 0; i < 6; i++)
     {
-        p          = func_8002D464();
+        p          = Billboard_get();
         p->code_4  = 0x2E80C080;
         p->xy_8    = *(uint32 *)&wp->trail_D4[i].x;
         p->z_10    = *(uint32 *)&wp->trail_D4[i].z;
@@ -393,7 +393,7 @@ void func_8010A924(ST19_10C_C *wp)
         t = wp->count_CC;
         if (D_801180A4[i].start_0 < t && t < D_801180A4[i].start_0 + 0x10)
         {
-            p      = func_8002D464();
+            p      = Billboard_get();
             t      = wp->count_CC - D_801180A4[i].start_0;
             angle  = (D_801180A4[i].angle_4 + t * 24) & 0xFFF;
             height = D_801180A4[i].height_6 - t * (D_801180A4[i].height_6 / 16);
@@ -448,7 +448,7 @@ void func_8010ABC0(ST19_10C_C *wp)
     {
         if (wp->count_CC < D_801180A4[i].start_0 + 0x10)
         {
-            p = func_8002D464();
+            p = Billboard_get();
             if (wp->count_CC < D_801180A4[i].start_0)
             {
                 r      = 0x60;

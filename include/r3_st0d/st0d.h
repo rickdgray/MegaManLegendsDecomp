@@ -829,7 +829,7 @@ void func_80103CB8(STAGE_OBJ *wp, STAGE_FACE *face);
 void func_8010288C(STAGE_OBJ *wp, STAGE_FACE *face);
 void func_801036E0(STAGE_OBJ *wp, STAGE_FACE *face);
 
-sint32 func_80048C60(STCOM_SVECTOR *pos);
-uint32 func_8003AC9C(sint32 idx, uint32 key);
+sint32 Map_cell_get(STCOM_SVECTOR *pos);
+uint32 Stage_idx_model_set(sint32 idx, uint32 key);
 
 #endif

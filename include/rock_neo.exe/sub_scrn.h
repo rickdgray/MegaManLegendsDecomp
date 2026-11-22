@@ -7,6 +7,7 @@
 #include "common.h"
 #include "psyq/libgpu.h"
 #include "psyq/libgte.h"
+#include "player.h"
 
 // Flags of Sub_screen_basic_param_set_sub / Sub_screen_status_param_set_sub, over the digit
 // count in the low byte. Digits are drawn from the units leftwards.
@@ -52,17 +53,21 @@ typedef struct
     uint8 val_7;  // 0x7
 } SUB_STATUS;
 
-// The sub screen's state. Passed in by its callers (func_800600CC, func_80060618); where it lives
-// is not traced yet. Only the fields decompiled code uses are named.
+// The sub screen's state: Sub_screen_work. Only the fields decompiled code uses are named.
 typedef struct
 {
-    uint8 routine_0; // 0x0
+    sint8 routine_0; // 0x0: lb; screen, index of Sub_screen_tbl (Sub_screen_task)
     uint8 routine_1; // 0x1
     uint8 routine_2; // 0x2
     uint8 routine_3; // 0x3
     uint8 unk4[2];
     uint8 mode_6; // 0x6: set to 3 by func_80060248
-    uint8 unk7[0x10 - 0x7];
+    uint8 unk7;
+    // 0x8: Player_work[0].rb_parts_equip_data on entry (func_8005EBE4; Capcom's rb_parts_no_0..2,
+    // compared with it on exit)
+    uint8 rb_parts_no[3];
+    sint8 unkB; // 0xB: Player_work[0].unk170 on entry (func_8005EBE4)
+    uint8 unkC[0x10 - 0xC];
     SUB_STATUS attack;  // 0x10
     SUB_STATUS bullet;  // 0x18: energy
     SUB_STATUS dist;    // 0x20: range
@@ -79,6 +84,20 @@ typedef struct
     sint8 repeat_level; // 0x3: rapid
     uint8 unk4[4];
 } RB_PARTS;
+
+// The sub screen's gauge values of one weapon by level (Capcom's g_tbl[n].attack[...] ...: the
+// gauge length, 0xFF for "infinite"), indexed by Player_work[0].rec[n]'s levels.
+typedef struct
+{
+    uint8 attack[4];  // 0x00
+    uint8 energy[4];  // 0x04
+    uint8 range[4];   // 0x08
+    uint8 rapid[4];   // 0x0C
+    uint8 special[4]; // 0x10
+} SUB_GAUGE_TBL;
+
+// One screen of the sub screen (Sub_screen_tbl), called with the sub screen's state.
+typedef void (*SUB_SCREEN_FUNC)(SUB_SCREEN_WORK *subp);
 
 // The map screen's state (Map_screen_init, Map_screen_task).
 typedef struct
@@ -103,9 +122,24 @@ extern RB_PARTS Rock_buster_parts_tbl[];
 // The cursor's place on the map screen, per stage (vx, vy).
 extern DVECTOR map_cursor_pos[];
 
+extern SUB_SCREEN_WORK Sub_screen_work;  // the sub screen's state
+extern SUB_SCREEN_FUNC Sub_screen_tbl[]; // the sub screen's screens, by routine_0
+// Capcom's g_tbl and w_tbl: the gauge values (40 weapons) and, per Player_work[0].rec index,
+// which g_tbl entry it shows.
+extern SUB_GAUGE_TBL D_8008D7E8[];
+extern uint16 D_8008DB08[];
+
+void Sub_screen_sort_attack(void);
+void Sub_screen_sort_energy(void);
+void Sub_screen_sort_range(void);
+void Sub_screen_sort_rapid(void);
+void Sub_screen_rb_parts_set(void);
+void Sub_screen_gauge_set2(sint32 x0, sint32 y0, sint32 power, sint32 infi);
+void Sub_screen_status_param_set(sint32 d0);
 SPRT *Sub_screen_basic_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);
 SPRT *Sub_screen_status_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);
 void Sub_screen_back_ground_set(void);
+void Sub_screen_sound_reinit(PL_WORK *pp);
 void Map_screen_init(void);
 
 #endif // SUB_SCRN_H

@@ -32,6 +32,10 @@
 #define Scratch_scale_shift                                                                                                                \
     (*(uint8 *)0x1F800074) // 0 normal, 1 = coordinates doubled, fog distances halved (func_800369C0); also a table index (0-2)
 
+// Cleared by func_8002CFA4; also used by code_8001F828's map drawing (purpose not known yet).
+#define D_1F800004 (*(uint16 *)0x1F800004)
+#define D_1F800075 (*(uint8 *)0x1F800075)
+
 #define Scratch_fog_0 (*(uint16 *)0x1F800006)
 #define Scratch_fog_1 (*(uint16 *)0x1F800076)
 #define Scratch_fog_2 (*(uint8 *)0x1F800078) // byte +0x23 of the fog block (func_800371A0)
@@ -59,9 +63,18 @@
 #define Scratch_mtx (*(MATRIX *)0x1F8000C0)
 
 // Scratchpad pose unpacking (func_80033A28): 0x20 packed words at 0x1F800180 become 25 SVECTORs
-// of 12-bit values at 0x1F800120.
+// of 12-bit values at 0x1F800120: joint rotations. The player's skeleton (Pl_joint_mtx_set) takes
+// [0..15] as one pose and [16..24] as a second one for some limbs.
 #define Scratch_pose_packed ((uint32 *)0x1F800180)
 
+#define Scratch_pose ((SVECTOR *)0x1F800120)
+
+// The player's two packed poses (Pl_pose_unpack): 0x12 words unpacked into Scratch_pose[0..15],
+// 0xC words into [16..24].
+#define Scratch_pl_pose_packed  ((uint32 *)0x1F800164)
+#define Scratch_pl_pose_packed2 ((uint32 *)0x1F8001D0)
+
+// The same block as halfwords, as the parked func_80033A28 writes it.
 #define Scratch_pose_vtx ((sint16 *)0x1F800120)
 
 #endif // SCRATCH_H
