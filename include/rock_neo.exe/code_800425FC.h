@@ -4,18 +4,20 @@
 #include "common.h"
 #include "player.h"
 
-typedef void (*PL_FUNC)(PL_WORK *pl);
-
 // 12-byte record indexed by PL_WORK.unk170 or unk171. key_0-key_2 are keyframe numbers, compared
 // with PL_WORK.cmd_100.b.b0 or passed to func_800320B8/func_800321C8 as the keyframe index.
-// Byte 0xB is read by code_8002E7A8 as D_80089A8B.
+// Byte 7 is read by code_8002E7A8 as D_80089A8B.
 typedef struct
 {
-    uint8 key_0;
+    uint8 key_0; // also: func_80040FA8 answers 1 once cmd_100.b.b0 is past it
     uint8 key_1;
     uint8 key_2;
     uint8 flag_3; // nonzero: func_80042770 adds func_80037664's value to key_1
-    uint8 unk4[8];
+    uint8 flag_4; // zero: func_80041044 answers 1 when the record's button is pressed
+    uint8 flag_5; // zero: func_800410D4 answers 1 for the record in use
+    uint8 flag_6; // zero: func_80041158 answers 1 for the record in use
+    uint8 id_7;   // id_2 of the object func_80035724 spawns
+    uint8 unk8[4];
 } PL_ACT_ENT;
 
 extern PL_ACT_ENT D_80089A84[];

@@ -8,6 +8,9 @@
 #include "stage.h"
 #include "code_8002E7A8.h"
 
+void func_80037534(PL_WORK *pl); // resets the 16 TBL_IDX records
+void func_80037594(void);        // refreshes Player_work[0]'s active record's val
+
 // D_80089EAC[n][pl->rec[n].idx[0]].val[0]. Returns sint32: func_80043E78 uses the result without
 // re-extending it.
 sint32 func_800375D4(PL_WORK *pl, sint32 n);

@@ -1358,19 +1358,19 @@ sint32 func_800482A8(W48_89_WORK *wp)
     {
         if (wp->type_3 != 0)
         {
-            if (!(Player_work[0].unk11C & Player_work[0].keys_124[3]))
+            if (!(Player_work[0].pad_now & Player_work[0].keys_124[3]))
             {
                 goto fail;
             }
-            hit = Player_work[0].keys_124[2] & Player_work[0].unk11C;
+            hit = Player_work[0].keys_124[2] & Player_work[0].pad_now;
         }
         else
         {
-            if (!(Player_work[0].unk11C & Player_work[0].keys_124[2]))
+            if (!(Player_work[0].pad_now & Player_work[0].keys_124[2]))
             {
                 goto fail;
             }
-            hit = Player_work[0].keys_124[3] & Player_work[0].unk11C;
+            hit = Player_work[0].keys_124[3] & Player_work[0].pad_now;
         }
         if (hit == 0)
         {

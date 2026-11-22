@@ -15,6 +15,10 @@
 
 #define SOUND_CALL_MAX 24 // entries in the sound call queue (Sound_call_queue)
 
+// Sound ids, Capcom's names (sub_scrn.c's Map_screen_task, disc/tcrf.txt).
+#define SE_DECISION 0x82 // menu: confirm
+#define SE_CANCEL   0x83 // menu: cancel, or refused
+
 // SOUND_CALL.mode: what arg1/arg2 hold (calc_vol, voice_check)
 #define SOUND_MODE_PAN 0 // Sound_call: arg1 = pan (-0x80..0x80), arg2 = attenuation (0..0x80)
 #define SOUND_MODE_POS 1 // Sound_call2: arg1/arg2 = x/z of the source, panned against the player

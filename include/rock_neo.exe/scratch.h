@@ -19,6 +19,9 @@
 // World-to-screen matrix: loaded into the GTE before projecting world positions (func_80035508).
 #define Scratch_view_mtx (*(MATRIX *)0x1F800008)
 
+// Camera position, as func_800384F0 computes it (Swing_Camera2 measures distances from it).
+#define Scratch_cam_pos (*(SVECTOR *)0x1F800028)
+
 // The frame's ordering table: primitives are linked at Scratch_ot[z / 8] (billboard_draw).
 #define Scratch_ot (*(u_long **)0x1F80003C)
 
@@ -59,8 +62,17 @@
 #define Scratch_sxy ((long *)0x1F800100)
 #define Scratch_sz  ((uint16 *)0x1F800300)
 
+// The same bytes at another time: rsin and rcos of the player's facing angle, set by
+// front_box_search for the target search (func_800414F0).
+#define Scratch_pl_sin (*(sint16 *)0x1F800100)
+#define Scratch_pl_cos (*(sint16 *)0x1F800102)
+
 // Scratchpad working matrix (func_80033D80).
 #define Scratch_mtx (*(MATRIX *)0x1F8000C0)
+
+// A second working matrix right after it (func_800384F0 builds the view matrix there), over the
+// same bytes as Scratch_clut_bits and Scratch_rgbc, used at other times.
+#define Scratch_mtx2 (*(MATRIX *)0x1F8000E0)
 
 // Scratchpad pose unpacking (func_80033A28): 0x20 packed words at 0x1F800180 become 25 SVECTORs
 // of 12-bit values at 0x1F800120: joint rotations. The player's skeleton (Pl_joint_mtx_set) takes

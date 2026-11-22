@@ -14,6 +14,14 @@ extern sint8 D_80089F04[0x20];
 // The 2-bit states of each stage's Stage_idx_tbl entries (func_8003B2D4, func_8003B540). Saved to
 // and restored from Cd_ring_buf + 0x480 (func_8003B278).
 extern uint32 D_800BD3B8[IDX_STATE_ROWS][IDX_STATE_WORDS];
+// Shape kinds (the high half of IDX_SHAPE.head) that func_8003BC44 passes to func_8003BD0C and
+// func_8003BDC0: D_80089F7C/F80 for stage 5, D_80089F84 to D_80089F90 for stage 6.
+extern uint32 D_80089F7C;
+extern uint32 D_80089F80;
+extern uint32 D_80089F84;
+extern uint32 D_80089F88;
+extern uint32 D_80089F8C;
+extern uint32 D_80089F90;
 
 uint32 Stage_hed_model_get(uint32 id);
 IDX_SHAPE *Stage_idx_model_set(sint32 idx, uint32 id);

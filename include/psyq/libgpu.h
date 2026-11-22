@@ -87,6 +87,19 @@ typedef struct
     u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
+    u_char r1, g1, b1, pad1; // 0x0c
+    short x1, y1;            // 0x10
+    u_char r2, g2, b2, pad2; // 0x14
+    short x2, y2;            // 0x18
+    u_char r3, g3, b3, pad3; // 0x1c
+    short x3, y3;            // 0x20
+} POLY_G4;                   // 0x24
+
+typedef struct
+{
+    u_long *tag;             // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
     u_char u0, v0;           // 0x0c
     u_short clut;            // 0x0e
     short x1, y1;            // 0x10
@@ -126,10 +139,12 @@ typedef struct
 #define setlen(p, _len)           (((P_TAG *)(p))->len = (u_long)(_len))
 #define setcode(p, _code)         (((P_TAG *)(p))->code = (u_char)(_code))
 #define getcode(p)                (u_char)(((P_TAG *)(p))->code)
+#define getcode(p)                (u_char)(((P_TAG *)(p))->code)
 #define setSprt(p)                (setlen(p, 4), setcode(p, 0x64))
 #define setTile(p)                (setlen(p, 3), setcode(p, 0x60))
 #define setPolyF4(p)              (setlen(p, 5), setcode(p, 0x28))
 #define setPolyFT4(p)             (setlen(p, 9), setcode(p, 0x2C))
+#define setPolyG4(p)              (setlen(p, 8), setcode(p, 0x38))
 #define setSemiTrans(p, abe)      ((abe) ? setcode(p, getcode(p) | 0x02) : setcode(p, getcode(p) & ~0x02))
 #define setXY0(p, _x0, _y0)       ((p)->x0 = (_x0), (p)->y0 = (_y0))
 #define setWH(p, _w, _h)          ((p)->w = (_w), (p)->h = (_h))

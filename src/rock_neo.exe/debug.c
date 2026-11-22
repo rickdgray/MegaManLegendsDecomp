@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "display.h"
 #include "game.h"
+#include "moji.h"
 #include "pad.h"
 #include "player.h"
 #include "scratch.h"
@@ -25,7 +26,27 @@ void func_800629F0(void)
     D_8008DBD4[Debug_work.mode_8](wp);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/debug", func_80062A50);
+sint32 func_80062A50(DEBUG_WORK *wp)
+{
+    sint32 i;
+
+    *(uint32 *)&wp->routine_0        = 0;
+    *(uint32 *)&wp->mode_8           = 0;
+    *(uint32 *)&wp->sel_c            = 0;
+    *(uint32 *)&wp->entry[0].state_0 = 0;
+    *(uint32 *)&wp->entry[1].state_0 = 0;
+    *(uint32 *)&wp->entry[2].state_0 = 0;
+    *(uint32 *)&wp->entry[3].state_0 = 0;
+    *(uint32 *)&wp->entry[4].state_0 = 0;
+    for (i = 0; i < 5; i++)
+    {
+        D_8008DBE0[i](wp);
+    }
+    wp->mode_8 = 1;
+    MojiTaskExec(0, D_8008CACC[0], -1);
+    MojiTaskExec(1, D_8008CACC[1], -1);
+    return 0;
+}
 
 sint32 func_80062B04(DEBUG_WORK *wp)
 {
@@ -112,7 +133,7 @@ void func_80063BA8(void)
 {
     D_800987B0.word = 0;
     D_800987B4      = 0;
-    D_800987B8      = 0;
+    D_800987B8      = NULL;
 }
 
 void func_80063BC8(void *pos, sint32 mode, sint32 value_4, sint32 value_5)
@@ -132,14 +153,96 @@ void func_80063BC8(void *pos, sint32 mode, sint32 value_4, sint32 value_5)
         {
             D_800987B2 = 0;
         }
-        fp->value_4 = value_4;
-        fp->value_5 = value_5;
-        fp->value_6 = 0;
-        fp->pos_8   = pos;
+        fp->task_no_4 = value_4;
+        fp->mess_no_5 = value_5;
+        fp->value_6   = 0;
+        fp->pos_8     = pos;
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/debug", func_80063C30);
+void func_80063C30(void)
+{
+    PL_WORK *pl;
+    DEBUG_FADE *fp;
+
+    pl = &Player_work[0];
+    fp = (DEBUG_FADE *)&D_800987B0;
+    if (D_800987B0.flag == 0)
+    {
+        return;
+    }
+    // D_800987B2 is a halfword to func_80063BC8, a byte step here.
+    switch (*(sint8 *)&D_800987B2)
+    {
+        case 0:
+            Player_work[0].routine_9 = 0x10;
+            Player_work[0].field_A   = 0;
+            Player_work[0].obj_184   = NULL;
+            Player_work[0].unk44D    = 0;
+            (*(sint8 *)&D_800987B2)++;
+            MojiTaskExec2(*(uint8 *)&D_800987B4, D_800987B5);
+            if (D_800987B1 & 0x10)
+            {
+                Player_work[0].unk449 = 1;
+            }
+            break;
+        case 1:
+            if (D_800987B1 & 1)
+            {
+                pl->unk00 &= ~2;
+            }
+            else
+            {
+                pl->unk00 |= 2;
+            }
+            if (pl->routine_9 == 0xB || pl->routine_9 == 0xC)
+            {
+                MojiTaskKill();
+            }
+            if (!(Moji_flag & D_8008DD54[fp->task_no_4]))
+            {
+                if (!(fp->mode_1 & 4))
+                {
+                    pl->unk00 |= 2;
+                }
+                if (!(fp->mode_1 & 8) && pl->routine_9 == 0x10)
+                {
+                    pl->field_A++;
+                }
+                if (fp->mode_1 & 0x10)
+                {
+                    pl->unk449 = 0;
+                }
+                fp->flag_0 = 0;
+            }
+            break;
+        case 2:
+            Player_work[0].obj_184 = NULL;
+            Player_work[0].unk44D  = 0;
+            (*(sint8 *)&D_800987B2)++;
+            MojiTaskExec2(*(uint8 *)&D_800987B4, D_800987B5);
+            break;
+        case 3:
+            if (D_800987B1 & 1)
+            {
+                pl->unk00 &= ~2;
+            }
+            else
+            {
+                pl->unk00 |= 2;
+            }
+            if (pl->routine_9 == 0xB || pl->routine_9 == 0xC)
+            {
+                MojiTaskKill();
+            }
+            if (!(Moji_flag & D_8008DD54[fp->task_no_4]))
+            {
+                fp->flag_0 = 0;
+                pl->unk00 |= 2;
+            }
+            break;
+    }
+}
 
 void func_80063EF0(void)
 {
@@ -216,7 +319,7 @@ void func_800640F0(LOGO_WORK *wp)
                 }
                 break;
             case 3:
-                d = Player_work[0].unkB0;
+                d = Player_work[0].life_max;
                 if (d > 0x50)
                 {
                     d = ((d - 0x41) >> 4) * 5;

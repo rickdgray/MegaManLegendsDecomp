@@ -172,11 +172,11 @@ typedef struct
     uint8 field_9;   // set (with field_A cleared) by the event steps of code_800680BC
     uint8 field_A;
     uint8 timer_B;
-    sint8 field_C; // field_C to timer_F are cleared by one word store (on open)
-    sint8 slot_D;  // nonzero: play the sound of field_E (func_800150E0)
-    sint8 field_E; // sound: 0-2 repeat every timer_F frames, 3-4 play once
-    sint8 timer_F; // frames to the next repeat of the sound
-    uint32 field_10;
+    sint8 field_C;   // field_C to timer_F are cleared by one word store (on open)
+    sint8 slot_D;    // nonzero: play the sound of field_E (func_800150E0)
+    sint8 field_E;   // sound: 0-2 repeat every timer_F frames, 3-4 play once
+    sint8 timer_F;   // frames to the next repeat of the sound
+    HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search), or 0
     // 0x14-0x5C: the MODEL_WORK layout (a model kind).
     SVECTOR pos;     // 0x14: position (x, height, z)
     VECTOR pos_l;    // 0x1C: 16.16 fixed-point position
@@ -294,7 +294,8 @@ typedef struct
                    // word store on open; a byte, since a uint32 there changes how that store is
                    // scheduled (Open_SHL_WORK)
     uint8 pad_D[3];
-    uint32 field_10; // cleared on open
+    HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search, ids below
+                     // 0x80), or 0; cleared on open
     // 0x14-0x5C: the MODEL_WORK layout (a model kind: Model_work_init binds kinds 0x10 and 0x60).
     SVECTOR pos;  // 0x14: position (x, height, z)
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position
@@ -316,7 +317,7 @@ typedef struct
 } SHL_WORK;            // 0x10C bytes
 
 // A player's shot: a slot of the pool D_800BFB20[16], kind 0x10 (func_80031598 / func_80031930),
-// spawned by func_80035724. Its id_2 is byte 0xB of the player's action record (D_80089A8B), and
+// spawned by func_80035724. Its id_2 is byte 7 of the player's action record (D_80089A8B), and
 // handler[id_2] is func_800433C0 or func_800437A8 (code_8004324C). Same layout as SHL_WORK, with
 // its sprite EFC and free block written out: the flight direction sits in the EFC's kind bytes,
 // the target and slot owner in the free block.
@@ -393,8 +394,8 @@ typedef struct
     sint8 slot_D;
     sint8 field_E; // set to -0x80 by the event step func_80068728
     uint8 pad_F;
-    uint32 field_10;
-    EFC efc; // 0x14: drawn by work_50_draw, like WORK_48's
+    HIT_ENT *box_10; // 0x10: box the player's search in front tests at efc's pos (front_box_search), or 0
+    EFC efc;         // 0x14: drawn by work_50_draw, like WORK_48's
     uint8 pad_44[0xC];
 } WORK_50; // 0x50 bytes
 
@@ -419,7 +420,7 @@ typedef struct
     sint8 slot_D;  // set and cleared by the event steps (func_800687D8, func_8006854C)
     sint8 field_E;
     uint8 pad_F;
-    uint32 field_10;
+    HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search), or 0
     // 0x14-0x5C: the MODEL_WORK layout (a model kind).
     SVECTOR pos;  // 0x14: position (x, height, z)
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position
@@ -472,7 +473,7 @@ typedef union
     {
         uint8 b0;
         sint8 time;
-        uint8 b2;
+        sint8 b2; // lb: the player's states test it for 1 and for bit 7 (func_8003E6B0)
         sint8 ctl;
     } b;
 } KEY_CMD;
@@ -684,7 +685,7 @@ extern FOG_BLOCK D_800C0DC0;
 extern uint8 D_800BADB0[0x20];
 extern uint32 D_800988E0;
 extern SLOT_REQ D_800A2F48[];
-extern uint8 D_80089A8B[]; // byte +0xB of 12-byte records
+extern uint8 D_80089A8B[]; // byte 7 of the 12-byte records of D_80089A84 (PL_ACT_ENT.id_7)
 extern uint32 D_800A32E0[];
 extern uint32 D_80098798;
 extern uint32 D_800BE478[];
@@ -696,28 +697,37 @@ extern uint16 D_8009A374;
 extern MATRIX D_800BC728[]; // matrix stack; D_80098A80 starts at its end (func_800333A0)
 extern uint32 D_8009888C;   // bit 0x80000000 >> n set when player n is spawned (Obj_spawn_tbl_set)
 extern LOCK_BOX D_8008994C[];
+// The object the player is locked on to, or 0: func_800358F0's answer each frame (func_8003450C);
+// func_8003EEC0 turns the player toward its pos.
+extern MODEL_WORK *D_80097D08;
 
 SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint32 limit);
 void Model_work_init(MODEL_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
+void func_800301A8(MATRIX *m, VECTOR *pos, VECTOR *origin); // rotates pos by m around origin
+long Distance_xz(SVECTOR *a, SVECTOR *b);
+sint32 Angle_xz_svector(SVECTOR *from, SVECTOR *to);
+sint32 func_80031268(SVECTOR *from, SVECTOR *to); // XZ angle from from to to
+sint32 func_8003129C(SVECTOR *a, SVECTOR *b);     // pitch angle from a to b
 void func_80031988(WORK_48 *wp);
 void func_800320B8(struct PL_WORK *wp, uint32 set, sint32 idx);
 void func_800321C8(struct PL_WORK *wp, sint32 unused, uint32 set, sint32 idx);
-WORK_48 *func_80031618(void);                   // claims a free slot of D_800A3B40, or 0
-void func_80031930(PL_SHL_WORK *wp);            // frees a slot of D_800BFB20
-void func_80031824(WORK_3C0 *wp);               // frees a slot of D_8009F108
-WORK_3C0 *func_80031418(void);                  // claims a free slot of D_8009F108, or 0
-WORK_5A4 *func_80031498(void);                  // claims a free slot of D_800C3580, or 0
-SHL_WORK *Open_SHL_WORK(void);                  // claims a free slot of D_8009CF88, or 0
-EVE_WORK *Open_EVE_WORK(void);                  // claims a free slot of D_800A2D08, or 0
-WORK_50 *func_80031734(void);                   // claims a free slot of D_800BF118, or 0
-void func_8003187C(WORK_5A4 *wp);               // frees a slot of D_800C3580
-void Close_SHL_WORK(SHL_WORK *wp);              // frees a slot of D_8009CF88
-void Close_EVE_WORK(EVE_WORK *wp);              // frees a slot of D_800A2D08
-void func_80031A4C(WORK_50 *wp);                // frees a slot of D_800BF118
-void func_8002F884(MODEL_WORK *wp, SVECTOR *d); // moves pos, pos_l, old, old_l by d (x, z)
-void func_8002F928(WORK_48 *wp, SVECTOR *d);    // moves the EFC position by d (x, z)
-void func_8002F998(EVE_WORK *wp, SVECTOR *d);   // moves pos by d (x, z)
+void func_800323FC(struct PL_WORK *wp, sint32 a); // steps the keyframe table; a: pose_mix
+WORK_48 *func_80031618(void);                     // claims a free slot of D_800A3B40, or 0
+void func_80031930(PL_SHL_WORK *wp);              // frees a slot of D_800BFB20
+void func_80031824(WORK_3C0 *wp);                 // frees a slot of D_8009F108
+WORK_3C0 *func_80031418(void);                    // claims a free slot of D_8009F108, or 0
+WORK_5A4 *func_80031498(void);                    // claims a free slot of D_800C3580, or 0
+SHL_WORK *Open_SHL_WORK(void);                    // claims a free slot of D_8009CF88, or 0
+EVE_WORK *Open_EVE_WORK(void);                    // claims a free slot of D_800A2D08, or 0
+WORK_50 *func_80031734(void);                     // claims a free slot of D_800BF118, or 0
+void func_8003187C(WORK_5A4 *wp);                 // frees a slot of D_800C3580
+void Close_SHL_WORK(SHL_WORK *wp);                // frees a slot of D_8009CF88
+void Close_EVE_WORK(EVE_WORK *wp);                // frees a slot of D_800A2D08
+void func_80031A4C(WORK_50 *wp);                  // frees a slot of D_800BF118
+void func_8002F884(MODEL_WORK *wp, SVECTOR *d);   // moves pos, pos_l, old, old_l by d (x, z)
+void func_8002F928(WORK_48 *wp, SVECTOR *d);      // moves the EFC position by d (x, z)
+void func_8002F998(EVE_WORK *wp, SVECTOR *d);     // moves pos by d (x, z)
 void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z);
 void func_800322A8(MODEL_WORK *wp, sint32 seq, sint32 step); // starts keyframe sequence seq
 void func_80032488(MODEL_WORK *wp);                          // steps the keyframe sequence

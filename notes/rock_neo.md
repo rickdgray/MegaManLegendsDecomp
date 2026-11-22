@@ -374,6 +374,24 @@ is 0), `B4BC` raises it by one up to 3, `B540` sets it; `func_8003B278(0)` sets 
 `func_8003B278(1)` restores the rows from `Cd_ring_buf + 0x480` (shared memory, see "To do").
 What the states mean is open. `func_8003BDC0` counts entries 1.. whose shape's `head & 0xFFFF0000`
 is one of two kinds and whose `val` is 0, read signed (`lh`: a `(sint16)` cast in the C).
+`func_8003BC44` (banked) runs these for stages 5 and 6 only: `func_8003BD0C` on `Game_work.unk028[3]`
+(stage 5) or `[0]`-`[2]` (stage 6) with kinds `D_80089F7C`/`F84`/`F88`/`F8C`, and `func_8003BDC0` into
+`Game_work.unk062[4]`/`[5]` with `D_80089F80`/`F90` and `0x8FFF0000`.
+
+`sub_scrn`: banked the item menu's handlers `func_8005F608`, `func_8005F9E8` (unused copy of its
+item 2), `func_8005FAE4`, `func_8005FFBC`, `func_8005FDE4` (records the stage and area in
+`Game_work.unk078`), and Capcom's `Sub_screen_gauge_set`, `Sub_screen_basic_param_set`,
+`sub_screen_rb_parts_calc`, `Map_screen_task` (the last verbatim from `disc/tcrf.txt`; the
+others differ from the Japanese source only in statement order: `Map_prim_ptr` is stored before
+`addPrims`, and the first primitive is built before `ft4_buff_ptr1`/`sprt_buff_ptr1` is set).
+`SUB_SCREEN_WORK.item_4` is the item menu's choice (index of `D_8008DAF4`, key item numbers),
+`mes_no_5` the message `func_8005FAE4` shows. Parked: `func_8005F3D0` (life refill, key item 4):
+only its case 1 differs, GCC keeping `&Game_work.unk07C` and `&Player_work[0].life_max` in saved
+registers across `MojiTaskExec` where the target rebuilds them with `lui`. The fork's draft
+matches with literal addresses (`((GAME_WORK *)0x800C1B10)->unk07C`; `Player_work` can stay a
+symbol), which the rules don't allow for in-image symbols. Tried: `x = x - d` for the `-=`, a
+local for `unk07C` in the then-branch. The read-then-store of `unk07C` after the call in the
+then-branch is what makes GCC cache the address.
 
 ## WORK_48 kinds
 
@@ -424,7 +442,7 @@ match and from `EFC_MODEL`'s size (0x30); Capcom's offsets for `SHL_WORK` aren't
 The player's shots, pool `D_800BFB20[16]` (kind 0x10, `func_80031598` / `func_80031930`, spawned by `func_80035724`),
 have their own struct, `PL_SHL_WORK`: same layout, with the sprite `EFC` and the free block written out, because a
 player's shot keeps its own bytes in both (the flight direction `dir_A4` in the EFC's kind bytes, `tgt_BC` and
-`owner_C4` in the free block). Its `id_2` is byte 0xB of the player's action record (`D_80089A8B`); the handlers are
+`owner_C4` in the free block). Its `id_2` is byte 7 of the player's action record (`D_80089A8B`); the handlers are
 `func_800433C0` and `func_800437A8` (`code_8004324C`, tables `D_8008A0CC`/`D_8008A0D8`, `PL_SHL_FUNC`).
 
 `SHL_WORK.field_C` stays a byte: `Open_SHL_WORK` clears 0x0C-0x0F with `*(uint32 *)&wp->field_C = 0`, and with a
@@ -489,6 +507,15 @@ that take the record owner are passed `&Player_work`, so their parameter is `PL_
 `3988..` / `3994..`): five slots of a table. `func_8003A218` (parked, `NON_MATCHING`): shortest
 distance mod 0x1000 from arg0 to `D_800A3968`; GCC inverts the `a < b` test and swaps the two
 branch bodies, `>=`, swapped names and `-=` forms were also tried.
+
+Camera block `0x800A3958` (0xE4 bytes, `CAMERA_WORK` in `code_80037FB4.h`): `func_80039A60` saves and restores it
+whole as `D_8009A478`, and `D_800A395F` is Capcom's `Camera_work.routine_3` (check_swing_camera). The five
+`D_800A3964..`/`D_800A39A0..` slots are its `param[5]` and `pos[5]`. Two access forms give different code:
+reached through the cast `Camera_work` (`*(CAMERA_WORK *)&D_800A3958`, the block declared as a union) every
+field gets its own `lui`; reached directly (`D_800A3958.work.x`) GCC keeps the first field's address in a
+register (`func_80039D38`, `func_800384F0`). Plain scalar externs don't work for `func_800394AC`: GCC 2.7 lets a
+fixed-address scalar store move past a struct block copy, but not a struct member's. The older banked
+functions here, `scene.c` and the overlays still use the separate `D_800A39xx` externs.
 
 `code_80043F34` (batch 20261117 #4, recovered from its session log after the timeout revert): banked
 `func_80044D5C`, `func_80044E50`, `func_80044F44` (near-twin per-frame steps of the sprite kinds:
@@ -673,6 +700,14 @@ words `D_800BBE2C`..`E48`), `func_8005DA1C`, `func_8005DA78` (steps `Player_work
 then keeps `&D_800BBD84[3]` in a register (`lui`+`addiu`), while a scalar or a sized array
 (`[4]`) folds to `lui`+`%lo` each time. An extern struct field behaves like the unknown-size array.
 This is likely what parked `func_8005D4F8` needs too (its text now uses `D_800BBD84[1]`; not retried).
+Third batch (CoastRedWood's drafts): `D_800BBD78` is now `SLOT_WORK[6]` (0x24-byte slots; the
+handler tables take a `SLOT_WORK *`). Banked `func_8005D574`/`func_8005D620` (open a free slot of
+2-4 for an owner object, counted in `D_80098AF0`), `func_8005D6E8` (close the owner's slot),
+`func_8005D7C0` (close all three), `func_8005D298`/`func_8005D39C` (a `SLOT_SPRITE` as a `POLY_FT4`
+into OT 2), `func_8005C8A4`, `func_8005D8C4`, `Player_weapon_bullet_fill` (`func_8005DAEC`),
+`func_8005DC10` (finds Game_work's stage/area in `D_8008D19C`, `AREA_ENT[0x40]`).
+`func_8005D620` matches only with the colour word written as `(&D_800BBD78[2])[i].color_10`: the
+target recomputes `i * 0x24` for that store; `D_800BBD78[i + 2]` reuses the offset and is 0x10 short.
 
 `code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.timer_B` countdown, then `routine_8`
 += 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->pos_38)` then `func_80031988`), `func_80047318`

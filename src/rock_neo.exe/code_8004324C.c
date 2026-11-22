@@ -69,10 +69,10 @@ void func_80043340(sint32 amount, sint32 n)
     PL_WORK *pl;
 
     pl = &Player_work[n];
-    pl->unk6E += amount;
-    if (pl->unk6E > pl->unkB0)
+    pl->life += amount;
+    if (pl->life > pl->life_max)
     {
-        pl->unk6E = pl->unkB0;
+        pl->life = pl->life_max;
     }
     if (amount < 0 && n == 0)
     {

@@ -57,17 +57,19 @@ typedef struct
     uint32 unk020;   // 0x20: Money_add adds the amount of a payment here (c == 0) ...
     uint32 unk024;   // 0x24: ... or here (c != 0)
     // 0x28: words that func_80059D20 subtracts from D_8008AF00's entries ([n] for n < 4, else
-    // [9 - n], read as (&unk028[9])[-n]); cleared by func_800664BC
+    // [9 - n], read as (&unk028[9])[-n]); cleared by func_800664BC. func_8003BC44 clears [3] (stage 5)
+    // and [0]-[2] (stage 6) through func_8003BD0C when an entry of a given shape kind has a state.
     uint32 unk028[6];
     uint16 unk040[6]; // 0x40: cleared by func_800664BC
-    uint32 unk04C;    // 0x4C: func_80043340 adds the amount when player 0's unk6E is lowered
+    uint32 unk04C;    // 0x4C: func_80043340 adds the amount when player 0's life is lowered
     // 0x50-0x52: Capcom's names (sub_scrn.c's Map_screen_init and map_cursor_set)
     sint8 stage_no; // 0x50: lb; indexes Sound_stage_func_tbl in func_80019FB4
     sint8 area_no;  // 0x51: lb; indexes the list at Sound_stage_id_tbl[stage_no] in Sound_stage_play
     sint8 sce_no;   // 0x52: lb; scenario; picks the ids func_8001FB24, func_8001FB54, func_8001FB8C, func_8001FCA4 set
     sint8 unk053;   // 0x53: lb; 1 selects a different value in func_8001997C
     uint8 unk054;   // 0x54: cleared by func_8001326C
-    uint8 unk055;   // 0x55: cleared by func_8001326C
+    sint8 unk055;   // 0x55: lb; cleared by func_8001326C; nonzero makes func_80041EF4 pass
+                    // keys_124[1] instead of [0]
     sint8 unk056;   // 0x56: lb; nonzero makes func_8003F224 answer 1
     uint8 unk057;
     sint8 mono; // 0x58: mono sound output (volume_update: SsSetMono, CD mixed to both sides; calc_vol)
@@ -76,10 +78,12 @@ typedef struct
     sint8 unk05B; // 0x5B: lb; row of D_8008A678/D_8008A680 (func_80046A0C); 0-2 picks the
                   // fourth menu entry's image in func_8001456C
     uint8 unk05C[0x60 - 0x5C];
-    sint16 unk060;             // 0x60: lh; func_8005A598 picks a message by whether it lies in a byte range
-    uint8 unk062[0x68 - 0x62]; // 0x62: func_80059D20 multiplies [9 - n] (n = 4, 5) by D_8008AF00[n]
-    sint16 unk068;             // 0x68: lh; compared with entry 0 of the stage's D_800893BC list (func_8001F6C4)
-    sint16 unk06A;             // 0x6A: lh; compared with the list's entry D_800C356F + 1 (func_8001F6C4)
+    sint16 unk060; // 0x60: lh; func_8005A598 picks a message by whether it lies in a byte range
+    // 0x62: func_80059D20 multiplies [9 - n] (n = 4, 5) by D_8008AF00[n]; func_8003BC44 sets [4]
+    // (stage 5) and [5] (stage 6) to entry counts (func_8003BDC0)
+    uint8 unk062[0x68 - 0x62];
+    sint16 unk068; // 0x68: lh; compared with entry 0 of the stage's D_800893BC list (func_8001F6C4)
+    sint16 unk06A; // 0x6A: lh; compared with the list's entry D_800C356F + 1 (func_8001F6C4)
     uint8 unk06C[0x70 - 0x6C];
     // 0x70-0x74: files last loaded by func_8001F5E4 (Cd_read_comb), one per player setting:
     // D_80089200[Player_work[0].unk16A], D_80089204[unk16B >> 1], D_80089208[tbl_sel]

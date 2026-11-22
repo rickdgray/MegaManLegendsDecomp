@@ -207,7 +207,24 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003B8B0);
 
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003BA58);
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003AC24", func_8003BC44);
+void func_8003BC44(void)
+{
+    if (Game_work.stage_no == 5 || Game_work.stage_no == 6)
+    {
+        if (Game_work.stage_no == 5)
+        {
+            func_8003BD0C(&Game_work.unk028[3], D_80089F7C);
+            func_8003BDC0(&Game_work.unk062[4], D_80089F80, 0x8FFF0000);
+        }
+        if (Game_work.stage_no == 6)
+        {
+            func_8003BD0C(&Game_work.unk028[0], D_80089F84);
+            func_8003BD0C(&Game_work.unk028[1], D_80089F88);
+            func_8003BD0C(&Game_work.unk028[2], D_80089F8C);
+            func_8003BDC0(&Game_work.unk062[5], D_80089F90, 0x8FFF0000);
+        }
+    }
+}
 
 // Clears *flag if a Stage_idx_tbl entry after the first, whose shape's kind (high half of head)
 // is `kind` and whose val is 0, has a state above 0 (func_8003B420).

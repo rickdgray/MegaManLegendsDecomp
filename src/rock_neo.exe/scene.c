@@ -131,7 +131,7 @@ void func_8001DDE4(uint8 arg)
     SCENE_WORK *sw;
     sint32 i;
 
-    if (Player_work[0].unk6E < 0)
+    if (Player_work[0].life < 0)
     {
         return;
     }

@@ -29,13 +29,13 @@ void func_80035508(void);
 void func_80035724(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 flag);
 
 // Small data (.sdata 0x80097CFC-0x80097D0C): reached through $gp in this file.
-sint32 D_80097CFC = 0x200;
-uint8 D_80097D00  = 0x5f;
-uint8 D_80097D01  = 0xaf;
-uint8 D_80097D02  = 0x49;
-uint8 D_80097D03  = 0x89;
-sint32 D_80097D04 = -0x363e05;
-sint32 D_80097D08 = 0;
+sint32 D_80097CFC      = 0x200;
+uint8 D_80097D00       = 0x5f;
+uint8 D_80097D01       = 0xaf;
+uint8 D_80097D02       = 0x49;
+uint8 D_80097D03       = 0x89;
+sint32 D_80097D04      = -0x363e05;
+MODEL_WORK *D_80097D08 = NULL;
 
 // Small uninitialized statics (.sbss 0x80098560-0x8009865C).
 static uint32 D_80098560;
@@ -1172,9 +1172,9 @@ WORK_3C0 *func_80031418(void)
     {
         if ((sint32)(used << i) >= 0)
         {
-            wp           = &D_8009F108[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            wp         = &D_8009F108[i];
+            wp->box_10 = 0;
+            wp->hit_78 = 0;
             D_800987E8 |= 0x80000000 >> i;
             *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
@@ -1202,9 +1202,9 @@ WORK_5A4 *func_80031498(void)
     {
         if ((sint32)(used << i) >= 0)
         {
-            wp           = &D_800C3580[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            wp         = &D_800C3580[i];
+            wp->box_10 = 0;
+            wp->hit_78 = 0;
             D_80098B20 |= 0x80000000 >> i;
             *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
@@ -1232,9 +1232,9 @@ SHL_WORK *Open_SHL_WORK(void)
     {
         if ((sint32)(used << i) >= 0)
         {
-            wp           = &D_8009CF88[i];
-            wp->field_10 = 0;
-            wp->hit_78   = 0;
+            wp         = &D_8009CF88[i];
+            wp->box_10 = 0;
+            wp->hit_78 = 0;
             D_800987CC |= 0x80000000 >> i;
             *(uint16 *)&wp->id_2      = 0;
             *(uint32 *)&wp->flag_4    = 0;
@@ -1351,8 +1351,8 @@ WORK_50 *func_80031734(void)
     {
         if ((sint32)(used << i) >= 0)
         {
-            wp           = &D_800BF118[i];
-            wp->field_10 = 0;
+            wp         = &D_800BF118[i];
+            wp->box_10 = 0;
             D_800989CC |= 0x80000000 >> i;
             *(uint16 *)&wp->id_2    = 0;
             *(uint32 *)&wp->flag_4  = 0;
@@ -1383,7 +1383,7 @@ WORK_50 *func_800317AC(sint32 i)
             *(uint32 *)&wp->field_C = 0;
             wp->field_8             = 0;
             wp->flags               = 3;
-            wp->field_10            = 0;
+            wp->box_10              = 0;
             return wp;
         }
         return 0;

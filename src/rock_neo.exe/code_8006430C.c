@@ -37,6 +37,11 @@ SPEC_ENT **D_80098928;
 SPEC_ENT **D_8009892C;
 uint8 D_80098A04;
 
+// Called only from this file
+sint32 func_800666D8(CODE_8006430C_WORK *wp);
+sint32 func_80066714(CODE_8006430C_WORK *wp);
+void func_80067884(void);
+
 // LOGO_FUNC 1 (D_8008DD64): draws a logo's sprites in a grid (6 columns, 44 x 40 pixels), each
 // shown according to its three scene flags (flag_2) and its type (the head's high byte).
 #ifdef NON_MATCHING
@@ -849,7 +854,30 @@ sint32 func_800665FC(sint16 mode)
     return D_8008FD10[D_80098910.routine_0](&D_80098910);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066664);
+// Routine 0: sets active_0, resets the save slots and starts routine 2 (mode_2 0) or routine 1.
+sint32 func_80066664(CODE_8006430C_WORK *wp)
+{
+    sint32 r;
+
+    wp->active_0 = 1;
+    if (wp->mode_2 == 0)
+    {
+        wp->routine_0 = 2;
+        wp->routine_1 = 0;
+        wp->unk_6     = 0;
+        func_80067884();
+        r = func_80066714(wp);
+    }
+    else
+    {
+        wp->routine_0 = 1;
+        wp->routine_1 = 0;
+        wp->unk_6     = 0;
+        func_80067884();
+        r = func_800666D8(wp);
+    }
+    return r;
+}
 
 sint32 func_800666D8(CODE_8006430C_WORK *wp)
 {

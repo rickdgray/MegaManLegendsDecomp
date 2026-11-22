@@ -585,8 +585,8 @@ sint32 func_80051970(PL_WORK *pl)
     if (pl != NULL)
     {
         state = pl->routine_9;
-        keys  = pl->unk11E;
-        if (pl->unk184 == 0)
+        keys  = pl->pad_on;
+        if (pl->obj_184 == NULL)
         {
             if (state >= 2 && state != 4)
             {

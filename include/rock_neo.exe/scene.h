@@ -6,6 +6,8 @@
 #include "code_8002E7A8.h"
 
 // Scene flags (Sce_flag_test), Capcom's names (disc/tcrf.txt).
+#define PL_KEY_ITEM_00 0x520 // PL_KEY_ITEM_00 + n: key item n's flag (the sub screen's item menu tests it)
+#define PL_KEY_ITEM_04 0x524 // set: the sub screen's item menu can refill life (func_8005F3D0)
 #define PL_KEY_ITEM_06 0x526 // set: three buster parts slots instead of two (sub_scrn.c)
 
 typedef struct SCENE_WORK SCENE_WORK;

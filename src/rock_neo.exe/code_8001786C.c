@@ -13,6 +13,7 @@ void func_800196A0(void);
 
 // Copies the Clut_buf rows whose Clut_buf_dirty bit is set to the second copy, clearing the
 // mask as it goes.
+// TODO: don't think it has callers; might be dead code
 void clut_buf_dirty_copy(void)
 {
     sint32 i;

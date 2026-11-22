@@ -12,22 +12,22 @@ void func_800425FC(PL_WORK *pl, sint32 row)
     {
         pl->keys_124[i] = D_8008A04C[row][i];
     }
-    pl->key_pair[0][0] = pl->keys_124[0] | pl->keys_124[1];
-    pl->key_pair[0][1] = pl->keys_124[0];
-    pl->key_pair[1][0] = pl->keys_124[4] | pl->keys_124[5];
-    pl->key_pair[1][1] = pl->keys_124[5];
-    pl->key_pair[2][0] = pl->keys_124[4] | pl->keys_124[5];
-    pl->key_pair[2][1] = pl->keys_124[4];
-    pl->key_pair[3][0] = pl->keys_124[0] | pl->keys_124[1];
-    pl->key_pair[3][1] = pl->keys_124[0];
-    pl->key_pair[4][0] = pl->keys_124[0] | pl->keys_124[1];
-    pl->key_pair[4][1] = pl->keys_124[1];
-    pl->key_pair[5][0] = pl->keys_124[4] | pl->keys_124[5];
-    pl->key_pair[5][1] = pl->keys_124[4];
-    pl->key_pair[6][0] = pl->keys_124[4] | pl->keys_124[5];
-    pl->key_pair[6][1] = pl->keys_124[5];
-    pl->key_pair[7][0] = pl->keys_124[0] | pl->keys_124[1];
-    pl->key_pair[7][1] = pl->keys_124[1];
+    pl->key_pair[0][0].mask = pl->keys_124[0] | pl->keys_124[1];
+    pl->key_pair[0][0].key  = pl->keys_124[0];
+    pl->key_pair[0][1].mask = pl->keys_124[4] | pl->keys_124[5];
+    pl->key_pair[0][1].key  = pl->keys_124[5];
+    pl->key_pair[1][0].mask = pl->keys_124[4] | pl->keys_124[5];
+    pl->key_pair[1][0].key  = pl->keys_124[4];
+    pl->key_pair[1][1].mask = pl->keys_124[0] | pl->keys_124[1];
+    pl->key_pair[1][1].key  = pl->keys_124[0];
+    pl->key_pair[2][0].mask = pl->keys_124[0] | pl->keys_124[1];
+    pl->key_pair[2][0].key  = pl->keys_124[1];
+    pl->key_pair[2][1].mask = pl->keys_124[4] | pl->keys_124[5];
+    pl->key_pair[2][1].key  = pl->keys_124[4];
+    pl->key_pair[3][0].mask = pl->keys_124[4] | pl->keys_124[5];
+    pl->key_pair[3][0].key  = pl->keys_124[5];
+    pl->key_pair[3][1].mask = pl->keys_124[0] | pl->keys_124[1];
+    pl->key_pair[3][1].key  = pl->keys_124[1];
 }
 
 void func_800426F8(PL_WORK *pl)
@@ -46,7 +46,7 @@ void func_80042770(PL_WORK *pl)
     uint16 mask;
 
     n    = pl->unk170;
-    mask = pl->unk11C;
+    mask = pl->pad_now;
     switch (pl->unk178)
     {
         case 0:
@@ -187,7 +187,7 @@ void func_80042B58(PL_WORK *pl)
     uint16 mask;
 
     n    = pl->unk170;
-    mask = pl->unk11C;
+    mask = pl->pad_now;
     switch (pl->unk178)
     {
         case 0:
@@ -329,7 +329,7 @@ void func_80042F78(PL_WORK *pl)
     uint16 mask;
 
     n    = pl->unk171;
-    mask = pl->unk11C;
+    mask = pl->pad_now;
     switch (pl->unk178)
     {
         case 0:

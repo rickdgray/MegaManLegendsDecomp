@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #include "common.h"
+#include "psyq/libgte.h"
 
 // One row of the debug menu (five of them in DEBUG_WORK).
 typedef struct
@@ -48,7 +49,7 @@ typedef union
 typedef struct
 {
     // High byte = type: for func_800640F0, 1 blinks with System_timer, 2 blinks with
-    // Game_work.timer_0c, 3 grows with Player_work's unkB0; for func_8006430C, 0-13 picks how the
+    // Game_work.timer_0c, 3 grows with Player_work's life_max; for func_8006430C, 0-13 picks how the
     // scene flags at flag_2 choose the image (low byte = the slot in a grid of 6 columns).
     uint16 head_0;
     sint16 flag_2; // 0x02: first of three scene flags (func_8006430C)
@@ -89,26 +90,29 @@ typedef struct
 typedef union
 {
     uint32 word;
-    uint8 flag;
+    sint8 flag;
 } DEBUG_FADE_HEAD;
 
 // The same request viewed through a pointer (func_80063BC8).
 typedef struct
 {
     uint8 flag_0; // nonzero while the screen is fading
-    uint8 mode_1;
+    uint8 mode_1; // bit 0: keep Player_work's unk00 bit 1 clear; bits 2-4: what func_80063C30 does
+                  // when the message ends
     uint8 pad2[2];
-    sint8 value_4;
-    sint8 value_5;
+    uint8 task_no_4; // 0x04: Moji task the message runs in (also D_800987B4's low byte)
+    uint8 mess_no_5; // 0x05: message number (also D_800987B5), started by func_80063C30
     sint16 value_6;
-    void *pos_8;
+    SVECTOR *pos_8; // also D_800987B8: moji's func_80055868 aims the camera at it
 } DEBUG_FADE;
 
 extern DEBUG_FADE_HEAD D_800987B0;
 extern uint8 D_800987B1;
 extern sint16 D_800987B2;
 extern uint32 D_800987B4;
-extern uint32 D_800987B8;
+extern uint8 D_800987B5;
+extern uint32 D_8008DD54[]; // Moji_flag bit of each Moji task (func_80063C30)
+extern SVECTOR *D_800987B8; // DEBUG_FADE.pos_8 by its own label
 extern DEBUG_WORK Debug_work;
 extern DEBUG_FUNC D_8008DBD4[]; // debug menu modes
 extern DEBUG_FUNC D_8008DBE0[]; // per-row handlers
@@ -117,10 +121,12 @@ extern LOGO_WORK D_800C3528[4];
 
 void func_800629E0(void);
 void func_800629F0(void);
+sint32 func_80062A50(DEBUG_WORK *wp);
 sint32 func_80062B04(DEBUG_WORK *wp);
 sint32 func_80062C6C(DEBUG_WORK *wp);
 void func_80063BA8(void);
 void func_80063BC8(void *pos, sint32 mode, sint32 value_4, sint32 value_5);
+void func_80063C30(void);
 void func_80063EF0(void); // clears D_800C3528's four 12-byte entries
 void func_80064060(void); // called once per frame by main
 void func_800640F0(LOGO_WORK *wp);

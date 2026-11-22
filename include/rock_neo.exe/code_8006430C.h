@@ -68,11 +68,24 @@ typedef struct
     uint8 unk1A0[0x1C0 - 0x1A0];
     SVECTOR pos;  // 0x1C0: D_800C3558.pos
     sint16 ang_y; // 0x1C8: D_800C3558.ang_y
-    uint8 unk1CA[0x1D0 - 0x1CA];
-    sint16 unk060; // 0x1D0
-    uint16 unk062; // 0x1D2: Game_work 0x62
-    uint8 unk1D4[0x1E0 - 0x1D4];
-    uint32 unk064; // 0x1E0: Game_work 0x64-0x67
+    uint8 unk1CA[0x1CE - 0x1CA];
+    uint16 pl_unkB0; // 0x1CE: the player's PL_WORK.life_max and life (player_work_init)
+    sint16 unk060;   // 0x1D0
+    uint16 unk062;   // 0x1D2: Game_work 0x62
+    // 0x1D4-0x1DF: PL_WORK bytes, restored by player_work_init
+    uint8 pl_unk16A; // 0x1D4
+    uint8 pl_unk16B; // 0x1D5
+    uint8 pl_unk16C; // 0x1D6
+    uint8 unk1D7;
+    uint8 pl_unk170;  // 0x1D8
+    uint8 pl_unk171;  // 0x1D9
+    uint8 pl_tbl_sel; // 0x1DA
+    uint8 pl_unk173;  // 0x1DB
+    uint8 pl_unk44C;  // 0x1DC
+    uint8 unk1DD;
+    uint8 pl_unk44E; // 0x1DE
+    uint8 pl_unk44F; // 0x1DF
+    uint32 unk064;   // 0x1E0: Game_work 0x64-0x67
     uint8 unk1E4[0x200 - 0x1E4];
     uint8 unk07C; // 0x200
     uint8 unk07D; // 0x201
@@ -81,9 +94,14 @@ typedef struct
     sint8 unk079; // 0x205
     sint8 unk07A; // 0x206
     uint8 unk07B; // 0x207
-    uint8 unk208[0x1D00 - 0x208];
-    uint32 unk028[6]; // 0x1D00
-    uint16 unk040[6]; // 0x1D18
+    // 0x208-0x32B and 0x1C80-0x1CFF: PL_WORK blocks, restored by player_work_init
+    uint32 pl_rb_parts_equip_data;   // 0x208: PL_WORK.rb_parts_equip_data, as one word
+    uint8 pl_rb_parts_sort_data[32]; // 0x20C
+    uint8 pl_rec[0x100];             // 0x22C: PL_WORK 0x4F4-0x5F3 (rec and what follows)
+    uint8 unk32C[0x1C80 - 0x32C];
+    uint8 pl_unk474[0x80]; // 0x1C80: PL_WORK 0x474-0x4F3
+    uint32 unk028[6];      // 0x1D00
+    uint16 unk040[6];      // 0x1D18
     uint8 unk1D24[0x1D40 - 0x1D24];
     GAME_RECORD records_84[15]; // 0x1D40 (func_80067E6C)
     uint8 unk1E30[0x1F00 - 0x1E30];

@@ -38,6 +38,9 @@
 // Draw mode command (GP0 0xE1) for a texture page.
 #define DRAW_MODE_CODE(tpage) (0xE1000000 | (tpage))
 
+// The sub screen's message file: file 0xCC, which func_8005F210 loads over the support area.
+#define Sub_mes_file ((uint8 *)0x801F2000)
+
 // One stat line of the sub screen (attack, energy, range, rapid, special). The _0 fields are the
 // values of what is equipped, the _1 fields those with the parts or weapon under the cursor
 // (sub_screen_rb_parts_calc_sub00 / _sub01).
@@ -57,11 +60,12 @@ typedef struct
 typedef struct
 {
     sint8 routine_0; // 0x0: lb; screen, index of Sub_screen_tbl (Sub_screen_task)
-    uint8 routine_1; // 0x1
-    uint8 routine_2; // 0x2
+    sint8 routine_1; // 0x1: lb; the screen's step
+    sint8 routine_2; // 0x2: lb; step within routine_1 (the item menu's handlers)
     uint8 routine_3; // 0x3
-    uint8 unk4[2];
-    uint8 mode_6; // 0x6: set to 3 by func_80060248
+    uint8 item_4;    // 0x4: the item menu's choice (func_8005F210: GET_SELECT_NO(2))
+    uint8 mes_no_5;  // 0x5: the message func_8005FAE4 shows for item_4 (set by func_8005F210)
+    uint8 mode_6;    // 0x6: set to 3 by func_80060248
     uint8 unk7;
     // 0x8: Player_work[0].rb_parts_equip_data on entry (func_8005EBE4; Capcom's rb_parts_no_0..2,
     // compared with it on exit)
@@ -128,6 +132,13 @@ extern SUB_SCREEN_FUNC Sub_screen_tbl[]; // the sub screen's screens, by routine
 // which g_tbl entry it shows.
 extern SUB_GAUGE_TBL D_8008D7E8[];
 extern uint16 D_8008DB08[];
+// The item menu's key items, by SUB_SCREEN_WORK.item_4: the item's number (scene flag
+// PL_KEY_ITEM_00 + n).
+extern uint8 D_8008DAF4[];
+// The map screen's files (Capcom's names), by MAP_SCREEN_WORK.type2, for type 0 and type 1.
+// Static in Capcom's sub_scrn.c; defined in the assembly data here.
+extern sint16 map_a_file_code[];
+extern sint16 map_b_file_code[];
 
 void Sub_screen_sort_attack(void);
 void Sub_screen_sort_energy(void);

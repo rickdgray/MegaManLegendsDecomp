@@ -22,7 +22,7 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     *(uint32 *)&wp->add.vz = 0;
     *(uint32 *)&wp->ang.vx = 0;
     *(uint32 *)&wp->ang.vz = 0;
-    wp->field_10           = 0;
+    wp->box_10             = 0;
     sp->data               = D_800820E0[wp->field_C][wp->type_3];
     if (sp->data == NULL)
     {
