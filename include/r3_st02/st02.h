@@ -7,7 +7,7 @@
 // A scratchpad frame counter (stcom08's STCOM08_FRAME).
 #define ST02_FRAME (*(uint16 *)0x1F800002)
 
-extern void *D_801068E0[];       // model table by room (func_80022FD4)
+extern void *D_801068E0[];       // model table by room (Room_model_init)
 extern void *D_80106940[];       // spawn list by room
 extern void *D_80106968[];       // exit list by room
 extern uint8 D_80106978[][0x28]; // by room (func_800371A0)

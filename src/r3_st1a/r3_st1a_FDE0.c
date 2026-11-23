@@ -106,7 +106,7 @@ void func_80110090(ST1A_VIEW_H *wp)
     wp->u_44.h[0]                              = 0x140;
     wp->value_AD                               = 0;
     func_800322A8(wp, wp->value_AC, 0);
-    ctl->ground_60 = func_8004B414(wp);
+    ctl->ground_60 = Obj_map_push_out(wp);
     ctl->angle_64  = (wp->rotation.y + 0x800) & 0xFFF;
 }
 
@@ -186,8 +186,8 @@ void func_801101F4(ST1A_VIEW_I *wp)
     {
         Sound_call2(0x1BD, &wp->position);
     }
-    ctl->ground_60       = func_8004B414(wp);
-    wp->position.y       = func_80048E6C(wp);
+    ctl->ground_60       = Obj_map_push_out(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     if ((ctl->flags_6C & 8) && wp->routine_1 != 1 && (ctl->ground_60 & 0xF00))
     {
@@ -1106,7 +1106,7 @@ void func_80111E44(ST1A_OBJ *wp)
             wp->routine_0++;
             // fall through
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             *(uint16 *)0x1F80012C = wp->rotation.z;
             Model_parts_mtx_set_y(wp);
             break;
@@ -1334,7 +1334,7 @@ void func_801125F8(ST1A_WATCHER *wp)
         {
             pos = wp->position;
             pos.z -= 0x70;
-            func_8002CA10(&pos, 0x24, 0x200, 0);
+            Pos_Shadow_Trans(&pos, 0x24, 0x200, 0);
         }
     }
 }
@@ -3570,13 +3570,13 @@ void func_80116C10(ST1A_STCOM27_WORK *wp)
     sint32 ground;
     wp->ctl.flags_14 = 0;
     ctl              = &wp->ctl;
-    if (func_8004B414(wp) & 0xF00)
+    if (Obj_map_push_out(wp) & 0xF00)
     {
         wp->ctl.flags_14 |= 1;
     }
     if (wp->jump_74 == 0)
     {
-        ground = func_80048E6C(wp);
+        ground = Obj_ceiling_height_get(wp);
         if (ground != wp->position_prev.y)
         {
             if (wp->jump_prev_75 == 0)
@@ -5013,7 +5013,7 @@ void func_80119714(ST1A_OBJ *wp)
     wp->value_78 = D_80132DE4[bp->value_53];
     if (wp->value_78 != 0)
     {
-        bp->hit_0.value_C = func_8004B414(wp);
+        bp->hit_0.value_C = Obj_map_push_out(wp);
     }
     else
     {
@@ -5081,7 +5081,7 @@ void func_80119714(ST1A_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
     wp->value_44.half[0] = (wp->position.x - wp->position_prev.x) << 4;
@@ -5153,7 +5153,7 @@ void func_80119B18(ST1A_OBJ *wp)
             }
             // fall through
         case 1:
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 8) >> 16) + wp->value_4C.words.integer, 0);
             if (bp->hit_0.value_4 == 0x3F)
             {
@@ -5198,7 +5198,7 @@ void func_80119CA0(ST1A_OBJ *wp)
             break;
         case 2:
             wp->rotation.y             = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x100)) & 0xFFF;
-            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + func_80048E6C(wp));
+            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + Obj_ceiling_height_get(wp));
             Obj_pos_set(wp, 0, (D_800BBD38[bp->hit_0.value_4] * wp->value_4C.words.integer) >> 12, 0);
             if (--bp->hit_0.value_4 < 0)
             {
@@ -5238,7 +5238,7 @@ void func_80119CA0(ST1A_OBJ *wp)
             }
             break;
         case 4:
-            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + func_80048E6C(wp));
+            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + Obj_ceiling_height_get(wp));
             Obj_pos_set(wp, 0, (D_800BBD38[bp->hit_0.value_4] * wp->value_4C.words.integer) >> 12, 0);
             if (--bp->hit_0.value_4 < 0)
             {
@@ -5284,7 +5284,7 @@ void func_8011A080(ST1A_OBJ *wp)
         case 1:
             wp->rotation.y = (wp->rotation.y + wp->value_64.words.integer) & 0xFFF;
             wp->value_64.words.integer += wp->value_64.half[0];
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 16) >> 24) + wp->value_4C.words.integer, 0);
             for (i = 0; i < 16; i++)
             {
@@ -5320,7 +5320,7 @@ void func_8011A080(ST1A_OBJ *wp)
             Sound_call2(0x20B, &wp->position);
             // fall through
         case 3:
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 16) >> 24) + wp->value_4C.words.integer, 0);
             for (i = 0; i < 16; i++)
             {
@@ -5431,7 +5431,7 @@ void func_8011A488(ST1A_OBJ *wp)
             }
             break;
         case 4:
-            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + func_80048E6C(wp));
+            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + Obj_ceiling_height_get(wp));
             Obj_pos_set(wp, 0, (D_800BBD38[bp->hit_0.value_4] * wp->value_4C.words.integer) >> 12, 0);
             if (--bp->hit_0.value_4 < 0)
             {
@@ -5463,7 +5463,7 @@ void func_8011A8A8(ST1A_OBJ *wp)
             bp->value_52      = 0;
             break;
         case 1:
-            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + func_80048E6C(wp));
+            wp->value_4C.words.integer = wp->position.y - (bp->value_50 + Obj_ceiling_height_get(wp));
             Obj_pos_set(wp, 0, (D_800BBD38[bp->hit_0.value_4] * wp->value_4C.words.integer) >> 12, 0);
             if (--bp->hit_0.value_4 < 0)
             {
@@ -5490,7 +5490,7 @@ void func_8011A8A8(ST1A_OBJ *wp)
         case 2:
             wp->rotation.y = (wp->rotation.y + wp->value_64.words.integer) & 0xFFF;
             wp->value_64.words.integer += wp->value_64.half[0];
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 16) >> 24) + wp->value_4C.words.integer, 0);
             for (i = 0; i < 16; i++)
             {
@@ -5529,7 +5529,7 @@ void func_8011A8A8(ST1A_OBJ *wp)
                     fx->timer_E         = 0;
                     fx->sprite.position = wp->position;
                     fx->sprite.position.x += (rand() & 0xFF) - 0x80;
-                    fx->sprite.position.y = func_80048E6C(wp);
+                    fx->sprite.position.y = Obj_ceiling_height_get(wp);
                     fx->sprite.position.z += (rand() & 0xFF) - 0x80;
                 }
             }
@@ -5576,13 +5576,13 @@ void func_8011A8A8(ST1A_OBJ *wp)
                     fx->timer_E         = 0;
                     fx->sprite.position = wp->position;
                     fx->sprite.position.x += (rand() & 0xFF) - 0x80;
-                    fx->sprite.position.y = func_80048E6C(wp);
+                    fx->sprite.position.y = Obj_ceiling_height_get(wp);
                     fx->sprite.position.z += (rand() & 0xFF) - 0x80;
                 }
             }
             wp->rotation.y = (wp->rotation.y + wp->value_64.words.integer) & 0xFFF;
             wp->value_64.words.integer -= wp->value_64.half[0];
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 16) >> 24) + wp->value_4C.words.integer, 0);
             for (i = 0; i < 16; i++)
             {
@@ -5666,7 +5666,7 @@ void func_8011B000(ST1A_OBJ *wp)
                 bp->hit_0.value_8 = D_8009884C[wp->kind_2]->value_C;
                 wp->value_492     = 1;
             }
-            ground = func_80048E6C(wp);
+            ground = Obj_ceiling_height_get(wp);
             if (ground < wp->position.y)
             {
                 wp->position_fixed.v.y = ground << 16;
@@ -5684,7 +5684,7 @@ void func_8011B000(ST1A_OBJ *wp)
                     fx->flags_0           = 5;
                     fx->value_F           = 2;
                     fx->sprite.position   = wp->position;
-                    fx->sprite.position.y = func_80048E6C(wp);
+                    fx->sprite.position.y = Obj_ceiling_height_get(wp);
                     Sound_call2(0x1E0, &wp->position);
                     Sound_call2(0x1D6, &wp->position);
                 }
@@ -5704,7 +5704,7 @@ void func_8011B000(ST1A_OBJ *wp)
                     fx->timer_E         = 0;
                     fx->sprite.position = wp->position;
                     fx->sprite.position.x += (rand() & 0x1FF) - 0x100;
-                    fx->sprite.position.y = func_80048E6C(wp);
+                    fx->sprite.position.y = Obj_ceiling_height_get(wp);
                     fx->sprite.position.z += (rand() & 0x1FF) - 0x100;
                     Swing_Camera2(0x1E, 0x800, 0xC00, &fx->sprite.position);
                 }
@@ -5941,7 +5941,7 @@ void func_8011BA74(ST1A_OBJ *wp)
             Sound_fade_start(0x10);
             // fall through
         case 1:
-            wp->value_4C.words.integer = bp->value_50 + func_80048E6C(wp) - wp->position.y;
+            wp->value_4C.words.integer = bp->value_50 + Obj_ceiling_height_get(wp) - wp->position.y;
             Obj_pos_set(wp, 0, ((D_800BBCF8[bp->hit_0.value_4] << 8) >> 16) + wp->value_4C.words.integer, 0);
             if (bp->hit_0.value_4 == 0x3F)
             {

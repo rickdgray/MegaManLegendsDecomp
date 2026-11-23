@@ -338,11 +338,11 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
     wp->position_fixed.z += wp->velocity.v.z << 12;
     wp->position_fixed.y += wp->velocity.v.y << 12;
     func_80030150(&wp->position_fixed, &wp->position);
-    ground = func_8004B414(wp);
+    ground = Obj_map_push_out(wp);
     if (ground != 0)
     {
         wp->value_E = 1;
-        func_8004AC8C(&wp->velocity.v, ground);
+        Wall_reflect_spd(&wp->velocity.v, ground);
     }
     func_8010C3D8(wp);
     func_8010C4AC(wp);

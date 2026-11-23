@@ -316,7 +316,7 @@ void stcom22_func_0864(STCOM22_WORK *wp)
         }
         else
         {
-            func_80017C30(10);
+            Fade_start(10);
             wp->routine_1 = 3;
         }
         return;
@@ -951,7 +951,7 @@ void stcom22_func_1C5C(STCOM22_WORK *wp)
                         Sce_flag_on(0x27);
                     }
                     wp->u_48.gate->routine_0 = 2;
-                    func_80017C30(8);
+                    Fade_start(8);
                 }
             }
             else

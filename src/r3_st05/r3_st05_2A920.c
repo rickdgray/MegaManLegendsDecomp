@@ -288,7 +288,7 @@ void func_8012B15C(STAGE_OBJ50 *wp)
             wp->routine_1++;
             // fall through
         case 1:
-            floor = func_8004920C(&wp->pos_38) - 0x14;
+            floor = Ceiling_height_get(&wp->pos_38) - 0x14;
             wp->value_48 -= wp->value_4C;
             wp->pos_38.y = y = ((STAGE_FIXED *)&wp->value_48)->words.integer;
             wp->value_4C -= 0x40000;
@@ -677,7 +677,7 @@ void func_8012BD2C(STAGE_OBJ50 *wp)
                     break;
                 }
                 wp->value_F = next;
-                func_80017C30(9);
+                Fade_start(9);
                 wp->routine_2++;
             }
             break;
@@ -690,7 +690,7 @@ void func_8012BD2C(STAGE_OBJ50 *wp)
             }
             break;
         case 3:
-            func_80017C30(1);
+            Fade_start(1);
             func_8012B544(wp);
             wp->u_C.b.lo = 0;
             wp->value_48 = 0;

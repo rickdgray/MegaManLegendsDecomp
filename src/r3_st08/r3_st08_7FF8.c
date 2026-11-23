@@ -143,7 +143,7 @@ void func_801084C0(STAGE_ACTOR *wp)
     if (wp->velocity.v.x != 0)
     {
         Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-        wp->position.y       = func_80048E6C(wp);
+        wp->position.y       = Obj_ceiling_height_get(wp);
         wp->position_fixed.y = wp->position.y << 16;
     }
     if (wp->value_E == 0)

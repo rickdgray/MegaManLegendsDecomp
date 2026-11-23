@@ -30,7 +30,7 @@ void stcom09_func_00CC(STCOM09_WORK *wp)
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->data_78          = stcom09_D_0028;
     wp->data_10          = stcom09_D_001C;

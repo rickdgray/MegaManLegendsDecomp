@@ -1,4 +1,5 @@
 #include "common.h"
+#include "code_80027678.h"
 #include "code_800425FC.h"
 #include "code_80043F34.h"
 #include "code_8004324C.h"
@@ -26,6 +27,7 @@ sint32 func_80042044(PL_WORK *pl, sint32 spd, sint32 max);
 sint32 func_80042154(PL_WORK *pl, sint32 spd, sint32 max, sint32 mask);
 void func_80040E9C(PL_WORK *pl, sint16 arg);
 void func_8003C418(PL_WORK *pl);
+void func_8003C4EC(PL_WORK *pl);
 void func_80042528(PL_WORK *pl, W48_83_WORK *wp, sint16 n);
 void func_8003F188(PL_WORK *pl, sint32 dir, sint32 anim);
 sint32 func_8003F224(PL_WORK *pl);
@@ -35,6 +37,28 @@ sint32 func_800414F0(PL_WORK *pl, SVECTOR *pos, SVECTOR *ang, HIT_ENT *box);
 void func_80041A44(PL_WORK *pl, uint32 flags);
 void func_80041EF4(PL_WORK *pl, sint32 spd, sint32 max);
 sint32 func_80042094(PL_WORK *pl, sint32 spd, sint32 max, sint32 anim);
+void func_8003E068(PL_WORK *pl, sint32 dir);
+void func_8003D124(PL_WORK *pl, sint32 dir);
+void func_8003EE68(PL_WORK *pl);
+sint32 func_80040E00(PL_WORK *pl, sint32 arg, sint16 mode, sint16 cond);
+sint32 func_80040B68(PL_WORK *pl, sint32 arg);
+sint32 func_80040710(PL_WORK *pl);
+sint32 func_80040818(PL_WORK *pl);
+sint32 func_800402C4(PL_WORK *pl);
+sint32 func_8004030C(PL_WORK *pl, sint32 arg);
+sint32 func_80040380(PL_WORK *pl);
+sint32 func_800403D4(PL_WORK *pl, sint32 arg);
+sint32 func_80040468(PL_WORK *pl, sint32 arg);
+sint32 func_800404FC(PL_WORK *pl, sint32 arg);
+sint32 func_80040574(PL_WORK *pl);
+sint32 func_800405F4(PL_WORK *pl);
+sint32 func_80040630(PL_WORK *pl, sint32 arg);
+sint32 func_800406DC(PL_WORK *pl);
+sint32 func_80040AEC(PL_WORK *pl);
+sint32 func_80040FA8(PL_WORK *pl);
+sint32 func_800410D4(PL_WORK *pl);
+sint32 front_box_search(PL_WORK *pl);
+void damage_check(PL_WORK *pl);
 
 void Player_init(sint32 load)
 {
@@ -67,7 +91,7 @@ void player_work_init(PL_WORK *pl, sint32 load)
     pl->field_75 = 0;
     pl->field_74 = 0;
     pl->unk77    = 0;
-    pl->unk76    = 0;
+    pl->field_76 = 0;
     pl->obj_184  = 0;
     pl->unk110   = 0;
     pl->unk111   = 0;
@@ -88,7 +112,7 @@ void player_work_init(PL_WORK *pl, sint32 load)
         pl->unk16A                         = 0;
         pl->unk16B                         = 0;
         pl->unk16C                         = 0;
-        pl->unk170                         = 0;
+        pl->weapon_right_no                = 0;
         pl->tbl_sel                        = 0;
         pl->unk171                         = 0;
         pl->unk173                         = 1;
@@ -101,11 +125,11 @@ void player_work_init(PL_WORK *pl, sint32 load)
     }
     else
     {
-        pl->life = pl->life_max            = save->pl_unkB0;
+        pl->life = pl->life_max            = save->pl_life_max;
         pl->unk16A                         = save->pl_unk16A;
         pl->unk16B                         = save->pl_unk16B;
         pl->unk16C                         = save->pl_unk16C;
-        pl->unk170                         = save->pl_unk170;
+        pl->weapon_right_no                = save->pl_unk170;
         pl->unk171                         = save->pl_unk171;
         pl->tbl_sel                        = save->pl_tbl_sel;
         pl->unk173                         = save->pl_unk173;
@@ -116,7 +140,7 @@ void player_work_init(PL_WORK *pl, sint32 load)
         Mem_copy32(save->pl_rb_parts_sort_data, pl->rb_parts_sort_data, 1);
         Mem_copy32(save->pl_unk474, pl->unk474, 4);
         Mem_copy32(save->pl_rec, pl->rec, 8);
-        func_80037594();
+        Player_weapon_bullet_set();
     }
 }
 
@@ -185,7 +209,27 @@ void Player_exec(void)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003C2D8);
+void func_8003C2D8(void)
+{
+    if ((sint8)Player_work[0].unk00 & Player_work[0].flags_6 & 1)
+    {
+        func_8003C4EC(&Player_work[0]);
+        if (Player_work[0].unk449 == 0 && Player_work[0].unk110 == 0)
+        {
+            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].unk01, &Player_work[0].owner_188, 0x2000000, 0x800000,
+                          0);
+        }
+    }
+    if ((sint8)Player_work[1].unk00 & Player_work[1].flags_6 & 1)
+    {
+        func_8003C4EC(&Player_work[1]);
+        if (Player_work[1].unk449 == 0 && Player_work[1].unk110 == 0)
+        {
+            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].unk01, &Player_work[1].owner_188, 0x2000000,
+                          0x800000, 0);
+        }
+    }
+}
 
 void func_8003C418(PL_WORK *pl)
 {
@@ -212,7 +256,92 @@ void func_8003C418(PL_WORK *pl)
     func_8003234C(pl);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003C4EC);
+void func_8003C4EC(PL_WORK *pl)
+{
+    sint32 y;
+    sint32 floor;
+
+    if (pl->field_74 == 1 && (pl->unk7C & 0x2000) && (uint32)(pl->routine_9 - 7) < 2 && pl->field_A < 4)
+    {
+        key_seq_set(pl, 0x15, 0, 1);
+        pl->field_A = 4;
+        pl->spd.vy  = 0;
+        pl->add.vy  = 0;
+    }
+    if ((uint32)(pl->routine_8 - 1) < 2 && pl->field_76 != 0)
+    {
+        Ride_move(pl, pl->ride_C0);
+    }
+    if (pl->routine_8 == 3 && pl->field_76 != 0)
+    {
+        Ride_move_saved(pl, pl->ride_C0);
+    }
+    if (Sce_flag_test(0x200) == 0)
+    {
+        Front_hit_event(pl);
+    }
+    // field_74 == 0 and field_76 == 0, in one word
+    if ((uint32)(pl->routine_8 - 1) < 2 && !(*(uint32 *)&pl->field_74 & 0xFF00FF))
+    {
+        y     = pl->pos.vy;
+        floor = Obj_ceiling_height_get((MODEL_WORK *)pl) - pl->hit_78->max_A;
+        if (y < floor - 0x20)
+        {
+            if (pl->field_75 == 0)
+            {
+                if (pl->routine_9 == 0xE)
+                {
+                    func_800394AC();
+                    pl->val_108 = 0;
+                }
+                if (pl->routine_9 == 3)
+                {
+                    if (pl->field_A < 5)
+                    {
+                        Sound_call(0x8E, 0, 0);
+                        Sound_call(0x8F, 0, 0);
+                    }
+                }
+                pl->routine_9           = 7;
+                *(uint16 *)&pl->field_A = 4; // field_A = 4, field_B = 0
+                pl->spd.vy              = 0;
+                pl->unk168              = 0;
+                pl->unk169              = 0;
+                pl->unk110              = 1;
+                pl->unk111              = 0;
+            }
+            pl->field_74 = 1;
+        }
+        else if (pl->pos.vy < floor)
+        {
+            pl->pos.vy   = floor;
+            pl->pos_l.vy = floor << 16;
+        }
+    }
+    if (Obj_map_push_out((MODEL_WORK *)pl) < 0)
+    {
+        pl->spd.vz   = 0;
+        pl->spd.vx   = 0;
+        pl->pos.vx   = pl->old.vx;
+        pl->pos.vz   = pl->old.vz;
+        pl->pos_l.vx = pl->old_l.vx;
+        pl->pos_l.vz = pl->old_l.vz;
+        if (pl->field_74 != 0)
+        {
+            pl->field_74 = 0;
+            pl->spd.vy   = 0;
+            pl->pos.vy   = pl->old.vy;
+            pl->pos_l.vy = pl->old_l.vy;
+        }
+    }
+    func_8002D004(pl, pl->unk168, pl->unk169);
+    Pl_pose_unpack(pl);
+    Pl_joint_mtx_set(pl);
+    if (pl->unk00 & 2)
+    {
+        Pl_Shadow_Trans(pl, 0x32, 0x2AB, 0);
+    }
+}
 
 void func_8003C7B0(PL_WORK *pl)
 {
@@ -252,7 +381,93 @@ void func_8003C7B0(PL_WORK *pl)
     func_800321C8(pl, 0, 5, 0);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003C88C);
+void func_8003C88C(PL_WORK *pl)
+{
+    sint32 hit;
+    sint8 timer;
+    sint32 mode;
+
+    pl->old        = pl->pos;
+    pl->old_l      = pl->pos_l;
+    pl->old_ang    = pl->ang;
+    pl->old_idx_AD = pl->idx_AC;
+    pl->old_life   = pl->life;
+    pl->field_75   = pl->field_74;
+    pl->unk77      = pl->field_76;
+    pl->flags_BD &= 0xF7;
+    hit = func_8004AF28(&pl->pos);
+    if (hit != 0)
+    {
+        pl->routine_9 = 0xA;
+        pl->field_A   = 0;
+        pl->field_B   = hit;
+    }
+    else if ((*(uint32 *)&pl->routine_8 & 0xFFFF00) == 0xA00) // routine_9 == 0xA, field_A == 0
+    {
+        pl->field_A = 1;
+    }
+    if (pl->unk449 == 0)
+    {
+        if (pl->unk110 == 0)
+        {
+            pl->flags_6 |= 3;
+            damage_check(pl);
+        }
+        else if (pl->unk110 > 0)
+        {
+            timer = --pl->unk111;
+            if (timer < 0)
+            {
+                pl->unk71  = 0;
+                pl->unk110 = 0;
+                pl->flags_6 |= 3;
+            }
+            else if (timer & 2)
+            {
+                pl->flags_6 &= 0xFD;
+            }
+            else
+            {
+                pl->flags_6 |= 3;
+            }
+        }
+        else
+        {
+            pl->flags_6 |= 3;
+        }
+    }
+    else
+    {
+        pl->flags_6 |= 3;
+    }
+    mode                = pl->unk174 & 0xC0;
+    pl->owner_188.hit_0 = 0;
+    if (mode != 0)
+    {
+        if (mode == 0x80)
+        {
+            func_80042734(pl);
+        }
+        else
+        {
+            func_800426F8(pl);
+        }
+    }
+    if (!(pl->flags_BD & 0x80))
+    {
+        D_80089FF8[pl->routine_9](pl);
+        D_80089FA4[pl->routine_9](pl);
+    }
+    hit = Obj_map_push_out((MODEL_WORK *)pl);
+    if (pl->field_74 == 1 && (hit & 0x2000) && (uint32)(pl->routine_9 - 7) < 2 && pl->field_A < 4)
+    {
+        key_seq_set(pl, 0x15, 0, 1);
+        pl->field_A = 4;
+        pl->spd.vy  = 0;
+        pl->add.vy  = 0;
+    }
+    func_80051BAC((MODEL_WORK *)pl);
+}
 
 void func_8003CB20(PL_WORK *pl)
 {
@@ -338,7 +553,170 @@ void func_8003CBF8(PL_WORK *pl)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003CD4C);
+void func_8003CD4C(PL_WORK *pl)
+{
+    sint32 id;
+
+    id = 0;
+    switch (pl->field_A)
+    {
+        case 0:
+            switch ((sint8)pl->unk112)
+            {
+                case 0:
+                    pl->unk116 = 0;
+                    switch ((sint8)pl->unk113)
+                    {
+                        case 0:
+                            id = 4;
+                            break;
+                        case 1:
+                            id = 5;
+                            Pl00_shot_enable_off(pl);
+                            break;
+                        case 2:
+                            id = 9;
+                            Pl00_shot_enable_off(pl);
+                            break;
+                        case 3:
+                            id = 7;
+                            Pl00_shot_enable_off(pl);
+                            break;
+                    }
+                    break;
+                case 1:
+                    pl->unk116 = 0x400;
+                    switch ((sint8)pl->unk113)
+                    {
+                        case 0:
+                            id = 7;
+                            break;
+                        case 2:
+                            id = 5;
+                            break;
+                        case 3:
+                            id = 9;
+                            break;
+                    }
+                    Pl00_shot_enable_off(pl);
+                    break;
+                case 2:
+                    pl->unk116 = 0x800;
+                    switch ((sint8)pl->unk113)
+                    {
+                        case 0:
+                            id = 9;
+                            break;
+                        case 1:
+                            id = 7;
+                            break;
+                        case 3:
+                            id = 5;
+                            break;
+                    }
+                    Pl00_shot_enable_off(pl);
+                    break;
+                case 3:
+                    pl->unk116 = -0x400;
+                    switch ((sint8)pl->unk113)
+                    {
+                        case 0:
+                            id = 5;
+                            break;
+                        case 1:
+                            id = 9;
+                            break;
+                        case 2:
+                            id = 7;
+                            break;
+                    }
+                    Pl00_shot_enable_off(pl);
+                    break;
+            }
+            pl->spd.vx = 0x200;
+            pl->unk113 = 0;
+            pl->field_A += 2;
+            pl->unk174 |= 4;
+            key_seq_set(pl, id, 0, 1);
+            func_8003D124(pl, (sint8)pl->unk112);
+            break;
+        case 1:
+            if (pl->cmd_A4.b.b0 == 1)
+            {
+                pl->field_A++;
+            }
+            break;
+        case 2:
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                pl->unk44D = 1;
+                pl->field_A += 2;
+                Pl00_shot_enable_on(pl);
+                if ((sint8)pl->unk112 != 1)
+                {
+                    key_seq_set(pl, 1, 0, 0);
+                }
+                else
+                {
+                    key_seq_set(pl, 1, 9, 0);
+                }
+            }
+            func_8003D124(pl, (sint8)pl->unk112);
+            break;
+        case 3:
+            if (pl->cmd_A4.b.b0 == 5)
+            {
+                pl->unk44D = 1;
+                pl->field_A++;
+            }
+            // fall through
+        case 4:
+            func_80042044(pl, 0x28, 0x28);
+            func_8003D124(pl, (sint8)pl->unk112);
+            if (pl->cmd_A4.b.b2 & 0x80)
+            {
+                Sound_call(0x91, 0, 0);
+            }
+            break;
+        case 5:
+            switch ((sint8)pl->unk112)
+            {
+                case 0:
+                    pl->routine_9           = 0;
+                    *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                    break;
+                case 1:
+                    Pl00_shot_enable_off(pl);
+                    key_seq_set(pl, 8, 0, 0);
+                    break;
+                case 2:
+                    Pl00_shot_enable_off(pl);
+                    key_seq_set(pl, 0xA, 0, 0);
+                    break;
+                case 3:
+                    Pl00_shot_enable_off(pl);
+                    key_seq_set(pl, 6, 0, 0);
+                    break;
+            }
+            pl->add.vx = 0x30;
+            pl->field_A++;
+            func_8003D124(pl, (sint8)pl->unk112);
+            break;
+        case 6:
+            if (pl->cmd_A4.b.b2 == 1)
+            {
+                pl->routine_9           = 0;
+                *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                pl->unk116              = 0;
+                pl->unk112              = 0;
+                pl->spd.vx              = 0;
+                pl->turn_B4             = 0;
+                Pl00_shot_enable_on(pl);
+                key_seq_set(pl, 0, 0, 0);
+            }
+            break;
+    }
+}
 
 // Sideways move for direction dir: spd.vz is +-0x140 while exactly one key of key_pair[dir][1]
 // is held, and without keys_124[2] or [3] the turn is set to +-0x40.
@@ -379,7 +757,196 @@ void func_8003D124(PL_WORK *pl, sint32 dir)
     func_80041E90(pl, pl->spd.vx, 0, pl->spd.vz);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003D1E0);
+void func_8003D1E0(PL_WORK *pl)
+{
+    uint16 pad;
+    uint16 trig;
+    sint32 mode;
+    uint16 hit;
+    WORK_48 *wp;
+
+    pad  = pl->pad_now;
+    trig = pl->pad_on;
+    switch (pl->field_A)
+    {
+        case 0:
+            pl->unk174 |= 4;
+            key_seq_set(pl, 0x38, 0, 0);
+            pl->unk44A++;
+            pl->field_A += 2;
+            break;
+        case 1:
+            if (pl->keys_124[2] & pad)
+            {
+                wp = func_80031618();
+                if (wp != NULL)
+                {
+                    wp->routine_0 = 1;
+                    wp->id_2      = 0x89;
+                    wp->type_3    = 0;
+                }
+            }
+            if (pl->keys_124[3] & pad)
+            {
+                wp = func_80031618();
+                if (wp != NULL)
+                {
+                    wp->routine_0 = 1;
+                    wp->id_2      = 0x89;
+                    wp->type_3    = 1;
+                }
+            }
+            pl->field_A++;
+            // fall through
+        case 2:
+            if (pl->cmd_A4.b.b2 == 0)
+            {
+                pl->unk44A++;
+                break;
+            }
+            pl->field_A = 3;
+            pl->spd.vx  = 0x340;
+            // fall through
+        case 3:
+            if (pl->cmd_A4.b.ctl != -1)
+            {
+                func_80041E90(pl, pl->spd.vx, 0, 0);
+                break;
+            }
+            Sound_call(0x8C, 0, 0);
+            pl->field_A++;
+            // fall through
+        case 4:
+            if ((pl->keys_124[0] | pl->keys_124[1]) & pad)
+            {
+                if (pad & pl->keys_124[0])
+                {
+                    mode       = func_80042044(pl, 0x10, 0x10);
+                    pl->spd.vx = 0x400;
+                    pl->spd.vz = 0xC0;
+                }
+                else
+                {
+                    mode       = func_80042044(pl, 0x20, 0x20);
+                    pl->spd.vx = 0x280;
+                    pl->spd.vz = 0x140;
+                    wp         = func_80031618();
+                    if (wp != NULL)
+                    {
+                        func_80042528(pl, (W48_83_WORK *)wp, 1);
+                    }
+                    wp = func_80031618();
+                    if (wp != NULL)
+                    {
+                        func_80042528(pl, (W48_83_WORK *)wp, 2);
+                    }
+                }
+            }
+            else
+            {
+                mode       = func_80042044(pl, 0x18, 0x18);
+                pl->spd.vx = 0x340;
+                pl->spd.vz = 0x100;
+            }
+            hit = (pl->keys_124[4] | pl->keys_124[5]) & pad;
+            if (hit != 0 && hit != (pl->keys_124[4] | pl->keys_124[5]))
+            {
+                if (pad & pl->keys_124[5])
+                {
+                    if (mode == 0)
+                    {
+                        mode = 1;
+                    }
+                    pl->spd.vz = -pl->spd.vz;
+                    if (!((pl->keys_124[2] | pl->keys_124[3]) & pad))
+                    {
+                        pl->turn_B4 = 0x40;
+                    }
+                }
+                else
+                {
+                    if (mode == 0)
+                    {
+                        mode = 2;
+                    }
+                    if (!((pl->keys_124[2] | pl->keys_124[3]) & pad))
+                    {
+                        pl->turn_B4 = -0x40;
+                    }
+                }
+            }
+            else
+            {
+                pl->spd.vz = 0;
+            }
+            switch (mode)
+            {
+                case 0:
+                    key_seq_set(pl, 0x39, 0, 0);
+                    Sound_call(0x8F, 0, 0);
+                    break;
+                case 1:
+                    key_seq_set(pl, 0x3C, 0, 0);
+                    if (pl->keys_124[2] & pad)
+                    {
+                        Sound_call(0x8F, 0, 0);
+                    }
+                    break;
+                case 2:
+                    key_seq_set(pl, 0x3D, 0, 0);
+                    if (pl->keys_124[3] & pad)
+                    {
+                        Sound_call(0x8F, 0, 0);
+                    }
+                    break;
+            }
+            func_80041E90(pl, pl->spd.vx, 0, pl->spd.vz);
+            pl->unk44D = 1;
+            if (!(pl->keys_124[8] & pad) || !(pl->unk16B & 2))
+            {
+                Sound_call(0x8E, 0, 0);
+                Sound_call(0x8F, 0, 0);
+                key_seq_set(pl, 0x3A, 0, 0);
+                pl->field_A++;
+            }
+            break;
+        case 5:
+            pl->spd.vx -= 0x28;
+            func_80042044(pl, 0x20, 0x20);
+            func_80041E90(pl, pl->spd.vx, 0, 0);
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                pl->routine_9           = 0;
+                *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                pl->spd.vx              = 0;
+                pl->unk44A              = 0;
+            }
+            break;
+    }
+    if (pl->field_A == 3 || pl->field_A == 4)
+    {
+        if (pl->keys_124[3] & trig)
+        {
+            wp = func_80031618();
+            if (wp != NULL)
+            {
+                wp->routine_0 = 1;
+                wp->id_2      = 0x89;
+                wp->type_3    = 1;
+            }
+        }
+        if (pl->keys_124[2] & trig)
+        {
+            wp = func_80031618();
+            if (wp != NULL)
+            {
+                wp->routine_0 = 1;
+                wp->id_2      = 0x89;
+                wp->type_3    = 0;
+            }
+        }
+    }
+}
 
 void func_8003D6DC(PL_WORK *pl)
 {
@@ -532,9 +1099,236 @@ void func_8003D960(PL_WORK *pl)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003DA34);
+void func_8003DA34(PL_WORK *pl)
+{
+    uint16 pad;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003DC5C);
+    pad = pl->pad_now;
+    switch (pl->field_A)
+    {
+        case 0:
+            pl->field_A++;
+            pl->unk112  = 0;
+            pl->unk116  = 0;
+            pl->turn_B4 = 0;
+            if (!(pad & pl->key_pair[0][1].mask))
+            {
+                pl->spd.vz = 0;
+            }
+            Pl00_shot_enable_off(pl);
+            key_seq_set(pl, 0x10, 0, 1);
+            break;
+        case 1:
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                pl->field_74 = 1;
+                pl->field_A++;
+                pl->old_idx_AD = pl->idx_AC;
+                if (pl->unk16B & 1)
+                {
+                    pl->spd.vy = -0x320;
+                }
+                else
+                {
+                    pl->spd.vy = -0x1C0;
+                }
+                Pl00_shot_enable_on(pl);
+                key_seq_set(pl, 0x11, 0, 1);
+                func_8003E068(pl, 0);
+                Sound_call(0x92, 0, 0);
+            }
+            break;
+        case 2:
+            func_8003E068(pl, (sint8)pl->unk112);
+            if (pad & pl->keys_124[10])
+            {
+                pl->spd.vy += 0x30;
+                if (pl->spd.vy >= 0)
+                {
+                    key_seq_set(pl, 0x12, 0, 1);
+                    pl->field_A += 2;
+                }
+            }
+            else
+            {
+                pl->field_A++;
+            }
+            break;
+        case 3:
+            func_8003E068(pl, (sint8)pl->unk112);
+            if (-pl->spd.vy > 0x240)
+            {
+                pl->spd.vy += 0x240;
+            }
+            else
+            {
+                key_seq_set(pl, 0x12, 0, 1);
+                pl->spd.vy = 0;
+                pl->field_A += 2;
+            }
+            break;
+        case 4:
+            key_seq_set(pl, 0x12, 0, 1);
+            pl->field_A++;
+            // fall through
+        case 5:
+            func_8003E068(pl, (sint8)pl->unk112);
+            pl->spd.vy += 0x30;
+            break;
+        case 6:
+            break;
+    }
+}
+
+void func_8003DC5C(PL_WORK *pl)
+{
+    uint16 pad;
+
+    pad = pl->pad_now;
+    switch (pl->field_A)
+    {
+        case 0:
+            pl->field_74 = 1;
+            pl->unk44D   = 1;
+            pl->field_A += 2;
+            pl->old_idx_AD = pl->idx_AC;
+            if (pl->unk16B & 1)
+            {
+                pl->spd.vy = -0x320;
+            }
+            else
+            {
+                pl->spd.vy = -0x1C0;
+            }
+            if (!(pad & pl->key_pair[(sint8)pl->unk112][1].mask))
+            {
+                pl->spd.vz = 0;
+            }
+            Pl00_shot_enable_on(pl);
+            key_seq_set(pl, 0x14, 0, 1);
+            func_8003E068(pl, (sint8)pl->unk112);
+            Sound_call(0x92, 0, 0);
+            break;
+        case 1:
+        case 2:
+            func_8003E068(pl, (sint8)pl->unk112);
+            if (pad & pl->keys_124[10])
+            {
+                pl->spd.vy += 0x30;
+                if (pl->spd.vy >= 0)
+                {
+                    key_seq_set(pl, 0x15, 0, 1);
+                    pl->field_A += 3;
+                }
+            }
+            else
+            {
+                pl->field_A++;
+            }
+            break;
+        case 3:
+            func_8003E068(pl, (sint8)pl->unk112);
+            if (-pl->spd.vy > 0x240)
+            {
+                pl->spd.vy += 0x240;
+            }
+            else
+            {
+                key_seq_set(pl, 0x15, 0, 1);
+                pl->spd.vy = 0;
+                pl->field_A += 2;
+            }
+            break;
+        case 4:
+            key_seq_set(pl, 0x12, 0, 1);
+            pl->spd.vx = 0x200;
+            pl->field_A++;
+            // fall through
+        case 5:
+            func_8003E068(pl, (sint8)pl->unk112);
+            pl->spd.vy += 0x30;
+            break;
+        case 6:
+            if (pl->cmd_A4.b.ctl != -1)
+            {
+                break;
+            }
+            Pl00_shot_enable_off(pl);
+            switch ((sint8)pl->unk112)
+            {
+                case 0:
+                    if (!(pad & pl->keys_124[8]))
+                    {
+                        if (pad & pl->keys_124[0])
+                        {
+                            goto land;
+                        }
+                        key_seq_set(pl, 0x2A, 0, 0);
+                    }
+                    else if (pl->unk44A > 0x10)
+                    {
+                        pl->routine_9           = 3;
+                        *(uint16 *)&pl->field_A = 1; // field_A = 1, field_B = 0
+                        pl->spd.vx              = 0x300;
+                        pl->spd.vz              = 0;
+                        key_seq_set(pl, 0x3B, 0, 0);
+                        return;
+                    }
+                    else
+                    {
+                        key_seq_set(pl, 0x2A, 0, 0);
+                    }
+                    pl->field_A++;
+                    return;
+                case 1:
+                    if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[4]))
+                    {
+                        goto land;
+                    }
+                    key_seq_set(pl, 0x2B, 0, 0);
+                    pl->field_A++;
+                    return;
+                case 2:
+                    if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[1]))
+                    {
+                        goto land;
+                    }
+                    key_seq_set(pl, 0x2D, 0, 0);
+                    pl->field_A++;
+                    return;
+                case 3:
+                    if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[5]))
+                    {
+                        goto land;
+                    }
+                    key_seq_set(pl, 0x2C, 0, 0);
+                    pl->field_A++;
+                    return;
+            }
+        land:
+            pl->spd.vx              = 0x200;
+            pl->routine_9           = 2;
+            pl->spd.vy              = 0;
+            *(uint16 *)&pl->field_A = 2; // field_A = 2, field_B = 0
+            key_seq_set(pl, 0x17, 0, 0);
+            break;
+        case 7:
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                pl->routine_9           = 0;
+                *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                pl->spd.vx              = 0;
+                pl->spd.vz              = 0;
+                pl->unk44A              = 0;
+                Pl00_shot_enable_on(pl);
+                key_seq_set(pl, 0, 0, 0);
+                pl->unk116  = 0;
+                pl->unk112  = 0;
+                pl->turn_B4 = 0;
+            }
+            break;
+    }
+}
 
 void func_8003E068(PL_WORK *pl, sint32 dir)
 {
@@ -966,7 +1760,121 @@ void func_8003E860(PL_WORK *pl)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003EB08);
+void func_8003EB08(PL_WORK *pl)
+{
+    SVECTOR pos;
+    uint16 pad;
+    sint32 dir;
+    sint32 h;
+
+    pad = pl->pad_now;
+    switch (pl->field_A)
+    {
+        case 0:
+            Pl00_shot_enable_off(pl);
+            key_seq_set(pl, 0x1D, 0, 0);
+            Sound_call(0x9F, 0, 0);
+            pl->unk44A  = 0;
+            pl->turn_B4 = 0;
+            pl->unk44D  = 0;
+            pl->field_A++;
+            break;
+        case 1:
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                key_seq_set(pl, 0x1E, 0, 0);
+                pl->field_A++;
+            }
+            break;
+        case 2:
+            if (pl->keys_124[1] & pad)
+            {
+                pl->field_A = 6;
+                break;
+            }
+            pos = pl->pos;
+            dir = (pl->ang.vy - pl->unk116 + 0x200) >> 10;
+            if (dir & 1)
+            {
+                if (dir & 2)
+                {
+                    pos.vx += pl->hit_78->max_2 + 1;
+                }
+                else
+                {
+                    pos.vx += pl->hit_78->min_0 - 1;
+                }
+            }
+            else if (dir & 2)
+            {
+                pos.vz += pl->hit_78->max_6 + 1;
+            }
+            else
+            {
+                pos.vz += pl->hit_78->min_4 - 1;
+            }
+            pos.vy -= 0x98;
+            h = func_80048EA4(&pos, 0, 0, pl->unk01) + 0x98;
+            if (ABS(pl->pos.vy - h) < 0x20)
+            {
+                pl->pos.vy   = h;
+                pl->pos_l.vy = h << 16;
+            }
+            else
+            {
+                func_8003EE68(pl);
+                break;
+            }
+            if (pl->keys_124[0] & pad)
+            {
+                pl->field_75 = 2;
+                pl->field_74 = 2;
+                pl->field_76 = 0;
+                pl->spd.vx   = 0;
+                pl->spd.vz   = 0;
+                pl->field_A++;
+                pl->spd.vy = ((pl->pos.vy - pl->old.vy) << 5) - 0x90;
+                key_seq_set(pl, 0x1F, 0, 0);
+            }
+            break;
+        case 3:
+            func_80041E90(pl, 0, pl->spd.vy, 0);
+            if (pl->cmd_A4.b.b2 == 1)
+            {
+                pl->field_A++;
+            }
+            break;
+        case 4:
+            pl->spd.vx = 0x50;
+            pl->spd.vy = -0x1B0;
+            pl->spd.vz = 0;
+            func_80041E90(pl, pl->spd.vx, pl->spd.vy, 0);
+            pl->field_A++;
+            break;
+        case 5:
+            pl->spd.vy += 0x30;
+            func_80041E90(pl, pl->spd.vx, pl->spd.vy, 0);
+            if (pl->field_74 == 0)
+            {
+                key_seq_set(pl, 0x13, 0, 1);
+                Sound_call(0x93, 0, 0);
+                pl->routine_9 = 8;
+                pl->field_A   = 6;
+            }
+            if (pl->cmd_A4.b.ctl == -1)
+            {
+                func_8003EE68(pl);
+            }
+            break;
+        case 6:
+            pl->spd.vx = -0x2A;
+            pl->spd.vy = 0;
+            pl->spd.vz = 0;
+            func_80041E90(pl, pl->spd.vx, 0, 0);
+            func_8003EE68(pl);
+            break;
+    }
+}
 
 void func_8003EE68(PL_WORK *pl)
 {
@@ -1240,11 +2148,261 @@ void func_8003F588(PL_WORK *pl)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003F5D8);
+void func_8003F5D8(PL_WORK *pl)
+{
+    uint32 pad;
+    uint32 on;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003F7F0);
+    pad = pl->pad_now;
+    on  = pl->pad_on;
+    if (func_80040AEC(pl) != 0 || front_box_search(pl) != 0)
+    {
+        pl->unk44A = 0;
+        return;
+    }
+    if (on & (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])))
+    {
+        pl->field_B = 0;
+    }
+    if ((pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                (pl->keys_124[11] | pl->keys_124[12]) | (pl->keys_124[2] | pl->keys_124[3]))) ||
+        (pl->unk176 & 3))
+    {
+        pl->unk44A = 0;
+        if (func_800410D4(pl) != 0 ||
+            ((func_80040B68(pl, 0), func_800406A8(pl) == 0) &&
+             (func_80041044(pl) != 0 || func_80040FA8(pl) == 0 || pl->field_B != 0 ||
+              (func_80040380(pl) == 0 && func_800403D4(pl, pl->field_B) == 0 && func_80040468(pl, pl->field_B) == 0 &&
+               func_800404FC(pl, pl->field_B) == 0)) &&
+             ((pl->unk174 & 0xC0) || pl->unk177 != 0 ||
+              (func_800402C4(pl) == 0 && func_80040630(pl, pl->field_B) == 0 && func_8004030C(pl, pl->field_B) == 0))))
+        {
+            if (func_80041158(pl) == 0)
+            {
+                func_800405F4(pl);
+            }
+            goto reset;
+        }
+    }
+    else
+    {
+    reset:
+        func_80040574(pl);
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003F97C);
+void func_8003F7F0(PL_WORK *pl)
+{
+    uint32 pad;
+
+    pad = pl->pad_now;
+    if (front_box_search(pl) == 0)
+    {
+        if (!(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                     (pl->keys_124[11] | pl->keys_124[12]))) ||
+            func_80040B68(pl, 0) != 0)
+        {
+            goto reset;
+        }
+        if (func_800406A8(pl) == 0 && func_80040380(pl) == 0 && func_800404FC(pl, 0) == 0)
+        {
+            if ((pl->unk174 & 0xC0) || pl->unk177 != 0)
+            {
+                goto reset;
+            }
+            if (func_800402C4(pl) == 0 && func_8004030C(pl, 0) == 0)
+            {
+                if (pl->field_B != 0)
+                {
+                    if (pl->keys_124[0] & pad)
+                    {
+                        if (!(pl->keys_124[8] & pad))
+                        {
+                            pl->routine_9           = 2;
+                            *(uint16 *)&pl->field_A = 0;
+                            pl->unk112              = 0;
+                        }
+                    }
+                    else
+                    {
+                        goto reset;
+                    }
+                }
+                else if (pl->keys_124[1] & pad)
+                {
+                    if (!(pl->keys_124[8] & pad))
+                    {
+                        pl->routine_9           = 2;
+                        *(uint16 *)&pl->field_A = 0;
+                        pl->unk112              = 2;
+                    }
+                }
+                else
+                {
+                    goto reset;
+                }
+            }
+        }
+        return;
+    reset:
+        pl->routine_9           = 0;
+        *(uint16 *)&pl->field_A = 0;
+    }
+}
+
+void func_8003F97C(PL_WORK *pl)
+{
+    uint16 pad;
+    uint16 on;
+
+    pad = pl->pad_now;
+    on  = pl->pad_on;
+    switch ((sint8)pl->unk112) // lb here, lbu elsewhere
+    {
+        case 0:
+            if (pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                       (pl->keys_124[11] | pl->keys_124[12])))
+            {
+                func_80040B68(pl, 1);
+                if (func_800406DC(pl) || func_8004030C(pl, 0) || func_800404FC(pl, 0))
+                {
+                    return;
+                }
+                if (pad & pl->keys_124[0])
+                {
+                    if (pad & pl->keys_124[8])
+                    {
+                        pl->routine_9           = 1;
+                        *(uint16 *)&pl->field_A = 0;
+                    }
+                    return;
+                }
+            }
+            pl->routine_9           = 0;
+            *(uint16 *)&pl->field_A = 0;
+            Pl00_shot_enable_off(pl);
+            return;
+        case 1:
+            if (!(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                         (pl->keys_124[11] | pl->keys_124[12]))) ||
+                (pad & (pl->keys_124[4] | pl->keys_124[5])) == (pl->keys_124[4] | pl->keys_124[5]) || func_80041044(pl))
+            {
+                break;
+            }
+            func_80040B68(pl, 1);
+            if (func_800406DC(pl))
+            {
+                return;
+            }
+            if (!(pad & pl->keys_124[8]))
+            {
+                if (func_80040380(pl) || func_800404FC(pl, 0) || func_80040468(pl, 0) || (pad & pl->keys_124[4]))
+                {
+                    return;
+                }
+                break;
+            }
+            if (Game_work.unk083 != 0)
+            {
+                break;
+            }
+            if (pad & pl->keys_124[4])
+            {
+                if (pl->field_A < 5)
+                {
+                    pl->routine_9           = 5;
+                    *(uint16 *)&pl->field_A = 0;
+                    Pl00_shot_enable_off(pl);
+                }
+                return;
+            }
+            break;
+        case 2:
+            if (!(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                         (pl->keys_124[11] | pl->keys_124[12]))))
+            {
+                break;
+            }
+            if (on & (pl->keys_124[11] | pl->keys_124[12]))
+            {
+                if (on & pl->keys_124[11])
+                {
+                    pl->unk176 = 2;
+                }
+                else
+                {
+                    pl->unk176 = 1;
+                }
+                break;
+            }
+            if (func_800406DC(pl))
+            {
+                return;
+            }
+            if (!(pad & pl->keys_124[8]))
+            {
+                if ((pad & pl->keys_124[1]) || func_80040380(pl) || func_800403D4(pl, 0) || func_80040468(pl, 0))
+                {
+                    return;
+                }
+                break;
+            }
+            if (Game_work.unk083 != 0)
+            {
+                break;
+            }
+            if (pad & pl->keys_124[1])
+            {
+                if (pl->field_A < 5)
+                {
+                    pl->routine_9           = 5;
+                    *(uint16 *)&pl->field_A = 0;
+                    Pl00_shot_enable_off(pl);
+                }
+                return;
+            }
+            break;
+        case 3:
+            if (!(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                         (pl->keys_124[11] | pl->keys_124[12]))) ||
+                (pad & (pl->keys_124[4] | pl->keys_124[5])) == (pl->keys_124[4] | pl->keys_124[5]) || func_80041044(pl))
+            {
+                break;
+            }
+            func_80040B68(pl, 1);
+            if (func_800406DC(pl))
+            {
+                return;
+            }
+            if (pad & pl->keys_124[8])
+            {
+                if (Game_work.unk083 != 0)
+                {
+                    break;
+                }
+                if (pad & pl->keys_124[5])
+                {
+                    if (pl->field_A < 5)
+                    {
+                        pl->routine_9           = 5;
+                        *(uint16 *)&pl->field_A = 0;
+                        Pl00_shot_enable_off(pl);
+                    }
+                    return;
+                }
+                break;
+            }
+            if (func_80040380(pl) || func_800403D4(pl, 0) || func_800404FC(pl, 0) || (pad & pl->keys_124[5]))
+            {
+                return;
+            }
+            break;
+    }
+    if (pl->field_A < 5)
+    {
+        pl->field_A = 5;
+    }
+}
 
 void func_8003FDA8(PL_WORK *pl)
 {
@@ -1263,15 +2421,91 @@ void func_8003FDA8(PL_WORK *pl)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003FE1C);
+void func_8003FE1C(PL_WORK *pl)
+{
+    uint32 pad;
+
+    pad = pl->pad_now;
+    if (func_80041158(pl) != 0 || !(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                                           (pl->keys_124[11] | pl->keys_124[12]) | (pl->keys_124[2] | pl->keys_124[3]))))
+    {
+        goto reset;
+    }
+    if (func_80040B68(pl, 0) != 0 || func_800406A8(pl) != 0)
+    {
+        return;
+    }
+    if (func_80041044(pl) == 0)
+    {
+        if (func_800403D4(pl, 0) != 0 || func_80040468(pl, 0) != 0 || func_80040380(pl) != 0)
+        {
+            return;
+        }
+        if (pl->unk174 & 0xC0)
+        {
+            goto check;
+        }
+        if (func_800404FC(pl, 0) != 0)
+        {
+            return;
+        }
+    }
+    if (!(pl->unk174 & 0xC0) && pl->unk177 == 0)
+    {
+        if (func_800402C4(pl) != 0 || func_80040630(pl, 0) != 0 || func_8004030C(pl, 0) != 0)
+        {
+            return;
+        }
+    }
+check:
+    if (pad & (pl->keys_124[2] | pl->keys_124[3]))
+    {
+        return;
+    }
+reset:
+    pl->routine_9           = 0;
+    *(uint16 *)&pl->field_A = 0;
+}
 
 void func_8003FFA8(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_8003FFB0);
+void func_8003FFB0(PL_WORK *pl)
+{
+    uint32 pad;
+    sint32 mask;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_800400B8);
+    pad = pl->pad_now;
+    if (!(pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
+                 (pl->keys_124[11] | pl->keys_124[12]) | (pl->keys_124[6] | pl->keys_124[7]))) ||
+        func_80040B68(pl, 0) != 0 ||
+        (func_800406A8(pl) == 0 && func_800402C4(pl) == 0 && func_8004030C(pl, 0) == 0 && func_800404FC(pl, 0) == 0 &&
+         ((mask = pl->keys_124[6] | pl->keys_124[7], (pad & mask) == mask) || !(pl->keys_124[8] & pad))))
+    {
+        pl->routine_9           = 0;
+        *(uint16 *)&pl->field_A = 0;
+    }
+}
+
+void func_800400B8(PL_WORK *pl)
+{
+    if (func_80040818(pl))
+    {
+        return;
+    }
+    if (pl->field_74 == 0 && pl->field_A == 1)
+    {
+        if (func_80040710(pl))
+        {
+            return;
+        }
+    }
+    if ((sint8)pl->unk112 != 2)
+    {
+        func_80040B68(pl, 2);
+    }
+}
 
 void func_80040130(void)
 {
@@ -1293,9 +2527,43 @@ void func_80040170(void)
 {
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040178);
+void func_80040178(PL_WORK *pl)
+{
+    sint32 y;
+    sint32 top;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040224);
+    if (pl->field_A == 1)
+    {
+        y   = pl->pos.vy;
+        top = Obj_ceiling_height_get((MODEL_WORK *)pl) - 0x20;
+        if (top - pl->hit_78->max_A < y)
+        {
+            pl->routine_9           = 7;
+            *(uint16 *)&pl->field_A = 4; // field_A = 4, field_B = 0
+            pl->field_74 = pl->field_75 = 1;
+            pl->spd.vx                  = -0x2A;
+            pl->spd.vy                  = 0;
+            pl->spd.vz                  = 0;
+            Pl00_shot_enable_on(pl);
+            key_seq_set(pl, 0x12, 0, 1);
+        }
+    }
+}
+
+void func_80040224(PL_WORK *pl)
+{
+    uint16 pad;
+
+    pad = pl->pad_now;
+    func_80040B68(pl, 0);
+    if (Game_work.unk083 != 1 && !(pl->keys_124[14] & pad))
+    {
+        pl->routine_9           = 0;
+        *(uint16 *)&pl->field_A = 0;
+        func_800394AC();
+        pl->val_108 = 0;
+    }
+}
 
 void func_80040294(void)
 {
@@ -1622,7 +2890,112 @@ sint32 func_80040764(PL_WORK *pl)
     return 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040818);
+// Each of the four arms computes and stores the stepped coordinate itself (GCC merges the
+// identical tails, and the longer chain makes it load hit_78 before the coordinate).
+sint32 func_80040818(PL_WORK *pl)
+{
+    SVECTOR from;
+    SVECTOR to;
+    SVECTOR step;
+    sint32 y;
+    sint32 floor;
+    sint32 dir;
+    sint32 raw;
+    sint32 off;
+    uint16 x;
+    sint32 h;
+    uint16 edge;
+
+    to   = pl->pos;
+    from = to;
+    if (pl->field_74 == 0 || pl->spd.vy <= 0)
+    {
+        return 0;
+    }
+    y = pl->pos.vy;
+    h = Obj_ceiling_height_get((MODEL_WORK *)pl) - 0x30;
+    if (h - pl->hit_78->max_A < y)
+    {
+        return 0;
+    }
+    off = func_8004976C(pl);
+    raw = (pl->ang.vy - pl->unk116 + 0x200) >> 10;
+    dir = raw & 3;
+    if (raw & 1)
+    {
+        from.vz += pl->hit_78->min_4;
+        off -= D_1F8000C0.vx;
+        to.vz += pl->hit_78->max_6;
+        step.vx = off;
+        step.vz = 0;
+        if (raw & 2)
+        {
+            edge = pl->hit_78->max_2;
+            x    = to.vx;
+            x++;
+            x += edge + off;
+            from.vx = to.vx = x;
+        }
+        else
+        {
+            edge = pl->hit_78->min_0;
+            x    = to.vx;
+            x--;
+            x += edge + off;
+            from.vx = to.vx = x;
+        }
+    }
+    else
+    {
+        from.vx += pl->hit_78->min_0;
+        off -= D_1F8000C0.vz;
+        to.vx += pl->hit_78->max_2;
+        step.vx = 0;
+        step.vz = off;
+        if (raw & 2)
+        {
+            edge = pl->hit_78->max_6;
+            x    = to.vz;
+            x++;
+            x += edge + off;
+            from.vz = to.vz = x;
+        }
+        else
+        {
+            edge = pl->hit_78->min_4;
+            x    = to.vz;
+            x--;
+            x += edge + off;
+            from.vz = to.vz = x;
+        }
+    }
+    if (ABS(off) > 0x40)
+    {
+        return 0;
+    }
+    from.vy -= 0x98;
+    to.vy -= 0x98;
+    floor = func_80048EA4(&from, 0, 0, pl->unk01);
+    if (floor != func_80048EA4(&to, 0, 0, pl->unk01))
+    {
+        return 0;
+    }
+    if (floor < pl->pos.vy - 0x68 && pl->pos.vy - 0x98 < floor)
+    {
+        pl->pos.vx += step.vx;
+        pl->pos.vz += step.vz;
+        pl->pos.vy   = floor + 0x98;
+        pl->pos_l.vy = (floor + 0x98) << 16;
+        pl->ang.vy   = dir << 10;
+        pl->unk116   = 0;
+        pl->unk112   = 0;
+        func_80039A38(&D_80097D9C);
+        pl->routine_9           = 0xD;
+        *(uint16 *)&pl->field_A = dir << 8; // field_A = 0, field_B = dir
+        return 1;
+    }
+    return 0;
+}
 
 sint32 func_80040AEC(PL_WORK *pl)
 {
@@ -1649,7 +3022,44 @@ sint32 func_80040B34(PL_WORK *pl)
     return 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80040B68);
+sint32 func_80040B68(PL_WORK *pl, sint32 arg)
+{
+    sint16 mode;
+    uint32 pad;
+    uint8 cond2;
+    uint8 cond1;
+
+    mode  = arg;
+    pad   = pl->pad_now;
+    cond2 = D_80089A84[pl->weapon_right_no].flag_4;
+    cond1 = D_80089A84[pl->unk171].flag_4;
+    if (!(pl->unk174 & 0xC0))
+    {
+        if ((pl->unk177 == 1 && ((pl->keys_124[11] & pad) || (pl->unk176 & 3) == 2) && (pl->unk175 & 5) == 5 &&
+             func_80040E00(pl, 0, mode, cond1) != 0) ||
+            (pl->unk177 == 2 && ((pl->keys_124[12] & pad) || (pl->unk176 & 3) == 1) && (pl->unk175 & 3) == 3 && func_80037440() != 0 &&
+             func_80040E00(pl, 2, mode, cond2) != 0))
+        {
+            *(uint16 *)&pl->unk178 = 1; // unk178 = 1, unk179[0] = 0
+            pl->unk177             = 0;
+            pl->unk176             = 0;
+            return 1;
+        }
+        if (((pl->keys_124[11] & pad) || (pl->unk176 & 3) == 2) && pl->rec[pl->unk171].val > 0 && (pl->unk175 & 5) == 5)
+        {
+            pl->unk176 = 0;
+            return func_80040E00(pl, 4, mode, cond1);
+        }
+        if (((pl->keys_124[12] & pad) || (pl->unk176 & 3) == 1) && pl->rec[pl->weapon_right_no].val > 0 && (pl->unk175 & 3) == 3 &&
+            func_80037440() != 0)
+        {
+            pl->unk176 = 0;
+            return func_80040E00(pl, 6, mode, cond2);
+        }
+    }
+    pl->unk176 = 0;
+    return 0;
+}
 
 sint32 func_80040E00(PL_WORK *pl, sint32 arg, sint16 mode, sint16 cond)
 {
@@ -1726,7 +3136,7 @@ sint32 func_80040FA8(PL_WORK *pl)
     sint32 type;
 
     type = pl->unk174 & 0xC0;
-    if (type == 0 || (type == 0x40 && pl->cmd_100.b.b0 > D_80089A84[pl->unk170].key_0) ||
+    if (type == 0 || (type == 0x40 && pl->cmd_100.b.b0 > D_80089A84[pl->weapon_right_no].key_0) ||
         (type == 0x80 && pl->cmd_100.b.b0 > D_80089A84[pl->unk171].key_0))
     {
         return 1;
@@ -1739,7 +3149,7 @@ sint32 func_80041044(PL_WORK *pl)
     uint16 pad;
 
     pad = pl->pad_now;
-    if (((pad & pl->keys_124[12]) && D_80089A84[pl->unk170].flag_4 == 0) ||
+    if (((pad & pl->keys_124[12]) && D_80089A84[pl->weapon_right_no].flag_4 == 0) ||
         ((pad & pl->keys_124[11]) && D_80089A84[pl->unk171].flag_4 == 0))
     {
         return 1;
@@ -1752,7 +3162,7 @@ sint32 func_800410D4(PL_WORK *pl)
     sint32 type;
 
     type = pl->unk174 & 0xC0;
-    if ((type == 0x40 && D_80089A84[pl->unk170].flag_5 == 0) || (type == 0x80 && D_80089A84[pl->unk171].flag_5 == 0))
+    if ((type == 0x40 && D_80089A84[pl->weapon_right_no].flag_5 == 0) || (type == 0x80 && D_80089A84[pl->unk171].flag_5 == 0))
     {
         return 1;
     }
@@ -1764,7 +3174,7 @@ sint32 func_80041158(PL_WORK *pl)
     sint32 type;
 
     type = pl->unk174 & 0xC0;
-    if ((type == 0x40 && D_80089A84[pl->unk170].flag_6 == 0) || (type == 0x80 && D_80089A84[pl->unk171].flag_6 == 0))
+    if ((type == 0x40 && D_80089A84[pl->weapon_right_no].flag_6 == 0) || (type == 0x80 && D_80089A84[pl->unk171].flag_6 == 0))
     {
         return 1;
     }
@@ -2064,7 +3474,23 @@ void func_80041A44(PL_WORK *pl, uint32 flags)
     pl->field_A   = 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80041AB0);
+void func_80041AB0(PL_WORK *pl)
+{
+    pl->old_ang    = pl->ang;
+    pl->old_idx_AD = pl->idx_AC;
+    pl->old_life   = pl->life;
+    pl->field_75   = pl->field_74;
+    pl->unk77      = pl->field_76;
+    Obj_map_push_out((MODEL_WORK *)pl);
+    pl->old   = pl->pos;
+    pl->old_l = pl->pos_l;
+    if (pl->routine_9 == 0)
+    {
+        Game_work.routine_0 = 9;
+        Game_work.routine_1 = 0;
+        pl->routine_9++;
+    }
+}
 
 void func_80041B8C(PL_WORK *pl)
 {
@@ -2388,7 +3814,31 @@ reset:
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/player", func_80042314);
+void func_80042314(PL_WORK *pl)
+{
+    func_8002D004(pl, 0, 0);
+    pl->unk449                         = 0;
+    pl->unk111                         = 0;
+    pl->unk71                          = 0;
+    pl->unk73                          = 0;
+    pl->owner_188.hit_0                = 0;
+    pl->owner_188.mask_4               = 0;
+    *(uint32 *)&pl->owner_188.vec_8.vx = 0; // vx, vy
+    *(uint32 *)&pl->owner_188.vec_8.vz = 0; // vz, pad
+    pl->unk168                         = 0;
+    pl->unk169                         = 0;
+    if (pl->unk00 & 1)
+    {
+        pl->unk00   = 3;
+        pl->flags_6 = 3;
+        if (pl->routine_8 == 3)
+        {
+            pl->routine_9 = 3;
+            return;
+        }
+    }
+    pl->flags_BD = 8;
+}
 
 void Pl00_shot_enable_off(PL_WORK *pl)
 {

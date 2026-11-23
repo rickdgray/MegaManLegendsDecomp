@@ -1,5 +1,4 @@
 #include "common.h"
-#include "psyq/abs.h"
 #include "psyq/libgte.h"
 #include "stage.h"
 #include "code_8003A3B4.h"
@@ -7,7 +6,7 @@
 // Called only from this file
 void light_init(void);
 void func_8003A538(void);
-void func_8003A918(uint32 *p);
+void part_faces_light(uint32 *p);
 
 // Pool (.sbss) variables this file reaches through $gp.
 CVECTOR D_80098858[3];
@@ -110,7 +109,7 @@ void func_8003A538(void)
             n = (head & 0x3F00) >> 7;
             for (i = 0; i < n; i += 2)
             {
-                func_8003A918(&part[i]);
+                part_faces_light(&part[i]);
             }
         }
     }
@@ -156,21 +155,14 @@ void func_8003A744(void)
         n = (head & 0x3F00) >> 7;
         for (i = 0; i < n; i += 2)
         {
-            func_8003A918(&part[i]);
+            part_faces_light(&part[i]);
         }
     }
 }
 
-#ifdef NON_MATCHING
-// Working hypothesis, kept with the attempt until it matches. The target evaluates the inner
-// MAX_ABS twice (once for the outer compare, again for the result), which only a macro does, so
-// some macro like this is original. Its exact form isn't known: a ternary ABS on both sides
-// expands the inner argument three times (~40 extra instructions); the builtin abs() on both
-// compares with slt. Mixing them is the closest so far (one extra move).
-#define ABS(x)        ((x) < 0 ? -(x) : (x))
-#define MAX_ABS(a, b) (abs(a) > ABS(b) ? (a) : (b))
-
-void func_8003A918(uint32 *p)
+// Face normals of a model part: unpacks each face's three byte vertices, takes the cross product,
+// scales it below 0x6883 for VectorNormal, and stores the NormalColorCol colour in the face.
+void part_faces_light(uint32 *p)
 {
     SVECTOR v[3];
     CVECTOR col;
@@ -182,6 +174,7 @@ void func_8003A918(uint32 *p)
     uint32 *f;
     sint32 count;
     sint32 w;
+    sint32 flags;
     sint32 max;
     sint32 shift;
 
@@ -192,14 +185,15 @@ void func_8003A918(uint32 *p)
     col.b = 0x80;
     while (count--)
     {
+        flags = f[0];
         // Bits 26 and 24 tested as sign bits (a mask test compiles to one combined compare).
-        if ((sint32)(f[0] << 5) >= 0 || (sint32)(f[0] << 7) < 0)
+        if ((flags << 5) >= 0 || (flags << 7) < 0)
         {
             w       = f[1];
             v[0].vx = (sint8)w;
-            v[0].vy = -(uint8)(w >> 8);
             v[0].vz = (sint8)(w >> 16);
             v[1].vx = (sint8)(w >> 24);
+            v[0].vy = -(uint8)(w >> 8);
             w       = f[2];
             v[1].vy = -(uint8)w;
             v[1].vz = (sint8)(w >> 8);
@@ -214,13 +208,25 @@ void func_8003A918(uint32 *p)
             b.vy    = v[2].vy - v[0].vy;
             b.vz    = v[2].vz - v[0].vz;
             OuterProduct0(&a, &b, &n);
-            max = MAX_ABS(MAX_ABS(n.vx, n.vy), n.vz);
+            max = MAX_ABS(n.vx, n.vy);
+            if (max < 0)
+            {
+                max = -max;
+            }
+            if (max > ABS(n.vz))
+            {
+                max = MAX_ABS(n.vx, n.vy);
+            }
+            else
+            {
+                max = n.vz;
+            }
             if (max < 0)
             {
                 max = -max;
             }
             shift = 0;
-            while (max > 0x6882)
+            while (max >= 0x6883)
             {
                 max >>= 1;
                 shift++;
@@ -238,9 +244,3 @@ void func_8003A918(uint32 *p)
         f += 4;
     }
 }
-
-#undef ABS
-#undef MAX_ABS
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8003A3B4", func_8003A918);
-#endif

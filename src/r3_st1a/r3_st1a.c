@@ -22,7 +22,7 @@ void func_80100768(void)
     STAGE_PL_VIEW *pl;
 
     mw = STAGE_MAP_WORK_PTR;
-    func_80022FD4(D_8012DAFC[Game_work.value_51]);
+    Room_model_init(D_8012DAFC[Game_work.value_51]);
     room      = Game_work.value_51;
     mw->w     = STAGE_MAP_TBL[room].w;
     mw->h     = STAGE_MAP_TBL[room].h;
@@ -149,7 +149,7 @@ void func_80100B70(STAGE_ROOM *wp)
             }
             else
             {
-                func_8001DF10(D_8012E944);
+                Scene_obj_list_open(D_8012E944);
                 wp->routine_4 = 1;
             }
             break;

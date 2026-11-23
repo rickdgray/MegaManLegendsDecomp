@@ -20,7 +20,7 @@ void func_801002F8(void)
 {
     void *spawn;
     sint16 *cells;
-    func_80022FD4(D_80114474[Game_work.value_51]);
+    Room_model_init(D_80114474[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -1480,7 +1480,7 @@ void func_80102B54(ST1D_VIEW *wp)
             break;
         case 1:
             func_8005D6E8(wp);
-            func_80017C30(14);
+            Fade_start(14);
             wp->routine_2++;
             break;
         case 2:
@@ -1491,7 +1491,7 @@ void func_80102B54(ST1D_VIEW *wp)
             }
             break;
         case 3:
-            func_80017C30(6);
+            Fade_start(6);
             wp->routine_2++;
             break;
         case 4:
@@ -1839,8 +1839,8 @@ void func_80103920(ST1D_VIEW *wp)
             wp->u_64.h[0]  = Muku(&wp->position, &ext->u_58.obj->position, wp->rotation.y, 0x10);
             wp->rotation.y = (wp->rotation.y + wp->u_64.h[0]) & 0xFFF;
             Obj_pos_set(wp, 0x100, 0, 0);
-            ext->u_5C.w          = func_8004B414(wp);
-            y                    = func_80048E6C(wp);
+            ext->u_5C.w          = Obj_map_push_out(wp);
+            y                    = Obj_ceiling_height_get(wp);
             wp->position.y       = y;
             wp->position_fixed.y = y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -1957,8 +1957,8 @@ void func_80103D6C(ST1D_VIEW *wp)
                 break;
             }
             Obj_pos_set(wp, 0x200, 0, 0);
-            ext->u_5C.w          = func_8004B414(wp);
-            y                    = func_80048E6C(wp);
+            ext->u_5C.w          = Obj_map_push_out(wp);
+            y                    = Obj_ceiling_height_get(wp);
             wp->position.y       = y;
             wp->position_fixed.y = y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2076,7 +2076,7 @@ void func_80104180(ST1D_VIEW *wp)
                 ext->flags_0 &= ~4;
             }
             Obj_pos_set(wp, -0x460, 0, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             break;
         case 1:
             wp->routine_2 = 2;
@@ -2084,7 +2084,7 @@ void func_80104180(ST1D_VIEW *wp)
             wp->u_44.h[1] = 0;
             ext->u_4.h[0] = 3;
             Obj_pos_set(wp, wp->u_44.h[0], -0x960, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             break;
         case 2:
             if (--ext->u_4.h[0] < 0)
@@ -2095,7 +2095,7 @@ void func_80104180(ST1D_VIEW *wp)
             // fall through
         case 3:
             Obj_pos_set(wp, wp->u_44.h[0], wp->u_44.h[1], 0);
-            if ((ext->u_5C.w = func_8004B414(wp)) != 0)
+            if ((ext->u_5C.w = Obj_map_push_out(wp)) != 0)
             {
                 if (ext->u_5C.w & 0xF00)
                 {
@@ -2118,7 +2118,7 @@ void func_80104180(ST1D_VIEW *wp)
             }
             wp->u_44.h[1] = (3 - ext->u_4.h[0]) << 4;
             Obj_pos_set(wp, wp->u_44.h[0], wp->u_44.h[1] << 4, 0);
-            if ((ext->u_5C.w = func_8004B414(wp)) != 0)
+            if ((ext->u_5C.w = Obj_map_push_out(wp)) != 0)
             {
                 if (ext->u_5C.w & 0xF00)
                 {
@@ -2158,7 +2158,7 @@ void func_801043B8(ST1D_VIEW *wp)
                 ext->flags_0 &= ~4;
             }
             Obj_pos_set(wp, 0x460, 0, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             break;
         case 1:
             wp->routine_2 = 2;
@@ -2166,7 +2166,7 @@ void func_801043B8(ST1D_VIEW *wp)
             wp->u_44.h[1] = 0;
             ext->u_4.h[0] = 3;
             Obj_pos_set(wp, wp->u_44.h[0], -0x960, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             break;
         case 2:
             if (--ext->u_4.h[0] < 0)
@@ -2177,7 +2177,7 @@ void func_801043B8(ST1D_VIEW *wp)
             // fall through
         case 3:
             Obj_pos_set(wp, wp->u_44.h[0], wp->u_44.h[1], 0);
-            if ((ext->u_5C.w = func_8004B414(wp)) != 0)
+            if ((ext->u_5C.w = Obj_map_push_out(wp)) != 0)
             {
                 if (ext->u_5C.w & 0xF00)
                 {
@@ -2200,7 +2200,7 @@ void func_801043B8(ST1D_VIEW *wp)
             }
             wp->u_44.h[1] = (3 - ext->u_4.h[0]) << 4;
             Obj_pos_set(wp, wp->u_44.h[0], wp->u_44.h[1] << 4, 0);
-            if ((ext->u_5C.w = func_8004B414(wp)) != 0)
+            if ((ext->u_5C.w = Obj_map_push_out(wp)) != 0)
             {
                 if (ext->u_5C.w & 0xF00)
                 {
@@ -2261,8 +2261,8 @@ void func_801045F0(ST1D_VIEW *wp)
             else
             {
                 Obj_pos_set(wp, 0xF0, 0, 0);
-                func_8004B414(wp);
-                y                    = func_80048E6C(wp);
+                Obj_map_push_out(wp);
+                y                    = Obj_ceiling_height_get(wp);
                 wp->position.y       = y;
                 wp->position_fixed.y = y << 16;
                 if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2307,8 +2307,8 @@ void func_8010478C(ST1D_VIEW *wp)
             else
             {
                 Obj_pos_set(wp, -0x50, 0, 0);
-                func_8004B414(wp);
-                y                    = func_80048E6C(wp);
+                Obj_map_push_out(wp);
+                y                    = Obj_ceiling_height_get(wp);
                 wp->position.y       = y;
                 wp->position_fixed.y = y << 16;
                 if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2342,8 +2342,8 @@ void func_8010478C(ST1D_VIEW *wp)
                 ext->flags_0 |= 0x21;
             }
             Obj_pos_set(wp, -0x80, 0, 0);
-            func_8004B414(wp);
-            y                    = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            y                    = Obj_ceiling_height_get(wp);
             wp->position.y       = y;
             wp->position_fixed.y = y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2383,7 +2383,7 @@ void func_80104974(ST1D_VIEW *wp)
             // fall through
         case 2:
             Obj_pos_set(wp, 0, wp->u_44.h[1] << 7, 0);
-            if (!(func_8004B414(wp) & 0x1000))
+            if (!(Obj_map_push_out(wp) & 0x1000))
             {
                 break;
             }
@@ -2435,8 +2435,8 @@ void func_80104B20(ST1D_VIEW *wp)
             else
             {
                 Obj_pos_set(wp, -0xF0, 0, 0);
-                func_8004B414(wp);
-                y                    = func_80048E6C(wp);
+                Obj_map_push_out(wp);
+                y                    = Obj_ceiling_height_get(wp);
                 wp->position.y       = y;
                 wp->position_fixed.y = y << 16;
                 if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2493,8 +2493,8 @@ void func_80104C7C(ST1D_VIEW *wp)
             else
             {
                 Obj_pos_set(wp, 0x200, 0, 0);
-                func_8004B414(wp);
-                y                    = func_80048E6C(wp);
+                Obj_map_push_out(wp);
+                y                    = Obj_ceiling_height_get(wp);
                 wp->position.y       = y;
                 wp->position_fixed.y = y << 16;
                 if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -2510,7 +2510,7 @@ void func_80104C7C(ST1D_VIEW *wp)
             ext->u_4.h[0]--;
             wp->u_44.h[1] = (5 - ext->u_4.h[0]) << 2;
             Obj_pos_set(wp, 0, wp->u_44.h[1] << 4, wp->u_48.h[0] << 4);
-            if (func_8004B414(wp) & 0x1000)
+            if (Obj_map_push_out(wp) & 0x1000)
             {
                 Sound_call2(0xB8, &wp->position);
                 if ((ext->flags_0 & 0x200) && func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x18,
@@ -2598,8 +2598,8 @@ void func_80105060(ST1D_VIEW *wp)
             else
             {
                 Obj_pos_set(wp, 0x180, 0, 0);
-                ext->u_5C.w          = func_8004B414(wp);
-                y                    = func_80048E6C(wp);
+                ext->u_5C.w          = Obj_map_push_out(wp);
+                y                    = Obj_ceiling_height_get(wp);
                 wp->position.y       = y;
                 wp->position_fixed.y = y << 16;
                 if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)

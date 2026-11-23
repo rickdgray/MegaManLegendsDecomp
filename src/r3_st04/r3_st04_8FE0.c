@@ -595,7 +595,7 @@ void func_8010A284(ST04_EV *wp)
 {
     ST04_SLOT *slot;
 
-    slot = func_8001EAE8(D_80111D2C);
+    slot = Scene_obj_ent_open(D_80111D2C);
     slot->flags_6 &= ~0x20;
     wp->slot_1C   = slot;
     wp->routine_0 = 1;

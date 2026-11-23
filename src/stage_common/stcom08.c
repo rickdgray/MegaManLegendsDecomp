@@ -40,7 +40,7 @@ void stcom08_func_00F0(STCOM08_WORK *wp)
     wp->scale.words[1]   = 0x180;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp) - 100;
+    wp->position.y       = Obj_ceiling_height_get(wp) - 100;
     wp->position_fixed.y = wp->position.y << 16;
     wp->home             = wp->position;
     wp->value_6E         = 0;
@@ -112,7 +112,7 @@ void stcom08_func_0348(STCOM08_WORK *wp)
         func_80031824(wp);
         return;
     }
-    ground = func_80048E6C(wp);
+    ground = Obj_ceiling_height_get(wp);
     wobble = stcom08_D_0010[STCOM08_FRAME & 7];
     if (wp->position.y > ground - 100)
     {

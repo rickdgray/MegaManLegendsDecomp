@@ -244,7 +244,7 @@ void func_8011049C(ST05_OBJ *wp, STAGE_SCENE_WORK *scene, ST05_FALL *fall)
     wp->scale.words[1]     = 0x200;
     wp->scale.v.pad        = 0x4210;
     wp->value_78           = 0;
-    y                      = wp->position.y + func_80048E6C(wp) - 0x4C0;
+    y                      = wp->position.y + Obj_ceiling_height_get(wp) - 0x4C0;
     wp->position.y         = y;
     wp->position_fixed.v.y = y << 16;
     fall->speed_4.value    = 0x88000;

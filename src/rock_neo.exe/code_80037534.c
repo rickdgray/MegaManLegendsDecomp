@@ -34,19 +34,12 @@ void func_80037534(PL_WORK *pl)
     }
 }
 
-#ifdef NON_MATCHING
-void func_80037594(void)
+void Player_weapon_bullet_set(void)
 {
-    // best attempt: target loads tbl_sel via its own lui, then builds &Player_work with a
-    // second lui/addiu and uses 0x4F5/0x4FA offsets from it; ours folds +0x172/+0x382 into one base
-    sint32 sel   = Player_work[0].tbl_sel;
-    TBL_IDX *rec = &Player_work[0].rec[sel];
+    PL_WORK *pl = &Player_work[0];
 
-    rec->val = D_80089EAC[sel][rec->idx[1]].val[1];
+    pl->rec[pl->tbl_sel].val = D_80089EAC[pl->tbl_sel][pl->rec[pl->tbl_sel].idx[1]].val[1];
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037534", func_80037594);
-#endif
 
 sint32 func_800375D4(PL_WORK *pl, sint32 n)
 {
@@ -83,7 +76,7 @@ sint32 func_80037694(MODEL_WORK *obj, uint32 arg1)
         {
             func_8003777C(id, arg1);
         }
-        func_8004B414(obj);
+        Obj_map_push_out(obj);
         return id;
     }
     return 0;
@@ -120,24 +113,22 @@ void func_8003777C(uint16 arg0, uint32 arg1)
     }
 }
 
-#ifdef NON_MATCHING
 void func_80037818(uint16 arg0)
 {
-    // best attempt: target keeps arg0 in a2 and does `li a0,4` in a delay slot, then `move a0,zero`
-    uint16 *p   = &Stage_idx_tbl[arg0].val;
-    uint16 old  = *p;
-    sint32 kind = 4;
+    uint16 *p = &Stage_idx_tbl[arg0].val;
+    uint16 old;
 
-    *p = 0;
+    old = *p;
+    *p  = 0;
     if ((old >> 12) == 0)
     {
-        kind = 0;
+        func_80037890(0, 4, arg0);
     }
-    func_80037890(kind, 4, arg0);
+    else
+    {
+        func_80037890(4, 4, arg0);
+    }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80037534", func_80037818);
-#endif
 
 void func_8003786C(uint16 arg0)
 {
@@ -257,7 +248,7 @@ void func_80037C50(uint16 arg0)
     if (arg0 < 0x800)
     {
         Cell_stack[Cell_stack_idx] =
-            (((Stage_idx_tbl[arg0].x + 0x8000) >> 9) - Map_org_x) + ((((Stage_idx_tbl[arg0].y + 0x8000) >> 9) - Map_org_y) << 8);
+            (((Stage_idx_tbl[arg0].x + 0x8000) >> 9) - Map_org_x) + ((((Stage_idx_tbl[arg0].z + 0x8000) >> 9) - Map_org_y) << 8);
         Cell_stack_idx++;
     }
 }

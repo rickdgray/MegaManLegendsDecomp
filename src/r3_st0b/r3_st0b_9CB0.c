@@ -1625,9 +1625,9 @@ void func_8010CEE0(ST0B_OBJ *wp)
         tilt->z = wp->rotation.x == 0 ? wp->rotation.z : 0;
         Model_parts_mtx_set_y(wp);
     }
-    ground        = func_80048E6C(wp);
+    ground        = Obj_ceiling_height_get(wp);
     ctl->value_30 = 0;
-    hit           = func_8004B414(wp);
+    hit           = Obj_map_push_out(wp);
     ctl->value_2C = hit;
     if (!(hit & 0x1000) && wp->position.y == ground)
     {

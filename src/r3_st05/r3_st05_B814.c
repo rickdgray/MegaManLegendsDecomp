@@ -24,7 +24,7 @@ void func_8010B8B0(ST05_OBJ *wp)
         wp->u_C.b.byte_C        = 0;
         wp->scale.v.pad         = 0x4210;
         wp->value_78            = 0;
-        wp->position.y          = wp->position.y + func_80048E6C(wp);
+        wp->position.y          = wp->position.y + Obj_ceiling_height_get(wp);
         wp->position_fixed.v.y  = wp->position.y << 16;
         wp->position_prev       = wp->position;
         wp->position_fixed_prev = wp->position_fixed.v;
@@ -470,7 +470,7 @@ void func_8010C6D0(ST05_GUARD *wp)
                 if (ctl->timer_4 < 2)
                 {
                     Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-                    func_8004B414(wp);
+                    Obj_map_push_out(wp);
                 }
                 break;
             }
@@ -483,7 +483,7 @@ void func_8010C6D0(ST05_GUARD *wp)
             ctl->timer_4     = t;
             wp->velocity.v.y = (4 - t) * 8;
             Obj_pos_set(wp, wp->velocity.v.x * 16, wp->velocity.v.y * 16, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -533,7 +533,7 @@ void func_8010C8A0(ST05_GUARD *wp)
                 if (ctl->timer_4 < 2)
                 {
                     Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-                    func_8004B414(wp);
+                    Obj_map_push_out(wp);
                 }
                 break;
             }
@@ -546,7 +546,7 @@ void func_8010C8A0(ST05_GUARD *wp)
             ctl->timer_4     = t;
             wp->velocity.v.y = (8 - t) * 8;
             Obj_pos_set(wp, wp->velocity.v.x * 16, wp->velocity.v.y * 16, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -645,7 +645,7 @@ void func_8010CA98(ST05_GUARD *wp)
         case 2:
             Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
             wp->velocity.v.y += wp->accel_4C.y;
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -706,8 +706,8 @@ void func_8010CE38(ST05_GUARD *wp)
         case 1:
             wp->rotation.y = (wp->rotation.y + Muku(&pl->position, &wp->position, wp->rotation.y, 0x18)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if ((hit & 0xF00) || wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -755,7 +755,7 @@ void func_8010CFC4(ST05_GUARD *wp)
                 if (ctl->timer_4 < 2)
                 {
                     Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-                    func_8004B414(wp);
+                    Obj_map_push_out(wp);
                 }
                 break;
             }
@@ -768,7 +768,7 @@ void func_8010CFC4(ST05_GUARD *wp)
             ctl->timer_4     = t;
             wp->velocity.v.y = (4 - t) * 8;
             Obj_pos_set(wp, wp->velocity.v.x * 16, wp->velocity.v.y * 16, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)

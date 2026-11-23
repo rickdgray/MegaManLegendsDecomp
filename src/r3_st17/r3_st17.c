@@ -19,7 +19,7 @@ void func_8010059C(void)
     void *spawn;
     sint16 *cells;
 
-    func_80022FD4(D_8011ABB8[Game_work.value_51]);
+    Room_model_init(D_8011ABB8[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -406,7 +406,7 @@ void func_8010130C(STAGE_OBJ *wp)
             wp->position_fixed.v.x = x << 16;
             wp->position_fixed.v.y = wp->position.y << 16;
             wp->position_fixed.v.z = wp->position.z << 16;
-            func_80053158(ST17_SCENE_OBJ(&Scene_work, 2), wp);
+            Ride_move(ST17_SCENE_OBJ(&Scene_work, 2), wp);
             // fall through
         case 2:
             func_80032488(wp);
@@ -3560,7 +3560,7 @@ void func_8010761C(STAGE_OBJ *wp)
             break;
         case 1:
         case 4:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             break;
     }

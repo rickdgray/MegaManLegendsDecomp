@@ -57,7 +57,7 @@ void func_80107620(STAGE_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    y                    = func_80048E6C(wp);
+    y                    = Obj_ceiling_height_get(wp);
     wp->position.y       = y;
     wp->position_fixed.y = y << 16;
     wp->value_6E         = 0;
@@ -212,7 +212,7 @@ void func_80107AE4(STAGE_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
     wp->value_6E         = 0;

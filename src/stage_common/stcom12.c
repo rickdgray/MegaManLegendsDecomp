@@ -54,7 +54,7 @@ void stcom12_func_0164(STCOM12_WORK *wp)
     wp->scale.v.pad = 0x4210;
     wp->data_78     = stcom12_D_002C;
     wp->scale.v.x = wp->scale.v.y = wp->scale.v.z = scale;
-    wp->position.y                                = func_80048E6C(wp);
+    wp->position.y                                = Obj_ceiling_height_get(wp);
     wp->position_fixed.y                          = wp->position.y << 16;
     wp->ctl.home_24                               = wp->position;
     wp->data_10                                   = stcom12_D_0020;
@@ -148,7 +148,7 @@ void stcom12_func_0304(STCOM12_WORK *wp)
                 }
             }
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             stcom12_func_0E9C(wp, hit);
             if (wp->param_D != 0 && wp->param_D < (Distance_xyz(&wp->position, &ctl->home_24) >> 7))
             {
@@ -209,7 +209,7 @@ void stcom12_func_0304(STCOM12_WORK *wp)
             // fall through
         case 15:
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
-            stcom12_func_0E9C(wp, func_8004B414(wp));
+            stcom12_func_0E9C(wp, Obj_map_push_out(wp));
             if (--ctl->timer_4 == 0)
             {
                 wp->routine_1 = 0;
@@ -363,10 +363,10 @@ void stcom12_func_08F8(STCOM12_WORK *wp)
                 break;
             }
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit)
             {
-                func_8004AC8C(&wp->velocity, hit);
+                Wall_reflect_spd(&wp->velocity, hit);
             }
             if (STCOM12_ABS(wp->velocity.x) <= STCOM12_ABS(ctl->decel_1C))
             {
@@ -440,7 +440,7 @@ void stcom12_func_0B24(STCOM12_WORK *wp)
             // fall through
         case 4:
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
-            stcom12_func_0E9C(wp, func_8004B414(wp));
+            stcom12_func_0E9C(wp, Obj_map_push_out(wp));
             if (D_800987B0[0] != 0)
             {
                 break;
@@ -502,7 +502,7 @@ void stcom12_func_0E9C(STCOM12_WORK *wp, uint32 hit)
 {
     sint16 ground;
 
-    ground = func_80048E6C(wp);
+    ground = Obj_ceiling_height_get(wp);
     if (hit & 0x1000)
     {
         wp->position.y = ground;

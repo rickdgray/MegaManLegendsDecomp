@@ -2777,7 +2777,7 @@ typedef struct
 
 void func_80116B78(ST1A_STCOM27_WORK *wp);
 
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 void func_80116C10(ST1A_STCOM27_WORK *wp);
 
 // From r3_st1a (ST1A_OBJ).
@@ -3180,7 +3180,7 @@ typedef struct
     sint32 value_C;       // 354
     uint8 reserved10[8];  // 358
     uint8 track_18[0x48]; // 360
-    sint32 ground_60;     // 3A8: func_8004B414's result
+    sint32 ground_60;     // 3A8: Obj_map_push_out's result
     sint16 angle_64;      // 3AC: the rotation.y to turn back to
     uint16 value_66;      // 3AE: damage taken since the last stun
     uint8 reserved68[2];  // 3B0
@@ -4127,7 +4127,7 @@ sint32 func_80036A88(sint32 a0, sint32 a1, sint32 a2, sint32 a3);
 // Game_work's word at +0x174 (STAGE_GAME_VIEW names its low halfword).
 #define ST1A_GAME_U32(offset) (*(uint32 *)((uint8 *)&Game_work + (offset)))
 
-void func_8001DF10(uint8 *script);
+void Scene_obj_list_open(uint8 *script);
 
 uint32 Stage_idx_model_set(sint32 idx, uint32 key);
 
@@ -4155,7 +4155,7 @@ sint32 func_80049C54(STCOM_SVECTOR *pos, STCOM_SVECTOR *prev, void *info, sint32
 
 STCOM_MATRIX *MulMatrix2(STCOM_MATRIX *m0, STCOM_MATRIX *m1);
 
-void func_80036B00(STCOM_SVECTOR *pos);
+void Fog_param_get(STCOM_SVECTOR *pos);
 
 // The boss's attack picker at +0x440 of its slot (func_8011C080), over ST1A_HIT.
 typedef struct

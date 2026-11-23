@@ -37,7 +37,7 @@ void func_80116728(ST0B_EVENT *wp)
         {
             wp->variant_3 = 1;
             Sce_flag_on(0x1C);
-            func_80017C30(2);
+            Fade_start(2);
         }
         else
         {
@@ -383,7 +383,7 @@ void func_801170A8(ST0B_EVENT *wp)
             break;
         case 2:
             Sound_fade_start(0x10);
-            func_80017C30(0xA);
+            Fade_start(0xA);
             wp->routine_2++;
             break;
         case 3:
@@ -510,7 +510,7 @@ void func_80117300(ST0B_EVENT *wp)
             if (!(Moji_flag & 0x800000))
             {
                 Sound_fade_start(0x10);
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_2++;
             }
             break;
@@ -616,7 +616,7 @@ void func_8011754C(ST0B_EVENT *wp)
             {
                 Sound_fade_start(0x10);
                 Sound_call(0x101, 0, 0);
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_2++;
             }
             break;
@@ -1384,7 +1384,7 @@ void func_80118C34(STAGE_ROOM *wp)
     wp->tbl_A4 = D_80120324;
     for (i = 0; i < 10; i++)
     {
-        func_8001EAE8(&D_801200D8[i]);
+        Scene_obj_ent_open(&D_801200D8[i]);
     }
     STAGE_PL.routine_0 = 3;
     STAGE_PL.routine_1 = 1;
@@ -1439,7 +1439,7 @@ void func_80118D40(STAGE_ROOM_WORK *wp)
         case 4:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_4++;
             }
             // fall through
@@ -1453,7 +1453,7 @@ void func_80118D40(STAGE_ROOM_WORK *wp)
                 D_800C3564 = STAGE_PL.fixed_428.z >> 16;
                 D_800C356A = STAGE_PL.value_442;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 5 && D_80098A72 == 0 && Sound_fade_flags == 0)
             {

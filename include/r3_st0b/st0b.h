@@ -666,7 +666,7 @@ extern uint8 D_8011974C[][8];
 
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_800364B0(void *track, void *target, sint32 angle);
-void func_8001DF10(uint8 *list);
+void Scene_obj_list_open(uint8 *list);
 
 // PsyQ's TILE (a flat rectangle), as func_80101110 fills it.
 typedef struct
@@ -815,7 +815,7 @@ typedef struct
 
 void func_80101110(uint8 r, uint8 g, uint8 b, uint16 abr);
 void func_80101E90(uint8 r, uint8 g, uint8 b, uint16 abr);
-void func_8001EC0C(void);
+void Sce_camera_update(void);
 void Sce_event_update(void);
 void func_801024DC(STAGE_ROOM_WORK *wp);
 extern STAGE_OBJ_FUNC D_8011A420[];
@@ -2326,7 +2326,7 @@ typedef struct
     uint8 reserved16[2]; // 16
     union
     {
-        sint32 hit;       // func_8004B414's result
+        sint32 hit;       // Obj_map_push_out's result
         uint16 h[2];      // [1]: frames since it rose (func_8010D558)
     } u_18;               // 18
     sint32 ground_1C;     // 1C: 1 on the ground
@@ -2607,7 +2607,7 @@ void Sce_event_timer_clear(void);
 #define ST0B_SP_TILT ((STCOM_SVECTOR *)0x1F800128)
 
 extern ST0B_HIT_B_FUNC D_8011B43C[];
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 // ST0B_OBJ's joint points from +0x180, eight bytes apart: their pads are the palette slots'
 // colors (pal[i] is joint[i].pad).

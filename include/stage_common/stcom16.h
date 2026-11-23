@@ -16,7 +16,7 @@ typedef struct
 // The ground block at +0xC4 of the work slot.
 typedef struct
 {
-    uint32 hit_0;   // C4: ground hit flags (func_8004B414)
+    uint32 hit_0;   // C4: ground hit flags (Obj_map_push_out)
     uint16 value_4; // C8: the claws' hit kind bits, from the kind's record (value_B, value_C)
     uint8 flags_6;  // CA
     uint8 count_7;  // CB: frames chasing the player
@@ -157,6 +157,6 @@ void stcom16_func_27E8(STCOM16_WORK *wp);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM16_H

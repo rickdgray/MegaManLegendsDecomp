@@ -10,6 +10,6 @@ extern uint8 D_80089ADA;
 extern SHL_FUNC D_800D8C28[]; // routine_0 handlers
 extern sint16 D_800D8C30[];   // push strength by Player_work.value_530
 
-void func_8004B5CC(SVECTOR *pos, SVECTOR *old, sint32 arg, SHL_BOX *box);
+void Pos_map_push_out(SVECTOR *pos, SVECTOR *old, sint32 arg, SHL_BOX *box);
 
 #endif // SHL07_H

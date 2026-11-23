@@ -73,7 +73,7 @@ struct STAGE_ROOM_WORK
     STAGE_ROOM_FUNC *tbl_A4; // A4: [0] is also read as a byte (0xFF: no script)
 };
 
-// A room model record (ROCK_NEO's 0x38-byte C8001F828_MODEL, built by func_80022FD4).
+// A room model record (ROCK_NEO's 0x38-byte C8001F828_MODEL, built by Room_model_init).
 typedef struct
 {
     sint32 x, y;
@@ -202,14 +202,14 @@ extern uint8 D_800A395C;
 extern uint8 *D_800BC7F0;
 extern void D_80013420(void); // ROCK_NEO.EXE's func_80013420
 
-void func_80022FD4(void *tbl);
+void Room_model_init(void *tbl);
 void Obj_spawn_tbl_set(void *spawn, sint32 spawn_player);
 void func_800371A0(void *blocks, void *arg1);
 void func_8005DC10(sint32 arg);
 void func_8001DDE4(sint32 id);
 void func_8001E6C0(sint32 a0, sint32 a1, sint32 a2);
 // Spawns a scene command's object; returns its work slot (ROCK_NEO's SCENE_SLOT, any slot size).
-void *func_8001EAE8(void *entry);
+void *Scene_obj_ent_open(void *entry);
 void Sce_event_set(void *a, void *b);
 void func_80067B7C(void);
 sint32 Sce_flag_test(sint32 flag);
@@ -220,7 +220,7 @@ void Sound_seq_stop_all(void);
 void Cd_xa_play_id(uint32 arg);
 uint32 func_8001D878(void);
 uint32 func_8001DE84(void);
-void func_8001EC0C(void);
+void Sce_camera_update(void);
 void Sce_event_update(void);
 void Obj_work_flag_change(sint32 mask, sint32 flags);
 void Cd_subcmd(sint32 arg0, sint32 arg1, sint32 arg2);
@@ -727,8 +727,8 @@ void Cd_read_comb(sint32 id);
 sint32 Cd_read_sync2(void);
 void Sound_fade_start(sint32 arg);
 void func_80032304(void *wp, sint32 anim, sint32 arg);
-void func_8002CA10(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
-void func_80033A28(void *wp);
+void Pos_Shadow_Trans(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
+void Model_pose_unpack(void *wp);
 void Model_parts_mtx_set_y(void *wp);
 
 // Three shorts (a position in a table).
@@ -1536,7 +1536,7 @@ typedef struct
     STCOM_EFFECT *effect_40; // 40
     sint16 turn_44;          // 44
     sint16 angle_46;         // 46: its bearing from the player, relative to the player's facing
-    uint32 hit_48;           // 48: ground hit flags (func_8004B414)
+    uint32 hit_48;           // 48: ground hit flags (Obj_map_push_out)
     void *shot_4C;           // 4C
 } STAGE_STCOM15_CTL;
 

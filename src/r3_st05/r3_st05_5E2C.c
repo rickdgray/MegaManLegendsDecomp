@@ -215,7 +215,7 @@ void func_80106564(STAGE_ROOM *wp)
     switch (wp->routine_4)
     {
         case 0:
-            func_80017C30(0xA);
+            Fade_start(0xA);
             wp->routine_4++;
             break;
         case 1:
@@ -248,7 +248,7 @@ void func_80106670(STAGE_OBJ *wp)
     }
     if (!(Moji_flag & 0x08000000))
     {
-        func_80017C30(9);
+        Fade_start(9);
         wp->routine_2 = 0;
         Sce_event_next();
     }
@@ -258,7 +258,7 @@ void func_801066D4(STAGE_ROOM *wp)
 {
     if (D_80098A72 == 0)
     {
-        func_8001EAE8(D_80130774);
+        Scene_obj_ent_open(D_80130774);
         STAGE_PL.pos_438.x   = -0x100;
         STAGE_PL.pos_438.y   = -1;
         STAGE_PL.pos_438.z   = 0xB00;
@@ -269,7 +269,7 @@ void func_801066D4(STAGE_ROOM *wp)
         wp->routine_7        = 1;
         func_8001E6C0(0, 0, 0);
         D_800BC7F0 = D_80130788;
-        func_80017C30(1);
+        Fade_start(1);
         Sce_event_next();
     }
 }
@@ -304,7 +304,7 @@ void func_80106840(STAGE_OBJ *wp)
 {
     if (!(Moji_flag & 0x08000000) && (wp->value_10 >= 0xB6))
     {
-        func_80017C30(9);
+        Fade_start(9);
         wp->routine_2 = 0;
         Sce_event_next();
     }
@@ -352,7 +352,7 @@ void func_80106934(STAGE_ROOM *wp)
                 STAGE_PL.routine_1 = 0;
                 pl->value_448      = 0x30;
                 wp->routine_4++;
-                func_80017C30(1);
+                Fade_start(1);
             }
             break;
         case 2:
@@ -369,7 +369,7 @@ void func_80106934(STAGE_ROOM *wp)
             if (func_8001DE84() && wp->reserved09[1] == 1 && D_80098A72 == 0)
             {
                 func_80053AA4(0);
-                func_80017C30(9);
+                Fade_start(9);
             next:
                 wp->routine_4++;
                 break;
@@ -377,14 +377,14 @@ void func_80106934(STAGE_ROOM *wp)
             func_801068F4((STAGE_ROOM_WORK *)wp);
             if (wp->routine_7 != 0)
             {
-                func_8001EC0C();
+                Sce_camera_update();
             }
             Sce_event_update();
             break;
         case 4:
             if (D_80098A72 == 0)
             {
-                func_80017C30(1);
+                Fade_start(1);
                 D_800A395C = 1;
                 func_80039820();
                 wp->routine_4++;
@@ -1105,7 +1105,7 @@ void func_80107FF0(ST05_VILLAGER *wp)
     wp->value_B2  = life;
     if ((wp->variant_3 & 0xF0) != 0x50)
     {
-        wp->position.y       = func_80048E6C(wp);
+        wp->position.y       = Obj_ceiling_height_get(wp);
         wp->position_fixed.y = wp->position.y << 16;
     }
     wp->routine_0 = 1;
@@ -1327,7 +1327,7 @@ void func_801085CC(ST05_VILLAGER *wp)
             Obj_pos_set(wp, 0, wp->velocity.v.y << 4, 0);
             wp->position.y -= 0x34;
             wp->position_fixed.y = wp->position.y << 16;
-            if (func_8004B414(wp) & 0x1000)
+            if (Obj_map_push_out(wp) & 0x1000)
             {
                 if (++wp->routine_3 == 3)
                 {
@@ -1398,8 +1398,8 @@ void func_801088F4(ST05_VILLAGER *wp)
             }
             wp->rotation.y = (wp->rotation.y + wp->spin_66) & 0xFFF;
             Obj_pos_set(wp, 0x30, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -1436,8 +1436,8 @@ void func_80108A54(ST05_VILLAGER *wp)
                 break;
             }
             Obj_pos_set(wp, 0x80, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -1511,8 +1511,8 @@ void func_80108BA4(ST05_VILLAGER *wp)
             }
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x * 16, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -1578,8 +1578,8 @@ void func_80108DFC(ST05_VILLAGER *wp)
             }
             wp->rotation.y = (wp->rotation.y + Muku(&pl->position, &wp->position, wp->rotation.y, wp->spin_66)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x << 4, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -1733,7 +1733,7 @@ void func_80109288(ST05_VILLAGER *wp)
             t                = 8 - (uint16)ctl->timer_4;
             wp->velocity.v.y = t * 4;
             Obj_pos_set(wp, wp->velocity.v.x << 4, wp->velocity.v.y << 4, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -1761,8 +1761,8 @@ void func_80109288(ST05_VILLAGER *wp)
                 wp->velocity.v.x--;
             }
             Obj_pos_set(wp, wp->velocity.v.x << 4, 0, 0);
-            func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->position.y - wp->position_prev.y > 0x10)
             {
@@ -1845,7 +1845,7 @@ void func_801095E0(ST05_VILLAGER *wp)
                 if (ctl->timer_4 < 2)
                 {
                     Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-                    func_8004B414(wp);
+                    Obj_map_push_out(wp);
                 }
                 break;
             }
@@ -1859,7 +1859,7 @@ void func_801095E0(ST05_VILLAGER *wp)
             ctl->timer_4     = t;
             wp->velocity.v.y = (4 - t) * 8;
             Obj_pos_set(wp, wp->velocity.v.x << 4, wp->velocity.v.y << 4, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -1926,7 +1926,7 @@ void func_8010984C(ST05_VILLAGER *wp)
                 if (ctl->timer_4 < 2)
                 {
                     Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-                    func_8004B414(wp);
+                    Obj_map_push_out(wp);
                 }
                 break;
             }
@@ -1940,7 +1940,7 @@ void func_8010984C(ST05_VILLAGER *wp)
             ctl->timer_4     = t;
             wp->velocity.v.y = (8 - t) * 8;
             Obj_pos_set(wp, wp->velocity.v.x << 4, wp->velocity.v.y << 4, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -2029,7 +2029,7 @@ void func_80109AE4(ST05_VILLAGER *wp)
                 wp->velocity.v.y = (7 - t) * 2;
             }
             Obj_pos_set(wp, wp->velocity.v.x << 4, wp->velocity.v.y << 4, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (hit != 0)
             {
                 if (hit & 0xF00)
@@ -2410,7 +2410,8 @@ sint32 func_8010A608(ST05_VILLAGER *wp)
     if (wp->ctl.flags_0 & 8)
     {
         wp->ctl.timer_A += damage;
-        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9 || wp->position.y != func_80048E6C(wp))
+        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9 ||
+            wp->position.y != Obj_ceiling_height_get(wp))
         {
             if (ctl->from_1C.pad & 1)
             {

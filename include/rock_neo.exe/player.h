@@ -20,7 +20,7 @@ typedef struct
     sint8 idx[4];
     sint8 sp_perform; // 0x04: Capcom's name; the special level, index of the sub screen's gauges
     uint8 unk05;
-    sint16 val; // 0x06: copy of D_80089EAC[n][idx[1]].val[1]; 0x7FFF is never counted down (func_80035724)
+    sint16 val; // 0x06: copy of D_80089EAC[n][idx[1]].val[1]; 0x7FFF is never counted down (pl_shot_spawn)
 } TBL_IDX;
 
 // Two opposite keys (PL_WORK.key_pair): mask is the OR of both keys_124 masks, key one of the two.
@@ -34,7 +34,7 @@ typedef struct
 typedef struct PL_WORK
 {
     uint8 unk00;
-    uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (func_80035724)
+    uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (pl_shot_spawn)
     uint8 id_2;  // 0x02: id_2 to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
     uint8 type_3;
     uint8 flag_4;
@@ -51,12 +51,12 @@ typedef struct PL_WORK
     uint32 field_C; // 0x0C: SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
     uint8 unk10[0x14 - 0x10];
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
-    SVECTOR pos;  // 0x14: position (vx and vz are the horizontal axes, vy the height)
-    VECTOR pos_l; // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
-    SVECTOR old;  // 0x2C: previous position
-    VECTOR old_l; // 0x34: 16.16 previous position
-    SVECTOR spd;  // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
-    uint8 unk4C[0x54 - 0x4C];
+    SVECTOR pos;     // 0x14: position (vx and vz are the horizontal axes, vy the height)
+    VECTOR pos_l;    // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)
+    SVECTOR old;     // 0x2C: previous position
+    VECTOR old_l;    // 0x34: 16.16 previous position
+    SVECTOR spd;     // 0x44: speed; spd.vx is the move passed to func_80041E90 (func_80042A40)
+    SVECTOR add;     // 0x4C: acceleration, as MODEL_WORK.add; func_8003CD4C sets add.vx to 0x30
     SVECTOR ang;     // 0x54: rotation; ang.vy is the facing angle (0..0xFFF), used by calc_vol
     SVECTOR old_ang; // 0x5C: previous rotation
     uint8 unk64[0x6C - 0x64];
@@ -70,10 +70,12 @@ typedef struct PL_WORK
     sint8 field_74; // 0x74: same as MODEL_WORK.field_74; nonzero makes func_80042B58 call
                     // Pl00_shot_enable_off, and func_800441CC leave owner_188 alone
     sint8 field_75; // 0x75: cleared with field_74 when player_entry_set is asked to reset
-    uint8 unk76;
+    sint8 field_76; // 0x76: same as MODEL_WORK.field_76; nonzero: Pl_Shadow_Trans puts the shadow
+                    // at pos.vy instead of looking up the ground
     uint8 unk77;
     HIT_ENT *hit_78; // 0x78: same as MODEL_WORK.hit_78; D_80097D90 (player_work_init)
-    uint8 unk7C[0x94 - 0x7C];
+    uint16 unk7C;    // 0x7C: bit 13 (as in Obj_map_push_out's hit flags) starts the fall of func_8003C4EC
+    uint8 unk7E[0x94 - 0x7E];
     KEY_ENT *seq_94; // 0x94: same as MODEL_WORK.seq_94: start of the sequence (func_800320B8)
     KEY_ENT *ptr_98; // 0x98: same as MODEL_WORK.ptr_98; b0 picks the packed pose (Pl_pose_unpack)
     uint8 unk9C[0xA4 - 0x9C];
@@ -83,13 +85,15 @@ typedef struct PL_WORK
     uint8 old_idx_AD; // 0xAD: previous idx_AC: a change restarts the sequence (func_8003C418);
                       // 0xFF forces the restart (key_seq_set)
     uint8 unkAE[0xB0 - 0xAE];
-    sint16 life_max; // 0xB0: Capcom's name (sub_scrn.c); upper limit of life (func_80043340)
-    uint8 unkB2[2];
+    sint16 life_max;    // 0xB0: Capcom's name (sub_scrn.c); upper limit of life (func_80043340)
+    sint16 old_life;    // 0xB2: life at the start of the frame (func_8003C88C, func_80041AB0)
     sint16 turn_B4;     // 0xB4: added (* 5) to the Y rotation of joint 1 (Pl_joint_mtx_set)
     sint16 turn_acc_B6; // 0xB6: last step added to turn_B4 (func_80042154)
     uint8 unkB8[0xBD - 0xB8];
-    uint8 flags_BD; // 0xBD: func_80048A9C sets bit 5, then swaps it for bit 6
-    uint8 unkBE[0xF8 - 0xBE];
+    sint8 flags_BD; // 0xBD: func_80048A9C sets bit 5, then swaps it for bit 6
+    uint8 unkBE[0xC0 - 0xBE];
+    MODEL_WORK *ride_C0; // 0xC0: the object ridden while field_76 is set (Ride_move)
+    uint8 unkC4[0xF8 - 0xC4];
     KEY_ENT *tbl_F8; // 0xF8: keyframe table in use (func_800321C8)
     KEY_ENT *ent_FC; // 0xFC: current keyframe
     KEY_CMD cmd_100; // 0x100: copy of the current keyframe's command; time counts down (func_800323FC)
@@ -125,15 +129,17 @@ typedef struct PL_WORK
     sint16 key_164;          // 0x164: the keys_124 mask held when func_8003D7D4's turn started; cleared
                              // when released or another direction is pressed
     uint8 unk166[0x168 - 0x166];
-    uint8 unk168; // 0x168: cleared with unk169 when func_80040764 enters state 9
-    uint8 unk169;
+    sint8 unk168; // 0x168: cleared with unk169 when func_80040764 enters state 9; lb, with unk169
+                  // the two grid cells passed to func_8002D004 (func_8003C4EC)
+    sint8 unk169;
     sint8 unk16A; // 0x16A: lb; selects the file D_80089200[unk16A] (func_8001F5E4)
     uint8 unk16B; // 0x16B: lbu; bits 1-7 (signed) select the file D_80089204[n] (func_8001F5E4)
     sint8 unk16C; // 0x16C: lb; when nonzero, Sce_flag_on sets it to the count of flags 0x53A-0x53C
     uint8 unk16D[0x170 - 0x16D];
-    sint8 unk170;  // 0x170: lb; selects the TBL_IDX record counted by func_80037440; nonzero also
-                   // selects the alternate keyframe tables for sets 0x40-0x5F (func_800321C8)
-    sint8 unk171;  // 0x171: lb; record index for the alternative position (func_80035724); nonzero
+    sint8
+        weapon_right_no; // 0x170: lb; the special weapon (Capcom's name, sub_scrn.c); selects the TBL_IDX record counted by func_80037440; nonzero also
+                         // selects the alternate keyframe tables for sets 0x40-0x5F (func_800321C8)
+    sint8 unk171;  // 0x171: lb; record index for the alternative position (pl_shot_spawn); nonzero
                    // selects the alternate keyframe tables for sets 0x60-0x7F
     sint8 tbl_sel; // 0x172: lb; index of the active TBL_IDX record
     uint8 unk173;
@@ -154,7 +160,7 @@ typedef struct PL_WORK
     MATRIX base_mtx;       // 0x1A8: body matrix, copied from the scratchpad matrix (Pl_joint_mtx_set)
     MATRIX joint_mtx[15];  // 0x1C8: joint matrices (func_800331A0)
     SVECTOR joint_pos[15]; // 0x3A8: joint positions (func_800331A0); [4] and [7] are copied to the
-                           // objects func_80035724 spawns, [11] and [14] by func_80047EC8
+                           // objects pl_shot_spawn spawns, [11] and [14] by func_80047EC8
     SVECTOR pos_420;       // 0x420: point 0x96 above joint 1, in scaled world units (Pl_joint_mtx_set)
     VECTOR pos_428;        // 0x428: 16.16 position, moved like pos_l (func_8002FF34)
     SVECTOR svec_438;      // 0x438: rounded copy of pos_428
@@ -166,9 +172,9 @@ typedef struct PL_WORK
     uint8 unk44B; // 0x44B: nonzero keeps func_80040574 from entering state 3
     sint8 unk44C; // 0x44C: bits read and cleared by func_80042B58 (bit 1: spd.vx = -0x280,
                   // bit 0: unk110 = -1)
-    uint8 unk44D; // 0x44D: sb; cleared by func_80039DE8
-    uint8 unk44E;
-    uint8 unk44F;
+    sint8 unk44D; // 0x44D: cleared by func_80039DE8; 1 makes Camera_update test the camera for walls
+    sint8 unk44E; // 0x44E: lb; when not negative, func_8001F3C8 sets weapon_right_no/unk171 (0 when it is 0)
+    sint8 unk44F; // 0x44F: lb; nonzero makes func_8001F3C8 copy tbl_sel to weapon_right_no
     // 0x450: the equipped buster parts (ids as in rb_parts_sort_data; Capcom's name, sub_scrn.c);
     // Sce_flag_off clears the flag's id here too
     uint8 rb_parts_equip_data[3];
@@ -188,6 +194,8 @@ extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
 extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *Player_work_ptr; // 0x80098A50
 extern PL_FUNC D_80089F94[4];    // handlers, indexed by PL_WORK.routine_8 (func_8003C418)
+extern PL_FUNC D_80089FA4[21];   // state handlers, indexed by routine_9; run second (func_8003C88C)
+extern PL_FUNC D_80089FF8[21];   // state handlers, indexed by routine_9; run first (func_8003C88C)
 extern HIT_ENT D_80097D90;       // the player's collision box (player_work_init)
 extern uint32 D_80097D9C;        // 2; passed to func_80039A38 when the player gets up (func_8003E860)
 // The pad bits the player sees during scenes (Player_exec copies them to pad_now ... pad_rep
@@ -203,7 +211,8 @@ extern uint16 D_800C0FEA;
 extern uint16 D_800C0FEC;
 extern uint16 D_800C0FEE;
 
-void Player_exec(void); // per frame (game's func_80015DB4): pad bits, then each player's state
+void Player_init(sint32 load);
+void Player_exec(void); // per frame (game's game_frame_exec): pad bits, then each player's state
 void func_80041E90(PL_WORK *pl, sint16 x, sint16 y, sint16 z);
 sint32 func_80042238(PL_WORK *pl);
 void func_80042314(PL_WORK *pl);
@@ -212,5 +221,6 @@ void Pl00_shot_enable_off(PL_WORK *pl);
 void Pl00_shot_enable_on(PL_WORK *pl);
 sint32 func_800423DC(PL_WORK *pl); // keyframe set for func_80042F78 (0x60-0x63)
 sint32 func_80042458(PL_WORK *pl); // keyframe set for func_80042770 (0x40-0x43)
+void func_8003C2D8(void);          // per frame (game's game_frame_exec)
 
 #endif // PLAYER_H

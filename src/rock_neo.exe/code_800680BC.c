@@ -125,10 +125,10 @@ void func_80068388(SCENE_WORK *sw)
     }
     if (sw->timer_10 == 82)
     {
-        wp                      = sw->obj_24[1];
-        wp->pos_l.vz            = 0xFF420000;
-        wp->slot_F8[20].field_3 = -1;
-        wp->slot_F8[21].field_3 = -1;
+        wp                     = sw->obj_24[1];
+        wp->pos_l.vz           = 0xFF420000;
+        wp->slot_F8[20].hide_3 = -1;
+        wp->slot_F8[21].hide_3 = -1;
     }
     if (sw->timer_10 == 121)
     {
@@ -138,23 +138,23 @@ void func_80068388(SCENE_WORK *sw)
     }
     if (sw->timer_10 == 210)
     {
-        wp                      = sw->obj_24[1];
-        wp->field_9             = 4;
-        wp->field_A             = 0;
-        wp->pos_180[1].col      = 0x2108;
-        wp->pos_180[3].col      = 0x2D6B;
-        wp->pos_180[4].col      = 0x2108;
-        wp->pos_180[6].col      = 0x2D6B;
-        wp->pos_180[7].col      = 0x2108;
-        wp->pos_180[15].col     = 0x2108;
-        wp->pos_180[16].col     = 0x2108;
-        wp->pos_180[17].col     = 0x2108;
-        wp->pos_180[18].col     = 0x2108;
-        wp->pos_180[19].col     = 0x2108;
-        wp->slot_F8[4].field_3  = -1;
-        wp->slot_F8[7].field_3  = -1;
-        wp->slot_F8[18].field_3 = 0;
-        wp->slot_F8[19].field_3 = 0;
+        wp                     = sw->obj_24[1];
+        wp->field_9            = 4;
+        wp->field_A            = 0;
+        wp->pos_180[1].col     = 0x2108;
+        wp->pos_180[3].col     = 0x2D6B;
+        wp->pos_180[4].col     = 0x2108;
+        wp->pos_180[6].col     = 0x2D6B;
+        wp->pos_180[7].col     = 0x2108;
+        wp->pos_180[15].col    = 0x2108;
+        wp->pos_180[16].col    = 0x2108;
+        wp->pos_180[17].col    = 0x2108;
+        wp->pos_180[18].col    = 0x2108;
+        wp->pos_180[19].col    = 0x2108;
+        wp->slot_F8[4].hide_3  = -1;
+        wp->slot_F8[7].hide_3  = -1;
+        wp->slot_F8[18].hide_3 = 0;
+        wp->slot_F8[19].hide_3 = 0;
     }
 }
 
@@ -194,15 +194,15 @@ void func_8006854C(SCENE_WORK *sw)
     if (sw->timer_10 == 0)
     {
         func_800680BC(1);
-        wp                      = sw->obj_24[1];
-        wp->field_9             = 5;
-        wp->pos_l.vx            = 0xFE590000;
-        wp->pos_l.vz            = 0xFF3D0000;
-        wp->field_A             = 0;
-        wp->slot_F8[4].field_3  = 0;
-        wp->slot_F8[7].field_3  = 0;
-        wp->slot_F8[18].field_3 = -1;
-        wp->slot_F8[19].field_3 = -1;
+        wp                     = sw->obj_24[1];
+        wp->field_9            = 5;
+        wp->pos_l.vx           = 0xFE590000;
+        wp->pos_l.vz           = 0xFF3D0000;
+        wp->field_A            = 0;
+        wp->slot_F8[4].hide_3  = 0;
+        wp->slot_F8[7].hide_3  = 0;
+        wp->slot_F8[18].hide_3 = -1;
+        wp->slot_F8[19].hide_3 = -1;
         wp->routine_0 |= 2;
         wp = sw->obj_24[2];
         wp->routine_0 |= 2;
@@ -518,10 +518,10 @@ void event_scene_init(SCENE_WORK *sw)
     func_8001E6C0(0, 0, 0);
     Sce_camera_work.arg_C0 = D_8008FFD8;
     sw->ev_ptr_A4          = D_8009039C;
-    func_8001EAE8(&D_8008FF88[0]);
-    func_8001EAE8(&D_8008FF88[1]);
-    func_8001EAE8(&D_8008FF88[2]);
-    func_8001EAE8(&D_8008FF88[3]);
+    Scene_obj_ent_open(&D_8008FF88[0]);
+    Scene_obj_ent_open(&D_8008FF88[1]);
+    Scene_obj_ent_open(&D_8008FF88[2]);
+    Scene_obj_ent_open(&D_8008FF88[3]);
     sw->field_64 = 0;
 }
 
@@ -560,7 +560,7 @@ void func_80068DAC(SCENE_WORK *sw)
             if (--sw->field_0C == 0)
             {
                 sw->routine_4++;
-                func_80017C30(2);
+                Fade_start(2);
             }
             break;
         case 3:
@@ -570,7 +570,7 @@ void func_80068DAC(SCENE_WORK *sw)
         case 4:
             if (D_80098A72 == 0 && (sw->ev_ptr_A4->ev_0 == 0xFF || func_8001DE84()))
             {
-                func_80017C30(10);
+                Fade_start(10);
                 sw->routine_4++;
             }
             // fall through
@@ -580,7 +580,7 @@ void func_80068DAC(SCENE_WORK *sw)
             {
                 screen_tile_draw(sw->field_68, sw->field_6C, sw->field_70, sw->field_74);
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (sw->timer_14 == 0x4680)
             {

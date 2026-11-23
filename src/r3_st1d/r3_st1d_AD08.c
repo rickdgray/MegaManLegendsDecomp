@@ -349,7 +349,7 @@ void func_8010B988(ST1D_VIEW *wp)
     wp->u_44.h[0]                              = 0x140;
     wp->value_AD                               = 0;
     func_800322A8(wp, wp->value_AC, 0);
-    ctl->ground_60 = func_8004B414(wp);
+    ctl->ground_60 = Obj_map_push_out(wp);
     ctl->angle_64  = (wp->rotation.y + 0x800) & 0xFFF;
 }
 
@@ -429,8 +429,8 @@ void func_8010BAEC(ST1D_VIEW *wp)
     {
         Sound_call2(0x1BD, &wp->position);
     }
-    ctl->ground_60       = func_8004B414(wp);
-    wp->position.y       = func_80048E6C(wp);
+    ctl->ground_60       = Obj_map_push_out(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     if ((ctl->flags_6C & 8) && wp->routine_1 != 1 && (ctl->ground_60 & 0xF00))
     {
@@ -2106,8 +2106,8 @@ void func_8010EE48(STCOM16_WORK *wp)
         }
     }
     func_80032488(wp);
-    ground->hit_0 = func_8004B414(wp);
-    y             = func_80048E6C(wp);
+    ground->hit_0 = Obj_map_push_out(wp);
+    y             = Obj_ceiling_height_get(wp);
     if (!(ground->flags_6 & 0x40))
     {
         if (y - wp->position_prev.y >= 16)
@@ -2251,8 +2251,8 @@ void func_8010F180(STCOM16_WORK *wp)
             break;
     }
     func_80032488(wp);
-    ground->hit_0 = func_8004B414(wp);
-    y             = func_80048E6C(wp);
+    ground->hit_0 = Obj_map_push_out(wp);
+    y             = Obj_ceiling_height_get(wp);
     if ((ground->flags_6 & 0x10) && !(ground->flags_6 & 0x20) && y == wp->position.y)
     {
         if (wp->routine_2 == 0)
@@ -2425,8 +2425,8 @@ void func_8010F890(STCOM16_WORK *wp)
     sint32 y;
 
     func_80032488(wp);
-    wp->ground.hit_0 = func_8004B414(wp);
-    y                = func_80048E6C(wp);
+    wp->ground.hit_0 = Obj_map_push_out(wp);
+    y                = Obj_ceiling_height_get(wp);
     if (y - wp->position_prev.y >= 16)
     {
         wp->routine_1 = 5;

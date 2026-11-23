@@ -35,7 +35,7 @@ void stcom20_func_0048(STCOM20_WORK *wp)
     wp->ctl.value_20  = 0;
     wp->ctl.hit_1C    = 0;
     wp->ctl.angle_10  = rand() & 0xFFF;
-    y                 = func_80048E6C(wp);
+    y                 = Obj_ceiling_height_get(wp);
     wp->ctl.ground_12 = y;
     if (y - 0x82 < wp->position.y)
     {
@@ -72,9 +72,9 @@ void stcom20_func_0148(STCOM20_WORK *wp)
         wp->velocity.v.x = 0;
     }
     func_8002FFC4(&wp->position, &wp->position_fixed, wp->angle_66, wp->velocity.v.x, 0, 0);
-    if (func_8004B414(wp) == 0)
+    if (Obj_map_push_out(wp) == 0)
     {
-        y = func_80048E6C(wp);
+        y = Obj_ceiling_height_get(wp);
         d = y - ctl->ground_12;
         if (STCOM_ABS(d) > 10)
         {
@@ -151,10 +151,10 @@ void stcom20_func_02F8(STCOM20_WORK *wp)
         wp->velocity.v.x = 0xA0;
     }
     func_8002FFC4(&wp->position, &wp->position_fixed, wp->angle_66, wp->velocity.v.x, 0, 0);
-    hit = func_8004B414(wp);
+    hit = Obj_map_push_out(wp);
     if (hit == 0)
     {
-        y = func_80048E6C(wp);
+        y = Obj_ceiling_height_get(wp);
         if (y != ctl->ground_12)
         {
             d = y - ctl->ground_12;
@@ -215,7 +215,7 @@ void stcom20_func_05FC(STCOM20_WORK *wp)
         func_80047148(wp, &wp->position, effect);
 #endif
     }
-    func_8004B414(wp);
+    Obj_map_push_out(wp);
 }
 
 void stcom20_func_06E8(STCOM20_WORK *wp)
@@ -229,7 +229,7 @@ void stcom20_func_06E8(STCOM20_WORK *wp)
         {
             wp->param_C   = 1;
             wp->routine_1 = 2;
-            wp->angle_66  = func_8001E83C(0, 0, wp->ctl.x_24, wp->ctl.z_28);
+            wp->angle_66  = Angle_xz(0, 0, wp->ctl.x_24, wp->ctl.z_28);
         }
         if (wp->ctl.hit_1C & 0x2000000)
         {
@@ -283,6 +283,6 @@ void stcom20_func_0818(STCOM20_WORK *wp)
     MulMatrix(&m->m, &rot.m);
     if (wp->flags_0 & 2)
     {
-        func_8002CA10(&wp->pos_AC, 0x30, 0x200, wp->rotation.y);
+        Pos_Shadow_Trans(&wp->pos_AC, 0x30, 0x200, wp->rotation.y);
     }
 }

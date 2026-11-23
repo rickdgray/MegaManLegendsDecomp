@@ -16,6 +16,6 @@ extern uint8 stcom38_E_0000[];
 extern uint8 stcom38_E2_0000[];
 
 // ROCK_NEO.EXE.
-void func_8001DF10(uint8 *script);
+void Scene_obj_list_open(uint8 *script);
 
 #endif // STCOM38_H

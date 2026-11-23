@@ -97,7 +97,7 @@ code) are compiled into US overlays:
   `ScaleMatrix`, as in the source). Its start is before `0x80101350` (the fragment starts mid-file).
 - **Confirmed: `Model_Shadow_Trans` is `0x8002C8CC`** (fixed in the registry, which had it at
   `0x8002C794`). The source calls `Model_Shadow_Trans(wk_p, 50, 683, 0)`, and in `ST1E` those calls go to
-  `0x8002C8CC`; overlays call it 268 times. `func_8002C794`, a sibling with the same prologue, is
+  `0x8002C8CC`; overlays call it 268 times. `Pl_Shadow_Trans`, a sibling with the same prologue, is
   called once, from ROCK_NEO, and never from an overlay.
 - The 0x3C-byte shape found in 35 programs is the `StXX_*_move` dispatcher
   (`tbl[wp->routine_0](wp)`), one per event or enemy object. Not one per file: `EM09_49.C` has five.

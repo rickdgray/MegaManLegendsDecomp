@@ -101,6 +101,13 @@ typedef struct
 
 typedef void (*W48_88_FUNC)(W48_88_WORK *wp);
 
+// The eight spark lines of kind 0x89, reached through one pointer (func_80047DD8, func_80047EC8).
+typedef struct
+{
+    uint16 ang[8]; // angle of each line
+    sint16 idx[8]; // length of each line: grows by one each frame, wrapping at 8
+} W48_89_LINES;
+
 // Kind 0x89 of the WORK_48 pool (handler func_80047D9C). A sprite kind.
 typedef struct
 {
@@ -120,14 +127,13 @@ typedef struct
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour
-    uint16 pos_1C[3]; // position (x, y, z)
+    sint16 pos_1C[3]; // position (x, y, z): the player's joint 11 or 14 (func_80047EC8)
     uint8 field_22;
     uint8 field_23;
     uint16 field_24;
     uint16 field_26;
-    sint16 ang_28[8]; // 0x28: eight angles (func_80047DD8)
-    sint16 idx_38[8]; // 0x38: eight indexes or counts (func_80047DD8, func_80047EC8)
-} W48_89_WORK;        // 0x48 bytes
+    W48_89_LINES lines_28; // 0x28
+} W48_89_WORK;             // 0x48 bytes
 
 typedef void (*W48_89_FUNC)(W48_89_WORK *wp);
 

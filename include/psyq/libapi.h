@@ -79,7 +79,7 @@ typedef struct
 #define R_SR    35 // status register
 #define R_CAUSE 36 // cause register
 // The documents don't give NREGS; 40 makes the TCB 0xC0 bytes, the BIOS's TCB size (the thread
-// setup in func_80012BC4 steps through the TCB table by 0xC0).
+// setup in thread_init steps through the TCB table by 0xC0).
 #define NREGS 40
 
 // Task control block (kernel.h).

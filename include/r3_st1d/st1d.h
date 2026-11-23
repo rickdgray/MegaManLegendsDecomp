@@ -77,7 +77,7 @@ typedef struct
     sint32 value_C;       // 354
     uint8 reserved10[8];  // 358
     uint8 track_18[0x48]; // 360
-    sint32 ground_60;     // 3A8: func_8004B414's result
+    sint32 ground_60;     // 3A8: Obj_map_push_out's result
     sint16 angle_64;      // 3AC: the rotation.y to turn back to
     uint16 value_66;      // 3AE: damage taken since the last stun
     uint8 reserved68[2];  // 3B0
@@ -509,7 +509,7 @@ void func_8010D084(STAGE_OBJ *wp);
 void func_8010DD38(STAGE_OBJ *wp);
 void func_8010E98C(STAGE_OBJ *wp);
 void func_8010F890(STCOM16_WORK *wp);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 void func_8010E068(STCOM16_WORK *wp);
 void func_8010E278(STCOM16_WORK *wp);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);

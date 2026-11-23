@@ -45,7 +45,7 @@ void func_80107EF8(ST0D_VILLAGER *wp, ST0D_TALK *talk)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->data_10          = D_8010E41C;
     wp->value_6E         = 0;
@@ -112,7 +112,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
                         wp->routine_1 = 4;
                         break;
                     case 1:
-                        func_80017C30(10);
+                        Fade_start(10);
                         wp->routine_1 = 3;
                         break;
                     case 2:
@@ -120,7 +120,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
                         {
                             if (Sce_flag_test(talk->flag_8))
                             {
-                                func_80017C30(10);
+                                Fade_start(10);
                                 wp->routine_1 = 3;
                                 break;
                             }
@@ -140,7 +140,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
                         wp->routine_1 = 4;
                         break;
                     case 1:
-                        func_80017C30(10);
+                        Fade_start(10);
                         wp->routine_1 = 3;
                         break;
                     case 2:
@@ -148,7 +148,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
                         {
                             if (Sce_flag_test(talk->flag_8))
                             {
-                                func_80017C30(10);
+                                Fade_start(10);
                                 wp->routine_1 = 3;
                                 break;
                             }
@@ -812,7 +812,7 @@ void func_80109944(ST0D_MARKER *wp)
     wp->value_70          = 0;
     wp->value_74          = 0;
     wp->position.z        = -0xED;
-    wp->position.y        = func_80048E6C(wp);
+    wp->position.y        = Obj_ceiling_height_get(wp);
     wp->scale.words[0]    = 0x02000200;
     wp->rotation.v.y      = 0xC00;
     wp->scale.words[1]    = 0x200;

@@ -1411,7 +1411,7 @@ sint32 func_80116380(ST05_WALKER *wp);
 void func_80116528(ST05_WALKER *wp);
 void func_80036470(void *track);
 void func_80036478(void *track, uint8 arg1, uint32 arg2);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 // A ROCK_NEO record per kind (D_80098844), as the walker reads it.
 typedef struct
@@ -2017,7 +2017,7 @@ typedef struct
     sint16 sink_12;       // 12
     sint16 rise_14;       // 14
     sint16 rise_16;       // 16: how fast it sinks (func_8011A194)
-    sint32 hit_18;        // 18: func_8004B414's result
+    sint32 hit_18;        // 18: Obj_map_push_out's result
     sint32 ground_1C;     // 1C: 1 on the ground
     sint32 hit_20;        // 20: func_800341BC's record
     sint32 value_24;      // 24
@@ -2397,7 +2397,7 @@ void func_8012BB3C(void);
 
 STCOM_MATRIX *RotMatrixX(sint32 r, STCOM_MATRIX *m);
 
-sint16 func_8004920C(STCOM_SVECTOR *pos);
+sint16 Ceiling_height_get(STCOM_SVECTOR *pos);
 
 void func_80030934(void *a0, void *a1, sint16 a2,
                    sint32 a3); // a3 passed without narrowing (func_8011C9B0)

@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "psyq/libgte.h"
+#include "code_8001F828.h"
 
 // One row of the debug menu (five of them in DEBUG_WORK).
 typedef struct
@@ -33,6 +34,16 @@ typedef struct
 } DEBUG_WORK;             // 0x38
 
 typedef sint32 (*DEBUG_FUNC)(DEBUG_WORK *wp);
+
+// One line of a debug menu row's option list, printed with Print(pos, text).
+typedef struct
+{
+    uint32 pos;    // Print's position word (XYC); DEBUG_MENU_CUR marks the current setting
+    char text[12]; // text[0] is the cursor column: '>' on the selected line, ' ' otherwise
+} DEBUG_MENU_LINE; // 0x10
+
+// Colour bit of a menu line's position word: set on the line of the current setting.
+#define DEBUG_MENU_CUR XYC(0, 0, 2)
 
 // A sprite's screen position: copied as a word (func_800640F0) or read as x and y (func_8006430C).
 typedef union
@@ -72,6 +83,14 @@ typedef struct
 } LOGO_WORK;                // 0xC
 
 typedef void (*LOGO_FUNC)(LOGO_WORK *wp);
+
+// One entry of D_8008ECDC, the logos Game_logo_set can open (picked by its argument's low byte).
+typedef struct
+{
+    uint16 kind_0;          // LOGO_WORK.kind_2
+    uint16 value_2;         // LOGO_WORK.value_4
+    LOGO_SPRITE *sprites_4; // LOGO_WORK.sprites_8
+} LOGO_DEF;
 
 // A raw primitive in the scratchpad's primitive buffer: tag, rgb + code, xy, uv + clut, wh.
 typedef struct
@@ -114,20 +133,33 @@ extern uint8 D_800987B5;
 extern uint32 D_8008DD54[]; // Moji_flag bit of each Moji task (func_80063C30)
 extern SVECTOR *D_800987B8; // DEBUG_FADE.pos_8 by its own label
 extern DEBUG_WORK Debug_work;
-extern DEBUG_FUNC D_8008DBD4[]; // debug menu modes
-extern DEBUG_FUNC D_8008DBE0[]; // per-row handlers
-extern LOGO_FUNC D_8008DD64[];  // logo kinds
+extern DEBUG_FUNC D_8008DBD4[];        // debug menu modes
+extern DEBUG_FUNC D_8008DBE0[];        // per-row handlers
+extern DEBUG_MENU_LINE D_8008DBF4[14]; // row 1's options: Player_work[0].weapon_right_no (func_80062CF0)
+extern DEBUG_MENU_LINE D_8008DCD4[2];  // row 0's options: Player_work[0].unk171 (func_80063058)
+extern DEBUG_MENU_LINE D_8008DCF4[2];  // row 2's options: Player_work[0].unk16A (func_80063334)
+extern DEBUG_MENU_LINE D_8008DD14[2];  // row 3's options: Game_work.unk054 (func_80063604)
+extern DEBUG_MENU_LINE D_8008DD34[2];  // row 4's options: Player_work[0].unk16B (func_800638D8)
+extern LOGO_FUNC D_8008DD64[];         // logo kinds
 extern LOGO_WORK D_800C3528[4];
+extern LOGO_DEF D_8008ECDC[];
 
 void func_800629E0(void);
 void func_800629F0(void);
 sint32 func_80062A50(DEBUG_WORK *wp);
 sint32 func_80062B04(DEBUG_WORK *wp);
 sint32 func_80062C6C(DEBUG_WORK *wp);
+sint32 func_80062CF0(DEBUG_WORK *wp);
+sint32 func_80063058(DEBUG_WORK *wp);
+sint32 func_80063334(DEBUG_WORK *wp);
+sint32 func_80063604(DEBUG_WORK *wp);
+sint32 func_800638D8(DEBUG_WORK *wp);
 void func_80063BA8(void);
 void func_80063BC8(void *pos, sint32 mode, sint32 value_4, sint32 value_5);
 void func_80063C30(void);
 void func_80063EF0(void); // clears D_800C3528's four 12-byte entries
+void Game_logo_kill(sint32 index);
+void Game_logo_set(sint32 index, sint32 arg);
 void func_80064060(void); // called once per frame by main
 void func_800640F0(LOGO_WORK *wp);
 

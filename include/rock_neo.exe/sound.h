@@ -12,6 +12,7 @@
 #define SOUND_DATA_BUF ((uint8 *)0x8013B000) // sound data loaded by comb reads (types 7, 8)
 #define VAB_HEAD_BUF   ((uint8 *)0x8014B000) // VAB headers, one per Game_work.vab slot
 #define VAB_HEAD_SIZE  0x1820
+#define VAB_TONE_BUF   (VAB_HEAD_BUF + 0x820) // the tones (VagAtr) of the first VAB header slot
 
 #define SOUND_CALL_MAX 24 // entries in the sound call queue (Sound_call_queue)
 
@@ -150,7 +151,7 @@ extern sint16 D_800C3562;
 extern sint16 D_800C3564;
 extern sint16 D_800C356A;
 extern sint8 D_800C356C; // -1 after func_800680BC
-extern uint8 D_800C356D;
+extern sint8 D_800C356D; // lb in func_80015840: nonzero keeps the player where it is
 extern uint8 D_800C356E; // like Game_work.stage_no; stage whose sound is loaded?
 extern uint8 D_800C356F; // like Game_work.area_no
 extern uint8 D_800C3570;

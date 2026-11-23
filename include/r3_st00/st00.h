@@ -721,7 +721,7 @@ extern uint32 *D_800BE6D8[];
 extern uint8 D_800C3588;
 extern uint8 D_801000CC[];
 extern sint32 D_8011A0FC[];      // by room (func_8005DC10)
-extern void *D_8011A6F0[];       // model table by room (func_80022FD4)
+extern void *D_8011A6F0[];       // model table by room (Room_model_init)
 extern void *D_8011AB3C[];       // spawn list by room
 extern void *D_8011AC40[];       // exit list by room
 extern uint8 D_8011AC54[][0x28]; // by room (func_800371A0)
@@ -1330,7 +1330,7 @@ typedef struct
 typedef void (*ST00_MOVER_FUNC)(ST00_MOVER *wp);
 
 extern ST00_MOVER_FUNC D_8011BF10[];
-void func_80053158(STAGE_OBJ *target, void *wp);
+void Ride_move(STAGE_OBJ *target, void *wp);
 
 extern STAGE_OBJ_FUNC D_8011C4DC[];
 
@@ -1843,7 +1843,7 @@ sint32 func_80105DEC(ST00_ACTOR_B *wp);
 extern ST00_ACTOR_FUNC_B D_8011BF38[];
 void func_80104BE4(ST00_ACTOR_B *wp);
 
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 void func_80104E64(STAGE_STCOM15_WORK_348 *wp);
 
 sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
@@ -1855,7 +1855,7 @@ void func_8010AE00(STAGE_STCOM15_WORK_4E0 *wp);
 
 void func_8010AFF8(STAGE_STCOM15_WORK_4E0 *wp);
 
-sint32 func_80049448(void *wp);
+sint32 Obj_floor_height_get(void *wp);
 void func_8010B6C8(STAGE_STCOM15_WORK_4E0 *wp);
 
 void func_8010BED4(STAGE_STCOM15_WORK_4E0 *wp);
@@ -1913,8 +1913,8 @@ void Sce_flag_off(sint32 flag);
 void func_8005D7C0(void);
 void func_8005D9EC(void);
 
-// func_80048E6C as func_801150CC calls it: the int result compared unnarrowed.
-sint32 func_80048E6C_int(void *wp) __asm__("func_80048E6C");
+// Obj_ceiling_height_get as func_801150CC calls it: the int result compared unnarrowed.
+sint32 func_80048E6C_int(void *wp) __asm__("Obj_ceiling_height_get");
 
 sint32 func_8010A448(STAGE_STCOM15_WORK_4E0 *wp);
 extern STAGE_STCOM15_FUNC_4E0 D_8011C068[];

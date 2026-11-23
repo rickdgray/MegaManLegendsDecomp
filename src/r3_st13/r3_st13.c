@@ -151,7 +151,7 @@ void func_80100808(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_80117294);
+        Scene_obj_list_open(D_80117294);
         wp->routine_4 = 0xFF;
     }
 }
@@ -160,7 +160,7 @@ void func_80100854(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8011729C);
+        Scene_obj_list_open(&D_8011729C);
         func_80100988();
         wp->value_4 = 0xFF;
     }
@@ -412,13 +412,13 @@ void func_8010103C(ST13_STCOM27_WORK *wp)
     sint32 ground;
     wp->ctl.flags_14 = 0;
     ctl              = &wp->ctl;
-    if (func_8004B414(wp) & 0xF00)
+    if (Obj_map_push_out(wp) & 0xF00)
     {
         wp->ctl.flags_14 |= 1;
     }
     if (wp->jump_74 == 0)
     {
-        ground = func_80048E6C(wp);
+        ground = Obj_ceiling_height_get(wp);
         if (ground != wp->position_prev.y)
         {
             if (wp->jump_prev_75 == 0)

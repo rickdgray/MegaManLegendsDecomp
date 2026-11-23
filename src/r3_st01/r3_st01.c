@@ -19,7 +19,7 @@ void func_80100098(void)
     void *spawns;
 
     mw = STAGE_MAP_WORK_PTR;
-    func_80022FD4(D_80100D5C[Game_work.value_51]);
+    Room_model_init(D_80100D5C[Game_work.value_51]);
     spawns    = D_80100D88[Game_work.value_51];
     mw->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     mw->h     = STAGE_MAP_TBL[Game_work.value_51].h;
@@ -46,7 +46,7 @@ void func_8010022C(STAGE_ROOM_WORK *wp)
     switch (wp->routine_4)
     {
         case 0:
-            func_80017C30(8);
+            Fade_start(8);
             wp->routine_4++;
             // fall through
         case 1:
@@ -122,7 +122,7 @@ void func_80100400(STAGE_ROOM_WORK *wp)
     entry      = D_80100F1C;
     D_800BC7F0 = D_80100F30;
     wp->tbl_A4 = D_80100F7C;
-    func_8001EAE8(entry);
+    Scene_obj_ent_open(entry);
 }
 
 void func_8010045C(STAGE_ROOM_WORK *wp)
@@ -163,20 +163,20 @@ void func_8010049C(STAGE_ROOM_WORK *wp)
             }
             break;
         case 4:
-            func_80017C30(2);
+            Fade_start(2);
             func_80100400(wp);
             wp->routine_4++;
             // fall through
         case 5:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(10);
+                Fade_start(10);
                 wp->routine_4 = 10;
             }
             // fall through
         case 10:
             func_8010045C(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 10 && D_80098A72 == 0)
             {

@@ -248,6 +248,6 @@ void stcom17_func_23BC(STCOM17_GUN_WORK *wp, sint32 angle, sint32 goal);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM17_H

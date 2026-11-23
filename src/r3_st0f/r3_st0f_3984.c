@@ -91,7 +91,7 @@ void func_80103C28(ST0F_OBJ *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->value_6E         = 0;
     wp->value_B0         = 0;

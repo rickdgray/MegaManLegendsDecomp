@@ -43,7 +43,7 @@ typedef struct
     STCOM_EFFECT *effect_40; // 368
     sint16 turn_44;          // 36C
     sint16 angle_46;         // 36E: its bearing from the player, relative to the player's facing
-    uint32 hit_48;           // 370: ground hit flags (func_8004B414)
+    uint32 hit_48;           // 370: ground hit flags (Obj_map_push_out)
     STCOM15_SHOT *shot_4C;   // 374
 } STCOM15_CTL;
 
@@ -135,6 +135,6 @@ sint32 stcom15_func_1F44(STCOM15_WORK *wp);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM15_H

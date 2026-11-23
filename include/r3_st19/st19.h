@@ -567,13 +567,13 @@ extern uint8 D_801171D8[][8];
 void func_8001DEE4(void);
 void func_8001E4C4(uint8 *ids, uint8 *flags);
 
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 uint8 func_80108CAC(STCOM_SVECTOR a, STCOM_SVECTOR b, sint16 w, sint16 d);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
 
 extern uint8 D_8011835C[][2];
 
-void func_8001DF10(uint8 *list);
+void Scene_obj_list_open(uint8 *list);
 extern uint8 D_801171C0[];
 
 extern STAGE_FX_FUNC D_801184A0[];
@@ -1000,7 +1000,7 @@ typedef struct
 } ST19_FOLLOWER;
 
 STAGE_OBJ *func_80036294(sint32 id);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 uint8 func_80108CAC(STCOM_SVECTOR a, STCOM_SVECTOR b, sint16 w, sint16 d);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
 

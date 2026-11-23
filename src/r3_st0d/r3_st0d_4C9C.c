@@ -41,7 +41,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
                 {
                     if (Sce_flag_test(flag))
                     {
-                        func_80017C30(10);
+                        Fade_start(10);
                         wp->routine_1 = 3;
                     }
                     else
@@ -59,7 +59,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
             {
                 if (Sce_flag_test(flag))
                 {
-                    func_80017C30(10);
+                    Fade_start(10);
                     wp->routine_1 = 3;
                 }
                 else

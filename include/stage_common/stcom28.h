@@ -106,6 +106,6 @@ void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint16 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM28_H

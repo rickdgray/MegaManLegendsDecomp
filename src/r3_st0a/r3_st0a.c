@@ -19,7 +19,7 @@ void func_8010037C(void)
 {
     void *spawn;
     sint16 *cells;
-    func_80022FD4(D_8011499C[Game_work.value_51]);
+    Room_model_init(D_8011499C[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -63,7 +63,7 @@ void func_8010058C(STAGE_ROOM *wp)
         case 0:
             if (Sce_flag_test(0x26) == 0)
             {
-                func_8001DF10(D_80114EB8);
+                Scene_obj_list_open(D_80114EB8);
                 obj = Open_EVE_WORK();
                 if (obj != NULL)
                 {

@@ -444,7 +444,7 @@ void func_80116D28(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, ST06_FLOAT *fl)
     wp->anim_AC        = 0;
     wp->anim_prev_AD   = 0xFF;
     fl->count_0        = 0;
-    wp->position.y += func_80048E6C(wp);
+    wp->position.y += Obj_ceiling_height_get(wp);
     fl->base_2             = wp->position.y;
     wp->routine_1          = 0;
     wp->position_fixed.v.y = wp->position.y << 16;
@@ -699,7 +699,7 @@ void func_80117290(ST06_CRAB *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
     wp->value_44.half[0] = (wp->position.x - wp->position_prev.x) << 4;
@@ -707,7 +707,7 @@ void func_80117290(ST06_CRAB *wp)
     wp->value_48.half[0] = (wp->position.z - wp->position_prev.z) << 4;
     if (wp->flags_0 & 2)
     {
-        func_8002CA10(&wp->position, 0x80, 0x200, wp->rotation.y);
+        Pos_Shadow_Trans(&wp->position, 0x80, 0x200, wp->rotation.y);
     }
     if (wp->flags_0 & 1)
     {
@@ -729,7 +729,7 @@ void func_80117290(ST06_CRAB *wp)
                           0x80);
         }
     }
-    body->ground_78 = func_8004B414(wp);
+    body->ground_78 = Obj_map_push_out(wp);
 }
 
 void func_80117784(STAGE_OBJ *wp)
@@ -820,7 +820,7 @@ void func_801177D0(ST06_CRAB *wp)
                 body->target_50 = pl->position;
             }
             wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &body->target_50, wp->rotation.y, 0x20)) & 0xFFF;
-            wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - func_80048E6C(wp);
+            wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - Obj_ceiling_height_get(wp);
             Obj_pos_set(wp, 0, (D_800BBD38[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
             if (--body->u_4.h.timer_4 < 0)
             {
@@ -1049,7 +1049,7 @@ void func_801180F8(ST06_CRAB *wp)
             break;
         case 3:
             wp->rotation.y       = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
-            wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - func_80048E6C(wp);
+            wp->value_4C.half[1] = (sint16)(wp->position.y + 0x400) - Obj_ceiling_height_get(wp);
             Obj_pos_set(wp, 0, (D_800BBD38[body->u_4.h.timer_4] * wp->value_4C.half[1]) >> 12, 0);
             if (--body->u_4.h.timer_4 < 0)
             {
@@ -1153,7 +1153,7 @@ void func_8011837C(ST06_CRAB *wp)
                 {
                     body->timer_80 = 0;
                 }
-                wp->value_4C.half[1] = (sint16)(func_80048E6C(wp) - 0x200) - body->timer_80 * 8 - wp->position.y;
+                wp->value_4C.half[1] = (sint16)(Obj_ceiling_height_get(wp) - 0x200) - body->timer_80 * 8 - wp->position.y;
                 if ((wp->value_4C.half[1] < 0 ? -wp->value_4C.half[1] : wp->value_4C.half[1]) > 0x40)
                 {
                     if (wp->value_4C.half[1] < 0)

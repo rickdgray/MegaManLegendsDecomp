@@ -1033,7 +1033,7 @@ void func_80113B34(ST06_ACTOR *wp);
 extern STCOM_FIXED_VECTOR D_8012BA40;
 sint32 func_8010F024(ST06_ACTOR *wp);
 
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 
 void func_801134B8(ST06_ACTOR *wp);
 
@@ -1202,7 +1202,7 @@ typedef struct
     STCOM_SVECTOR hit_pos_68;          // 4A8: joint 10
     uint32 hit_70;                     // 4B0
     sint32 value_74;                   // 4B4
-    sint32 ground_78;                  // 4B8: func_8004B414's result
+    sint32 ground_78;                  // 4B8: Obj_map_push_out's result
     sint32 hit_7C;                     // 4BC: func_80049C54's result
     uint16 timer_80;                   // 4C0
     uint16 timer_82;                   // 4C2

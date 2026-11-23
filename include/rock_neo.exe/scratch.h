@@ -31,6 +31,10 @@
 // by each primitive's own size (0x20 for a POLY_FT3).
 #define Map_prim_ptr (*(POLY_FT4 **)0x1F800070)
 
+// The same pointer stepped by a SPRT or a DR_MODE (moji's text renderer, func_80053B40).
+#define Sprt_prim_ptr (*(SPRT **)0x1F800070)
+#define Mode_prim_ptr (*(DR_MODE **)0x1F800070)
+
 // Scratchpad scene scale and fog parameters (written by func_8003697C / func_800369C0).
 #define Scratch_scale_shift                                                                                                                \
     (*(uint8 *)0x1F800074) // 0 normal, 1 = coordinates doubled, fog distances halved (func_800369C0); also a table index (0-2)
@@ -42,6 +46,9 @@
 #define Scratch_fog_0 (*(uint16 *)0x1F800006)
 #define Scratch_fog_1 (*(uint16 *)0x1F800076)
 #define Scratch_fog_2 (*(uint8 *)0x1F800078) // byte +0x23 of the fog block (func_800371A0)
+
+// Colour bits OR'd into the code word of a near map face over the screen centre (func_80024F30).
+#define D_1F80007C (*(u_long *)0x1F80007C)
 
 // Bits OR'd into a textured primitive's uv0/CLUT word: the fog CLUT row offset (<< 16) that
 // billboard_draw picks by depth.
@@ -62,6 +69,13 @@
 #define Scratch_sxy ((long *)0x1F800100)
 #define Scratch_sz  ((uint16 *)0x1F800300)
 
+// The same bytes at another time: the vertices of the face being drawn, copied there from the
+// mesh to be loaded into the GTE (func_8002AEE4, func_8002A6E8).
+#define Scratch_vtx ((SVECTOR *)0x1F800100)
+
+// The same bytes at another time: an identity matrix billboard_queue_draw builds to draw billboards.
+#define Scratch_id_mtx (*(MATRIX *)0x1F800100)
+
 // The same bytes at another time: rsin and rcos of the player's facing angle, set by
 // front_box_search for the target search (func_800414F0).
 #define Scratch_pl_sin (*(sint16 *)0x1F800100)
@@ -74,7 +88,7 @@
 // same bytes as Scratch_clut_bits and Scratch_rgbc, used at other times.
 #define Scratch_mtx2 (*(MATRIX *)0x1F8000E0)
 
-// Scratchpad pose unpacking (func_80033A28): 0x20 packed words at 0x1F800180 become 25 SVECTORs
+// Scratchpad pose unpacking (Model_pose_unpack): 0x20 packed words at 0x1F800180 become 25 SVECTORs
 // of 12-bit values at 0x1F800120: joint rotations. The player's skeleton (Pl_joint_mtx_set) takes
 // [0..15] as one pose and [16..24] as a second one for some limbs.
 #define Scratch_pose_packed ((uint32 *)0x1F800180)
@@ -85,8 +99,5 @@
 // 0xC words into [16..24].
 #define Scratch_pl_pose_packed  ((uint32 *)0x1F800164)
 #define Scratch_pl_pose_packed2 ((uint32 *)0x1F8001D0)
-
-// The same block as halfwords, as the parked func_80033A28 writes it.
-#define Scratch_pose_vtx ((sint16 *)0x1F800120)
 
 #endif // SCRATCH_H

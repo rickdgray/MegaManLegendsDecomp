@@ -200,13 +200,13 @@ void stcom27_func_0600(STCOM27_WORK *wp)
 
     wp->ctl.flags_14 = 0;
     ctl              = &wp->ctl;
-    if (func_8004B414(wp) & 0xF00)
+    if (Obj_map_push_out(wp) & 0xF00)
     {
         wp->ctl.flags_14 |= 1;
     }
     if (wp->jump_74 == 0)
     {
-        ground = func_80048E6C(wp);
+        ground = Obj_ceiling_height_get(wp);
         if (ground != wp->position_prev.y)
         {
             if (wp->jump_prev_75 == 0)

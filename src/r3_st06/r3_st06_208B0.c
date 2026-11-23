@@ -116,7 +116,7 @@ void func_80120AAC(ST06_10C_B *wp)
                 wp->value_D--;
             }
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             func_80120A2C(wp, 0x200);
             break;

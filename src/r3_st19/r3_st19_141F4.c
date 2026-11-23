@@ -199,7 +199,7 @@ void func_80114800(STAGE_OBJ *wp)
         func_800322A8(wp, 1, 0);
         wp->routine_2++;
     }
-    func_80033A28(wp);
+    Model_pose_unpack(wp);
     Model_parts_mtx_set_y(wp);
 }
 
@@ -218,7 +218,7 @@ void func_80114864(STAGE_OBJ *wp)
             func_800322A8(wp, 2, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -280,7 +280,7 @@ void func_80114A38(STAGE_OBJ *wp)
             func_800322A8(wp, 4, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -303,7 +303,7 @@ void func_80114AEC(STAGE_OBJ *wp)
             func_800322A8(wp, 5, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -352,7 +352,7 @@ void func_80114CC0(STAGE_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
     func_80115008(wp, face);
@@ -469,7 +469,7 @@ void func_80115154(STAGE_OBJ *wp)
         func_800322A8(wp, 1, 0);
         wp->routine_2++;
     }
-    func_80033A28(wp);
+    Model_pose_unpack(wp);
     Model_parts_mtx_set_y(wp);
 }
 
@@ -574,7 +574,7 @@ void func_801153DC(STAGE_OBJ *wp)
             func_800322A8(wp, 0xBU, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -594,7 +594,7 @@ void func_80115480(STAGE_OBJ *wp)
             func_800322A8(wp, 0xCU, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -615,7 +615,7 @@ void func_8011551C(STAGE_OBJ *wp)
             func_800322A8(wp, 0xDU, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -679,7 +679,7 @@ void func_801156B8(STAGE_OBJ *wp)
 
 void func_80115734(STAGE_OBJ *wp)
 {
-    func_80033A28(wp);
+    Model_pose_unpack(wp);
     Model_parts_mtx_set_y(wp);
 }
 

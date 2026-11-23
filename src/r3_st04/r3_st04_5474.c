@@ -388,7 +388,7 @@ void func_80106048(ST04_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
     wp->value_6E         = 0;
@@ -560,7 +560,7 @@ void func_80106568(ST04_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
     wp->value_6E         = 0;
@@ -792,8 +792,8 @@ void func_80106C5C(ST04_ACTOR *wp)
         case 1:
             wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl[1].at_14.goal, wp->rotation.y, 8)) & 0xFFF;
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-            hit                  = func_8004B414(wp);
-            y                    = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            y                    = Obj_ceiling_height_get(wp);
             wp->position.y       = y;
             wp->position_fixed.y = y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
@@ -917,7 +917,7 @@ void func_80106F90(ST04_ACTOR *wp)
             // fall through
         case 2:
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (--ctl->timer_4 < 0)
             {
                 wp->routine_2 = 3;
@@ -1296,7 +1296,7 @@ void func_80107C24(ST04_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
     wp->value_6E         = 0;

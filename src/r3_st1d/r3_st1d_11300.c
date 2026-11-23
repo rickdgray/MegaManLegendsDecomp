@@ -252,7 +252,7 @@ void func_801118E0(STAGE_OBJ50 *wp)
         if (!(pl->flags_bd & 0x40))
         {
             pl->flags_bd |= 0x40;
-            func_80017C30(0xA);
+            Fade_start(0xA);
             Sce_flag_on(0x5F);
             wp->routine_0 = 6;
             wp->routine_1 = 0;

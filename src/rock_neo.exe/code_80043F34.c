@@ -97,7 +97,7 @@ void func_80043F70(W48_80_WORK *wp)
             case 6:
                 break;
             default:
-                if (func_8004920C(&wp->pos_38) - wp->pos_38.vy < 0x1E)
+                if (Ceiling_height_get(&wp->pos_38) - wp->pos_38.vy < 0x1E)
                 {
                     sub = 0;
                 }
@@ -119,16 +119,17 @@ void func_80043F70(W48_80_WORK *wp)
     }
 }
 
-#ifdef NON_MATCHING
-// Register allocation only, in the distance test: the target keeps the player's coordinate in v1
-// (subu v0,v1,v0) and the three squares in a1/a0/t0; this gives v0 and a2/a1/a0.
+// One temporary `t` serves three values (the player's x, the y difference and the squared
+// radius); that reuse gives the target's registers for the distance terms and the squares.
 void func_800441CC(W48_80_WORK *wp)
 {
     uint32 size;
+    uint32 dist;
     sint32 dx;
     sint32 dy;
     sint32 dz;
     sint32 r;
+    sint32 t;
 
     D_8008A214[wp->field_9](wp);
     size = D_80097DDC[wp->size_D];
@@ -143,11 +144,16 @@ void func_800441CC(W48_80_WORK *wp)
             {
                 if (wp->level_F != 0)
                 {
-                    dx = Player_work[0].pos.vx - wp->pos_38.vx;
-                    dy = Player_work[0].pos.vy - wp->pos_38.vy;
-                    dz = Player_work[0].pos.vz - wp->pos_38.vz;
-                    r  = wp->pos_38.pad / 2;
-                    if ((uint32)(r * r) >= (uint32)(dx * dx + dy * dy + dz * dz) && Player_work[0].field_74 == 0)
+                    t    = Player_work[0].pos.vx;
+                    dx   = t - wp->pos_38.vx;
+                    t    = Player_work[0].pos.vy - wp->pos_38.vy;
+                    dy   = t;
+                    dz   = Player_work[0].pos.vz - wp->pos_38.vz;
+                    dist = dx * dx + dy * dy + dz * dz;
+                    r    = (uint16)wp->pos_38.pad;
+                    r    = (sint16)r / 2;
+                    t    = r * r;
+                    if (t >= dist && Player_work[0].field_74 == 0)
                     {
                         Player_work[0].owner_188.hit_0 |= 0x10000000;
                         switch (wp->level_F)
@@ -185,11 +191,187 @@ void func_800441CC(W48_80_WORK *wp)
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80043F34", func_800441CC);
-#endif
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80043F34", func_8004441C);
+void func_8004441C(W48_80_WORK *wp)
+{
+    sint16 *v;
+    sint32 c;
+    sint32 w;
+    sint32 lim;
+
+    v = wp->hw_44;
+    switch (wp->type_3 & 0xF)
+    {
+        case 0:
+        case 3:
+        default:
+            v[0] += v[1];
+            wp->pos_38.pad += v[0];
+            if (v[0] <= 0)
+            {
+                lim = D_8008A1A8[wp->size_D].limit;
+                if (wp->pos_38.pad < lim)
+                {
+                    wp->routine_8++;
+                    wp->pos_38.pad = 0;
+                    return;
+                }
+                v[1] = 0;
+                v[0] = D_8008A1A8[wp->size_D].speed;
+                if (D_8008A1A8[wp->size_D].high < wp->pos_38.pad)
+                {
+                    c = 0x80;
+                }
+                else
+                {
+                    c = ((wp->pos_38.pad - lim) << 7) / wp->pos_38.pad;
+                }
+            }
+            else
+            {
+                c = 0x80;
+            }
+            if (c < 0)
+            {
+                c = 0;
+            }
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            break;
+        case 1:
+            v[0] += v[1];
+            w = wp->pos_38.pad += v[0];
+            if (w <= 0)
+            {
+                wp->routine_8++;
+                wp->pos_38.pad = 0;
+                return;
+            }
+            lim = D_8008A1C8[wp->size_D].limit;
+            if (v[0] <= 0 && w <= lim)
+            {
+                c = 0x60 - ((lim - w) << 7) / lim;
+            }
+            else
+            {
+                c = 0x80;
+            }
+            if (c >= 0x100)
+            {
+                c = 0xFF;
+            }
+            if (c < 0)
+            {
+                c = 0;
+            }
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            break;
+        case 2:
+            v[0] += v[1];
+            wp->pos_38.pad += v[0];
+            if (v[0] <= 0)
+            {
+                wp->routine_8++;
+                wp->pos_38.pad = 0;
+                return;
+            }
+            if (D_8008A1E8[wp->size_D].limit < wp->pos_38.pad)
+            {
+                wp->field_A += D_8008A1E8[wp->size_D].step;
+                if (wp->field_A <= 0x80)
+                {
+                    c = 0x80 - wp->field_A;
+                }
+                else
+                {
+                    c = 0;
+                }
+            }
+            else
+            {
+                c = 0x80;
+            }
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            break;
+        case 4:
+            v[0] += v[1];
+            wp->pos_38.pad += v[0];
+            if (v[0] <= 0)
+            {
+                if (wp->pos_38.pad < 100)
+                {
+                    wp->routine_8++;
+                    wp->pos_38.pad = 0;
+                }
+                v[1] = 0;
+                v[0] = -20;
+                if (wp->pos_38.pad > 0x400)
+                {
+                    c = 0x80;
+                }
+                else
+                {
+                    c = wp->pos_38.pad >> 3;
+                }
+            }
+            else
+            {
+                c = 0x80;
+            }
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            break;
+        case 5:
+            v[0] += v[1];
+            wp->pos_38.pad += v[0];
+            if (v[0] < 0x82)
+            {
+                wp->field_A++;
+            }
+            if (wp->field_A >= 8)
+            {
+                wp->field_A = 8;
+                wp->routine_8++;
+            }
+            c           = (8 - wp->field_A) * 16;
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            break;
+        case 6:
+            v[0] += v[1];
+            wp->pos_38.pad += v[0];
+            if (wp->pos_38.pad > 0x800)
+            {
+                wp->field_A += 10;
+                if (wp->field_A <= 0x80)
+                {
+                    c = 0x80 - wp->field_A;
+                }
+                else
+                {
+                    c = 0;
+                }
+            }
+            else
+            {
+                c = 0x80;
+            }
+            wp->rgbc_40 = (c | 0x2000000 | (c << 8)) | (c << 16);
+            if (c == 0)
+            {
+                wp->routine_8++;
+                wp->pos_38.pad = 0;
+            }
+            break;
+    }
+    *(uint32 *)&wp->mtx.m[0][0] = 0x1000;
+    *(uint32 *)&wp->mtx.m[1][1] = 0x1000;
+    *(uint32 *)&wp->mtx.m[2][2] = 0x1000;
+    *(uint32 *)&wp->mtx.m[0][2] = 0;
+    *(uint32 *)&wp->mtx.m[2][0] = 0;
+    wp->mtx.t[0]                = 0;
+    wp->mtx.t[1]                = 0;
+    wp->mtx.t[2]                = 0;
+    wp->mtx.m[0][0] = wp->mtx.m[1][1] = wp->mtx.m[2][2] = wp->pos_38.pad;
+    RotMatrixY(++wp->timer_B << 7, &wp->mtx);
+}
 
 void func_8004492C(void)
 {

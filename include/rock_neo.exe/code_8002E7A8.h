@@ -32,12 +32,16 @@
 
 // Obj_work_flag_change's flag: close the slots (Capcom's name, from eve19.c).
 #define WORK_KILL 0x80
+// Obj_work_flag_change's mask bit for the player's shots (Capcom's name, from sub_scrn.c).
+#define WORK_PL_SHL 0x8
 
 // Handler tables of the work pools, kept on the scratchpad (func_800135DC stores Work_3C0_tbl).
 // Each pool's update loop (game.c) calls tbl[id_2] (tbl[id_2][flag_4] for the two-level ones)
 // for every slot whose routine_0 and flags both have bit 0 set.
 #define Work_3C0_tbl (*(WORK3C0_FUNC ***)0x1F800058) // D_8009F108's
 #define Work_5A4_tbl (*(WORK5A4_FUNC ***)0x1F80005C) // D_800C3580's
+#define Shl_work_tbl (*(SHL_FUNC **)0x1F800060)      // D_8009CF88's, ids below 0x80
+#define Work_48_tbl  (*(WORK48_FUNC **)0x1F800064)   // D_800A3B40's, ids below 0x80
 #define Eve_work_tbl (*(EVE_FUNC **)0x1F800068)      // D_800A2D08's
 #define Work_50_tbl  (*(WORK50_FUNC **)0x1F80006C)   // D_800BF118's
 
@@ -46,7 +50,7 @@
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
 
-// Collision box passed to func_8004B5CC/func_80048EA4: three (min, max) halfword pairs, each
+// Collision box passed to Pos_map_push_out/func_80048EA4: three (min, max) halfword pairs, each
 // -n, +n in the tables (D_8008A310, D_8008A618). max_A is the half-height kept clear above the
 // ground (func_80046438).
 typedef struct
@@ -90,8 +94,15 @@ typedef struct
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
-    uint32 field_8;
-    uint32 field_C;
+    uint8 field_8; // field_8 to field_B are cleared by one word store (on open)
+    uint8 field_9;
+    uint8 field_A;
+    uint8 field_B;
+    sint8 field_C; // field_C to field_F are cleared by one word store (on open); the stage events'
+                   // timer (r3 overlays' STAGE_EVENT.timer_C)
+    sint8 field_D;
+    sint8 field_E;
+    sint8 field_F;
     uint32 field_10;
     SVECTOR pos; // 0x14: position (x, height, z); x and z moved by func_8002F998
     uint8 pad_1C[8];
@@ -129,10 +140,11 @@ typedef struct
 // part_2 the index of the part's offset (MODEL_WORK.ofs_9C) and pose rotation (Model_parts_mtx_set).
 typedef struct
 {
-    uint8 pad_0;
+    uint8 mesh_0; // the part's mesh in the level of detail (Model_parts_draw)
     sint8 child_id;
     uint8 part_2;
-    sint8 field_3; // set to -1 or 0 by the event steps (func_80068388, func_8006854C)
+    sint8 hide_3; // < 0: the part is not drawn (Model_parts_draw); set to -1 or 0 by the event steps
+                  // (func_80068388, func_8006854C)
 } CHILD_SLOT;
 
 typedef struct
@@ -192,8 +204,9 @@ typedef struct
     uint8 pad_75[3];
     HIT_ENT *hit_78; // 0x78: collision box (MODEL_WORK.hit_78)
     uint8 pad_7C[4];
-    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
-    uint8 pad_88[0x24];
+    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (Obj_player_dist_set)
+    uint8 *data_88;    // 0x88: MODEL_WORK.data_88
+    uint8 pad_8C[0x20];
     uint8 idx_AC;     // MODEL_WORK.idx_AC: keyframe sequence
     uint8 old_idx_AD; // previous idx_AC: a change restarts the sequence (func_800150E0)
     uint8 pad_AE[0x62];
@@ -225,13 +238,13 @@ typedef struct
 
 typedef struct
 {
-    uint32 code;   // packed start word (0x3D48002E)
-    uint32 rgbc;   // 0x04: code and colour (0x2E808080)
-    uint16 pos[3]; // 0x08: position (x, y, z)
-    uint8 field_E; // 0x0E-0x13: the WORK_48 kinds' field_22..field_26
-    uint8 field_F;
-    uint16 field_10;
-    uint16 field_12;
+    uint32 code;        // packed start word (0x3D48002E): CLUT (high half) and texture page (low half)
+    uint32 rgbc;        // 0x04: code and colour (0x2E808080)
+    sint16 pos[3];      // 0x08: position (x, y, z)
+    uint8 u;            // 0x0E-0x13: the WORK_48 kinds' field_22..field_26. u, v: texture corner of
+    uint8 v;            // the 32 x 32 cell (Efc_sprite_draw reads them as one halfword)
+    uint16 size;        // 0x10: half size
+    uint16 angle;       // 0x12: roll (bits 0-5, 64 steps), with draw flag bit 5
     uint8 pad_14[0x1C]; // 0x14-0x2F: depends on the kind
 } EFC_SPRITE;           // 0x30 bytes
 
@@ -304,20 +317,22 @@ typedef struct
     SVECTOR spd;  // 0x44: speed
     SVECTOR add;  // 0x4C: acceleration
     SVECTOR ang;  // 0x54: rotation; ang.vy is the Y angle (0..0xFFF), set from the scene data
-                  // by func_8001E968
+                  // by scene_obj_open
     uint8 pad_5C[0x18];
     sint8 field_74; // MODEL_WORK.field_74; 0x74-0x77 cleared by one word store on open
     uint8 pad_75[3];
     HIT_ENT *hit_78; // 0x78: collision box (func_80049C24); 0 on open
     sint16 field_7C; // MODEL_WORK.field_7C
     uint8 pad_7E[2];
-    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
+    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (Obj_player_dist_set)
     EFC efc;           // 0x88
     uint8 free[0x54];  // 0xB8: the shot kind's own data
 } SHL_WORK;            // 0x10C bytes
 
+typedef void (*SHL_FUNC)(SHL_WORK *wp);
+
 // A player's shot: a slot of the pool D_800BFB20[16], kind 0x10 (func_80031598 / func_80031930),
-// spawned by func_80035724. Its id_2 is byte 7 of the player's action record (D_80089A8B), and
+// spawned by pl_shot_spawn. Its id_2 is byte 7 of the player's action record (D_80089A8B), and
 // handler[id_2] is func_800433C0 or func_800437A8 (code_8004324C). Same layout as SHL_WORK, with
 // its sprite EFC and free block written out: the flight direction sits in the EFC's kind bytes,
 // the target and slot owner in the free block.
@@ -326,7 +341,7 @@ typedef struct
     uint8 routine_0;
     uint8 kind_1;
     uint8 id_2;   // the shot kind; id_2 and type_3 are cleared together by one halfword store
-    uint8 type_3; // 0x80 while the object holds a slot of D_80098798 (func_80035724)
+    uint8 type_3; // 0x80 while the object holds a slot of D_80098798 (pl_shot_spawn)
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -343,7 +358,7 @@ typedef struct
     uint8 pad_F;
     uint32 field_10;
     // 0x14-0x5C: the MODEL_WORK layout.
-    SVECTOR pos;  // 0x14: position (x, height, z); pad: set by func_80035724
+    SVECTOR pos;  // 0x14: position (x, height, z); pad: set by pl_shot_spawn
     VECTOR pos_l; // 0x1C: 16.16 fixed-point position
     SVECTOR old;  // 0x2C: previous position, passed to func_8003430C with pos (func_800435F8)
     VECTOR old_l; // 0x34: 16.16 previous position (moved with pos_l by func_8002F884)
@@ -389,7 +404,11 @@ typedef struct
     uint8 flag_5;
     uint8 flags; // 6: see above
     uint8 pad_7;
-    uint32 field_8;
+    uint8 routine_8; // routine_8 to timer_B are cleared by one word store (on open); set to 2
+                     // before the scene code calls the object's handler (func_8001E20C)
+    uint8 field_9;
+    uint8 field_A;
+    uint8 timer_B;
     sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
     sint8 slot_D;
     sint8 field_E; // set to -0x80 by the event step func_80068728
@@ -433,7 +452,7 @@ typedef struct
     uint8 pad_75[3];
     HIT_ENT *hit_78; // 0x78: collision box (MODEL_WORK.hit_78)
     uint8 pad_7C[4];
-    uint32 dist_80[2];    // squared distance (<< 2) to each player, -1 when too far (func_8003606C)
+    uint32 dist_80[2];    // squared distance (<< 2) to each player, -1 when too far (Obj_player_dist_set)
     PARENT_INFO *info_88; // 0x88: model data (func_80031324)
     uint8 pad_8C[0x6C];
     // 24 parts, like tbl (func_80031324 detaches part n into a CHILD_WORK).
@@ -448,22 +467,56 @@ typedef struct
 
 typedef void (*WORK5A4_FUNC)(WORK_5A4 *wp);
 
-// 0x28-byte fog/far-colour block (copied by func_80036B40); far colour RGB at +0x20, near at +0x24.
+// 0x28-byte fog/far-colour block (copied by fog_block_apply): the fog CLUT rows by depth, then the
+// far colour and fog near distance (func_80036A88 sets them in D_8009A350, Fog_param_get reads them).
 typedef struct
 {
-    uint8 b[0x28];
+    uint8 b[0x20]; // 0x00: fog CLUT row by depth
+    uint8 far_r;   // 0x20
+    uint8 far_g;   // 0x21
+    uint8 far_b;   // 0x22
+    uint8 pad_23;  // 0x23
+    uint16 near;   // 0x24
+    uint16 unk_26; // 0x26
 } FOG_BLOCK;
 
 // Four 0x14-byte entries at D_8009A300 (func_800358F0 bases it there; func_80036C50 claims one,
-// func_80033EBC frees all): id 0 means free.
+// func_80033EBC frees all): id 0 means free. Each is a homing point run by func_80036D40, laid out
+// like TRACK_WORK: launched from the player toward the object of id_6, it sets bit 0 of
+// owner_10's mask_4 when it reaches it.
 typedef struct
 {
-    uint8 pad_0[6];
-    uint8 id_6;
-    uint8 pad_7[8];
-    sint8 flag_F; // toggled when the entry is taken
-    sint32 val_10;
+    sint16 x, y, z;       // position (passed to func_80049C54 as an SVECTOR)
+    uint8 id_6;           // id byte of the target object (func_80036294); 0: free
+    uint8 state_7;        // 0 waiting for the target to come in view, 1 flying
+    sint16 vel[3];        // 0x8: velocity (passed to func_80033F04 as an SVECTOR)
+    uint8 timer_E;        // frames of flight left
+    sint8 flag_F;         // toggled when the entry is taken: nonzero aims the launch at the target,
+                          // zero launches it straight up
+    SLOT_OWNER *owner_10; // told of the hit (func_80036C50's owner)
 } SLOT_ENT;
+
+// A homing tracker kept inside a stage object (func_800364B0, through func_8003648C): a point
+// launched from the object toward the player and steered after it; on reaching the player it
+// holds for D_800899AC[kind].hold frames while the object stays in range.
+typedef struct
+{
+    sint16 x, y, z; // position (passed to func_80049C54 as an SVECTOR)
+    uint8 kind;     // index of D_800899AC
+    uint8 state;    // 0 idle, 1 flying, 2 holding
+    sint16 vel[3];  // 0x8: velocity (passed to func_80033F04 as an SVECTOR)
+    uint8 timer;    // frames left in the state
+    uint8 height;   // signed: launch height above the object, in units of 16
+} TRACK_WORK;
+
+// Per-kind timing of TRACK_WORK (D_800899AC).
+typedef struct
+{
+    uint8 start; // frames of flight
+    uint8 hold;  // frames to hold once the player is reached
+    uint8 range; // the tracker drops when the object's dist_80 is at least range << 20
+    uint8 pad;
+} TRACK_INFO;
 
 // Keyframe command word: time is the frame count, ctl < 0 is a jump (-1: reload time).
 typedef union
@@ -502,7 +555,7 @@ typedef struct
 // cast to MODEL_WORK for these functions. The header (routine_0, kind_1, flags at 6) is common
 // to every pool slot, so the functions that only touch it (func_8002F3A8) take this type too.
 // Names from Capcom's source: id, type, pos, pos_l, old, old_l, spd, add, ang.
-// The stage collision services (func_80037694, code_80048620's func_80049C24, func_8004B414,
+// The stage collision services (func_80037694, code_80048620's func_80049C24, Obj_map_push_out,
 // func_80051BAC) take it too: players, shots and every stage overlay's objects call them.
 typedef struct
 {
@@ -525,25 +578,26 @@ typedef struct
     SVECTOR ang;     // 0x54: rotation; ang.vy is the facing angle (0..0xFFF)
     SVECTOR old_ang; // 0x5C: previous rotation
     uint8 pad_64[0x10];
-    sint8 field_74; // read with lb by func_8004B414, passed to func_8004B6AC
+    sint8 field_74; // read with lb by Obj_map_push_out, passed to map_push_out
     uint8 pad_75;
     sint8 field_76; // cleared with field_C0 by func_80052644
     uint8 pad_77;
-    HIT_ENT *hit_78; // 0x78: collision box (func_80049C24, func_8004B414)
+    HIT_ENT *hit_78; // 0x78: collision box (func_80049C24, Obj_map_push_out)
     sint16 field_7C; // cleared by func_80051BAC
-    uint8 pad_7E[0xA];
-    uint8 *data_88; // 0x88: model data of the EBD entry (func_8002FA38)
+    uint8 pad_7E[2];
+    uint32 dist_80[2]; // squared distance (<< 2) to each player, -1 when too far (Obj_player_dist_set)
+    uint8 *data_88;    // 0x88: model data of the EBD entry (func_8002FA38)
     uint8 pad_8C[4];
     KEY_ENT **seq_tbl_90; // keyframe sequences, indexed by idx_AC (func_80032304)
     KEY_ENT *seq_94;      // start of the sequence chosen by idx_AC (func_80032304)
-    KEY_ENT *ptr_98;      // current step; b0 indexes the entry of ptr_A0[idx_AC] (func_80033A28)
+    KEY_ENT *ptr_98;      // current step; b0 indexes the entry of ptr_A0[idx_AC] (Model_pose_unpack)
     SVECTOR *ofs_9C;      // offset of each part from its parent, by CHILD_SLOT.part_2 (Model_parts_mtx_set)
-    sint32 *ptr_A0;       // table of tables of packed pose data (func_80033A28)
+    sint32 *ptr_A0;       // table of tables of packed pose data (Model_pose_unpack)
     KEY_CMD cmd_A4;       // copy of the current step's command; time counts down
     uint8 pad_A8[4];
     uint8 idx_AC;
     uint8 pad_AD[0x13];
-    sint32 field_C0; // func_80052644 clears it (and field_76) when it equals its key
+    void *field_C0;  // an object; func_80052644 clears it (and field_76) when it equals its key
     uint32 field_C4; // top byte nonzero: func_80037694 skips the stage collision
     uint8 pad_C8[0x30];
     // 0xF8: the part tree; func_8002FA38 copies 0x18 bytes of the model data here (kinds 0x20
@@ -573,7 +627,7 @@ typedef struct
     SVECTOR pos;    // 0xC: position
 } SPAWN_ENT;
 
-// Screen box of the lock-on search (D_8008994C, by the special level when Player_work[0].unk170
+// Screen box of the lock-on search (D_8008994C, by the special level when Player_work[0].weapon_right_no
 // is 8): a target is taken when its depth is below z_max and its screen point lies strictly inside
 // (lock_on_search).
 typedef struct
@@ -661,12 +715,13 @@ extern uint32 D_80098B64;
 extern uint32 D_80098B20;
 extern EVE_WORK D_800A2D08[];
 // The slot each pool's update loop (game.c) is running, one per pool.
-extern WORK_3C0 *D_80098820;    // D_8009F108[16] (func_80016FD4)
-extern WORK_5A4 *D_800989D0;    // D_800C3580[4] (func_80017094)
-extern PL_SHL_WORK *D_800988F8; // D_800BFB20[16] (func_80017154)
-extern EVE_WORK *D_800988F0;    // D_800A2D08[16] (eve_work_exec)
-extern WORK_50 *D_80098924;     // D_800BF118[32] (func_80017528)
-extern uint8 D_800BBA90[];      // 0x268 bytes, cleared by Work_pools_init
+extern WORK_3C0 *D_80098820;     // D_8009F108[16] (func_80016FD4)
+extern WORK_5A4 *D_800989D0;     // D_800C3580[4] (func_80017094)
+extern PL_SHL_WORK *D_800988F8;  // D_800BFB20[16] (func_80017154), D_8009CF88[32] (func_80017210)
+extern WORK_48 *D_800988E4;      // D_800A3B40[64] (func_800172F4, func_800173B4)
+extern WORK48_FUNC D_80089858[]; // D_800A3B40's handlers for ids 0x80 and up (func_800173B4)
+extern EVE_WORK *D_800988F0;     // D_800A2D08[16] (eve_work_exec)
+extern WORK_50 *D_80098924;      // D_800BF118[32] (func_80017528)
 extern WORK_3C0 D_8009F108[];
 extern SHL_WORK D_8009CF88[];
 extern uint32 D_80098818;
@@ -682,6 +737,9 @@ extern uint16 D_800BC81C;
 extern FOG_BLOCK D_8009A350;
 extern FOG_BLOCK D_800BC7F8;
 extern FOG_BLOCK D_800C0DC0;
+// The halfword at D_800C0DC0 + 0x26, read as its own symbol: func_80023728 copies it to the map
+// draw mode, D_1F800075.
+extern uint16 D_800C0DE6;
 extern uint8 D_800BADB0[0x20];
 extern uint32 D_800988E0;
 extern SLOT_REQ D_800A2F48[];
@@ -690,18 +748,24 @@ extern uint32 D_800A32E0[];
 extern uint32 D_80098798;
 extern uint32 D_800BE478[];
 extern SLOT_ENT D_8009A300[4];
-extern uint8 D_8009A370;
-extern uint8 D_8009A371;
-extern uint8 D_8009A372;
-extern uint16 D_8009A374;
+extern TRACK_INFO D_800899AC[];
+extern HIT_ENT D_80097D18; // collision box of the SLOT_ENT point (func_80036D40)
+// A position as three words (Camera_work.pos_98, which game.c's func_800158F0 moves; r3_st1a's
+// header calls it the camera position): func_80036D40 tests its targets' visibility from it.
+extern sint32 D_800A39F0;
+extern sint32 D_800A39F4;
+extern sint32 D_800A39F8;
+extern HIT_ENT D_80097D0C;  // collision box of the TRACK_WORK point (func_800364B0)
 extern MATRIX D_800BC728[]; // matrix stack; D_80098A80 starts at its end (func_800333A0)
 extern uint32 D_8009888C;   // bit 0x80000000 >> n set when player n is spawned (Obj_spawn_tbl_set)
 extern LOCK_BOX D_8008994C[];
-// The object the player is locked on to, or 0: func_800358F0's answer each frame (func_8003450C);
+// The object the player is locked on to, or 0: func_800358F0's answer each frame (Hit_check_all);
 // func_8003EEC0 turns the player toward its pos.
 extern MODEL_WORK *D_80097D08;
 
 SVECTOR *func_80033F04(SVECTOR *out, SVECTOR *a, SVECTOR *b, sint32 angle, sint32 limit);
+void Work_pools_init(sint32 players);
+void Hit_check_all(void);
 void Model_work_init(MODEL_WORK *wp, uint8 *sub);
 void func_80030150(VECTOR *src, SVECTOR *dst);
 void func_800301A8(MATRIX *m, VECTOR *pos, VECTOR *origin); // rotates pos by m around origin
@@ -725,15 +789,22 @@ void func_8003187C(WORK_5A4 *wp);                 // frees a slot of D_800C3580
 void Close_SHL_WORK(SHL_WORK *wp);                // frees a slot of D_8009CF88
 void Close_EVE_WORK(EVE_WORK *wp);                // frees a slot of D_800A2D08
 void func_80031A4C(WORK_50 *wp);                  // frees a slot of D_800BF118
-void func_8002F884(MODEL_WORK *wp, SVECTOR *d);   // moves pos, pos_l, old, old_l by d (x, z)
-void func_8002F928(WORK_48 *wp, SVECTOR *d);      // moves the EFC position by d (x, z)
-void func_8002F998(EVE_WORK *wp, SVECTOR *d);     // moves pos by d (x, z)
+void func_80031AA4(void);                         // called every frame by code_800133D8's func_80013420
+void func_8002FBF4(void);                         // closes the objects whose model lies in the stage's first EBD file
+void func_80033EBC(void);
+// Every live slot of the pools picked in flag moves by d (when given) if its flags bit 5 is set,
+// else closes.
+void func_8002F420(sint32 flag, SVECTOR *d);
+void func_8002F884(MODEL_WORK *wp, SVECTOR *d); // moves pos, pos_l, old, old_l by d (x, z)
+void func_8002F928(WORK_48 *wp, SVECTOR *d);    // moves the EFC position by d (x, z)
+void func_8002F998(EVE_WORK *wp, SVECTOR *d);   // moves pos by d (x, z)
 void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z);
 void func_800322A8(MODEL_WORK *wp, sint32 seq, sint32 step); // starts keyframe sequence seq
 void func_80032488(MODEL_WORK *wp);                          // steps the keyframe sequence
 void Obj_launch_set(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max, sint16 grav);
 void func_80030934(MODEL_WORK *wp, VIEW_WORK *to, sint16 speed, sint16 max);
 void func_8003234C(struct PL_WORK *wp);
+uint32 func_80037440(void);
 void Pl_joint_mtx_set(struct PL_WORK *wp);
 void Pl_pose_unpack(struct PL_WORK *wp);
 void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m);
@@ -742,10 +813,18 @@ void Model_parts_mtx_set_yxz(MODEL_WORK *wp);
 // mask: pool bits (1 Player_work, 2 D_8009F108, ...); flag WORK_KILL closes every live slot.
 void Obj_work_flag_change(sint32 mask, sint32 flag);
 void *func_80036294(uint32 id); // object of an id byte (kind | index), or 0
-void func_800354E0(uint32 n);   // releases slot n of D_80098798 (claimed by func_8003545C)
+// Steps tracker t of object wp (facing angle); 1 while it holds the player.
+sint32 func_800364B0(TRACK_WORK *t, MODEL_WORK *wp, sint32 angle);
+void func_800354E0(uint32 n); // releases slot n of D_80098798 (claimed by func_8003545C)
 uint32 func_8002FE74(uint32 a);
+void func_8003697C(void); // Scratch_scale_shift = 0, with its fog distances
+void func_800369C0(void); // Scratch_scale_shift = 1, with its fog distances
+void func_80036A1C(void); // Scratch_scale_shift = 2, with its fog distances
+// Loads a scene block (0x20 bytes of src into D_800BADB0) and a fog block into the fog copies.
+void func_800371A0(void *src, FOG_BLOCK *fog);
 sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLOT_OWNER *owner, uint32 a6, uint32 a7, uint32 a8);
 sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,
                      uint32 a9, uint32 a10);
+void Obj_player_dist_set(void); // per frame (game's game_frame_exec)
 
 #endif // CODE_8002E7A8_H

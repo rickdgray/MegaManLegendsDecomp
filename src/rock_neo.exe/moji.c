@@ -9,8 +9,10 @@
 #include "scene.h"
 #include "scratch.h"
 #include "sound.h"
+#include "sub_scrn.h"
 #include "debug.h"
 #include "code_8001786C.h"
+#include "code_8001F828.h"
 #include "code_8002E7A8.h"
 #include "code_80037FB4.h"
 #include "code_8004324C.h"
@@ -42,13 +44,19 @@ uint8 D_80098851;
 uint8 D_80098930;
 uint8 D_80098B6C;
 uint32 D_80098B2C;
-sint32 D_80098960;
+uint32 D_80098960;
 sint32 D_800989A8;
+uint8 D_800988F4;
+uint32 D_800987E0;
+// Task and message number of func_80056820's PAD_TRIANGLE message. [1] (0x80098A65) is lui-based,
+// as a common's offset access is under ASPSX 2.56; D_8008D0D4's table also points to it.
+uint8 D_80098A64[2];
 
 // Called only from this file
 void six_digit_set(sint32 pad, uint32 n, uint8 *dst);
 void time_digit_set(uint32 frames, uint8 *dst);
 void two_digit_set(uint32 n, uint8 *dst);
+void window_prim_set(MOJI_WORK *wp, sint32 col);
 
 void Moji_init(void)
 {
@@ -174,7 +182,159 @@ void func_80053AA4(uint8 n)
     Moji_flag &= 0xBFC1FFFF & ~(0x08000000 >> n);
 }
 
+// Each frame, for every running entry: takes the pad (unless input is locked), runs the command
+// stream until it waits, then draws the text up to cmd_ptr_6C as 12x12 sprites clipped to the
+// entry's window, and reports each entry's choice in D_80098B2C's bytes.
+// The test of flags_0 bit 0x80000000 keeps the constant loaded for the Moji_flag update; `wp`
+// is set before the Moji_flag mask so its address load splits 0x3043FFFF's lui/ori.
+// NON_MATCHING only in the pad copy: the target loads PAD_ON(Joy1) after storing btn_held_B8.
+// It matches (the whole build) when Joy1's now and on are uint16 struct members
+// (MEM_IN_STRUCT_P, so the scheduler keeps the load after the wp-> store); PAD_NOW's cast
+// load lets it hoist the second load. Needs PAD_WORK's now/on retyped (owner's decision).
+#ifdef NON_MATCHING
+void func_80053B40(void)
+{
+    MOJI_WORK *wp;
+    DR_AREA *area;
+    SPRT *sprt;
+    DR_MODE *mode;
+    RECT rect;
+
+    if (!(Moji_flag & 0x400000) && D_80098824 == 0)
+    {
+        wp = Moji_work;
+        Moji_flag &= 0x3043FFFF;
+        D_80098B2C = 0;
+        for (; wp < &Moji_work[MOJI_WORK_MAX]; wp++)
+        {
+            if (wp->flags_0 & 0x80000000)
+            {
+                Moji_flag |= 0x80000000 | (MOJI_TASK0_ON >> (wp - Moji_work));
+                if (!(Moji_flag & 0x40000) && !(Moji_flag & (0x10000 >> wp->no_6)))
+                {
+                    wp->btn_held_B8 = PAD_NOW(Joy1);
+                    wp->btn_trg_BA  = PAD_ON(Joy1);
+                }
+                else
+                {
+                    wp->btn_held_B8 = 0;
+                    wp->btn_trg_BA  = 0;
+                }
+                if (!(wp->flags_0 & 0x08000000) && (wp->btn_held_B8 & PAD_TRIANGLE) && (wp->flags_0 & 0x40000) && func_8001D878() != 0)
+                {
+                    wp->flags_0 &= ~0x40000;
+                    Cd_subcmd(0, CD_SUBCMD_XA_STOP, 0);
+                }
+                while (1)
+                {
+                    if (*wp->cmd_ptr_6C < 0x84)
+                    {
+                        if (--wp->timer_4 <= 0)
+                        {
+                            if (!(wp->flags_0 & 0x08000000) && (wp->btn_held_B8 & PAD_TRIANGLE) && !(wp->flags_0 & 0x40000))
+                            {
+                                wp->timer_4 = wp->unk_3F >> 1;
+                            }
+                            else
+                            {
+                                wp->timer_4 = wp->unk_3F;
+                            }
+                            wp->cmd_ptr_6C++;
+                            if (!(wp->flags_0 & 0x60000000))
+                            {
+                                if (!(wp->flags_0 & 0x40000))
+                                {
+                                    Sound_call(0x84, 0, 100);
+                                }
+                                wp->flags_0 |= 0x40000000;
+                            }
+                        }
+                        if (wp->timer_4 == 0)
+                        {
+                            wp->flags_0 |= 0x40000000;
+                            continue;
+                        }
+                    }
+                    else if (D_8008A91C[*wp->cmd_ptr_6C](wp) != 0)
+                    {
+                        continue;
+                    }
+                    if (wp->unk_3F != 0 || (wp->flags_0 & 0x10000000))
+                    {
+                        break;
+                    }
+                }
+                area = Map_area_ptr++;
+                SetDrawArea(area, &D_80097F50[Dbl_buff_idx]);
+                addPrim(&Disp_env_ptr->ot[wp->ot_3D], area);
+                wp->unk_73     = 0;
+                wp->unk_78     = 0x80;
+                wp->mes_ptr_14 = wp->cmd_top_48;
+                wp->call_sp_BE = 0;
+                wp->pos_x_10   = wp->base_x_8;
+                wp->pos_y_12   = wp->unk_A + wp->scroll_38;
+                wp->unk_3E     = wp->unk_3C;
+                while (wp->mes_ptr_14 != wp->cmd_ptr_6C)
+                {
+                    if (*wp->mes_ptr_14 < 0x84)
+                    {
+                        if (!(wp->flags_0 & 0x100000))
+                        {
+                            sprt          = Sprt_prim_ptr;
+                            Sprt_prim_ptr = sprt + 1;
+                            setSprt(sprt);
+                            sprt->r0   = wp->unk_78;
+                            sprt->g0   = wp->unk_78;
+                            sprt->b0   = wp->unk_78;
+                            sprt->x0   = wp->pos_x_10;
+                            sprt->y0   = wp->pos_y_12;
+                            sprt->w    = 12;
+                            sprt->h    = 12;
+                            sprt->clut = D_80097F30[wp->unk_3E];
+                            sprt->u0   = (*wp->mes_ptr_14 % 21) * 12;
+                            sprt->v0   = (*wp->mes_ptr_14 / 21) * 12;
+                            addPrim(&Disp_env_ptr->ot[wp->ot_3D], sprt);
+                            wp->pos_x_10 += D_8008AE7C[*wp->mes_ptr_14];
+                        }
+                        wp->mes_ptr_14++;
+                    }
+                    else
+                    {
+                        D_8008AAC4[*wp->mes_ptr_14](wp);
+                    }
+                }
+                rect.x = wp->base_x_8;
+                rect.y = wp->unk_A + (Dbl_buff_idx << 8);
+                rect.w = wp->unk_7E * 12;
+                rect.h = wp->unk_7F * 12;
+                area   = Map_area_ptr++;
+                SetDrawArea(area, &rect);
+                addPrim(&Disp_env_ptr->ot[wp->ot_3D], area);
+                if (wp->flags_0 & 0x04000000)
+                {
+                    D_8008AAE4[wp->unk_7C](wp);
+                }
+            }
+            else
+            {
+                Moji_flag &= ~(0x10000 >> wp->no_6);
+            }
+            if (wp != &Moji_work[4])
+            {
+                D_80098B2C |= wp->sel_71 << ((wp - Moji_work) * 8);
+            }
+            wp->flags_0 &= 0xAF7FFFFF;
+        }
+        mode          = Mode_prim_ptr;
+        Mode_prim_ptr = mode + 1;
+        SetDrawMode(mode, 0, 0, GetTPage(0, 0, 0x3C0, 0x100), NULL);
+        addPrim(&Disp_env_ptr->ot[3], mode);
+        D_80098960++;
+    }
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80053B40);
+#endif
 
 void Moji_skip_1(MOJI_WORK *mp)
 {
@@ -584,7 +744,147 @@ void func_80054BEC(MOJI_WORK *mp)
     mp->mes_ptr_14 += 3;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80054E54);
+sint32 func_80054E54(MOJI_WORK *wp)
+{
+    uint8 *p;
+    uint8 mes_no;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x01000000) & ~0x8000;
+        wp->timer_4 = 5;
+        if (wp->cmd_ptr_6C[1] & 0x40)
+        {
+            if (wp->cmd_ptr_6C[1] & 0x80)
+            {
+                wp->flags_0 |= 0x8000;
+            }
+            wp->sel_71 = wp->sel_save_79;
+        }
+        else if (wp->cmd_ptr_6C[1] & 0x20)
+        {
+            if (wp->cmd_ptr_6C[1] & 0x80)
+            {
+                wp->flags_0 |= 0x8000;
+            }
+            wp->sel_71 = wp->sel_save_7A;
+        }
+        else if (wp->cmd_ptr_6C[1] & 0x10)
+        {
+            if (wp->cmd_ptr_6C[1] & 0x80)
+            {
+                wp->flags_0 |= 0x8000;
+            }
+            wp->sel_71 = wp->sel_save_7B;
+        }
+        else
+        {
+            if (wp->cmd_ptr_6C[1] & 0x80)
+            {
+                wp->flags_0 |= 0x8000;
+            }
+            wp->sel_71 = wp->cmd_ptr_6C[1] & 0x3F;
+        }
+    }
+    wp->flags_0 = (wp->flags_0 | 0x10000000) & ~0x00400000;
+    Moji_flag |= 0x40000;
+    if (wp->timer_4 <= 0)
+    {
+        if (!(wp->flags_0 & 0x4000) || wp->sel_71 == wp->unk_72 - 1 || (wp->btn_trg_BA & PAD_TRIANGLE))
+        {
+            if ((wp->btn_trg_BA & PAD_CROSS) || ((wp->btn_trg_BA & PAD_TRIANGLE) && (wp->flags_0 & 0x8000)) ||
+                ((wp->btn_trg_BA & PAD_START) && Game_work.routine_0 == 4))
+            {
+                if (((wp->btn_trg_BA & PAD_TRIANGLE) && (wp->flags_0 & 0x8000)) ||
+                    ((wp->btn_trg_BA & PAD_START) && Game_work.routine_0 == 4))
+                {
+                    wp->sel_71 = wp->unk_72 - 1;
+                    Sound_call(0x83, 1, 0);
+                }
+                else
+                {
+                    Sound_call(0x82, 1, 0);
+                }
+                Moji_flag &= ~0xFF;
+                if (wp->cmd_ptr_6C[0] == 0xEA && wp->sel_71 != 5 && wp->sel_71 != 0)
+                {
+                    switch (wp->sel_71)
+                    {
+                        case 1:
+                            Sub_screen_sort_attack();
+                            break;
+                        case 2:
+                            Sub_screen_sort_energy();
+                            break;
+                        case 3:
+                            Sub_screen_sort_range();
+                            break;
+                        case 4:
+                            Sub_screen_sort_rapid();
+                            break;
+                    }
+                }
+                else
+                {
+                    if (wp->cmd_ptr_6C[0] == 0xE8)
+                    {
+                        Moji_flag |= 0x40000000 | D_800BE2F8[wp->sel_71];
+                    }
+                    else
+                    {
+                        Moji_flag |= 0x40000000 | (uint8)wp->sel_71;
+                    }
+                    *wp->cursor_74 = 0xED;
+                    wp->timer_4    = 5;
+                    wp->flags_0    = (wp->flags_0 | 0x400000) & 0xEEFF97FF;
+                    mes_no         = wp->cmd_ptr_6C[wp->sel_71 + 2];
+                    if (wp->cmd_ptr_6C[1] & 0x40)
+                    {
+                        wp->sel_save_79 = wp->sel_71;
+                        D_800988F4      = D_8009899C;
+                    }
+                    if (wp->cmd_ptr_6C[1] & 0x20)
+                    {
+                        wp->sel_save_7A = wp->sel_71;
+                    }
+                    if (wp->cmd_ptr_6C[1] & 0x10)
+                    {
+                        wp->sel_save_7B = wp->sel_71;
+                    }
+                    if (mes_no == 0xFF)
+                    {
+                        wp->cmd_ptr_6C += wp->unk_72 + 2;
+                    }
+                    else
+                    {
+                        wp->mes_no_C2 = mes_no;
+                        if (wp->mes_file_44 != NULL)
+                        {
+                            p = wp->mes_file_44 + ((uint16 *)wp->mes_file_44)[mes_no];
+                        }
+                        else
+                        {
+                            p = D_8008CACC[mes_no];
+                        }
+                        wp->cmd_top_48 = p;
+                        wp->cmd_ptr_6C = p;
+                        wp->unk_3E     = 0;
+                        wp->unk_3C     = 0;
+                        wp->unk_72     = 0;
+                    }
+                    wp->unk_78 = 0x80;
+                    return 1;
+                }
+            }
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    wp->unk_78 = 0x80;
+    return 0;
+}
 
 void func_80055304(MOJI_WORK *mp)
 {
@@ -619,7 +919,12 @@ sint32 func_80055344(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800553A8);
+sint32 func_800553A8(MOJI_WORK *wp)
+{
+    Sce_flag_on((uint16)get_le16(wp->cmd_ptr_6C + 1));
+    wp->cmd_ptr_6C += 3;
+    return 1;
+}
 
 sint32 func_800553F0(MOJI_WORK *wp)
 {
@@ -705,7 +1010,38 @@ sint32 func_80055660(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80055688);
+sint32 func_80055688(MOJI_WORK *wp)
+{
+    if (!(wp->flags_0 & 0x1000000))
+    {
+        wp->flags_0 |= 0x1000000;
+        wp->timer_4 = 10;
+    }
+    wp->flags_0 |= 0x10000000;
+    if (wp->timer_4 <= 0)
+    {
+        if (!(wp->flags_0 & 0x40000) && !(wp->btn_held_B8 & (PAD_TRIANGLE | PAD_CIRCLE | PAD_CROSS | PAD_SQUARE)))
+        {
+            // Blink: shown for 8 frames of every 16.
+            if ((D_80098960 & 0xF) < 8)
+            {
+                D_800987D4 = 0;
+                Print(XYC((sint16)wp->base_x_8 + wp->unk_7E * 12 - 4, wp->unk_A + wp->unk_7F * 12 - 4, 0), D_80097F60);
+            }
+        }
+        else
+        {
+            Moji_flag |= 0x80000;
+            wp->flags_0 &= ~0x1000000;
+            wp->cmd_ptr_6C++;
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    return 0;
+}
 
 sint32 func_800557B8(MOJI_WORK *wp)
 {
@@ -791,7 +1127,22 @@ sint32 func_80055A78(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80055B14);
+sint32 func_80055B14(MOJI_WORK *wp)
+{
+    uint32 index;
+
+    if ((uint16)get_le16(wp->cmd_ptr_6C + 1) != 0)
+    {
+        Game_logo_kill((sint16)get_le16(wp->cmd_ptr_6C + 3));
+    }
+    else
+    {
+        index = (uint16)get_le16(wp->cmd_ptr_6C + 3);
+        Game_logo_set(index, get_le32(wp->cmd_ptr_6C + 5));
+    }
+    wp->cmd_ptr_6C += 9;
+    return 1;
+}
 
 sint32 func_80055BB0(MOJI_WORK *wp)
 {
@@ -832,7 +1183,104 @@ sint32 func_80055CC4(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80055CFC);
+void func_80055CFC(MOJI_WORK *mp)
+{
+    sint16 old;
+
+    mp->mes_ptr_14[7] = 0xED;
+    mp->unk_78        = 0;
+    if (mp->sel_71 == mp->unk_73 && !(mp->flags_0 & 0xC00000))
+    {
+        old = mp->sel_71;
+        if (mp->btn_trg_BA & PAD_UP)
+        {
+            mp->sel_71 = mp->mes_ptr_14[2] >> 4;
+            mp->unk_BC = 0;
+        }
+        else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_UP << 16 | PAD_UP)) == PAD_UP)
+        {
+            if (mp->unk_BC >= 13)
+            {
+                mp->sel_71 = mp->mes_ptr_14[2] >> 4;
+                mp->unk_BC = 12;
+            }
+            else
+            {
+                mp->unk_BC++;
+            }
+        }
+        else if (mp->btn_trg_BA & PAD_DOWN)
+        {
+            mp->sel_71 = mp->mes_ptr_14[2] & 0xF;
+            mp->unk_BC = 0;
+        }
+        else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_DOWN << 16 | PAD_DOWN)) == PAD_DOWN)
+        {
+            if (mp->unk_BC >= 13)
+            {
+                mp->sel_71 = mp->mes_ptr_14[2] & 0xF;
+                mp->unk_BC = 12;
+            }
+            else
+            {
+                mp->unk_BC++;
+            }
+        }
+        else if (mp->btn_trg_BA & PAD_LEFT)
+        {
+            mp->unk_BC = 0;
+            if (mp->sel_71 != mp->unk_72 - 1)
+            {
+                if (*D_8008D0D4[mp->mes_ptr_14[3]] == 1)
+                {
+                    Sound_call(0x82, 1, 0);
+                }
+                *D_8008D0D4[mp->mes_ptr_14[3]] = 0;
+            }
+        }
+        else if (mp->btn_trg_BA & PAD_RIGHT)
+        {
+            mp->unk_BC = 0;
+            if (mp->sel_71 != mp->unk_72 - 1)
+            {
+                if (*D_8008D0D4[mp->mes_ptr_14[3]] == 0)
+                {
+                    Sound_call(0x82, 1, 0);
+                }
+                *D_8008D0D4[mp->mes_ptr_14[3]] = 1;
+            }
+        }
+        else if (mp->btn_trg_BA & PAD_CROSS)
+        {
+            *D_8008D0D4[mp->mes_ptr_14[3]] ^= 1;
+            if (mp->sel_71 != mp->unk_72 - 1)
+            {
+                Sound_call(0x82, 1, 0);
+                mp->btn_trg_BA &= ~PAD_CROSS;
+            }
+        }
+        if (mp->mes_file_44 != NULL)
+        {
+            MojiTaskExec(mp->mes_ptr_14[4], mp->mes_file_44, mp->mes_ptr_14[*D_8008D0D4[mp->mes_ptr_14[3]] + 5]);
+        }
+        else
+        {
+            MojiTaskExec(mp->mes_ptr_14[4], D_8008CACC[mp->mes_ptr_14[*D_8008D0D4[mp->mes_ptr_14[3]] + 5]], 0xFF);
+        }
+        mp->mes_ptr_14[7] = 0x60;
+        mp->cursor_74     = mp->mes_ptr_14 + 7;
+        // The target reloads and stores unk_78 here: func_80054BEC adds 0x30 at this point.
+        mp->unk_78 += 0;
+        mp->flags_0 |= 0x800000;
+        if (old != mp->sel_71)
+        {
+            Sound_call(0x81, 1, 0);
+        }
+    }
+    mp->unk_78 += 0x80;
+    mp->unk_73++;
+    mp->mes_ptr_14 += 7;
+}
 
 void func_800560D0(MOJI_WORK *mp)
 {
@@ -1046,9 +1494,315 @@ sint32 func_80056778(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80056820);
+void func_80056820(MOJI_WORK *mp)
+{
+    sint16 old;
+    sint32 decided;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80056D10);
+    mp->mes_ptr_14[3] = 0xED;
+    decided           = 0;
+    mp->unk_78        = 0;
+    if (mp->sel_71 == mp->unk_73)
+    {
+        if (!(mp->flags_0 & 0xC00000))
+        {
+            old = mp->sel_71;
+            if (!(mp->btn_trg_BA & PAD_CROSS))
+            {
+                if (mp->btn_trg_BA & PAD_TRIANGLE)
+                {
+                    decided         = 1;
+                    mp->btn_held_B8 = 0;
+                    mp->btn_trg_BA  = 0;
+                    Sound_call(0x83, 1, 0);
+                }
+                else if (mp->btn_trg_BA & PAD_UP)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[2] >> 4;
+                    mp->unk_BC = 0;
+                    if ((uint32)D_800989A8 >= 6 && old == mp->sel_71 && D_8009899C != 0)
+                    {
+                        Sound_call(0x81, 1, 0);
+                        D_8009899C--;
+                    }
+                }
+                else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_UP << 16 | PAD_UP)) == PAD_UP)
+                {
+                    if (mp->unk_BC >= 13)
+                    {
+                        mp->sel_71 = mp->mes_ptr_14[2] >> 4;
+                        mp->unk_BC = 12;
+                        if ((uint32)D_800989A8 >= 6 && old == mp->sel_71 && D_8009899C != 0)
+                        {
+                            Sound_call(0x81, 1, 0);
+                            D_8009899C--;
+                        }
+                    }
+                    else
+                    {
+                        mp->unk_BC++;
+                    }
+                }
+                else if (mp->btn_trg_BA & PAD_DOWN)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[2] & 0xF;
+                    mp->unk_BC = 0;
+                    if ((uint32)D_800989A8 >= 6 && old == mp->sel_71 && D_8009899C < (uint32)D_800989A8 - 5)
+                    {
+                        Sound_call(0x81, 1, 0);
+                        D_8009899C++;
+                    }
+                }
+                else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_DOWN << 16 | PAD_DOWN)) == PAD_DOWN)
+                {
+                    if (mp->unk_BC >= 13)
+                    {
+                        mp->sel_71 = mp->mes_ptr_14[2] & 0xF;
+                        mp->unk_BC = 12;
+                        if ((uint32)D_800989A8 >= 6 && old == mp->sel_71 && D_8009899C < (uint32)D_800989A8 - 5)
+                        {
+                            Sound_call(0x81, 1, 0);
+                            D_8009899C++;
+                        }
+                    }
+                    else
+                    {
+                        mp->unk_BC++;
+                    }
+                }
+                else if (mp->btn_trg_BA & PAD_LEFT)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[1] >> 4;
+                    mp->unk_BC = 0;
+                }
+                else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_LEFT << 16 | PAD_LEFT)) == PAD_LEFT)
+                {
+                    if (mp->unk_BC >= 13)
+                    {
+                        mp->sel_71 = mp->mes_ptr_14[1] >> 4;
+                        mp->unk_BC = 12;
+                    }
+                    else
+                    {
+                        mp->unk_BC++;
+                    }
+                }
+                else if (mp->btn_trg_BA & PAD_RIGHT)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[1] & 0xF;
+                    mp->unk_BC = 0;
+                }
+                else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_RIGHT << 16 | PAD_RIGHT)) == PAD_RIGHT)
+                {
+                    if (mp->unk_BC >= 13)
+                    {
+                        mp->sel_71 = mp->mes_ptr_14[1] & 0xF;
+                        mp->unk_BC = 12;
+                    }
+                    else
+                    {
+                        mp->unk_BC++;
+                    }
+                }
+            }
+            mp->cursor_74 = mp->mes_ptr_14 + 3;
+            mp->flags_0 |= 0x800000;
+            if (old != mp->sel_71)
+            {
+                Sound_call(0x81, 1, 0);
+            }
+            if ((uint32)D_800989A8 >= 6)
+            {
+                Game_logo_kill(0);
+                Game_logo_kill(1);
+                if (!decided)
+                {
+                    if (D_8009899C != 0 && D_800989A8 - 5 != D_8009899C)
+                    {
+                        Game_logo_set(0, 0x20003);
+                        Game_logo_set(1, 0x20004);
+                    }
+                    else if (D_8009899C != 0)
+                    {
+                        Game_logo_set(0, 0x20003);
+                    }
+                    else if (D_800989A8 - 5 != D_8009899C)
+                    {
+                        Game_logo_set(0, 0x20004);
+                    }
+                }
+            }
+        }
+        if (mp->sel_71 == mp->unk_73)
+        {
+            mp->unk_78 += 0x30;
+            mp->mes_ptr_14[3] = 0x60;
+        }
+    }
+    if (D_80098850 == 0)
+    {
+        D_80098830 = D_800BE2F8[D_8009899C + mp->unk_73];
+    }
+    else
+    {
+        D_80098830 = D_800BE2F8[D_8009899C + mp->unk_73] + 0x20;
+    }
+    mp->mes_ptr_14[5] = D_800987F8;
+    mp->unk_78 += 0x50;
+    mp->unk_73++;
+    mp->mes_ptr_14 += 3;
+    if (decided)
+    {
+        if (mp->mes_file_44 != NULL)
+        {
+            MojiTaskExec(D_80098A64[0], mp->mes_file_44, D_80098A64[1]);
+        }
+        else
+        {
+            MojiTaskExec(D_80098A64[0], D_8008CACC[D_80098A64[1]], 0xFF);
+        }
+    }
+}
+
+// The list append is written out in each branch, and so is the jump at the end: the target keeps
+// both copies. The unused 8-byte local gives the 0x40 frame.
+sint32 func_80056D10(MOJI_WORK *wp)
+{
+    uint8 *have;
+    uint8 *seen;
+    uint32 base;
+    sint32 i;
+    sint32 n;
+    sint32 unused[2];
+    uint8 mes_no;
+    uint8 *p;
+
+    base       = D_80097F64[D_80098850];
+    D_800989A8 = 0;
+    D_8009899C = D_800988F4;
+    have       = &Sce_flag[base >> 3];
+    seen       = &Sce_flag[(sint32)(base - 0x80) >> 3];
+    if (Player_work[0].life_max >= 0xA0)
+    {
+        D_8008FD3C[0x23] = D_8008FD3C[0x84];
+    }
+    else
+    {
+        D_8008FD3C[0x23] = D_8008FD3C[0x85 - (0xA0 - Player_work[0].life_max) / 16];
+    }
+    if (Game_work.unk07D >= 0x12)
+    {
+        D_8008FD3C[0x25] = D_8008FE40[0x11];
+    }
+    else
+    {
+        D_8008FD3C[0x25] = D_8008FE40[Game_work.unk07D];
+    }
+    for (i = 0; i < D_80097F68[D_80098850]; i++)
+    {
+        if (Sce_flag_test(0x2EE) == 0)
+        {
+            if (!((seen[i >> 3] | ~have[i >> 3]) & (0x80 >> (i & 7))))
+            {
+                D_800BE2F8[D_800989A8] = i;
+                D_800989A8++;
+            }
+            else if (D_80098850 == 1)
+            {
+                if (i == 3)
+                {
+                    if (Player_work[0].life_max != 0xA0)
+                    {
+                        D_800BE2F8[D_800989A8] = i;
+                        D_800989A8++;
+                    }
+                }
+                else if (i == 5 && Game_work.unk07D != 0 && Game_work.unk07D < 0x63)
+                {
+                    D_800BE2F8[D_800989A8] = i;
+                    D_800989A8++;
+                }
+            }
+        }
+        else if (seen[i >> 3] & have[i >> 3] & (0x80 >> (i & 7)))
+        {
+            if (D_80098850 == 1)
+            {
+                D_800BE2F8[D_800989A8] = i;
+                n                      = D_800989A8++;
+                if (i < 0x20 || (uint32)(i - 0x24) < 0x14 || (uint32)(i - 0x4C) < 5)
+                {
+                    D_800989A8 = n;
+                }
+            }
+            else
+            {
+                D_800BE2F8[D_800989A8] = i;
+                D_800989A8++;
+            }
+        }
+    }
+    if (D_800989A8 != 0)
+    {
+        if ((uint32)D_800989A8 < 5)
+        {
+            mes_no = (wp->cmd_ptr_6C - D_800989A8)[7];
+            if (mes_no == 0xFF)
+            {
+                wp->cmd_ptr_6C += 7;
+            }
+            else
+            {
+                wp->mes_no_C2 = mes_no;
+                if (wp->mes_file_44 != NULL)
+                {
+                    p              = wp->mes_file_44 + ((uint16 *)wp->mes_file_44)[mes_no];
+                    wp->cmd_top_48 = p;
+                }
+                else
+                {
+                    p              = D_8008CACC[mes_no];
+                    wp->cmd_top_48 = p;
+                }
+                wp->cmd_ptr_6C = p;
+                wp->unk_3E     = 0;
+                wp->unk_3C     = 0;
+                wp->unk_72     = 0;
+            }
+        }
+        else
+        {
+            wp->cmd_ptr_6C += 7;
+        }
+    }
+    else
+    {
+        mes_no = wp->cmd_ptr_6C[2];
+        if (mes_no == 0xFF)
+        {
+            wp->cmd_ptr_6C += 7;
+        }
+        else
+        {
+            wp->mes_no_C2 = mes_no;
+            if (wp->mes_file_44 != NULL)
+            {
+                p              = wp->mes_file_44 + ((uint16 *)wp->mes_file_44)[mes_no];
+                wp->cmd_top_48 = p;
+            }
+            else
+            {
+                p              = D_8008CACC[mes_no];
+                wp->cmd_top_48 = p;
+            }
+            wp->cmd_ptr_6C = p;
+            wp->unk_3E     = 0;
+            wp->unk_3C     = 0;
+            wp->unk_72     = 0;
+        }
+    }
+    return 1;
+}
 
 sint32 func_800570B0(MOJI_WORK *wp)
 {
@@ -1132,7 +1886,39 @@ sint32 func_8005721C(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800572C8);
+sint32 func_800572C8(MOJI_WORK *wp)
+{
+    uint8 *p;
+
+    if (Sce_flag_test(0x2EE) != 0)
+    {
+        Money_add(D_8008FD3C[D_80098930] >> 2, 0, 0);
+        Sce_flag_off(D_80098930 | 0x500);
+        Sub_screen_rb_parts_set();
+    }
+    else
+    {
+        Money_add(-D_8008FD3C[D_80098930], 0, 0);
+        if (D_80098930 == 0x23)
+        {
+            Player_work[0].life = Player_work[0].life_max += 0x10;
+            func_8005DA78(1);
+        }
+        else if (D_80098930 == 0x24)
+        {
+            Game_work.unk07D = Game_work.unk07C = 3;
+        }
+        else if (D_80098930 == 0x25)
+        {
+            // The target increments through a pointer (lui + addiu, then offset 0).
+            p                = &Game_work.unk07D;
+            Game_work.unk07C = ++*p;
+        }
+        Sce_flag_on(D_80098930 | 0x500);
+    }
+    wp->cmd_ptr_6C += 1;
+    return 1;
+}
 
 // Jumps to a message: after code 0xD5, one picked at random from its count byte's list, else the
 // argument byte's. 0xFF skips the command.
@@ -1319,7 +2105,21 @@ void func_800579D8(MOJI_WORK *mp)
     six_digit_set(1, (Game_work.unk07D - Game_work.unk07C) * 10, ++mp->mes_ptr_14);
 }
 
+#ifdef NON_MATCHING
+// Only the tail differs (cmd_ptr_6C in $v0, the target's in $v1 with li $v0,1 in the load delay
+// slot): the Money_add pattern, so the target saw Sce_flag_on as returning int. Declaring it
+// sint32 in scene.h matches this function but breaks Sce_flag_on's own body (a delay slot is no
+// longer filled with $v0 live at exit). Needs the owner's call on the header.
+sint32 func_80057A24(MOJI_WORK *wp)
+{
+    wp->call_stk_4C[wp->call_sp_C0++] = wp->cmd_ptr_6C + 1;
+    Sce_flag_on(D_80098830 | 0x500);
+    wp->cmd_ptr_6C = D_8008CBA4[D_80098830];
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057A24);
+#endif
 
 void func_80057A94(MOJI_WORK *mp)
 {
@@ -1481,7 +2281,153 @@ void func_80057E50(MOJI_WORK *mp)
     mp->mes_ptr_14 += 3;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80057FF8);
+// Name entry: up/down cycles the character under the cursor, CROSS (or right) moves on and, past
+// the last one, copies the name into Game_work's record D_800989D4; TRIANGLE (or left) steps back.
+// `wp->sel_71 = ++cur` (cur set twice, so GCC no longer knows it is a zero-extended byte) gives
+// the target's cursor load order, and the step-back test reads a copy of the cursor shifted into
+// the top byte (the target's sll 24 in the merge block).
+sint32 func_80057FF8(MOJI_WORK *wp)
+{
+    uint8 cur;
+    sint32 cur_byte;
+    uint32 held;
+    uint16 done;
+    uint16 i;
+    uint16 *name;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 |= 0x01000000;
+        wp->unk_BC    = 0;
+        wp->chr_86    = 0;
+        wp->unk_72    = wp->cmd_ptr_6C[1];
+        wp->unk_73    = 0;
+        wp->sel_71    = 0;
+        D_800986E0[0] = 0x60;
+        D_800986E4[0] = 2;
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[2] = D_8008D0AC[0];
+        }
+    }
+    done     = 0;
+    cur      = wp->sel_71;
+    cur_byte = cur << 24;
+    held     = *(uint32 *)&wp->btn_held_B8;
+    wp->flags_0 |= 0x10000000;
+    if (held & ((PAD_CROSS | PAD_RIGHT) << 16))
+    {
+        wp->sel_71 = ++cur;
+        if (wp->sel_71 >= wp->unk_72)
+        {
+            wp->flags_0 &= ~0x01000000;
+            name = Game_work.records_84.h[D_800989D4];
+            for (i = 0; i < wp->unk_72; i++)
+            {
+                name[i + 2] = NAME_SLOT(wp, i)[2];
+            }
+            done = 1;
+        }
+        else
+        {
+            for (i = 0; i < 0x25; i++)
+            {
+                if (NAME_SLOT(wp, wp->sel_71)[2] == D_8008D0AC[i])
+                {
+                    break;
+                }
+            }
+            wp->chr_86 = i;
+        }
+        Sound_call(0x82, 1, 0);
+    }
+    else if (held & ((PAD_TRIANGLE | PAD_LEFT) << 16))
+    {
+        if (cur_byte != 0)
+        {
+            wp->sel_71 = cur - 1;
+        }
+        Sound_call(0x83, 1, 0);
+        for (i = 0; i < 0x25; i++)
+        {
+            if (NAME_SLOT(wp, wp->sel_71)[2] == D_8008D0AC[i])
+            {
+                break;
+            }
+        }
+        wp->chr_86 = i;
+    }
+    else if (wp->btn_trg_BA & PAD_UP)
+    {
+        wp->unk_BC = 0;
+        wp->chr_86++;
+        Sound_call(0x81, 1, 0);
+    }
+    else if ((held & (PAD_UP << 16 | PAD_UP)) == PAD_UP)
+    {
+        if (wp->unk_BC >= 13)
+        {
+            wp->unk_BC = 12;
+            wp->chr_86++;
+            Sound_call(0x81, 1, 0);
+        }
+        else
+        {
+            wp->unk_BC++;
+        }
+    }
+    else if (wp->btn_trg_BA & PAD_DOWN)
+    {
+        wp->unk_BC = 0;
+        wp->chr_86--;
+        Sound_call(0x81, 1, 0);
+    }
+    else if ((held & (PAD_DOWN << 16 | PAD_DOWN)) == PAD_DOWN)
+    {
+        if (wp->unk_BC >= 13)
+        {
+            wp->unk_BC = 12;
+            wp->chr_86--;
+            Sound_call(0x81, 1, 0);
+        }
+        else
+        {
+            wp->unk_BC++;
+        }
+    }
+    if (wp->chr_86 >= 0x25)
+    {
+        wp->chr_86 = 0;
+    }
+    if (wp->chr_86 < 0)
+    {
+        wp->chr_86 = 0x24;
+    }
+    if (done == 0)
+    {
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[1] = 0x50;
+        }
+        NAME_SLOT(wp, wp->sel_71)[2] = D_8008D0AC[wp->chr_86];
+        NAME_SLOT(wp, wp->sel_71)[1] = D_800986E0[0];
+        D_800986E0[0] += D_800986E4[0];
+        if (D_800986E0[0] == 0x90 || D_800986E0[0] == 0x60)
+        {
+            D_800986E4[0] = -D_800986E4[0];
+        }
+    }
+    else
+    {
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[1] = 0x80;
+        }
+        wp->cmd_ptr_6C += 2;
+    }
+    wp->flags_0 |= 0x800000;
+    return done;
+}
 
 sint32 func_8005851C(MOJI_WORK *wp)
 {
@@ -1807,9 +2753,194 @@ sint32 func_80058EA0(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80058F18);
+void func_80058F18(MOJI_WORK *mp)
+{
+    uint32 bit;
+    sint16 old;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800592FC);
+    if (D_80098851 == mp->unk_73 + D_8009899C && (D_80098960 & 1))
+    {
+        mp->mes_ptr_14[5] = 0x60;
+        mp->unk_78        = 0x10;
+    }
+    else
+    {
+        mp->mes_ptr_14[5] = 0xED;
+        mp->unk_78        = 0;
+    }
+    if (mp->sel_71 == mp->unk_73 && !(mp->flags_0 & 0xC00000))
+    {
+        bit = 0x20000 << (mp - Moji_work);
+        Moji_flag3 &= ~bit;
+        old = mp->sel_71;
+        if (!(mp->btn_trg_BA & PAD_CROSS))
+        {
+            if (mp->btn_trg_BA & PAD_UP)
+            {
+                mp->sel_71 = mp->mes_ptr_14[1];
+                mp->unk_BC = 0;
+                if (old == mp->sel_71 && D_8009899C != 0)
+                {
+                    Moji_flag3 |= bit;
+                    Sound_call(0x81, 1, 0);
+                    D_8009899C -= 2;
+                }
+            }
+            else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_UP << 16 | PAD_UP)) == PAD_UP)
+            {
+                if (mp->unk_BC >= 13)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[1];
+                    mp->unk_BC = 12;
+                    if (old == mp->sel_71 && D_8009899C != 0)
+                    {
+                        Moji_flag3 |= bit;
+                        Sound_call(0x81, 1, 0);
+                        D_8009899C -= 2;
+                    }
+                }
+                else
+                {
+                    mp->unk_BC++;
+                }
+            }
+            else if (mp->btn_trg_BA & PAD_DOWN)
+            {
+                mp->sel_71 = mp->mes_ptr_14[2];
+                mp->unk_BC = 0;
+                if (old == mp->sel_71 && D_8009899C < D_800989D4)
+                {
+                    Moji_flag3 |= bit;
+                    Sound_call(0x81, 1, 0);
+                    D_8009899C += 2;
+                }
+            }
+            else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_DOWN << 16 | PAD_DOWN)) == PAD_DOWN)
+            {
+                if (mp->unk_BC >= 13)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[2];
+                    mp->unk_BC = 12;
+                    if (old == mp->sel_71 && D_8009899C < D_800989D4)
+                    {
+                        Moji_flag3 |= bit;
+                        Sound_call(0x81, 1, 0);
+                        D_8009899C += 2;
+                    }
+                }
+                else
+                {
+                    mp->unk_BC++;
+                }
+            }
+            else if (mp->btn_trg_BA & PAD_LEFT)
+            {
+                mp->sel_71 = mp->mes_ptr_14[3];
+                mp->unk_BC = 0;
+            }
+            else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_LEFT << 16 | PAD_LEFT)) == PAD_LEFT)
+            {
+                if (mp->unk_BC >= 13)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[3];
+                    mp->unk_BC = 12;
+                }
+                else
+                {
+                    mp->unk_BC++;
+                }
+            }
+            else if (mp->btn_trg_BA & PAD_RIGHT)
+            {
+                mp->sel_71 = mp->mes_ptr_14[4];
+                mp->unk_BC = 0;
+            }
+            else if ((*(uint32 *)&mp->btn_held_B8 & (PAD_RIGHT << 16 | PAD_RIGHT)) == PAD_RIGHT)
+            {
+                if (mp->unk_BC >= 13)
+                {
+                    mp->sel_71 = mp->mes_ptr_14[4];
+                    mp->unk_BC = 12;
+                }
+                else
+                {
+                    mp->unk_BC++;
+                }
+            }
+        }
+        mp->mes_ptr_14[5] = 0x60;
+        mp->unk_78        = 0x30;
+        mp->cursor_74     = mp->mes_ptr_14 + 5;
+        mp->flags_0 |= 0x800000;
+        if (old != mp->sel_71)
+        {
+            Sound_call(0x81, 1, 0);
+            Moji_flag3 |= 0x20000 << (mp - Moji_work);
+        }
+    }
+    mp->unk_78 += 0x50;
+    mp->unk_73++;
+    mp->mes_ptr_14 += 5;
+}
+
+sint32 func_800592FC(MOJI_WORK *wp)
+{
+    uint32 slot;
+    uint32 value;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x01000000) & ~0x8000;
+        wp->timer_4 = 5;
+    }
+    wp->flags_0 &= ~0x00400000;
+    if (wp->timer_4 <= 0)
+    {
+        Game_logo_kill(0);
+        Game_logo_kill(1);
+        if (wp->btn_trg_BA & PAD_CROSS)
+        {
+            Moji_flag &= ~0xFF;
+            slot = D_800BE2F8[D_8009899C + wp->sel_71];
+            if (slot != 0xFF)
+            {
+                Moji_flag |= 0x40000000 | (uint8)(slot + 0x40);
+            }
+            else
+            {
+                Moji_flag |= 0x400000FF;
+            }
+        }
+        else if (D_8009899C != 0 && D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x2001A);
+            Game_logo_set(1, 0x2001B);
+        }
+        else if (D_8009899C != 0)
+        {
+            Game_logo_set(0, 0x2001A);
+        }
+        else if (D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x2001B);
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    value = D_800BE2F8[D_8009899C + wp->sel_71];
+    if (value != 0xFF)
+    {
+        Moji_flag3 = (uint8)(value + 0x40);
+    }
+    else
+    {
+        Moji_flag3 = value;
+    }
+    wp->unk_78 = 0x80;
+    return 0;
+}
 
 sint32 func_800594CC(MOJI_WORK *wp)
 {
@@ -1863,9 +2994,117 @@ void func_80059660(MOJI_WORK *mp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80059728);
+sint32 func_80059728(MOJI_WORK *wp)
+{
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x01000000) & ~0x8000;
+        wp->timer_4 = 5;
+        wp->sel_71  = wp->sel_save_79;
+    }
+    wp->unk_78 = 0x80;
+    wp->flags_0 &= ~0x00400000;
+    Moji_flag3 = Player_work[0].rb_parts_equip_data[Moji_work[1].sel_71];
+    Moji_flag3 = Moji_flag3 | (Player_work[0].rb_parts_sort_data[D_8009899C + Moji_work[2].sel_save_79] << 8) | MOJI3_PARTS_TASK;
+    if (wp->timer_4 <= 0)
+    {
+        if (*(uint32 *)&wp->btn_held_B8 & ((PAD_TRIANGLE | PAD_START) << 16))
+        {
+            Sound_call(0x83, 1, 0);
+            wp->flags_0 &= ~0x01000000;
+            wp->sel_save_79 = wp->sel_71;
+            MojiTaskExec(wp->cmd_ptr_6C[3], wp->mes_file_44, wp->cmd_ptr_6C[4]);
+            return 0;
+        }
+        if (wp->btn_trg_BA & PAD_CROSS)
+        {
+            Sound_call(0x82, 1, 0);
+            wp->flags_0 &= ~0x01000000;
+            MojiTaskExec(wp->cmd_ptr_6C[1], wp->mes_file_44, wp->cmd_ptr_6C[2]);
+            Moji_flag |= 0x28000;
+            wp->sel_save_79 = wp->sel_71;
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_800598C8);
+// The script hand-off is written out in both confirm branches; GCC cross-jumps the copies.
+sint32 func_800598C8(MOJI_WORK *wp)
+{
+    uint8 *parts;
+    uint8 *mes_file;
+    uint8 temp;
+    uint8 next;
+    uint8 mes_no;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x01000000) & ~0x8000;
+        wp->timer_4 = 5;
+        wp->sel_71  = wp->sel_save_79;
+    }
+    wp->flags_0 &= ~0x00400000;
+    Moji_flag3 = Player_work[0].rb_parts_equip_data[Moji_work[1].sel_71];
+    parts      = Player_work[0].rb_parts_sort_data;
+    Moji_flag3 = Moji_flag3 | (parts[D_8009899C + Moji_work[2].sel_71] << 8);
+    if (wp->timer_4 <= 0)
+    {
+        Game_logo_kill(0);
+        Game_logo_kill(1);
+        if (*(uint32 *)&wp->btn_held_B8 & ((PAD_TRIANGLE | PAD_START) << 16))
+        {
+            Sound_call(0x83, 1, 0);
+            mes_file        = wp->mes_file_44;
+            wp->sel_save_79 = wp->sel_71;
+            wp->flags_0 &= ~0x01000000;
+            Moji_flag &= ~0x28000;
+            mes_no        = wp->cmd_ptr_6C[4];
+            next          = wp->cmd_ptr_6C[3];
+            wp->mes_no_C2 = mes_no;
+            MojiTaskExec(wp->cmd_ptr_6C[1], mes_file, wp->cmd_ptr_6C[2]);
+            MojiTaskExec(next, mes_file, mes_no);
+        }
+        else if (wp->btn_trg_BA & PAD_CROSS)
+        {
+            Sound_call(0x82, 1, 0);
+            temp                                                 = parts[wp->sel_71 + D_8009899C];
+            parts[wp->sel_71 + D_8009899C]                       = Player_work[0].rb_parts_equip_data[GET_SELECT_NO(1)];
+            Player_work[0].rb_parts_equip_data[GET_SELECT_NO(1)] = temp;
+            Sub_screen_rb_parts_set();
+            mes_file        = wp->mes_file_44;
+            wp->sel_save_79 = wp->sel_71;
+            wp->flags_0 &= ~0x01000000;
+            Moji_flag &= ~0x28000;
+            mes_no        = wp->cmd_ptr_6C[4];
+            next          = wp->cmd_ptr_6C[3];
+            wp->mes_no_C2 = mes_no;
+            MojiTaskExec(wp->cmd_ptr_6C[1], mes_file, wp->cmd_ptr_6C[2]);
+            MojiTaskExec(next, mes_file, mes_no);
+        }
+        else if (D_8009899C != 0 && D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x20018);
+            Game_logo_set(1, 0x20019);
+        }
+        else if (D_8009899C != 0)
+        {
+            Game_logo_set(0, 0x20018);
+        }
+        else if (D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x20019);
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    return 0;
+}
 
 // Lists in D_800BE2F8 the entries of D_8008AF00 whose Game_work value is below its maximum (the
 // first four only once their scene flag is set), ends the list with 6, and jumps to message
@@ -1911,34 +3150,30 @@ sint32 func_80059B44(MOJI_WORK *wp)
     return 1;
 }
 
-#ifdef NON_MATCHING
-// Only the else branch differs: the target reuses i * 4 (computed for D_8008AF00[i]) for the word
-// address; this recomputes it there, which shifts registers. Tried: uint8/uint32/sint32 i,
-// [9 - i] indexing (adds 9 separately), a single call with ?:.
 sint32 func_80059D20(MOJI_WORK *wp)
 {
+    uint8 *p;
     sint32 n;
-    uint32 i;
+    uint8 i;
     sint32 val;
 
-    n   = wp->cmd_ptr_6C[1];
+    p   = wp->cmd_ptr_6C;
+    n   = p[1];
     i   = D_800BE2F8[n];
     val = D_8008AF00[i];
     if (i < 4)
     {
-        six_digit_set(0, val - Game_work.unk028[i], wp->cmd_ptr_6C + 7);
+        six_digit_set(0, val - Game_work.unk028[i], p + 7);
     }
     else
     {
-        six_digit_set(0, (&Game_work.unk062[9])[-i] * val - (&Game_work.unk028[9])[-i], wp->cmd_ptr_6C + 7);
+        // Pointer minus index (not [9 - i] or [-i]): the word address reuses the i * 4 above.
+        six_digit_set(0, *(&Game_work.unk062[9] - i) * val - *(&Game_work.unk028[9] - i), p + 7);
     }
     wp->call_stk_4C[wp->call_sp_C0++] = wp->cmd_ptr_6C + 2;
     wp->cmd_ptr_6C                    = D_8008CE5C[D_800BE2F8[n]];
     return 1;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80059D20);
-#endif
 
 void func_80059E24(MOJI_WORK *mp)
 {
@@ -1949,7 +3184,201 @@ void func_80059E24(MOJI_WORK *mp)
     mp->mes_ptr_14                    = D_8008CE5C[D_800BE2F8[idx]];
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_80059E74);
+// Number entry, func_80057FF8's twin for digits: up/down cycles the digit under the cursor,
+// right/left moves it, CROSS confirms (only a non-zero number) and TRIANGLE cancels (number 0).
+// The number in D_800987E0 is kept at most the money (or D_80098AF4 when Money_check can't cover
+// it). As in func_80057FF8, the step-back test reads a copy of the cursor shifted into the top byte.
+sint32 func_80059E74(MOJI_WORK *wp)
+{
+    uint8 cur;
+    sint32 cur_byte;
+    uint16 done;
+    uint16 i;
+    uint32 limit;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 |= 0x01000000;
+        wp->unk_BC    = 0;
+        wp->chr_86    = 0;
+        wp->unk_72    = wp->cmd_ptr_6C[1];
+        wp->unk_73    = 0;
+        wp->sel_71    = 4;
+        wp->timer_4   = 5;
+        D_800986E8[0] = 0x60;
+        D_800986EC[0] = 2;
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[2] = D_8008D028[0];
+        }
+    }
+    cur      = wp->sel_71;
+    cur_byte = cur << 24;
+    done     = 0;
+    wp->flags_0 |= 0x10000000;
+    if (wp->timer_4 <= 0)
+    {
+        if (wp->btn_trg_BA & PAD_CROSS)
+        {
+            if (D_800987E0 != 0)
+            {
+                Sound_call(0x82, 1, 0);
+                wp->flags_0 &= ~0x01000000;
+                done = 1;
+            }
+            else
+            {
+                Sound_call(0x1C6, 1, 0);
+            }
+        }
+        else if (wp->btn_trg_BA & PAD_TRIANGLE)
+        {
+            Sound_call(0x83, 1, 0);
+            D_800987E0 = 0;
+            wp->flags_0 &= ~0x01000000;
+            done = 1;
+        }
+        else if (wp->btn_trg_BA & PAD_RIGHT)
+        {
+            wp->sel_71 = cur + 1;
+            if (wp->sel_71 < wp->unk_72 - 1)
+            {
+                for (i = 0; i < 10; i++)
+                {
+                    if (NAME_SLOT(wp, wp->sel_71)[2] == D_8008D028[i])
+                    {
+                        break;
+                    }
+                }
+                wp->chr_86 = i;
+                Sound_call(0x83, 1, 0);
+            }
+            else
+            {
+                wp->sel_71 = wp->unk_72 - 2;
+            }
+        }
+        else if (wp->btn_trg_BA & PAD_LEFT)
+        {
+            if (cur_byte != 0)
+            {
+                wp->sel_71 = cur - 1;
+            }
+            Sound_call(0x83, 1, 0);
+            for (i = 0; i < 10; i++)
+            {
+                if (NAME_SLOT(wp, wp->sel_71)[2] == D_8008D028[i])
+                {
+                    break;
+                }
+            }
+            wp->chr_86 = i;
+        }
+        else if (wp->btn_trg_BA & PAD_UP)
+        {
+            wp->unk_BC = 0;
+            wp->chr_86++;
+            Sound_call(0x81, 1, 0);
+        }
+        else if ((*(uint32 *)&wp->btn_held_B8 & (PAD_UP << 16 | PAD_UP)) == PAD_UP)
+        {
+            if (wp->unk_BC >= 13)
+            {
+                wp->unk_BC = 12;
+                wp->chr_86++;
+                Sound_call(0x81, 1, 0);
+            }
+            else
+            {
+                wp->unk_BC++;
+            }
+        }
+        else if (wp->btn_trg_BA & PAD_DOWN)
+        {
+            wp->unk_BC = 0;
+            wp->chr_86--;
+            Sound_call(0x81, 1, 0);
+        }
+        else if ((*(uint32 *)&wp->btn_held_B8 & (PAD_DOWN << 16 | PAD_DOWN)) == PAD_DOWN)
+        {
+            if (wp->unk_BC >= 13)
+            {
+                wp->unk_BC = 12;
+                wp->chr_86--;
+                Sound_call(0x81, 1, 0);
+            }
+            else
+            {
+                wp->unk_BC++;
+            }
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    if (wp->chr_86 >= 10)
+    {
+        wp->chr_86 = 0;
+    }
+    if (wp->chr_86 < 0)
+    {
+        wp->chr_86 = 9;
+    }
+    if (done == 0)
+    {
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[1] = 0x50;
+        }
+        NAME_SLOT(wp, wp->sel_71)[2] = D_8008D028[wp->chr_86];
+        NAME_SLOT(wp, wp->sel_71)[1] = D_800986E8[0];
+        D_800986E8[0] += D_800986EC[0];
+        if (D_800986E8[0] == 0x90 || D_800986E8[0] == 0x60)
+        {
+            D_800986EC[0] = -D_800986EC[0];
+        }
+        D_800987E0 = 0;
+        for (i = 0; i < wp->unk_72 - 1; i++)
+        {
+            D_800987E0 *= 10;
+            D_800987E0 += NAME_SLOT(wp, i)[2] - D_8008D028[0];
+        }
+        if (Money_check(-D_80098AF4) != 0)
+        {
+            limit = Game_work.money;
+        }
+        else
+        {
+            limit = D_80098AF4;
+        }
+        if (limit < D_800987E0)
+        {
+            six_digit_set(2, limit, D_800BE2F8);
+            for (i = 0; i < wp->unk_72 - 1; i++)
+            {
+                NAME_SLOT(wp, i)[2] = D_800BE2F8[i + 1];
+            }
+            D_800987E0 = limit;
+            wp->chr_86 = NAME_SLOT(wp, wp->sel_71)[2] - D_8008D028[0];
+        }
+    }
+    else
+    {
+        six_digit_set(2, D_800987E0, D_800BE2F8);
+        for (i = 0; i < wp->unk_72 - 1; i++)
+        {
+            NAME_SLOT(wp, i)[2] = D_800BE2F8[i + 1];
+        }
+        for (i = 0; i < wp->unk_72; i++)
+        {
+            NAME_SLOT(wp, i)[1] = 0x80;
+        }
+        wp->cmd_ptr_6C += 2;
+    }
+    wp->flags_0 |= 0x800000;
+    return done;
+}
 
 sint32 func_8005A598(MOJI_WORK *wp)
 {
@@ -1975,7 +3404,67 @@ sint32 func_8005A598(MOJI_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005A634);
+sint32 func_8005A634(MOJI_WORK *wp)
+{
+    uint8 temp;
+
+    if (!(wp->flags_0 & 0x01000000))
+    {
+        wp->flags_0 = (wp->flags_0 | 0x01000000) & ~0x8000;
+        wp->timer_4 = 5;
+        wp->sel_71  = wp->sel_save_79;
+        D_80098851  = 0xFF;
+    }
+    wp->flags_0 &= ~0x00400000;
+    if (wp->timer_4 <= 0)
+    {
+        Game_logo_kill(0);
+        Game_logo_kill(1);
+        if (*(uint32 *)&wp->btn_held_B8 & ((PAD_TRIANGLE | PAD_START) << 16))
+        {
+            Sound_call(0x83, 1, 0);
+            wp->sel_save_79 = wp->sel_71;
+            wp->flags_0 &= ~0x01000000;
+            MojiTaskExec(wp->cmd_ptr_6C[1], wp->mes_file_44, wp->cmd_ptr_6C[2]);
+            D_80098851 = 0xFF;
+        }
+        else if (wp->btn_trg_BA & PAD_CROSS)
+        {
+            Sound_call(0x82, 1, 0);
+            if (D_80098851 != 0xFF)
+            {
+                temp                                                       = Player_work[0].rb_parts_sort_data[wp->sel_71 + D_8009899C];
+                Player_work[0].rb_parts_sort_data[wp->sel_71 + D_8009899C] = Player_work[0].rb_parts_sort_data[D_80098851];
+                Player_work[0].rb_parts_sort_data[D_80098851]              = temp;
+                Sub_screen_rb_parts_set();
+                wp->sel_save_79 = wp->sel_71;
+                D_80098851      = 0xFF;
+            }
+            else
+            {
+                D_80098851 = wp->sel_71 + D_8009899C;
+            }
+        }
+        else if (D_8009899C != 0 && D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x20018);
+            Game_logo_set(1, 0x20019);
+        }
+        else if (D_8009899C != 0)
+        {
+            Game_logo_set(0, 0x20018);
+        }
+        else if (D_8009899C < D_800989D4)
+        {
+            Game_logo_set(0, 0x20019);
+        }
+    }
+    else
+    {
+        wp->timer_4--;
+    }
+    return 0;
+}
 
 void func_8005A858(MOJI_WORK *mp)
 {
@@ -2067,7 +3556,77 @@ void func_8005AB78(MOJI_WORK *wp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005ACA8);
+void func_8005ACA8(MOJI_WORK *wp)
+{
+    DR_MODE *mode;
+    DR_MODE *mode2;
+
+    wp->corner_88[1].vx = wp->unk_B4 + wp->unk_7E * 12;
+    wp->corner_88[3].vx = wp->unk_B4 + wp->unk_7E * 12;
+    window_prim_set(wp, D_8008AF18[wp->unk_7C]);
+    wp->prim_A0[0]->x0 = wp->base_x_8 + wp->corner_88[0].vx - 1;
+    wp->prim_A0[0]->y0 = wp->unk_A + wp->corner_88[0].vy - 1;
+    wp->prim_A0[0]->x1 = wp->base_x_8 + wp->corner_88[1].vx + 1;
+    wp->prim_A0[0]->y1 = wp->unk_A + wp->corner_88[1].vy - 1;
+    wp->prim_A0[0]->x2 = wp->base_x_8 + wp->corner_88[0].vx;
+    wp->prim_A0[0]->y2 = wp->unk_A + wp->corner_88[0].vy;
+    wp->prim_A0[0]->x3 = wp->base_x_8 + wp->corner_88[1].vx;
+    wp->prim_A0[0]->y3 = wp->unk_A + wp->corner_88[1].vy;
+    wp->prim_A0[1]->x0 = wp->base_x_8 + wp->corner_88[2].vx;
+    wp->prim_A0[1]->y0 = wp->unk_A + wp->corner_88[2].vy;
+    wp->prim_A0[1]->x1 = wp->base_x_8 + wp->corner_88[3].vx;
+    wp->prim_A0[1]->y1 = wp->unk_A + wp->corner_88[3].vy;
+    wp->prim_A0[1]->x2 = wp->base_x_8 + wp->corner_88[2].vx - 1;
+    wp->prim_A0[1]->y2 = wp->unk_A + wp->corner_88[2].vy + 1;
+    wp->prim_A0[1]->x3 = wp->base_x_8 + wp->corner_88[3].vx + 1;
+    wp->prim_A0[1]->y3 = wp->unk_A + wp->corner_88[3].vy + 1;
+    wp->prim_A0[2]->x0 = wp->base_x_8 + wp->corner_88[0].vx - 1;
+    wp->prim_A0[2]->y0 = wp->unk_A + wp->corner_88[0].vy - 1;
+    wp->prim_A0[2]->x1 = wp->base_x_8 + wp->corner_88[0].vx;
+    wp->prim_A0[2]->y1 = wp->unk_A + wp->corner_88[0].vy;
+    wp->prim_A0[2]->x2 = wp->base_x_8 + wp->corner_88[2].vx - 1;
+    wp->prim_A0[2]->y2 = wp->unk_A + wp->corner_88[2].vy + 1;
+    wp->prim_A0[2]->x3 = wp->base_x_8 + wp->corner_88[2].vx;
+    wp->prim_A0[2]->y3 = wp->unk_A + wp->corner_88[2].vy;
+    wp->prim_A0[3]->x0 = wp->base_x_8 + wp->corner_88[1].vx;
+    wp->prim_A0[3]->y0 = wp->unk_A + wp->corner_88[1].vy;
+    wp->prim_A0[3]->x1 = wp->base_x_8 + wp->corner_88[1].vx + 1;
+    wp->prim_A0[3]->y1 = wp->unk_A + wp->corner_88[1].vy - 1;
+    wp->prim_A0[3]->x2 = wp->base_x_8 + wp->corner_88[3].vx;
+    wp->prim_A0[3]->y2 = wp->unk_A + wp->corner_88[3].vy;
+    wp->prim_A0[3]->x3 = wp->base_x_8 + wp->corner_88[3].vx + 1;
+    wp->prim_A0[3]->y3 = wp->unk_A + wp->corner_88[3].vy + 1;
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_A0[0]);
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_A0[1]);
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_A0[2]);
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_A0[3]);
+    wp->prim_98->x0 = wp->base_x_8 + wp->corner_88[0].vx;
+    wp->prim_98->y0 = wp->unk_A + wp->corner_88[0].vy;
+    wp->prim_98->x1 = wp->base_x_8 + wp->corner_88[1].vx;
+    wp->prim_98->y1 = wp->unk_A + wp->corner_88[1].vy;
+    wp->prim_98->x2 = wp->base_x_8 + wp->corner_88[2].vx;
+    wp->prim_98->y2 = wp->unk_A + wp->corner_88[2].vy;
+    wp->prim_98->x3 = wp->base_x_8 + wp->corner_88[3].vx;
+    wp->prim_98->y3 = wp->unk_A + wp->corner_88[3].vy;
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_98);
+    mode         = (DR_MODE *)Map_prim_ptr;
+    Map_prim_ptr = (POLY_FT4 *)(mode + 1);
+    SetDrawMode(mode, 0, 0, GetTPage(0, 0, 0x3C0, 0x100), NULL);
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], mode);
+    wp->prim_9C->x0 = wp->base_x_8 + wp->corner_88[0].vx;
+    wp->prim_9C->y0 = wp->unk_A + wp->corner_88[0].vy;
+    wp->prim_9C->x1 = wp->base_x_8 + wp->corner_88[1].vx;
+    wp->prim_9C->y1 = wp->unk_A + wp->corner_88[1].vy;
+    wp->prim_9C->x2 = wp->base_x_8 + wp->corner_88[2].vx;
+    wp->prim_9C->y2 = wp->unk_A + wp->corner_88[2].vy;
+    wp->prim_9C->x3 = wp->base_x_8 + wp->corner_88[3].vx;
+    wp->prim_9C->y3 = wp->unk_A + wp->corner_88[3].vy;
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], wp->prim_9C);
+    mode2        = (DR_MODE *)Map_prim_ptr;
+    Map_prim_ptr = (POLY_FT4 *)(mode2 + 1);
+    SetDrawMode(mode2, 0, 0, GetTPage(0, 2, 0x3C0, 0x100), NULL);
+    addPrim(&Disp_env_ptr->ot[wp->ot_3D], mode2);
+}
 
 // Fades a full-screen (320 x 240) quad in to grey 0x80 (unk_7D 0 sets it up, 1 fades in and
 // skips the command) and out again (2).
@@ -2235,7 +3794,19 @@ void func_8005B98C(MOJI_WORK *wp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", func_8005BC90);
+void func_8005BC90(MOJI_WORK *wp)
+{
+    if (D_80098912 == 1)
+    {
+        wp->unk_7C = 0;
+    }
+    else
+    {
+        wp->unk_7C = 4;
+    }
+    func_8005ACA8(wp);
+    wp->unk_7C = 7;
+}
 
 void window_prim_set(MOJI_WORK *wp, sint32 col)
 {
@@ -2282,9 +3853,6 @@ void window_prim_set(MOJI_WORK *wp, sint32 col)
     }
 }
 
-#ifdef NON_MATCHING
-// Remaining difference: the loop end is built as lui/addiu %lo(D_8008AF24+0x18) (one instruction
-// more); the target computes it from the table pointer's register (addiu t3,t0,0x18).
 // Writes n as six digits (leading zeros as D_8008AF3C[pad]) and a terminator.
 void six_digit_set(sint32 pad, uint32 n, uint8 *dst)
 {
@@ -2308,9 +3876,6 @@ void six_digit_set(sint32 pad, uint32 n, uint8 *dst)
     D_800986F0[0] = 0;
     dst[6]        = D_8008D028[0];
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/moji", six_digit_set);
-#endif
 
 // Writes a frame count (30 per second) as a time: minutes' last digit at [0], seconds at [2] and
 // [3], tenths at [5] and hundredths (0, 3 or 6) at [6]. One index variable serves every digit.
@@ -2360,7 +3925,7 @@ void func_8005C150(sint32 index, uint32 mode, sint32 value, sint32 task_no)
     }
 }
 
-void func_8005C218(uint8 val)
+void func_8005C218(sint32 val)
 {
     D_80098830 = val;
 }

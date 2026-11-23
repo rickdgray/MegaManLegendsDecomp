@@ -32,7 +32,7 @@ void func_800425FC(PL_WORK *pl, sint32 row)
 
 void func_800426F8(PL_WORK *pl)
 {
-    D_8008A08C[pl->unk170](pl);
+    D_8008A08C[pl->weapon_right_no](pl);
 }
 
 void func_80042734(PL_WORK *pl)
@@ -45,7 +45,7 @@ void func_80042770(PL_WORK *pl)
     sint32 n;
     uint16 mask;
 
-    n    = pl->unk170;
+    n    = pl->weapon_right_no;
     mask = pl->pad_now;
     switch (pl->unk178)
     {
@@ -135,7 +135,7 @@ void func_80042A40(PL_WORK *pl)
 {
     sint32 n;
 
-    n = pl->unk170;
+    n = pl->weapon_right_no;
     switch (pl->unk178)
     {
         case 0:
@@ -186,7 +186,7 @@ void func_80042B58(PL_WORK *pl)
     sint32 n;
     uint16 mask;
 
-    n    = pl->unk170;
+    n    = pl->weapon_right_no;
     mask = pl->pad_now;
     switch (pl->unk178)
     {
@@ -270,7 +270,7 @@ void func_80042DF8(PL_WORK *pl)
 {
     sint32 n;
 
-    n = pl->unk170;
+    n = pl->weapon_right_no;
     switch (pl->unk178)
     {
         case 0:

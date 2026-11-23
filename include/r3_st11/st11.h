@@ -23,7 +23,7 @@ extern uint8 D_80109BB4[];
 extern uint8 D_8010A484[];
 extern uint8 D_8010E1B8[];
 
-void func_8001DF10(uint8 *);
+void Scene_obj_list_open(uint8 *);
 void func_80100370(STAGE_ROOM *wp);
 
 void func_80100428(STAGE_ROOM *wp);

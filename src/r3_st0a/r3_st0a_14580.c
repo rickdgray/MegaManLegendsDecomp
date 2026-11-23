@@ -23,6 +23,6 @@ void func_80114580(ST0A_PROP *wp)
     ScaleMatrix(&wp->matrix.m, &scale);
     if (wp->variant_3 == 0)
     {
-        func_8002CA10(&wp->position, 0x140, 0x200, 0);
+        Pos_Shadow_Trans(&wp->position, 0x140, 0x200, 0);
     }
 }

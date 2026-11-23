@@ -805,7 +805,7 @@ sint32 func_8003648C(void *track, void *wp);
 
 void func_8010D9F8(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos);
 void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *pos, sint32 from, sint32 to);
-void func_80050C2C(void *wp);
+void Front_hit_event(void *wp);
 void func_80052528(void *wp);
 
 // A ROCK_NEO record per 0x10C-slot kind (D_80098928).

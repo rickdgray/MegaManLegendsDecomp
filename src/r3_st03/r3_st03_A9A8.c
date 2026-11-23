@@ -111,7 +111,7 @@ void func_8010AB8C(ST03_ACTOR *wp)
             target         = &D_801170A4;
             wp->rotation.y = (wp->rotation.y + Muku(&wp->position, target, wp->rotation.y, 0x50)) & 0xFFF;
             Obj_pos_set(wp, 0x140, 0, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             dx = wp->position.x - target->x;
             dz = wp->position.z - D_801170A8;
             if (dx * dx + dz * dz < 0x800)
@@ -351,7 +351,7 @@ void func_8010B2CC(ST03_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    y                    = func_80048E6C(wp);
+    y                    = Obj_ceiling_height_get(wp);
     wp->position.y       = y;
     wp->position_fixed.y = y << 0x10;
     wp->value_6E         = 0;
@@ -460,7 +460,7 @@ void func_8010B63C(ST03_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
     wp->value_6E         = 0;
@@ -519,7 +519,7 @@ void func_8010B858(ST03_ACTOR *wp)
             Sound_call2(0x10D, &wp->position);
         }
         Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-        wp->position.y       = func_80048E6C(wp);
+        wp->position.y       = Obj_ceiling_height_get(wp);
         wp->position_fixed.y = wp->position.y << 0x10;
     }
     else

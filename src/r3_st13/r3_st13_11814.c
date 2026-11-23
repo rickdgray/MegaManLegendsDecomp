@@ -60,7 +60,7 @@ void func_801119CC(STAGE_STCOM15_WORK_4E0 *wp)
     wp->data_10                                      = NULL;
     if (!(wp->variant_3 & 0x7F))
     {
-        ground                    = func_80049448(wp);
+        ground                    = Obj_floor_height_get(wp);
         (&wp->ctl.u_3C.flag)[1]   = ground; // the union's second halfword
         wp->position.y            = ground;
         wp->position_fixed.y      = ground << 16;
@@ -71,7 +71,7 @@ void func_801119CC(STAGE_STCOM15_WORK_4E0 *wp)
     }
     else
     {
-        floor                     = func_80048E6C(wp);
+        floor                     = Obj_ceiling_height_get(wp);
         (&wp->ctl.u_3C.flag)[1]   = floor; // the union's second halfword
         wp->position.y            = floor;
         wp->position_fixed.y      = floor << 16;
@@ -308,7 +308,7 @@ void func_80112180(STAGE_STCOM15_WORK_4E0 *wp)
             }
             wp->rotation.y = (wp->rotation.y + wp->turn_66) & 0xFFF;
             Obj_pos_set(wp, 0x70, 0, 0);
-            if (func_8004B414(wp) & 0xF00)
+            if (Obj_map_push_out(wp) & 0xF00)
             {
                 wp->rotation.y = (wp->rotation.y + 0x800) & 0xFFF;
             }
@@ -388,7 +388,7 @@ void func_80112348(STAGE_STCOM15_WORK_4E0 *wp)
             wp->turn_66    = Muku(&wp->position, &pl->position, wp->rotation.y, 0x20);
             wp->rotation.y = (wp->rotation.y + wp->turn_66) & 0xFFF;
             Obj_pos_set(wp, 0x100, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (wp->value_A6 != 0)
             {
                 Sound_call2(0xD5, &wp->position);
@@ -426,7 +426,7 @@ void func_80112638(STAGE_STCOM15_WORK_4E0 *wp)
             wp->accel.y          = 0x100;
             ctl->timer_4         = 0x14;
             ctl->value_8         = D_8009884C[wp->kind_2][wp->param_D].value_A;
-            (&ctl->u_3C.flag)[1] = func_80048E6C(wp);
+            (&ctl->u_3C.flag)[1] = Obj_ceiling_height_get(wp);
             // fall through
         case 1:
             if (--ctl->timer_4 >= 0)
@@ -444,7 +444,7 @@ void func_80112638(STAGE_STCOM15_WORK_4E0 *wp)
             prev                 = wp->position.y;
             wp->position.y       = wp->joints_180[0].y + (wp->velocity.v.y >> 4);
             wp->position_fixed.y = wp->position.y << 16;
-            hit                  = func_8004B414(wp);
+            hit                  = Obj_map_push_out(wp);
             wp->velocity.v.y += wp->accel.y;
             if ((hit & 0x1000) || prev >= (sint16)(&ctl->u_3C.flag)[1])
             {
@@ -498,7 +498,7 @@ void func_80112850(STAGE_STCOM15_WORK_4E0 *wp)
             wp->accel.y          = -0x100;
             ctl->timer_4         = 0xA;
             ctl->value_8         = 0;
-            (&ctl->u_3C.flag)[1] = func_80049448(wp); // the union's second halfword: the ground
+            (&ctl->u_3C.flag)[1] = Obj_floor_height_get(wp); // the union's second halfword: the ground
             // fall through
         case 1:
             if (--ctl->timer_4 <= 0)
@@ -516,7 +516,7 @@ void func_80112850(STAGE_STCOM15_WORK_4E0 *wp)
             y                    = wp->position.y;
             wp->position.y       = wp->joints_180[0].y - (wp->velocity.v.y >> 4);
             wp->position_fixed.y = wp->position.y << 16;
-            hit                  = func_8004B414(wp);
+            hit                  = Obj_map_push_out(wp);
             wp->velocity.v.y += wp->accel.y;
             if ((hit & 0x2000) || (sint16)(&wp->ctl.u_3C.flag)[1] >= y)
             {
@@ -609,7 +609,7 @@ void func_80112B64(STAGE_STCOM15_WORK_4E0 *wp)
             ctl->timer_4     = 3;
             ctl->value_8     = 0;
             ctl->flags_0 &= ~4;
-            (&ctl->u_3C.flag)[1] = func_80048E6C(wp);
+            (&ctl->u_3C.flag)[1] = Obj_ceiling_height_get(wp);
             // fall through
         case 1:
             if (--ctl->timer_4 >= 0)
@@ -627,7 +627,7 @@ void func_80112B64(STAGE_STCOM15_WORK_4E0 *wp)
             prev                 = wp->position.y;
             wp->position.y       = wp->joints_180[0].y + (wp->velocity.v.y >> 4);
             wp->position_fixed.y = wp->position.y << 16;
-            hit                  = func_8004B414(wp);
+            hit                  = Obj_map_push_out(wp);
             wp->velocity.v.y += wp->accel.y;
             if ((hit & 0x1000) || prev >= (sint16)(&ctl->u_3C.flag)[1])
             {
@@ -684,14 +684,14 @@ void func_80112D7C(STAGE_STCOM15_WORK_4E0 *wp)
             ctl->timer_4  = 9;
             ctl->value_8  = 0;
             ctl->flags_0 &= ~4;
-            (&ctl->u_3C.flag)[1] = func_80048E6C(wp);
+            (&ctl->u_3C.flag)[1] = Obj_ceiling_height_get(wp);
             // fall through
         case 1:
             if (--ctl->timer_4 >= 0)
             {
                 wp->velocity.v.y = 4 - ctl->timer_4;
                 Obj_pos_set(wp, 0, wp->velocity.v.y << 7, 0);
-                if (!(func_8004B414(wp) & 0x2000))
+                if (!(Obj_map_push_out(wp) & 0x2000))
                 {
                     break;
                 }
@@ -703,7 +703,7 @@ void func_80112D7C(STAGE_STCOM15_WORK_4E0 *wp)
             // fall through
         case 2:
             Obj_pos_set(wp, 0, wp->velocity.v.y, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             wp->velocity.v.y += wp->accel.y;
             if (!(hit & 0x1000) && wp->position.y < (sint16)(&ctl->u_3C.flag)[1])
             {
@@ -789,13 +789,13 @@ void func_8011305C(STAGE_STCOM15_WORK_4E0 *wp)
             ctl->timer_4     = 0x10;
             ctl->value_8     = 0;
             Sound_call2(0xD1, &wp->position);
-            (&ctl->u_3C.flag)[1] = func_80048E6C(wp); // the union's second halfword: the ground
+            (&ctl->u_3C.flag)[1] = Obj_ceiling_height_get(wp); // the union's second halfword: the ground
             // fall through
         case 1:
             wp->rotation.y = (wp->rotation.y + wp->turn_66) & 0xFFF;
             Obj_pos_set(wp, 0, wp->velocity.v.y, 0);
             wp->velocity.v.y += wp->accel.y;
-            if (!(func_8004B414(wp) & 0x1000) && wp->position.y < (sint16)(&ctl->u_3C.flag)[1])
+            if (!(Obj_map_push_out(wp) & 0x1000) && wp->position.y < (sint16)(&ctl->u_3C.flag)[1])
             {
                 break;
             }
@@ -849,7 +849,7 @@ void func_801131F8(STAGE_STCOM15_WORK_4E0 *wp)
         case 2:
             wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &D_80118D2C, wp->rotation.y, 0x20)) & 0xFFF;
             Obj_pos_set(wp, 0x70, 0, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             if (wp->value_A6 != 0)
             {
                 Sound_call2(0xD5, &wp->position);
@@ -942,12 +942,12 @@ sint32 func_801134E4(STAGE_STCOM15_WORK_4E0 *wp)
                         case 4:
                         case 5:
                         case 10:
-                            if (wp->position.y == func_80048E6C(wp))
+                            if (wp->position.y == Obj_ceiling_height_get(wp))
                             {
                                 wp->routine_1 = 6;
                                 break;
                             }
-                            if (wp->position.y == func_80049448(wp))
+                            if (wp->position.y == Obj_floor_height_get(wp))
                             {
                                 wp->routine_1 = 7;
                                 break;
@@ -1122,21 +1122,21 @@ void func_801139E8(STAGE_ROOM *wp)
             }
             break;
         case 4:
-            func_80017C30(3);
+            Fade_start(3);
             func_80113958(wp);
             wp->routine_4++;
             // fall through
         case 5:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(10);
+                Fade_start(10);
                 Sce_flag_on(0x21);
                 wp->routine_4 = 10;
             }
             // fall through
         case 10:
             func_801139A8((STAGE_ROOM_WORK *)wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 10 && D_80098A72 == 0)
             {

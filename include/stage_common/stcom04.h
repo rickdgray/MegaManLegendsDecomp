@@ -88,6 +88,6 @@ uint8 stcom04_func_0A84(STCOM04_WORK *wp, uint32 *hit);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint16 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM04_H

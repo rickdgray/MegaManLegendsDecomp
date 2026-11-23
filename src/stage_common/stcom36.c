@@ -8,7 +8,7 @@
 
 void stcom36_func_0000(void)
 {
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -24,7 +24,7 @@ void stcom36_func_0028(sint8 room)
     for (i = 0; i < r->count; i++)
     {
         index = r->list[i].index_0;
-        func_8001EAE8(&r->list[i]);
+        Scene_obj_ent_open(&r->list[i]);
         stcom36_E2_0000[index] = Scene_work.obj_24[index];
         stcom36_E2_0000[index]->flags_6 &= ~0x20;
         stcom36_D_0000 |= 0x80000000 >> index;

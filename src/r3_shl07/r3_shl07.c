@@ -72,7 +72,7 @@ void func_800D888C(SHL_WORK *wp)
             fx->pos_38.vx += (d.vx * push) >> 12;
             fx->pos_38.vz += (d.vz * push) >> 12;
             tmp = fx->pos_38;
-            func_8004B5CC(&tmp, &old, 1, &D_8008A310[fx->index_a]);
+            Pos_map_push_out(&tmp, &old, 1, &D_8008A310[fx->index_a]);
             fx->pos_38.vx = tmp.vx;
             fx->pos_38.vy = tmp.vy;
             fx->pos_38.vz = tmp.vz;

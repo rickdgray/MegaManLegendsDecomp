@@ -136,6 +136,6 @@ void stcom09_func_0BE0(STCOM09_WORK *wp);
 uint8 stcom09_func_0D28(STCOM09_WORK *wp);
 
 // ROCK_NEO.EXE (see rock_neo.h).
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM09_H

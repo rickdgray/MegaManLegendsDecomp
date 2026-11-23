@@ -119,8 +119,8 @@ void func_801D8524(void)
 
 void func_801D8564(void)
 {
-    func_80028F90(SUP_OBJ_0);
-    func_80028F90(SUP_OBJ_1);
+    Model_parts_draw(SUP_OBJ_0);
+    Model_parts_draw(SUP_OBJ_1);
 }
 
 void func_801D8594(void)
@@ -584,7 +584,7 @@ void func_801D952C(void)
         D_801DC208.anim_94    = 8;
         D_801DC208.value_90   = 1;
         Player_work.value_172 = D_801DC0C8[D_801DC268];
-        func_80037594();
+        Player_weapon_bullet_set();
         if (Player_work.value_44e > 0)
         {
             Obj_work_flag_change(8, 0x80);
@@ -958,7 +958,7 @@ void func_801D9C74(void)
         ScaleMatrix(&sp->mtx.m, &D_801DC208.scale_68);
         if (sp->value_0 & 2)
         {
-            func_8002A160(&sp->model_14, (sint8)sp->value_0);
+            Efc_model_draw(&sp->model_14, (sint8)sp->value_0);
         }
     }
 
@@ -1182,7 +1182,7 @@ void func_801DAB58(void)
             (*(Player_work.level_4f4[D_801DC0C8[D_801DC208.value_60]] + D_801DC208.value_96))++;
             Money_add(-D_801DC208.value_98, 0, 0);
             func_801DB1C0();
-            func_80037594();
+            Player_weapon_bullet_set();
             MojiTaskExec(0, SUP_SCRIPT, 0x87);
             Sound_call(0x89, 0, 0);
             D_801DC208.routine_3++;
@@ -1260,7 +1260,7 @@ void func_801DB2AC(void)
     switch (D_801DC208.routine_3)
     {
         case 0:
-            func_80017C30(9);
+            Fade_start(9);
             D_801DC208.routine_3++;
             break;
         case 1:
@@ -1278,7 +1278,7 @@ void func_801DB2AC(void)
             break;
         case 3:
             D_801DC208.found_a2 = func_801DB43C();
-            func_80017C30(1);
+            Fade_start(1);
             D_801DC208.routine_3++;
             break;
         case 4:
@@ -1447,7 +1447,7 @@ void func_801DB800(void)
     switch (D_801DC208.routine_3)
     {
         case 0:
-            func_80017C30(0x17);
+            Fade_start(0x17);
             Sound_fade_start(0x10);
             D_801DC208.routine_3++;
             break;
@@ -1600,7 +1600,7 @@ void func_801DBD78(void)
             Player_work.value_44e                         = 1;
             Player_work.value_44f                         = 1;
             func_8001F5E4();
-            func_80037594();
+            Player_weapon_bullet_set();
             *(uint32 *)&D_801DC208.routine_0 = 2;
             break;
     }

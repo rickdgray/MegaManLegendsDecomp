@@ -113,7 +113,7 @@ void stcom18_func_0260(STCOM18_WORK *wp)
             wp->sprite.value_F = stcom18_D_000C[frame].b;
         }
         wp->sprite.color_4.word = 0x2C808080;
-        func_8002CA10(&wp->position, 0x30, 0x200, 0);
+        Pos_Shadow_Trans(&wp->position, 0x30, 0x200, 0);
     }
     if (wp->timer_B != 0 && wp->position.y < 0)
     {

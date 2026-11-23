@@ -10,17 +10,22 @@
 // (func_800665E8 reaches offset 0 through $gp; maspsx keeps a common with an offset lui-based).
 // func_800665FC copies the pad into it, sets mode_2 from its argument and runs
 // D_8008FD10[routine_0] on it; routines 1 and 2 (func_800666D8, func_80066714, the same code) both
-// run D_8008FD20[routine_1]. Also read by game (func_80016BF4: no soft reset while active_0 is set)
-// and moji (func_8005BC90: mode_2). Size at least 0xC; the pool's next label is at 0x80098924.
+// run D_8008FD20[routine_1]. Also read by game (soft_reset_check: no soft reset while active_0 is set)
+// and moji (func_8005BC90: mode_2). Size 0x14; the pool's next label is at 0x80098924.
+// A D_8008FD20 step that is done sets the next routine_1 and clears routine_2 and routine_3 with
+// one halfword store.
 typedef struct
 {
     uint16 active_0;  // 0x0: set to 1 by func_80066664 (routine 0), cleared by func_80066750 (routine 3)
     uint16 mode_2;    // 0x2: func_800665FC's argument; 0 selects routine 2, else routine 1
-    sint8 routine_0;  // 0x4: lb; index of D_8008FD10
+    sint8 routine_0;  // 0x4: lb; index of D_8008FD10 (the steps test it for 1; 3 ends the module)
     sint8 routine_1;  // 0x5: lb; index of D_8008FD20
-    uint16 unk_6;     // 0x6: cleared (sh) by func_80066664; func_80066750 clears 0x4-0x7 with one sw
+    sint8 routine_2;  // 0x6: the D_8008FD20 step's own state
+    sint8 routine_3;  // 0x7: set by func_8006689C when a slot's file is unreadable
     uint16 pad_now_8; // 0x8: copy of PAD_NOW(Joy1), taken by func_800665FC
     uint16 pad_on_A;  // 0xA: copy of PAD_ON(Joy1), taken by func_800665FC
+    sint32 timer_C;   // 0xC: frames before func_8006689C reads the card, func_80066F40's delay
+    sint32 timer_10;  // 0x10: func_80066F40's countdown between card checks
 } CODE_8006430C_WORK;
 
 // One of the five save slots in D_800BAF38 (0x180 bytes each). func_80067884 resets them;
@@ -40,9 +45,13 @@ typedef struct
 // 0x080-0x0DB (0x0DC), 0x0E0-0x74B (0x74C), 0x750-0x7B7 (0x7B8); words 0x7BC-0x7BF check the
 // keys and sums. Other files keep their own blocks in it: code_8003AC24 at 0x480, code_8005C258
 // at 0x1280. Fields are named after the Game_work fields Save_image_restore restores from them.
+// save_image_store fills it.
 typedef struct
 {
-    uint8 unk000[0x128];
+    uint8 header[0x100]; // 0x000: the memory card file header sector (card_header_set)
+    uint8 stage_no_100;  // 0x100: Game_work.stage_no, as CARD_SLOT.unk_100
+    uint8 time_101[8];   // 0x101: the play time text (D_80097FD4), as CARD_SLOT.unk_101
+    uint8 unk109[0x128 - 0x109];
     uint32 unk010;   // 0x128
     uint32 timer_14; // 0x12C
     uint16 unk018;   // 0x130
@@ -66,12 +75,13 @@ typedef struct
     sint8 unk05A; // 0x19E
     sint8 unk05B; // 0x19F
     uint8 unk1A0[0x1C0 - 0x1A0];
-    SVECTOR pos;  // 0x1C0: D_800C3558.pos
-    sint16 ang_y; // 0x1C8: D_800C3558.ang_y
-    uint8 unk1CA[0x1CE - 0x1CA];
-    uint16 pl_unkB0; // 0x1CE: the player's PL_WORK.life_max and life (player_work_init)
-    sint16 unk060;   // 0x1D0
-    uint16 unk062;   // 0x1D2: Game_work 0x62
+    SVECTOR pos;  // 0x1C0: D_800C3558.pos; saved from the player's PL_WORK.pos
+    sint16 ang_y; // 0x1C8: D_800C3558.ang_y; saved from the player's PL_WORK.ang.vy
+    uint8 unk1CA[0x1CC - 0x1CA];
+    sint16 pl_life;     // 0x1CC: the player's PL_WORK.life (not restored)
+    uint16 pl_life_max; // 0x1CE: the player's PL_WORK.life_max; restores both life_max and life
+    sint16 unk060;      // 0x1D0
+    uint16 unk062;      // 0x1D2: Game_work 0x62
     // 0x1D4-0x1DF: PL_WORK bytes, restored by player_work_init
     uint8 pl_unk16A; // 0x1D4
     uint8 pl_unk16B; // 0x1D5
@@ -98,10 +108,13 @@ typedef struct
     uint32 pl_rb_parts_equip_data;   // 0x208: PL_WORK.rb_parts_equip_data, as one word
     uint8 pl_rb_parts_sort_data[32]; // 0x20C
     uint8 pl_rec[0x100];             // 0x22C: PL_WORK 0x4F4-0x5F3 (rec and what follows)
-    uint8 unk32C[0x1C80 - 0x32C];
-    uint8 pl_unk474[0x80]; // 0x1C80: PL_WORK 0x474-0x4F3
-    uint32 unk028[6];      // 0x1D00
-    uint16 unk040[6];      // 0x1D18
+    uint8 unk32C[0x380 - 0x32C];
+    uint8 sce_flag[0x100];  // 0x380: Sce_flag, 8 blocks of 32 bytes (Sce_flag_init)
+    uint8 idx_state[0xE00]; // 0x480: code_8003AC24's D_800BD3B8
+    uint8 blk_1280[0xA00];  // 0x1280: code_8005C258's D_800BC9B8
+    uint8 pl_unk474[0x80];  // 0x1C80: PL_WORK 0x474-0x4F3
+    uint32 unk028[6];       // 0x1D00
+    uint16 unk040[6];       // 0x1D18
     uint8 unk1D24[0x1D40 - 0x1D24];
     GAME_RECORD records_84[15]; // 0x1D40 (func_80067E6C)
     uint8 unk1E30[0x1F00 - 0x1E30];
@@ -149,7 +162,8 @@ typedef struct
 // func_8006430C: uv and clut of the image shown in place of a sprite whose flags aren't set.
 #define ICON_UV_CLUT_NONE 0x3C484080
 
-typedef void (*CODE_8006430C_FUNC)(CODE_8006430C_WORK *wp);
+// routine_1 steps (D_8008FD20); each returns 1, or 0 when it leaves early. Their callers ignore it.
+typedef sint32 (*CODE_8006430C_FUNC)(CODE_8006430C_WORK *wp);
 // routine_0 handlers (D_8008FD10); func_800665FC returns their result.
 typedef sint32 (*CODE_8006430C_ROUTINE_FUNC)(CODE_8006430C_WORK *wp);
 
@@ -200,6 +214,49 @@ extern uint8 D_8008CE94[][13];
 extern uint8 D_80097FFC[8];
 extern uint8 *D_8008D168[5];
 extern uint8 *D_8008D184[5];
+// The same two texts for the slot func_80067174 picked, in its confirmation message (the slot's
+// number glyph two bytes before D_8008D17C).
+extern uint8 *D_8008D17C;
+extern uint8 *D_8008D198;
+
+// The save slots' file names ("BASLUS-00603-DASH04", ...; in another file's .sdata), and the
+// 13-byte encoded texts func_8006689C shows for an empty slot (D_80097FAC) and an unreadable one
+// (D_80097FC0).
+extern char *Card_file_name_tbl[5];
+extern uint8 D_80097FAC[];
+extern uint8 D_80097FC0[];
+
+// Encoded message texts the D_8008FD20 steps show through MojiTaskExec (tasks 0 to 2). They sit
+// among moji's data (notes/rock_neo_files.md), so moji.c probably defines them. Task 0 shows
+// D_8008CAEC in routine 1 and D_8008CB40 in routine 2; D_8008CAF8 is indexed by the card port.
+extern uint8 *D_8008CAD8;
+extern uint8 *D_8008CADC;
+extern uint8 *D_8008CAEC;
+extern uint8 *D_8008CAF0;
+extern uint8 *D_8008CAF4;
+extern uint8 *D_8008CAF8[2];
+extern uint8 *D_8008CB00;
+extern uint8 *D_8008CB04;
+extern uint8 *D_8008CB08;
+extern uint8 *D_8008CB10;
+extern uint8 *D_8008CB14;
+extern uint8 *D_8008CB18;
+extern uint8 *D_8008CB1C;
+extern uint8 *D_8008CB20;
+extern uint8 *D_8008CB24;
+extern uint8 *D_8008CB28;
+extern uint8 *D_8008CB2C;
+extern uint8 *D_8008CB30;
+extern uint8 *D_8008CB34;
+extern uint8 *D_8008CB38;
+extern uint8 *D_8008CB40;
+extern uint8 *D_8008CB44;
+extern uint8 *D_8008CB48;
+extern uint8 *D_8008CB4C;
+extern uint8 *D_8008CB50;
+extern uint8 *D_8008CB54;
+extern uint8 *D_8008CB58;
+extern uint8 *D_8008CB5C;
 
 // A new game's Game_work.records_84 (func_80067E6C): ids and data of entries 0-8, then of
 // entries 9-11 and 12-14.
@@ -220,5 +277,12 @@ extern uint8 D_8009AB31;
 void Card_init(void);          // opens and enables the memory card events, starts the card BIOS and file system
 void func_800665E8(void);      // clears active_0 and the word at 0x4
 void Save_image_restore(void); // copies the loaded save image into Game_work and the area entry
+void func_800664BC(void);
+void func_8006471C(void);
+void func_80067E6C(sint32 load); // sets up Game_work.records_84 (new game, or from the save image)
+void func_80067E18(void);
+void func_80067E4C(void);          // Sce_flag_on(0x4C0)
+sint32 func_800665FC(sint16 mode); // runs the save screen's routine; 1 once it is done
+void func_800679B8(void);          // per frame (game's game_frame_exec)
 
 #endif

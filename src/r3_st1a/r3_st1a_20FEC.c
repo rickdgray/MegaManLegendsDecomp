@@ -527,7 +527,7 @@ void func_80122268(ST1A_DART *wp)
     }
     else if (wp->variant_3 == 0xFC)
     {
-        func_80036B00(&wp->position_prev);
+        Fog_param_get(&wp->position_prev);
         wp->routine_0 = 0xA;
     }
     else
@@ -1080,7 +1080,7 @@ void func_801236A4(ST1A_COPY *wp)
                             fx->variant_3         = 6;
                             fx->value_F           = 2;
                             fx->sprite.position   = ctl->owner_34->position;
-                            fx->sprite.position.y = func_80048E6C(wp);
+                            fx->sprite.position.y = Obj_ceiling_height_get(wp);
                             Sound_call2(0x1E0, &wp->position);
                         }
                     }
@@ -1130,7 +1130,7 @@ void func_80123A64(ST1A_COPY *wp)
     {
         case 0:
             wp->routine_2++;
-            ground       = func_80048E6C(ctl->owner_34) + 0x20;
+            ground       = Obj_ceiling_height_get(ctl->owner_34) + 0x20;
             wp->step_4E  = (ctl->owner_34->position.y - ground) / 8;
             ctl->timer_4 = 8;
             // fall through

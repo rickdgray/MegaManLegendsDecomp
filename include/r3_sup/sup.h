@@ -42,7 +42,7 @@ typedef struct
         uint32 w;
     } routine; // 08
     uint8 reserved0c[8];
-    uint8 *model_14; // 14: start of the object func_8002A160 draws
+    uint8 *model_14; // 14: start of the object Efc_model_draw draws
     union
     {
         MATRIX m;
@@ -245,23 +245,23 @@ void Sound_call(sint32 sound, ...);
 void func_8001B314(void);
 void Sound_seq_stop_all(void);
 void func_80016D64(void);
-void func_80017C30(sint32 arg);
+void Fade_start(sint32 arg);
 void Sound_fade_start(sint32 arg);
 void Sound_stage_check(void);
 void func_8001F23C(void);
 void func_8001F3C8(void);
 void func_8001F5E4(void);
 void func_8002FA10(void *obj, void *arg);
-void func_80037594(void);
+void Player_weapon_bullet_set(void);
 void Model_work_init(void *obj, void *arg);
 
 void Mem_clear(void *start, void *end);
 void func_80023728(void *vec, sint32 arg1, sint32 arg2, sint32 arg3);
-void func_80028F90(void *rec);
+void Model_parts_draw(void *rec);
 void func_800322A8(void *obj, sint32 anim, sint32 arg);
 void func_80032488(void *obj);
 void Money_add(sint32 arg0, sint32 arg1, sint32 arg2);
-void func_8002A160(void *obj, uint32 flags);
+void Efc_model_draw(void *obj, uint32 flags);
 
 // Moji scripts loaded with the module.
 #define SUP_SCRIPT ((uint8 *)0x801E4000)

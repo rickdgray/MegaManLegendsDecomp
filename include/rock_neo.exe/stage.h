@@ -4,16 +4,19 @@
 #include "common.h"
 #include "psyq/libgte.h"
 
-// Scratchpad map window: origin (0x40, 0x41), size (0x44, 0x46), cell data at 0x48.
+// Scratchpad map window: origin (0x40, 0x41), end (0x42, 0x43, exclusive), size (0x44, 0x46), cell
+// data at 0x48.
 #define Map_org_x (*(uint8 *)0x1F800040)
 #define Map_org_y (*(uint8 *)0x1F800041)
+#define Map_end_x (*(uint8 *)0x1F800042)
+#define Map_end_y (*(uint8 *)0x1F800043)
 #define Map_w     (*(uint16 *)0x1F800044)
 #define Map_h     (*(uint16 *)0x1F800046)
 #define Map_cells (*(sint16 **)0x1F800048)
 // The block grid: 0x40 rows of 0x20 MAP_BLOCKs (map_blocks_draw draws the rows' set bits).
 #define Map_blocks (*(MAP_BLOCK **)0x1F80004C)
 
-// The current room's exits: MAP_EXITs, ended by one whose id is -1 (func_80050C2C).
+// The current room's exits: MAP_EXITs, ended by one whose id is -1 (Front_hit_event).
 #define Map_exits (*(MAP_EXIT **)0x1F800050)
 
 // The rooms' maps, loaded from the stage archive at 0x80164004 (one STAGE_MAP per room; the
@@ -24,6 +27,7 @@
 // 1/512 units. Addressed by literal address, like the scratchpad: the target builds it with
 // lui/ori, and maspsx gives `addu at,idx,at` only for a constant (notes/rock_neo.md).
 #define Stage_idx_tbl ((IDX_ENT *)0x8015C000)
+#define IDX_ENT_MAX   0x800 // entries in Stage_idx_tbl (func_8003A3B4, func_8001F23C)
 
 // The 0x400 bytes below Stage_idx_tbl, cleared by Work_pools_init. The first 0x200 are two row
 // masks of the block grid (0x40 words each, one bit per MAP_BLOCK): map_block_masks_draw passes
@@ -42,7 +46,10 @@
 
 // The STG files (notes/disc.md): arrays of STG_MODEL. The stage's loads at 0x80194000, SUPPORT's at
 // 0x801F6000. Record 0 has id 0xFFFFFFFF; func_8003A744 relights SUPPORT's record 1.
+#define Stage_stg   ((STG_MODEL *)0x80194000)
 #define Support_stg ((STG_MODEL *)0x801F6000)
+// A block model inside SUPPORT's STG file, drawn every frame by func_80023728 (with func_80024E94).
+#define D_801F6080 ((u_long *)0x801F6080)
 
 // The stage HED file, loaded at 0x8013A000 (notes/disc.md): HED_ENTs, ended by one whose model is
 // 0. func_8003A3B4 searches at most HED_ENT_MAX of them.
@@ -56,10 +63,36 @@
 // second set (MAP_BLOCK); the low 24 bits are the address, bit 31 picks the draw function's column
 // in Map_block_draw_tbl. Each LOD starts with a header word: its length in words - 1 (low byte)
 // and a part count (bits 8-13).
+// One height range of an STG_AREA: the floor between y0 and y1 (relative to the block), and its
+// shape: the high nibble of kind picks the block test (Block_test_tbl), the whole byte is the slope
+// kind of slope_fit; kind 0x100 and up is skipped. floor_height_get skips the ones whose flags
+// have bit 15 set when its kind's func_8002FE74 is nonzero, or clear when it is zero.
 typedef struct
 {
-    uint32 id; // 0x00: matches HED_ENT.id
-    uint8 unk04[0x14];
+    sint16 y0;    // 0x0
+    sint16 y1;    // 0x2
+    uint16 kind;  // 0x4
+    uint16 flags; // 0x6
+} STG_HIT;        // 8 bytes
+
+// One collision rectangle of an STG_MODEL (x0..x1, z0..z1, relative to the block), with its
+// count STG_HITs. A list of them ends with one whose hits is NULL.
+typedef struct
+{
+    sint16 x0;     // 0x0
+    sint16 x1;     // 0x2
+    sint16 z0;     // 0x4
+    sint16 z1;     // 0x6
+    STG_HIT *hits; // 0x8
+    sint32 count;  // 0xC
+} STG_AREA;        // 0x10 bytes
+
+typedef struct
+{
+    uint32 id;         // 0x00: matches HED_ENT.id
+    STG_AREA *areas;   // 0x04: collision when the MAP_BLOCK's pos.pad (low 12 bits) is nonzero
+    STG_AREA *areas_0; // 0x08: collision when it is zero
+    uint8 unk0C[0xC];
     uint32 lod[STG_LOD_NUM]; // 0x18
 } STG_MODEL;                 // 0x30 bytes
 
@@ -69,6 +102,16 @@ typedef struct
     uint32 id;    // 0x0: STG_MODEL.id
     uint32 model; // 0x4: the STG_MODEL in the low 24 bits; 0 ends the list
 } HED_ENT;
+
+// One entry of the stage HD2 file (loaded at 0x80139F00, notes/disc.md). map_tile_draw picks the
+// model of a tile whose id has bit 7 set by bits 2-6 of the id.
+typedef struct
+{
+    uint8 reserved00[4]; // 0x0
+    STG_MODEL *model;    // 0x4
+} HD2_ENT;
+
+#define Stage_hd2_tbl ((HD2_ENT *)0x80139F00)
 
 // One room's map (Stage_map_tbl): its window in the cell grid and its cells (w * h, row by row).
 typedef struct
@@ -80,18 +123,19 @@ typedef struct
     sint16 *cells; // 4
 } STAGE_MAP;
 
-// One exit of the current room (Map_exits). func_80050C2C matches the player's position and
+// One exit of the current room (Map_exits). Front_hit_event matches the player's position and
 // facing against pos; func_800519E4 tests the scene flags 0x7E0 | (id & 0x1F) and
 // 0x7C0 | (id & 0x1F).
 typedef struct
 {
-    sint16 id; // 0x00: -1 ends the list
-    uint8 unk02[2];
-    sint16 val_4; // 0x04: passed to func_80063BC8 by func_800519E4
-    uint8 unk06[2];
-    SVECTOR pos; // 0x08: position, pad the facing angle
-    uint8 unk10[8];
-} MAP_EXIT; // 0x18 bytes
+    sint16 id;     // 0x00: -1 ends the list
+    sint16 kind_2; // 0x02: special exit, 1-3 start a scene (func_80051A78); 0 plain
+    sint16 val_4;  // 0x04: passed to func_80063BC8 by func_800519E4
+    uint8 stage_6; // 0x06: the stage it leads to (AREA_ENTRY.stage_16)
+    uint8 area_7;  // 0x07: the area it leads to (AREA_ENTRY.area_17)
+    SVECTOR pos;   // 0x08: position, pad the facing angle
+    SVECTOR dest;  // 0x10: where it leads (AREA_ENTRY.pos), pad the facing angle there
+} MAP_EXIT;        // 0x18 bytes
 
 // One block of the map grid (Map_blocks): its position, and its STG_MODEL in the low 24 bits. The
 // draw uses lod[0..2] by distance, or lod[3..5] when pos.pad is 0.
@@ -113,9 +157,9 @@ typedef struct
 
 typedef struct
 {
-    sint16 x; // 0x00
-    uint8 unk02[2];
-    sint16 y;       // 0x04
+    sint16 x;       // 0x00
+    sint16 y;       // 0x02: height (func_8003AD14 sets -0x300)
+    sint16 z;       // 0x04
     uint16 val;     // 0x06: low 12 bits value (counted down by func_8003777C), high 4 bits shift
     IDX_SHAPE *ptr; // 0x08
 } IDX_ENT;

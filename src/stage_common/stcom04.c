@@ -30,7 +30,7 @@ void stcom04_func_00CC(STCOM04_WORK *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->data_78          = stcom04_D_0010;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->ctl.rot_speed.x  = 10;
     wp->velocity.x       = 0x80;
@@ -76,7 +76,7 @@ void stcom04_func_01A0(STCOM04_WORK *wp)
             {
                 return;
             }
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (hit)
             {
@@ -110,7 +110,7 @@ void stcom04_func_01A0(STCOM04_WORK *wp)
             {
                 return;
             }
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (hit)
             {
@@ -137,7 +137,7 @@ void stcom04_func_01A0(STCOM04_WORK *wp)
             {
                 return;
             }
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (hit)
             {
@@ -167,7 +167,7 @@ void stcom04_func_01A0(STCOM04_WORK *wp)
             break;
         case 6:
             wp->rotation.y = (wp->rotation.y + ctl->rot_speed.y) & 0xFFF;
-            hit            = func_80048E6C(wp) - 600;
+            hit            = Obj_ceiling_height_get(wp) - 600;
             if (hit < wp->position.y)
             {
                 wp->velocity.y = -0x100;
@@ -376,7 +376,7 @@ uint8 stcom04_func_0A84(STCOM04_WORK *wp, uint32 *hit)
         func_80031824(wp);
         return 1;
     }
-    *hit = func_8004B414(wp);
+    *hit = Obj_map_push_out(wp);
     return 0;
 }
 
@@ -418,7 +418,7 @@ void stcom04_func_0C88(STCOM04_WORK *wp)
 {
     uint32 hit;
 
-    hit = func_80048E6C(wp) - 2000;
+    hit = Obj_ceiling_height_get(wp) - 2000;
     if (wp->position.y < hit)
     {
         func_80031824(wp);

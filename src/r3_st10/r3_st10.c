@@ -20,7 +20,7 @@ void func_80100354(void)
     STAGE_PL_VIEW *pl;
     void *spawn;
     sint16 *cells;
-    func_80022FD4(D_8010F394[Game_work.value_51]);
+    Room_model_init(D_8010F394[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -90,7 +90,7 @@ void func_8010079C(STAGE_ROOM *wp)
 
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_8011004C);
+        Scene_obj_list_open(D_8011004C);
         if (!Sce_flag_test(0x48))
         {
             func_8001DDE4(0x63);
@@ -98,7 +98,7 @@ void func_8010079C(STAGE_ROOM *wp)
         }
         else
         {
-            slot = func_8001EAE8(D_801101B4);
+            slot = Scene_obj_ent_open(D_801101B4);
             slot->flags_6 &= ~0x20;
         }
         wp->routine_4++;
@@ -113,7 +113,7 @@ void func_80100840(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_8011005C);
+        Scene_obj_list_open(D_8011005C);
         wp->routine_4++;
     }
 }
@@ -122,7 +122,7 @@ void func_80100894(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_80110084);
+        Scene_obj_list_open(D_80110084);
         wp->routine_4++;
     }
 }
@@ -131,7 +131,7 @@ void func_801008E8(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_80110054);
+        Scene_obj_list_open(D_80110054);
         wp->routine_4++;
     }
 }

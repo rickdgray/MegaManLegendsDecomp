@@ -23,7 +23,7 @@ void func_80100268(void)
     void *spawn;
     sint16 *cells;
 
-    func_80022FD4(D_8010A8C8[Game_work.value_51]);
+    Room_model_init(D_8010A8C8[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;

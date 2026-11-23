@@ -19,7 +19,7 @@ void func_80124E88(ST05_PROP *wp)
     wp->flags_0 |= 6;
     wp->position_fixed.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.z = wp->position_fixed_prev.z = wp->position.z << 16;
-    y                                                = func_80048E6C(wp);
+    y                                                = Obj_ceiling_height_get(wp);
     wp->position.y                                   = y;
     wp->position_fixed.y = wp->position_fixed_prev.y = y << 16;
     wp->position_prev                                = wp->position;
@@ -116,7 +116,7 @@ void func_801251FC(ST05_PROP *wp)
     wp->position_fixed.y += wp->velocity.v.y << 12;
     func_80030150(&wp->position_fixed, &wp->position);
     wp->draw_88.pos_24 = wp->position;
-    if (func_8004B414(wp) != 0)
+    if (Obj_map_push_out(wp) != 0)
     {
         wp->velocity.v.x = 0;
         wp->velocity.v.y = 0;
@@ -229,7 +229,7 @@ void func_80125724(ST05_PROP *wp)
     wp->rotation.z       = 0;
     wp->value_CC         = 0;
     wp->data_78          = NULL;
-    wp->position.y       = func_8004920C(&wp->position);
+    wp->position.y       = Ceiling_height_get(&wp->position);
     wp->draw_88.pos_24   = wp->position;
     RotMatrix(&wp->rotation, &wp->draw_88.matrix_4.m);
     scale.x = 0x200;
@@ -510,7 +510,7 @@ void func_80126160(ST05_OBJ *wp)
     STCOM_EFFECT *mark;
     STCOM_EFFECT *fx;
 
-    if (wp->value_44.half[0] < 0x20 || func_8004B414(wp) != 0)
+    if (wp->value_44.half[0] < 0x20 || Obj_map_push_out(wp) != 0)
     {
         obj                 = func_8001EB98(&D_80132354[0]);
         obj->position       = wp->position;

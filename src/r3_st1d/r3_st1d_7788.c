@@ -157,7 +157,7 @@ void func_80107AF0(ST1D_VIEW *wp)
     wp->value_6E             = life;
     wp->value_B0             = life;
     wp->value_B2             = life;
-    ground                   = func_80048E6C(wp);
+    ground                   = Obj_ceiling_height_get(wp);
     wp->position.y           = ground;
     wp->position_fixed.y     = ground << 16;
     wp->routine_0            = 1;
@@ -215,7 +215,7 @@ void func_80107FE4(ST1D_VIEW *wp)
 
     wp->ext.value_8      = 0;
     wp->ext.u_44.h[1]    = (wp->ext.u_44.h[1] + 0x40) & 0xFFF;
-    temp_v0              = func_80048E6C(wp);
+    temp_v0              = Obj_ceiling_height_get(wp);
     wp->position.y       = temp_v0;
     wp->position_fixed.y = temp_v0 << 0x10;
 }
@@ -263,7 +263,7 @@ void func_8010802C(ST1D_VIEW *wp)
             }
             break;
     }
-    y                    = func_80048E6C(wp);
+    y                    = Obj_ceiling_height_get(wp);
     wp->position.y       = y;
     wp->position_fixed.y = y << 16;
 }
@@ -320,7 +320,7 @@ void func_801081D0(ST1D_VIEW *wp)
             {
                 Obj_pos_set(wp, 0, wp->u_44.h[1] << 4, 0);
                 wp->u_44.h[1] += wp->value_4E;
-                func_8004B414(wp);
+                Obj_map_push_out(wp);
                 break;
             }
             // fall through

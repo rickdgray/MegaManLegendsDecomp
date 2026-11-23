@@ -17,6 +17,10 @@
 #include "sound.h"
 #include "psyq/libgte.h"
 
+// Declared ahead of its definition without a size: GCC then never treats its address as cheap
+// $gp small data, and exception_handler keeps it in a register for its last five prints.
+extern char D_800979A4[];
+
 // Small data (.sdata 0x80097864-0x800979DC): reached through $gp in this file. The strings
 // are the exception handler's (names, then the register dump's labels and formats).
 sint32 D_80097864[6] = {0, 0, 0, 0, 0, 0x02000400};
@@ -99,6 +103,7 @@ void thread_dispatch(void);
 void exception_handler(void);
 void debug_addr_move(uint32 *addr);
 void debug_mem_dump(uint8 *addr, uint32 mode);
+void thread_init(void);
 
 void main(void)
 {
@@ -149,7 +154,7 @@ void main(void)
         thread_dispatch();
         Sound_update();
         Cd_cmd_exec();
-        func_800203A8();
+        Debug_text_draw();
         func_80053B40();
         func_80064060();
         DrawSync(0);
@@ -188,7 +193,7 @@ void System_init(void)
     Sound_init();
     ChangeClearPAD(0);
     Disp_env_setup();
-    func_80012BC4();
+    thread_init();
     Disp_env_ptr = Disp_env;
     D_800D9B00   = 0;
     Dbl_buff_idx = 0;
@@ -317,9 +322,6 @@ void func_80012424(void)
 
 // Exception handler: shows the exception's name, the faulting thread's registers and, with
 // select on controller 2, a memory dump (triangle toggles main RAM / scratchpad). Never returns.
-// Parked (3 instructions long): the target shares D_800979A4 in s0 across the last five prints
-// (ours reloads it each time), and schedules the hoisted scratchpad base ahead of msg's.
-#ifdef NON_MATCHING
 void exception_handler(void)
 {
     char *names[16] = {D_8009787C, D_80097880, D_80097884, D_8009788C, D_80097894, D_8009789C, D_800978A4, D_800978A8,
@@ -327,9 +329,8 @@ void exception_handler(void)
     uint32 addr[2];
     TCB tcb;
     TCB *cur;
-    DEBUG_TEXT *msg;
     uint32 cause;
-    uint32 epc;
+    uint32 *epc;
     uint32 n; // the break code, then the register column
     uint32 mode;
     uint32 sel;
@@ -338,7 +339,7 @@ void exception_handler(void)
     cur   = TCB_CURRENT;
     tcb   = *cur;
     cause = cur->reg[R_CAUSE];
-    epc   = cur->reg[R_EPC];
+    epc   = (uint32 *)cur->reg[R_EPC];
     ExitCriticalSection();
     sel     = 0;
     addr[0] = 0x80000000;
@@ -359,7 +360,6 @@ void exception_handler(void)
     D_80098824              = 0;
     mode                    = 0;
     func_80020A40();
-    msg = D_80080858;
 
     while (1)
     {
@@ -375,10 +375,10 @@ void exception_handler(void)
         ClearOTagR(Disp_env_ptr->ot, OT_LEN);
         ClearOTagR(D_800A4D40[Dbl_buff_idx], 0x1000);
         Map_prim_ptr = (POLY_FT4 *)(0x801B8000 + (Dbl_buff_idx << 17));
-        func_800203A8();
+        Debug_text_draw();
 
         D_800987D4 = 0;
-        func_8001FE38(TEXT_POS(msg[0].x, msg[0].y, msg[0].unk2), msg[0].str, names[(cause >> 2) & 0xF]);
+        Print(TEXT_POS(D_80080858[0].x, D_80080858[0].y, D_80080858[0].unk2), D_80080858[0].str, names[(cause >> 2) & 0xF]);
 
         if (PAD_ON(Joy2) & PAD_SELECT)
         {
@@ -394,27 +394,27 @@ void exception_handler(void)
         {
             if (((cause >> 2) & 0xF) == 9)
             {
-                n = *(uint32 *)epc >> 6;
+                n = *epc >> 6;
                 switch (n)
                 {
                     case 0x1C00:
-                        func_8001FE38(TEXT_POS(msg[1].x, msg[1].y, msg[1].unk2), msg[1].str);
+                        Print(TEXT_POS(D_80080858[1].x, D_80080858[1].y, D_80080858[1].unk2), D_80080858[1].str);
                         break;
 
                     case 0x1800:
-                        func_8001FE38(TEXT_POS(msg[2].x, msg[2].y, msg[2].unk2), msg[2].str);
+                        Print(TEXT_POS(D_80080858[2].x, D_80080858[2].y, D_80080858[2].unk2), D_80080858[2].str);
                         break;
 
                     default:
-                        func_8001FE38(TEXT_POS(2, 3, 0), D_800979A4, n);
+                        Print(TEXT_POS(2, 3, 0), D_800979A4, n);
                         break;
                 }
             }
-            func_8001FE38(TEXT_POS(22, 2, 0), D_800979A4, epc);
+            Print(TEXT_POS(22, 2, 0), D_800979A4, epc);
 
             for (i = 0; i < 37; i++)
             {
-                func_8001FE38(TEXT_POS(D_80080730[i].x, D_80080730[i].y, D_80080730[i].unk2), D_80080730[i].str);
+                Print(TEXT_POS(D_80080730[i].x, D_80080730[i].y, D_80080730[i].unk2), D_80080730[i].str);
             }
 
             for (i = 0, n = 0; i < 32; i++)
@@ -423,15 +423,14 @@ void exception_handler(void)
                 {
                     n = 1;
                 }
-                func_8001FE38(TEXT_POS(n * 20 + 7, i - n * 20 + 4, 0), D_800979A4, tcb.reg[i]);
+                Print(TEXT_POS(n * 20 + 7, i - n * 20 + 4, 0), D_800979A4, tcb.reg[i]);
             }
 
-            i = (uint32)D_800979A4;
-            func_8001FE38(TEXT_POS(27, 16, 0), (char *)i, tcb.reg[R_EPC]);
-            func_8001FE38(TEXT_POS(27, 17, 0), (char *)i, tcb.reg[R_MDHI]);
-            func_8001FE38(TEXT_POS(27, 18, 0), (char *)i, tcb.reg[R_MDLO]);
-            func_8001FE38(TEXT_POS(27, 19, 0), (char *)i, tcb.reg[R_SR]);
-            func_8001FE38(TEXT_POS(27, 20, 0), (char *)i, tcb.reg[R_CAUSE]);
+            Print(TEXT_POS(27, 16, 0), D_800979A4, tcb.reg[R_EPC]);
+            Print(TEXT_POS(27, 17, 0), D_800979A4, tcb.reg[R_MDHI]);
+            Print(TEXT_POS(27, 18, 0), D_800979A4, tcb.reg[R_MDLO]);
+            Print(TEXT_POS(27, 19, 0), D_800979A4, tcb.reg[R_SR]);
+            Print(TEXT_POS(27, 20, 0), D_800979A4, tcb.reg[R_CAUSE]);
         }
         else
         {
@@ -440,9 +439,6 @@ void exception_handler(void)
         }
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", exception_handler);
-#endif
 
 void func_80012938(void)
 {
@@ -505,13 +501,12 @@ void debug_addr_move(uint32 *addr)
     }
 }
 
+// debug_mem_dump's byte format (.rodata). Defined here, not at the top, so it follows
+// exception_handler's names table in .rodata; sized 48 for the 3 pad bytes ahead of the next
+// file's .rodata (the linker script's SUBALIGN(2) doesn't add them).
+static const char D_80010040[48] = "%08x %02x %02x %02x %02x %02x %02x %02x %02x";
+
 // Prints 16 lines of 8 bytes from addr, as words (mode 0), halfwords (1) or bytes (2).
-// Parked: the code matches, but its format string lands ahead of D_80010000 in .rodata. GCC's
-// MIPS port writes a file's data (string literals included) before all of its function bodies,
-// and INCLUDE_ASM's .include sits inside a function body, so exception_handler.s's table always
-// comes after this string. Bank this together with exception_handler: with both in C, the
-// table is emitted first, as in the original.
-#ifdef NON_MATCHING
 void debug_mem_dump(uint8 *addr, uint32 mode)
 {
     uint32 i;
@@ -522,61 +517,56 @@ void debug_mem_dump(uint8 *addr, uint32 mode)
         case 0:
             for (i = 0; i < 16; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, D_800979AC, &addr[i * 8], ((uint32 *)addr)[i * 2], ((uint32 *)addr)[i * 2 + 1]);
+                Print(((i + 5) << 12) | 0x10, D_800979AC, &addr[i * 8], ((uint32 *)addr)[i * 2], ((uint32 *)addr)[i * 2 + 1]);
             }
             break;
 
         case 1:
             for (i = 0; i < 16; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, D_800979BC, &addr[i * 8], ((uint16 *)addr)[i * 4], ((uint16 *)addr)[i * 4 + 1],
-                              ((uint16 *)addr)[i * 4 + 2], ((uint16 *)addr)[i * 4 + 3]);
+                Print(((i + 5) << 12) | 0x10, D_800979BC, &addr[i * 8], ((uint16 *)addr)[i * 4], ((uint16 *)addr)[i * 4 + 1],
+                      ((uint16 *)addr)[i * 4 + 2], ((uint16 *)addr)[i * 4 + 3]);
             }
             break;
 
         case 2:
             for (i = 0; i < 16; i++)
             {
-                func_8001FE38(((i + 5) << 12) | 0x10, "%08x %02x %02x %02x %02x %02x %02x %02x %02x", &addr[i * 8], addr[i * 8],
-                              addr[i * 8 + 1], addr[i * 8 + 2], addr[i * 8 + 3], addr[i * 8 + 4], addr[i * 8 + 5], addr[i * 8 + 6],
-                              addr[i * 8 + 7]);
+                Print(((i + 5) << 12) | 0x10, D_80010040, &addr[i * 8], addr[i * 8], addr[i * 8 + 1], addr[i * 8 + 2], addr[i * 8 + 3],
+                      addr[i * 8 + 4], addr[i * 8 + 5], addr[i * 8 + 6], addr[i * 8 + 7]);
             }
             break;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", debug_mem_dump);
-#endif
 
-// Best attempt: the table base and gp now match; the target reloads THREAD_TBL[i].tcb from memory
-// before storing reg[R_SR] (mine reuses the register) and schedules the loop counter/giv differently.
-#ifdef NON_MATCHING
-void func_80012BC4(void)
+// Sets up the thread records (each on its own BIOS TCB, stack and the main thread's gp), copies
+// the thread functions' table to Thread_api_copy, and makes record 0 current.
+void thread_init(void)
 {
     sint32 i;
     uint32 gp;
     TCB **kp;
+    THREAD_API_FUNC *vec;
 
     kp = (TCB **)0x100;
     gp = kp[4]->reg[R_GP];
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < THREAD_MAX; i++)
     {
+        // The tcb store comes before the sp and gp stores, so the tcb is reloaded for the SR store.
         THREAD_TBL[i].flags          = 0;
-        THREAD_TBL[i].sp             = 0x801FEC00 + i * 0x400;
-        THREAD_TBL[i].exec.gp        = gp;
         THREAD_TBL[i].tcb            = &kp[4][i + 1];
-        THREAD_TBL[i].tcb->reg[R_SR] = 0x40000404;
+        THREAD_TBL[i].sp             = THREAD_STACK_BASE + i * THREAD_STACK_SIZE;
+        THREAD_TBL[i].exec.gp        = gp;
+        THREAD_TBL[i].tcb->reg[R_SR] = THREAD_INITIAL_SR;
         THREAD_TBL[i].unk70          = 0;
     }
-    for (i = 0; i < 9; i++)
+    vec = Thread_api_copy;
+    for (i = 0; i < THREAD_API_MAX; i++)
     {
-        ((uint32 *)0x801F8000)[i] = ((uint32 *)0x80080870)[i];
+        *vec++ = Thread_api_tbl[i];
     }
     Thread_current = THREAD_TBL;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/main", func_80012BC4);
-#endif
 
 // Thread scheduler: one pass over the thread records, switching to each one that is ready.
 void thread_dispatch(void)

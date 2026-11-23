@@ -47,7 +47,7 @@ extern STCOM18_PAIR stcom18_D_000C[6]; // frames (flags_F bits 0 and 3)
 extern STCOM18_FUNC stcom18_D_0018[];  // routine_0 handlers (stcom18_func_0000)
 
 // ROCK_NEO.EXE.
-void func_8002CA10(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
+void Pos_Shadow_Trans(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
 
 void stcom18_func_0534(STCOM18_WORK *wp, STCOM_EFFECT *effect);
 void stcom18_func_0574(STCOM18_WORK *wp, STCOM_EFFECT *effect);

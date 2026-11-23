@@ -14,6 +14,8 @@
 #include "display.h"
 #include "player.h"
 #include "scene.h"
+#include "code_8003AC24.h"
+#include "code_8005C258.h"
 
 // Small data (.sdata 0x8009808C-0x8009809C): only card_free_blocks's string literals "bu00:*" and
 // "bu10:*", reached through $gp.
@@ -36,22 +38,22 @@ CODE_8006430C_WORK D_80098910;
 SPEC_ENT **D_80098928;
 SPEC_ENT **D_8009892C;
 uint8 D_80098A04;
+uint8 Card_port; // the memory card port the D_8008FD20 steps work on (0 or 1)
 
 // Called only from this file
 sint32 func_800666D8(CODE_8006430C_WORK *wp);
 sint32 func_80066714(CODE_8006430C_WORK *wp);
 void func_80067884(void);
+void func_80067D10(void);
 
 // LOGO_FUNC 1 (D_8008DD64): draws a logo's sprites in a grid (6 columns, 44 x 40 pixels), each
 // shown according to its three scene flags (flag_2) and its type (the head's high byte).
-#ifdef NON_MATCHING
-// Instructions match; the frame is 0x48, the target's 0x50: the target has an unused 8-byte slot
-// at 0x18 between wp's spill (0x10) and start's (0x20), a reload slot for a pseudo with no
-// instructions left. An unused RECT lands at 0x10 instead. CoastRedWood's fork matched it only
-// with a FAKE loop condition (`while (id = (sint16)rec->head_0 >= 0)`).
+// The loop flag `cont` is what gives the frame its unused 8-byte slot at 0x18 (between wp's
+// spill and start's): GCC folds `cont` into the branch but leaves it a stack slot.
 void func_8006430C(LOGO_WORK *wp)
 {
     LOGO_SPRITE *rec;
+    sint32 cont;
     ICON_PRIM *start;
     ICON_PRIM *p;
     sint32 id;
@@ -64,7 +66,7 @@ void func_8006430C(LOGO_WORK *wp)
     sint32 x;
     sint32 y;
 
-    value   = 0;
+    value   = 0; // every case that reads it sets it first, but the build needs it
     rec     = wp->sprites_8;
     p       = Icon_prim_ptr;
     p->tag  = 0x02000000;
@@ -195,13 +197,11 @@ void func_8006430C(LOGO_WORK *wp)
                 break;
         }
         rec++;
-    } while ((sint16)rec->head_0 >= 0);
+        cont = (sint16)rec->head_0 >= 0;
+    } while (cont);
     addPrims(&Disp_env_ptr->ot[wp->value_5], start, p - 1);
     Icon_prim_ptr = p;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006430C);
-#endif
 
 void func_8006471C(void)
 {
@@ -568,7 +568,89 @@ sint32 func_80064FF0(sint32 port)
     return func_80064984() == 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80065064);
+// Fills the save image (Save_image) from Game_work, the player and the other files' saved blocks.
+void save_image_store(void)
+{
+    PL_WORK *pl;
+    GAME_WORK *gw;
+    SAVE_IMAGE *save;
+    sint8 i;
+
+    pl = &Player_work[0];
+    gw = &Game_work;
+    func_80067D10();
+    save = &Save_image;
+    card_header_set(save->header, D_8008FA64);
+    Save_image.stage_no_100 = Game_work.stage_no;
+    for (i = 0; i < 8; i++)
+    {
+        save->time_101[i] = (&D_80097FD4)[i]; // the eight bytes from D_80097FD4 on
+    }
+    func_8003B140();
+    save->unk010                 = gw->unk010;
+    save->timer_14               = gw->timer_14;
+    save->unk018                 = gw->unk018;
+    save->unk01A                 = gw->unk01A;
+    save->timer_0c               = gw->timer_0c;
+    save->money                  = gw->money;
+    save->unk020                 = gw->unk020;
+    save->unk024                 = gw->unk024;
+    save->unk028[0]              = gw->unk028[0];
+    save->unk028[1]              = gw->unk028[1];
+    save->unk028[2]              = gw->unk028[2];
+    save->unk028[3]              = gw->unk028[3];
+    save->unk028[4]              = gw->unk028[4];
+    save->unk028[5]              = gw->unk028[5];
+    save->unk040[0]              = gw->unk040[0];
+    save->unk040[1]              = gw->unk040[1];
+    save->unk040[2]              = gw->unk040[2];
+    save->unk040[3]              = gw->unk040[3];
+    save->unk040[4]              = gw->unk040[4];
+    save->unk040[5]              = gw->unk040[5];
+    save->unk04C                 = gw->unk04C;
+    save->stage_no               = gw->stage_no;
+    save->area_no                = gw->area_no;
+    save->sce_no                 = gw->sce_no;
+    save->unk053                 = gw->unk053;
+    save->unk060                 = gw->unk060;
+    save->unk078                 = gw->unk078.b.flag;
+    save->unk079                 = gw->unk078.b.unk079;
+    save->unk07A                 = gw->unk078.b.unk07A;
+    save->unk07B                 = gw->unk078.b.unk07B;
+    save->unk07C                 = gw->unk07C;
+    save->unk07D                 = gw->unk07D;
+    save->unk062                 = *(uint16 *)&gw->unk062[0];
+    save->unk064                 = *(uint32 *)&gw->unk062[2];
+    save->unk054                 = gw->unk054;
+    save->unk055                 = gw->unk055;
+    save->unk056                 = gw->unk056;
+    save->mono                   = gw->mono;
+    save->unk059                 = gw->unk059;
+    save->unk05A                 = gw->unk05A;
+    save->unk05B                 = gw->unk05B;
+    save->pos                    = pl->pos;
+    save->ang_y                  = pl->ang.vy;
+    save->pl_life                = pl->life;
+    save->pl_life_max            = pl->life_max;
+    save->pl_unk16A              = pl->unk16A;
+    save->pl_unk16B              = pl->unk16B;
+    save->pl_unk16C              = pl->unk16C;
+    save->pl_unk170              = pl->weapon_right_no;
+    save->pl_unk171              = pl->unk171;
+    save->pl_tbl_sel             = pl->tbl_sel;
+    save->pl_unk173              = pl->unk173;
+    save->pl_unk44C              = pl->unk44C;
+    save->pl_unk44E              = pl->unk44E;
+    save->pl_unk44F              = pl->unk44F;
+    save->pl_rb_parts_equip_data = *(uint32 *)pl->rb_parts_equip_data; // with unk453
+    Mem_copy32(pl->rb_parts_sort_data, save->pl_rb_parts_sort_data, sizeof(save->pl_rb_parts_sort_data) / 32);
+    Mem_copy32(pl->unk474, save->pl_unk474, sizeof(save->pl_unk474) / 32);
+    Mem_copy32(pl->rec, save->pl_rec, sizeof(save->pl_rec) / 32);
+    Mem_copy32(Sce_flag, save->sce_flag, sizeof(save->sce_flag) / 32);
+    Mem_copy32(D_800BD3B8, save->idx_state, sizeof(save->idx_state) / 32);
+    Mem_copy32(D_800BC9B8, save->blk_1280, sizeof(save->blk_1280) / 32);
+    Mem_copy16(gw->records_84.rec, save->records_84, sizeof(save->records_84) / 16);
+}
 
 // Seals the save image: picks a random key for each block, writes the block's three sums
 // (SAVE_SUM, each mixed with the key), then the overall check words 0x7BC-0x7BF.
@@ -862,17 +944,17 @@ sint32 func_80066664(CODE_8006430C_WORK *wp)
     wp->active_0 = 1;
     if (wp->mode_2 == 0)
     {
-        wp->routine_0 = 2;
-        wp->routine_1 = 0;
-        wp->unk_6     = 0;
+        wp->routine_0             = 2;
+        wp->routine_1             = 0;
+        *(uint16 *)&wp->routine_2 = 0;
         func_80067884();
         r = func_80066714(wp);
     }
     else
     {
-        wp->routine_0 = 1;
-        wp->routine_1 = 0;
-        wp->unk_6     = 0;
+        wp->routine_0             = 1;
+        wp->routine_1             = 0;
+        *(uint16 *)&wp->routine_2 = 0;
         func_80067884();
         r = func_800666D8(wp);
     }
@@ -900,19 +982,559 @@ sint32 func_80066750(CODE_8006430C_WORK *wp)
     return 1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066764);
+// Step 0: shows the port menu; on a choice of port 0 or 1, keeps it in Card_port and goes to
+// step 1, on choice 2 ends the module (routine 3).
+sint32 func_80066764(CODE_8006430C_WORK *wp)
+{
+    sint16 choice; // sint16: the target keeps two copies of Moji_flag & 0xFF
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006689C);
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+                MojiTaskExec(1, D_8008CAF0, -1);
+                MojiTaskExec(2, D_8008CAF4, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+                MojiTaskExec(1, D_8008CB44, -1);
+                MojiTaskExec(2, D_8008CB48, -1);
+            }
+            wp->routine_2++;
+            // fall through
+        case 1:
+            if (Moji_flag & 0x40000000)
+            {
+                choice = Moji_flag & 0xFF;
+                switch (choice)
+                {
+                    case 0:
+                    case 1:
+                        wp->routine_1             = 1;
+                        *(uint16 *)&wp->routine_2 = 0;
+                        Card_port                 = choice;
+                        break;
+                    case 2:
+                        wp->routine_0 = 3;
+                        break;
+                }
+            }
+            break;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066D60);
+// Step 1: after 15 frames, reads the five save files of the card in Card_port into
+// D_800BAF38 and sets each slot's text and unk_109 from card_file_read's result.
+sint32 func_8006689C(CODE_8006430C_WORK *wp)
+{
+    CARD_SLOT *slot;
+    sint16 i;
+    sint16 j;
+    sint16 none;
+    sint16 empty;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066E48);
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+            }
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            MojiTaskExec(2, D_8008CB00, -1);
+            wp->timer_C = 15;
+            wp->routine_2++;
+            func_80067884();
+            break;
+        case 1:
+            if (--wp->timer_C != 0)
+            {
+                break;
+            }
+            empty = 0;
+            none  = 0;
+            for (i = 0; i < 5; i++)
+            {
+                slot = &D_800BAF38[i];
+                switch ((sint16)card_file_read(Card_port, Card_file_name_tbl[i], slot, sizeof(CARD_SLOT)))
+                {
+                    case -1:
+                        slot->unk_109 = 1;
+                        none++;
+                        break;
+                    case 0:
+                        for (j = 0; j < 13; j++)
+                        {
+                            D_8008D168[i][j] = D_8008CE94[slot->unk_100][j];
+                        }
+                        for (j = 0; j < 8; j++)
+                        {
+                            D_8008D184[i][j] = slot->unk_101[j];
+                        }
+                        slot->unk_109 = 0;
+                        break;
+                    case 1:
+                        wp->routine_1             = 2;
+                        *(uint16 *)&wp->routine_2 = 0;
+                        return 0;
+                    case 2:
+                        if (++empty == 5)
+                        {
+                            wp->routine_1             = 3;
+                            *(uint16 *)&wp->routine_2 = 0;
+                            return 0;
+                        }
+                        for (j = 0; j < 13; j++)
+                        {
+                            D_8008D168[i][j] = D_80097FAC[j];
+                        }
+                        for (j = 0; j < 8; j++)
+                        {
+                            D_8008D184[i][j] = slot->unk_101[j] = D_80097FFC[j];
+                        }
+                        slot->unk_109 = 2;
+                        slot->unk_100 = 0;
+                        break;
+                    default:
+                        for (j = 0; j < 13; j++)
+                        {
+                            D_8008D168[i][j] = D_80097FC0[j];
+                        }
+                        for (j = 0; j < 8; j++)
+                        {
+                            D_8008D184[i][j] = slot->unk_101[j] = D_80097FFC[j];
+                        }
+                        wp->routine_3 = 1;
+                        slot->unk_109 = 3;
+                        break;
+                    case 4:
+                        wp->routine_1             = 4;
+                        *(uint16 *)&wp->routine_2 = 0;
+                        return 0;
+                }
+            }
+            if (wp->routine_0 == 2 && none == 5)
+            {
+                wp->routine_1             = 6;
+                *(uint16 *)&wp->routine_2 = 0;
+                return 0;
+            }
+            wp->routine_2++;
+            break;
+        case 2:
+            if (wp->routine_3 != 0)
+            {
+                MojiTaskExec(2, D_8008CB38, -1);
+                wp->routine_2++;
+                break;
+            }
+            wp->routine_1             = 5;
+            *(uint16 *)&wp->routine_2 = 0;
+            break;
+        case 3:
+            if (Moji_flag & 0x80000)
+            {
+                wp->routine_1             = 5;
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80066F40);
+// Step 2 (card_file_read's 1, no card): shows its message, then back to step 0.
+sint32 func_80066D60(CODE_8006430C_WORK *wp)
+{
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+            }
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            MojiTaskExec(2, D_8008CB04, -1);
+            wp->routine_2++;
+            break;
+        case 1:
+            if (Moji_flag & 0x80000)
+            {
+                wp->routine_1             = 0;
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067174);
+// Step 3 (no save files on the card): shows its message, then back to step 0.
+sint32 func_80066E48(CODE_8006430C_WORK *wp)
+{
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+                MojiTaskExec(2, D_8008CB08, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+                MojiTaskExec(2, D_8008CADC, -1);
+            }
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            wp->routine_2++;
+            break;
+        case 1:
+            if (Moji_flag & 0x80000)
+            {
+                wp->routine_1             = 0;
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_8006779C);
+// Step 4 (card_file_read's 4): in routine 1 asks whether to format the card and formats it
+// (card_format); routine 2 only shows a message. Back to step 0 (or step 1 after formatting).
+sint32 func_80066F40(CODE_8006430C_WORK *wp)
+{
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+                MojiTaskExec(2, D_8008CB10, -1);
+                wp->routine_2++;
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+                MojiTaskExec(2, D_8008CB5C, -1);
+                wp->routine_2 = 5;
+            }
+            wp->timer_10 = 30;
+            break;
+        case 1:
+            if (Moji_flag & 0x40000000)
+            {
+                D_80098728[0] = Moji_flag & 0xFF;
+                if (D_80098728[0] != 0)
+                {
+                    wp->routine_1             = 0;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    break;
+                }
+                MojiTaskExec(2, D_8008CB14, -1);
+                wp->timer_C = 15;
+                wp->routine_2++;
+            }
+            else if (wp->timer_10 != 0)
+            {
+                wp->timer_10--;
+            }
+            else
+            {
+                wp->timer_10 = 30;
+                if (func_80064B60(Card_port) == 0)
+                {
+                    wp->routine_1             = 2;
+                    *(uint16 *)&wp->routine_2 = 0;
+                }
+            }
+            break;
+        case 2:
+            if (--wp->timer_C == 0)
+            {
+                wp->routine_2 += 2 + card_format(Card_port);
+            }
+            break;
+        case 3:
+            MojiTaskExec(2, D_8008CB1C, -1);
+            wp->routine_2 += 2;
+            break;
+        case 4:
+            MojiTaskExec(2, D_8008CB18, -1);
+            wp->routine_2++;
+            break;
+        case 5:
+            if (Moji_flag & 0x80000)
+            {
+                if (wp->routine_0 == 1)
+                {
+                    wp->routine_1 = 1;
+                }
+                else
+                {
+                    wp->routine_1 = 0;
+                }
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+    }
+    return 1;
+}
+
+// Step 5 (the card's files are read): picks a slot and, after confirmation, saves to it
+// (routine 1, card_file_write) or loads from it (routine 2, card_file_read and save_sum_check).
+sint32 func_80067174(CODE_8006430C_WORK *wp)
+{
+    CARD_SLOT *slot;
+    sint16 j;
+    sint16 r;
+
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+            }
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            MojiTaskExec(2, D_8008CB20, -1);
+            wp->timer_10 = 30;
+            wp->routine_2++;
+            break;
+        case 1:
+            if (Moji_flag & 0x60000000)
+            {
+                D_80098A04 = Moji_flag;
+                if ((Moji_flag & 0xFF) == 5)
+                {
+                    wp->routine_1             = 0;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    Sound_call(0x83, 1, 0);
+                    break;
+                }
+                slot = &D_800BAF38[Moji_flag & 0xFF];
+                if ((wp->routine_0 == 2 && slot->unk_109 == 0) || (wp->routine_0 == 1 && slot->unk_109 < 3))
+                {
+                    for (j = 0; j < 13; j++)
+                    {
+                        D_8008D17C[j] = D_8008CE94[slot->unk_100][j];
+                    }
+                    for (j = 0; j < 8; j++)
+                    {
+                        D_8008D198[j] = slot->unk_101[j];
+                    }
+                    D_8008D17C[-2] = D_8008D028[D_80098A04 + 1];
+                    MojiTaskExec(2, D_8008CB24, -1);
+                    if (wp->routine_0 == 1)
+                    {
+                        MojiTaskExec(3, D_8008CB28, -1);
+                    }
+                    else
+                    {
+                        MojiTaskExec(3, D_8008CB4C, -1);
+                    }
+                    wp->routine_2++;
+                    Sound_call(0x82, 1, 0);
+                }
+                else
+                {
+                    Sound_call(0x83, 1, 0);
+                    return 1;
+                }
+            }
+            else if (wp->timer_10 != 0)
+            {
+                wp->timer_10--;
+            }
+            else
+            {
+                wp->timer_10 = 30;
+                if (func_80064B60(Card_port) == 0)
+                {
+                    wp->routine_1             = 2;
+                    *(uint16 *)&wp->routine_2 = 0;
+                }
+            }
+            break;
+        case 2:
+            if (Moji_flag & 0x40000000)
+            {
+                if (Moji_flag & 0xFF)
+                {
+                    wp->routine_1             = 5;
+                    *(uint16 *)&wp->routine_2 = 0;
+                }
+                else
+                {
+                    if (wp->routine_0 == 1)
+                    {
+                        MojiTaskExec(3, D_8008CB2C, -1);
+                        wp->routine_2++;
+                    }
+                    else
+                    {
+                        MojiTaskExec(3, D_8008CB50, -1);
+                        wp->routine_2 = 10;
+                    }
+                    wp->timer_C = 15;
+                }
+            }
+            else if (wp->timer_10 != 0)
+            {
+                wp->timer_10--;
+            }
+            else
+            {
+                wp->timer_10 = 30;
+                if (func_80064B60(Card_port) == 0)
+                {
+                    wp->routine_1             = 2;
+                    *(uint16 *)&wp->routine_2 = 0;
+                }
+            }
+            break;
+        case 3:
+            if (--wp->timer_C != 0)
+            {
+                break;
+            }
+            save_image_store();
+            save_sum_set();
+            // The save image starts with a CARD_SLOT's bytes (header, stage, play time), and one
+            // pointer serves both: the target keeps it in one register.
+            slot = (CARD_SLOT *)&Save_image;
+            switch ((sint16)card_file_write(Card_port, Card_file_name_tbl[D_80098A04], (char *)slot, sizeof(SAVE_IMAGE)))
+            {
+                case 0:
+                    for (j = 0; j < 13; j++)
+                    {
+                        D_8008D17C[j] = D_8008CE94[slot->unk_100][j];
+                    }
+                    for (j = 0; j < 8; j++)
+                    {
+                        D_8008D198[j] = slot->unk_101[j];
+                    }
+                    wp->routine_2++;
+                    MojiTaskExec(3, D_8008CB30, -1);
+                    break;
+                case 1:
+                    wp->routine_1             = 2;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    return 0;
+                case 2:
+                    wp->routine_1             = 3;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    return 0;
+                case 4:
+                    wp->routine_1             = 4;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    return 0;
+                case -1:
+                default:
+                    MojiTaskExec(3, D_8008CB34, -1);
+                    wp->routine_2++;
+                    break;
+            }
+            break;
+        case 4:
+            if (Moji_flag & 0x80000)
+            {
+                wp->routine_1             = 0;
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+        case 10:
+            if (--wp->timer_C != 0)
+            {
+                break;
+            }
+            r = card_file_read(Card_port, Card_file_name_tbl[D_80098A04], &Save_image, sizeof(SAVE_IMAGE));
+            if (r == 0)
+            {
+                r = save_sum_check();
+            }
+            switch (r)
+            {
+                case 0:
+                    wp->routine_2++;
+                    MojiTaskExec(3, D_8008CB54, -1);
+                    break;
+                case 1:
+                    wp->routine_1             = 2;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    return 0;
+                case -1: // these labels set the jump table's range
+                case 2:
+                default:
+                    MojiTaskExec(3, D_8008CB58, -1);
+                    wp->routine_2 = 4;
+                    break;
+                case 4:
+                    wp->routine_1             = 4;
+                    *(uint16 *)&wp->routine_2 = 0;
+                    return 0;
+            }
+            break;
+        case 11:
+            if (Moji_flag & 0x80000000)
+            {
+                wp->routine_0 = 3;
+                Game_work.unk082 |= 1;
+            }
+            break;
+    }
+    return 1;
+}
+
+// Step 6 (routine 2 and no save file on the card): shows its message, then back to step 0.
+sint32 func_8006779C(CODE_8006430C_WORK *wp)
+{
+    switch (wp->routine_2)
+    {
+        case 0:
+            MojiTaskKill();
+            if (wp->routine_0 == 1)
+            {
+                MojiTaskExec(0, D_8008CAEC, -1);
+            }
+            else
+            {
+                MojiTaskExec(0, D_8008CB40, -1);
+            }
+            MojiTaskExec(1, D_8008CAF8[Card_port], -1);
+            MojiTaskExec(2, D_8008CAD8, -1);
+            wp->routine_2++;
+            break;
+        case 1:
+            if (Moji_flag & 0x80000)
+            {
+                wp->routine_1             = 0;
+                *(uint16 *)&wp->routine_2 = 0;
+            }
+            break;
+    }
+    return 1;
+}
 
 // Resets the five save slots: header, slot text from D_8008CE94's row 0 and D_80097FFC, and
 // the slot number (1 to 5) in the text.
@@ -1016,7 +1638,10 @@ void func_80067E18(void)
     D_800BE434 = 0;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_8006430C", func_80067E4C);
+void func_80067E4C(void)
+{
+    Sce_flag_on(0x4C0);
+}
 
 // Sets up Game_work.records_84: from the new-game tables when load is 0, else from the save
 // image in Cd_ring_buf.

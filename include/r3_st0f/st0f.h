@@ -97,7 +97,7 @@ extern uint8 D_80106104[];
 extern uint8 D_80106118[];
 extern uint8 D_80106138[];
 
-void func_8001DF10(uint8 *);
+void Scene_obj_list_open(uint8 *);
 void func_8010035C(STAGE_ROOM *wp);
 
 void func_80100460(STAGE_ROOM *wp);
@@ -153,7 +153,7 @@ sint32 func_8003B2D4(sint32 row, sint32 bit);
 void func_8001DEE4(void);
 void func_8001E4C4(void *a, void *b);
 extern uint8 D_80105900[][8];
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 void Sce_flag_off(sint32 flag);
 extern ST0F_OBJ_FUNC D_801060F4[];
 extern ST0F_OBJ_FUNC D_8010612C[];

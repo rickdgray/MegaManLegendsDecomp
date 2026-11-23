@@ -33,10 +33,29 @@ typedef struct
     MATRIX mtx;      // 0x18: rotation and scale (diagonal = pos_38.pad)
     SVECTOR pos_38;  // 0x38: position (x, y = height, z)
     uint32 rgbc_40;  // 0x40: code and colour
-    sint16 hw_44[2]; // set from D_8008A138 (func_80043F70)
+    sint16 hw_44[2]; // set from D_8008A138 (func_80043F70); func_8004441C adds [1] to [0], and
+                     // [0] to pos_38.pad (the scale)
 } W48_80_WORK;       // 0x48 bytes
 
 typedef void (*W48_80_FUNC)(W48_80_WORK *wp);
+
+// Per-size_D scale limits of func_8004441C (type_3 0, 1 and 3; D_8008A1C8 uses only limit)
+typedef struct
+{
+    sint16 limit; // the scale under which the object ends
+    sint16 speed; // hw_44[0] once the scale shrinks
+    sint16 high;  // above it the colour stays full
+    sint16 field_6;
+} W48_80_SCALE;
+
+// The same for type_3 2: past limit, field_A grows by step each frame (fading the colour)
+typedef struct
+{
+    sint16 limit;
+    uint8 step;
+    uint8 pad_3;
+    sint16 field_4[2];
+} W48_80_FADE;
 
 // Kind 0x81 of the WORK_48 pool (handler func_8004495C). A model kind.
 typedef struct
@@ -231,5 +250,10 @@ extern SLOT_OWNER D_800986C0;
 // W48_80_WORK.hw_44[0] and [1] of func_80043F70, [type_3 & 0xF][size_D] (splat labels the
 // second halfword D_8008A13A)
 extern uint16 D_8008A138[][4][2];
+
+extern W48_80_SCALE D_8008A1A8[]; // 4 entries, by size_D; splat labels speed D_8008A1AA and
+                                  // the rest D_8008A1AC
+extern W48_80_SCALE D_8008A1C8[]; // 4 entries, by size_D
+extern W48_80_FADE D_8008A1E8[];  // 4 entries, by size_D; splat labels step D_8008A1EA
 
 #endif

@@ -211,7 +211,7 @@ void func_80100168(STAGE_ROOM *wp)
             wp->flags_0 = 0;
             break;
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
     if (func_8001DE84() != 0 && wp->routine_5 >= 2)
     {
@@ -230,7 +230,7 @@ void func_801008FC(STAGE_ROOM *wp)
     {
         if (wp->routine_5 == 0)
         {
-            func_80017C30(10);
+            Fade_start(10);
             wp->routine_5++;
         }
         else if (wp->routine_5 == 1)
@@ -256,7 +256,7 @@ void func_801008FC(STAGE_ROOM *wp)
             func_80042314(&Player_work);
         }
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -312,7 +312,7 @@ void func_80100C18(void)
 {
     STAGE_PL_VIEW *pl;
     void *spawn;
-    func_80022FD4(D_8010C3A4[Game_work.value_51]);
+    Room_model_init(D_8010C3A4[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -379,7 +379,7 @@ void func_80100ED4(STAGE_ROOM *wp)
 
     if (wp->routine_4 == 0)
     {
-        slot = func_8001EAE8(D_8010CB70);
+        slot = Scene_obj_ent_open(D_8010CB70);
         slot->flags_6 &= ~0x20;
         pos.x = 0xB00;
         pos.y = 0;
@@ -393,7 +393,7 @@ void func_80100F58(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_8010CB40);
+        Scene_obj_list_open(D_8010CB40);
         wp->routine_4 = 0xFF;
     }
 }
@@ -406,7 +406,7 @@ void func_80100FAC(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_8010CB40);
+        Scene_obj_list_open(D_8010CB40);
         wp->routine_4 = 0xFF;
     }
 }
@@ -455,7 +455,7 @@ void func_801010DC(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB48);
+        Scene_obj_list_open(&D_8010CB48);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -465,7 +465,7 @@ void func_80101130(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB48);
+        Scene_obj_list_open(&D_8010CB48);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -475,7 +475,7 @@ void func_80101184(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB50);
+        Scene_obj_list_open(&D_8010CB50);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -485,7 +485,7 @@ void func_801011D8(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB58);
+        Scene_obj_list_open(&D_8010CB58);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -495,7 +495,7 @@ void func_8010122C(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB60);
+        Scene_obj_list_open(&D_8010CB60);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -505,7 +505,7 @@ void func_80101280(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010CB68);
+        Scene_obj_list_open(&D_8010CB68);
         func_8003786C(0x19D);
         wp->value_4 = 0xFF;
     }
@@ -761,7 +761,7 @@ void func_8010189C(STAGE_ROOM *wp)
     wp->tbl_A4 = D_8010CE4C;
     for (i = 0; i < 10; i++)
     {
-        func_8001EAE8(&D_8010CC00[i]);
+        Scene_obj_ent_open(&D_8010CC00[i]);
     }
     STAGE_PL.routine_0 = 3;
     STAGE_PL.routine_1 = 1;
@@ -816,7 +816,7 @@ void func_801019A8(STAGE_ROOM *wp)
         case 4:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_4++;
             }
             // fall through
@@ -830,7 +830,7 @@ void func_801019A8(STAGE_ROOM *wp)
                 D_800C3564 = STAGE_PL.fixed_428.z >> 16;
                 D_800C356A = STAGE_PL.value_442;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 5 && D_80098A72 == 0 && Sound_fade_flags == 0)
             {

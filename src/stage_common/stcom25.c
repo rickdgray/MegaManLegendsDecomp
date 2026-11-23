@@ -41,7 +41,7 @@ void stcom25_func_003C(STCOM25_WORK *wp)
     wp->ctl.speed_10              = wp->ctl.start_4[wp->start_D].flags_2 << 4;
     wp->ctl.flags_F               = 0;
     wp->data_78                   = NULL;
-    wp->position.y                = func_8004920C(&wp->position);
+    wp->position.y                = Ceiling_height_get(&wp->position);
     stcom25_func_0D08(wp, 0x100);
     m                    = &wp->matrix;
     wp->position_fixed.y = wp->position.y << 16;
@@ -71,7 +71,7 @@ void stcom25_func_02CC(STCOM25_WORK *wp)
     wp->rotation.z          = 0;
     wp->rotation.x          = 0;
     stcom25_D_0448[wp->routine_1](wp);
-    wp->position.y = func_8004920C(&wp->position);
+    wp->position.y = Ceiling_height_get(&wp->position);
     stcom25_func_0D08(wp, 0x100);
     m                    = &wp->matrix;
     wp->position_fixed.y = wp->position.y << 16;
@@ -430,16 +430,16 @@ void stcom25_func_0D08(STCOM25_WORK *wp, sint16 size)
         if (dir & 1)
         {
             pos.x -= size >> 1;
-            h = func_8004920C(&pos);
+            h = Ceiling_height_get(&pos);
             pos.x += size;
-            height = func_8004920C(&pos);
+            height = Ceiling_height_get(&pos);
         }
         else
         {
             pos.z -= size >> 1;
-            h = func_8004920C(&pos);
+            h = Ceiling_height_get(&pos);
             pos.z += size;
-            height = func_8004920C(&pos);
+            height = Ceiling_height_get(&pos);
         }
         wp->rotation.x += ((dir & 2) - 1) * (height - h) * 3;
         if (wp->accel.v.x > 0)

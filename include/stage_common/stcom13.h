@@ -103,6 +103,6 @@ sint32 stcom13_func_0DA8(STCOM13_WORK *wp);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint16 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM13_H

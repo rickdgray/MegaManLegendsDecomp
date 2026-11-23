@@ -976,8 +976,8 @@ void func_8010E504(STCOM16_WORK *wp)
         }
     }
     func_80032488(wp);
-    ground->hit_0 = func_8004B414(wp);
-    y             = func_80048E6C(wp);
+    ground->hit_0 = Obj_map_push_out(wp);
+    y             = Obj_ceiling_height_get(wp);
     if (!(ground->flags_6 & 0x40))
     {
         if (y - wp->position_prev.y >= 16)
@@ -1121,8 +1121,8 @@ void func_8010E83C(STCOM16_WORK *wp)
             break;
     }
     func_80032488(wp);
-    ground->hit_0 = func_8004B414(wp);
-    y             = func_80048E6C(wp);
+    ground->hit_0 = Obj_map_push_out(wp);
+    y             = Obj_ceiling_height_get(wp);
     if ((ground->flags_6 & 0x10) && !(ground->flags_6 & 0x20) && y == wp->position.y)
     {
         if (wp->routine_2 == 0)
@@ -1295,8 +1295,8 @@ void func_8010EF4C(STCOM16_WORK *wp)
     sint32 y;
 
     func_80032488(wp);
-    wp->ground.hit_0 = func_8004B414(wp);
-    y                = func_80048E6C(wp);
+    wp->ground.hit_0 = Obj_map_push_out(wp);
+    y                = Obj_ceiling_height_get(wp);
     if (y - wp->position_prev.y >= 16)
     {
         wp->routine_1 = 5;

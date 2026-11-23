@@ -702,7 +702,7 @@ void *func_80036294(sint32 id); // the spawned slot with this id; callers use th
 void func_80036478(void *track, uint8 arg1, uint32 arg2);
 // The scale vector r3_st09's stcom15 enemies keep in their block's +0x34 (ScaleMatrix).
 #define ST09_STCOM15_SCALE(ctl) (*(STCOM_FIXED_VECTOR *)&(ctl)->timer_34)
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 
 sint32 func_801031E8(ST09_VIEW *wp);
 void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
@@ -822,7 +822,7 @@ void func_80118C3C(ST09_BOX *wp);
 void func_80118DC0(ST09_BOX *wp);
 sint32 func_80118FC0(ST09_BOX *wp);
 
-// An object a room's script spawns (a 0x14-byte record, func_8001EAE8; stcom36's STCOM36_SPAWN).
+// An object a room's script spawns (a 0x14-byte record, Scene_obj_ent_open; stcom36's STCOM36_SPAWN).
 typedef struct
 {
     uint8 index_0; // 00: its slot in Scene_work's object table

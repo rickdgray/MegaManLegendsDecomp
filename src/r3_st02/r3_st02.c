@@ -19,7 +19,7 @@ void func_801000B0(void)
     void *spawns;
 
     mw = STAGE_MAP_WORK_PTR;
-    func_80022FD4(D_801068E0[Game_work.value_51]);
+    Room_model_init(D_801068E0[Game_work.value_51]);
     spawns    = D_80106940[Game_work.value_51];
     mw->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     mw->h     = STAGE_MAP_TBL[Game_work.value_51].h;
@@ -908,11 +908,11 @@ void func_80101B2C(STAGE_ROOM *wp)
 
     func_8001E6C0(0, 0, 0);
     D_800BC7F0 = D_80106C30;
-    func_8001EAE8(&D_80107328[0]);
-    func_8001EAE8(&D_80107328[1]);
-    func_8001EAE8(&D_80107328[2]);
-    func_8001EAE8(&D_80107328[3]);
-    func_8001EAE8(&D_80107328[4]);
+    Scene_obj_ent_open(&D_80107328[0]);
+    Scene_obj_ent_open(&D_80107328[1]);
+    Scene_obj_ent_open(&D_80107328[2]);
+    Scene_obj_ent_open(&D_80107328[3]);
+    Scene_obj_ent_open(&D_80107328[4]);
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
@@ -983,7 +983,7 @@ void func_80101CC0(STAGE_ROOM *wp)
         case 3:
             if (--wp->timer_C == 0)
             {
-                func_80017C30(2);
+                Fade_start(2);
                 wp->routine_4++;
             }
             break;
@@ -994,13 +994,13 @@ void func_80101CC0(STAGE_ROOM *wp)
         case 5:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(10);
+                Fade_start(10);
                 wp->routine_4++;
             }
             // fall through
         case 6:
             func_80101C80(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             if (D_8010A5E4 != 0)
             {
                 func_8010032C(D_8010A5E8, D_8010A5EC, D_8010A5F0, D_8010A5F4);
@@ -2815,7 +2815,7 @@ void func_80105AB8(ST02_SPINNER *wp)
     wp->pos_38.z -= 0x34;
     wp->angle_E += 0x40;
     wp->roll_10 -= 0x28;
-    func_8002CA10(&wp->pos_38, 0x1F4, 0x200, 0);
+    Pos_Shadow_Trans(&wp->pos_38, 0x1F4, 0x200, 0);
 }
 
 void func_80105C28(STAGE_OBJ *wp, sint32 x, sint32 y, sint32 z)

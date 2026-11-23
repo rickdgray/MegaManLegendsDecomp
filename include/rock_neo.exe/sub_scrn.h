@@ -22,6 +22,8 @@
 #define SET_TAG_NEXT(p, len) (*(u_long *)(p) = ((u_long)((p) + 1) & 0xFFFFFF) | ((len) << 24))
 // The code and color word (r0, g0, b0, code).
 #define SET_CODE_RGB(p, code, r, g, b) (*(u_long *)&(p)->r0 = ((code) << 24) | ((b) << 16) | ((g) << 8) | (r))
+// A color word with no code beside it (POLY_G4's r1..r3): given as the field, like SET_UV_HALF.
+#define SET_RGB_WORD(rgb, r, g, b) (*(u_long *)&(rgb) = ((b) << 16) | ((g) << 8) | (r))
 // x0 and y0, given packed (x | y << 16).
 #define SET_XY0_WORD(p, xy) (*(u_long *)&(p)->x0 = (xy))
 // w and h.
@@ -41,17 +43,21 @@
 // The sub screen's message file: file 0xCC, which func_8005F210 loads over the support area.
 #define Sub_mes_file ((uint8 *)0x801F2000)
 
+// The CD file loaded on leaving the sub screen (Capcom's name, sub_screen_cancel_check).
+#define EXIT_SUB_BIN 0x16
+
 // One stat line of the sub screen (attack, energy, range, rapid, special). The _0 fields are the
 // values of what is equipped, the _1 fields those with the parts or weapon under the cursor
-// (sub_screen_rb_parts_calc_sub00 / _sub01).
+// (sub_screen_rb_parts_calc_sub00 / _sub01). sub_screen_gauge_update moves each shown value (disp_) from
+// old_ to end_ over the frames func_80060248 sets (mode_6), and draws the gauges with it.
 typedef struct
 {
-    uint8 now_0;  // 0x0: set to val_2 by func_80060248
+    uint8 old_0;  // 0x0: where the gauge's move starts (disp_0, by func_80060248)
     uint8 end_0;  // 0x1: Capcom's attack_end_0, ...
-    uint8 val_2;  // 0x2
-    uint8 now_1;  // 0x3: set to val_5 by func_80060248
+    uint8 disp_0; // 0x2: the length drawn
+    uint8 old_1;  // 0x3: where the gauge's move starts (disp_1, by func_80060248)
     uint8 end_1;  // 0x4: Capcom's attack_end_1, ...
-    uint8 val_5;  // 0x5
+    uint8 disp_1; // 0x5: the length drawn
     uint8 infi_0; // 0x6: end_0 is "infinite" (the table held 0xFF; end_0 is then 88)
     uint8 val_7;  // 0x7
 } SUB_STATUS;
@@ -64,14 +70,19 @@ typedef struct
     sint8 routine_2; // 0x2: lb; step within routine_1 (the item menu's handlers)
     uint8 routine_3; // 0x3
     uint8 item_4;    // 0x4: the item menu's choice (func_8005F210: GET_SELECT_NO(2))
-    uint8 mes_no_5;  // 0x5: the message func_8005FAE4 shows for item_4 (set by func_8005F210)
-    uint8 mode_6;    // 0x6: set to 3 by func_80060248
+    // 0x5: the message func_8005FAE4 shows for item_4 (set by func_8005F210); on the weapon
+    // screen, the weapon slot whose counter sub_screen_gauge_update draws (none if 0)
+    uint8 mes_no_5;
+    sint8 mode_6; // 0x6: lb; the gauges' move countdown: set to 3 by func_80060248, sub_screen_gauge_update counts it down
     uint8 unk7;
     // 0x8: Player_work[0].rb_parts_equip_data on entry (func_8005EBE4; Capcom's rb_parts_no_0..2,
     // compared with it on exit)
     uint8 rb_parts_no[3];
-    sint8 unkB; // 0xB: Player_work[0].unk170 on entry (func_8005EBE4)
-    uint8 unkC[0x10 - 0xC];
+    uint8 weapon_no; // 0xB: lbu: Player_work[0].weapon_right_no on entry (func_8005EBE4; Capcom's name)
+    // 0xC: the scene flag screen 2 clears after using item 0x40-0x43 (func_8005ED9C: 0x540 +
+    // the choice - 0x40)
+    uint16 sce_flag_C;
+    uint8 unkE[0x10 - 0xE];
     SUB_STATUS attack;  // 0x10
     SUB_STATUS bullet;  // 0x18: energy
     SUB_STATUS dist;    // 0x20: range
@@ -100,8 +111,9 @@ typedef struct
     uint8 special[4]; // 0x10
 } SUB_GAUGE_TBL;
 
-// One screen of the sub screen (Sub_screen_tbl), called with the sub screen's state.
-typedef void (*SUB_SCREEN_FUNC)(SUB_SCREEN_WORK *subp);
+// One screen of the sub screen (Sub_screen_tbl), called with the sub screen's state. The result
+// is Sub_screen_task's, which Game_sub_screen adds to its routine_1.
+typedef sint32 (*SUB_SCREEN_FUNC)(SUB_SCREEN_WORK *subp);
 
 // The map screen's state (Map_screen_init, Map_screen_task).
 typedef struct
@@ -145,12 +157,16 @@ void Sub_screen_sort_energy(void);
 void Sub_screen_sort_range(void);
 void Sub_screen_sort_rapid(void);
 void Sub_screen_rb_parts_set(void);
+void Sub_screen_gauge_set(sint32 x0, sint32 y0, sint32 power, sint32 flag);
 void Sub_screen_gauge_set2(sint32 x0, sint32 y0, sint32 power, sint32 infi);
+void Sub_screen_basic_param_set(void);
 void Sub_screen_status_param_set(sint32 d0);
 SPRT *Sub_screen_basic_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);
 SPRT *Sub_screen_status_param_set_sub(SPRT *ptr, uint32 pos, sint32 num, sint32 flag);
 void Sub_screen_back_ground_set(void);
 void Sub_screen_sound_reinit(PL_WORK *pp);
 void Map_screen_init(void);
+sint32 Sub_screen_task(void); // the current screen's result
+sint32 Map_screen_task(void);
 
 #endif // SUB_SCRN_H

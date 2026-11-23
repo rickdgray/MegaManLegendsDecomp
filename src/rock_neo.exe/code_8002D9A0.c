@@ -335,7 +335,7 @@ void mesh_draw(MESH *m)
     f    = m->tri;
     for (; n != 0; n--, f++)
     {
-        w  = f->idx;
+        w  = f->idx.word;
         i0 = w & 0xFF;
         i1 = (w >> 8) & 0xFF;
         i2 = (w >> 16) & 0xFF;
@@ -366,7 +366,7 @@ void mesh_draw(MESH *m)
     f    = m->quad;
     for (; n != 0; n--, f++)
     {
-        w  = f->idx;
+        w  = f->idx.word;
         i0 = w & 0xFF;
         i1 = (w >> 8) & 0xFF;
         i2 = (w >> 16) & 0xFF;

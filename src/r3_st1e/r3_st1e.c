@@ -21,7 +21,7 @@ void func_8010011C(void)
     void *spawn;
 
     map = &STAGE_MAP_TBL[Game_work.value_51];
-    func_80022FD4(D_80104190[Game_work.value_51]);
+    Room_model_init(D_80104190[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = map->w;
     STAGE_MAP_WORK_PTR->h     = map->h;
     STAGE_MAP_WORK_PTR->x0    = map->x0;
@@ -602,7 +602,7 @@ void func_80100ED4(STAGE_ROOM *wp)
     switch (wp->routine_5)
     {
         case 0:
-            func_80017C30(0xB);
+            Fade_start(0xB);
             wp->routine_5++;
             break;
         case 1:
@@ -633,7 +633,7 @@ void func_80100ED4(STAGE_ROOM *wp)
                     ep->variant_3 = 0;
                     ep->flags_6 |= 0x20;
                 }
-                func_80017C30(2);
+                Fade_start(2);
                 wp->routine_5++;
             }
             break;
@@ -649,7 +649,7 @@ void func_80100ED4(STAGE_ROOM *wp)
             {
                 Sound_fade_step_size = 4;
                 Sound_work.volume_6  = 0x7F;
-                func_80017C30(0xB);
+                Fade_start(0xB);
                 wp->routine_5++;
             }
             break;
@@ -672,7 +672,7 @@ void func_80101078(STAGE_ROOM *wp)
     Sce_event_set(D_8010496C, D_8010444C);
     for (i = 0, entry = D_8010487C; i < 0xC; i++, entry++)
     {
-        func_8001EAE8(entry);
+        Scene_obj_ent_open(entry);
     }
     ep = Open_EVE_WORK();
     if (ep != NULL)
@@ -714,7 +714,7 @@ void func_80101158(STAGE_ROOM *wp)
         case 2:
             if (--wp->timer_C == 0)
             {
-                func_80017C30(2);
+                Fade_start(2);
                 wp->routine_4++;
             }
             break;
@@ -725,13 +725,13 @@ void func_80101158(STAGE_ROOM *wp)
         case 4:
             if (D_80098A72 == 0 && *(uint8 *)wp->tbl_A4 == 0xFF)
             {
-                func_80017C30(0xB);
+                Fade_start(0xB);
                 wp->routine_4++;
             }
             // fall through
         case 5:
             func_80101118(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 5 && D_80098A72 == 0)
             {

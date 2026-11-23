@@ -771,7 +771,7 @@ void func_80112BD8(STAGE_ROOM *wp)
     }
     for (i = 0; i < 3; i++)
     {
-        func_8001EAE8(&D_8011909C[i]);
+        Scene_obj_ent_open(&D_8011909C[i]);
     }
 }
 
@@ -840,7 +840,7 @@ void func_80112D00(STAGE_ROOM *wp)
             }
             break;
         case 5:
-            func_80017C30(5);
+            Fade_start(5);
             pl->flags_0 |= 2;
             wp->routine_4++;
             // fall through
@@ -851,13 +851,13 @@ void func_80112D00(STAGE_ROOM *wp)
         case 7:
             if (D_80098A72 == 0 && (*(uint8 *)wp->tbl_A4 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(0xB);
+                Fade_start(0xB);
                 wp->routine_4 = 10;
             }
             // fall through
         case 10:
             func_80112CC0(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 10 && D_80098A72 == 0)
             {
@@ -904,7 +904,7 @@ void func_80113048(STAGE_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
     func_80113A2C(wp, face);
@@ -1263,7 +1263,7 @@ void func_80113B78(STAGE_OBJ *wp)
         func_800322A8(wp, 1, 0);
         wp->routine_2++;
     }
-    func_80033A28(wp);
+    Model_pose_unpack(wp);
     Model_parts_mtx_set_y(wp);
 }
 
@@ -1292,7 +1292,7 @@ void func_80113C30(STAGE_OBJ *wp)
             func_800322A8(wp, 2, 0);
             wp->routine_2++;
         case 1:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 2:
@@ -1466,7 +1466,7 @@ void func_801140E4(STAGE_OBJ *wp)
             wp->routine_2 = 3;
             return;
         case 2:
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
             return;
         case 3:

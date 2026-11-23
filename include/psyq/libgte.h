@@ -54,6 +54,7 @@ MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
 MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v);
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1);
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);
+SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1);
 void OuterProduct0(VECTOR *v0, VECTOR *v1, VECTOR *v2);
 void OuterProduct12(VECTOR *v0, VECTOR *v1, VECTOR *v2);
 void VectorNormal(VECTOR *v0, VECTOR *v1);

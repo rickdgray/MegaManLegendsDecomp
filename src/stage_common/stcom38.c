@@ -15,7 +15,7 @@ void stcom38_func_0008(STCOM38_ROOM_WORK *wp)
 {
     if (wp->started_4 == 0)
     {
-        func_8001DF10(stcom38_D_0000);
+        Scene_obj_list_open(stcom38_D_0000);
         wp->started_4 = 0xFF;
     }
 }
@@ -24,7 +24,7 @@ void stcom38_func_0054(STCOM38_ROOM_WORK *wp)
 {
     if (wp->started_4 == 0)
     {
-        func_8001DF10(stcom38_E_0000);
+        Scene_obj_list_open(stcom38_E_0000);
         wp->started_4 = 0xFF;
     }
 }
@@ -33,7 +33,7 @@ void stcom38_func_00A0(STCOM38_ROOM_WORK *wp)
 {
     if (wp->started_4 == 0)
     {
-        func_8001DF10(stcom38_E2_0000);
+        Scene_obj_list_open(stcom38_E2_0000);
         wp->started_4 = 0xFF;
     }
 }

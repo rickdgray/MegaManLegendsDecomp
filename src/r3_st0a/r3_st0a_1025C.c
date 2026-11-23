@@ -316,7 +316,7 @@ void func_8011105C(ST0A_PIECE *wp)
     wp->model.model_0 = wp->models_CC[wp->routine_2];
     pos               = wp->position;
     pos.y += 0x320;
-    func_8002CA10(&pos, 0x20, 0x200, 0);
+    Pos_Shadow_Trans(&pos, 0x20, 0x200, 0);
 }
 
 void func_80111118(ST0A_PIECE *wp)

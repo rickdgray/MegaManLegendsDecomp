@@ -223,7 +223,7 @@ void func_80102ED8(ST1E_PANEL *wp)
     scale.y         = 0x200;
     scale.x         = 0x200;
     ScaleMatrix(&wp->matrix.m, &scale);
-    func_8002CA10(&wp->pos_38, 0x32, 0x2AB, 0);
+    Pos_Shadow_Trans(&wp->pos_38, 0x32, 0x2AB, 0);
 }
 
 void func_80102F68(STAGE_OBJ *wp)

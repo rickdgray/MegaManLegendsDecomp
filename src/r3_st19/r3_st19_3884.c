@@ -587,7 +587,7 @@ void func_80104F34(ST19_OBJ *wp)
 
     Obj_pos_set(wp, 0, wp->value_44.words.integer, 0);
     wp->value_44.words.integer = (uint16)wp->value_44.words.integer + (uint16)wp->value_4C.words.integer;
-    if (func_8004B414(wp) & 0x3000)
+    if (Obj_map_push_out(wp) & 0x3000)
     {
         temp_s0 = &wp->position;
         Sound_call2(0x1B5, temp_s0);
@@ -654,7 +654,7 @@ void func_80105154(STAGE_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
 }
@@ -1624,7 +1624,7 @@ void func_801073CC(STAGE_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
 }
@@ -1907,7 +1907,7 @@ void func_80107DD4(ST19_OBJ *wp)
             func_80051B68(wp, 3, -1, 0);
         }
         home->hit_40   = 0;
-        home->value_18 = func_8004B414(wp);
+        home->value_18 = Obj_map_push_out(wp);
         if (D_8011F494 != 0)
         {
             home->value_18 |= func_80108DB4(wp);
@@ -1974,7 +1974,7 @@ void func_801080C0(ST19_OBJ *wp)
     target.x               = wp->value_364;
     target.z               = wp->value_366;
     wp->rotation.y         = (wp->rotation.y + Muku(&wp->position, &target, wp->rotation.y, speed)) & 0xFFF;
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.x = wp->position.x << 16;
     wp->position_fixed.v.y = wp->position.y << 16;
     wp->position_fixed.v.z = wp->position.z << 16;
@@ -1991,7 +1991,7 @@ void func_801080C0(ST19_OBJ *wp)
 
 void func_80108270(ST19_OBJ *wp)
 {
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.x = wp->position.x << 16;
     wp->position_fixed.v.y = wp->position.y << 16;
     wp->position_fixed.v.z = wp->position.z << 16;
@@ -2034,12 +2034,12 @@ void func_80108374(ST19_OBJ *wp)
             wp->position_fixed.v.y = wp->position.y << 16;
             break;
         case 2:
-            if (wp->position.y >= (sint16)func_80048E6C(wp))
+            if (wp->position.y >= (sint16)Obj_ceiling_height_get(wp))
             {
                 wp->anim_AC            = 6;
                 wp->value_48.half[0]   = 0;
                 wp->value_44.half[1]   = 0;
-                wp->position.y         = func_80048E6C(wp);
+                wp->position.y         = Obj_ceiling_height_get(wp);
                 wp->value_35E          = 0x14;
                 wp->position_fixed.v.x = wp->position.x << 16;
                 wp->position_fixed.v.y = wp->position.y << 16;
@@ -2057,7 +2057,7 @@ void func_80108374(ST19_OBJ *wp)
             wp->value_44.half[1] += wp->value_48.half[0];
             break;
         case 3:
-            wp->position.y         = func_80048E6C(wp);
+            wp->position.y         = Obj_ceiling_height_get(wp);
             wp->position_fixed.v.x = wp->position.x << 16;
             wp->position_fixed.v.y = wp->position.y << 16;
             wp->position_fixed.v.z = wp->position.z << 16;
@@ -2078,7 +2078,7 @@ void func_801085A4(ST19_OBJ *wp)
             wp->anim_AC            = 9;
             wp->value_44.half[0]   = 0x1E0;
             wp->value_44.half[1]   = 0;
-            wp->position.y         = func_80048E6C(wp);
+            wp->position.y         = Obj_ceiling_height_get(wp);
             wp->position_fixed.v.x = wp->position.x << 16;
             wp->position_fixed.v.y = wp->position.y << 16;
             wp->position_fixed.v.z = wp->position.z << 16;
@@ -2108,7 +2108,7 @@ void func_801085A4(ST19_OBJ *wp)
             break;
         case 26:
             wp->routine_0          = 1;
-            wp->position.y         = func_80048E6C(wp);
+            wp->position.y         = Obj_ceiling_height_get(wp);
             wp->position_fixed.v.x = wp->position.x << 16;
             wp->position_fixed.v.y = wp->position.y << 16;
             wp->position_fixed.v.z = wp->position.z << 16;
@@ -2148,7 +2148,7 @@ void func_80108750(ST19_OBJ *wp)
         speed = 0xC8;
     }
     wp->rotation.y         = (wp->rotation.y + Muku(&wp->position, &target, wp->rotation.y, speed)) & 0xFFF;
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.x = wp->position.x << 16;
     wp->position_fixed.v.y = wp->position.y << 16;
     wp->position_fixed.v.z = wp->position.z << 16;

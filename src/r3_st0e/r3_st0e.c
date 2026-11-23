@@ -162,9 +162,9 @@ void func_801005A0(STAGE_ROOM *wp)
                 *(uint32 *)&wp->timer_C = 0;
                 D_800BC7F0              = D_8010FF78;
                 wp->tbl_A4              = D_80110118;
-                func_8001EAE8(&D_8010FF50[0]);
-                func_8001EAE8(&D_8010FF50[1]);
-                func_8001EC0C();
+                Scene_obj_ent_open(&D_8010FF50[0]);
+                Scene_obj_ent_open(&D_8010FF50[1]);
+                Sce_camera_update();
                 Sce_event_update();
                 wp->routine_5++;
             }
@@ -174,13 +174,13 @@ void func_801005A0(STAGE_ROOM *wp)
             {
                 wp->routine_5++;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             break;
         case 3:
             Cd_xa_play_id(0x20000016);
-            func_80017C30(1);
-            func_8001EC0C();
+            Fade_start(1);
+            Sce_camera_update();
             Sce_event_update();
             wp->routine_5++;
             break;
@@ -194,7 +194,7 @@ void func_801005A0(STAGE_ROOM *wp)
                 wp->reserved09[1] &= 3;
                 wp->routine_4++;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             break;
     }
@@ -208,7 +208,7 @@ void func_801007A8(STAGE_ROOM *wp)
 {
     if (wp->routine_8 == 0xFF)
     {
-        func_80017C30(20);
+        Fade_start(20);
         wp->routine_5 = 0;
         wp->routine_4++;
     }
@@ -218,7 +218,7 @@ void func_801007A8(STAGE_ROOM *wp)
         if (wp->reserved09[1] == 3)
         {
             wp->child_28->routine_0 = 2;
-            func_80017C30(8);
+            Fade_start(8);
             wp->routine_5 = 0;
             wp->routine_4++;
         }
@@ -228,12 +228,12 @@ void func_801007A8(STAGE_ROOM *wp)
             {
                 wp->child_28->routine_0 = 2;
             }
-            func_80017C30(8);
+            Fade_start(8);
             wp->routine_5 = 0;
             wp->routine_4++;
         }
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -263,13 +263,13 @@ void func_80100870(STAGE_ROOM *wp)
                 func_8001D974();
                 Sound_fade_start(0x20);
                 wp->flags_0 = 0;
-                func_80017C30(2);
+                Fade_start(2);
                 break;
         }
     }
     if (wp->reserved09[1] != 0)
     {
-        func_8001EC0C();
+        Sce_camera_update();
         Sce_event_update();
     }
 }

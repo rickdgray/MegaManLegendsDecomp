@@ -135,6 +135,6 @@ STCOM24_SHOT *Open_SHL_WORK(void);
 
 // ROCK_NEO.EXE (see rock_neo.h).
 sint16 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 
 #endif // STCOM24_H

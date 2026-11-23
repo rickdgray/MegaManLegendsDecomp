@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "psyq/libgte.h"
+#include "code_8002E7A8.h"
 
 // One of the camera block's five parameter slots (func_80039BBC ... func_80039CEC set one each,
 // with the matching CAMERA_WORK.pos[] entry).
@@ -39,7 +40,8 @@ typedef struct
     VECTOR pos_98;      // 0x98: func_800384F0's camera position (also in Scratch_cam_pos)
     VECTOR pos_A8;      // 0xA8: the previous pos_98 (func_80037FB4 saves it before updating)
     SVECTOR ang;        // 0xB8: rotation func_800384F0 builds the view matrix from
-    uint8 unkC0[0x24];
+    uint8 unkC0[0x20];
+    MODEL_WORK *target_E0; // 0xE0: object routine_1 2 and 3 follow (Camera_update), if set
 } CAMERA_WORK;
 
 // The block as declared: its fields, or the whole block as words.
@@ -51,6 +53,9 @@ typedef union
 
 extern CAMERA_BLOCK D_800A3958;
 extern CAMERA_BLOCK D_8009A478; // saved copy (func_80039A60)
+// The data from D_8009A478 + 0xE4 to D_8009A598 + 4 is 16 words Camera_init clears, reached
+// from the last one (splat's D_8009A598 label sits there).
+extern sint32 D_8009A598[];
 
 // Capcom's name for the block (Camera_work.routine_3 in check_swing_camera). Most code reaches
 // the fields through this cast, which gives every access its own lui; the direct form
@@ -91,6 +96,7 @@ extern uint32 *D_8009869C[8]; // camera command queue: pointers to command words
 
 void func_80037FB4(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_80038370(VECTOR *arg0, VECTOR *arg1); // arg1: point to look at (func_8001E550)
+void Camera_init(void);                         // clears the camera block and state, camera at the player (game.c)
 void func_80038324(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
 void func_800384A4(VECTOR *arg0, VECTOR *arg1);
 void func_80039BBC(VECTOR *arg0, sint32 arg1, sint32 arg2, sint32 arg3);
@@ -110,7 +116,9 @@ void func_80039FAC(VECTOR *pos, sint32 field_0, sint32 ang, sint32 field_8);
 void func_80039FFC(VECTOR *pos, sint32 field_0, sint32 ang, sint32 field_8);
 sint32 func_8003A13C(void); // D_800A3962 >= 0
 sint32 func_8003A154(sint32 a, sint32 lim, sint32 step);
-sint32 func_8003A218(sint32 arg0);
+// Distance from ang to param[0].ang, which it reads itself; its only caller (Camera_update) also
+// passes param[0].ang, unused.
+sint32 func_8003A218(sint32 ang, sint32 unused);
 void func_8003A264(void);
 void func_80039E50(void);
 // Returns nothing; declared sint32 for the same reason as Money_add (func_80055C1C needs it).
@@ -122,5 +130,6 @@ void Swing_Camera2(sint32 power, uint32 near, uint32 far, SVECTOR *pos);
 sint32 func_800399EC(uint32 *cmd);
 void func_80039A38(uint32 *cmd); // forwarded to func_800399EC
 sint32 func_80039B80(void);      // D_800A396C, or 0 while D_800A3960 is 0
+void Camera_update(void);        // per frame (game's game_frame_exec)
 
 #endif // CODE_80037FB4_H

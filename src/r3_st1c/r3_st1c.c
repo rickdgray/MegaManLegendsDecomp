@@ -55,7 +55,7 @@ void func_80100234(STAGE_ROOM_WORK *wp)
     level = func_80100360();
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(&D_80103C3C[level]);
+        Scene_obj_list_open(&D_80103C3C[level]);
         if (STAGE_GAME_VALUE_52 < 8)
         {
             func_8001E20C(0);
@@ -73,7 +73,7 @@ void func_801002B0(STAGE_ROOM_WORK *wp)
     level = func_80100360();
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(&D_80103C5C[level]);
+        Scene_obj_list_open(&D_80103C5C[level]);
         for (i = 0; i < 8; i++)
         {
             if (Sce_flag_test(i + 0x38))

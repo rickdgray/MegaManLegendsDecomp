@@ -18,7 +18,7 @@ void func_8010038C(void)
     void *spawns;
     sint32 room;
 
-    func_80022FD4(D_8011A6F0[Game_work.value_51]);
+    Room_model_init(D_8011A6F0[Game_work.value_51]);
     room                      = Game_work.value_51;
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[room].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[room].h;
@@ -449,7 +449,7 @@ void func_80100EFC(ST00_ROOM_FX *wp)
     D_800BC7F0 = D_8011AF4C;
     for (i = 0; i < 16; i++)
     {
-        obj = func_8001EAE8(&D_8011AE0C[i]);
+        obj = Scene_obj_ent_open(&D_8011AE0C[i]);
         if (i != 0)
         {
             Model_work_init(obj, &D_8011B377[i]);
@@ -526,7 +526,7 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
             if (--wp->timer_C == 0)
             {
                 wp->routine_4++;
-                func_80017C30(2);
+                Fade_start(2);
             }
             break;
         case 5:
@@ -535,11 +535,11 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
             break;
         case 6:
             func_8010102C(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (D_80098A72 == 0 && ((wp->reserved09[0] == 0x13 && wp->frame_10 == 0x2C) || func_8001DE84() != 0))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_4++;
             }
             if (D_80122428 != 0)
@@ -549,7 +549,7 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
             break;
         case 7:
             func_8010102C(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (D_80098A72 == 0)
             {
@@ -874,7 +874,7 @@ void func_80101888(STAGE_ROOM *wp)
     D_800BC7F0 = D_8011B4B4;
     for (i = 0; i < 14; i++)
     {
-        func_8001EAE8(&D_8011B388[i]);
+        Scene_obj_ent_open(&D_8011B388[i]);
     }
     wp->tbl_A4 = D_8011BA4C;
 }
@@ -919,7 +919,7 @@ void func_8010194C(STAGE_ROOM *wp)
         case 4:
             if (--wp->timer_C == 0)
             {
-                func_80017C30(2);
+                Fade_start(2);
                 wp->routine_4++;
             }
             break;
@@ -930,13 +930,13 @@ void func_8010194C(STAGE_ROOM *wp)
         case 6:
             if (D_80098A72 == 0 && (func_8001DE84() != 0 || wp->routine_8 == 0xFF))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_4++;
             }
             // fall through
         case 7:
             func_8010190C(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 7 && D_80098A72 == 0)
             {
@@ -1110,8 +1110,8 @@ void func_80101F7C(STAGE_ROOM *wp)
     func_8001E6C0(0, 0, 0);
     D_800BC7F0 = D_8011BB3C;
     D_800C3588 = 2;
-    func_8001EAE8(&D_8011BB14[0]);
-    func_8001EAE8(&D_8011BB14[1]);
+    Scene_obj_ent_open(&D_8011BB14[0]);
+    Scene_obj_ent_open(&D_8011BB14[1]);
     wp->tbl_A4        = D_8011BE44;
     wp->reserved09[2] = 0;
     wp->reserved09[1] = 0;
@@ -1164,13 +1164,13 @@ void func_80102058(STAGE_ROOM *wp)
         case 5:
             if (D_80098A72 == 0 && (wp->routine_8 == 0xFF || func_8001DE84() != 0))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 wp->routine_4++;
             }
             // fall through
         case 6:
             func_80102018(wp);
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->routine_4 == 6 && D_80098A72 == 0)
             {

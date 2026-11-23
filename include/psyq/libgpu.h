@@ -63,6 +63,15 @@ typedef struct
     u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
+    u_char u0, v0;           // 0x0c
+    u_short clut;            // 0x0e
+} SPRT_8;                    // 0x10
+
+typedef struct
+{
+    u_long *tag;             // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
     short w, h;              // 0x0c
 } TILE;                      // 0x10
 
@@ -74,6 +83,12 @@ typedef struct
 
 typedef struct
 {
+    u_long *tag;
+    u_long code[2];
+} DR_AREA; // 0x0c
+
+typedef struct
+{
     u_long *tag;             // 0x00
     u_char r0, g0, b0, code; // 0x04
     short x0, y0;            // 0x08
@@ -81,6 +96,17 @@ typedef struct
     short x2, y2;            // 0x10
     short x3, y3;            // 0x14
 } POLY_F4;                   // 0x18
+
+typedef struct
+{
+    u_long *tag;             // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    u_char r1, g1, b1, pad1; // 0x0c
+    short x1, y1;            // 0x10
+    u_char r2, g2, b2, pad2; // 0x14
+    short x2, y2;            // 0x18
+} POLY_G3;                   // 0x1c
 
 typedef struct
 {
@@ -128,6 +154,44 @@ typedef struct
     u_short pad2;            // 0x26
 } POLY_FT4;                  // 0x28
 
+typedef struct
+{
+    u_long *tag;             // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    u_char u0, v0;           // 0x0c
+    u_short clut;            // 0x0e
+    u_char r1, g1, b1, p1;   // 0x10
+    short x1, y1;            // 0x14
+    u_char u1, v1;           // 0x18
+    u_short tpage;           // 0x1a
+    u_char r2, g2, b2, p2;   // 0x1c
+    short x2, y2;            // 0x20
+    u_char u2, v2;           // 0x24
+    u_short pad2;            // 0x26
+} POLY_GT3;                  // 0x28
+
+typedef struct
+{
+    u_long *tag;             // 0x00
+    u_char r0, g0, b0, code; // 0x04
+    short x0, y0;            // 0x08
+    u_char u0, v0;           // 0x0c
+    u_short clut;            // 0x0e
+    u_char r1, g1, b1, p1;   // 0x10
+    short x1, y1;            // 0x14
+    u_char u1, v1;           // 0x18
+    u_short tpage;           // 0x1a
+    u_char r2, g2, b2, p2;   // 0x1c
+    short x2, y2;            // 0x20
+    u_char u2, v2;           // 0x24
+    u_short pad2;            // 0x26
+    u_char r3, g3, b3, p3;   // 0x28
+    short x3, y3;            // 0x2c
+    u_char u3, v3;           // 0x30
+    u_short pad3;            // 0x32
+} POLY_GT4;                  // 0x34
+
 // Ordering-table linking. Confirmed by ROCK_NEO's screen_tile_draw.
 #define getaddr(p)        (u_long)(((P_TAG *)(p))->addr)
 #define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
@@ -141,6 +205,7 @@ typedef struct
 #define getcode(p)                (u_char)(((P_TAG *)(p))->code)
 #define getcode(p)                (u_char)(((P_TAG *)(p))->code)
 #define setSprt(p)                (setlen(p, 4), setcode(p, 0x64))
+#define setSprt8(p)               (setlen(p, 3), setcode(p, 0x74))
 #define setTile(p)                (setlen(p, 3), setcode(p, 0x60))
 #define setPolyF4(p)              (setlen(p, 5), setcode(p, 0x28))
 #define setPolyFT4(p)             (setlen(p, 9), setcode(p, 0x2C))
@@ -149,6 +214,9 @@ typedef struct
 #define setXY0(p, _x0, _y0)       ((p)->x0 = (_x0), (p)->y0 = (_y0))
 #define setWH(p, _w, _h)          ((p)->w = (_w), (p)->h = (_h))
 #define setRGB0(p, _r0, _g0, _b0) ((p)->r0 = (_r0), (p)->g0 = (_g0), (p)->b0 = (_b0))
+#define setRGB1(p, _r1, _g1, _b1) ((p)->r1 = (_r1), (p)->g1 = (_g1), (p)->b1 = (_b1))
+#define setRGB2(p, _r2, _g2, _b2) ((p)->r2 = (_r2), (p)->g2 = (_g2), (p)->b2 = (_b2))
+#define setRGB3(p, _r3, _g3, _b3) ((p)->r3 = (_r3), (p)->g3 = (_g3), (p)->b3 = (_b3))
 #define setXY4(p, _x0, _y0, _x1, _y1, _x2, _y2, _x3, _y3)                                                                                  \
     ((p)->x0 = (_x0), (p)->y0 = (_y0), (p)->x1 = (_x1), (p)->y1 = (_y1), (p)->x2 = (_x2), (p)->y2 = (_y2), (p)->x3 = (_x3), (p)->y3 = (_y3))
 #define setUV4(p, _u0, _v0, _u1, _v1, _u2, _v2, _u3, _v3)                                                                                  \
@@ -176,6 +244,7 @@ int ResetGraph(int mode);
 int ClearImage(RECT *rect, u_char r, u_char g, u_char b);
 int LoadImage(RECT *recp, u_long *p);
 void SetDrawMode(DR_MODE *p, int dfe, int dtd, int tpage, RECT *tw);
+void SetDrawArea(DR_AREA *p, RECT *r);
 u_short GetTPage(int tp, int abr, int x, int y);
 u_short GetClut(int x, int y);
 void AddPrim(void *ot, void *p);

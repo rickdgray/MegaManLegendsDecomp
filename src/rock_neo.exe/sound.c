@@ -9,7 +9,6 @@
 #include "scene.h"
 
 // Called only from this file
-sint32 pitch_interp(sint32 x, sint32 frac); // parked: only the NON_MATCHING branch defines it in C
 void volume_update(void);
 
 void func_800198C0(void)
@@ -180,30 +179,39 @@ void Sound_stage_slot_set(sint32 which)
     }
 }
 
-#ifdef NON_MATCHING
 void Sound_stage_check(void)
 {
-    sint32 changed;
     uint16 *list;
     uint16 id;
+    SOUND_FUNC func;
+    sint32 changed;
 
-    if (Sound_stage_func_tbl[D_800C356E] != 0)
+    func = Sound_stage_func_tbl[D_800C356E];
+    if (func != 0)
     {
-        Sound_stage_func_tbl[D_800C356E](1);
+        func(1);
     }
     list    = Sound_stage_id_tbl[D_800C356E];
     changed = 0;
-    if (list != 0)
+    if (list == 0)
     {
-        id = list[D_800C356F];
-        if (id == 0xFFFF || Sound_stage_id_tbl[Game_work.stage_no][Game_work.area_no] != id)
-        {
-            changed = 1;
-        }
+        changed = 1;
     }
     else
     {
-        changed = 1;
+        id = list[D_800C356F];
+        if (id == 0xFFFF)
+        {
+            changed = 1;
+        }
+        else
+        {
+            list = Sound_stage_id_tbl[Game_work.stage_no];
+            if (list[Game_work.area_no] != id)
+            {
+                changed = 1;
+            }
+        }
     }
     if (changed)
     {
@@ -211,20 +219,19 @@ void Sound_stage_check(void)
         D_80098958 |= 0x800;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_stage_check);
-#endif
 
 #ifdef NON_MATCHING
 void Sound_stage_play(void)
 {
     uint16 *list;
+    SOUND_FUNC func;
+    sint32 id;
     sint32 ok;
-    uint16 id;
 
-    if (Sound_stage_func_tbl[Game_work.stage_no] != 0)
+    func = Sound_stage_func_tbl[Game_work.stage_no];
+    if (func != 0)
     {
-        Sound_stage_func_tbl[Game_work.stage_no](0);
+        func(0);
     }
     list = Sound_stage_id_tbl[Game_work.stage_no];
     id   = 0;
@@ -248,7 +255,6 @@ void Sound_stage_play(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_stage_play);
 #endif
 
-#ifdef NON_MATCHING
 void Sound_init(void)
 {
     SpuEnv env;
@@ -257,18 +263,18 @@ void Sound_init(void)
     SsInit();
     SsSetTableSize(D_800C1010, 4, 4);
     SsSetTickMode(SS_TICK60);
+    Sound_fade_flags              = 0;
     Sound_call_ptr                = Sound_call_queue;
+    D_80098958                    = 0;
+    Sound_work.mvol               = SS_VOL_MAX;
     Sound_work.se_vol             = 0x40;
     Sound_work.seq_vol            = 0x64;
     Sound_fade_step_size          = 4;
-    Sound_work.mvol               = SS_VOL_MAX;
     Sound_work.serial_vol         = SS_VOL_MAX;
     Sound_work.seq_fade           = SS_VOL_MAX;
     Sound_work.se_fade            = SS_VOL_MAX;
     Sound_work.serial_fade        = SS_VOL_MAX;
     Sound_work.mvol_fade          = SS_VOL_MAX;
-    Sound_fade_flags              = 0;
-    D_80098958                    = 0;
     Sound_work.reserved_voice     = 0xF;
     Sound_work.reserved_voice_set = 0;
     SsSetSerialAttr(SS_SERIAL_A, SS_MIX, SS_SON);
@@ -293,9 +299,6 @@ void Sound_init(void)
     SsStart();
     D_80098958 |= 1;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_init);
-#endif
 
 void Sound_reverb_set(sint32 idx)
 {
@@ -323,21 +326,20 @@ void Sound_call(uint16 id, sint32 arg1, sint32 arg2)
     }
 }
 
-#ifdef NON_MATCHING
 void Sound_call2(sint16 id, SVECTOR *pos)
 {
+    SOUND_CALL *call;
+
     if (Sound_call_ptr != &Sound_call_queue[SOUND_CALL_MAX])
     {
         Sound_call_ptr->mode = SOUND_MODE_POS;
-        Sound_call_ptr->id   = id;
-        Sound_call_ptr->arg1 = ((sint32 *)pos)[0]; // vx (vy in the high half)
-        Sound_call_ptr->arg2 = ((sint32 *)pos)[1]; // vz (pad in the high half)
-        Sound_call_ptr++;
+        call                 = Sound_call_ptr;
+        call->id             = id;
+        call->arg1           = ((sint32 *)pos)[0]; // vx (vy in the high half)
+        call->arg2           = ((sint32 *)pos)[1]; // vz (pad in the high half)
+        Sound_call_ptr       = ++call;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_call2);
-#endif
 
 sint32 Sound_seq_is_eos(sint32 idx)
 {
@@ -351,11 +353,11 @@ sint32 Sound_seq_is_eos(sint32 idx)
     return ret;
 }
 
-#ifdef NON_MATCHING
 void Sound_update(void)
 {
-    SOUND_CALL *call;
     sint32 i;
+    SOUND_CALL *call;
+    SOUND_CALL_INFO *info;
 
     if (D_80098958 != 0)
     {
@@ -366,14 +368,12 @@ void Sound_update(void)
         }
         for (call = Sound_call_queue; call != Sound_call_ptr; call++)
         {
-            Sound_call_func_tbl[Sound_call_info_tbl[call->id].type >> 6](call);
+            info = &Sound_call_info_tbl[call->id];
+            Sound_call_func_tbl[info->type >> 6](call);
         }
         Sound_call_ptr = Sound_call_queue;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_update);
-#endif
 
 sint32 vab_find(sint32 num)
 {
@@ -445,7 +445,7 @@ void calc_vol(SOUND_CALL *call, uint16 vol, uint16 *left, uint16 *right, sint16 
                 return;
             }
             angle = Player_work_ptr->ang.vy -
-                    func_8001E83C(Player_work_ptr->pos.vx, Player_work_ptr->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
+                    Angle_xz(Player_work_ptr->pos.vx, Player_work_ptr->pos.vz, (sint16)call->arg1, (sint16)call->arg2);
             angle &= 0xFFF;
             pan = (ccos(angle) << 7) >> 12;
             if (pan < 0)
@@ -505,17 +505,16 @@ sint32 pitch_scale(sint32 x)
     return scale >> 16;
 }
 
-#ifdef NON_MATCHING
 sint32 pitch_interp(sint32 x, sint32 frac)
 {
-    sint32 a;
+    sint32 lo;
+    sint32 hi;
 
-    a = pitch_scale(x);
-    return a + ((pitch_scale(x + 1) - a) * frac) / 128;
+    lo = pitch_scale(x);
+    hi = pitch_scale(x + 1);
+    lo += ((hi - lo) * frac) / 128;
+    return lo;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", pitch_interp);
-#endif
 
 void key_on_tone(uint16 vab_id, SOUND_CALL_INFO *info, VagAtr *tone, SOUND_CALL *call)
 {
@@ -564,15 +563,15 @@ sint32 voice_check(SOUND_CALL_INFO *info, SOUND_CALL *call)
     return 1;
 }
 
-#ifdef NON_MATCHING
 void Sound_call_play(SOUND_CALL *call)
 {
     SOUND_CALL_INFO *info;
-    VagAtr *tone;
     sint32 bank;
     sint32 count;
     uint16 voice;
+    VagAtr *tone;
     uint16 vab_id;
+    uint8 range;
 
     info = &Sound_call_info_tbl[call->id];
     bank = vab_find(info->type & 0x3F);
@@ -580,9 +579,10 @@ void Sound_call_play(SOUND_CALL *call)
     {
         return;
     }
-    tone   = &((VAB_HEAD *)VAB_HEAD_BUF)[bank].tone[info->unk1 & 0x7F][info->unk2 >> 4];
-    voice  = info->unk3 & 0x1F;
-    count  = (info->unk3 & 0x60) >> 5;
+    range  = info->unk3;
+    voice  = range & 0x1F;
+    tone   = (VagAtr *)(VAB_TONE_BUF + bank * VAB_HEAD_SIZE) + ((info->unk2 >> 4) + ((info->unk1 & 0x7F) << 4));
+    count  = (range & 0x60) >> 5;
     vab_id = Game_work.vab[bank].vab_id;
     while (count >= 0 && voice < 0x18)
     {
@@ -595,9 +595,6 @@ void Sound_call_play(SOUND_CALL *call)
         voice++;
     }
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sound", Sound_call_play);
-#endif
 
 void Sound_seq_play(SOUND_CALL *call)
 {

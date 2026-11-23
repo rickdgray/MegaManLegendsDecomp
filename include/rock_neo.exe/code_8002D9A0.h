@@ -76,19 +76,27 @@ typedef union
     uint32 word[2];
 } MESH_UV;
 
-// Face of a MESH: texture coordinates of its corners, then its vertex indices packed as bytes
-// (corner n in bits 8n..8n+7; the fourth only for quads).
+// Vertex indices of a face's corners: bytes (the fourth only for quads), also read as one word
+// (corner n in bits 8n..8n+7; mesh_draw).
+typedef union
+{
+    uint32 word;
+    uint8 b[4];
+} MESH_IDX;
+
+// Face of a MESH: texture coordinates of its corners, then its vertex indices.
 typedef struct
 {
     MESH_UV uv;
-    uint32 idx;
+    MESH_IDX idx; // 0x08
 } MESH_FACE;
 
 // Textured mesh drawn by mesh_draw. Its only caller, parts_model_draw (assembly), passes
 // entry n of the MESH array whose address is in the scratchpad word 0x1F8000E8, n being a byte
-// at +0x4F8 of the object parts_model_draw is given. That word is set to model data + 0x14 by
-// code_80027678 (func_8002786C, func_8002831C, func_80028F90, all assembly), from tables and
-// object fields with no C type yet; no existing type describes the mesh.
+// at +0x4F8 of the object parts_model_draw is given. That word is set to a level of detail of a
+// PARTS_MODEL (&lod[n][1]) by code_80027678's model drawers (func_8002831C, Model_parts_draw,
+// Efc_model_draw, Efc_model_g_draw), which draw the meshes with func_80029608, func_8002A6E8,
+// func_8002AEE4 and others.
 typedef struct
 {
     uint8 n_tri;       // 0x00

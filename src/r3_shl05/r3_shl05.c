@@ -251,7 +251,7 @@ sint16 func_800D90B0(SHL_WORK *wp)
     stop         = 0;
     wp->value_74 = 1;
     func_800D94C0(wp);
-    hit = func_8004B414(wp);
+    hit = Obj_map_push_out(wp);
     if (hit != 0)
     {
         if (hit & 0x1000)
@@ -313,7 +313,7 @@ sint16 func_800D90B0(SHL_WORK *wp)
                 fx->spr       = wp->draw.spr;
             }
         }
-        func_8004AC8C(&wp->vel, hit);
+        Wall_reflect_spd(&wp->vel, hit);
     }
     return stop;
 }

@@ -911,7 +911,7 @@ void func_801043B8(ST0A_EN *wp);
 void func_801043D8(ST0A_EN *wp);
 void func_80104154(ST0A_EN *wp);
 sint32 func_8010490C(ST0A_EN *wp);
-void func_8001DF10(uint8 *);
+void Scene_obj_list_open(uint8 *);
 void func_801007D8(STAGE_ROOM *wp);
 void func_80100824(STAGE_ROOM *wp);
 void func_8010F0D4(STAGE_OBJ *wp);

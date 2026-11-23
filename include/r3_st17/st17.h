@@ -6,7 +6,7 @@
 #include "stage_common/stcom18.h"
 #include "stage_common/stcom23.h"
 
-extern void *D_8011ABB8[];       // model table by room (func_80022FD4)
+extern void *D_8011ABB8[];       // model table by room (Room_model_init)
 extern void *D_8011AD1C[];       // spawn list by room
 extern void *D_8011AD44[];       // exit list by room
 extern uint8 D_8011AD54[][0x28]; // by room (func_800371A0)
@@ -639,7 +639,7 @@ extern uint8 D_8011B534[];
 extern STAGE_OBJ_FUNC D_8011AEF0[];
 extern sint16 D_8011AF0C[4]; // roll steps by frame (func_801016B4)
 void func_80101990(STAGE_OBJ *wp);
-void func_80053158(STAGE_OBJ *target, STAGE_OBJ *wp);
+void Ride_move(STAGE_OBJ *target, STAGE_OBJ *wp);
 extern STAGE_OBJ_FUNC D_8011BF78[];
 extern STAGE_OBJ *D_80122B48;
 void func_80115C24(STAGE_OBJ *wp);

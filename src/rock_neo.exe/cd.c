@@ -1138,44 +1138,52 @@ void Cd_subcmd(sint32 arg1, sint32 sub, uint32 arg3)
     Cd_cmd_write_ptr++;
 }
 
-#ifdef NON_MATCHING
 void Cd_xa_play_id(uint32 id)
 {
-    uint32 file  = CD_XA_FILE(id);
-    uint32 num   = CD_XA_NUM(id);
-    uint32 group = CD_XA_GROUP(id);
-    CD_XA_TRACK *track;
+    uint32 group;
+    uint32 file;
+    uint32 loop;
+    void *row; // the group's Cd_xa_file_tbl row, then its Cd_xa_track_tbl row: one register
+    CD_CMD *cmd;
 
-    Cd_xa_id                        = id;
-    Cd_cmd_write_ptr->type          = CD_CMD_XA_PLAY;
-    Cd_cmd_write_ptr->args.xa.file  = Cd_xa_file_tbl[group][file];
-    track                           = &Cd_xa_track_tbl[group][file][num];
-    Cd_cmd_write_ptr->args.xa.start = track->start;
-    Cd_cmd_write_ptr->args.xa.end   = track->end | (id & CD_XA_LOOP);
+    cmd      = Cd_cmd_write_ptr;
+    group    = CD_XA_GROUP(id);
+    Cd_xa_id = id;
+    // a plain word store, not the struct field: it keeps the Cd_xa_id store above it
+    *(sint32 *)cmd = CD_CMD_XA_PLAY;
+    file           = CD_XA_FILE(id);
+    loop           = id & CD_XA_LOOP;
+    // narrowing id in place keeps the file index's separate shifts
+    id                 = CD_XA_NUM(id);
+    row                = Cd_xa_file_tbl[group];
+    cmd->args.xa.file  = ((sint32 *)row)[file];
+    row                = Cd_xa_track_tbl[group][file];
+    cmd->args.xa.start = ((CD_XA_TRACK *)row)[id].start;
+    cmd->args.xa.end   = ((CD_XA_TRACK *)row)[id].end | loop;
     // reads the running command, not the one just queued (bug in the original)
     Cd_xa_start = Cd_cmd_exec_ptr->args.xa.start.offset;
-    Cd_cmd_write_ptr++;
-    Cd_xa_flags = Cd_cmd_exec_ptr->args.xa.end;
+    // a plain word load, not the struct field: it keeps the load below the Cd_xa_start store
+    Cd_xa_flags      = *(sint32 *)&Cd_cmd_exec_ptr->args.xa.end;
+    Cd_cmd_write_ptr = cmd + 1;
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_play_id);
-#endif
 
-#ifdef NON_MATCHING
 void Cd_xa_seek_id(uint32 id)
 {
-    // best attempt: the group needs no mask (the target has a bare `srl 28`, not CD_XA_GROUP's
-    // `& 3`); still different: the target shifts the file index (sll 4, srl 20, sll 2) where GCC
-    // folds it into `srl 14` + `andi 0x3ffc`
-    uint32 group = id >> 28;
-    uint32 file  = CD_XA_FILE(id);
-    uint32 num   = CD_XA_NUM(id);
+    uint32 group;
+    uint32 file;
+    void *row; // the group's Cd_xa_file_tbl row, then its Cd_xa_track_tbl row: one register
+    sint32 file_no;
 
-    Cd_seek(Cd_file_tbl[Cd_xa_file_tbl[group][file]].sector + (Cd_xa_track_tbl[group][file][num].start.offset & CD_SECTOR_MASK));
+    // the group is used unmasked here (Cd_xa_play_id masks it)
+    group = id >> 28;
+    row   = Cd_xa_file_tbl[group];
+    file  = CD_XA_FILE(id);
+    // narrowing id in place keeps the file index's separate shifts
+    id      = CD_XA_NUM(id);
+    file_no = ((sint32 *)row)[file];
+    row     = Cd_xa_track_tbl[group][file];
+    Cd_seek(Cd_file_tbl[file_no].sector + (((CD_XA_TRACK *)row)[id].start.offset & CD_SECTOR_MASK));
 }
-#else
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/cd", Cd_xa_seek_id);
-#endif
 
 void Cd_seek(sint32 sector)
 {

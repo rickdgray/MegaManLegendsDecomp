@@ -120,7 +120,7 @@ typedef struct
 
 typedef void (*ST04_ROCK_FUNC)(ST04_ROCK *wp);
 
-// The scene slot that ST04_EV watches (func_8001EAE8's): the header and position.
+// The scene slot that ST04_EV watches (Scene_obj_ent_open's): the header and position.
 typedef struct
 {
     uint8 flags_0;          // 00
@@ -135,7 +135,7 @@ typedef struct
     STCOM_SVECTOR position; // 14
 } ST04_SLOT;
 
-// A 0x24-byte event slot that drives a scene slot (func_8001EAE8's) kept at +0x1C.
+// A 0x24-byte event slot that drives a scene slot (Scene_obj_ent_open's) kept at +0x1C.
 typedef struct
 {
     uint8 flags_0;          // 00
@@ -189,7 +189,7 @@ extern uint8 D_8010CA70[];
 extern uint8 D_8010CA9C[][3]; // by ctl2.value_1C: three weights (func_801076F0)
 extern uint8 D_80111CA8[];
 extern uint8 D_80111CD4[];
-extern uint8 D_80111D2C[]; // scene command (func_8001EAE8)
+extern uint8 D_80111D2C[]; // scene command (Scene_obj_ent_open)
 
 extern uint8 D_800987B5; // D_800987B0[5]
 extern sint8 D_80111CE0[];

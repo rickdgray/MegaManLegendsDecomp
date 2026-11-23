@@ -1,6 +1,14 @@
 #include "common.h"
 #include "cd.h"
+#include "code_800133D8.h"
+#include "code_8001786C.h"
+#include "code_8002E7A8.h"
 #include "code_80037534.h"
+#include "code_8003AC24.h"
+#include "code_800425FC.h"
+#include "code_8005C258.h"
+#include "code_8006430C.h"
+#include "debug.h"
 #include "display.h"
 #include "game.h"
 #include "moji.h"
@@ -10,32 +18,328 @@
 #include "scratch.h"
 #include "sound.h"
 #include "sub_scrn.h"
+#include "system.h"
 
 // Pool common (see sub_scrn.h): Map_screen_init stores routine_0 through $gp.
 MAP_SCREEN_WORK Map_screen_work;
 
 // Called only from this file
 void sub_screen_sort_sub(PL_WORK *pp, sint32 d0, sint32 d1);
+void sub_screen_rb_parts_calc(SUB_SCREEN_WORK *subp);
 void sub_screen_rb_parts_calc_sub00(SUB_SCREEN_WORK *subp, sint32 d0);
 void sub_screen_rb_parts_calc_sub01(SUB_SCREEN_WORK *subp, sint32 d0);
 void sub_screen_status_calc(SUB_SCREEN_WORK *subp, sint32 d0);
+void func_8005F3D0(SUB_SCREEN_WORK *subp);
+void func_8005F608(SUB_SCREEN_WORK *subp);
+void func_8005FAE4(SUB_SCREEN_WORK *subp);
+void func_8005FBB4(SUB_SCREEN_WORK *subp);
+void func_8005FFBC(SUB_SCREEN_WORK *subp);
+sint32 func_8005FDE4(GAME_WORK *gp);
+void func_80060248(SUB_SCREEN_WORK *subp);
+void func_800605DC(void);
+sint32 sub_screen_cancel_check(void);
+void sub_screen_shift_check(SUB_SCREEN_WORK *subp);
 void map_screen_set(void);
 void map_cursor_set(void);
 
-// The sub screen, each frame: the background, then the current screen.
-void Sub_screen_task(void)
+// The sub screen, each frame: the background, then the current screen, whose result it returns.
+sint32 Sub_screen_task(void)
 {
     Sub_screen_back_ground_set();
-    Sub_screen_tbl[Sub_screen_work.routine_0](&Sub_screen_work);
+    return Sub_screen_tbl[Sub_screen_work.routine_0](&Sub_screen_work);
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_8005EC80);
+// Sub screen 0, the entry: opens the top menu (message D_8008CB94[0]) and its logo, then goes to
+// screen 1.
+sint32 func_8005EC80(SUB_SCREEN_WORK *subp)
+{
+    MojiTaskKill();
+    MojiTaskExec(0, D_8008CB94[0], -1);
+    Game_logo_set(0, 0x20006);
+    Sub_screen_basic_param_set();
+    *(uint32 *)&subp->routine_0 = 1;
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_8005ECE0);
+// Sub screen 1, the top menu: on a choice in the message task's menu (Moji_flag 0x40000000, the
+// choice in the low byte), goes to screen 2 to 6 or 8; select goes to screen 7, start to 8.
+sint32 func_8005ECE0(SUB_SCREEN_WORK *subp)
+{
+    Sub_screen_basic_param_set();
+    if (Moji_flag & 0x40000000)
+    {
+        switch (Moji_flag & 0xFF)
+        {
+            case 0:
+                *(uint32 *)&subp->routine_0 = 2;
+                break;
+            case 1:
+                *(uint32 *)&subp->routine_0 = 3;
+                break;
+            case 2:
+                *(uint32 *)&subp->routine_0 = 4;
+                break;
+            case 3:
+                *(uint32 *)&subp->routine_0 = 5;
+                break;
+            case 4:
+                *(uint32 *)&subp->routine_0 = 6;
+                break;
+            case 5:
+                *(uint32 *)&subp->routine_0 = 8;
+                break;
+        }
+    }
+    else if (PAD_ON(Joy1) & PAD_SELECT)
+    {
+        *(uint32 *)&subp->routine_0 = 7;
+    }
+    else if (PAD_ON(Joy1) & PAD_START)
+    {
+        *(uint32 *)&subp->routine_0 = 8;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_8005ED9C);
+// Sub screen 2: loads the message file and opens menu 0x14 in task 1; a choice (item_4, from
+// Moji_flag3's low byte) of 0x40-0x43 asks a yes/no question and, on yes, uses that item.
+sint32 func_8005ED9C(SUB_SCREEN_WORK *subp)
+{
+    sint32 slot;
+    PL_WORK *pp;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_8005F210);
+    pp = &Player_work[0];
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskKill();
+            Game_logo_kill(-1);
+            Cd_read_comb(0xCC);
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Cd_read_sync2() == 0)
+            {
+                Cd_seek_file(EXIT_SUB_BIN);
+                MojiTaskExec(1, Sub_mes_file, 0x14);
+                subp->routine_1++;
+            }
+            break;
+        case 2:
+            if (Moji_flag & 0x40000000)
+            {
+                subp->item_4 = GET_PARTS_NO(0);
+                if (subp->item_4 != 0xFF)
+                {
+                    Sound_call(SE_DECISION, 1, 0);
+                    Moji_flag |= 0x4000;
+                    subp->routine_1++;
+                }
+                else
+                {
+                    Sound_call(SE_CANCEL, 1, 0);
+                }
+            }
+            else if (sub_screen_cancel_check() != 0)
+            {
+                subp->routine_1 += 5;
+            }
+            else
+            {
+                sub_screen_shift_check(subp);
+            }
+            break;
+        case 3:
+            switch (subp->item_4)
+            {
+                case 0x40:
+                    if (func_8005D95C() == 0)
+                    {
+                        MojiTaskExec(0, Sub_mes_file, 0x58);
+                        subp->routine_1 += 2;
+                        break;
+                    }
+                    MojiTaskExec(0, Sub_mes_file, 0x50);
+                    subp->routine_1++;
+                    break;
+                case 0x41:
+                    slot = pp->tbl_sel;
+                    if (D_8008D7E8[D_8008DB08[slot]].energy[pp->rec[slot].idx[1]] == 0xFF)
+                    {
+                        MojiTaskExec(0, Sub_mes_file, 0x3B);
+                        subp->routine_1 += 2;
+                        break;
+                    }
+                    if (Player_weapon_bullet_calc(pp, slot) == pp->rec[slot].val)
+                    {
+                        MojiTaskExec(0, Sub_mes_file, 0x3A);
+                        subp->routine_1 += 2;
+                        break;
+                    }
+                    MojiTaskExec(0, Sub_mes_file, 0x52);
+                    subp->routine_1++;
+                    break;
+                case 0x42:
+                    MojiTaskExec(0, Sub_mes_file, 0x54);
+                    subp->routine_1++;
+                    break;
+                case 0x43:
+                    MojiTaskExec(0, Sub_mes_file, 0x56);
+                    subp->routine_1++;
+                    break;
+                default:
+                    if (subp->item_4 < 0x58)
+                    {
+                        MojiTaskExec(0, Sub_mes_file, 0x5A);
+                    }
+                    else
+                    {
+                        MojiTaskExec(0, Sub_mes_file, 0x5B);
+                    }
+                    subp->routine_1 += 2;
+                    break;
+            }
+            break;
+        case 4:
+            if (Moji_flag & 0x40000000)
+            {
+                if (!(Moji_flag & 0xFF))
+                {
+                    switch (subp->item_4)
+                    {
+                        case 0x40:
+                            MojiTaskExec(0, Sub_mes_file, 0x51);
+                            func_8005D9C4();
+                            subp->sce_flag_C = 0x540;
+                            break;
+                        case 0x41:
+                            MojiTaskExec(0, Sub_mes_file, 0x53);
+                            Player_weapon_bullet_set();
+                            subp->sce_flag_C = 0x541;
+                            break;
+                        case 0x42:
+                            MojiTaskExec(0, Sub_mes_file, 0x55);
+                            func_8005EBB4(0x708);
+                            subp->sce_flag_C = 0x542;
+                            break;
+                        case 0x43:
+                            MojiTaskExec(0, Sub_mes_file, 0x57);
+                            func_8005EBA4(0x384);
+                            subp->sce_flag_C = 0x543;
+                            break;
+                    }
+                    subp->routine_1 += 2;
+                }
+                else
+                {
+                    subp->routine_1++;
+                }
+            }
+            break;
+        case 5:
+        case 6:
+            if (!(Moji_flag & MOJI_TASK0_ON))
+            {
+                if (subp->routine_1 == 6)
+                {
+                    Sce_flag_off(subp->sce_flag_C);
+                }
+                Moji_flag &= ~0x4000;
+                subp->routine_1 = 2;
+            }
+            break;
+        case 7:
+            if (Cd_read_sync2() == 0)
+            {
+                *(uint32 *)&subp->routine_0 = 0;
+            }
+            break;
+    }
+    return 0;
+}
+
+// Sub screen 3, the item menu: loads the message file and opens menu 0x19 in task 1; a choice
+// (item_4, GET_SELECT_NO(2)) goes to its handler, which runs each frame from then on.
+sint32 func_8005F210(SUB_SCREEN_WORK *subp)
+{
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskKill();
+            Game_logo_kill(-1);
+            Cd_read_comb(0xCC);
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Cd_read_sync2() != 0)
+            {
+                break;
+            }
+            Cd_seek_file(EXIT_SUB_BIN);
+            MojiTaskExec(1, Sub_mes_file, 0x19);
+            Game_logo_set(0, 0x20002);
+            subp->routine_1++;
+            break;
+        case 2:
+            if (Moji_flag & 0x40000000)
+            {
+                subp->routine_1++;
+                subp->item_4 = GET_SELECT_NO(2);
+            }
+            else
+            {
+                if (sub_screen_cancel_check() != 0)
+                {
+                    *(uint32 *)&subp->routine_0 = 0;
+                    break;
+                }
+                sub_screen_shift_check(subp);
+                break;
+            }
+            // fall through
+        case 3:
+            switch (subp->item_4)
+            {
+                case 0:
+                    func_8005F3D0(subp);
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    func_8005F608(subp);
+                    break;
+                case 5:
+                    subp->mes_no_5 = 0x45;
+                    func_8005FAE4(subp);
+                    break;
+                case 6:
+                case 7:
+                case 8:
+                    subp->mes_no_5 = 0x46;
+                    func_8005FAE4(subp);
+                    break;
+                case 9:
+                case 10:
+                case 11:
+                case 13:
+                    subp->mes_no_5 = 0x47;
+                    func_8005FAE4(subp);
+                    break;
+                case 12:
+                    func_8005FBB4(subp);
+                    break;
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                    func_8005FFBC(subp);
+                    break;
+            }
+            break;
+    }
+    return 0;
+}
 
 // The item menu's item 0 (key item 4): refills life, one gauge cell (0x10) per unit of
 // Game_work.unk07C, after a yes/no question.
@@ -303,7 +607,83 @@ void func_8005FAE4(SUB_SCREEN_WORK *subp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_8005FBB4);
+// The item menu's item 12: when item item_4 is owned and func_8005FDE4 records a place, fades out
+// and moves the game to stage unk079, area unk07A (Game_work.routine_0 5).
+void func_8005FBB4(SUB_SCREEN_WORK *subp)
+{
+    GAME_WORK *gp;
+
+    gp = &Game_work;
+    switch (subp->routine_2)
+    {
+        case 0:
+            if (Sce_flag_test(D_8008DAF4[subp->item_4] + PL_KEY_ITEM_00))
+            {
+                Sound_call(SE_DECISION, 1, 0);
+                MojiTaskExec(0, Sub_mes_file, 0x4C);
+                subp->routine_2++;
+            }
+            else
+            {
+                Sound_call(SE_CANCEL, 1, 0);
+                subp->routine_1 = 2;
+                subp->routine_2 = 0;
+            }
+            break;
+
+        case 1:
+            switch (func_8005FDE4(gp))
+            {
+                case 0:
+                    MojiTaskExec(0, Sub_mes_file, 0x4D);
+                    subp->routine_2 += 2;
+                    break;
+
+                case 1:
+                    MojiTaskExec(0, Sub_mes_file, 0x4E);
+                    subp->routine_2++;
+                    break;
+
+                case 2:
+                    MojiTaskExec(0, Sub_mes_file, 0x4F);
+                    subp->routine_2++;
+                    break;
+            }
+            break;
+
+        case 2:
+            if (!(Moji_flag & MOJI_TASK0_ON))
+            {
+                subp->routine_1 = 2;
+                subp->routine_2 = 0;
+            }
+            break;
+
+        case 3:
+            if (!(Moji_flag & MOJI_TASK0_ON))
+            {
+                func_8003B140();
+                gp->stage_no = gp->unk078.b.unk079;
+                gp->area_no  = gp->unk078.b.unk07A;
+                Fade_start(0x17);
+                Sound_fade_start(0x10);
+                subp->routine_2++;
+            }
+            break;
+
+        case 4:
+            func_80016D64();
+            Sound_seq_stop_all();
+            func_8001B314();
+            D_80098958 |= 0x800;
+            Sound_stage_check();
+            func_8001F23C();
+            func_8001F3C8();
+            Game_work.routine_0 = 5;
+            Game_work.routine_1 = 2;
+            break;
+    }
+}
 
 // For func_8005FBB4 (the item menu's item 12): whether the current stage and area can be recorded
 // in Game_work.unk078 (bytes 0x79 and 0x7A: stage and area, set here). Returns 0 when recorded, 1
@@ -437,38 +817,503 @@ void func_8005FFBC(SUB_SCREEN_WORK *subp)
     }
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_800600CC);
+// Sub screen 4, the buster parts: loads file 0xCD and opens message 0x1D with the buster's gauges
+// (func_800605DC), until the menu returns choice 2 (exit).
+sint32 func_800600CC(SUB_SCREEN_WORK *subp)
+{
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskKill();
+            Game_logo_kill(-1);
+            Cd_read_comb(0xCD);
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Cd_read_sync2() != 0)
+            {
+                return 0;
+            }
+            Cd_seek_file(EXIT_SUB_BIN);
+            MojiTaskExec(0, Sub_mes_file, 0x1D);
+            Game_logo_set(2, 0x20007);
+            func_800605DC();
+            subp->routine_1++;
+            break;
+        case 2:
+            if ((Moji_flag & 0x480000FF) == 0x48000002)
+            {
+                Cd_read_comb(EXIT_SUB_BIN);
+                subp->routine_1++;
+                break;
+            }
+            if ((Moji_flag & MOJI_TASK0_ON) == 0)
+            {
+                if (Moji_flag3 & MOJI3_PARTS_TASK)
+                {
+                    if (Moji_flag3 & 0x40000)
+                    {
+                        func_80060248(subp);
+                    }
+                }
+                else if (Moji_flag3 & 0x80000)
+                {
+                    func_80060248(subp);
+                }
+            }
+            func_800605DC();
+            sub_screen_shift_check(subp);
+            return 0;
+        case 3:
+            if (Cd_read_sync2() != 0)
+            {
+                return 0;
+            }
+            *(uint32 *)&subp->routine_0 = 0;
+            break;
+    }
+    return 0;
+}
 
 void func_80060248(SUB_SCREEN_WORK *subp)
 {
     subp->mode_6        = 3;
-    subp->attack.now_0  = subp->attack.val_2;
-    subp->attack.now_1  = subp->attack.val_5;
-    subp->bullet.now_0  = subp->bullet.val_2;
-    subp->bullet.now_1  = subp->bullet.val_5;
-    subp->dist.now_0    = subp->dist.val_2;
-    subp->dist.now_1    = subp->dist.val_5;
-    subp->repeat.now_0  = subp->repeat.val_2;
-    subp->repeat.now_1  = subp->repeat.val_5;
-    subp->special.now_0 = subp->special.val_2;
-    subp->special.now_1 = subp->special.val_5;
+    subp->attack.old_0  = subp->attack.disp_0;
+    subp->attack.old_1  = subp->attack.disp_1;
+    subp->bullet.old_0  = subp->bullet.disp_0;
+    subp->bullet.old_1  = subp->bullet.disp_1;
+    subp->dist.old_0    = subp->dist.disp_0;
+    subp->dist.old_1    = subp->dist.disp_1;
+    subp->repeat.old_0  = subp->repeat.disp_0;
+    subp->repeat.old_1  = subp->repeat.disp_1;
+    subp->special.old_0 = subp->special.disp_0;
+    subp->special.old_1 = subp->special.disp_1;
 }
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_800602A4);
+// The five stat gauges, each frame: while mode_6 counts down from 3, each shown value (disp_0,
+// disp_1) steps from old_ to end_ by quarters; then it is end_. flag 0 draws the buster's four
+// compared gauge pairs, otherwise the weapon's five gauges and slot mes_no_5's counter.
+void sub_screen_gauge_update(SUB_SCREEN_WORK *subp, sint32 flag)
+{
+    if (subp->mode_6 != 0)
+    {
+        subp->attack.disp_0  = subp->attack.end_0 - (((subp->attack.end_0 - subp->attack.old_0) * subp->mode_6) >> 2);
+        subp->attack.disp_1  = subp->attack.end_1 - (((subp->attack.end_1 - subp->attack.old_1) * subp->mode_6) >> 2);
+        subp->bullet.disp_0  = subp->bullet.end_0 - (((subp->bullet.end_0 - subp->bullet.old_0) * subp->mode_6) >> 2);
+        subp->bullet.disp_1  = subp->bullet.end_1 - (((subp->bullet.end_1 - subp->bullet.old_1) * subp->mode_6) >> 2);
+        subp->dist.disp_0    = subp->dist.end_0 - (((subp->dist.end_0 - subp->dist.old_0) * subp->mode_6) >> 2);
+        subp->dist.disp_1    = subp->dist.end_1 - (((subp->dist.end_1 - subp->dist.old_1) * subp->mode_6) >> 2);
+        subp->repeat.disp_0  = subp->repeat.end_0 - (((subp->repeat.end_0 - subp->repeat.old_0) * subp->mode_6) >> 2);
+        subp->repeat.disp_1  = subp->repeat.end_1 - (((subp->repeat.end_1 - subp->repeat.old_1) * subp->mode_6) >> 2);
+        subp->special.disp_0 = subp->special.end_0 - (((subp->special.end_0 - subp->special.old_0) * subp->mode_6) >> 2);
+        subp->special.disp_1 = subp->special.end_1 - (((subp->special.end_1 - subp->special.old_1) * subp->mode_6) >> 2);
+        subp->mode_6--;
+    }
+    else
+    {
+        subp->attack.disp_0  = subp->attack.end_0;
+        subp->attack.disp_1  = subp->attack.end_1;
+        subp->bullet.disp_0  = subp->bullet.end_0;
+        subp->bullet.disp_1  = subp->bullet.end_1;
+        subp->dist.disp_0    = subp->dist.end_0;
+        subp->dist.disp_1    = subp->dist.end_1;
+        subp->repeat.disp_0  = subp->repeat.end_0;
+        subp->repeat.disp_1  = subp->repeat.end_1;
+        subp->special.disp_0 = subp->special.end_0;
+        subp->special.disp_1 = subp->special.end_1;
+    }
+    if (flag == 0)
+    {
+        Sub_screen_gauge_set(0xCB, 0x28, subp->attack.disp_0, 0);
+        Sub_screen_gauge_set(0xCB, 0x28, subp->attack.disp_1, 1);
+        Sub_screen_gauge_set(0xCB, 0x32, subp->bullet.disp_0, 0);
+        Sub_screen_gauge_set(0xCB, 0x32, subp->bullet.disp_1, 1);
+        Sub_screen_gauge_set(0xCB, 0x3C, subp->dist.disp_0, 0);
+        Sub_screen_gauge_set(0xCB, 0x3C, subp->dist.disp_1, 1);
+        Sub_screen_gauge_set(0xCB, 0x46, subp->repeat.disp_0, 0);
+        Sub_screen_gauge_set(0xCB, 0x46, subp->repeat.disp_1, 1);
+        return;
+    }
+    Sub_screen_gauge_set2(0xA4, 0x9E, subp->attack.disp_0, subp->attack.infi_0);
+    Sub_screen_gauge_set2(0xA4, 0xA8, subp->bullet.disp_0, subp->bullet.infi_0);
+    Sub_screen_gauge_set2(0xA4, 0xB2, subp->dist.disp_0, subp->dist.infi_0);
+    Sub_screen_gauge_set2(0xA4, 0xBC, subp->repeat.disp_0, subp->repeat.infi_0);
+    Sub_screen_gauge_set2(0xA4, 0xC6, subp->special.disp_0, subp->special.infi_0);
+    if (subp->mes_no_5 != 0)
+    {
+        Sub_screen_status_param_set(subp->mes_no_5);
+    }
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_800605DC);
+void func_800605DC(void)
+{
+    sub_screen_rb_parts_calc(&Sub_screen_work);
+    sub_screen_gauge_update(&Sub_screen_work, 0);
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_80060618);
+// Sub screen 5, the weapon screen: a menu (message 0x2F in task 1) to equip or remove the special
+// weapon (tbl_sel), or browse the weapons (mes_no_5: slot GET_SELECT_NO(1) + 1, 0 for none) with
+// their gauges.
+sint32 func_80060618(SUB_SCREEN_WORK *subp)
+{
+    PL_WORK *pp;
+    uint16 joy_trg;
+    sint32 slot;
+    uint32 n;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_80060B00);
+    pp      = &Player_work[0];
+    joy_trg = PAD_ON(Joy1);
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskKill();
+            Game_logo_kill(-1);
+            Cd_read_comb(0xCD);
+            subp->mes_no_5 = 0;
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Cd_read_sync2() != 0)
+            {
+                break;
+            }
+            Cd_seek_file(EXIT_SUB_BIN);
+            if (pp->weapon_right_no != 0)
+            {
+                MojiTaskExec(0, Sub_mes_file, 0x5C);
+            }
+            else
+            {
+                MojiTaskExec(0, Sub_mes_file, 0x5D);
+            }
+            if (!(Moji_flag & 0x04000000))
+            {
+                MojiTaskExec(1, Sub_mes_file, 0x2F);
+                if (pp->tbl_sel == 0)
+                {
+                    Game_logo_set(0, 0x2001C);
+                }
+                Game_logo_set(1, 0x20009);
+                Game_logo_set(2, 0x20017);
+                Game_logo_set(3, 0x20008);
+                sub_screen_status_calc(subp, 0);
+            }
+            sub_screen_gauge_update(subp, 1);
+            subp->routine_1++;
+            break;
+        case 2:
+            if (Moji_flag & 0x40000000)
+            {
+                // The extra loop level is in the target: it changes register allocation.
+                do
+                {
+                    switch (Moji_flag & 0xFF)
+                    {
+                        case 0:
+                            Sound_call(SE_DECISION, 1, 0);
+                            subp->routine_1++;
+                            break;
+                        case 1:
+                            if (pp->tbl_sel == 0)
+                            {
+                                MojiTaskExec(0, Sub_mes_file, 0x61);
+                            }
+                            else if (pp->unk44E <= 0)
+                            {
+                                MojiTaskExec(0, Sub_mes_file, 0x60);
+                            }
+                            else if (pp->unk44F == 0)
+                            {
+                                func_8005C218(pp->tbl_sel + 0x80);
+                                MojiTaskExec(0, Sub_mes_file, 0x5E);
+                                pp->unk44F          = 1;
+                                pp->weapon_right_no = pp->tbl_sel;
+                            }
+                            else
+                            {
+                                MojiTaskExec(0, Sub_mes_file, 0x5F);
+                                pp->unk44F          = 0;
+                                pp->weapon_right_no = 0;
+                            }
+                            subp->routine_1 += 3;
+                            break;
+                        case 2:
+                            Sound_call(SE_CANCEL, 1, 0);
+                            MojiTaskKill();
+                            Game_logo_kill(-1);
+                            Cd_read_comb(EXIT_SUB_BIN);
+                            subp->routine_1 += 4;
+                            break;
+                    }
+                } while (0);
+            }
+            else
+            {
+                sub_screen_shift_check(subp);
+            }
+            sub_screen_gauge_update(subp, 1);
+            break;
+        case 3:
+            n            = GET_SELECT_NO(1);
+            subp->item_4 = n;
+            if ((subp->mes_no_5 = n) != 0)
+            {
+                subp->mes_no_5 = n + 1;
+            }
+            slot = subp->mes_no_5;
+            if (subp->item_4 < 0xD && Sce_flag_test(slot + 0x4C0) != 0)
+            {
+                Game_logo_set(1, (subp->item_4 + 9) | 0x20000);
+                if (pp->tbl_sel == slot)
+                {
+                    Game_logo_set(0, 0x2001C);
+                }
+                else
+                {
+                    Game_logo_kill(0);
+                }
+                sub_screen_status_calc(subp, slot);
+            }
+            else
+            {
+                subp->mes_no_5 = 0;
+                Game_logo_set(1, 0x20016);
+                Game_logo_kill(0);
+                sub_screen_status_calc(subp, -1);
+            }
+            if (Moji_flag3 & 0x40000)
+            {
+                func_80060248(subp);
+            }
+            if (Moji_flag & 0x40000000)
+            {
+                if (subp->item_4 == 0xD)
+                {
+                    Sound_call(SE_DECISION, 1, 0);
+                    subp->routine_1 += 2;
+                }
+                else if (Sce_flag_test(slot + 0x4C0) != 0)
+                {
+                    Sound_call(SE_DECISION, 1, 0);
+                    MojiTaskExec(0, Sub_mes_file, subp->item_4 + 0xE4);
+                    subp->routine_1++;
+                }
+                else
+                {
+                    Sound_call(SE_CANCEL, 1, 0);
+                }
+            }
+            else if (joy_trg & (PAD_TRIANGLE | PAD_START))
+            {
+                Sound_call(SE_CANCEL, 1, 0);
+                subp->routine_1 += 2;
+            }
+            else
+            {
+                sub_screen_shift_check(subp);
+            }
+            sub_screen_gauge_update(subp, 1);
+            break;
+        case 4:
+            if (!(Moji_flag & MOJI_TASK0_ON))
+            {
+                subp->routine_1 = 3;
+                subp->routine_2 = 0;
+            }
+            sub_screen_gauge_update(subp, 1);
+            break;
+        case 5:
+            if (!(Moji_flag & MOJI_TASK0_ON))
+            {
+                subp->routine_1 = 1;
+                subp->routine_2 = 0;
+            }
+            sub_screen_gauge_update(subp, 1);
+            break;
+        case 6:
+            if (Cd_read_sync2() == 0)
+            {
+                *(uint32 *)&subp->routine_0 = 0;
+            }
+            break;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_80060C70);
+// Sub screen 6: loads file 0xCC and shows message D_8008CB64[0]; when it ends (or on start),
+// applies key row Game_work.unk054 to the player (func_800425FC) and loads the exit file.
+sint32 func_80060B00(SUB_SCREEN_WORK *subp)
+{
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskKill();
+            Game_logo_kill(-1);
+            Cd_read_comb(0xCC);
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Cd_read_sync2() != 0)
+            {
+                return 0;
+            }
+            Cd_seek_file(EXIT_SUB_BIN);
+            MojiTaskExec(0, D_8008CB64[0], -1);
+            subp->routine_1++;
+            break;
+        case 2:
+            if ((Moji_flag & 0x40000000) || (PAD_ON(Joy1) & PAD_START))
+            {
+                if (PAD_ON(Joy1) & PAD_START)
+                {
+                    Sound_call(SE_CANCEL, 1, 0);
+                }
+                MojiTaskKill();
+                func_800425FC(&Player_work[0], (sint8)Game_work.unk054);
+                Cd_read_comb(EXIT_SUB_BIN);
+                subp->routine_1++;
+            }
+            else
+            {
+                sub_screen_shift_check(subp);
+                return 0;
+            }
+            break;
+        case 3:
+            if (Cd_read_sync2() != 0)
+            {
+                return 0;
+            }
+            *(uint32 *)&subp->routine_0 = 0;
+            break;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", func_80060DB8);
+// Sub screen 7 (select on the top menu): two yes/no questions (messages D_8008CE78[0] and
+// D_8008CE84[0]); "no" to either returns to the top menu, "yes" to both closes the sub screen
+// and its work, stops the sound and the CD, and restarts code_800133D8's module at routine 1.
+sint32 func_80060C70(SUB_SCREEN_WORK *subp)
+{
+    Sub_screen_basic_param_set();
+    switch (subp->routine_1)
+    {
+        case 0:
+            MojiTaskExec(0, D_8008CE78[0], -1);
+            subp->routine_1++;
+            break;
+        case 1:
+            if (Moji_flag & 0x40000000)
+            {
+                if ((Moji_flag & 0xFF) != 0)
+                {
+                    *(uint32 *)&subp->routine_0 = 0;
+                }
+                else
+                {
+                    MojiTaskExec(0, D_8008CE84[0], -1);
+                    subp->routine_1++;
+                }
+            }
+            break;
+        case 2:
+            if (Moji_flag & 0x40000000)
+            {
+                if ((Moji_flag & 0xFF) != 0)
+                {
+                    *(uint32 *)&subp->routine_0 = 0;
+                }
+                else
+                {
+                    MojiTaskKill();
+                    func_80063BA8();
+                    func_80063EF0();
+                    func_800665E8();
+                    func_8001B314();
+                    Sound_seq_stop_all();
+                    Cd_subcmd(0, CD_SUBCMD_XA_STOP, 0);
+                    Sce_flag_off(0x1FE);
+                    // routine_0 = 1, routine_1 = 0 in one store.
+                    *(uint16 *)&D_80098AA8.routine_0 = 1;
+                    func_80012F78(func_80013420);
+                }
+            }
+            break;
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", sub_screen_cancel_check);
+// Sub screen 8, the exit: if the equipped buster parts or the weapon changed since the entry
+// (func_8005EBE4's copies), resets the player's shots, closing them all if the weapon changed.
+sint32 func_80060DB8(SUB_SCREEN_WORK *subp)
+{
+    PL_WORK *pp;
 
-INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/sub_scrn", sub_screen_shift_check);
+    pp = &Player_work[0];
+    if (subp->weapon_no != pp->weapon_right_no || *(uint16 *)&subp->rb_parts_no[0] != *(uint16 *)&pp->rb_parts_equip_data[0] ||
+        subp->rb_parts_no[2] != pp->rb_parts_equip_data[2])
+    {
+        Pl00_shot_enable_off(pp);
+        Pl00_shot_enable_on(pp);
+        if (subp->weapon_no != pp->weapon_right_no)
+        {
+            Obj_work_flag_change(WORK_PL_SHL, WORK_KILL);
+        }
+        pp->unk110 = 0;
+    }
+    return 1;
+}
+
+// Triangle or start leaves the sub screen: returns 1 after loading the exit code.
+sint32 sub_screen_cancel_check(void)
+{
+    uint32 joy_trg;
+
+    joy_trg = PAD_ON(Joy1);
+    if (joy_trg & (PAD_TRIANGLE | PAD_START))
+    {
+        Sound_call(SE_CANCEL, 1, 0);
+        MojiTaskKill();
+        Game_logo_kill(-1);
+        Cd_read_comb(EXIT_SUB_BIN);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+// L1 and R1 step through screens 2 to 6, wrapping around.
+void sub_screen_shift_check(SUB_SCREEN_WORK *subp)
+{
+    uint32 joy_trg;
+
+    joy_trg = PAD_ON(Joy1);
+    if (joy_trg & (PAD_L1 | PAD_R1))
+    {
+        Sound_call(SE_DECISION, 1, 0);
+        MojiTaskKill();
+        Game_logo_kill(-1);
+        if (joy_trg & PAD_L1)
+        {
+            if (--subp->routine_0 < 2)
+            {
+                subp->routine_0 = 6;
+            }
+        }
+        else
+        {
+            if (++subp->routine_0 > 6)
+            {
+                subp->routine_0 = 2;
+            }
+        }
+        subp->routine_1 = 0;
+        // One store clears routine_2 and routine_3.
+        *(uint16 *)&subp->routine_2 = 0;
+    }
+}
 
 // Sorts the owned buster parts by attack level, highest first, empty entries last.
 void Sub_screen_sort_attack(void)
@@ -1154,7 +1999,7 @@ void Sub_screen_back_ground_set(void)
 
 // Called with Player_work by game.c on the way back from a screen: calls sound 0x8C when the
 // player is in state 3, step 4, and, with unk174's top bits 0x40 and unk178 at 2, sound 0x123,
-// 0x12B, 0x134 or 0x136 at joint 4 for unk170 4, 7, 0xC or 0xD.
+// 0x12B, 0x134 or 0x136 at joint 4 for weapon_right_no 4, 7, 0xC or 0xD.
 void Sub_screen_sound_reinit(PL_WORK *pp)
 {
     if ((*(uint32 *)&pp->routine_8 & 0xFFFF00) == 0x40300)
@@ -1165,28 +2010,28 @@ void Sub_screen_sound_reinit(PL_WORK *pp)
     {
         if ((pp->unk174 & 0xC0) == 0x40)
         {
-            if (pp->unk170 == 4)
+            if (pp->weapon_right_no == 4)
             {
                 if (pp->unk178 == 2)
                 {
                     Sound_call2(0x123, &pp->joint_pos[4]);
                 }
             }
-            if (pp->unk170 == 7)
+            if (pp->weapon_right_no == 7)
             {
                 if (pp->unk178 == 2)
                 {
                     Sound_call2(0x12B, &pp->joint_pos[4]);
                 }
             }
-            if (pp->unk170 == 0xC)
+            if (pp->weapon_right_no == 0xC)
             {
                 if (pp->unk178 == 2)
                 {
                     Sound_call2(0x134, &pp->joint_pos[4]);
                 }
             }
-            if (pp->unk170 == 0xD)
+            if (pp->weapon_right_no == 0xD)
             {
                 if (pp->unk178 == 2)
                 {

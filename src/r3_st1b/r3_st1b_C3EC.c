@@ -15,7 +15,7 @@ void func_8010C3EC(STAGE_EV *wp)
         case 1:
             if (!(Moji_flag & 0x8000000))
             {
-                func_80017C30(0xA);
+                Fade_start(0xA);
                 Sound_fade_start(0x10);
                 wp->routine_0++;
             }

@@ -328,10 +328,10 @@ void stcom17_func_0594(STCOM17_WORK *wp)
                 ctl->timer_48--;
             }
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (!(hit & 0x3000))
             {
-                wp->position.y       = func_80048E6C(wp);
+                wp->position.y       = Obj_ceiling_height_get(wp);
                 wp->position_fixed.y = wp->position.y << 16;
             }
             if (hit & 0xF00)
@@ -518,9 +518,9 @@ void stcom17_func_0F08(STCOM17_WORK *wp)
             wp->ctl.timer_48--;
         }
         func_8002FFC4(&wp->position, &wp->position_fixed, wp->rotation.y + 0x800, wp->velocity.v.x, 0, 0);
-        if (!(func_8004B414(wp) & 0x3000))
+        if (!(Obj_map_push_out(wp) & 0x3000))
         {
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
         }
         ctl->timer_46--;
@@ -586,9 +586,9 @@ void stcom17_func_0FDC(STCOM17_WORK *wp)
             }
             break;
     }
-    if (!(func_8004B414(wp) & 0x3000))
+    if (!(Obj_map_push_out(wp) & 0x3000))
     {
-        wp->position.y       = func_80048E6C(wp);
+        wp->position.y       = Obj_ceiling_height_get(wp);
         wp->position_fixed.y = wp->position.y << 16;
     }
 }

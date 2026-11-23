@@ -74,19 +74,25 @@ typedef struct
     uint8 *cursor_74;      // 0x74: the selection cursor's byte in the message text: the choice
                            // handlers (func_80054BEC, func_800587F8) write the cursor glyph 0x60 there
     uint8 unk_78;          // 0x78: set from a control code's argument byte (func_80056180)
-    uint8 pad_79[0x3];
-    uint8 unk_7C;  // 0x7C: index into D_8008AB08 (func_80054B4C) and D_8008AAC0 (func_80054ADC sets
-                   // it from a command's argument byte, func_80055BB0)
-    uint8 unk_7D;  // 0x7D: state of func_8005AB78 (0 opens, 2 closes); cleared by func_80054ADC
-                   // with flags_0 bit 0x02000000
-    uint8 unk_7E;  // 0x7E: set from a command's argument byte (func_80054798); width in 12-pixel
-                   // characters (func_8005AB78)
-    uint8 unk_7F;  // 0x7F: set from a command's argument byte (func_80054798); height in 12-pixel
-                   // lines (func_8005AB78)
-    uint32 unk_80; // 0x80: flags_0 bit 0x08000000 saved by func_8005A874 while its window opens
+    uint8 sel_save_79;     // 0x79: sel_71 kept while the entry's menu is closed: func_80059728 restores
+                           // sel_71 from it when it starts and saves sel_71 back when it leaves;
+                           // Moji_work[2]'s indexes rb_parts_sort_data (+ D_8009899C). The menu
+                           // command func_80054E54 restores and saves it when its flag byte has 0x40
+    uint8 sel_save_7A;     // 0x7A: the same for func_80054E54's flag 0x20
+    uint8 sel_save_7B;     // 0x7B: the same for func_80054E54's flag 0x10
+    uint8 unk_7C;          // 0x7C: index into D_8008AB08 (func_80054B4C) and D_8008AAC0 (func_80054ADC sets
+                           // it from a command's argument byte, func_80055BB0)
+    uint8 unk_7D;          // 0x7D: state of func_8005AB78 (0 opens, 2 closes); cleared by func_80054ADC
+                           // with flags_0 bit 0x02000000
+    uint8 unk_7E;          // 0x7E: set from a command's argument byte (func_80054798); width in 12-pixel
+                           // characters (func_8005AB78)
+    uint8 unk_7F;          // 0x7F: set from a command's argument byte (func_80054798); height in 12-pixel
+                           // lines (func_8005AB78)
+    uint32 unk_80;         // 0x80: flags_0 bit 0x08000000 saved by func_8005A874 while its window opens
     uint8 pad_84;
-    uint8 unk_85; // 0x85: func_8005A874's opening/closing step per frame (8)
-    uint8 pad_86[0x2];
+    uint8 unk_85;         // 0x85: func_8005A874's opening/closing step per frame (8)
+    sint16 chr_86;        // 0x86: name entry (func_80057FF8): index in D_8008D0AC's 0x25 characters
+                          // of the one under the cursor, wrapping at both ends
     DVECTOR corner_88[4]; // 0x88: window corners relative to the text origin, set by
                           // func_8005AB78: -unk_B4/-unk_B6 to unk_B4/unk_B6 past unk_7E/unk_7F * 12;
                           // func_8005ACA8 copies each x, y into the primitives at 0xA0-0xAC
@@ -114,6 +120,10 @@ typedef struct
 
 typedef void (*MOJI_FUNC)(MOJI_WORK *mp);
 
+// A command-stream handler: returns non-zero when the reader should go on to the next command
+// in the same frame (func_80053B40).
+typedef sint32 (*MOJI_CMD_FUNC)(MOJI_WORK *mp);
+
 // The message work entries (see MOJI_WORK).
 extern MOJI_WORK Moji_work[MOJI_WORK_MAX];
 
@@ -121,15 +131,36 @@ extern MOJI_WORK Moji_work[MOJI_WORK_MAX];
 // the entry has no message file.
 extern uint8 *D_8008CACC[];
 
+// Message pointer tables among moji's data (notes/rock_neo_files.md, rows 24-29); func_80060C70
+// (sub_scrn) passes entry 0 of each to MojiTaskExec as the message file.
+extern uint8 *D_8008CB64[12]; // entry 0: func_80013E0C's message file (MojiTaskExec)
+extern uint8 *D_8008CB94[3];  // entry 0: the sub screen's top menu (func_8005EC80)
+extern uint8 *D_8008CE78[3];
+extern uint8 *D_8008CE84[4];
+
 // Halfword table: func_8005C150 calls into D_8008CACC entry D_8008AF40[n] (+ 1 or + 2 by its mode).
 // Defining file unknown; moji's code is its only user.
 extern uint16 D_8008AF40[];
+
+// The 0x25 font codes the name entry (func_80057FF8) cycles through; entry 0 fills a new name.
+extern uint8 D_8008D0AC[0x25];
+
+// A name entry command (func_80057FF8) edits the unk_72 three-byte text codes just before it:
+// [1] is the character's colour, [2] its font code. NAME_SLOT(wp, i) is the i-th of them.
+#define NAME_SLOT(wp, i) ((wp)->cmd_ptr_6C - ((wp)->unk_72 - (i)) * 3)
+
+// Window colour row (of D_80097F6C) per window kind MOJI_WORK.unk_7C: func_8005ACA8 passes entry
+// [unk_7C] to window_prim_set.
+extern uint8 D_8008AF18[12];
 
 // Font codes of the digits 0 to 9 (0x00-0x09; two_digit_set).
 extern uint8 D_8008D028[];
 
 // Powers of ten from 100000 down to 1: the digit places of six_digit_set's six-digit numbers.
-extern uint32 D_8008AF24[6];
+// Six words, declared without a size: with one (24 bytes, under -G32) GCC treats the address as
+// a cheap small-data constant and rebuilds six_digit_set's loop end with lui/addiu instead of
+// adding 0x18 to the table pointer.
+extern uint32 D_8008AF24[];
 
 // Six signed words (500, 200, 250, 200, 180, 150); func_80059D20 prints entry D_800BE2F8[n] less a
 // Game_work word (times a Game_work byte for entries 4 and 5).
@@ -205,9 +236,34 @@ extern MOJI_FUNC D_8008AB08[];
 // ...); splat splits it into several labels. Return value unused by both callers.
 extern MOJI_FUNC D_8008AAC0[];
 
+// Control-code handler tables func_80053B40 indexes by the code byte itself (0x84 and up), so
+// each label sits 0x84 entries before its first handler: D_8008A91C for the command stream
+// (cmd_ptr_6C), D_8008AAC4 for the message text (mes_ptr_14). D_8008AAE4 is indexed by unk_7C
+// (the window drawers, func_8005ACA8 ...) while flags_0 bit 0x04000000 is set.
+extern MOJI_CMD_FUNC D_8008A91C[];
+extern MOJI_FUNC D_8008AAC4[];
+extern MOJI_FUNC D_8008AAE4[];
+
+// Advance in pixels after each font code (func_80053B40).
+extern uint8 D_8008AE7C[];
+
+// Text CLUTs, by MOJI_WORK.unk_3E (func_80053B40).
+extern uint16 D_80097F30[];
+
+// The full-screen draw area of each double buffer, by Dbl_buff_idx (func_80053B40).
+extern RECT D_80097F50[2];
+
 // Byte table (0x80 entries: func_80058DB4 fills them); func_80057DB8 replaces Moji_flag's low byte with entry [low byte].
 // Defining file unknown; moji's code is its only user.
 extern uint8 D_800BE2F8[];
+
+// Pool variable (0x80098912), reached with lui + %lo: func_8005BC90 draws its window in kind 0
+// when it is 1, else kind 4. Defining file unknown.
+extern uint16 D_80098912;
+
+// Pool variable (0x800987E0), defined tentatively in moji.c: the number func_80059E74 edits,
+// digit by digit, capped by Game_work.money or D_80098AF4.
+extern uint32 D_800987E0;
 
 // Pool variable (0x80098A58), defined tentatively in moji.c.
 extern uint32 Moji_flag;
@@ -230,6 +286,27 @@ extern uint16 D_8008FD3C[];
 // Halfword table right after D_8008FD3C (0x40 bytes on); func_80057574 prints its entry instead
 // of D_8008FD3C's when D_80098850 is set (both divided by 4 when scene flag 0x2EE is set).
 extern uint16 D_8008FD7C[];
+
+// Halfword table at 0x8008FE40 (inside D_8008FD3C's range); func_80056D10 copies entry
+// [Game_work.unk07D] (the last, [0x11], from 0x12 up) into D_8008FD3C[0x25].
+extern uint16 D_8008FE40[];
+
+// Per D_80098850 (the shop list?), func_80056D10's scene-flag base (halfword, in .sdata at
+// 0x80097F64) and entry count (byte, 0x80097F68): it lists the flags base + i (i below the count)
+// in D_800BE2F8. Reached with lui + %lo; moji's code is their only user.
+extern uint16 D_80097F64[];
+extern uint8 D_80097F68[];
+
+// Print format string in .sdata (0x80097F60, "$U"): func_80055688 prints it at the window's
+// bottom-right corner. Reached with lui + %lo; moji's code is its only user.
+extern char D_80097F60[];
+
+// Pool variable (0x800988F4), defined tentatively in moji.c; func_80056D10 copies it to D_8009899C.
+extern uint8 D_800988F4;
+
+// Pool variable (0x800989A8), defined tentatively in moji.c: the number of entries
+// func_80058DB4 and func_80056D10 put in D_800BE2F8.
+extern sint32 D_800989A8;
 
 // Pool variables (0x80098930, 0x80098B6C), defined tentatively in moji.c. func_8005721C sets
 // D_80098930 to D_800BE2F8[D_8009899C + sel_71] plus its command's argument byte, and
@@ -262,5 +339,8 @@ void MojiTaskKill(void);
 
 // Runs every message entry; called once per frame by main.
 void func_80053B40(void);
+
+// Sets D_80098830; called from sub_scrn, which passes an int (no zero-extension).
+void func_8005C218(sint32 val);
 
 #endif

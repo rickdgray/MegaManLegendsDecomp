@@ -1642,7 +1642,7 @@ void func_80115848(STAGE_MATRIX_OBJ *wp, ST00_BOX *box)
                     if (func_801159F8(wp, box))
                     {
                         box->state_8 = 2;
-                        func_80017C30(10);
+                        Fade_start(10);
                     }
                 }
                 else
@@ -1667,7 +1667,7 @@ void func_80115848(STAGE_MATRIX_OBJ *wp, ST00_BOX *box)
                     Cd_read_sync();
                     pl->value_170 = id;
                     Obj_work_flag_change(0x2FF, 10);
-                    func_80017C30(2);
+                    Fade_start(2);
                 }
                 break;
             case 4:

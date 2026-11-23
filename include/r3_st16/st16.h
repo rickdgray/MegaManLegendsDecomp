@@ -4,7 +4,7 @@
 #include "common.h"
 #include "stage_common/stage.h"
 
-extern void *D_801034C4[];       // model table by room (func_80022FD4)
+extern void *D_801034C4[];       // model table by room (Room_model_init)
 extern void *D_80103570[];       // spawn list by room
 extern void *D_80103594[];       // exit list by room
 extern uint8 D_801035A0[][0x28]; // by room (func_800371A0)

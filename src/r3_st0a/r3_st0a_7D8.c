@@ -5,7 +5,7 @@ void func_801007D8(STAGE_ROOM *wp)
 {
     if (wp->routine_4 == 0)
     {
-        func_8001DF10(D_80114EE0);
+        Scene_obj_list_open(D_80114EE0);
         wp->routine_4 = 0xFF;
     }
 }
@@ -31,8 +31,8 @@ void func_80100860(STAGE_ROOM *wp)
             wp->timer_C = 0;
             Obj_work_flag_change(0xA, 0x80);
             tbl = D_80114F5C;
-            func_8001EAE8(&tbl[0]);
-            func_8001EAE8(&tbl[1]);
+            Scene_obj_ent_open(&tbl[0]);
+            Scene_obj_ent_open(&tbl[1]);
             wp->routine_5++;
             // fall through
         case 1:
@@ -57,7 +57,7 @@ void func_80100860(STAGE_ROOM *wp)
         case 2:
             for (i = 2; i < 7; i++)
             {
-                func_8001EAE8(&D_80114F5C[i]);
+                Scene_obj_ent_open(&D_80114F5C[i]);
             }
             pl->routine_1++;
             wp->routine_5++;
@@ -73,7 +73,7 @@ void func_80100860(STAGE_ROOM *wp)
             wp->routine_4++;
             break;
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -86,7 +86,7 @@ void func_80100A7C(STAGE_ROOM *wp)
     switch (wp->routine_5)
     {
         case 0:
-            func_8001EC0C();
+            Sce_camera_update();
             if (func_8001D878() != 0)
             {
                 Sce_event_timer_clear();
@@ -111,7 +111,7 @@ void func_80100A7C(STAGE_ROOM *wp)
                 wp->routine_5 = 0;
                 wp->routine_4++;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             break;
     }
     Sce_event_update();

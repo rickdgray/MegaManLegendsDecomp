@@ -259,7 +259,7 @@ void func_8010D7E8(ST06_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->value_6E         = 0;
     wp->value_B0         = 0;
@@ -1078,7 +1078,7 @@ void func_8010EF94(ST06_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->data_10          = D_801251F8;
     wp->value_6E         = 0;
@@ -1162,7 +1162,7 @@ void func_8010F154(ST06_CRAB *wp)
     {
         func_80110A54(wp);
     }
-    func_8002CA10(&wp->joint_180[0], 0xC0, 0x200, 0);
+    Pos_Shadow_Trans(&wp->joint_180[0], 0xC0, 0x200, 0);
 }
 
 void func_8010F35C(ST06_CRAB *wp)
@@ -1336,7 +1336,7 @@ void func_8010F850(ST06_CRAB *wp)
         wp->ctl.timer_8--;
         return;
     }
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.y = wp->position.y << 16;
     wp->ctl.flags_4 |= 0x81;
 }
@@ -1804,7 +1804,7 @@ void func_80110514(ST06_CRAB *wp)
                 wp->value_44.half[1] += 0x30;
             }
             Obj_pos_set(wp, wp->value_44.half[0], wp->value_44.half[1], 0);
-            ground = func_80048E6C(wp);
+            ground = Obj_ceiling_height_get(wp);
             if (ground < wp->position.y)
             {
                 wp->position_fixed.v.y = ground << 16;
@@ -1843,7 +1843,7 @@ void func_801106A4(ST06_CRAB *wp)
     wp->anim_AC = 0xC;
     wp->value_44.half[1] += 0x30;
     Obj_pos_set(wp, wp->value_44.half[0], wp->value_44.half[1], 0);
-    if (func_80048E6C(wp) < wp->position.y)
+    if (Obj_ceiling_height_get(wp) < wp->position.y)
     {
         wp->value_44.half[1]      = 0;
         wp->value_44.half[0]      = 0;
@@ -2052,7 +2052,7 @@ void func_80110BA4(ST06_CRAB *wp)
     {
         func_80111D54(wp);
     }
-    func_8002CA10(&wp->position, 0x100, 0x200, 0);
+    Pos_Shadow_Trans(&wp->position, 0x100, 0x200, 0);
 }
 
 void func_80110CFC(ST06_CRAB *wp)
@@ -2472,7 +2472,7 @@ void func_8011193C(ST06_CRAB *wp)
     }
     wp->value_44.half[1] += 0x18;
     Obj_pos_set(wp, wp->value_44.half[0], wp->value_44.half[1], 0);
-    if (func_80048E6C(wp) < wp->position.y - 0x140)
+    if (Obj_ceiling_height_get(wp) < wp->position.y - 0x140)
     {
         wp->value_44.half[1]      = 0;
         wp->value_44.half[0]      = 0;
@@ -2488,7 +2488,7 @@ void func_80111A30(ST06_CRAB *wp)
     sint16 ground;
     sint32 dy;
 
-    ground = func_80048E6C(wp);
+    ground = Obj_ceiling_height_get(wp);
     dy     = ground - wp->position.y;
     if (dy < -0x10)
     {
@@ -2510,7 +2510,7 @@ void func_80111AFC(ST06_CRAB *wp)
     sint16 step;
     sint16 y;
 
-    ground = func_80048E6C(wp);
+    ground = Obj_ceiling_height_get(wp);
     step   = 0;
     y      = wp->position.y;
     if (y >= -0x62F)

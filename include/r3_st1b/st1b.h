@@ -457,7 +457,7 @@ void func_801007A8(void);
 void func_8001DEE4(void);
 void func_8001E4C4(void *a, void *b);
 void func_80100A20(void);
-void func_8001DF10(uint8 *);
+void Scene_obj_list_open(uint8 *);
 void func_80100B30(STAGE_ROOM *wp);
 void func_801050E8(STAGE_OBJ *wp);
 void func_80105290(STAGE_OBJ *wp);

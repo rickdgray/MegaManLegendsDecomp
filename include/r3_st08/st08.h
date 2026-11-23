@@ -124,7 +124,7 @@ extern uint8 D_80113FEC[];
 extern uint8 D_801140D0[][0xC];
 extern uint8 D_801143A8[];
 
-void func_8001DF10(uint8 *);
+void Scene_obj_list_open(uint8 *);
 void func_80100B48(STAGE_ROOM *wp);
 
 void func_80100A48(STAGE_ROOM *wp);
@@ -156,9 +156,9 @@ void func_8010C37C(STAGE_10C *wp);
 void Sce_flag_off(sint32 flag);
 void func_80100578(void);
 
-void func_8001EC0C(void);
+void Sce_camera_update(void);
 void Sce_event_update(void);
-sint16 func_80048E6C(void *wp);
+sint16 Obj_ceiling_height_get(void *wp);
 void func_80102158(STAGE_ROOM_WORK *wp);
 
 void func_80100690(STAGE_ROOM_WORK *wp);

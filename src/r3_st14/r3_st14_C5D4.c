@@ -1116,7 +1116,7 @@ void func_8010E728(STAGE_OBJ *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
 }
@@ -1208,7 +1208,7 @@ void func_8010EA18(ST14_VILLAGER *wp)
     wp->velocity.x = wp->velocity.y = wp->velocity.z = 0;
     wp->accel.x = wp->accel.y = wp->accel.z = 0;
     wp->flags_0 |= 2;
-    wp->position_fixed.y = func_80048E6C(wp);
+    wp->position_fixed.y = Obj_ceiling_height_get(wp);
     wp->position.y       = wp->position_fixed.y >> 16;
     Model_work_init(wp, NULL);
     ext = &wp->ext;
@@ -1368,13 +1368,13 @@ void func_8010EFF8(ST14_VILLAGER *wp)
     sint32 ground;
     wp->ext.flags_0 = 0;
     flags           = &wp->ext.flags_0;
-    if (func_8004B414(wp) & 0xF00)
+    if (Obj_map_push_out(wp) & 0xF00)
     {
         wp->ext.flags_0 |= 1;
     }
     if (wp->value_74 == 0)
     {
-        ground = func_80048E6C(wp);
+        ground = Obj_ceiling_height_get(wp);
         if (ground != wp->position_prev.y)
         {
             if (wp->value_75 == 0)

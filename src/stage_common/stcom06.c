@@ -351,7 +351,7 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
     sint16 landed;
 
     landed = 0;
-    hit    = func_8004B414(wp);
+    hit    = Obj_map_push_out(wp);
     if (hit != 0)
     {
         if (hit & 0x1000)
@@ -411,7 +411,7 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
                 effect->sprite    = wp->sprite;
             }
         }
-        func_8004AC8C(&wp->velocity.v, hit);
+        Wall_reflect_spd(&wp->velocity.v, hit);
     }
     return landed;
 }

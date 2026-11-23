@@ -129,7 +129,7 @@ void stcom05_func_0484(STCOM05_WORK *wp)
     }
     if (wp->routine_1 == 0)
     {
-        func_80017C30(10);
+        Fade_start(10);
         wp->routine_1++;
     }
     else if (wp->routine_1 == 1)

@@ -81,8 +81,8 @@ void func_801021D4(ST0E_ACTOR *wp)
         {
             Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
             wp->velocity.v.y += wp->value_4E;
-            func_8004B414(wp);
-            ground = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            ground = Obj_ceiling_height_get(wp);
             if (ground - wp->position_prev.y < 0x10)
             {
                 wp->position.y       = ground;
@@ -95,17 +95,17 @@ void func_801021D4(ST0E_ACTOR *wp)
         else
         {
             Obj_pos_set(wp, wp->velocity.v.x, wp->velocity.v.y, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
         }
     }
     func_80032488(wp);
     wp->data_78 = D_801102D4;
-    func_80050C2C(wp);
+    Front_hit_event(wp);
     wp->data_78 = D_801102C8;
     func_80051B68(wp, 1, 0, 0);
     if (wp->routine_1 != 0)
     {
-        if (func_80048E6C(wp) != wp->position_prev.y)
+        if (Obj_ceiling_height_get(wp) != wp->position_prev.y)
         {
             wp->velocity.v.y += 0xC;
         }

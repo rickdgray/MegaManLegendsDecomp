@@ -15,7 +15,7 @@ void func_801001EC(void)
 {
     void *spawn;
     sint16 *cells;
-    func_80022FD4(D_8010BFA4[Game_work.value_51]);
+    Room_model_init(D_8010BFA4[Game_work.value_51]);
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[Game_work.value_51].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[Game_work.value_51].h;
     STAGE_MAP_WORK_PTR->x0    = STAGE_MAP_TBL[Game_work.value_51].x0;
@@ -51,7 +51,7 @@ void func_801003F8(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C770);
+        Scene_obj_list_open(&D_8010C770);
         func_80100BA4(0);
         wp->value_4++;
     }
@@ -61,7 +61,7 @@ void func_80100454(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C778);
+        Scene_obj_list_open(&D_8010C778);
         if (Sce_flag_test(0x31) == 0)
         {
             Sce_flag_on(0x7E1);
@@ -78,7 +78,7 @@ void func_801004D8(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C770);
+        Scene_obj_list_open(&D_8010C770);
         func_80100BA4(0);
         wp->value_4++;
     }
@@ -88,7 +88,7 @@ void func_80100534(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C778);
+        Scene_obj_list_open(&D_8010C778);
         if (Sce_flag_test(0x31) == 0)
         {
             Sce_flag_on(0x7E1);
@@ -106,7 +106,7 @@ void func_801005B8(STAGE_ROOM *wp)
     switch (wp->routine_4)
     {
         case 0:
-            func_8001DF10(D_8010C780);
+            Scene_obj_list_open(D_8010C780);
             func_80100BA4(1);
             wp->routine_4++;
             break;
@@ -125,7 +125,7 @@ void func_80100668(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C778);
+        Scene_obj_list_open(&D_8010C778);
         if (Sce_flag_test(0x31) == 0)
         {
             Sce_flag_on(0x7E1);
@@ -153,7 +153,7 @@ void func_8010072C(STAGE_ROOM *wp)
     switch (wp->routine_4)
     {
         case 0:
-            func_8001DF10(D_8010C788);
+            Scene_obj_list_open(D_8010C788);
             func_80100BA4(2);
             wp->routine_4 = 1;
             break;
@@ -171,7 +171,7 @@ void func_801007B0(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C790);
+        Scene_obj_list_open(&D_8010C790);
         if (Sce_flag_test(0x31) == 0)
         {
             Sce_flag_on(0x7E1);
@@ -188,7 +188,7 @@ void func_80100834(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C798);
+        Scene_obj_list_open(&D_8010C798);
         func_80100BA4(3);
         wp->value_4++;
     }
@@ -198,7 +198,7 @@ void func_80100890(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C7A0);
+        Scene_obj_list_open(&D_8010C7A0);
         wp->routine_5++;
     }
 }
@@ -207,7 +207,7 @@ void func_801008E4(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C798);
+        Scene_obj_list_open(&D_8010C798);
         func_80100BA4(3);
         wp->value_4++;
     }
@@ -217,7 +217,7 @@ void func_80100940(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C7A0);
+        Scene_obj_list_open(&D_8010C7A0);
         wp->routine_5++;
     }
 }
@@ -226,7 +226,7 @@ void func_80100994(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C7A8);
+        Scene_obj_list_open(&D_8010C7A8);
         func_80100BA4(3);
         wp->value_4++;
     }
@@ -236,7 +236,7 @@ void func_801009F0(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C7B0);
+        Scene_obj_list_open(&D_8010C7B0);
         wp->routine_5++;
     }
 }
@@ -245,7 +245,7 @@ void func_80100A44(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C7B8);
+        Scene_obj_list_open(&D_8010C7B8);
         func_80100BA4(3);
         wp->value_4++;
     }
@@ -255,7 +255,7 @@ void func_80100AA0(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C7C0);
+        Scene_obj_list_open(&D_8010C7C0);
         wp->routine_5++;
     }
 }
@@ -264,7 +264,7 @@ void func_80100AF4(STAGE_OBJ *wp)
 {
     if (wp->value_4 == 0)
     {
-        func_8001DF10(&D_8010C7C8);
+        Scene_obj_list_open(&D_8010C7C8);
         func_80100BA4(3);
         wp->value_4++;
     }
@@ -274,7 +274,7 @@ void func_80100B50(STAGE_ROOM *wp)
 {
     if (wp->routine_5 == 0)
     {
-        func_8001DF10(&D_8010C7D0);
+        Scene_obj_list_open(&D_8010C7D0);
         wp->routine_5++;
     }
 }
@@ -372,8 +372,8 @@ void func_80100DF0(STAGE_ROOM *wp)
             D_800BC7F0  = D_8010C8B0;
             wp->tbl_A4  = D_8010C8FC;
             wp->timer_C = 0;
-            func_8001EAE8(D_8010C84C);
-            func_8001EAE8(D_8010C84C + 0x14);
+            Scene_obj_ent_open(D_8010C84C);
+            Scene_obj_ent_open(D_8010C84C + 0x14);
             Sound_fade_start(0x10);
             wp->routine_5++;
             // fall through
@@ -390,7 +390,7 @@ void func_80100DF0(STAGE_ROOM *wp)
             }
             break;
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -399,7 +399,7 @@ void func_80100F00(STAGE_ROOM *wp)
     switch (wp->routine_5)
     {
         case 0:
-            func_8001EC0C();
+            Sce_camera_update();
             if (func_8001D878())
             {
                 Sce_event_timer_clear();
@@ -425,7 +425,7 @@ void func_80100F00(STAGE_ROOM *wp)
                 wp->routine_5 = 0;
                 wp->routine_4++;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             break;
     }
     Sce_event_update();
@@ -507,11 +507,11 @@ void func_801011CC(STAGE_ROOM *wp)
         child->position_fixed.v.y = -0x1DD << 16;
         child->position_fixed.v.z = -0x104 << 16;
         child->rotation.y         = 0x5C7;
-        func_8001EAE8(D_8010C874);
+        Scene_obj_ent_open(D_8010C874);
     }
     if (wp->frame_10 == 0x5A)
     {
-        func_8001EAE8(D_8010C89C);
+        Scene_obj_ent_open(D_8010C89C);
     }
 }
 
@@ -528,7 +528,7 @@ void func_8010129C(STAGE_OBJ *wp)
     if (wp->value_10 == 0x1E)
     {
         wp->routine_2 |= 0x80;
-        func_80017C30(0xA);
+        Fade_start(0xA);
     }
 }
 
@@ -536,8 +536,8 @@ void func_801012DC(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        func_8001EAE8(D_8010C888);
-        func_80017C30(2);
+        Scene_obj_ent_open(D_8010C888);
+        Fade_start(2);
     }
     if (D_80098A72 == 0)
     {
@@ -700,7 +700,7 @@ void func_80101644(STAGE_ROOM *wp)
                 wp->reserved09[2] = 1;
             }
             Sce_flag_off(0x604);
-            func_8001EAE8(D_8010CF60);
+            Scene_obj_ent_open(D_8010CF60);
             func_80101E04(5);
             wp->routine_5++;
             break;
@@ -727,8 +727,8 @@ void func_80101644(STAGE_ROOM *wp)
             {
                 D_800BC7F0 = D_8010D000;
                 wp->tbl_A4 = D_8010D04C;
-                func_8001EAE8(D_8010CF88);
-                func_8001EAE8(D_8010CF88 + 0x14);
+                Scene_obj_ent_open(D_8010CF88);
+                Scene_obj_ent_open(D_8010CF88 + 0x14);
                 Cd_read_comb(0x8A);
             }
             else
@@ -736,8 +736,8 @@ void func_80101644(STAGE_ROOM *wp)
                 D_800BC7F0 = D_8010D278;
                 wp->tbl_A4 = D_8010D04C;
             }
-            func_80017C30(2);
-            func_8001EC0C();
+            Fade_start(2);
+            Sce_camera_update();
             Sce_event_update();
             wp->routine_5++;
             break;
@@ -746,7 +746,7 @@ void func_80101644(STAGE_ROOM *wp)
             {
                 wp->reserved09[1] |= 1;
             }
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (wp->reserved09[2] == 0)
             {
@@ -768,7 +768,7 @@ void func_80101644(STAGE_ROOM *wp)
                 wp->reserved09[1] |= 1;
             }
             pl->flags_bd |= 0x20;
-            func_8001EC0C();
+            Sce_camera_update();
             Sce_event_update();
             if (func_8001D878() != 0)
             {
@@ -809,12 +809,12 @@ void func_801019B4(STAGE_ROOM *wp)
         wp->tbl_A4[1](wp);
         if ((wp->reserved09[1] & 1) && !(wp->reserved09[1] & 0x80))
         {
-            func_80017C30(8);
+            Fade_start(8);
             wp->routine_5 = 0;
             wp->routine_4++;
         }
     }
-    func_8001EC0C();
+    Sce_camera_update();
     Sce_event_update();
 }
 
@@ -869,7 +869,7 @@ void func_80101BE8(STAGE_ROOM *wp)
         STAGE_PL.flags_0 &= ~2;
         func_80031824(wp->child_2C);
         func_80031824(wp->child_30);
-        func_8001EAE8(D_8010CF74);
+        Scene_obj_ent_open(D_8010CF74);
         func_80101E04(3);
     }
 }
@@ -880,20 +880,20 @@ void func_80101C64(STAGE_ROOM *wp)
     {
         STAGE_PL.flags_0 |= 2;
         func_8003187C(wp->child_28);
-        func_8001EAE8(&D_8010CFB0[0]);
-        func_8001EAE8(&D_8010CFB0[1]);
+        Scene_obj_ent_open(&D_8010CFB0[0]);
+        Scene_obj_ent_open(&D_8010CFB0[1]);
         wp->child_24->routine_1 = 1;
         func_80101E04(5);
     }
     else if (wp->frame_10 == 0x5A)
     {
-        func_8001EAE8(&D_8010CFD8[0]);
-        func_8001EAE8(&D_8010CFD8[1]);
+        Scene_obj_ent_open(&D_8010CFD8[0]);
+        Scene_obj_ent_open(&D_8010CFD8[1]);
     }
     else if (wp->frame_10 == 0xFE)
     {
         wp->reserved09[1] |= 0x80;
-        func_80017C30(0xA);
+        Fade_start(0xA);
     }
 }
 
@@ -902,20 +902,20 @@ void func_80101D3C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         STAGE_PL.flags_0 |= 2;
-        func_8001EAE8(&D_8010CFB0[0]);
-        func_8001EAE8(&D_8010CFB0[1]);
+        Scene_obj_ent_open(&D_8010CFB0[0]);
+        Scene_obj_ent_open(&D_8010CFB0[1]);
         wp->child_24->routine_1 = 1;
         func_80101E04(5);
     }
     else if (wp->frame_10 == 0x5A)
     {
-        func_8001EAE8(&D_8010CFD8[0]);
-        func_8001EAE8(&D_8010CFD8[1]);
+        Scene_obj_ent_open(&D_8010CFD8[0]);
+        Scene_obj_ent_open(&D_8010CFD8[1]);
     }
     else if (wp->frame_10 == 0xDD)
     {
         wp->reserved09[1] |= 0x80;
-        func_80017C30(0xA);
+        Fade_start(0xA);
     }
 }
 
@@ -959,7 +959,7 @@ void func_80101F14(STAGE_ROOM *wp)
         case 0:
             if (func_80042238(&Player_work) != 0)
             {
-                func_80017C30(9);
+                Fade_start(9);
                 wp->routine_4++;
             }
             break;
@@ -980,7 +980,7 @@ void func_80101F14(STAGE_ROOM *wp)
                 D_800BC770 = 0xC00 << 16;
                 D_800BC774 = 0x150 << 16;
                 D_800BC778 = 0x200 << 16;
-                func_80017C30(1);
+                Fade_start(1);
                 wp->routine_4++;
             }
             break;

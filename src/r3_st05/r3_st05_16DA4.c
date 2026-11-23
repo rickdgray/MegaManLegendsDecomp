@@ -122,7 +122,7 @@ void func_80117130(ST05_ACTOR *wp)
     wp->scale.words[1]   = 0x1D7;
     wp->scale.v.pad      = 0x4210;
     wp->data_78          = NULL;
-    y                    = func_80048E6C(wp);
+    y                    = Obj_ceiling_height_get(wp);
     wp->position.y       = y;
     wp->position_fixed.y = y << 16;
     wp->value_6E         = 0;
@@ -384,7 +384,7 @@ void func_801179D4(ST05_ACTOR *wp)
     Model_work_init(wp, NULL);
     wp->data_78          = D_801318CC;
     wp->data_10          = D_801318C0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->scale.words[0]   = 0x02000200;
     wp->rotation.y       = 0x400;
     wp->scale.words[1]   = 0x200;
@@ -505,7 +505,7 @@ void func_80117CFC(ST05_ACTOR *wp)
     {
         wp->velocity.v.y = 0;
         wp->accel_4C.y   = 0;
-        wp->position.y   = func_80048E6C(wp);
+        wp->position.y   = Obj_ceiling_height_get(wp);
     }
 }
 
@@ -702,7 +702,7 @@ void func_80118460(ST05_ACTOR *wp)
             {
                 wp->velocity.v.y = 0;
                 wp->accel_4C.y   = 0;
-                wp->position.y   = func_80048E6C(wp);
+                wp->position.y   = Obj_ceiling_height_get(wp);
             }
             break;
         case 1:
@@ -844,7 +844,7 @@ void func_801188C0(ST05_ACTOR *wp)
         wp->rotation.x += 0x200;
         wp->rotation.y += 0x100;
         func_80032538(wp);
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         ST05_SP_TILT->x = wp->rotation.x;
         Model_parts_mtx_set_y(wp);
         wp->velocity.v.y += wp->accel_4C.y;
@@ -853,7 +853,7 @@ void func_801188C0(ST05_ACTOR *wp)
         wp->position_fixed.y += wp->velocity.v.y << 12;
         func_80030150(&wp->position_fixed, &wp->position);
     }
-    hit = func_8004B414(wp);
+    hit = Obj_map_push_out(wp);
     if (hit != 0)
     {
         Sound_call2(0x129, &wp->position);
@@ -886,7 +886,7 @@ void func_801188C0(ST05_ACTOR *wp)
                 ep->z_20      = wp->position.z;
             }
         }
-        func_8004AC8C(&wp->velocity.v, hit);
+        Wall_reflect_spd(&wp->velocity.v, hit);
     }
     if (wp->value_E >= 3 && wp->value_F >= 2)
     {
@@ -1000,8 +1000,8 @@ void func_80118DE0(ST05_BOAT *wp)
         Model_parts_mtx_set_y(wp);
     }
     ctl->ground_1C = 0;
-    ctl->hit_18    = func_8004B414(wp);
-    if (!(ctl->hit_18 & 0x1000) && wp->position.y == (sint16)func_80048E6C(wp))
+    ctl->hit_18    = Obj_map_push_out(wp);
+    if (!(ctl->hit_18 & 0x1000) && wp->position.y == (sint16)Obj_ceiling_height_get(wp))
     {
         ctl->ground_1C = 1;
     }
@@ -1933,7 +1933,7 @@ void func_8011A9EC(ST05_BOSS *wp)
     {
         pos = wp->joint_180[0];
         pos.y += 0x1E0;
-        func_8002CA10(&pos, 0x12C, 0x200, 0);
+        Pos_Shadow_Trans(&pos, 0x12C, 0x200, 0);
     }
     if (ctl->flags_0 & 0x80)
     {
@@ -1941,7 +1941,7 @@ void func_8011A9EC(ST05_BOSS *wp)
         {
             pos = wp->joint_180[i];
             pos.y += 0xA0;
-            func_8002CA10(&pos, 0xC8, 0x155, wp->rotation.y);
+            Pos_Shadow_Trans(&pos, 0xC8, 0x155, wp->rotation.y);
         }
     }
 }
@@ -2809,8 +2809,8 @@ void func_8011C5D8(ST05_BOSS *wp)
                 ctl->flags_0 |= 5;
             }
             Obj_pos_set(wp, wp->value_44.half[0] * 8, 0, 0);
-            func_8004B414(wp);
-            wp->position.y         = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            wp->position.y         = Obj_ceiling_height_get(wp);
             wp->position_fixed.v.y = wp->position.y << 16;
             if (((wp->position.y - wp->position_prev.y >= 0) ? wp->position.y - wp->position_prev.y
                                                              : wp->position_prev.y - wp->position.y) > 0x20)
@@ -3481,7 +3481,7 @@ void func_8011DE74(ST05_HOLDER *wp)
     wp->scale.v.pad        = 0x4210;
     wp->value_78           = 0;
     wp->data_10            = D_80131B04;
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.y = wp->position.y << 16;
     wp->u_C.b.byte_D       = 0;
     wp->u_E.b.byte_E       = D_80131A74[0];
@@ -4264,7 +4264,7 @@ void func_8011F720(ST05_OBJ *wp, ST05_FACE *face)
                 wp->scale.words[1]     = 0x200;
                 wp->scale.v.pad        = 0x4210;
                 wp->value_78           = 0;
-                wp->position.y         = wp->position.y + func_80048E6C(wp);
+                wp->position.y         = wp->position.y + Obj_ceiling_height_get(wp);
                 wp->position_fixed.v.y = wp->position.y << 16;
                 face->count_15         = 0;
                 func_801200DC(&face->face, 0);

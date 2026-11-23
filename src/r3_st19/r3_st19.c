@@ -23,7 +23,7 @@ void func_801005CC(void)
 
     mw  = STAGE_MAP_WORK_PTR;
     map = &STAGE_MAP_TBL[Game_work.value_51];
-    func_80022FD4(D_80116820[Game_work.value_51]);
+    Room_model_init(D_80116820[Game_work.value_51]);
     mw->w     = map->w;
     mw->h     = map->h;
     mw->x0    = map->x0;
@@ -80,7 +80,7 @@ void func_80100820(STAGE_ROOM *wp)
             break;
         case 1:
             Sound_fade_start(0x10);
-            func_80017C30(0xD);
+            Fade_start(0xD);
             wp->routine_4++;
             break;
         case 2:

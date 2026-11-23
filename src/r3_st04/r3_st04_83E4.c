@@ -48,7 +48,7 @@ void func_8010849C(ST04_ROCK *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->position_prev       = wp->position;
     wp->data_78             = D_8010CBA4;
-    func_8004B414(wp);
+    Obj_map_push_out(wp);
     wp->value_74 = 0;
     wp->routine_0++;
 }
@@ -101,7 +101,7 @@ sint32 func_80108794(ST04_ROCK *wp)
     sint32 bounce;
 
     landed = 0;
-    hit    = func_8004B414(wp);
+    hit    = Obj_map_push_out(wp);
     if (hit != 0)
     {
         if (hit & 0x1000)
@@ -137,7 +137,7 @@ sint32 func_80108794(ST04_ROCK *wp)
         {
             Sound_call2(0x13B, &wp->position);
         }
-        func_8004AC8C(&wp->velocity.v, hit);
+        Wall_reflect_spd(&wp->velocity.v, hit);
     }
     return landed;
 }

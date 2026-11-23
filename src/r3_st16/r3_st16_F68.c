@@ -25,7 +25,7 @@ void func_80100F68(STAGE_WORK *wp)
             wp->u_E.angle -= 6;
             if (wp->u_E.angle < -0x12BF)
             {
-                func_80017C30(0xB);
+                Fade_start(0xB);
                 wp->routine_2++;
             }
             break;
@@ -89,7 +89,7 @@ void func_801011B4(STAGE_WORK *wp)
         func_800322A8(wp, 1, 0);
         wp->routine_2++;
     }
-    func_80033A28(wp);
+    Model_pose_unpack(wp);
     Model_parts_mtx_set_y(wp);
 }
 
@@ -337,7 +337,7 @@ void func_80101804(STAGE_OBJ *wp)
                 wp->routine_2++;
                 if (STAGE_GAME_VALUE_52 != 7 || Sce_flag_test(0x21) == 0)
                 {
-                    func_80017C30(0xB);
+                    Fade_start(0xB);
                 }
             }
             break;
@@ -416,7 +416,7 @@ void func_80101C4C(STAGE_OBJ *wp)
         }
         else
         {
-            func_80033A28(wp);
+            Model_pose_unpack(wp);
             Model_parts_mtx_set_y(wp);
         }
     }

@@ -41,8 +41,8 @@ void stcom24_func_0000(STCOM24_WORK *wp)
     {
         func_80032488(wp);
     }
-    func_8004B414(wp);
-    ground = func_80048E6C(wp);
+    Obj_map_push_out(wp);
+    ground = Obj_ceiling_height_get(wp);
     if (wp->jump_74 == 0)
     {
         if (STCOM_ABS(wp->position.y - ground) > 0x100)
@@ -88,7 +88,7 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     func_80036478(wp->ctl.track_40, 3, -200);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     wp->data_78                                      = stcom24_D_0000;
-    wp->position.y                                   = func_80048E6C(wp);
+    wp->position.y                                   = Obj_ceiling_height_get(wp);
     wp->position_fixed.y                             = wp->position.y << 16;
     wp->routine_0                                    = 1;
     wp->routine_1                                    = 0;

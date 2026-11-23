@@ -22,7 +22,7 @@ void func_80100524(void)
     void *spawns;
     sint32 room;
 
-    func_80022FD4(D_801146C4[Game_work.value_51]);
+    Room_model_init(D_801146C4[Game_work.value_51]);
     room                      = Game_work.value_51;
     STAGE_MAP_WORK_PTR->w     = STAGE_MAP_TBL[room].w;
     STAGE_MAP_WORK_PTR->h     = STAGE_MAP_TBL[room].h;
@@ -267,7 +267,7 @@ void func_80100BF8(STAGE_ROOM *wp)
                 if (Sce_flag_test(0x22) && !Sce_flag_test(0x45))
                 {
                     func_80103CC4(0);
-                    obj = func_8001EAE8(D_80116754);
+                    obj = Scene_obj_ent_open(D_80116754);
                     obj->flags_6 &= ~0x20;
                 }
                 wp->routine_4 = 0xFF;
@@ -1000,7 +1000,7 @@ void func_80102224(STAGE_ROOM_WORK *wp)
                 break;
             }
             y = pl->position.y;
-            if (y != func_80048E6C(pl))
+            if (y != Obj_ceiling_height_get(pl))
             {
                 break;
             }

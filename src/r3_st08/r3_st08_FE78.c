@@ -373,7 +373,7 @@ void func_801105AC(STAGE_OBJ50 *wp)
                 }
                 else
                 {
-                    func_80017C30(9);
+                    Fade_start(9);
                     wp->routine_1++;
                 }
             }
@@ -388,7 +388,7 @@ void func_801105AC(STAGE_OBJ50 *wp)
         case 8:
             func_80110150((STAGE_OBJ *)wp);
             func_801100C0(0, -1, 0x300, 0);
-            func_80017C30(1);
+            Fade_start(1);
             wp->routine_1++;
             break;
         case 9:

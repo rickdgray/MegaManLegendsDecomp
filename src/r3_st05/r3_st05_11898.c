@@ -130,7 +130,7 @@ void func_80111CEC(ST05_WAGON *wp)
     wp->value_B2           = 0;
     wp->data_78            = D_801313BC;
     wp->value_10           = 0;
-    wp->position.y         = func_80048E6C(wp);
+    wp->position.y         = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.y = wp->position.y << 16;
     if (ctl->link_34->flags_F & 4)
     {
@@ -958,7 +958,7 @@ void func_801139EC(ST05_WALKER *wp)
     wp->value_B2 = wp->value_B0 = wp->value_6E = *(D_80098844[wp->kind_2]->life_A + wp->variant_3) * 32;
     wp->data_78                                = D_8013143C;
     wp->value_10                               = 0;
-    wp->position.y                             = func_80048E6C(wp);
+    wp->position.y                             = Obj_ceiling_height_get(wp);
     wp->position_fixed.v.y                     = wp->position.y << 16;
     wp->scale.v.pad                            = 0x4210;
     Model_work_init(wp, &wp->variant_3);

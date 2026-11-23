@@ -91,7 +91,7 @@ void func_800D8AAC(SHL_WORK *wp)
     wp->draw.mdl.pos.vx = wp->pos.vx = wp->fpos.h.x;
     wp->draw.mdl.pos.vy = wp->pos.vy = wp->fpos.h.y;
     wp->draw.mdl.pos.vz = wp->pos.vz = wp->fpos.h.z;
-    hit                              = func_8004B414(wp);
+    hit                              = Obj_map_push_out(wp);
     if (hit >= 0)
     {
         if (hit & 0x1000)
@@ -99,7 +99,7 @@ void func_800D8AAC(SHL_WORK *wp)
             wp->value_74  = 0;
             wp->routine_0 = 2;
         }
-        func_8004AC8C(&wp->vel, hit);
+        Wall_reflect_spd(&wp->vel, hit);
     }
     else
     {
@@ -119,9 +119,9 @@ void func_800D8C1C(SHL_WORK *wp)
     }
     wp->old_fpos = wp->fpos;
     wp->old_pos  = wp->pos;
-    func_80050C2C(wp);
-    func_8004B414(wp);
-    wp->pos.vy          = func_80048E6C(wp);
+    Front_hit_event(wp);
+    Obj_map_push_out(wp);
+    wp->pos.vy          = Obj_ceiling_height_get(wp);
     wp->fpos.w.y        = wp->pos.vy << 16;
     wp->draw.mdl.pos.vx = wp->pos.vx;
     wp->draw.mdl.pos.vy = wp->pos.vy;
@@ -145,9 +145,9 @@ void func_800D8D14(SHL_WORK *wp)
     }
     wp->old_fpos = wp->fpos;
     wp->old_pos  = wp->pos;
-    func_80050C2C(wp);
-    func_8004B414(wp);
-    wp->pos.vy          = func_80048E6C(wp);
+    Front_hit_event(wp);
+    Obj_map_push_out(wp);
+    wp->pos.vy          = Obj_ceiling_height_get(wp);
     wp->fpos.w.y        = wp->pos.vy << 16;
     wp->draw.mdl.pos.vx = wp->pos.vx;
     wp->draw.mdl.pos.vy = wp->pos.vy;

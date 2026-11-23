@@ -85,7 +85,7 @@ void stcom25_func_0E3C(STCOM25_WORK *wp);
 
 // ROCK_NEO.EXE.
 // The ground height at a position.
-sint16 func_8004920C(STCOM_SVECTOR *pos);
+sint16 Ceiling_height_get(STCOM_SVECTOR *pos);
 // PsyQ libgte.
 STCOM_MATRIX *RotMatrix(STCOM_SVECTOR *r, STCOM_MATRIX *m);
 

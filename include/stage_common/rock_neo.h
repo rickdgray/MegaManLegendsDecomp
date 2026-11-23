@@ -182,7 +182,7 @@ void func_80039FAC(STCOM_FIXED_VECTOR *pos, sint32 a1, sint32 angle, sint32 a3);
 // Muku (turns the angle `rot` at `pos` toward `target` by at most `speed`, returns the
 // step) is declared by each file's header: stcom15 uses its result without narrowing (int), the
 // others as a sint16.
-// func_80048E6C (the ground height under a work slot) is declared by each file's header: ROCK_NEO
+// Obj_ceiling_height_get (the ground height under a work slot) is declared by each file's header: ROCK_NEO
 // returns an int, and stcom15 compares the result unextended, but stcom04 and stcom12 narrow it
 // to sint16 at the call.
 // Angle_diff_clamp (steps an angle toward a goal by at most a speed, returns the step) is declared
@@ -205,7 +205,7 @@ void Sound_call2(sint16 id, void *args);
 void Sce_flag_on(sint32 flag);
 void Obj_work_flag_change(sint32 mask, sint32 flags);
 void func_8005C150(sint32 index, sint32 mode, sint32 value, sint32 id);
-void func_80017C30(sint32 arg);
+void Fade_start(sint32 arg);
 sint32 func_800341BC(void *pos, sint32 half, sint32 arg2, sint32 arg3, sint32 id, void *tbl, sint32 arg6, sint32 arg7, sint32 arg8);
 void func_80051BAC(void *wp);
 // Allocates an effect record; NULL when none is free.
@@ -213,7 +213,7 @@ STCOM_EFFECT *func_80031618(void);
 // Sets a 16.16 position from a short one.
 void func_80030150(STCOM_FIXED_VECTOR *fixed, STCOM_SVECTOR *pos);
 void func_80031930(void *wp);
-void func_8004AC8C(STCOM_SVECTOR *velocity, sint32 hit);
+void Wall_reflect_spd(STCOM_SVECTOR *velocity, sint32 hit);
 // PsyQ libgte.
 sint32 rsin(sint32 a);
 sint32 rcos(sint32 a);
@@ -239,7 +239,7 @@ uint32 func_80030254(void *a, void *b);
 void func_80032538(void *wp);
 void Model_parts_mtx_set_yxz(void *wp);
 sint32 Map_area_check(STCOM_SVECTOR *pos);
-sint32 func_8004B414(void *wp);
+sint32 Obj_map_push_out(void *wp);
 // Frees a 0x3C0-byte work slot.
 void func_80031824(void *wp);
 // Hand-written: copies `count` 32-byte blocks.

@@ -263,7 +263,7 @@ void func_801129A4(ST06_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->value_6E         = 0;
     wp->value_B0         = 0;
@@ -580,7 +580,7 @@ void func_801134B8(ST06_ACTOR *wp)
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     wp->data_10          = D_8012540C;
     wp->value_6E         = 0;
@@ -842,7 +842,7 @@ void func_80113DE4(ST06_ACTOR *wp)
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;
     wp->scale.v.pad           = 0x4210;
-    wp->position.y            = func_80048E6C(wp);
+    wp->position.y            = Obj_ceiling_height_get(wp);
     wp->position_fixed.y      = wp->position.y << 16;
     wp->value_78              = D_80125458;
     wp->value_6E              = 0;
@@ -966,7 +966,7 @@ void func_801141EC(ST06_ACTOR *wp)
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;
     wp->scale.v.pad           = 0x4210;
-    wp->position.y            = func_80048E6C(wp);
+    wp->position.y            = Obj_ceiling_height_get(wp);
     wp->position_fixed.y      = wp->position.y << 16;
     wp->value_78              = D_80125470;
     wp->value_6E              = 0;
@@ -1063,7 +1063,7 @@ void func_801144DC(ST06_OBJ *wp)
         wp->scale.words[1] = 0x200;
         wp->scale.v.pad    = 0x4210;
         wp->data_78        = NULL;
-        wp->position.y += func_80048E6C(wp);
+        wp->position.y += Obj_ceiling_height_get(wp);
         wp->position_fixed.v.y = wp->position.y << 16;
         anim                   = &D_801254A4[wp->routine_0];
         func_800322A8(wp, anim->anim_0, anim->arg_1);
@@ -1470,7 +1470,7 @@ void func_801153B0(STAGE_OBJ *wp)
         case 1:
             Obj_pos_set(wp, (sint16)(wp->value_44.half[0] << 4), (sint16)(wp->value_44.half[1] << 4), 0);
             wp->value_44.half[1] += wp->value_4C.half[1];
-            if (func_8004B414(wp) & 0x1000)
+            if (Obj_map_push_out(wp) & 0x1000)
             {
                 Sound_call2(0x155, &wp->position);
                 wp->value_44.half[1] = -0x40;

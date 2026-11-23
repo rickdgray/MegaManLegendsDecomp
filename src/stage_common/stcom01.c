@@ -98,7 +98,7 @@ void stcom01_func_01FC(STCOM01_WORK *wp)
         stcom01_D_0568[wp->routine_1](wp);
         if (!(wp->param_D & 0x20))
         {
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
         }
         if (wp->anim_prev_AD != wp->anim_AC)

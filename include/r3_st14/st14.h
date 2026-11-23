@@ -563,7 +563,7 @@ sint32 func_80048EA4(STCOM_SVECTOR *pos, sint16 *box, sint32 dy, sint32 kind);
 STAGE_OBJ *func_80031498(void);
 void Sce_event_timer_clear(void);
 STCOM_MATRIX *RotMatrix(STCOM_SVECTOR *r, STCOM_MATRIX *m);
-sint32 func_80048E6C(void *wp);
+sint32 Obj_ceiling_height_get(void *wp);
 void func_8005D4D4(void);
 void func_8005D4E8(void);
 void func_8005D620(void *wp, sint32 a1, sint32 a2, sint32 a3, sint32 color);

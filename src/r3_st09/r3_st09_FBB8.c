@@ -25,7 +25,7 @@ void func_8010FBB8(STAGE_STCOM15_WORK_4E0 *wp)
     }
     else
     {
-        func_80033A28(wp);
+        Model_pose_unpack(wp);
         Model_parts_mtx_set_y(wp);
     }
     if (wp->flags_0 & 2)
@@ -100,7 +100,7 @@ void func_8010FD88(STAGE_STCOM15_WORK_4E0 *wp)
     wp->life_6E          = life;
     wp->life_max_B0      = life;
     wp->life_prev_B2     = life;
-    wp->position.y       = func_80048E6C(wp);
+    wp->position.y       = Obj_ceiling_height_get(wp);
     wp->position_fixed.y = wp->position.y << 16;
     if (wp->variant_3 != 0)
     {
@@ -322,12 +322,12 @@ void func_8011047C(STAGE_STCOM15_WORK_4E0 *wp)
             }
             wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
             Obj_pos_set(wp, 0x100, 0, 0);
-            hit = func_8004B414(wp);
+            hit = Obj_map_push_out(wp);
             if (!(((STAGE_OBJ *)wp)->value_A4 & 3))
             {
                 Sound_call2(0xC8, &wp->position);
             }
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
             {
@@ -415,12 +415,12 @@ void func_801106F0(STAGE_STCOM15_WORK_4E0 *wp)
                 break;
             }
             Obj_pos_set(wp, 0x100, 0, 0);
-            func_8004B414(wp);
+            Obj_map_push_out(wp);
             if (!(((STAGE_OBJ *)wp)->value_A4 & 3))
             {
                 Sound_call2(0xC8, &wp->position);
             }
-            wp->position.y       = func_80048E6C(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             dx                   = wp->position.x - D_8011E1C0.x;
             dz                   = wp->position.z - D_8011E1C0.z;
@@ -460,8 +460,8 @@ void func_801109A4(STAGE_STCOM15_WORK_4E0 *wp)
                 break;
             }
             Obj_pos_set(wp, 0x200, 0, 0);
-            hit                  = func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            hit                  = Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
             {
@@ -501,7 +501,7 @@ void func_801109A4(STAGE_STCOM15_WORK_4E0 *wp)
                         fx->variant_3 = 0x42;
                         Obj_pos_set(wp, D_8011E24C[i], 0, 0);
                         fx->sprite.position   = wp->position;
-                        fx->sprite.position.y = func_80048E6C(wp);
+                        fx->sprite.position.y = Obj_ceiling_height_get(wp);
                         wp->position          = wp->position_prev;
                         wp->position_fixed    = wp->position_fixed_prev;
                     }
@@ -566,8 +566,8 @@ void func_80110CA0(STAGE_STCOM15_WORK_4E0 *wp)
             }
             wp->anim_AC = 2;
             Obj_pos_set(wp, 0x200, 0, 0);
-            func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
         puff:
             if (wp->value_A6 & 1)
@@ -583,7 +583,7 @@ void func_80110CA0(STAGE_STCOM15_WORK_4E0 *wp)
                         fx->value_D   = 2;
                         Obj_pos_set(wp, D_8011E254[i], 0, 0);
                         fx->sprite.position   = wp->position;
-                        fx->sprite.position.y = func_80048E6C(wp);
+                        fx->sprite.position.y = Obj_ceiling_height_get(wp);
                         wp->position          = wp->position_prev;
                         wp->position_fixed    = wp->position_fixed_prev;
                     }
@@ -595,8 +595,8 @@ void func_80110CA0(STAGE_STCOM15_WORK_4E0 *wp)
         case 2:
         walk:
             Obj_pos_set(wp, 0x200, 0, 0);
-            func_8004B414(wp);
-            wp->position.y       = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            wp->position.y       = Obj_ceiling_height_get(wp);
             wp->position_fixed.y = wp->position.y << 16;
             if (wp->value_A6 & 1)
             {
@@ -775,8 +775,8 @@ void func_80111508(STAGE_OBJ *wp)
                 hw->value_0 |= 5;
             }
             Obj_pos_set(wp, wp->value_44.half[0] << 3, 0, 0);
-            func_8004B414(wp);
-            wp->position.y         = func_80048E6C(wp);
+            Obj_map_push_out(wp);
+            wp->position.y         = Obj_ceiling_height_get(wp);
             wp->position_fixed.v.y = wp->position.y << 16;
             if (STCOM_ABS(wp->position.y - wp->position_prev.y) > 0x20)
             {
@@ -856,7 +856,7 @@ void func_80111650(STAGE_STCOM15_WORK_4E0 *wp)
             wp->velocity.v.y += wp->accel.y;
             wp->position.y -= 0x46;
             wp->position_fixed.y = wp->position.y << 16;
-            if (func_8004B414(wp) & 0x1000)
+            if (Obj_map_push_out(wp) & 0x1000)
             {
                 wp->flags_0 &= ~2;
                 i = func_80031E60(&pl->position_fixed, pl->rotation.y, 0x800, &wp->position_fixed, wp->rotation.y, 0x400);
