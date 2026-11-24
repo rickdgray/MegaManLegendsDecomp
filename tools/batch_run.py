@@ -89,7 +89,8 @@ clear.
 Don't work on any other function. Park anything that doesn't match within its budget, as
 `CLAUDE.md` describes. Then apply the names you're sure of, as `CLAUDE.md`'s "Names" section
 describes (one `tools/rename.py` call per name, then one `./tools/rebuild.sh`).
-Don't run git commands. Finish with the usual summary."""
+Don't run git commands. Run builds in the foreground with a long timeout (up to 10 minutes; a
+build of every target takes minutes), never in the background. Finish with the usual summary."""
 
 CONSOLIDATE_PROMPT = """Consolidation pass for `{cfile}`, after its functions were decompiled in batches.
 Don't decompile new functions. Follow `CLAUDE.md`, including "Tool use (unattended runs)", and
@@ -141,8 +142,37 @@ def remaining(cfile):
     return asm_funcs(cfile, parked=False)
 
 
-def parked_names(cfile):
-    return {n for n, _ in asm_funcs(cfile, parked=True)}
+def denied_tools(res):
+    """The full commands the session was refused that run the repo's own tools (tools/ scripts):
+    a permissions problem, not a problem with the batch's functions. A command counts when any
+    part of it (a chain with ; or &&, a pipe) runs a tool."""
+    out = []
+    for d in res.get("permission_denials") or []:
+        cmd = (d.get("tool_input") or {}).get("command", "")
+        if re.search(r"(^|[;&|(]\s*)((\./)?tools/|(bash\s+)tools/|\.venv/bin/python3?\s+tools/|python3?\s+tools/)", cmd):
+            out.append(cmd)
+    return out
+
+
+def tool_of(cmd):
+    """The tool a refused command names first, as an allow rule would spell it."""
+    m = re.search(r"((\.venv/bin/)?python3?\s+tools/\S+|(\./)?tools/\S+)", cmd)
+    return m.group(1) if m else cmd.split()[0]
+
+
+def asm_state(cfile):
+    """{name: 'asm' | 'parked'} for every function of the file still in assembly."""
+    state = {n: "asm" for n, _ in asm_funcs(cfile, parked=False)}
+    state.update({n: "parked" for n, _ in asm_funcs(cfile, parked=True)})
+    return state
+
+
+def candidates(cfile, drafts):
+    """[(name, asm dir)] to work on: the plain INCLUDE_ASM functions, or with drafts, every
+    function in assembly (parked too) that has one."""
+    if drafts is None:
+        return remaining(cfile)
+    return [(n, d) for n, d in asm_funcs(cfile, parked=False) + asm_funcs(cfile, parked=True) if n in drafts]
 
 
 def size_of(asm_dir, name):
@@ -587,41 +617,52 @@ def main():
         progress.task(f"batch {batch_no} ({Path(cfile).stem})")
         snap = logdir / "snapshot"
         snapshot(snap)
+        before = asm_state(cfile)
         (logdir / f"{batch_no:03}_prompt.txt").write_text(prompt)
         start = datetime.datetime.now()
         out, err, timed_out = agent(prompt, args.model, args.timeout, new_session(logdir, f"{batch_no:03}"))
         minutes = (datetime.datetime.now() - start).total_seconds() / 60
         (logdir / f"{batch_no:03}_raw.json").write_text(out + "\n--- stderr ---\n" + err)
-        cost, report = 0.0, out
+        cost, report, blocked, session_ok = 0.0, out, [], False
         try:
             res = json.loads(out)
             cost = float(res.get("total_cost_usd", 0.0))
             report = res.get("result", "")
+            blocked = denied_tools(res)
+            session_ok = not res.get("is_error") and cost > 0
         except json.JSONDecodeError:
             pass        # a killed run has no JSON (and its cost is unknown)
+        # A session that never ran (no network, API errors) says nothing about its functions.
+        broken = not session_ok and not timed_out
         total_cost += cost
         (logdir / f"{batch_no:03}_report.md").write_text(report)
         tag = f", TIMEOUT after {args.timeout:g} min (cost unknown)" if timed_out else ""
 
         renamed = registry_changes(snap)
-        changed = changed_paths(snap)
-        ok, results = settle(renamed, changed)      # renames need a fresh split before the build can match
+        paths = changed_paths(snap)
+        ok, results = settle(renamed, paths)      # renames need a fresh split before the build can match
         if ok:
-            batch = [rename_map(renamed).get(n, n) for n in batch]   # follow renamed batch functions
-        after = {n for n, _ in remaining(cfile)}
-        changed = [n for n in batch if n not in after]   # banked or parked: no longer plain INCLUDE_ASM
+            names = rename_map(renamed)
+            batch = [names.get(n, n) for n in batch]   # follow renamed batch functions
+            before = {names.get(n, n): st for n, st in before.items()}
+        after = asm_state(cfile)
+        changed = [n for n in batch if after.get(n) != before.get(n)]   # banked, or newly parked
         if ok and not changed:
-            # Nothing happened to this batch: don't pick the same functions again.
-            failed.update(batch)
-            state["failed"] = sorted(failed)
-            save_state(state)
+            # Nothing happened to this batch: don't pick the same functions again (unless the
+            # session itself never worked).
+            if not broken:
+                failed.update(batch)
+                state[fail_key] = sorted(failed)
+                save_state(state)
             restore(snap)
-            settle(renamed, changed)
+            settle(renamed, paths)
             failures_in_row += 1
-            line = f"batch {batch_no}: NO PROGRESS (functions skipped from now on), ${cost:.2f}, {minutes:.0f} min{tag}"
+            line = (f"batch {batch_no}: NO SESSION (no result from the agent: network or API?), {minutes:.0f} min{tag}"
+                    if broken else
+                    f"batch {batch_no}: NO PROGRESS (functions skipped from now on), ${cost:.2f}, {minutes:.0f} min{tag}")
         elif ok:
-            parked = [n for n in batch if n in parked_names(cfile)]
-            done = [n for n in changed if n not in parked]
+            parked = [n for n in changed if after.get(n) == "parked"]
+            done = [n for n in changed if n not in after]
             msg = f"{Path(cfile).stem}: batch {batch_no} ({len(done)} banked, {len(parked)} parked)\n\n" + \
                   "\n".join(f"- {n}: {'parked' if n in parked else 'banked' if n in done else 'untouched'}"
                             for n in batch)
@@ -642,7 +683,7 @@ def main():
             untouched = [n for n in batch if n not in changed]
             if untouched and not timed_out:
                 failed.update(untouched)
-                state["failed"] = sorted(failed)
+                state[fail_key] = sorted(failed)
                 save_state(state)
             failures_in_row = 0
             n_ren = sum(len(new) for _, new in renamed.values())
@@ -654,16 +695,30 @@ def main():
         else:
             patch(snap, logdir / f"{batch_no:03}_failed.patch")   # what the session left, for inspection or resuming
             restore(snap)
-            settle(renamed, changed)
-            failed.update(batch)
-            state["failed"] = sorted(failed)
-            save_state(state)
+            settle(renamed, paths)
+            if not blocked and not broken:     # a session that couldn't build, or never ran, says nothing about its functions
+                failed.update(batch)
+                state[fail_key] = sorted(failed)
+                save_state(state)
             failures_in_row += 1
             line = f"batch {batch_no}: REVERTED (build {results}), ${cost:.2f}, {minutes:.0f} min{tag}"
         progress.write("   " + line)
         progress.done(total - pending(), total_cost)
         summary.append(line)
 
+        if blocked:
+            (logdir / f"{batch_no:03}_denied.txt").write_text("\n".join(blocked) + "\n")
+            # The build itself refused, or a batch that got nowhere: the run can't go on. Otherwise
+            # the agent worked around it (a chained or redirected command, say): note it and go on.
+            fatal = any(re.fullmatch(r"(\./)?tools/build\.sh[^;&|<>]*", c.strip()) for c in blocked) or not (ok and changed)
+            summary.append(f"batch {batch_no}: {len(blocked)} tool command(s) refused, see {batch_no:03}_denied.txt"
+                           + (": stopping" if fatal else ""))
+            if fatal:
+                summary.append("  allow them in .claude/settings.json if the form is a plain one ("
+                               + ", ".join(sorted({f"Bash({tool_of(c)}:*)" for c in blocked}))
+                               + "); a chained (;, &&) or redirected command needs no rule, the agent should split it. "
+                               "If everything was refused, trust the folder: run `claude` there once")
+                break
         if total_cost >= args.cap:
             summary.append(f"cost cap reached (${total_cost:.2f})")
             break
