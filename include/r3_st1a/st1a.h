@@ -3010,11 +3010,7 @@ typedef struct
 
 void func_801172D8(ST1A_ACTOR *wp);
 
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 void func_80117548(ST1A_STCOM27_WORK *wp);
 
 extern ST1A_OBJ_FACE_FUNC D_801326D8[];

@@ -655,11 +655,7 @@ void stcom24_func_1434(STCOM24_WORK *wp)
     // Never set: func_80047148 gets whatever a2 holds.
     STCOM_EFFECT *effect;
 
-#ifdef __wasm32__
-    func_80047148(wp, wp->joints_180);
-#else
     func_80047148(wp, wp->joints_180, effect);
-#endif
     func_80031824(wp);
 }
 

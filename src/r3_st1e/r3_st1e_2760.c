@@ -246,9 +246,6 @@ void func_80102FA4(ST1E_SCROLL *wp)
     wp->pos.count = 0;
 }
 
-#ifdef __wasm32__
-void func_8010320C(uint8 column, uint8 ch, sint16 y);
-#endif
 
 void func_80102FD8(ST1E_SCROLL *wp)
 {

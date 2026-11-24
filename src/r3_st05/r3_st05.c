@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st05.h"
 
-#ifdef __wasm32__
-void stcom36_func_0118(void);
-#endif
 
 // Installs the stage's slot routine tables.
 void func_8010088C(void)
@@ -1169,10 +1166,6 @@ void func_80102AA8(STAGE_ROOM *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_8010301C(STAGE_ROOM *wp);
-void func_801032A0(STAGE_ROOM *wp);
-#endif
 
 void func_80102BDC(STAGE_ROOM *wp)
 {
@@ -1266,9 +1259,6 @@ void func_80102BDC(STAGE_ROOM *wp)
     Sce_event_update();
 }
 
-#ifdef __wasm32__
-void func_80103768(sint32 index);
-#endif
 
 void func_80102E3C(STAGE_ROOM *wp)
 {

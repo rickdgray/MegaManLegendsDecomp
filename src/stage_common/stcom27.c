@@ -125,11 +125,7 @@ void stcom27_func_02B4(STCOM27_WORK *wp)
                 effect->variant_3       = 0;
                 effect->sprite.position = wp->position;
             }
-#ifdef __wasm32__
-            func_80047148(wp, pos);
-#else
             func_80047148(wp, pos, effect);
-#endif
             wp->routine_0 = 2;
             wp->routine_1 = 0;
             wp->routine_2 = 0;

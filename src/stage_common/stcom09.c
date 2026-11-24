@@ -357,11 +357,7 @@ void stcom09_func_0A64(STCOM09_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0;
         effect->sprite.position = wp->hit.pos_8;
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
         func_80031824(wp);
     }
 }

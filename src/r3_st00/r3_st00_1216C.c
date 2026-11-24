@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st00.h"
 
-#ifdef __wasm32__
-void func_80047228(void *wp, void *obj, sint32 n);
-#endif
 
 void func_8011216C(ST00_STCOM19_WORK *wp)
 {

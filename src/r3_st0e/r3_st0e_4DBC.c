@@ -35,11 +35,6 @@ void func_80104DF8(ST0E_ACTOR *wp)
     func_801056B8(wp);
 }
 
-#ifdef __wasm32__
-void func_801050A0(ST0E_ACTOR *wp);
-void func_80105148(ST0E_ACTOR *wp);
-void func_801051B0(ST0E_ACTOR *wp);
-#endif
 
 void func_80104F10(ST0E_ACTOR *wp)
 {
@@ -230,9 +225,6 @@ void func_80105490(ST0E_ACTOR *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_80105580(ST0E_ACTOR *wp);
-#endif
 
 void func_801054F0(STAGE_OBJ *wp)
 {
@@ -285,11 +277,7 @@ void func_801055F8(ST0E_ACTOR *wp)
             effect->variant_3       = 0;
             effect->sprite.position = wp->position;
         }
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
         wp->routine_0 = 2;
         wp->routine_1 = 0;
         wp->routine_2 = 0;

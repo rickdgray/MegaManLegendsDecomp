@@ -38,7 +38,8 @@ MISMATCH. The build's SHA-1 check is the only authority on whether something mat
 1. **The bytes must match.** Non-negotiable; everything else bends to it.
 2. **Beyond that, prefer modern readability**: typedefs, named macros, clear structure, Allman
    braces. Antiquated style is not a goal in itself.
-3. **Names follow Capcom's own conventions** (see "Names"), and real names win when known.
+3. **Names follow Capcom's own conventions** (see "Names"), and real names win when known,
+   unless Capcom's name says nothing (see "Capcom's opaque names").
 
 Capcom's own source, from the Japanese release's `ST1E.BIN` (TCRF's "Mega Man Legends/Source
 Code" page), is saved locally as **`disc/tcrf.txt`** (gitignored). Read it there; never fetch the
@@ -123,10 +124,14 @@ Batch runs (`tools/batch_run.py`) have nobody to approve a prompt: a command out
   `/tmp`: `./tools/cc.sh rock_neo.exe logs/scratch/t.c logs/scratch/t.o`, then
   `mips-linux-gnu-objdump -dr logs/scratch/t.o`.
 - `diff.sh` prints plain text when its output isn't a terminal: there are no colour codes to strip.
-- Allowed: the `tools/*.sh` scripts in the table above, `tools/rename.py`,
-  `.venv/bin/python tools/callers.py` (see "Names") and `.venv/bin/python tools/reach.py`,
-  `mips-linux-gnu-objdump`, `xxd`, `grep`, `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`,
-  `find`, `diff`, and read-only `git`. If you need anything else, stop and say so in the report.
+- Allowed: the `tools/*.sh` scripts in the table above (`make_expected.sh` included),
+  `tools/rename.py`, `.venv/bin/python tools/callers.py` (see "Names"),
+  `.venv/bin/python tools/reach.py` and `.venv/bin/python tools/dupe_scan.py`,
+  `mips-linux-gnu-objdump`, `mips-linux-gnu-readelf`, `mips-linux-gnu-nm`, `xxd`, `grep`,
+  `sed -n`, `cat`, `head`, `tail`, `ls`, `wc`, `awk`, `find`, `diff`, `sort`, `uniq`, `cut`, and
+  read-only `git` (`status`, `diff`, `log`, `show`, `blame`, `ls-files`, `grep`). Keep each
+  command plain: a chain (`;`, `&&`), a redirect or a complicated quoted regex is refused even
+  when every part is allowed. If you need anything else, stop and say so in the report.
 
 The owner's tools (`dupe_scan.py`, `progress.py`, `batch_run.py`, `rename.py`, `review.py`,
 `permuter_prep.py`, `ctx.sh` and `permute.sh`) are described in `notes/toolchain.md`.
@@ -218,7 +223,12 @@ variable defined in its own C file. The layout is in `notes/rock_neo_files.md`, 
 
 - **`.sdata` and `.sbss` variables are already defined** at the top of their file (placeholder
   types from the access widths). Use them, and retype them freely if the size and alignment stay
-  the same. Don't move, add or remove one: the layout is fixed by address.
+  the same. **Don't change the layout:** it is fixed by address, so nothing may move, grow, shrink
+  or be added. Replacing splat's placeholders with what really fills those bytes is fine when the
+  bytes stay in place: the `.sdata` bytes of `"bu00:*"` were splat variables until
+  `card_free_blocks` turned out to pass the literal to `strcpy` (string literals of 32 bytes or
+  less land in `.sdata` in definition order). Don't turn such a literal into a `const` variable:
+  that moves it to another section.
 - **Pool variables (`0x80098788`–`0x80098B6F`)** stay in assembly. Write a tentative definition in
   the file whose code uses `$gp` on it (`sint32 D_80098A58[2];`, no `extern`, no initializer), and
   `extern` everywhere else.
@@ -262,6 +272,19 @@ gcc 2.7.2 is a C89 compiler.
   `Cd_muted` twice.) Note that Ghidra's pseudocode hides dead stores; the assembly is the truth.
 - **Prefer the natural form when several match.** For example, try `for (i = 0; i < n; i++)`
   before a reversed loop; GCC often reverses loop direction itself.
+- **No fake code.** Code that exists only to steer GCC's register allocation or scheduling isn't
+  Capcom's source, even when it matches: `do { } while (0)` wrappers around ordinary statements
+  (GCC weighs references by loop depth), a copy of a value into a local the logic has no use for, an
+  `__asm__` label aliasing a symbol, an in-image symbol written as a literal address, `register`
+  variables pinned to a register, or a pointless `volatile`. If only such a form matches, park the
+  function with the clean version as its attempt, and say in the notes what the target does
+  differently. The permuter or a better struct often finds the real form later. A `do { } while
+  (0)` is fine as the body of a macro you define for a repeated pattern; that's what it was for.
+- **Repeated blocks are macros.** GCC 2.7 at `-O2` never unrolls a loop, so a long run of the same
+  few statements in the target (an unpacker's `*dst++ = (*src & mask) >> n;` repeated for every
+  group, say) was unrolled in Capcom's source, most likely with a macro. Write one macro for the
+  repeated group and call it once per group: macros are textual, so the bytes are the same, and a
+  page of increments becomes a few lines.
 - **Hand-written assembly stays assembly.** Some subsegments are Capcom's own assembly, not
   compiler output; their yaml lines say `HAND-WRITTEN ASSEMBLY` (e.g. ROCK_NEO's `asm_fastmem`).
   Never convert them to C, decompile their functions, or park them; they're complete as `asm`.
@@ -372,6 +395,12 @@ What decompilers show vs. what to write:
 - **Macros re-read, inline functions don't.** A macro's arguments are re-evaluated at each use,
   so a field it names is loaded again each time; an inline function evaluates them once. If the
   target reloads a field at each use, keep the macro (`CLUT_BUF_ROW` in `cd_cmd_read_comb`).
+- **Arrays declared without a size.** `extern uint8 D_800BBD84[];` and `extern uint8
+  D_800BBD84[4];` compile differently: with a size, GCC addresses each access on its own (`lui` +
+  `%lo`); with no size, it builds the array's address once (`lui` + `addiu`) and keeps it in a
+  register. `extern T x[];` was the common idiom, so if the target keeps an array's address in a
+  register where your build reloads it, declare the `extern` without a size (`code_8005C258`'s
+  `D_800BBD84`).
 - **Reused locals.** GCC 2.7 allocates each variable once for its whole life, so one variable used
   for two unrelated jobs gets one register choice, two variables get two. Code of the period often
   reused a generic local (`p`, `i`, `tmp`). If a register-only difference involves two of your
@@ -514,6 +543,15 @@ Before applying a name:
 - **Name only what you understand.** If you can't say what a symbol is for, leave it as the
   splat default. No placeholders (`Sound_unk_82274`), no guesses about other modules' symbols,
   and nothing named after one side effect when the job is still unclear.
+- **Never build a name on a placeholder.** Types named after their size or kind byte (`WORK_48`,
+  `WORK_50`, `W48_85_WORK`) and `unk` fields are placeholders too: `work_48_draw` would have to be
+  renamed again once `WORK_48` gets its real name. Leave such a function at its splat default, or
+  name it for what it does (`effect_draw` once you know those slots hold effects).
+- **Capcom's opaque names.** Capcom's names win for functions, types and fields, which are
+  usually clear (`Sub_screen_task`, `weapon_data`). Where one says nothing to a reader (`g_tbl`
+  for the weapon gauge table, `PL_KEY_ITEM_06`), use a descriptive name instead and keep Capcom's
+  in a comment on the definition (`// Capcom: g_tbl`), so a search of `disc/tcrf.txt` still finds
+  it.
 - **Check for duplicates.** `grep -w` the NEW name in `config/<t>/symbol_addrs.txt` and `renames.txt`.
   If it's taken, pick a more specific name; `rename.py` refuses a clash.
 - **Pick global or `static` style from the callers:** run `.venv/bin/python tools/callers.py <t>

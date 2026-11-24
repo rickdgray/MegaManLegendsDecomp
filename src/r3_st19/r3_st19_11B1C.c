@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st19.h"
 
-#ifdef __wasm32__
-void func_8001E3F0(sint32 arg);
-#endif
 
 void func_80111B1C(sint32 index, uint8 arg1)
 {

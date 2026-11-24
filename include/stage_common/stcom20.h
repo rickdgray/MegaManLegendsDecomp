@@ -74,11 +74,7 @@ sint32 func_8003648C(void *track, void *wp);
 void Pos_Shadow_Trans(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
 sint32 Angle_xz(sint16 x0, sint16 z0, sint16 x1, sint16 z1);
 void func_8004AE88(sint16 *angle, sint32 hit);
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 // PsyQ libgte.
 STCOM_MATRIX *RotMatrix(STCOM_SVECTOR *r, STCOM_MATRIX *m);
 STCOM_MATRIX *MulMatrix(STCOM_MATRIX *m0, STCOM_MATRIX *m1);

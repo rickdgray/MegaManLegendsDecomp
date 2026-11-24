@@ -19,9 +19,6 @@ void func_8010F0F4(STAGE_OBJ *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_8010FA0C(ST0A_VIEW *wp, STAGE_FACE *face, sint32 index);
-#endif
 
 void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
 {
@@ -197,9 +194,6 @@ void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     }
 }
 
-#ifdef __wasm32__
-void func_8010FBD0(STAGE_OBJ *wp, ST0A_GRID_HOLDER *holder);
-#endif
 
 void func_8010F774(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
 {

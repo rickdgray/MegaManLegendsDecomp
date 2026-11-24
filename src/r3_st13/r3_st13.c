@@ -609,9 +609,6 @@ void func_8010160C(void)
 {
 }
 
-#ifdef __wasm32__
-void func_80101704(ST13_ACTOR *wp);
-#endif
 
 void func_80101614(ST13_ACTOR *wp)
 {
@@ -748,11 +745,7 @@ void func_80101974(ST13_STCOM27_WORK *wp)
                 effect->variant_3       = 0;
                 effect->sprite.position = wp->position;
             }
-#ifdef __wasm32__
-            func_80047148(wp, &wp->position);
-#else
             func_80047148(wp, &wp->position, effect);
-#endif
             wp->routine_0 = 2;
             wp->routine_1 = 0;
             wp->routine_2 = 0;

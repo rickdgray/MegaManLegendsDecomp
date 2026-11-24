@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st04.h"
 
-#ifdef __wasm32__
-void stcom36_func_0028(sint8 room);
-#endif
 
 // Installs the stage's slot routine tables.
 void func_80100200(void)

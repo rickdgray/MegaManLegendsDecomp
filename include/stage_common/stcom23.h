@@ -112,11 +112,7 @@ void stcom23_func_0B18(STCOM23_WORK *wp);
 // ROCK_NEO.EXE.
 void ApplyMatrix(STCOM_MATRIX *m, STCOM_SVECTOR *v, STCOM_FIXED_VECTOR *out);
 void VectorNormal(STCOM_FIXED_VECTOR *v0, STCOM_FIXED_VECTOR *v1);
-#ifdef __wasm32__
-void VectorNormalS(STCOM_FIXED_VECTOR *v0, STCOM_SVECTOR *v1);
-#else
 sint32 VectorNormalS(STCOM_FIXED_VECTOR *v0, STCOM_SVECTOR *v1);
-#endif
 sint32 SquareRoot0(sint32 v);
 sint32 ratan2(sint32 y, sint32 x);
 sint32 func_80037694(STCOM23_WORK *wp, sint32 arg);

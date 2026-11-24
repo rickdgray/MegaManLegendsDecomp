@@ -9,9 +9,6 @@ void func_8011E75C(ST06_BOAT *wp)
     wp->ctl_CC.hit_10 = 0;
 }
 
-#ifdef __wasm32__
-void func_8011F1B4(ST06_BOAT *wp);
-#endif
 
 void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
 {
@@ -60,9 +57,6 @@ void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
     Model_Shadow_Trans(wp, 0x12C, 0x200, 0);
 }
 
-#ifdef __wasm32__
-void func_8011EEBC(ST06_BOAT *wp, ST06_BOAT_CTL *ctl);
-#endif
 
 void func_8011EA08(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
 {

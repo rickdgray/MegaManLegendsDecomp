@@ -306,11 +306,7 @@ void func_801081D0(ST1D_VIEW *wp)
                     effect->variant_3       = 0x40;
                     effect->sprite.position = wp->vec_180[1];
                 }
-#ifdef __wasm32__
-                func_80047148(wp, &wp->vec_180[0]);
-#else
                 func_80047148(wp, &wp->vec_180[0], effect);
-#endif
                 if (!(wp->value_F & 0x42))
                 {
                     ((STAGE_OBJ *)ext->u_4C.p)->routine_0 = 4;

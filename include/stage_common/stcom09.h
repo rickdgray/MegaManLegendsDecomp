@@ -116,11 +116,7 @@ extern uint8 *D_8008CE74; // a message script
 STCOM09_SHOT *Open_SHL_WORK(void);
 void func_80036478(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 sint32 func_80030418(void *a, void *b, STCOM_SVECTOR *size, STCOM_FIXED_VECTOR *out);
 sint32 Sce_flag_test(sint32 flag);
 sint32 MojiTaskExec(sint32 arg0, uint8 *script, sint32 arg2);

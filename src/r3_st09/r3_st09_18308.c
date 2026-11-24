@@ -1,17 +1,8 @@
 #include "common.h"
 #include "st09.h"
 
-#ifdef __wasm32__
-void Sce_flag_off(sint32 flag);
-#endif
 
-#ifdef __wasm32__
-void func_80031A4C(void *wp);
-#endif
 
-#ifdef __wasm32__
-void ApplyMatrix(void *matrix, void *vector, void *output);
-#endif
 
 void func_80118308(STAGE_PANEL_WORK *wp)
 {
@@ -385,9 +376,6 @@ sint32 func_80118FC0(ST09_BOX *wp)
     return 1;
 }
 
-#ifdef __wasm32__
-void func_801196C0(void);
-#endif
 
 void func_80119074(STAGE_PANEL_WORK *wp)
 {

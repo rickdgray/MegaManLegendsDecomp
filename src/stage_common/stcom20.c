@@ -209,11 +209,7 @@ void stcom20_func_05FC(STCOM20_WORK *wp)
             effect->sprite.position = wp->position;
         }
         wp->routine_0 = 2;
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
     }
     Obj_map_push_out(wp);
 }

@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st03.h"
 
-#ifdef __wasm32__
-void Sce_flag_off(sint32 flag);
-#endif
 
 void func_8010A9A8(STAGE_OBJ *wp)
 {

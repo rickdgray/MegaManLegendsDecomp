@@ -21,9 +21,6 @@ void func_8010D1F8(ST06_ACTOR *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_8010D7E8(ST06_ACTOR *wp);
-#endif
 
 void func_8010D2E8(ST06_ACTOR *wp)
 {

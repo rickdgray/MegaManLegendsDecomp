@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st14.h"
 
-#ifdef __wasm32__
-void func_80031A4C(void *wp);
-#endif
 
 void func_80101C28(STAGE_OBJ *wp)
 {
