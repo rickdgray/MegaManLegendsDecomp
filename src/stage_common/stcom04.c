@@ -285,7 +285,7 @@ void stcom04_func_07D0(STCOM04_WORK *wp)
 {
     uint32 dist;
 
-    dist = func_80030254(&Player_work, wp);
+    dist = Obj_distance_xyz(&Player_work, wp);
     if (dist < 600)
     {
         if (dist < 400)

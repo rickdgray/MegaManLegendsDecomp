@@ -1396,7 +1396,7 @@ void func_801033E4(STAGE_OBJ *wp, ST17_PART28 *part)
     part->value_20 = part->value_22 = part->value_24 = 0;
     part->hit_28.value_0                             = 0;
     part->hit_28.value_4                             = 0;
-    func_80036478(part->track_30, 0, 0);
+    Track_reset(part->track_30, 0, 0);
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]      = 0x02000200;

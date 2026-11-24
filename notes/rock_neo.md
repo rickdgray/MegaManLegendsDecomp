@@ -471,7 +471,7 @@ no per-kind code for this pool yet.
 position, two bytes, two halfwords) is the same. Where `EFC` starts and that `free` follows it are inferred from that
 match and from `EFC_MODEL`'s size (0x30); Capcom's offsets for `SHL_WORK` aren't known.
 
-The player's shots, pool `D_800BFB20[16]` (kind 0x10, `func_80031598` / `func_80031930`, spawned by `pl_shot_spawn`),
+The player's shots, pool `D_800BFB20[16]` (kind 0x10, `Open_PL_SHL_WORK` / `Close_PL_SHL_WORK`, spawned by `pl_shot_spawn`),
 have their own struct, `PL_SHL_WORK`: same layout, with the sprite `EFC` and the free block written out, because a
 player's shot keeps its own bytes in both (the flight direction `dir_A4` in the EFC's kind bytes, `tgt_BC` and
 `owner_C4` in the free block). Its `id_2` is byte 7 of the player's action record (`D_80089A8B`); the handlers are
@@ -634,7 +634,7 @@ copies the far colour and near distance into four halfwords.
 Banked `Angle_diff_clamp` (signed angle difference on a 0x1000 circle, clamped to +-limit; `r = limit`
 first, and the else-branch test written `limit > 0x1000 - d`). `func_800323FC` and the slot allocators
 `Open_EVE_WORK`, `func_80031734` were parked here; banked in batch 7 (below). The model-pool allocators `func_80031418`,
-`Open_SHL_WORK` and `func_80031598` are banked: they matched once `field_74` (a `sint8`, read with `lb`
+`Open_SHL_WORK` and `Open_PL_SHL_WORK` are banked: they matched once `field_74` (a `sint8`, read with `lb`
 everywhere) was cleared with one word store over 0x74-0x77, like their other multi-field clears.
 
 Banked `func_80031324` (initialises a child object from slot n of a parent: copies the 32-byte block at

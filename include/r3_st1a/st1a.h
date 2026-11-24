@@ -684,7 +684,7 @@ typedef struct
     uint8 value_C;      // C
     uint8 value_D;      // D
     uint8 value_E;      // E
-    uint8 track_F;      // F: func_80036478's argument
+    uint8 track_F;      // F: Track_reset's argument
 } ST1A_KIND;
 
 extern ST1A_KIND **D_8009884C;
@@ -3010,11 +3010,7 @@ typedef struct
 
 void func_801172D8(ST1A_ACTOR *wp);
 
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 void func_80117548(ST1A_STCOM27_WORK *wp);
 
 extern ST1A_OBJ_FACE_FUNC D_801326D8[];
@@ -3192,7 +3188,7 @@ typedef struct
 #define ST1A_CTL_OF(wp) ((ST1A_CTL *)((uint8 *)&(wp)->ext + 0x20))
 
 extern STCOM16_KIND **D_80098844;
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 void func_80110090(ST1A_VIEW_H *wp);
 
 typedef struct ST1A_VIEW_I ST1A_VIEW_I;
@@ -4368,7 +4364,7 @@ typedef struct
     sint32 value_18;      // 458
     sint32 value_1C;      // 45C
     uint8 reserved20[8];  // 460
-    uint8 track_28[0x2A]; // 468: func_80036478's
+    uint8 track_28[0x2A]; // 468: Track_reset's
     uint8 value_52;       // 492
     uint8 value_53;       // 493
     sint32 value_54;      // 494

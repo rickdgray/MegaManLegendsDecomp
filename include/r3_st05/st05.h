@@ -914,7 +914,7 @@ typedef struct
     uint16 value_18;        // 18
     uint16 value_1A;        // 1A
     STCOM_SVECTOR from_1C;  // 1C
-    uint8 track_24[0x10];   // 24: func_80036478's record
+    uint8 track_24[0x10];   // 24: Track_reset's record
     sint16 sparks_34;       // 34: spark bursts so far (func_8010CA98)
 } ST05_GUARD_CTL;
 
@@ -1409,8 +1409,8 @@ void func_8011472C(ST05_WALKER *wp);
 sint32 func_80116254(ST05_WALKER *wp);
 sint32 func_80116380(ST05_WALKER *wp);
 void func_80116528(ST05_WALKER *wp);
-void func_80036470(void *track);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_stop(void *track);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 Obj_ceiling_height_get(void *wp);
 
 // A ROCK_NEO record per kind (D_80098844), as the walker reads it.
@@ -1846,7 +1846,7 @@ typedef struct
     uint32 hit_14;          // 14: damage in the low 24 bits, kind bits above
     uint32 value_18;        // 18
     STCOM_SVECTOR from_1C;  // 1C: where the hit came from (pad bit 0: use it)
-    uint8 track_24[0x10];   // 24: func_80036478's record
+    uint8 track_24[0x10];   // 24: Track_reset's record
     uint32 range_34;        // 34
     ST05_HELD *other_38;    // 38: the slot it carries
     uint8 reserved3C[4];    // 3C
@@ -2021,7 +2021,7 @@ typedef struct
     sint32 ground_1C;     // 1C: 1 on the ground
     sint32 hit_20;        // 20: func_800341BC's record
     sint32 value_24;      // 24
-    uint8 track_28[0x10]; // 28: func_80036478/func_8003648C
+    uint8 track_28[0x10]; // 28: Track_reset/func_8003648C
 } ST05_BOAT_CTL;
 
 // A 0x3C0-byte work slot of the boats (D_801318F4's routines).
@@ -2160,7 +2160,7 @@ typedef struct
     sint16 timer_A;            // 44A
     uint8 reservedC[4];        // 44C
     ST05_HIT hit_10[9];        // 450: cleared each frame
-    uint8 track_A0[0x10];      // 4E0: func_80036478
+    uint8 track_A0[0x10];      // 4E0: Track_reset
     STCOM_SVECTOR hit_pos_B0;  // 4F0: func_800341BC's point
     STCOM_SVECTOR home_B8;     // 4F8: pad is the heading
     STCOM_SVECTOR target_C0;   // 500: pad is the angle from it to the player

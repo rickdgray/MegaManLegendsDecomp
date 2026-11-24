@@ -377,7 +377,7 @@ void func_8010116C(ST09_VIEW *wp)
     *(sint32 *)&wp->ext.value_8 = 0;
     wp->ext.value_14            = 0;
     wp->ext.value_18            = 0;
-    func_80036478(wp->ext.u_24.track, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ext.u_24.track, D_80098844[wp->kind_2]->value_F, -0x60);
     wp->ext.u_34.h[0]         = 0;
     wp->ext.u_34.h[1]         = 0;
     wp->ext.u_3C.h[0]         = 0;

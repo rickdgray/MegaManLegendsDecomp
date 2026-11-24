@@ -109,7 +109,7 @@ void func_801135CC(ST0A_SHOT *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         func_80113888(wp, 1);
         return;
@@ -133,7 +133,7 @@ void func_801135CC(ST0A_SHOT *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         return;
     }

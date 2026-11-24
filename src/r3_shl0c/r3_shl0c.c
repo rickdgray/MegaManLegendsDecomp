@@ -77,7 +77,7 @@ void func_800D8A88(SHL_WORK *wp)
     {
     end:
         Sound_call2(0x135, &wp->pos);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     if (Player_work.timer_55a != 0x7FFF)

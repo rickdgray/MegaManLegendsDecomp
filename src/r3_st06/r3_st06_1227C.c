@@ -92,10 +92,6 @@ void func_801124BC(ST06_ACTOR *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_801129A4(ST06_ACTOR *wp);
-#endif
-
 void func_801125AC(ST06_ACTOR *wp)
 {
     ST06_SCENE *scene;

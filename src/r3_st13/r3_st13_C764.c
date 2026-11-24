@@ -68,7 +68,7 @@ void func_8010C93C(STCOM16_WORK *wp)
     wp->stun.timer_5        = 30;
     wp->fade.on_3           = 0;
     wp->ground.flags_6      = 0;
-    func_80036478(wp->ctl.track_20, 5, -0x60);
+    Track_reset(wp->ctl.track_20, 5, -0x60);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     ctl                                              = &wp->ctl;
     wp->routine_0                                    = 1;
@@ -1151,11 +1151,7 @@ void func_8010EB10(STCOM16_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0x40;
         effect->sprite.position = wp->joints_180[0];
-#ifdef __wasm32__
-        func_80047148(wp, &wp->joints_180[0]);
-#else
         func_80047148(wp, &wp->joints_180[0], effect);
-#endif
     }
     wp->routine_0 = 2;
     wp->flags_0 &= ~2;

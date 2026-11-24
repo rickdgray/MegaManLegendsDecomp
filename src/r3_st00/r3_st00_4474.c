@@ -1,10 +1,6 @@
 #include "common.h"
 #include "st00.h"
 
-#ifdef __wasm32__
-void func_80047148(void *wp, void *obj);
-#endif
-
 void func_80104474(STAGE_OBJ *wp)
 {
     if (wp->routine_0 != 0)
@@ -149,7 +145,7 @@ void func_80104A08(STAGE_STCOM15_WORK_348 *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    func_80036478(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
     wp->ctl.timer_36 = 4;
     wp->ctl.timer_34 = wp->position.pad;
     wp->position.pad = 0;
@@ -435,7 +431,7 @@ void func_801053B8(STAGE_STCOM15_WORK_348 *wp)
             wp->anim_AC   = 7;
             ctl->timer_4  = 0xC;
             ctl->value_8  = 0;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             // fall through
         case 1:
             if (--ctl->timer_4 < 0)
@@ -899,7 +895,7 @@ void func_8010648C(ST00_OBJ *wp)
     wp->value_350      = 0;
     wp->value_35C      = 0;
     wp->value_360      = 0;
-    func_80036478(wp->track_36C, 0, -0x60);
+    Track_reset(wp->track_36C, 0, -0x60);
     life                      = D_80098844[wp->kind_2]->life_8;
     wp->value_78              = D_8011C014;
     wp->value_10              = 0;

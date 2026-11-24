@@ -206,7 +206,7 @@ typedef struct
     sint32 value_458;                       // 458
     sint32 value_45C;                       // 45C
     uint8 reserved460[0x8];                 // 460
-    uint8 track_468[0x10];                  // 468: func_80036478
+    uint8 track_468[0x10];                  // 468: Track_reset
     uint8 reserved478[0x8];                 // 478
     sint32 value_480;                       // 480
     sint32 value_484;                       // 484
@@ -1192,7 +1192,7 @@ typedef struct
     uint32 hit_18;                     // 458: filled by func_800341BC
     sint32 value_1C;                   // 45C
     uint8 reserved20[8];               // 460
-    uint8 track_28[0x10];              // 468: func_80036478
+    uint8 track_28[0x10];              // 468: Track_reset
     STCOM_SVECTOR_W probe_38;          // 478: a point ahead (func_80118708), or a rotation
     STCOM_FIXED_VECTOR probe_fixed_40; // 480: or a scale (func_801189B4)
     STCOM_SVECTOR target_50;           // 490: the point it turns to

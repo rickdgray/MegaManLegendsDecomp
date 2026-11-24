@@ -108,7 +108,7 @@ void func_800D8C4C(SHL_WORK *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         func_800D8F08(wp, 1);
         return;
@@ -132,7 +132,7 @@ void func_800D8C4C(SHL_WORK *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         return;
     }

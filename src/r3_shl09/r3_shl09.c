@@ -40,7 +40,7 @@ void func_800D896C(SHL_WORK *wp)
 {
     if (--wp->value_f == 0)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     if (wp->value_f == 9)
@@ -136,7 +136,7 @@ void func_800D8D68(SHL_WORK *wp)
     ScaleMatrix(&wp->draw.mdl.mtx_8c, &v);
     if (--wp->value_e == 0)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
     }
 }
 
@@ -165,7 +165,7 @@ void func_800D8EDC(SHL_WORK *wp)
     wp->draw.spr.scale_97 = D_800D9724[wp->bit_d].scale_97;
     if (wp->bit_d >= 6)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
     }
 }
 
@@ -258,7 +258,7 @@ void func_800D942C(SHL_WORK *wp)
 {
     SHL_WORK *np;
 
-    np = func_80031598();
+    np = Open_PL_SHL_WORK();
     if (np)
     {
         np->flags_0 = 1;
@@ -280,7 +280,7 @@ void func_800D947C(SHL_WORK *wp)
     v.vx = (p.vx << 16) + (d.vx << 8);
     v.vy = (p.vy << 16) + (d.vy << 8);
     v.vz = (p.vz << 16) + (d.vz << 8);
-    np   = func_80031598();
+    np   = Open_PL_SHL_WORK();
     if (np)
     {
         np->flags_0       = 1;

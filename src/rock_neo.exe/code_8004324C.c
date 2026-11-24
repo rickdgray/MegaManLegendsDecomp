@@ -123,7 +123,7 @@ void func_800434F0(PL_SHL_WORK *wp)
     wp->old = cur->pos;
     if (--wp->timer_B == 0)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
     }
     else if (func_80037694((MODEL_WORK *)wp, 0))
     {
@@ -143,7 +143,7 @@ void func_800435BC(PL_SHL_WORK *wp)
 
     pl         = func_80036294((uint8)wp->field_C);
     pl->unk198 = 0;
-    func_80031930(wp);
+    Close_PL_SHL_WORK(wp);
 }
 
 void func_800435F8(PL_SHL_WORK *wp)
@@ -349,7 +349,7 @@ void func_80043A8C(PL_SHL_WORK *wp)
     else
     {
     close:
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         if (wp->type_3 >= 0x80)
         {
             func_800354E0(wp->slot_D);

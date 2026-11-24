@@ -123,7 +123,7 @@ typedef struct
     STCOM_SVECTOR pos_C;         // C8: its hit box
     uint32 hit_14;               // D0: damage (low 24 bits) and kind bits
     uint8 reserved18[0xC];       // D4
-    uint8 track_24[0x10];        // E0 (func_80036470)
+    uint8 track_24[0x10];        // E0 (Track_stop)
     ST09_BOSS *parent_34;        // F0
     STCOM_FIXED_VECTOR scale_38; // F4
     uint8 reserved48[8];         // 104
@@ -674,7 +674,7 @@ void func_80114D5C(ST09_PART *wp);
 void func_80114EE0(ST09_PART *wp);
 void func_80115014(ST09_PART *wp);
 sint32 func_801157F0(ST09_PART *wp);
-void func_80036470(void *track);
+void Track_stop(void *track);
 void func_80101740(ST09_VIEW *wp);
 void func_80107828(ST09_VIEW *wp);
 void func_8010779C(ST09_VIEW *wp);
@@ -699,7 +699,7 @@ typedef struct
 
 extern ST09_KIND **D_80098844;
 void *func_80036294(sint32 id); // the spawned slot with this id; callers use their own view
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 // The scale vector r3_st09's stcom15 enemies keep in their block's +0x34 (ScaleMatrix).
 #define ST09_STCOM15_SCALE(ctl) (*(STCOM_FIXED_VECTOR *)&(ctl)->timer_34)
 sint16 Obj_ceiling_height_get(void *wp);
@@ -926,7 +926,7 @@ typedef struct
     uint32 hit_14;           // 35C: damage in the low 24 bits, kind bits above
     sint32 value_18;         // 360
     STCOM_SVECTOR target_1C; // 364: the attacker's position (pad bit 0: from the player?)
-    uint8 track_24[0x10];    // 36C (func_80036478)
+    uint8 track_24[0x10];    // 36C (Track_reset)
     union
     {
         STCOM_SVECTOR target; // an NPC's walk target (func_80107D28)
@@ -1017,7 +1017,7 @@ typedef struct
     uint8 life_8;  // life / 32
     uint8 limit_9; // damage that stuns it (times 4)
     uint8 reserved0A[5];
-    uint8 value_F; // func_80036478's second argument
+    uint8 value_F; // Track_reset's second argument
 } ST09_KIND_REC;
 
 extern ST09_KIND_REC **D_8009884C;

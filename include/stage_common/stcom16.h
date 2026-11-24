@@ -135,15 +135,11 @@ extern STCOM16_FUNC stcom16_D_0098[]; // routine_2 handlers (stcom16_func_2434)
 // ROCK_NEO.EXE.
 extern STCOM16_KIND **D_80098844;
 void func_8003354C(void *wp);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 // PsyQ libgte.
 void ApplyMatrix(STCOM_MATRIX *m, STCOM_SVECTOR *v, STCOM_FIXED_VECTOR *out);
 

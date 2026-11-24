@@ -2137,7 +2137,7 @@ void func_801045F8(ST0B_OBJ *wp)
     ctl->msg_D8              = 0;
     *(uint32 *)&ctl->index_4 = 0;
     *(uint32 *)&ctl->value_8 = 0;
-    func_80036478(ctl->track_38, 0, -0x60);
+    Track_reset(ctl->track_38, 0, -0x60);
     ctl->timer_C               = 0;
     ctl->slot_60               = func_80036294(wp->u_C.b.byte_C);
     ctl->index_E               = 0;
@@ -2514,10 +2514,6 @@ void func_80105404(ST0B_OBJ *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_80106C90(ST0B_OBJ *wp);
-#endif
-
 void func_8010552C(ST0B_OBJ *wp)
 {
     ST0B_CTL *ctl;
@@ -2634,10 +2630,6 @@ void func_80105790(ST0B_OBJ *wp)
     }
     ctl->time_64++;
 }
-
-#ifdef __wasm32__
-void func_80106F6C(ST0B_OBJ *wp);
-#endif
 
 void func_801058E4(ST0B_OBJ *wp)
 {

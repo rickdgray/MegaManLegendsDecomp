@@ -122,7 +122,7 @@ extern STCOM_SVECTOR stcom15_D_006C;  // a fixed point it turns from
 
 // ROCK_NEO.EXE.
 extern STCOM15_LEVEL **D_80098844;
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
 sint32 Sce_flag_test(sint32 flag);

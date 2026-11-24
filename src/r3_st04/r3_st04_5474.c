@@ -618,7 +618,7 @@ void func_801067A8(ST04_GUARD *wp)
     wp->value_34C      = 0;
     wp->value_350      = 0;
     wp->value_35C      = 0;
-    func_80036478(wp->track_36C, 0, -0x60);
+    Track_reset(wp->track_36C, 0, -0x60);
     wp->value_384    = 0;
     wp->value_386    = 0;
     life             = D_80098844[wp->kind_2]->life_8;

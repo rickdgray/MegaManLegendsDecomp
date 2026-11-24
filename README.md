@@ -16,7 +16,7 @@ The long-term goal is a *matching* decompilation: C source that compiles to a by
 | Track 1 SHA-1 | `904489e2e8d06e1c44e60d8925329f9472b2d037` |
 | Track 2 SHA-1 | `d9f92af296360772e62caa4cb276de3fa74f5538` |
 
-Other regions and disc revisions are not yes supported.
+Other regions and disc revisions are not yet supported.
 
 ## Status
 

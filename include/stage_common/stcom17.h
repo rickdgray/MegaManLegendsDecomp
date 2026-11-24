@@ -213,7 +213,7 @@ extern STCOM17_GUN_FUNC stcom17_D_0040[]; // routine_1 handlers (stcom17_func_19
 extern STCOM17_KIND **D_80098844;
 extern uint8 Scene_work; // nonzero while a scene runs
 STCOM17_SHOT *Open_SHL_WORK(void);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 void func_8002F9EC(void *wp, sint32 arg);
@@ -222,11 +222,7 @@ void Model_parts_mtx_set_y(void *wp);
 uint32 func_80030628(void *wp, void *other, STCOM_SVECTOR *range, STCOM_FIXED_VECTOR *out, sint32 angle);
 sint32 func_80030418(void *a, void *b, STCOM_SVECTOR *size, STCOM_FIXED_VECTOR *out);
 void func_80030EE8(void *wp, STCOM_SVECTOR *target, sint32 speed);
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 void func_80052528(void *wp);
 sint32 func_800364B0(void *track, void *wp, sint32 angle);
 sint16 func_80030D30(STCOM_SVECTOR *from, STCOM_SVECTOR *to, sint32 speed, sint32 arg3, sint32 arg4);

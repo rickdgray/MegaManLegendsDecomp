@@ -191,7 +191,7 @@ typedef struct
     uint8 reserved20[8];  // 348
     union
     {
-        uint8 track[0x10]; // func_80036478
+        uint8 track[0x10]; // Track_reset
         sint32 w[4];
     } u_28;                 // 350
     sint16 value_38;        // 360
@@ -550,11 +550,7 @@ void func_80100B88(STAGE_ROOM *wp);
 void func_8010E0B0(ST14_TALKER *wp);
 void func_8010E304(ST14_TALKER *wp);
 void func_8010E454(ST14_TALKER *wp);
-#ifdef __wasm32__
-void func_80047148(void *wp, STCOM_SVECTOR *pos);
-#else
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
-#endif
 // func_80047148 as func_8010C9CC calls it: without the effect (retail passes whatever a2 holds).
 void func_80047148_2(void *wp, STCOM_SVECTOR *pos) __asm__("func_80047148");
 // Obj_pos_set as func_8010CDB0 calls it: without a prototype, so an int result is set in v0.
@@ -571,8 +567,8 @@ void func_8003187C(void *wp);
 void func_8003697C(void);
 void func_8005D6E8(void *wp);
 void Swing_Camera2(sint32 a0, sint32 a1, sint32 a2, STCOM_SVECTOR *pos);
-void func_80036470(void *track);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_stop(void *track);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 
 #endif

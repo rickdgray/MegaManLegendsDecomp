@@ -533,7 +533,7 @@ typedef struct
     sint16 value_A;             // 0A
     ST0A_EM_HIT hit_C;          // 0C
     uint8 reserved1C[8];        // 1C
-    uint8 track_24[0x10];       // 24: func_80036478
+    uint8 track_24[0x10];       // 24: Track_reset
     uint8 *uv_34;               // 34: a face's texture coordinates (Model_face_get)
     sint16 *vtx_38;             // 38: vertices (Model_vertex_get)
     sint16 *vtx_3C;             // 3C
@@ -748,7 +748,7 @@ typedef struct
     uint32 hit_14;         // 33C: damage in the low 24 bits, kind bits above
     uint32 value_18;       // 340
     STCOM_SVECTOR from_1C; // 344
-    uint8 track_24[0x10];  // 34C: func_80036478
+    uint8 track_24[0x10];  // 34C: Track_reset
     STCOM_SVECTOR home_34; // 35C: where it started
     ST0A_HELD *held_3C;    // 364
     STAGE_OBJ *owner_40;   // 368: func_80036294's object

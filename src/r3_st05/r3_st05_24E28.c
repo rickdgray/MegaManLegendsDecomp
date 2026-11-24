@@ -837,7 +837,7 @@ void func_80126D98(STAGE_SHOT *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         func_80127054(wp, 1);
         return;
@@ -861,7 +861,7 @@ void func_80126D98(STAGE_SHOT *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         return;
     }

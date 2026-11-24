@@ -79,7 +79,7 @@ void func_800D8AAC(SHL_WORK *wp)
     if (func_80037694(wp, 0) == 0x7FFF || wp->hit_7c || !Map_cell_get(&wp->pos))
     {
         func_800D8EF4(wp);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->old_fpos = wp->fpos;
@@ -114,7 +114,7 @@ void func_800D8C1C(SHL_WORK *wp)
     if (func_80037694(wp, 0) == 0x7FFF)
     {
         func_800D8EF4(wp);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->old_fpos = wp->fpos;
@@ -172,7 +172,7 @@ void func_800D8D14(SHL_WORK *wp)
     {
     end:
         func_800D8EF4(wp);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     func_800D8E64(wp, 0x6000);

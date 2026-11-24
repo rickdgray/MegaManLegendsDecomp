@@ -1,10 +1,6 @@
 #include "common.h"
 #include "st06.h"
 
-#ifdef __wasm32__
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
-#endif
-
 void func_80115F34(STAGE_OBJ *wp)
 {
     STAGE_FACE16 *face;
@@ -579,7 +575,7 @@ void func_80117160(ST06_CRAB *wp)
     wp->body.u_8.word  = 0;
     wp->body.hit_18    = 0;
     wp->body.value_1C  = 0;
-    func_80036478(wp->body.track_28, 0, -0x60);
+    Track_reset(wp->body.track_28, 0, -0x60);
     wp->body.hit_60           = 0;
     wp->body.value_64         = 0;
     wp->body.hit_70           = 0;

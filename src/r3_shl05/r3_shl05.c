@@ -98,7 +98,7 @@ void func_800D8B90(SHL_WORK *wp)
             func_800D9450(wp, fx);
         }
         wp->flags_0 = 0;
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->old_fpos          = wp->fpos;
@@ -110,7 +110,7 @@ void func_800D8B90(SHL_WORK *wp)
     if ((Game_work.value_50 == 0x10 || Game_work.value_50 == 0x11) && wp->pos.vy >= -1)
     {
         wp->flags_0 = 0;
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     if (func_800D90B0(wp))
@@ -155,7 +155,7 @@ void func_800D8D60(SHL_WORK *wp)
         func_800D9450(wp, fx);
     }
     wp->flags_0 = 0;
-    func_80031930(wp);
+    Close_PL_SHL_WORK(wp);
 }
 
 void func_800D8DF4(SHL_WORK *wp)
@@ -223,7 +223,7 @@ end:
     }
 remove:
     wp->flags_0 = 0;
-    func_80031930(wp);
+    Close_PL_SHL_WORK(wp);
 }
 
 void func_800D8FEC(SHL_WORK *wp)
@@ -276,7 +276,7 @@ sint16 func_800D90B0(SHL_WORK *wp)
             }
             if (Game_work.value_50 == 11 && wp->pos.vy == -1)
             {
-                func_80031930(wp);
+                Close_PL_SHL_WORK(wp);
                 Sound_call2(0x102, &wp->pos);
                 fx = func_80031618();
                 if (fx)

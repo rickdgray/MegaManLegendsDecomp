@@ -1398,7 +1398,7 @@ typedef struct
     STCOM_SVECTOR from_1C; // 1C: where a hit came from (flags in pad)
     union
     {
-        uint8 track[0x10]; // func_80036478
+        uint8 track[0x10]; // Track_reset
         sint32 w[4];
     } u_24; // 24
     union

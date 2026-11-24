@@ -175,10 +175,6 @@ void func_80108E2C(ST1B_VIEW *wp)
     wp->routine_0++;
 }
 
-#ifdef __wasm32__
-void func_801093EC(ST1B_TALKER *wp);
-#endif
-
 void func_80108EDC(ST1B_TALKER *wp)
 {
     ST1B_TALK *talk;

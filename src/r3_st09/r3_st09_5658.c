@@ -1,18 +1,6 @@
 #include "common.h"
 #include "st09.h"
 
-#ifdef __wasm32__
-void Sce_flag_off(sint32 flag);
-#endif
-
-#ifdef __wasm32__
-void func_80100DF4(ST09_VIEW *wp);
-#endif
-
-#ifdef __wasm32__
-void func_80047148(void *wp, void *obj);
-#endif
-
 void func_80105658(STAGE_STCOM15_WORK_348 *wp)
 {
     STAGE_STCOM15_CTL *ctl;
@@ -79,7 +67,7 @@ void func_80105870(STAGE_STCOM15_WORK_348 *wp)
     *(uint32 *)&wp->ctl.u_3C     = 0x1000;
     *(uint32 *)&wp->ctl.timer_4  = 0;
     *(uint32 *)&wp->ctl.value_8  = 0;
-    func_80036478(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
     life                      = D_80098844[wp->kind_2]->life_8;
     wp->data_78               = D_8011DEE4;
     wp->data_10               = NULL;
@@ -291,7 +279,7 @@ void func_80105F58(STAGE_STCOM15_WORK_348 *wp)
             *((uint8 *)wp + 0x108) = 5; // a byte past the named fields
             ctl->timer_4           = 3;
             ctl->flags_0 |= 0x100;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             Sound_call2(0xBB, &wp->position);
             // fall through
         case 1:
@@ -1067,11 +1055,7 @@ void func_80107A14(ST09_VIEW *wp)
                     effect->variant_3       = 0x40;
                     effect->sprite.position = wp->vec_188;
                 }
-#ifdef __wasm32__
-                func_80047148(wp, &wp->vec_180);
-#else
                 func_80047148(wp, &wp->vec_180, effect);
-#endif
                 if (!(wp->u_C.b[3] & 0x42))
                 {
                     ((STAGE_OBJ *)ext->u_4C.p)->routine_0 = 4;
@@ -1472,7 +1456,7 @@ void func_801088B0(STAGE_STCOM15_WORK_348 *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    func_80036478(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
     wp->ctl.timer_36 = 4;
     wp->ctl.timer_34 = wp->position.pad;
     wp->position.pad = 0;
@@ -1757,7 +1741,7 @@ void func_80109260(STAGE_STCOM15_WORK_348 *wp)
             wp->anim_AC   = 7;
             ctl->timer_4  = 0xC;
             ctl->value_8  = 0;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             // fall through
         case 1:
             if (--ctl->timer_4 < 0)

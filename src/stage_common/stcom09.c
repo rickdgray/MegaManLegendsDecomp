@@ -46,7 +46,7 @@ void stcom09_func_00CC(STCOM09_WORK *wp)
     wp->hit.ofs_14       = 0;
     wp->hit.value_4      = 0x8880000;
     wp->hit.timer_2      = 0;
-    func_80036478(wp->track_328, 0, -0x60);
+    Track_reset(wp->track_328, 0, -0x60);
     stcom09_func_0C48(&ofs, wp->rotation.y, wp->hit.ofs_10, wp->hit.ofs_12, wp->hit.ofs_14);
     wp->hit.pos_8 = ofs;
     wp->hit.pos_8.x += wp->position.x;
@@ -357,11 +357,7 @@ void stcom09_func_0A64(STCOM09_WORK *wp)
         effect->kind_2          = 0x80;
         effect->variant_3       = 0;
         effect->sprite.position = wp->hit.pos_8;
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
         func_80031824(wp);
     }
 }

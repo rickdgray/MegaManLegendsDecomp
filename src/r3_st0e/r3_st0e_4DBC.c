@@ -19,7 +19,7 @@ void func_80104DF8(ST0E_ACTOR *wp)
     wp->velocity.v.x = wp->velocity.v.y = wp->velocity.v.z = 0;
     wp->value_4C = wp->value_4E = wp->value_50 = 0;
     Model_work_init(wp, NULL);
-    func_80036478(&wp->ctl, 9, -0x60);
+    Track_reset(&wp->ctl, 9, -0x60);
     wp->data_78  = D_801103A4;
     wp->value_6E = wp->value_B0 = D_80098844[wp->kind_2]->life_8 * 16;
     wp->position.y              = -0x200;
@@ -34,12 +34,6 @@ void func_80104DF8(ST0E_ACTOR *wp)
     wp->routine_0 = 1;
     func_801056B8(wp);
 }
-
-#ifdef __wasm32__
-void func_801050A0(ST0E_ACTOR *wp);
-void func_80105148(ST0E_ACTOR *wp);
-void func_801051B0(ST0E_ACTOR *wp);
-#endif
 
 void func_80104F10(ST0E_ACTOR *wp)
 {
@@ -230,10 +224,6 @@ void func_80105490(ST0E_ACTOR *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_80105580(ST0E_ACTOR *wp);
-#endif
-
 void func_801054F0(STAGE_OBJ *wp)
 {
     wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x60)) & 0xFFF;
@@ -285,11 +275,7 @@ void func_801055F8(ST0E_ACTOR *wp)
             effect->variant_3       = 0;
             effect->sprite.position = wp->position;
         }
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
         wp->routine_0 = 2;
         wp->routine_1 = 0;
         wp->routine_2 = 0;

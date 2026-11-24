@@ -1,18 +1,10 @@
 #include "common.h"
 #include "st03.h"
 
-#ifdef __wasm32__
-void Sce_flag_off(sint32 flag);
-#endif
-
 void func_8010C66C(STAGE_OBJ *wp)
 {
     D_801170E0[wp->routine_0](wp);
 }
-
-#ifdef __wasm32__
-void func_8010C7E8(ST03_ACTOR *wp);
-#endif
 
 void func_8010C6A8(ST03_ACTOR *wp)
 {
@@ -619,10 +611,6 @@ void func_8010D968(STAGE_OBJ *wp)
 {
     D_80117140[wp->routine_0](wp);
 }
-
-#ifdef __wasm32__
-void func_8010DAE8(ST03_ACTOR *wp);
-#endif
 
 void func_8010D9A4(ST03_ACTOR *wp)
 {

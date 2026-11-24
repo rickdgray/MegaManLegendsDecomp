@@ -19,13 +19,13 @@ void func_800D8854(SHL_WORK *wp)
     func_800354E0(wp->bit_d);
     rot.vx = func_80039B80();
     func_800D8E44(wp, rot.vx, wp->rot_y);
-    np = func_80031598();
+    np = Open_PL_SHL_WORK();
     if (np)
     {
         func_800D8DD8(wp, np);
         func_800D8E44(np, rot.vx, wp->rot_y + 0x80 + (rand() & 0x1F));
     }
-    np = func_80031598();
+    np = Open_PL_SHL_WORK();
     if (np)
     {
         func_800D8DD8(wp, np);
@@ -33,13 +33,13 @@ void func_800D8854(SHL_WORK *wp)
     }
     if (Player_work.value_528 > 0)
     {
-        np = func_80031598();
+        np = Open_PL_SHL_WORK();
         if (np)
         {
             func_800D8DD8(wp, np);
             func_800D8E44(np, rot.vx, wp->rot_y + 0x100 + (rand() & 0x1F));
         }
-        np = func_80031598();
+        np = Open_PL_SHL_WORK();
         if (np)
         {
             func_800D8DD8(wp, np);
@@ -47,13 +47,13 @@ void func_800D8854(SHL_WORK *wp)
         }
         if (Player_work.value_528 >= 2)
         {
-            np = func_80031598();
+            np = Open_PL_SHL_WORK();
             if (np)
             {
                 func_800D8DD8(wp, np);
                 func_800D8E44(np, rot.vx, wp->rot_y + 0x180 + (rand() & 0x1F));
             }
-            np = func_80031598();
+            np = Open_PL_SHL_WORK();
             if (np)
             {
                 func_800D8DD8(wp, np);
@@ -71,7 +71,7 @@ void func_800D8A6C(SHL_WORK *wp)
     if (func_80037694(wp, 0x20) || wp->hit_7c)
     {
         func_800D8C2C(wp);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->old_fpos = wp->fpos;
@@ -82,7 +82,7 @@ void func_800D8A6C(SHL_WORK *wp)
     wp->vel.vz += wp->az;
     if (wp->timer_b++ >= 90)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->fpos.w.x += wp->vel.vx << 8;

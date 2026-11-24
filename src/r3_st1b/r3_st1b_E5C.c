@@ -1,10 +1,6 @@
 #include "common.h"
 #include "st1b.h"
 
-#ifdef __wasm32__
-void Sce_flag_off(sint32 flag);
-#endif
-
 void func_80100E5C(void)
 {
 }

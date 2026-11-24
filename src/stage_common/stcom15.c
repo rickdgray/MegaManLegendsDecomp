@@ -69,7 +69,7 @@ void stcom15_func_01A4(STCOM15_WORK *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    func_80036478(ctl->track_24, D_80098844[wp->kind_2][ctl->level_6].track_F, -0x60);
+    Track_reset(ctl->track_24, D_80098844[wp->kind_2][ctl->level_6].track_F, -0x60);
     ctl->timer_34    = 0;
     ctl->timer_36    = 0;
     ctl->timer_38    = 4;

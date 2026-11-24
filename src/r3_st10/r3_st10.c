@@ -11,10 +11,6 @@ void func_801002EC(void)
     STAGE_TABLE_50  = D_8010F2F0;
 }
 
-#ifdef __wasm32__
-void func_801006B0(void);
-#endif
-
 void func_80100354(void)
 {
     STAGE_PL_VIEW *pl;

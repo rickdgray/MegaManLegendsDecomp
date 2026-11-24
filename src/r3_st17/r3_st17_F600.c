@@ -1386,7 +1386,7 @@ void func_80112CCC(ST17_SHL *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         func_80112F88(wp, 1);
         return;
@@ -1410,7 +1410,7 @@ void func_80112CCC(ST17_SHL *wp)
         }
         else
         {
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         return;
     }

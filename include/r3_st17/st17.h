@@ -898,7 +898,7 @@ typedef struct
     uint8 flags_141;          // 141
     uint16 frame_142;         // 142
     sint32 count_144;         // 144
-    uint8 track_148[0x10];    // 148: func_80036478
+    uint8 track_148[0x10];    // 148: Track_reset
     uint8 reserved158[0x8C];  // 158
 } ST17_BOSS;
 
@@ -1035,7 +1035,7 @@ typedef struct
     sint16 value_24;      // 24
     uint8 reserved26[2];  // 26
     ST17_HIT hit_28;      // 28
-    uint8 track_30[0x10]; // 30: func_80036478/func_8003648C
+    uint8 track_30[0x10]; // 30: Track_reset/func_8003648C
 } ST17_PART28;
 
 typedef void (*ST17_PART28_FUNC)(STAGE_OBJ *wp, ST17_PART28 *part);

@@ -24,7 +24,7 @@ void stcom28_func_003C(STCOM28_WORK *wp)
     wp->accel.x    = 0;
     wp->flags_0 |= 6;
     Model_work_init(wp, NULL);
-    func_80036478(wp->ctl.track_C, 9, -0x60);
+    Track_reset(wp->ctl.track_C, 9, -0x60);
     wp->data_78       = stcom28_D_000C;
     wp->jump_74       = 0;
     wp->ctl.counter_0 = 0;
@@ -502,11 +502,7 @@ void stcom28_func_0D40(STCOM28_WORK *wp)
             effect->variant_3       = 0;
             effect->sprite.position = wp->position;
         }
-#ifdef __wasm32__
-        func_80047148(wp, &wp->position);
-#else
         func_80047148(wp, &wp->position, effect);
-#endif
         wp->routine_0 = 2;
         wp->routine_1 = 0;
         wp->routine_2 = 0;

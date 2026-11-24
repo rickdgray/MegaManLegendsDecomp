@@ -129,7 +129,7 @@ typedef struct
     sint32 value_2F4;        // 2F4
     sint32 value_2F8;        // 2F8
     sint32 value_2FC;        // 2FC
-    uint8 track_300[0xC];    // 300: func_80036478
+    uint8 track_300[0xC];    // 300: Track_reset
     uint16 value_30C;        // 30C
     uint16 value_30E;        // 30E
     sint32 value_310;        // 310
@@ -891,7 +891,7 @@ typedef struct
     STCOM_SVECTOR rot_24;       // 30C: a shell's rotation (func_801064A0)
     ST19_WHEEL_HIT hit_2C;      // 314: the body's
     ST19_WHEEL_HIT hit_34[3];   // 31C: [0] and [1] the guns'
-    uint8 track_4C[0x10];       // 334: func_80036478
+    uint8 track_4C[0x10];       // 334: Track_reset
     uint8 reserved5C[0xC];      // 344
     sint16 turn_68[4];          // 350: by gun
     sint16 life_70[4];          // 358: by gun
@@ -1454,7 +1454,7 @@ typedef struct
 
 extern ST19_KIND **D_80098844;
 extern uint8 D_801179CC[];
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 
 extern uint8 D_80117BF6[];
 extern uint8 D_80117C94[][0x38];

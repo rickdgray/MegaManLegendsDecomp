@@ -283,7 +283,7 @@ void func_80100BAC(ST13_STCOM27_WORK *wp)
     wp->accel.x     = 0;
     wp->flags_0 |= 2;
     Model_work_init(wp, &wp->variant_3);
-    func_80036478(wp->ctl.track_0, 7, -0x60);
+    Track_reset(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_8011750C;
     wp->life_6E = wp->life_max_B0 = D_8009884C[wp->kind_2]->life_8 << 4;
     wp->damage_B2                 = 0;
@@ -609,10 +609,6 @@ void func_8010160C(void)
 {
 }
 
-#ifdef __wasm32__
-void func_80101704(ST13_ACTOR *wp);
-#endif
-
 void func_80101614(ST13_ACTOR *wp)
 {
     STAGE_10C *obj;
@@ -748,11 +744,7 @@ void func_80101974(ST13_STCOM27_WORK *wp)
                 effect->variant_3       = 0;
                 effect->sprite.position = wp->position;
             }
-#ifdef __wasm32__
-            func_80047148(wp, &wp->position);
-#else
             func_80047148(wp, &wp->position, effect);
-#endif
             wp->routine_0 = 2;
             wp->routine_1 = 0;
             wp->routine_2 = 0;

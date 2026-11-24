@@ -51,7 +51,7 @@ void func_801119CC(STAGE_STCOM15_WORK_4E0 *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    func_80036478(wp->ctl.track_24, D_8009884C[wp->kind_2][wp->param_D].track_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_8009884C[wp->kind_2][wp->param_D].track_F, -0x60);
     *(uint32 *)&wp->ctl.timer_34 = 0;
     *(uint32 *)&wp->ctl.timer_38 = 0;
     wp->ctl.u_3C.flag            = wp->position.pad;

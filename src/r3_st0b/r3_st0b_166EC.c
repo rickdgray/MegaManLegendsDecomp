@@ -6,10 +6,6 @@ void func_801166EC(STAGE_OBJ *wp)
     D_8011C16C[wp->routine_0](wp);
 }
 
-#ifdef __wasm32__
-void func_80117938(STAGE_OBJ *wp);
-#endif
-
 void func_80116728(ST0B_EVENT *wp)
 {
     ST0B_PL *pl;

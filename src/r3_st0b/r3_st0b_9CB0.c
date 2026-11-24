@@ -685,10 +685,6 @@ void func_8010B470(STAGE_OBJ *wp)
     }
 }
 
-#ifdef __wasm32__
-void func_8010B8D4(ST0B_OBJ *wp, sint32 color);
-#endif
-
 void func_8010B4BC(STAGE_OBJ *wp)
 {
     STCOM_FIXED_VECTOR ofs;
@@ -777,7 +773,7 @@ void func_8010B6D8(ST0B_OBJ *wp, ST0B_BOB *bob)
     bob->hit_34   = 0;
     bob->value_38 = 0;
     bob->flags_14 |= 8;
-    func_80036478(bob->track_3C, 0xA, 0);
+    Track_reset(bob->track_3C, 0xA, 0);
     Model_work_init(wp, &wp->variant_3);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -1155,7 +1151,7 @@ void func_8010C060(STAGE_OBJ *wp, ST0B_BOB *bob)
     }
     if (bob->flags_14 & 8)
     {
-        func_80036470(bob->track_3C);
+        Track_stop(bob->track_3C);
         if (--bob->timer_24 <= 0)
         {
             bob->value_18 = 0;
@@ -1665,7 +1661,7 @@ void func_8010D118(ST0B_OBJ *wp, ST0B_HIT_B *ctl)
     ctl->index_2A  = -1;
     ctl->hit_38    = 0;
     ctl->value_3C  = 0;
-    func_80036478(ctl->track_40, 0xB, 0);
+    Track_reset(ctl->track_40, 0xB, 0);
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]       = 0x02000200;
@@ -1683,10 +1679,6 @@ void func_8010D118(ST0B_OBJ *wp, ST0B_HIT_B *ctl)
     wp->value_B0             = life;
     wp->value_B2             = life;
 }
-
-#ifdef __wasm32__
-void func_8010D558(ST0B_BOAT *wp, ST0B_BOAT_CTL *ctl);
-#endif
 
 void func_8010D288(STAGE_OBJ *wp, ST0B_HIT_B *ctl)
 {
@@ -2080,7 +2072,7 @@ void func_8010DDD8(STAGE_OBJ *wp, ST0B_HIT_B *ctl)
     Obj_pos_set(wp, 0x120, 0, 0);
     if (wp->u_C.b.byte_C == 1 || wp->u_E.b.byte_F == 1)
     {
-        func_80036470(ctl->track_40);
+        Track_stop(ctl->track_40);
         if (ctl->timer_18 == 0)
         {
             wp->u_C.b.byte_C = 0;

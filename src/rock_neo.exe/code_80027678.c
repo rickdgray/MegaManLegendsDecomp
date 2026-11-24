@@ -47,12 +47,12 @@ void Obj_draw_all(void)
     if (D_80098824 == 0)
     {
         pl = &Player_work[0];
-        if (((sint8)pl->unk00 & Player_work[0].flags_6 & 2) && func_80027F78(pl, D_8009BF88[Dbl_buff_idx]) != 0)
+        if (((sint8)pl->routine_0 & Player_work[0].flags_6 & 2) && func_80027F78(pl, D_8009BF88[Dbl_buff_idx]) != 0)
         {
             pl_body_draw(pl, D_8009BF88[Dbl_buff_idx]);
         }
         pl = &Player_work[1];
-        if (((sint8)pl->unk00 & Player_work[1].flags_6 & 2) && func_80027F78(pl, D_8009AE48[Dbl_buff_idx]) != 0)
+        if (((sint8)pl->routine_0 & Player_work[1].flags_6 & 2) && func_80027F78(pl, D_8009AE48[Dbl_buff_idx]) != 0)
         {
             pl_body_draw(pl, D_8009AE48[Dbl_buff_idx]);
         }

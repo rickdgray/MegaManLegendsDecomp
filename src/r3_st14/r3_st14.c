@@ -11,10 +11,6 @@ void func_801001E8(void)
     STAGE_TABLE_50  = D_8011485C;
 }
 
-#ifdef __wasm32__
-void func_801003B0(void);
-#endif
-
 void func_80100250(void)
 {
     void *spawn;

@@ -25,7 +25,7 @@ void func_80110244(ST00_FOLLOWER *wp)
     wp->value_C0 = 0;
     wp->value_C4 = 0;
     wp->value_D0 = 0;
-    func_80036470(wp->track_E0);
+    Track_stop(wp->track_E0);
     wp->scale_F4              = 0x1000;
     wp->scale_F8              = 0x1000;
     wp->scale_FC              = 0x1000;

@@ -1,10 +1,6 @@
 #include "common.h"
 #include "st05.h"
 
-#ifdef __wasm32__
-void func_80047228(void *wp, void *obj, sint32 n);
-#endif
-
 void func_8010B814(STAGE_OBJ *wp)
 {
     wp->position_prev       = wp->position;
@@ -313,7 +309,7 @@ void func_8010C1F4(ST05_GUARD *wp)
     wp->ctl.hit_14               = 0;
     *(sint32 *)&wp->ctl.value_18 = 0;
     wp->ctl.sparks_34            = 0;
-    func_80036478(wp->ctl.track_24, 0, -0x60);
+    Track_reset(wp->ctl.track_24, 0, -0x60);
     life         = D_80098844[wp->kind_2]->life_18;
     wp->data_78  = D_80130B60;
     wp->value_6E = life;

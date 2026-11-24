@@ -85,7 +85,7 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     wp->scale.v.x = 0x200;
     wp->scale.v.y = 0x200;
     wp->scale.v.z = 0x200;
-    func_80036478(wp->ctl.track_40, 3, -200);
+    Track_reset(wp->ctl.track_40, 3, -200);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     wp->data_78                                      = stcom24_D_0000;
     wp->position.y                                   = Obj_ceiling_height_get(wp);
@@ -655,11 +655,7 @@ void stcom24_func_1434(STCOM24_WORK *wp)
     // Never set: func_80047148 gets whatever a2 holds.
     STCOM_EFFECT *effect;
 
-#ifdef __wasm32__
-    func_80047148(wp, wp->joints_180);
-#else
     func_80047148(wp, wp->joints_180, effect);
-#endif
     func_80031824(wp);
 }
 

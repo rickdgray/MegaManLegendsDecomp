@@ -212,7 +212,7 @@ void func_80051BAC(void *wp);
 STCOM_EFFECT *func_80031618(void);
 // Sets a 16.16 position from a short one.
 void func_80030150(STCOM_FIXED_VECTOR *fixed, STCOM_SVECTOR *pos);
-void func_80031930(void *wp);
+void Close_PL_SHL_WORK(void *wp);
 void Wall_reflect_spd(STCOM_SVECTOR *velocity, sint32 hit);
 // PsyQ libgte.
 sint32 rsin(sint32 a);
@@ -235,7 +235,7 @@ void Close_SHL_WORK(void *wp);
 STCOM_MATRIX *RotMatrixYXZ(STCOM_SVECTOR *r, STCOM_MATRIX *m);
 STCOM_MATRIX *ScaleMatrix(STCOM_MATRIX *m, STCOM_FIXED_VECTOR *v);
 // Distance between two work slots' positions.
-uint32 func_80030254(void *a, void *b);
+uint32 Obj_distance_xyz(void *a, void *b);
 void func_80032538(void *wp);
 void Model_parts_mtx_set_yxz(void *wp);
 sint32 Map_area_check(STCOM_SVECTOR *pos);
