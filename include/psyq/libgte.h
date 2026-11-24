@@ -51,6 +51,7 @@ void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag);
 MATRIX *TransposeMatrix(MATRIX *m0, MATRIX *m1);
 MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
 MATRIX *MulMatrix(MATRIX *m0, MATRIX *m1);
+MATRIX *MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2);
 MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v);
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1);
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1);

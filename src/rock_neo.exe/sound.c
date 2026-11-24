@@ -292,7 +292,7 @@ void Sound_init(void)
         Sound_seq_chan_tbl[i].kind = -1;
         Sound_seq_tbl[i].num       = 0xFF;
     }
-    Player_work_ptr = &Player_work;
+    Player_work_ptr = &Player_work[0];
     env.mask        = SPU_ENV_EVENT_QUEUEING;
     env.queueing    = SPU_OFF;
     SpuSetEnv(&env);

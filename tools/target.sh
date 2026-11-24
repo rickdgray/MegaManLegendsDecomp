@@ -85,6 +85,8 @@ each_target() {
             echo "$t: FAILED: $(grep -m 1 -E 'MISMATCH|[Ee]rror|not found|Refus' <<< "$out" || tail -n 1 <<< "$out")"
             failed+=("$t")
         fi
+        # Keep the compiler's warnings visible (they'd otherwise be swallowed with the rest).
+        grep -E 'warning:|In function' <<< "$out" | sed 's/^/    /' || true
     done
     if [[ ${#failed[@]} -gt 0 ]]; then
         echo "failed: ${failed[*]}" >&2

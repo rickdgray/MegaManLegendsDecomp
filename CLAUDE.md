@@ -514,7 +514,8 @@ batch runner logs them in `logs/renames_applied.txt`), so a wrong name costs a r
   symbol, and `notes/` together, and adds `type:func` / `absolute:True` where needed. Then run the
   `./tools/rebuild.sh ...` line it prints, once (re-split, build, refresh `expected/`); every
   target must print MATCH.
-- Struct fields aren't symbols: name them in the header as their uses become clear.
+- Struct fields aren't symbols: name them in the header as their uses become clear (see
+  "Field names" below).
 
 **Overlays and names:**
 
@@ -591,6 +592,27 @@ Conventions (Capcom's own, from their source):
 Module prefixes follow Capcom's too: the CD module is `Cd_` in both programs. Acronyms stay
 uppercase inside names (`EM_Char_Set`, `Close_EVE_WORK`). Unknown names keep the splat default
 (`func_8001D648`, `D_80098958`) until their purpose is clear; never guess. Names from other projects (ChrisNonyminus/mml1) are hints, not authority.
+
+### Field names
+
+**A field's name says what it is for, not where it is.** Once a field's job is known, name it
+for that job without its offset: `scale`, not `scale_158`; `owner`, not `owner_C4`. The offset
+goes in the comment (`// 0x158: scale (0x400 = 1), ...`).
+
+- **Not understood yet: leave the placeholder.** A field whose job isn't known keeps a default
+  name with its offset (`pad_C8`, `unk_26`, `field_C4`). Don't invent a temporary name that will
+  be replaced later; rename it once its purpose is clear.
+- **Capcom's names keep their own form**, offset digit included: `routine_0` … `routine_3`.
+- **Two fields that seem to want the same name mean the understanding is incomplete.** Fields of
+  one struct do different jobs, so their names differ by purpose (`pos` and `pos_saved`), never by
+  offset (`pos` and `pos_428`). If you can't tell what sets them apart, leave the second one a
+  placeholder and say so in its comment.
+- **One set of bytes, one name.** When you name a field, use the same name in every struct that
+  describes those bytes: the generic type, each kind's struct, and the overlays' views (`scale`
+  in `MODEL_WORK`, `WORK_3C0` and every stage struct).
+- Existing names with an offset suffix (`pos_428`, `owner_C4`, `ride_C0`) are renamed this way
+  when a task touches them and their purpose is clear. Field renames don't change the bytes, but
+  build every target `reach.py` lists as usual.
 
 ## Do not
 
