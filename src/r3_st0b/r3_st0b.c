@@ -2137,7 +2137,7 @@ void func_801045F8(ST0B_OBJ *wp)
     ctl->msg_D8              = 0;
     *(uint32 *)&ctl->index_4 = 0;
     *(uint32 *)&ctl->value_8 = 0;
-    Track_set(ctl->track_38, 0, -0x60);
+    Track_reset(ctl->track_38, 0, -0x60);
     ctl->timer_C               = 0;
     ctl->slot_60               = func_80036294(wp->u_C.b.byte_C);
     ctl->index_E               = 0;

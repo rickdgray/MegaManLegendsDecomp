@@ -46,7 +46,7 @@ void stcom09_func_00CC(STCOM09_WORK *wp)
     wp->hit.ofs_14       = 0;
     wp->hit.value_4      = 0x8880000;
     wp->hit.timer_2      = 0;
-    Track_set(wp->track_328, 0, -0x60);
+    Track_reset(wp->track_328, 0, -0x60);
     stcom09_func_0C48(&ofs, wp->rotation.y, wp->hit.ofs_10, wp->hit.ofs_12, wp->hit.ofs_14);
     wp->hit.pos_8 = ofs;
     wp->hit.pos_8.x += wp->position.x;

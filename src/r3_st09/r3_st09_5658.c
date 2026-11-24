@@ -67,7 +67,7 @@ void func_80105870(STAGE_STCOM15_WORK_348 *wp)
     *(uint32 *)&wp->ctl.u_3C     = 0x1000;
     *(uint32 *)&wp->ctl.timer_4  = 0;
     *(uint32 *)&wp->ctl.value_8  = 0;
-    Track_set(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
     life                      = D_80098844[wp->kind_2]->life_8;
     wp->data_78               = D_8011DEE4;
     wp->data_10               = NULL;
@@ -1456,7 +1456,7 @@ void func_801088B0(STAGE_STCOM15_WORK_348 *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    Track_set(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ctl.track_24, D_80098844[wp->kind_2]->value_F, -0x60);
     wp->ctl.timer_36 = 4;
     wp->ctl.timer_34 = wp->position.pad;
     wp->position.pad = 0;

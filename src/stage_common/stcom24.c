@@ -85,7 +85,7 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     wp->scale.v.x = 0x200;
     wp->scale.v.y = 0x200;
     wp->scale.v.z = 0x200;
-    Track_set(wp->ctl.track_40, 3, -200);
+    Track_reset(wp->ctl.track_40, 3, -200);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     wp->data_78                                      = stcom24_D_0000;
     wp->position.y                                   = Obj_ceiling_height_get(wp);

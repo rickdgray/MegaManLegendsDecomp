@@ -773,7 +773,7 @@ void func_8010B6D8(ST0B_OBJ *wp, ST0B_BOB *bob)
     bob->hit_34   = 0;
     bob->value_38 = 0;
     bob->flags_14 |= 8;
-    Track_set(bob->track_3C, 0xA, 0);
+    Track_reset(bob->track_3C, 0xA, 0);
     Model_work_init(wp, &wp->variant_3);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -1661,7 +1661,7 @@ void func_8010D118(ST0B_OBJ *wp, ST0B_HIT_B *ctl)
     ctl->index_2A  = -1;
     ctl->hit_38    = 0;
     ctl->value_3C  = 0;
-    Track_set(ctl->track_40, 0xB, 0);
+    Track_reset(ctl->track_40, 0xB, 0);
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]       = 0x02000200;

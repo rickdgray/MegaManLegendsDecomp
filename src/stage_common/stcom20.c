@@ -31,7 +31,7 @@ void stcom20_func_0048(STCOM20_WORK *wp)
     ctl                    = &wp->ctl;
     wp->color_B4           = 0x808080;
     wp->ctl.scale_18.value = 0x2000000;
-    Track_set(ctl->track_0, 1, -0x60);
+    Track_reset(ctl->track_0, 1, -0x60);
     wp->ctl.value_20  = 0;
     wp->ctl.hit_1C    = 0;
     wp->ctl.angle_10  = rand() & 0xFFF;

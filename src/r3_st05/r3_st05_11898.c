@@ -114,7 +114,7 @@ void func_80111CEC(ST05_WAGON *wp)
     ctl->value_18            = 0;
     ctl->flags_0 |= 0xB2;
     ctl->link_34 = func_80036294(wp->u_C.b.byte_D);
-    Track_set(ctl->track_24, D_80098844[ctl->link_34->kind_2]->track_F, -0x60);
+    Track_reset(ctl->track_24, D_80098844[ctl->link_34->kind_2]->track_F, -0x60);
     ctl->value_3C          = ctl->value_40;
     ctl->value_40[0]       = 0;
     ctl->value_40[1]       = 0;
@@ -969,7 +969,7 @@ void func_801139EC(ST05_WALKER *wp)
     ctl->hit_14                 = 0;
     *(sint32 *)&ctl->reserved18 = 0;
     ctl->flags_0 |= 6;
-    Track_set(ctl->track_24, D_80098844[wp->kind_2]->track_F, -0x200);
+    Track_reset(ctl->track_24, D_80098844[wp->kind_2]->track_F, -0x200);
     if (!(ctl->flags_0 & 0x200))
     {
         ctl->node_38              = &D_80131790[wp->variant_3][D_801317B4[wp->variant_3]];

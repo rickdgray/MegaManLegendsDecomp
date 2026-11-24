@@ -182,7 +182,7 @@ typedef struct
     uint32 hit_14;          // 14: damage in the low 24 bits, kind bits above
     uint32 value_18;        // 18
     STCOM_SVECTOR from_1C;  // 1C: where the hit came from (pad bit 0: use it)
-    uint8 track_24[0x10];   // 24: Track_set's record
+    uint8 track_24[0x10];   // 24: Track_reset's record
     uint32 range_34;        // 34
     ST03_HELD *other_38;    // 38: the slot it carries
     uint8 reserved3C[4];    // 3C
@@ -728,7 +728,7 @@ void func_8001D974(void);
 void func_80063BA8(void);
 void func_8001B314(void);
 void Sce_event_timer_clear(void);
-void Track_set(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 void func_80030934(void *a0, void *a1, sint16 a2, sint16 a3);
 void func_80047148(void *wp, STCOM_SVECTOR *pos);
 sint32 func_80031E60(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);

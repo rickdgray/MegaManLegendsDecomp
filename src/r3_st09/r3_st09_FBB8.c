@@ -93,7 +93,7 @@ void func_8010FD88(STAGE_STCOM15_WORK_4E0 *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    Track_set(ctl->track_24, D_8009884C[wp->kind_2][wp->variant_3].value_F, -0x60);
+    Track_reset(ctl->track_24, D_8009884C[wp->kind_2][wp->variant_3].value_F, -0x60);
     life                 = D_8009884C[wp->kind_2][wp->variant_3].life_8 << 5;
     wp->data_78          = D_8011E1A4;
     wp->data_10          = NULL;

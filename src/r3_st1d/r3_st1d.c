@@ -1606,7 +1606,7 @@ void func_8010329C(ST1D_VIEW *wp)
     *(sint32 *)&wp->ext.value_8 = 0;
     wp->ext.value_14            = 0;
     wp->ext.value_18            = 0;
-    Track_set(wp->ext.u_24.track, ((ST1D_KIND *)D_80098844[wp->kind_2])->value_F, -0x60);
+    Track_reset(wp->ext.u_24.track, ((ST1D_KIND *)D_80098844[wp->kind_2])->value_F, -0x60);
     wp->ext.u_34.h[0]         = 0;
     wp->ext.u_34.h[1]         = 0;
     wp->ext.u_3C.h[0]         = 0;

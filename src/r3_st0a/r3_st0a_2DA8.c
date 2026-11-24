@@ -706,7 +706,7 @@ void func_80104030(ST0A_EN *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    Track_set(wp->ctl.track_24, 0, -0x60);
+    Track_reset(wp->ctl.track_24, 0, -0x60);
     wp->ctl.home_34           = wp->position;
     wp->ctl.held_3C           = NULL;
     wp->ctl.owner_40          = func_80036294(wp->byte_C);

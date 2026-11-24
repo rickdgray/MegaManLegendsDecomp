@@ -120,7 +120,7 @@ typedef struct
     uint8 value_A;      // A: or'd into the hit box's kind bits
     uint8 value_B;      // B
     uint8 reservedC[3]; // C
-    uint8 track_F;      // F: Track_set's argument
+    uint8 track_F;      // F: Track_reset's argument
 } ST13_KIND;
 
 // A map position (x, z).
@@ -654,7 +654,7 @@ void func_80107DA0(STAGE_OBJ *wp);
 void func_8010D3E8(STAGE_OBJ *wp);
 void func_8010E048(STAGE_OBJ *wp);
 void func_8003354C(void *wp);
-void Track_set(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 Obj_floor_height_get(void *wp);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);

@@ -19,7 +19,7 @@ void func_80104DF8(ST0E_ACTOR *wp)
     wp->velocity.v.x = wp->velocity.v.y = wp->velocity.v.z = 0;
     wp->value_4C = wp->value_4E = wp->value_50 = 0;
     Model_work_init(wp, NULL);
-    Track_set(&wp->ctl, 9, -0x60);
+    Track_reset(&wp->ctl, 9, -0x60);
     wp->data_78  = D_801103A4;
     wp->value_6E = wp->value_B0 = D_80098844[wp->kind_2]->life_8 * 16;
     wp->position.y              = -0x200;

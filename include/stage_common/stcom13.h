@@ -94,7 +94,7 @@ extern uint8 stcom13_D_0040[];        // joints to drop from when it dies
 
 // ROCK_NEO.EXE.
 extern STCOM13_KIND **D_80098844;
-void Track_set(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
 

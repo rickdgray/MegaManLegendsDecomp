@@ -109,7 +109,7 @@ void func_8010BECC(ST0A_EM *wp)
         ext->hit_88[i].hit_8   = 0;
         ext->hit_88[i].value_C = 0;
     }
-    Track_set(ext->track_24, 0, -0x320);
+    Track_reset(ext->track_24, 0, -0x320);
     ext->angle_42 = 0xC00;
     ext->value_44 = (wp->rotation.y + 0xC00) & 0xFFF;
     ext->value_46 = ext->value_F4 = D_8009884C[wp->kind_2]->value_E << 5;

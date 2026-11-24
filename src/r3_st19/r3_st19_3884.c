@@ -42,7 +42,7 @@ void func_801039B8(ST19_OBJ *wp)
     wp->u_64.w[0]      = 0;
     wp->u_70.w[0]      = 0;
     wp->value_74       = 0;
-    Track_set(wp->track_300, 0, -0x60);
+    Track_reset(wp->track_300, 0, -0x60);
     wp->value_330   = 0;
     wp->value_332   = 0;
     wp->data_78     = D_801179CC;
@@ -776,7 +776,7 @@ void func_8010556C(ST19_OBJ *wp)
     wp->u_70.w[0]      = 0;
     wp->value_74       = 0;
     wp->data_78        = D_80117ACC;
-    Track_set(ST19_OBJ_CTL(wp)->track_4C, 0, -0x60);
+    Track_reset(ST19_OBJ_CTL(wp)->track_4C, 0, -0x60);
     ctl           = ST19_OBJ_CTL(wp);
     wp->u_70.b[3] = D_80098844[wp->kind_2]->value_A;
     wp->value_B2 = wp->value_B0 = wp->value_6E = D_80098844[wp->kind_2]->value_8 << 6;

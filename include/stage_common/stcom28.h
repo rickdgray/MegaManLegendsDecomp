@@ -14,7 +14,7 @@ typedef struct
     uint16 timer_6;        // D2: until it stops charging
     uint16 timer_8;        // D4: until it bursts
     sint16 angle_A;        // D6: the rotation.y it turns to
-    uint8 track_C[0x10];   // D8: Track_set/func_8003648C
+    uint8 track_C[0x10];   // D8: Track_reset/func_8003648C
     sint32 sees_1C;        // E8: nonzero while it sees the player (func_8003648C)
     sint32 flags_20;       // EC: 1 hit a wall, 2 on the ground, 4 at a ledge
     STCOM_SVECTOR pos_24;  // F0: the hit box's center
@@ -94,7 +94,7 @@ void stcom28_func_0CB8(STCOM28_WORK *wp);
 
 // ROCK_NEO.EXE.
 extern STCOM28_KIND **D_80098928;
-void Track_set(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);

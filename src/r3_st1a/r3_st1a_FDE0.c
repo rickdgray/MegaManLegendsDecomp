@@ -95,7 +95,7 @@ void func_80110090(ST1A_VIEW_H *wp)
     ctl->value_66  = 0;
     stun->damage_0 = 0;
     wp->u_70.b[3]  = D_80098844[wp->kind_2]->value_A;
-    Track_set(ctl->track_18, 7, -0x60);
+    Track_reset(ctl->track_18, 7, -0x60);
     wp->value_B2 = wp->value_B0 = wp->value_6E = D_80098844[wp->kind_2]->life_8 << 5;
     wp->routine_1                              = 0;
     wp->routine_0                              = 1;
@@ -3400,7 +3400,7 @@ void func_80116780(ST1A_STCOM27_WORK_C *wp)
     wp->accel.x     = 0;
     wp->flags_0 |= 2;
     Model_work_init(wp, &wp->variant_3);
-    Track_set(wp->ctl.track_0, 7, -0x60);
+    Track_reset(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_80132AE0;
     wp->life_6E = wp->life_max_B0 = D_8009884C[wp->kind_2]->life_8 << 4;
     wp->damage_B2                 = 0;
@@ -4855,7 +4855,7 @@ void func_80119320(ST1A_OBJ *wp)
     bp->value_8        = 0;
     bp->value_18       = 0;
     bp->value_1C       = 0;
-    Track_set(bp->track_28, 0, -0x60);
+    Track_reset(bp->track_28, 0, -0x60);
     bp->value_C    = 0;
     bp->value_52   = 0;
     bp->value_53   = 0;

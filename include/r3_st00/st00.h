@@ -128,7 +128,7 @@ typedef struct
     sint32 value_360;          // 360
     uint8 reserved364[0x6];    // 364
     uint16 value_36A;          // 36A
-    uint8 track_36C[0x10];     // 36C: Track_set
+    uint8 track_36C[0x10];     // 36C: Track_reset
     sint32 value_37C;          // 37C
     sint32 value_380;          // 380
     sint32 value_384;          // 384
@@ -1620,7 +1620,7 @@ void Track_stop(void *track);
 
 STAGE_OBJ *func_80036294(sint32 id);
 
-void Track_set(void *track, uint8 arg1, uint32 arg2);
+void Track_reset(void *track, uint8 arg1, uint32 arg2);
 
 // A ROCK_NEO record per object kind (D_80098844).
 typedef struct
@@ -1773,7 +1773,7 @@ typedef struct
     uint32 hit_14;           // 35C: damage in the low 24 bits, kind bits above
     sint32 value_18;         // 360
     STCOM_SVECTOR target_1C; // 364: the attacker's position (pad bit 0: from the player?)
-    uint8 track_24[0x10];    // 36C (Track_set)
+    uint8 track_24[0x10];    // 36C (Track_reset)
     union
     {
         STCOM_SVECTOR target;

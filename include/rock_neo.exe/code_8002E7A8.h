@@ -852,7 +852,7 @@ void func_80033500(WORK_5A4 *wp);
 void func_8003354C(WORK_3C0 *wp);
 void Model_pose_unpack(MODEL_WORK *wp);
 void Track_stop(TRACK_WORK *t);
-void Track_set(TRACK_WORK *t, uint8 kind, uint32 height);
+void Track_reset(TRACK_WORK *t, uint8 kind, uint32 height);
 sint32 func_8003648C(TRACK_WORK *t, MODEL_WORK *wp);
 void func_80036A88(sint32 r, sint32 g, sint32 b, sint32 n);
 void Fog_param_get(sint16 *out);

@@ -1088,7 +1088,7 @@ void func_80107FF0(ST05_VILLAGER *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    Track_set(ctl->track_24, 0, -0x60);
+    Track_reset(ctl->track_24, 0, -0x60);
     ctl->range_34 = 0x7FFFFFFF;
     life          = D_80098844[wp->kind_2]->life_8;
     wp->value_78  = 0;

@@ -3726,7 +3726,7 @@ void Track_stop(TRACK_WORK *t)
 }
 
 // Sets up tracker t: its kind (D_800899AC) and launch height (in units of 16), idle.
-void Track_set(TRACK_WORK *t, uint8 kind, uint32 height)
+void Track_reset(TRACK_WORK *t, uint8 kind, uint32 height)
 {
     t->kind   = kind;
     t->height = height >> 4;

@@ -34,7 +34,7 @@ void stcom13_func_004C(STCOM13_WORK *wp)
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
     ctl->count_34            = 0;
-    Track_set(ctl->track_24, 0, -0x60);
+    Track_reset(ctl->track_24, 0, -0x60);
     ctl->timer_36    = 300;
     life             = D_80098844[wp->kind_2]->life_18;
     wp->data_78      = stcom13_D_0020;
