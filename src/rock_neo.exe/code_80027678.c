@@ -374,7 +374,7 @@ void func_8002831C(MODEL_WORK *wp)
     {
         Scratch_mesh_tbl = &((PARTS_MODEL *)wp->data_88)->lod[0][1];
     }
-    col          = wp->scale_158.pad;
+    col          = wp->scale.pad;
     z            = wp->slot_F8[0].child_id; // the part count
     Scratch_rgbc = RGB555_TO_RGBC(col);
     gte_ldrgb(&Scratch_rgbc);
@@ -597,7 +597,7 @@ void Model_draw_all(void)
 
 // Draws a model object (WORK_3C0, or WORK_5A4 for pool kind 0x40) part by part, each part's mesh
 // (func_80029608) at the level of detail its depth picks, by the part's matrix times the view
-// matrix, in the object's RGB555 colour (scale_158.pad; 0: each part's own, part_180[n].pad),
+// matrix, in the object's RGB555 colour (scale.pad; 0: each part's own, part_180[n].pad),
 // depth-cued. Bit 7 of flags says whether it was drawn: it is skipped beyond the fog, too near or
 // off the screen, unless routine_0 has bit 6 and it is nearer than the fog.
 void Model_parts_draw(MODEL_WORK *wp)
@@ -650,7 +650,7 @@ void Model_parts_draw(MODEL_WORK *wp)
     {
         Scratch_mesh_tbl = &((PARTS_MODEL *)wp->data_88)->lod[0][1];
     }
-    col          = wp->scale_158.pad;
+    col          = wp->scale.pad;
     z            = wp->slot_F8[0].child_id; // the part count
     Scratch_rgbc = RGB555_TO_RGBC(col);
     gte_ldrgb(&Scratch_rgbc);

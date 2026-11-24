@@ -94,7 +94,11 @@ typedef struct PL_WORK
     sint8 flags_BD; // 0xBD: func_80048A9C sets bit 5, then swaps it for bit 6
     uint8 unkBE[0xC0 - 0xBE];
     MODEL_WORK *ride_C0; // 0xC0: the object ridden while field_76 is set (Ride_move)
-    uint8 unkC4[0xF8 - 0xC4];
+    // 0xC4: target point (x, y, z): where objects aimed at the player go. Obj_launch_set and
+    // func_80030418 read it through VIEW_WORK; the stage overlays set it (r3_st05's ST05_PL_VIEW,
+    // r3_st14's ST14_PL_VIEW). Obj_launch_set stores the flight time in pad.
+    SVECTOR pos_C4;
+    uint8 unkCC[0xF8 - 0xCC];
     KEY_ENT *tbl_F8; // 0xF8: keyframe table in use (func_800321C8)
     KEY_ENT *ent_FC; // 0xFC: current keyframe
     KEY_CMD cmd_100; // 0x100: copy of the current keyframe's command; time counts down (func_800323FC)

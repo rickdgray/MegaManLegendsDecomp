@@ -2587,7 +2587,7 @@ void func_8003354C(WORK_3C0 *wp)
 
 // Builds a model object's part matrices from its body rotation m: the body (mtx_160, part 0) gets
 // m times the root pose rotation, each part its parent's matrix times its pose rotation (or the
-// root's rotation when part_2 is 0); then scales them (scale_158, per part with the scale table
+// root's rotation when part_2 is 0); then scales them (scale, per part with the scale table
 // when flags bit 6 is set) and places each part at its parent's position plus its offset.
 void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
 {
@@ -2616,9 +2616,9 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
     pose        = Scratch_pose;
     ofs         = wp->ofs_9C;
     wp->mtx_160 = *m;
-    scale.vx    = wp->scale_158.vx << Scratch_scale_shift;
-    scale.vy    = wp->scale_158.vy << Scratch_scale_shift;
-    scale.vz    = wp->scale_158.vz << Scratch_scale_shift;
+    scale.vx    = wp->scale.vx << Scratch_scale_shift;
+    scale.vy    = wp->scale.vy << Scratch_scale_shift;
+    scale.vz    = wp->scale.vz << Scratch_scale_shift;
     RotMatrix(&Scratch_pose[1], &rot);
     MulMatrix0(m, &rot, mtx);
     count = wp->slot_F8[0].child_id;
@@ -2652,15 +2652,15 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
         {
             sc = &((WORK_3C0 *)wp)->base;
         }
-        v.vx = ((wp->scale_158.vx * sc[0].r) << Scratch_scale_shift) >> 5;
-        v.vy = ((wp->scale_158.vy * sc[0].g) << Scratch_scale_shift) >> 5;
-        v.vz = ((wp->scale_158.vz * sc[0].b) << Scratch_scale_shift) >> 5;
+        v.vx = ((wp->scale.vx * sc[0].r) << Scratch_scale_shift) >> 5;
+        v.vy = ((wp->scale.vy * sc[0].g) << Scratch_scale_shift) >> 5;
+        v.vz = ((wp->scale.vz * sc[0].b) << Scratch_scale_shift) >> 5;
         ScaleMatrix(&wp->mtx_160, &v);
         for (i = 0; i < count; i++)
         {
-            v.vx = ((wp->scale_158.vx * sc[i + 1].r) << Scratch_scale_shift) >> 5;
-            v.vy = ((wp->scale_158.vy * sc[i + 1].g) << Scratch_scale_shift) >> 5;
-            v.vz = ((wp->scale_158.vz * sc[i + 1].b) << Scratch_scale_shift) >> 5;
+            v.vx = ((wp->scale.vx * sc[i + 1].r) << Scratch_scale_shift) >> 5;
+            v.vy = ((wp->scale.vy * sc[i + 1].g) << Scratch_scale_shift) >> 5;
+            v.vz = ((wp->scale.vz * sc[i + 1].b) << Scratch_scale_shift) >> 5;
             ScaleMatrix(&mtx[i], &v);
         }
     }

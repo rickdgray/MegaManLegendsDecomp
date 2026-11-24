@@ -21,8 +21,10 @@ sint32 Player_weapon_bullet_calc(PL_WORK *pl, sint32 n);
 sint32 func_80037634(PL_WORK *pl, sint32 n);
 // D_80089EAC[n][pl->rec[n].idx[3]].val[3]. Returns sint32 for the same reason (func_80042770).
 sint32 func_80037664(PL_WORK *pl, sint32 n);
-// Tests the object against the stage's IDX entries: 0x7FFF when skipped (unkC4's top byte set),
-// else the entry hit (0 for none).
+// Tests a shot against the stage's IDX entries: 0x7FFF when skipped (the shot has been hit:
+// hit_C4's top byte set), else the entry hit (0 for none). Callers are shots of two pools, SHL_WORK
+// (the weapon overlays, stcom23 and the stage shots) and PL_SHL_WORK (code_8004324C), so it takes
+// MODEL_WORK and the callers cast.
 sint32 func_80037694(MODEL_WORK *obj, uint32 arg1);
 void func_80037F60(void); // per frame (game's game_frame_exec)
 

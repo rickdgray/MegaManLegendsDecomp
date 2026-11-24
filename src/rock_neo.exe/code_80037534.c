@@ -65,7 +65,7 @@ sint32 func_80037694(MODEL_WORK *obj, uint32 arg1)
 {
     sint32 id;
 
-    if (obj->field_C4 & 0xFF000000)
+    if (obj->hit_C4 & 0xFF000000)
     {
         return 0x7FFF;
     }

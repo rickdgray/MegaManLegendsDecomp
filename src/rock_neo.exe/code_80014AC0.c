@@ -9,9 +9,9 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
 {
     wp->routine_0 |= 2;
     Model_work_init((MODEL_WORK *)wp, 0);
-    *(uint32 *)&wp->vec_158.vx = 0x04000400;
-    *(uint32 *)&wp->vec_158.vz = 0x42100400;
-    wp->hit_78                 = &D_800979FC;
+    *(uint32 *)&wp->scale.vx = 0x04000400;
+    *(uint32 *)&wp->scale.vz = 0x42100400;
+    wp->hit_78               = &D_800979FC;
     // ang.vx and ang.vz are cleared again below by the word stores; the build needs both.
     wp->ang.vx             = 0;
     wp->ang.vz             = 0;
@@ -131,21 +131,21 @@ void script_exec(WORK_3C0 *wp, SCRIPT_WORK *sp)
                 sp->pos += 1;
                 break;
             case 19:
-                wp->vec_158.vx = sp->data[sp->pos + 1];
-                wp->vec_158.vy = sp->data[sp->pos + 2];
-                wp->vec_158.vz = sp->data[sp->pos + 3];
+                wp->scale.vx = sp->data[sp->pos + 1];
+                wp->scale.vy = sp->data[sp->pos + 2];
+                wp->scale.vz = sp->data[sp->pos + 3];
                 sp->pos += 4;
                 break;
             case 20:
-                wp->vec_158.vx = sp->data[sp->pos + 1];
+                wp->scale.vx = sp->data[sp->pos + 1];
                 sp->pos += 2;
                 break;
             case 21:
-                wp->vec_158.vy = sp->data[sp->pos + 1];
+                wp->scale.vy = sp->data[sp->pos + 1];
                 sp->pos += 2;
                 break;
             case 22:
-                wp->vec_158.vz = sp->data[sp->pos + 1];
+                wp->scale.vz = sp->data[sp->pos + 1];
                 sp->pos += 2;
                 break;
             case 23:
@@ -204,9 +204,9 @@ void func_800150E0(WORK_3C0 *wp, SCRIPT_WORK *sp)
         Obj_pos_set((MODEL_WORK *)wp, wp->spd.vx, wp->spd.vy, wp->spd.vz);
     }
     wp->ang.vy += sp->add_8;
-    wp->vec_158.vx += sp->add_A;
-    wp->vec_158.vy += sp->add_C;
-    wp->vec_158.vz += sp->add_E;
+    wp->scale.vx += sp->add_A;
+    wp->scale.vy += sp->add_C;
+    wp->scale.vz += sp->add_E;
     if (wp->slot_D)
     {
         switch (wp->field_E)

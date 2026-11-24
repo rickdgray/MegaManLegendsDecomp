@@ -161,7 +161,7 @@ typedef struct
     uint16 pos;   // 0x4: index of the current command in data
     sint16 wait;  // 0x6: frames left before the next commands run
     uint16 add_8; // 0x8: added to WORK_3C0.ang.vy each frame
-    uint16 add_A; // 0xA, 0xC, 0xE: added to WORK_3C0.vec_158.vx, vy, vz each frame
+    uint16 add_A; // 0xA, 0xC, 0xE: added to WORK_3C0.scale.vx, vy, vz each frame
     uint16 add_C;
     uint16 add_E;
     uint8 pad_10[2];
@@ -212,8 +212,8 @@ typedef struct
     uint8 pad_AE[0x62];
     uint8 field_110; // set from script.field_13 when it changes
     uint8 pad_111[0x47];
-    SVECTOR vec_158; // MODEL_WORK.scale_158; moved by script.add_A/C/E each frame (func_800150E0)
-    MATRIX mtx_160;  // 0x160: MODEL_WORK.mtx_160
+    SVECTOR scale;  // MODEL_WORK.scale; moved by script.add_A/C/E each frame (func_800150E0)
+    MATRIX mtx_160; // 0x160: MODEL_WORK.mtx_160
     CHILD_POS pos_180[13];
     MATRIX mtx_1E8[11]; // 0x1E8: the parts' matrices (Model_parts_mtx_set)
     SCRIPT_WORK script; // 0x348: command script run by script_exec
@@ -457,7 +457,7 @@ typedef struct
     uint8 pad_8C[0x6C];
     // 24 parts, like tbl (func_80031324 detaches part n into a CHILD_WORK).
     CHILD_SLOT slot_F8[24]; // 0xF8: child_id at +1
-    SVECTOR scale_158;      // 0x158: MODEL_WORK.scale_158
+    SVECTOR scale;          // 0x158: MODEL_WORK.scale
     MATRIX mtx_160;         // 0x160: MODEL_WORK.mtx_160
     CHILD_POS pos_180[24];  // 0x180
     MATRIX mtx_240[24];     // 0x240: the parts' matrices (Model_parts_mtx_set); copied into a detached part
@@ -597,14 +597,18 @@ typedef struct
     uint8 pad_A8[4];
     uint8 idx_AC;
     uint8 pad_AD[0x13];
-    void *field_C0;  // an object; func_80052644 clears it (and field_76) when it equals its key
-    uint32 field_C4; // top byte nonzero: func_80037694 skips the stage collision
+    void *field_C0; // an object; func_80052644 clears it (and field_76) when it equals its key
+    // 0xC4: in shots, the hit word (PL_SHL_WORK.owner_C4.hit_0, SHL_WORK's free block,
+    // STCOM23_WORK.hit_C4): top byte nonzero once hit, and func_80037694 then skips the stage
+    // collision. The player and stage NPCs keep a target SVECTOR here instead (VIEW_WORK.pos_C4,
+    // PL_WORK.pos_C4).
+    uint32 hit_C4;
     uint8 pad_C8[0x30];
     // 0xF8: the part tree; func_8002FA38 copies 0x18 bytes of the model data here (kinds 0x20
     // and 0x40). The count of parts depends on the kind (WORK_5A4: 24).
     CHILD_SLOT slot_F8[24];
-    SVECTOR scale_158; // 0x158: scale (0x400 = 1, func_80014AC0), shifted by Scratch_scale_shift
-    MATRIX mtx_160;    // 0x160: body matrix, scaled (Model_parts_mtx_set)
+    SVECTOR scale;  // 0x158: scale (0x400 = 1, func_80014AC0), shifted by Scratch_scale_shift; Capcom: size
+    MATRIX mtx_160; // 0x160: body matrix, scaled (Model_parts_mtx_set)
     // 0x180: part positions (WORK_5A4.pos_180); func_800536B0 reads part n's, for the objects
     // that queue a part on the D_80098894 list. Only objects with parts have them.
     SVECTOR part_180[24];
@@ -674,13 +678,15 @@ typedef struct
     WORK_5A4 *parent_B8;
 } CHILD_WORK;
 
-// Object with a view direction (ang.vy) and a point at 0xC4 (pos_C4): the model objects that
-// func_80030418, Obj_launch_set and func_80030CF0 relate (pos_C4.pad gets the flight time).
-// Kept as a view, since MODEL_WORK has no single type for 0xC4. Checked: the overlays pass the
-// player (&Player_work: stcom09, r3_st05, r3_st14; r3_st05's ST05_PL_VIEW also has an SVECTOR at
-// 0xC4) and stage objects (their structs have an SVECTOR there, "a joint, for the player range
-// tests", stcom17.h), but MODEL_WORK.field_C4 is a word whose top byte func_80037694 tests, and
-// some stage kinds keep a hit word at 0xC4 (stcom16.h, stcom23.h, PL_SHL_WORK.owner_C4).
+// Object with a view direction (ang.vy) and a target point at 0xC4 (pos_C4): what func_80030418,
+// Obj_launch_set and func_80030CF0 take as `from` and `to` (pos_C4.pad gets the flight time).
+// Callers pass the player (PL_WORK.pos_C4: stcom09, stcom12, stcom17, r3_st05, r3_st14, ...),
+// stage NPCs (r3_st05's villagers, r3_st03's actors: Obj_launch_set's `to` via func_80030934),
+// and the stage objects func_80030418 takes as `from` (stcom17.h's value_C4, "a joint, for the
+// player range tests"). Shots and stcom23-type objects keep a hit word at 0xC4 instead
+// (SHL_WORK's free block, PL_SHL_WORK.owner_C4, STCOM23_WORK.hit_C4; MODEL_WORK.hit_C4, read by
+// func_80037694), so there's no single type yet. To do: check against
+// Capcom's EM_WORK in tcrf.txt (eve19.c names no field at 0xC4; its `size` is at 0x158).
 typedef struct
 {
     uint8 pad_0[0x54];
