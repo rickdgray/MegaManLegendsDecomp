@@ -49,7 +49,7 @@ void func_800D8894(SHL_WORK *wp)
         }
         Sound_call(0x124, 0, 0);
     }
-    func_80031930(wp);
+    Close_PL_SHL_WORK(wp);
     return;
 
 rotate:

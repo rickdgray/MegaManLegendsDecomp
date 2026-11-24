@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st1b.h"
 
-
 void func_80100E5C(void)
 {
 }

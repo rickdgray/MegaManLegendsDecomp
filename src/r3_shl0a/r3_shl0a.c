@@ -73,14 +73,14 @@ void func_800D8A88(SHL_WORK *wp)
         {
             func_800D8BE8(wp);
             Sound_call2(0x130, &wp->pos);
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
             return;
         }
         else
         {
             func_800D8BE8(wp);
             Sound_call2(0x130, &wp->pos);
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
             return;
         }
     }

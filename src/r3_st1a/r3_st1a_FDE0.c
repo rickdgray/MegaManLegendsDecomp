@@ -95,7 +95,7 @@ void func_80110090(ST1A_VIEW_H *wp)
     ctl->value_66  = 0;
     stun->damage_0 = 0;
     wp->u_70.b[3]  = D_80098844[wp->kind_2]->value_A;
-    func_80036478(ctl->track_18, 7, -0x60);
+    Track_set(ctl->track_18, 7, -0x60);
     wp->value_B2 = wp->value_B0 = wp->value_6E = D_80098844[wp->kind_2]->life_8 << 5;
     wp->routine_1                              = 0;
     wp->routine_0                              = 1;
@@ -782,7 +782,6 @@ void func_801110B4(ST1A_VIEW_H *wp, uint8 kind)
     }
 }
 
-
 void func_8011146C(ST1A_TALKER3 *wp)
 {
     ST1A_FACE *face;
@@ -808,7 +807,6 @@ void func_8011146C(ST1A_TALKER3 *wp)
     }
 }
 
-
 void func_801115A0(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
     wp->flags_0 |= 2;
@@ -829,7 +827,6 @@ void func_801115A0(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
     wp->routine_2    = 0;
     wp->routine_3    = 0;
 }
-
 
 void func_80111658(ST1A_TALKER3 *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
@@ -1164,7 +1161,6 @@ void func_801120E4(STAGE_OBJ *wp)
     wp->position.y         = (sint16)(temp_v1 >> 0x10);
 }
 
-
 void func_80112134(STAGE_OBJ *wp, STAGE_FACE2 *face)
 {
     wp->flags_0 |= 2;
@@ -1287,7 +1283,6 @@ void func_8011259C(ST1A_TALKER *wp)
     func_80111F80(wp, face);
 }
 
-
 void func_801125F8(ST1A_WATCHER *wp)
 {
     ST1A_EYES *face;
@@ -1322,7 +1317,6 @@ void func_801125F8(ST1A_WATCHER *wp)
         }
     }
 }
-
 
 void func_8011277C(ST1A_WATCHER *wp, STAGE_SCENE_WORK *scene, ST1A_EYES *face)
 {
@@ -1617,7 +1611,6 @@ void func_8011318C(STAGE_OBJ *wp)
 {
     D_80132370[wp->variant_3][wp->routine_0](wp, &Scene_work, &wp->u_4E0.face);
 }
-
 
 void func_801131DC(ST1A_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
@@ -2317,7 +2310,6 @@ void func_80114610(STAGE_OBJ *wp, STAGE_FACE *face)
     pl->value_169 = face->prev_10 = face->shape_F = face->eyes_8[face->index_11];
 }
 
-
 void func_801146D8(ST1A_OBJ *wp)
 {
     STAGE_FACE *face;
@@ -2965,7 +2957,6 @@ void func_80115970(ST1A_OBJ *wp)
     }
 }
 
-
 void func_80115A90(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_TALK *talk)
 {
     wp->flags_0 |= 2;
@@ -3409,7 +3400,7 @@ void func_80116780(ST1A_STCOM27_WORK_C *wp)
     wp->accel.x     = 0;
     wp->flags_0 |= 2;
     Model_work_init(wp, &wp->variant_3);
-    func_80036478(wp->ctl.track_0, 7, -0x60);
+    Track_set(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_80132AE0;
     wp->life_6E = wp->life_max_B0 = D_8009884C[wp->kind_2]->life_8 << 4;
     wp->damage_B2                 = 0;
@@ -3737,7 +3728,6 @@ void func_801170E0(STAGE_OBJ *wp)
 void func_801171E0(void)
 {
 }
-
 
 void func_801171E8(ST1A_ACTOR *wp)
 {
@@ -4306,7 +4296,6 @@ void func_80118404(STAGE_OBJ *wp)
     D_80132C28[wp->variant_3](wp, &wp->u_4E0.face);
 }
 
-
 void func_80118440(ST1A_OBJ *wp)
 {
     ST1A_FACE *face;
@@ -4331,7 +4320,6 @@ void func_80118440(ST1A_OBJ *wp)
         Model_Shadow_Trans(wp, 0x80, 0x200, 0);
     }
 }
-
 
 void func_80118560(ST1A_OBJ *wp, STAGE_SCENE_WORK *scene, ST1A_FACE *face)
 {
@@ -4867,7 +4855,7 @@ void func_80119320(ST1A_OBJ *wp)
     bp->value_8        = 0;
     bp->value_18       = 0;
     bp->value_1C       = 0;
-    func_80036478(bp->track_28, 0, -0x60);
+    Track_set(bp->track_28, 0, -0x60);
     bp->value_C    = 0;
     bp->value_52   = 0;
     bp->value_53   = 0;

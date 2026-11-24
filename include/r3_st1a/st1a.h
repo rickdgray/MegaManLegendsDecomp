@@ -684,7 +684,7 @@ typedef struct
     uint8 value_C;      // C
     uint8 value_D;      // D
     uint8 value_E;      // E
-    uint8 track_F;      // F: func_80036478's argument
+    uint8 track_F;      // F: Track_set's argument
 } ST1A_KIND;
 
 extern ST1A_KIND **D_8009884C;
@@ -3188,7 +3188,7 @@ typedef struct
 #define ST1A_CTL_OF(wp) ((ST1A_CTL *)((uint8 *)&(wp)->ext + 0x20))
 
 extern STCOM16_KIND **D_80098844;
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 void func_80110090(ST1A_VIEW_H *wp);
 
 typedef struct ST1A_VIEW_I ST1A_VIEW_I;
@@ -4364,7 +4364,7 @@ typedef struct
     sint32 value_18;      // 458
     sint32 value_1C;      // 45C
     uint8 reserved20[8];  // 460
-    uint8 track_28[0x2A]; // 468: func_80036478's
+    uint8 track_28[0x2A]; // 468: Track_set's
     uint8 value_52;       // 492
     uint8 value_53;       // 493
     sint32 value_54;      // 494

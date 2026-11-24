@@ -1028,7 +1028,7 @@ void func_80118FF8(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
     ctl->sink_12   = 8;
     ctl->hit_18    = 0;
     ctl->ground_1C = 0;
-    func_80036478(ctl->track_28, 0xB, 0);
+    Track_set(ctl->track_28, 0xB, 0);
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
@@ -1576,7 +1576,7 @@ void func_80119EE8(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
     }
     else
     {
-        func_80036470(ctl->track_28);
+        Track_stop(ctl->track_28);
         Obj_pos_set(wp, 0xC0, 0, 0);
         ctl->flags_0 &= ~0x80;
         if (ctl->random_2 & 1)
@@ -1608,7 +1608,7 @@ void func_8011A094(ST05_BOAT *wp, ST05_BOAT_CTL *ctl)
     }
     else
     {
-        func_80036470(ctl->track_28);
+        Track_stop(ctl->track_28);
         if (ctl->timer_4 == 0)
         {
             ctl->timer_6 = 0x20;
@@ -1979,7 +1979,7 @@ void func_8011ADB4(ST05_BOSS *wp)
         ctl->hit_10[i].hit_0   = 0;
         ctl->hit_10[i].value_4 = 0;
     }
-    func_80036478(ctl->track_A0, 0xA, -0x1F4);
+    Track_set(ctl->track_A0, 0xA, -0x1F4);
     wp->value_B2 = wp->value_B0 = wp->value_6E = D_8009884C[wp->kind_2]->life_8 << 6;
     wp->value_78                               = (sint32)D_801319C8;
     switch (wp->variant_3)

@@ -331,7 +331,7 @@ typedef struct
 
 typedef void (*SHL_FUNC)(SHL_WORK *wp);
 
-// A player's shot: a slot of the pool D_800BFB20[16], kind 0x10 (func_80031598 / func_80031930),
+// A player's shot: a slot of the pool D_800BFB20[16], kind 0x10 (Open_PL_SHL_WORK / Close_PL_SHL_WORK),
 // spawned by pl_shot_spawn. Its id_2 is byte 7 of the player's action record (D_80089A8B), and
 // handler[id_2] is func_800433C0 or func_800437A8 (code_8004324C). Same layout as SHL_WORK, with
 // its sprite EFC and free block written out: the flight direction sits in the EFC's kind bytes,
@@ -475,7 +475,7 @@ typedef struct
     uint8 far_r;   // 0x20
     uint8 far_g;   // 0x21
     uint8 far_b;   // 0x22
-    uint8 pad_23;  // 0x23
+    uint8 fog_23;  // 0x23: copied to Scratch_fog_2 (func_800371A0)
     uint16 near;   // 0x24
     uint16 unk_26; // 0x26
 } FOG_BLOCK;
@@ -640,11 +640,13 @@ typedef struct
     sint16 pad;
 } LOCK_BOX;
 
-// Queued request (func_800341BC): vector plus packed flags.
+// A hit request queued for the frame in D_800A2F48 (func_800341BC, func_8003430C; tested by
+// Hit_check_all). v.pad holds the radius (bits 0-8), the capsule flags (bits 9-10: paired with the
+// next request) and the kind (bits 13-15).
 typedef struct
 {
     SVECTOR v;
-    uint32 flags;
+    uint32 flags; // top byte: the owner's id; low 23 bits: the address of the SLOT_OWNER
 } SLOT_REQ;
 
 // A part detached from its WORK_5A4 parent (func_80031324). func_80031324 has no callers in the
@@ -672,22 +674,13 @@ typedef struct
     WORK_5A4 *parent_B8;
 } CHILD_WORK;
 
-// Object whose second position (pos_428/svec_438) func_8002FF34 moves along its facing (ang.vy).
-// Kept as a view: func_8002FF34 is only called from the overlays ST03, ST03B and ST05, so the object
-// is not known. Its fields match PL_WORK's (ang, pos_428, svec_438); MODEL_WORK ends before 0x428.
-typedef struct
-{
-    uint8 pad_0[0x54];
-    SVECTOR ang; // 0x54: same as MODEL_WORK.ang
-    uint8 pad_5C[0x3CC];
-    VECTOR pos_428;
-    SVECTOR svec_438;
-} TURN_WORK;
-
-// Object with a view direction (ang.vy) and a position at 0xC4 (pos_C4); see func_80030418.
-// Kept as a view: func_80030418 is only called from the overlays (ST00, ST03, ...), and
-// func_80030CB8/func_80030CF0 have no callers. The position at 0xC4 rules out PL_SHL_WORK (owner_C4
-// there) and PL_WORK has nothing known at 0xC4, so the object is not known. 0x54 is MODEL_WORK.ang.
+// Object with a view direction (ang.vy) and a point at 0xC4 (pos_C4): the model objects that
+// func_80030418, Obj_launch_set and func_80030CF0 relate (pos_C4.pad gets the flight time).
+// Kept as a view, since MODEL_WORK has no single type for 0xC4. Checked: the overlays pass the
+// player (&Player_work: stcom09, r3_st05, r3_st14; r3_st05's ST05_PL_VIEW also has an SVECTOR at
+// 0xC4) and stage objects (their structs have an SVECTOR there, "a joint, for the player range
+// tests", stcom17.h), but MODEL_WORK.field_C4 is a word whose top byte func_80037694 tests, and
+// some stage kinds keep a hit word at 0xC4 (stcom16.h, stcom23.h, PL_SHL_WORK.owner_C4).
 typedef struct
 {
     uint8 pad_0[0x54];
@@ -746,7 +739,9 @@ extern SLOT_REQ D_800A2F48[];
 extern uint8 D_80089A8B[]; // byte 7 of the 12-byte records of D_80089A84 (PL_ACT_ENT.id_7)
 extern uint32 D_800A32E0[];
 extern uint32 D_80098798;
-extern uint32 D_800BE478[];
+// The shot holding each slot of D_80098798 (func_8003545C, from pl_shot_spawn): its tgt_BC gets the
+// position of the request that owns the slot.
+extern PL_SHL_WORK *D_800BE478[];
 extern SLOT_ENT D_8009A300[4];
 extern TRACK_INFO D_800899AC[];
 extern HIT_ENT D_80097D18; // collision box of the SLOT_ENT point (func_80036D40)
@@ -778,7 +773,7 @@ void func_800320B8(struct PL_WORK *wp, uint32 set, sint32 idx);
 void func_800321C8(struct PL_WORK *wp, sint32 unused, uint32 set, sint32 idx);
 void func_800323FC(struct PL_WORK *wp, sint32 a); // steps the keyframe table; a: pose_mix
 WORK_48 *func_80031618(void);                     // claims a free slot of D_800A3B40, or 0
-void func_80031930(PL_SHL_WORK *wp);              // frees a slot of D_800BFB20
+void Close_PL_SHL_WORK(PL_SHL_WORK *wp);          // frees a slot of D_800BFB20
 void func_80031824(WORK_3C0 *wp);                 // frees a slot of D_8009F108
 WORK_3C0 *func_80031418(void);                    // claims a free slot of D_8009F108, or 0
 WORK_5A4 *func_80031498(void);                    // claims a free slot of D_800C3580, or 0
@@ -826,5 +821,40 @@ sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLO
 sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint32 a4, uint32 a5, uint32 a6, SLOT_OWNER *owner, uint32 val,
                      uint32 a9, uint32 a10);
 void Obj_player_dist_set(void); // per frame (game's game_frame_exec)
+// Called from the overlays.
+void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players);
+void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
+void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
+void func_8002FF34(struct PL_WORK *wp, sint16 x, sint16 y, sint16 z); // moves pos_428 along ang.vy
+void func_8002FFC4(SVECTOR *dst, VECTOR *pos, sint32 angle, sint16 x, sint16 y, sint16 z);
+VECTOR *func_80030058(VECTOR *out, sint32 angle, sint16 x, sint16 y, sint16 z);
+long Obj_distance_xyz(MODEL_WORK *a, MODEL_WORK *b);
+long Distance_xyz(SVECTOR *a, SVECTOR *b);
+sint32 Dist_xz_sq(SVECTOR *from, SVECTOR *to);
+uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out);
+uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out);
+uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle);
+sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc);
+void func_80030EE8(MODEL_WORK *wp, SVECTOR *target, sint16 speed);
+sint32 Angle_xz_vector(VECTOR *from, VECTOR *to);
+PL_SHL_WORK *Open_PL_SHL_WORK(void); // claims a free slot of D_800BFB20, or 0
+WORK_50 *func_800317AC(sint32 i);
+sint16 Muku(SVECTOR *pos, SVECTOR *target, sint32 rot, sint32 speed);
+sint16 func_80031CA4(SVECTOR *pos, SVECTOR *target, sint32 rot, sint32 speed);
+sint16 Angle_diff_clamp(sint16 a, sint16 b, sint16 limit);
+sint32 func_80031DCC(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sint32 center2, sint32 half2);
+sint32 func_80031E60(VECTOR *from, sint32 center1, sint32 half1, VECTOR *to, sint32 center2, sint32 half2);
+sint32 func_80031EF0(SVECTOR *from, sint32 center1, sint32 half1, SVECTOR *to, sint32 center2, sint32 half2);
+sint32 func_80031F84(SVECTOR *from, SVECTOR *to, sint16 base, uint16 mode);
+void func_80032304(MODEL_WORK *wp, sint32 idx, sint32 step);
+void func_80032538(MODEL_WORK *wp);
+void func_80033500(WORK_5A4 *wp);
+void func_8003354C(WORK_3C0 *wp);
+void Model_pose_unpack(MODEL_WORK *wp);
+void Track_stop(TRACK_WORK *t);
+void Track_set(TRACK_WORK *t, uint8 kind, uint32 height);
+sint32 func_8003648C(TRACK_WORK *t, MODEL_WORK *wp);
+void func_80036A88(sint32 r, sint32 g, sint32 b, sint32 n);
+void Fog_param_get(sint16 *out);
 
 #endif // CODE_8002E7A8_H

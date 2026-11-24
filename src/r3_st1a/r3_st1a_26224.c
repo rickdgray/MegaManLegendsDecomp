@@ -633,7 +633,6 @@ void func_8012788C(STAGE_OBJ *wp)
     wp->u_C.b.byte_D = 1;
 }
 
-
 void func_801278C0(STAGE_OBJ50 *wp)
 {
     STAGE_OBJ50 *ep;

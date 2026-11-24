@@ -7,7 +7,7 @@
 // The block at +0x348 of the work slot.
 typedef struct
 {
-    uint8 track_0[0x10];    // 348: func_80036478/func_8003648C
+    uint8 track_0[0x10];    // 348: Track_set/func_8003648C
     sint32 sees_10;         // 358: nonzero while it sees the player (func_8003648C)
     sint32 flags_14;        // 35C: 1 hit a wall, 2 on the ground, 4 at a ledge
     STCOM_SVECTOR pos_18;   // 360: the hit box's center
@@ -103,7 +103,7 @@ void stcom27_func_0EAC(STCOM27_WORK *wp);
 
 // ROCK_NEO.EXE.
 extern STCOM27_KIND **D_80098844;
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 sint32 func_80031DCC(STCOM_FIXED_VECTOR *pos, sint32 rot, sint32 range, STCOM_FIXED_VECTOR *target, sint32 target_rot, sint32 target_range);

@@ -544,7 +544,7 @@ void func_80068DAC(SCENE_WORK *sw)
         case 0:
             if (func_80042238(Player_work))
             {
-                Player_work[0].unk00 &= ~3;
+                Player_work[0].routine_0 &= ~3;
                 sw->routine_4++;
                 Cd_xa_play_id(0x2001000B);
             }
@@ -600,7 +600,7 @@ void func_80068DAC(SCENE_WORK *sw)
                 D_800C3570 = 2;
                 sw->unk00  = 0;
                 Cd_subcmd(0, 1, 0);
-                Player_work[0].unk00 |= 1;
+                Player_work[0].routine_0 |= 1;
                 func_80042314(Player_work);
                 func_8001E390(0x2EB);
                 Sce_flag_on(0x55);

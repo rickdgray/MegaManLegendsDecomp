@@ -283,7 +283,7 @@ void func_80100BAC(ST13_STCOM27_WORK *wp)
     wp->accel.x     = 0;
     wp->flags_0 |= 2;
     Model_work_init(wp, &wp->variant_3);
-    func_80036478(wp->ctl.track_0, 7, -0x60);
+    Track_set(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_8011750C;
     wp->life_6E = wp->life_max_B0 = D_8009884C[wp->kind_2]->life_8 << 4;
     wp->damage_B2                 = 0;
@@ -608,7 +608,6 @@ void func_8010150C(STAGE_OBJ *wp)
 void func_8010160C(void)
 {
 }
-
 
 void func_80101614(ST13_ACTOR *wp)
 {

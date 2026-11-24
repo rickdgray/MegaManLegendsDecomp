@@ -66,7 +66,7 @@ void func_800D8AE0(SHL08_WORK *wp)
 
     if (func_80037694(wp, 0x20) || wp->hit_7c)
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         if (wp->type_3 >= 0x80)
         {
             func_800354E0(wp->bit_d);
@@ -115,7 +115,7 @@ void func_800D8AE0(SHL08_WORK *wp)
     }
     else
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         if (wp->type_3 >= 0x80)
         {
             func_800354E0(wp->bit_d);

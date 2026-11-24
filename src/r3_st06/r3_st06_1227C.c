@@ -92,7 +92,6 @@ void func_801124BC(ST06_ACTOR *wp)
     }
 }
 
-
 void func_801125AC(ST06_ACTOR *wp)
 {
     ST06_SCENE *scene;

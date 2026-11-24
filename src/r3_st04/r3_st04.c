@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st04.h"
 
-
 // Installs the stage's slot routine tables.
 void func_80100200(void)
 {

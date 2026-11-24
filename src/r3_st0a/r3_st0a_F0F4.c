@@ -19,7 +19,6 @@ void func_8010F0F4(STAGE_OBJ *wp)
     }
 }
 
-
 void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
 {
     switch (wp->routine_0)
@@ -193,7 +192,6 @@ void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
             break;
     }
 }
-
 
 void func_8010F774(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
 {

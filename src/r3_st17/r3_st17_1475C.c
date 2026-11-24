@@ -357,7 +357,6 @@ void func_801153D0(STAGE_OBJ *wp)
     wp->routine_3                     = 0;
 }
 
-
 void func_8011552C(STAGE_OBJ *wp)
 {
     STCOM_PL_WORK *pl;

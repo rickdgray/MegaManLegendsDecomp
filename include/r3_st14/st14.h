@@ -191,7 +191,7 @@ typedef struct
     uint8 reserved20[8];  // 348
     union
     {
-        uint8 track[0x10]; // func_80036478
+        uint8 track[0x10]; // Track_set
         sint32 w[4];
     } u_28;                 // 350
     sint16 value_38;        // 360
@@ -567,8 +567,8 @@ void func_8003187C(void *wp);
 void func_8003697C(void);
 void func_8005D6E8(void *wp);
 void Swing_Camera2(sint32 a0, sint32 a1, sint32 a2, STCOM_SVECTOR *pos);
-void func_80036470(void *track);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_stop(void *track);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 
 #endif

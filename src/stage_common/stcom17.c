@@ -57,7 +57,7 @@ void stcom17_func_00B0(STCOM17_WORK *wp)
             break;
     }
     ctl->power_42 = 0;
-    func_80036478(ctl->track_18, 11, -0x60);
+    Track_set(ctl->track_18, 11, -0x60);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     wp->anim_AC                                      = 0;
     wp->routine_0                                    = 1;
@@ -831,7 +831,7 @@ void stcom17_func_1854(STCOM17_GUN_WORK *wp)
     wp->ctl.angle_60             = wp->ctl.angle_20;
     wp->ctl.dist_40              = wp->value_80;
     wp->ctl.power_5C             = D_80098844[wp->kind_2]->value_A;
-    func_80036478(wp->ctl.track_30, 12, -0x60);
+    Track_set(wp->ctl.track_30, 12, -0x60);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     wp->routine_0                                    = 1;
     wp->routine_1                                    = 0;

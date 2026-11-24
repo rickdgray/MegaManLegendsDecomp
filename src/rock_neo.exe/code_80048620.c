@@ -623,7 +623,7 @@ sint32 func_8004976C(PL_WORK *pl)
 {
     sint32 turn;
 
-    if (func_8002FE74(pl->unk01) != 0)
+    if (func_8002FE74(pl->kind_1) != 0)
     {
         turn = 0;
     }
@@ -631,7 +631,7 @@ sint32 func_8004976C(PL_WORK *pl)
     {
         turn = pl->unk116;
     }
-    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->unk01);
+    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->kind_1);
 }
 
 // The nearest wall face on one side of pos, for the box ent, among the STG_HITs around pos whose
@@ -3691,7 +3691,7 @@ sint32 func_80050BF4(SVECTOR *v)
 // Acts on the special hit in front of pl (front_hit_search, with pl's box): exits (kind 1 walks
 // through, keeping pl's offset; 2, 4-6 and 8 are doors, 3 a door that opens a scene), and event
 // triggers that hand a value to func_80063BC8 or set scene or game flags. Only a player
-// (unk01's high nibble 0) not in flags_BD's scene control uses exits; the others need
+// (kind_1's high nibble 0) not in flags_BD's scene control uses exits; the others need
 // func_80051970 (the action button). Returns the hit's kind, or 0 if there is none.
 sint32 Front_hit_event(PL_WORK *pl)
 {
@@ -3707,7 +3707,7 @@ sint32 Front_hit_event(PL_WORK *pl)
         return 0;
     }
     obj = NULL;
-    if (!(pl->unk01 & 0xF0))
+    if (!(pl->kind_1 & 0xF0))
     {
         obj = pl;
         if (obj->flags_BD != 0)

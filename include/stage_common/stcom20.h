@@ -69,7 +69,7 @@ extern STCOM20_FUNC stcom20_D_000C[]; // routine_1 handlers (stcom20_func_06E8)
 extern STCOM20_FUNC stcom20_D_0018[]; // routine_0 handlers (stcom20_func_0818)
 
 // ROCK_NEO.EXE.
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 void Pos_Shadow_Trans(STCOM_SVECTOR *pos, sint32 a1, sint32 a2, sint32 a3);
 sint32 Angle_xz(sint16 x0, sint16 z0, sint16 x1, sint16 z1);

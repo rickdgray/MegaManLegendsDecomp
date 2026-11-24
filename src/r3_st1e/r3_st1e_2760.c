@@ -246,7 +246,6 @@ void func_80102FA4(ST1E_SCROLL *wp)
     wp->pos.count = 0;
 }
 
-
 void func_80102FD8(ST1E_SCROLL *wp)
 {
     ST1E_SCROLL_POS *pos;

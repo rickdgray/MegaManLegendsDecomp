@@ -1,9 +1,6 @@
 #include "common.h"
 #include "st09.h"
 
-
-
-
 void func_80118308(STAGE_PANEL_WORK *wp)
 {
     STCOM_SVECTOR sxy_player;
@@ -375,7 +372,6 @@ sint32 func_80118FC0(ST09_BOX *wp)
     }
     return 1;
 }
-
 
 void func_80119074(STAGE_PANEL_WORK *wp)
 {

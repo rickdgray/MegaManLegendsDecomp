@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st14.h"
 
-
 void func_80101C28(STAGE_OBJ *wp)
 {
     D_801154B0[wp->routine_0](wp);

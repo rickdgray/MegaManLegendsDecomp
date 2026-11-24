@@ -73,7 +73,7 @@ void func_800D8A7C(SHL_WORK *wp)
     {
         func_800D8C6C(wp);
         Swing_Camera2(0x14, 0x64, 0xFA0, &wp->pos);
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     wp->old_fpos = wp->fpos;
@@ -106,7 +106,7 @@ void func_800D8A7C(SHL_WORK *wp)
     }
     else
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
         return;
     }
     func_800D8D5C(wp);

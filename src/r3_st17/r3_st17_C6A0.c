@@ -149,7 +149,7 @@ void func_8010C994(STAGE_OBJ *wp, ST17_BOSS *ext)
     ext->flags_140 = 0;
     ext->frame_142 = 0;
     ext->count_144 = 0;
-    func_80036478(ext->track_148, 0, 0);
+    Track_set(ext->track_148, 0, 0);
     wp->anim_prev_AD     = 0xFF;
     wp->u_C.b.byte_C     = 0;
     wp->value_48.half[0] = 0;

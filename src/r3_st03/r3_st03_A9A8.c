@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st03.h"
 
-
 void func_8010A9A8(STAGE_OBJ *wp)
 {
     sint32 temp_v1;

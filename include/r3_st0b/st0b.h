@@ -200,7 +200,7 @@ typedef struct
     uint8 index_E;               // 0E: the action slot being run
     uint8 toggle_F;              // 0F (+0x38F)
     ST0B_HITBOX hit_10[2];       // 10
-    uint8 track_38[0x10];        // 38: func_80036478
+    uint8 track_38[0x10];        // 38: Track_set
     STCOM_SVECTOR_W rot_48;      // 48 (+0x3C8)
     STCOM_FIXED_VECTOR scale_50; // 50 (+0x3D0)
     STAGE_OBJ *slot_60;          // 60 (+0x3E0)
@@ -1775,10 +1775,10 @@ typedef struct
     sint32 value_34;        // 34
     uint32 hit_38;          // 38: damage in the low 24 bits, kind bits above
     sint32 value_3C;        // 3C
-    uint8 track_40[0x10];   // 40: func_80036478
+    uint8 track_40[0x10];   // 40: Track_set
 } ST0B_HIT_B;
 
-void func_80036470(void *track);
+void Track_stop(void *track);
 
 void func_8010D494(STAGE_OBJ *wp, ST0B_HIT_B *hit);
 
@@ -2332,7 +2332,7 @@ typedef struct
     sint32 ground_1C;     // 1C: 1 on the ground
     sint32 hit_20;        // 20: func_800341BC's record
     sint32 value_24;      // 24
-    uint8 track_28[0x10]; // 28: func_80036478/func_8003648C
+    uint8 track_28[0x10]; // 28: Track_set/func_8003648C
 } ST0B_BOAT_CTL;
 
 typedef struct
@@ -2585,7 +2585,7 @@ void func_80117C50(STAGE_OBJ *owner, sint32 kind, sint32 index, ST0B_PLACE *plac
 extern ST0B_BOB2_FUNC D_8011B410[];
 void func_8010BBA0(STAGE_OBJ *wp, ST0B_BOB *bob);
 
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 
 typedef void (*ST0B_HIT_B_FUNC)(STAGE_OBJ *wp, ST0B_HIT_B *ctl);
 

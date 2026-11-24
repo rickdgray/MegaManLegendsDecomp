@@ -374,7 +374,7 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
             }
             if (Game_work.value_50 == 0xB && wp->position.y == -1)
             {
-                func_80031930(wp);
+                Close_PL_SHL_WORK(wp);
                 Sound_call2(0x102, &wp->position);
                 effect = func_80031618();
                 if (effect != NULL)

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st1d.h"
 
-
 void func_80111300(STAGE_OBJ50 *wp)
 {
     if (wp->variant_3 == 0xFF)

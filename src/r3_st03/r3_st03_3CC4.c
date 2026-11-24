@@ -692,7 +692,7 @@ void func_80105360(ST03_ACTOR *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    func_80036478(ctl->track_24, 0, -0x60);
+    Track_set(ctl->track_24, 0, -0x60);
     ctl->range_34 = 0x7FFFFFFF;
     life          = D_80098844[wp->kind_2]->life_8;
     wp->value_78  = 0;

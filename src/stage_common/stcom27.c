@@ -28,7 +28,7 @@ void stcom27_func_003C(STCOM27_WORK *wp)
     wp->accel.x     = 0;
     wp->flags_0 |= 2;
     Model_work_init(wp, NULL);
-    func_80036478(wp->ctl.track_0, 4, -0x60);
+    Track_set(wp->ctl.track_0, 4, -0x60);
     wp->data_78 = stcom27_D_000C;
     wp->life_6E = wp->life_max_B0 = D_80098844[wp->kind_2]->life_8 << 4;
     wp->jump_74                   = 0;

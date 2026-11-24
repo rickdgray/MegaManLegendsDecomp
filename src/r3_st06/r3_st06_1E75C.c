@@ -9,7 +9,6 @@ void func_8011E75C(ST06_BOAT *wp)
     wp->ctl_CC.hit_10 = 0;
 }
 
-
 void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
 {
     switch (wp->routine_1)
@@ -56,7 +55,6 @@ void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
     wp->position_AC = wp->position;
     Model_Shadow_Trans(wp, 0x12C, 0x200, 0);
 }
-
 
 void func_8011EA08(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
 {

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st03.h"
 
-
 void func_801004BC(void)
 {
     STAGE_TABLE_3C0 = D_80114350;
@@ -136,7 +135,6 @@ void func_8010093C(STAGE_OBJ *wp)
         wp->value_4 = 0xFF;
     }
 }
-
 
 void func_80100990(STAGE_ROOM *wp)
 {

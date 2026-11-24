@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st00.h"
 
-
 void func_801076E8(STAGE_STCOM15_WORK_4E0 *wp)
 {
     STAGE_STCOM15_CTL *ctl;
@@ -94,7 +93,7 @@ void func_801078B8(STAGE_STCOM15_WORK_4E0 *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    func_80036478(ctl->track_24, D_8009884C[wp->kind_2][wp->variant_3].value_F, -0x60);
+    Track_set(ctl->track_24, D_8009884C[wp->kind_2][wp->variant_3].value_F, -0x60);
     life                 = D_8009884C[wp->kind_2][wp->variant_3].life_8 << 5;
     wp->data_78          = D_8011C0A4;
     wp->data_10          = NULL;
@@ -1509,7 +1508,7 @@ void func_8010A844(STAGE_STCOM15_WORK_4E0 *wp)
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
     wp->ctl.value_18            = 0;
-    func_80036478(wp->ctl.track_24, D_8009884C[wp->kind_2][wp->param_D].value_F, -0x60);
+    Track_set(wp->ctl.track_24, D_8009884C[wp->kind_2][wp->param_D].value_F, -0x60);
     *(uint32 *)&wp->ctl.timer_34 = 0;
     *(uint32 *)&wp->ctl.timer_38 = 0;
     wp->ctl.u_3C.flag            = wp->position.pad;

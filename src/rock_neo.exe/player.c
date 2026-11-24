@@ -74,12 +74,12 @@ void player_work_init(PL_WORK *pl, sint32 load)
     save       = &Save_image;
     if (Game_work.unk082 & 0x80)
     {
-        pl->unk00   = 0;
-        pl->flags_6 = 0;
+        pl->routine_0 = 0;
+        pl->flags_6   = 0;
     }
     else
     {
-        pl->unk00                 = 3;
+        pl->routine_0             = 3;
         pl->flags_6               = 3;
         *(uint16 *)&pl->id_2      = 0; // id_2, type_3
         *(uint16 *)&pl->flag_4    = 0; // flag_4, flag_5
@@ -150,7 +150,7 @@ void Player_exec(void)
 {
     uint8 flags;
 
-    if ((sint8)Player_work[0].unk00 & Player_work[0].flags_6 & 1)
+    if ((sint8)Player_work[0].routine_0 & Player_work[0].flags_6 & 1)
     {
         flags = Player_work[0].flags_BD;
         if (!(flags & 0x40))
@@ -191,7 +191,7 @@ void Player_exec(void)
         }
         func_8003C418(&Player_work[0]);
     }
-    if ((sint8)Player_work[1].unk00 & Player_work[1].flags_6 & 1)
+    if ((sint8)Player_work[1].routine_0 & Player_work[1].flags_6 & 1)
     {
         if (!(Player_work[1].flags_BD & 0x40))
         {
@@ -211,21 +211,21 @@ void Player_exec(void)
 
 void func_8003C2D8(void)
 {
-    if ((sint8)Player_work[0].unk00 & Player_work[0].flags_6 & 1)
+    if ((sint8)Player_work[0].routine_0 & Player_work[0].flags_6 & 1)
     {
         func_8003C4EC(&Player_work[0]);
         if (Player_work[0].unk449 == 0 && Player_work[0].unk110 == 0)
         {
-            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].unk01, &Player_work[0].owner_188, 0x2000000, 0x800000,
+            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].kind_1, &Player_work[0].owner_188, 0x2000000, 0x800000,
                           0);
         }
     }
-    if ((sint8)Player_work[1].unk00 & Player_work[1].flags_6 & 1)
+    if ((sint8)Player_work[1].routine_0 & Player_work[1].flags_6 & 1)
     {
         func_8003C4EC(&Player_work[1]);
         if (Player_work[1].unk449 == 0 && Player_work[1].unk110 == 0)
         {
-            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].unk01, &Player_work[1].owner_188, 0x2000000,
+            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].kind_1, &Player_work[1].owner_188, 0x2000000,
                           0x800000, 0);
         }
     }
@@ -337,7 +337,7 @@ void func_8003C4EC(PL_WORK *pl)
     func_8002D004(pl, pl->unk168, pl->unk169);
     Pl_pose_unpack(pl);
     Pl_joint_mtx_set(pl);
-    if (pl->unk00 & 2)
+    if (pl->routine_0 & 2)
     {
         Pl_Shadow_Trans(pl, 0x32, 0x2AB, 0);
     }
@@ -1814,7 +1814,7 @@ void func_8003EB08(PL_WORK *pl)
                 pos.vz += pl->hit_78->min_4 - 1;
             }
             pos.vy -= 0x98;
-            h = func_80048EA4(&pos, 0, 0, pl->unk01) + 0x98;
+            h = func_80048EA4(&pos, 0, 0, pl->kind_1) + 0x98;
             if (ABS(pl->pos.vy - h) < 0x20)
             {
                 pl->pos.vy   = h;
@@ -2975,8 +2975,8 @@ sint32 func_80040818(PL_WORK *pl)
     }
     from.vy -= 0x98;
     to.vy -= 0x98;
-    floor = func_80048EA4(&from, 0, 0, pl->unk01);
-    if (floor != func_80048EA4(&to, 0, 0, pl->unk01))
+    floor = func_80048EA4(&from, 0, 0, pl->kind_1);
+    if (floor != func_80048EA4(&to, 0, 0, pl->kind_1))
     {
         return 0;
     }
@@ -3778,7 +3778,7 @@ sint32 func_80042238(PL_WORK *pl)
 {
     pl->unk449 = -1;
     pl->flags_BD |= 0x40;
-    if (pl->unk00 & 1)
+    if (pl->routine_0 & 1)
     {
         if (pl->routine_8 == 1)
         {
@@ -3827,10 +3827,10 @@ void func_80042314(PL_WORK *pl)
     *(uint32 *)&pl->owner_188.vec_8.vz = 0; // vz, pad
     pl->unk168                         = 0;
     pl->unk169                         = 0;
-    if (pl->unk00 & 1)
+    if (pl->routine_0 & 1)
     {
-        pl->unk00   = 3;
-        pl->flags_6 = 3;
+        pl->routine_0 = 3;
+        pl->flags_6   = 3;
         if (pl->routine_8 == 3)
         {
             pl->routine_9 = 3;

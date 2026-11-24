@@ -90,7 +90,7 @@ void func_800D888C(SHL_WORK *wp)
         if (tp->timer_532 == 0)
         {
             Sound_call(0x12C, 0, 0);
-            func_80031930(wp);
+            Close_PL_SHL_WORK(wp);
         }
         else
         {
@@ -101,13 +101,13 @@ void func_800D888C(SHL_WORK *wp)
             if (tp->value_100 > D_80089ADA)
             {
                 Sound_call(0x12C, 0, 0);
-                func_80031930(wp);
+                Close_PL_SHL_WORK(wp);
             }
         }
     }
     else
     {
-        func_80031930(wp);
+        Close_PL_SHL_WORK(wp);
     }
 }
 

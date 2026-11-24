@@ -21,7 +21,6 @@ void func_8010D1F8(ST06_ACTOR *wp)
     }
 }
 
-
 void func_8010D2E8(ST06_ACTOR *wp)
 {
     ST06_SCENE *scene;

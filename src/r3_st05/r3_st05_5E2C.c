@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st05.h"
 
-
 void func_80105E2C(sint8 index)
 {
     STAGE_SPAWNED *obj;
@@ -400,7 +399,6 @@ void func_80106934(STAGE_ROOM *wp)
             break;
     }
 }
-
 
 void func_80106B28(void)
 {
@@ -1090,7 +1088,7 @@ void func_80107FF0(ST05_VILLAGER *wp)
     *(uint32 *)&ctl->value_8 = 0;
     ctl->hit_14              = 0;
     ctl->value_18            = 0;
-    func_80036478(ctl->track_24, 0, -0x60);
+    Track_set(ctl->track_24, 0, -0x60);
     ctl->range_34 = 0x7FFFFFFF;
     life          = D_80098844[wp->kind_2]->life_8;
     wp->value_78  = 0;

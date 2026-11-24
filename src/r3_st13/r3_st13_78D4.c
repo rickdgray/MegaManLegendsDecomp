@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st13.h"
 
-
 void func_801078D4(STAGE_OBJ *wp)
 {
     ST13_REC10 *rec;

@@ -534,7 +534,7 @@ typedef struct
     uint8 reserved354[8];                   // 354
     sint32 value_35C;                       // 35C
     uint8 reserved360[0xC];                 // 360
-    uint8 track_36C[0x18];                  // 36C: func_80036478
+    uint8 track_36C[0x18];                  // 36C: Track_set
     sint16 value_384;                       // 384
     sint16 value_386;                       // 386
     uint8 reserved388[0x38];                // 388
@@ -549,7 +549,7 @@ typedef struct
 
 extern ST04_KIND **D_80098844;
 extern uint8 D_8010CA64[];
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 
 extern ST04_ACTOR_FUNC D_8010C9B8[];
 sint32 func_80105A8C(ST04_ACTOR *wp);

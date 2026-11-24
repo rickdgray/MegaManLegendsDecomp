@@ -496,7 +496,6 @@ void func_8012222C(STAGE_OBJ *wp)
     D_80133134[wp->routine_0](wp);
 }
 
-
 void func_80122268(ST1A_DART *wp)
 {
     STCOM_MATRIX unused_m; // unused, but retail reserves its frame
@@ -614,7 +613,6 @@ void func_801226D0(STAGE_OBJ *wp)
 {
     wp->routine_0++;
 }
-
 
 void func_801226E4(ST1A_DART *wp)
 {

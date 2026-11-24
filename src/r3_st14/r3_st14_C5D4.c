@@ -44,7 +44,7 @@ void func_8010C70C(ST14_ACTOR *wp)
     wp->ctl.flags_4         = 0x5A;
     *(sint32 *)&wp->ctl.u_8 = 0; // a cast store: the union field lets the table load move above it
     *(sint32 *)&wp->ctl.u_C = 0;
-    func_80036478(wp->ctl.u_28.track, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_set(wp->ctl.u_28.track, D_80098844[wp->kind_2]->value_F, -0x60);
     wp->ctl.hit_18    = 0;
     wp->ctl.value_1C  = 0;
     wp->ctl.u_28.w[1] = 0;
@@ -463,7 +463,7 @@ void func_8010D1E4(ST14_ACTOR *wp)
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
             if (wp->value_A7 == -1)
             {
-                func_80036470(ctl->u_28.track);
+                Track_stop(ctl->u_28.track);
                 wp->anim_AC = 1;
                 ctl->flags_4 |= 1;
             }

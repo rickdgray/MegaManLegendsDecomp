@@ -114,7 +114,7 @@ void func_80111CEC(ST05_WAGON *wp)
     ctl->value_18            = 0;
     ctl->flags_0 |= 0xB2;
     ctl->link_34 = func_80036294(wp->u_C.b.byte_D);
-    func_80036478(ctl->track_24, D_80098844[ctl->link_34->kind_2]->track_F, -0x60);
+    Track_set(ctl->track_24, D_80098844[ctl->link_34->kind_2]->track_F, -0x60);
     ctl->value_3C          = ctl->value_40;
     ctl->value_40[0]       = 0;
     ctl->value_40[1]       = 0;
@@ -390,7 +390,7 @@ void func_801126CC(ST05_WAGON *wp)
             wp->routine_2 = 1;
             ctl->value_8  = 0;
             ctl->flags_0 |= 4;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             ctl->value_6 = 0x5A;
             D_801380A0[0]->u_E.b.byte_F |= 1;
             D_801380A0[1]->u_E.b.byte_F |= 1;
@@ -492,7 +492,7 @@ void func_80112B58(ST05_WAGON *wp)
             wp->routine_2   = 1;
             wp->ctl.value_8 = 0;
             wp->ctl.flags_0 |= 4;
-            func_80036470(wp->ctl.track_24);
+            Track_stop(wp->ctl.track_24);
             wp->ctl.value_6 = 0x5A;
             // fall through
         case 1:
@@ -969,7 +969,7 @@ void func_801139EC(ST05_WALKER *wp)
     ctl->hit_14                 = 0;
     *(sint32 *)&ctl->reserved18 = 0;
     ctl->flags_0 |= 6;
-    func_80036478(ctl->track_24, D_80098844[wp->kind_2]->track_F, -0x200);
+    Track_set(ctl->track_24, D_80098844[wp->kind_2]->track_F, -0x200);
     if (!(ctl->flags_0 & 0x200))
     {
         ctl->node_38              = &D_80131790[wp->variant_3][D_801317B4[wp->variant_3]];
@@ -1478,7 +1478,7 @@ void func_80114DB8(ST05_WALKER *wp)
             wp->routine_3 = 1;
             wp->accel_4C  = D_801317A4[wp->variant_3] >> 1;
             ctl->value_8  = 0;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             ctl->flags_0 &= ~0x110;
             // fall through
         case 1:
@@ -1587,7 +1587,7 @@ void func_801151E8(ST05_WALKER *wp)
             wp->routine_3 = 1;
             wp->accel_4C  = D_801317A4[wp->variant_3] >> 1;
             ctl->value_8  = 0;
-            func_80036470(ctl->track_24);
+            Track_stop(ctl->track_24);
             ctl->flags_0 &= ~0x100;
             // fall through
         case 1:

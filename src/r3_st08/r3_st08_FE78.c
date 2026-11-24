@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st08.h"
 
-
 // A shadow under its owner (value_44), scaled by the owner's variant.
 void func_8010FE78(STAGE_OBJ50 *wp)
 {

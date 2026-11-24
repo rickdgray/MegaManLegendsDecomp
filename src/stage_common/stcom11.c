@@ -45,7 +45,7 @@ void stcom11_func_003C(STCOM11_WORK *wp)
             wp->routine_3  = 120;
             wp->timer_E    = 0;
             wp->velocity.x = (uint32)(-rsin(wp->angle_64) * 9) >> 10;
-            wp->velocity.y = (pl->value_3EA - wp->position.y) / (((sint32)func_80030254(wp, pl) + 36) / 36);
+            wp->velocity.y = (pl->value_3EA - wp->position.y) / (((sint32)Obj_distance_xyz(wp, pl) + 36) / 36);
             wp->velocity.z = (uint32)(-rcos(wp->angle_64) * 9) >> 10;
             wp->accel.x    = 0;
             wp->accel.y    = 0;

@@ -11,7 +11,6 @@ void func_8010010C(void)
     STAGE_TABLE_50  = D_8010F7D0;
 }
 
-
 void func_80100174(void)
 {
     void *spawn;

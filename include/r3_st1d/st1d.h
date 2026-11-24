@@ -513,7 +513,7 @@ sint32 Obj_ceiling_height_get(void *wp);
 void func_8010E068(STCOM16_WORK *wp);
 void func_8010E278(STCOM16_WORK *wp);
 sint32 Muku(STCOM_SVECTOR *pos, STCOM_SVECTOR *target, sint32 rot, sint32 speed);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 // func_80047148 as func_8010C84C calls it: with two arguments (retail leaves a2 unset).

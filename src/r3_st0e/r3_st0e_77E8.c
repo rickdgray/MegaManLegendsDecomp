@@ -362,7 +362,7 @@ void func_80108448(STAGE_OBJ *wp)
     STCOM_SVECTOR pos;
 
     pl = &Player_work;
-    if ((sint32)func_80030254(pl, wp) < 0x384 &&
+    if ((sint32)Obj_distance_xyz(pl, wp) < 0x384 &&
         func_80031DCC(&wp->position_fixed.v, wp->rotation.y + 0x400, 0x100, &pl->position_fixed, Player_work.rotation.y, 0x800))
     {
         wp->routine_1 = 1;

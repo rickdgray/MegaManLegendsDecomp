@@ -175,7 +175,6 @@ void func_80108E2C(ST1B_VIEW *wp)
     wp->routine_0++;
 }
 
-
 void func_80108EDC(ST1B_TALKER *wp)
 {
     ST1B_TALK *talk;

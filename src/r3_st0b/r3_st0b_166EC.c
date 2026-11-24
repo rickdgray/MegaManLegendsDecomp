@@ -6,7 +6,6 @@ void func_801166EC(STAGE_OBJ *wp)
     D_8011C16C[wp->routine_0](wp);
 }
 
-
 void func_80116728(ST0B_EVENT *wp)
 {
     ST0B_PL *pl;

@@ -68,7 +68,7 @@ void func_8010C93C(STCOM16_WORK *wp)
     wp->stun.timer_5        = 30;
     wp->fade.on_3           = 0;
     wp->ground.flags_6      = 0;
-    func_80036478(wp->ctl.track_20, 5, -0x60);
+    Track_set(wp->ctl.track_20, 5, -0x60);
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
     ctl                                              = &wp->ctl;
     wp->routine_0                                    = 1;

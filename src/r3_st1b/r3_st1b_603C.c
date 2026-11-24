@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st1b.h"
 
-
 void func_8010603C(STAGE_WORK *wp)
 {
     wp->flags_0 |= 2;

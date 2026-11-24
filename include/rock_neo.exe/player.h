@@ -33,13 +33,14 @@ typedef struct
 // Player work, 0x5F4 bytes. Tagged so code_8002E7A8.h can forward-declare it.
 typedef struct PL_WORK
 {
-    uint8 unk00;
-    uint8 unk01; // 0x01: lbu; copied to the spawned object's field_C (pl_shot_spawn)
-    uint8 id_2;  // 0x02: id_2 to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
+    uint8 routine_0; // 0x00: as in every pool slot; bit 0: the player is live (lock_on_search)
+    uint8 kind_1;    // 0x01: pool kind (0) ORed with the player's index (Work_pools_init); copied to
+                     // the spawned shot's field_C (pl_shot_spawn)
+    uint8 id_2;      // 0x02: id_2 to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
     uint8 type_3;
     uint8 flag_4;
     uint8 flag_5;
-    uint8 flags_6; // 0x06: same as MODEL_WORK.flags; 3 or 0 with unk00 (player_work_init)
+    uint8 flags_6; // 0x06: same as MODEL_WORK.flags; 3 or 0 with routine_0 (player_work_init)
     uint8 unk07;
     uint8 routine_8; // 0x08: 3 makes player_entry_set also set the saved position (pos_428 ...)
     uint8 routine_9; // 0x09: player state; the state checks (func_800402C4, ...) set it and clear

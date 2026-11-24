@@ -245,8 +245,8 @@ void Sound_call2(sint16 id, void *pos);
 sint32 rand(void);
 void *func_80036294(sint32 id);
 void *func_80031618(void); // a free effect slot (SHL_FX, or a module's own view)
-SHL_WORK *func_80031598(void);
-void func_80031930(void *obj);
+SHL_WORK *Open_PL_SHL_WORK(void);
+void Close_PL_SHL_WORK(void *obj);
 void Close_SHL_WORK(void *obj);
 void Model_work_init(void *obj, void *arg);
 void func_80033F04(SVECTOR *out, SVECTOR *dir, SVECTOR *cur, sint32 a3, sint32 a4);

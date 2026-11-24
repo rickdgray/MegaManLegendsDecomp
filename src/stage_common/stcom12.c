@@ -119,7 +119,7 @@ void stcom12_func_0304(STCOM12_WORK *wp)
         wp->routine_1 = 0;
         return;
     }
-    ctl->dist_8 = func_80030254(&Player_work, wp);
+    ctl->dist_8 = Obj_distance_xyz(&Player_work, wp);
     switch (wp->routine_1)
     {
         case 0:
@@ -230,7 +230,7 @@ void stcom12_func_0660(STCOM12_WORK *wp)
 {
     uint32 dist;
 
-    dist           = func_80030254(&Player_work, wp);
+    dist           = Obj_distance_xyz(&Player_work, wp);
     wp->ctl.dist_8 = dist;
     switch (wp->routine_1)
     {

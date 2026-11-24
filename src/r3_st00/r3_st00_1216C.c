@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st00.h"
 
-
 void func_8011216C(ST00_STCOM19_WORK *wp)
 {
     STCOM_SVECTOR sxy_player;

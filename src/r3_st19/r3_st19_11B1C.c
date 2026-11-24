@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st19.h"
 
-
 void func_80111B1C(sint32 index, uint8 arg1)
 {
     STCOM_SVECTOR pos[3] = {{0, 0, 0, 0}, {-340, 0, 200, 0x800}, {-3200, 0, -2200, 0x800}};

@@ -30,7 +30,7 @@ typedef struct
     STCOM_SVECTOR pos_18;   // 360: the hit boxes' center
     STCOM24_HIT body_20;    // 368
     STCOM24_HIT claw_30;    // 378
-    uint8 track_40[0x10];   // 388: func_80036478/func_8003648C
+    uint8 track_40[0x10];   // 388: Track_set/func_8003648C
     STCOM_SVECTOR home_50;  // 398: where it started
     uint8 reserved58[0x20]; // 3A0
 } STCOM24_CTL;
@@ -123,7 +123,7 @@ sint8 stcom24_func_15E8(STCOM24_WORK *wp);
 
 // ROCK_NEO.EXE.
 extern STCOM24_KIND **D_80098844;
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 sint32 func_80031F84(STCOM_SVECTOR *pos, STCOM_SVECTOR *from, sint32 rot, sint32 arg3);
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);

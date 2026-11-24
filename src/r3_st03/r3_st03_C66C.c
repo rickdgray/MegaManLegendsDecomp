@@ -1,12 +1,10 @@
 #include "common.h"
 #include "st03.h"
 
-
 void func_8010C66C(STAGE_OBJ *wp)
 {
     D_801170E0[wp->routine_0](wp);
 }
-
 
 void func_8010C6A8(ST03_ACTOR *wp)
 {
@@ -613,7 +611,6 @@ void func_8010D968(STAGE_OBJ *wp)
 {
     D_80117140[wp->routine_0](wp);
 }
-
 
 void func_8010D9A4(ST03_ACTOR *wp)
 {

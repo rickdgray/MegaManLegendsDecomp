@@ -25,7 +25,7 @@ void func_80114400(ST09_PART *wp)
     *(uint32 *)&wp->ctl.timer_4 = 0;
     *(uint32 *)&wp->ctl.value_8 = 0;
     wp->ctl.hit_14              = 0;
-    func_80036470(wp->ctl.track_24);
+    Track_stop(wp->ctl.track_24);
     wp->ctl.scale_38.x        = 0x1000;
     wp->ctl.scale_38.y        = 0x1000;
     wp->ctl.scale_38.z        = 0x1000;

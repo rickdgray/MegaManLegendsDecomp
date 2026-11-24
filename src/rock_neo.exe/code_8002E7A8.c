@@ -13,19 +13,10 @@
 #include "system.h"
 
 // Called only from this file, ahead of their definitions.
-void Model_pose_unpack(MODEL_WORK *wp);
 sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub); // tbl: count, then ATTACH_ENT[count]
-uint32 func_80030628(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out, sint16 angle);
-uint32 func_80030418(VIEW_WORK *from, VIEW_WORK *to, sint16 *shift, VECTOR *out);
-uint32 func_80030604(MODEL_WORK *from, MODEL_WORK *to, sint16 *shift, VECTOR *out);
-sint16 func_80030D30(SVECTOR *from, SVECTOR *to, sint16 height, sint16 max_dist, sint16 arc);
 sint16 func_80030CF0(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist, sint16 arc);
 sint16 func_80030CB8(MODEL_WORK *from, VIEW_WORK *to, sint16 height, sint16 max_dist);
-void func_8002F9EC(MODEL_WORK *wp, uint8 *sub);
-void func_8002FA10(MODEL_WORK *wp, uint8 *sub);
-VECTOR *func_80030058(VECTOR *out, sint32 angle, sint16 x, sint16 y, sint16 z);
-PL_SHL_WORK *func_80031598(void);
-sint32 func_8003545C(uint32 value, SLOT_OWNER *owner);
+sint32 func_8003545C(PL_SHL_WORK *shot, SLOT_OWNER *owner);
 void func_800309E0(SVECTOR *from, SVECTOR *to, SVECTOR *out, sint16 *time, sint16 speed, sint16 max, sint16 grav);
 void func_800331A0(PL_WORK *wp, sint32 n, SVECTOR *rot, SVECTOR *off);
 void func_800333A0(void);
@@ -93,7 +84,7 @@ void Work_pools_init(sint32 players)
         Mem_clear(Player_work, (uint8 *)Player_work + 0xBE4);
         for (i = 0; i < 2; i++)
         {
-            Player_work[i].unk01 = kind | i;
+            Player_work[i].kind_1 = kind | i;
         }
     }
     kind = 0x10;
@@ -186,7 +177,7 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
                     {
                         pl--;
                     }
-                    pl->unk00                 = e->routine_0;
+                    pl->routine_0             = e->routine_0;
                     *(uint16 *)&pl->id_2      = *(uint16 *)&e->id_2;
                     *(uint16 *)&pl->flag_4    = *(uint16 *)&e->flag_4;
                     pl->field_C               = e->field_8;
@@ -297,7 +288,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
                 if (flag & WORK_KILL)
                 {
                     D_8009888C &= ~(0x80000000U >> i);
-                    pl->unk00 = 0;
+                    pl->routine_0 = 0;
                 }
                 else
                 {
@@ -357,7 +348,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
                 if (flag & WORK_KILL)
                 {
                     func_80052528(ps);
-                    func_80031930(ps);
+                    Close_PL_SHL_WORK(ps);
                 }
                 else
                 {
@@ -601,7 +592,7 @@ void func_8002F420(sint32 flag, SVECTOR *d)
                 }
                 else
                 {
-                    func_80031930(ps);
+                    Close_PL_SHL_WORK(ps);
                 }
             }
         }
@@ -859,7 +850,7 @@ void func_8002FBF4(void)
         if ((sint32)(mask << i) < 0 && ps->code_88 < (uint32)Stage_ebd_1)
         {
             func_80052528(ps);
-            func_80031930(ps);
+            Close_PL_SHL_WORK(ps);
         }
     }
     sh   = D_8009CF88;
@@ -925,7 +916,7 @@ void Obj_pos_set(MODEL_WORK *wp, sint16 x, sint16 y, sint16 z)
     func_80030150(&wp->pos_l, &wp->pos);
 }
 
-void func_8002FF34(TURN_WORK *wp, sint16 x, sint16 y, sint16 z)
+void func_8002FF34(PL_WORK *wp, sint16 x, sint16 y, sint16 z)
 {
     VECTOR v;
 
@@ -1000,13 +991,14 @@ void func_800301A8(MATRIX *m, VECTOR *pos, VECTOR *origin)
     pos->vz = origin->vz + r.vz;
 }
 
-long func_80030254(uint16 *a, uint16 *b)
+// Distance_xyz between two objects' positions.
+long Obj_distance_xyz(MODEL_WORK *a, MODEL_WORK *b)
 {
     SVECTOR d;
 
-    d.vx = b[10] - a[10];
-    d.vy = b[11] - a[11];
-    d.vz = b[12] - a[12];
+    d.vx = b->pos.vx - a->pos.vx;
+    d.vy = b->pos.vy - a->pos.vy;
+    d.vz = b->pos.vz - a->pos.vz;
     return SquareRoot0(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
 }
 
@@ -1440,7 +1432,8 @@ sint32 func_8003129C(SVECTOR *a, SVECTOR *b)
 
 void func_80031324(WORK_5A4 *parent, CHILD_WORK *child, sint16 n)
 {
-    child->mtx_8C    = parent->mtx_240[n];
+    child->mtx_8C = parent->mtx_240[n];
+    // Byte arithmetic: &tbl_70[n + 1] computes the offset differently and does not match.
     child->ent_88    = (ENT_14 *)((uint8 *)parent->info_88->tbl_70 + (n + 1) * 0x14);
     child->color_B4  = 0x808080;
     child->parent_B8 = parent;
@@ -1535,7 +1528,7 @@ SHL_WORK *Open_SHL_WORK(void)
     return 0;
 }
 
-PL_SHL_WORK *func_80031598(void)
+PL_SHL_WORK *Open_PL_SHL_WORK(void)
 {
     sint32 i;
     PL_SHL_WORK *wp;
@@ -1685,7 +1678,7 @@ void Close_SHL_WORK(SHL_WORK *wp)
     wp->routine_0 = 0;
 }
 
-void func_80031930(PL_SHL_WORK *wp)
+void Close_PL_SHL_WORK(PL_SHL_WORK *wp)
 {
     D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(PL_SHL_WORK));
     D_80098A60 &= D_800989F0;
@@ -2887,7 +2880,7 @@ sint32 func_800341BC(SVECTOR *v, uint32 a1, uint32 a2, uint32 a3, uint32 a4, SLO
         {
             if (mask > 0x7FFFFFFF)
             {
-                *(SVECTOR *)(D_800BE478[i] + 0xBC) = *v;
+                D_800BE478[i]->tgt_BC = *v;
             }
             mask <<= 1;
         }
@@ -2931,10 +2924,10 @@ sint32 func_8003430C(SVECTOR *va, uint32 pad_a, SVECTOR *vb, uint32 pad_b, uint3
         {
             if (mask > 0x7FFFFFFF)
             {
-                mid.vx                             = (va->vx + vb->vx) >> 1;
-                mid.vy                             = (va->vy + vb->vy) >> 1;
-                mid.vz                             = (va->vz + vb->vz) >> 1;
-                *(SVECTOR *)(D_800BE478[i] + 0xBC) = mid;
+                mid.vx                = (va->vx + vb->vx) >> 1;
+                mid.vy                = (va->vy + vb->vy) >> 1;
+                mid.vz                = (va->vz + vb->vz) >> 1;
+                D_800BE478[i]->tgt_BC = mid;
             }
             mask <<= 1;
         }
@@ -3170,7 +3163,7 @@ void lock_on_search(void)
     }
     for (i = 0; i < 1; i++)
     {
-        if (!(Player_work[i].unk00 & 1))
+        if (!(Player_work[i].routine_0 & 1))
         {
             continue;
         }
@@ -3268,8 +3261,9 @@ void lock_on_search(void)
     }
 }
 
-// Claims the first free bit of D_80098798 (24 slots), marks it in owner->mask_4 and stores value in D_800BE478[slot].
-sint32 func_8003545C(uint32 value, SLOT_OWNER *owner)
+// Claims the first free bit of D_80098798 (24 slots), marks it in owner->mask_4 and stores the shot in
+// D_800BE478[slot].
+sint32 func_8003545C(PL_SHL_WORK *shot, SLOT_OWNER *owner)
 {
     sint32 i;
     uint32 bit;
@@ -3285,7 +3279,7 @@ sint32 func_8003545C(uint32 value, SLOT_OWNER *owner)
         {
             D_80098798 |= bit;
             owner->mask_4 |= bit;
-            D_800BE478[i] = value;
+            D_800BE478[i] = shot;
             return i;
         }
     }
@@ -3297,8 +3291,8 @@ void func_800354E0(uint32 n)
     D_80098798 &= ~(0x80000000 >> n);
 }
 
-// Projects the position (+0xBC) of every claimed slot of D_800BE478 through the view matrix and
-// clears it. The screen XY and depth go to locals and are never used (left over, or a debug aid).
+// Projects the target (tgt_BC) of every claimed slot's shot through the view matrix and clears
+// it. The screen XY and depth go to locals and are never used (left over, or a debug aid).
 void func_80035508(void)
 {
     SVECTOR sxy; // only the first word is written (screen x, y); 8 bytes in the frame
@@ -3315,10 +3309,10 @@ void func_80035508(void)
         {
             if (mask >= 0x80000000)
             {
-                gte_ldv0((SVECTOR *)(D_800BE478[i] + 0xBC));
+                gte_ldv0(&D_800BE478[i]->tgt_BC);
                 gte_rtps();
-                *(uint32 *)(D_800BE478[i] + 0xBC) = 0;
-                *(uint32 *)(D_800BE478[i] + 0xC0) = 0;
+                *(uint32 *)&D_800BE478[i]->tgt_BC.vx = 0;
+                *(uint32 *)&D_800BE478[i]->tgt_BC.vz = 0;
                 gte_stszotz(&otz);
                 gte_stsxy(&sxy);
             }
@@ -3355,13 +3349,13 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
     sint32 sel;
     sint32 slot;
 
-    wp = func_80031598();
+    wp = Open_PL_SHL_WORK();
     if (wp != NULL)
     {
         wp->type_3 = 0;
         if (idx >= 0)
         {
-            slot       = func_8003545C((uint32)wp, (SLOT_OWNER *)(D_800A2F48[idx].flags & 0x7FFFFF));
+            slot       = func_8003545C(wp, (SLOT_OWNER *)(D_800A2F48[idx].flags & 0x7FFFFF));
             wp->slot_D = slot;
             if ((sint8)slot >= 0)
             {
@@ -3395,7 +3389,7 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
             }
         }
         wp->pos.pad  = flag;
-        wp->field_C  = pl->unk01;
+        wp->field_C  = pl->kind_1;
         wp->pos_l.vx = wp->pos.vx << 16;
         wp->pos_l.vy = wp->pos.vy << 16;
         wp->pos_l.vz = wp->pos.vz << 16;
@@ -3434,7 +3428,7 @@ MODEL_WORK *func_800358F0(PL_WORK *pl)
         func_80036D40(&D_8009A300[i]);
     }
     best_d = 4000000;
-    side   = pl->unk01;
+    side   = pl->kind_1;
     n      = D_800988E0;
     best   = -1;
     if (side)
@@ -3725,16 +3719,18 @@ void *func_80036294(uint32 id)
     }
 }
 
-void func_80036470(uint8 *p)
+// Stops tracker t.
+void Track_stop(TRACK_WORK *t)
 {
-    p[7] = 0;
+    t->state = 0;
 }
 
-void func_80036478(uint8 *p, uint8 a, uint32 b)
+// Sets up tracker t: its kind (D_800899AC) and launch height (in units of 16), idle.
+void Track_set(TRACK_WORK *t, uint8 kind, uint32 height)
 {
-    p[6]  = a;
-    p[15] = b >> 4;
-    p[7]  = 0;
+    t->kind   = kind;
+    t->height = height >> 4;
+    t->state  = 0;
 }
 
 // Steps tracker t of object wp toward the player, at the object's facing angle.
@@ -4109,10 +4105,10 @@ void func_800371A0(void *src, FOG_BLOCK *fog)
     Mem_copy32(src, D_800BADB0, 8);
     D_800BC7F8 = *fog;
     D_8009A350 = D_800BC7F8;
-    SetFarColor(fog->b[0x20], fog->b[0x21], fog->b[0x22]);
-    SetFogNear(*(uint16 *)&fog->b[0x24], 0x180);
+    SetFarColor(fog->far_r, fog->far_g, fog->far_b);
+    SetFogNear(fog->near, 0x180);
     D_800C0DC0    = *fog;
-    Scratch_fog_2 = fog->b[0x23];
+    Scratch_fog_2 = fog->fog_23;
 }
 
 uint32 func_80037440(void)

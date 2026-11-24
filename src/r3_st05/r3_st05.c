@@ -1,7 +1,6 @@
 #include "common.h"
 #include "st05.h"
 
-
 // Installs the stage's slot routine tables.
 void func_8010088C(void)
 {
@@ -1166,7 +1165,6 @@ void func_80102AA8(STAGE_ROOM *wp)
     }
 }
 
-
 void func_80102BDC(STAGE_ROOM *wp)
 {
     STAGE_PL_VIEW *pl;
@@ -1258,7 +1256,6 @@ void func_80102BDC(STAGE_ROOM *wp)
     Sce_camera_update();
     Sce_event_update();
 }
-
 
 void func_80102E3C(STAGE_ROOM *wp)
 {

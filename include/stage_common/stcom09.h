@@ -114,7 +114,7 @@ extern uint8 stcom09_D_0028[];        // data_78
 extern STCOM09_KIND **D_80098844;
 extern uint8 *D_8008CE74; // a message script
 STCOM09_SHOT *Open_SHL_WORK(void);
-void func_80036478(void *track, uint8 arg1, uint32 arg2);
+void Track_set(void *track, uint8 arg1, uint32 arg2);
 sint32 func_8003648C(void *track, void *wp);
 void func_80047148(void *wp, STCOM_SVECTOR *pos, STCOM_EFFECT *effect);
 sint32 func_80030418(void *a, void *b, STCOM_SVECTOR *size, STCOM_FIXED_VECTOR *out);
