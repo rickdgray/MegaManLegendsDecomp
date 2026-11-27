@@ -8,7 +8,7 @@
 typedef struct
 {
     uint8 be_flag;
-    uint8 slot;
+    uint8 work_id;
     uint8 id;
 } STCOM05_HEAD;
 
@@ -35,7 +35,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 reserved02;                       // 02
     uint8 type;                             // 03: stcom05_D_0000 handler
     uint8 reserved04[4];                    // 04

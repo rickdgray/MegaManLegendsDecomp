@@ -26,7 +26,7 @@ void stcom27_func_003C(STCOM27_WORK *wp)
     wp->accel.z     = 0;
     wp->accel.y     = 0;
     wp->accel.x     = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     Track_reset(wp->ctl.track_0, 4, -0x60);
     wp->data_78 = stcom27_D_000C;
@@ -73,7 +73,7 @@ void stcom27_func_0168(STCOM27_WORK *wp)
         }
         stcom27_func_0600(wp);
         stcom27_func_0578(wp);
-        if (wp->be_flag & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x78, 0x200, 0);
         }
@@ -120,7 +120,7 @@ void stcom27_func_02B4(STCOM27_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag         = 5;
+                effect->be_flag         = MOVE | MODEL;
                 effect->id              = 0x80;
                 effect->type            = 0;
                 effect->sprite.position = wp->position;
@@ -185,7 +185,7 @@ void stcom27_func_0578(STCOM27_WORK *wp)
     wp->ctl.hit_20 = 0;
     wp->ctl.pos_18 = wp->position;
     wp->ctl.pos_18.y -= 0x50;
-    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->slot, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->work_id, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
 }
 
 // Keeps it on the ground: back to its last position at a ledge.

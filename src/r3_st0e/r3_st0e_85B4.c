@@ -21,7 +21,7 @@ void func_80108610(ST0E_VIEW *wp)
     wp->value_50   = 0;
     wp->u_4C.h[1]  = 0;
     wp->u_4C.h[0]  = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->value_78  = 0;
     wp->value_6E  = 0;
@@ -52,14 +52,14 @@ void func_80108694(ST0E_VIEW *wp)
         wp->value_E8 = 0;
         wp->vec_E0   = wp->position;
         wp->vec_E0.y -= 0x80;
-        func_800341BC(&wp->vec_E0, 0x80, 0, 0x8000, wp->slot, &wp->value_E8, 0x04080000, 0, 0);
+        func_800341BC(&wp->vec_E0, 0x80, 0, 0x8000, wp->work_id, &wp->value_E8, 0x04080000, 0, 0);
         wp->vec_AC = wp->position;
         RotMatrix(rot, &wp->matrix_8C);
         scale.x = 0x200;
         scale.y = 0x200;
         scale.z = 0x200;
         ScaleMatrix(&wp->matrix_8C, &scale);
-        if (wp->be_flag & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x80, 0x200, 0);
         }
@@ -82,7 +82,7 @@ void func_80108820(ST0E_VIEW *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag         = 5;
+                fx->be_flag         = MOVE | MODEL;
                 fx->id              = 0x80;
                 fx->type            = 0;
                 fx->sprite.position = wp->position;
@@ -129,7 +129,7 @@ void func_80108A44(ST0E_VIEW *wp)
     obj = func_80031418();
     if (obj != NULL)
     {
-        obj->be_flag          = 1;
+        obj->be_flag          = MOVE;
         obj->id               = 0x3E;
         obj->type             = 0;
         obj->routine_0        = 0;
@@ -180,7 +180,7 @@ void func_80108D30(ST0E_ITEM *wp)
 {
     ST0E_ITEM_HIT *hit;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->code_88    = 0x3DC8000B;
     wp->rotation.x = 0;
     wp->scale_96   = 0xA0;
@@ -243,7 +243,7 @@ void func_80108E00(ST0E_ITEM *wp)
         wp->z_94   = wp->position.z;
         hit->pos_0 = wp->position;
         hit->pos_0.y -= 0x20;
-        func_800341BC(hit, 0x20, 0, 0xA000, wp->slot, &hit->flags_8, 0x04080000, 0, 0x80);
+        func_800341BC(hit, 0x20, 0, 0xA000, wp->work_id, &hit->flags_8, 0x04080000, 0, 0x80);
         hit->flags_8 = 0;
         return;
     }

@@ -13,12 +13,12 @@ void func_80103760(STAGE_EV *wp)
         ep = Open_EVE_WORK();
         if (ep != NULL)
         {
-            ep->be_flag = 1;
+            ep->be_flag = MOVE;
             ep->id      = 6;
             ep->type    = i;
             ep->step_D  = 0;
             ep->timer_C = 0;
-            ep->value_F = 1;
+            ep->work_3  = 1;
             ep->key_1C  = Stage_hed_model_get(D_80105BB8[i + base]);
             if (wp->flags & 0x20)
             {
@@ -167,7 +167,7 @@ void func_80103D34(void)
 
 void func_80103D3C(STAGE_EV *wp)
 {
-    if (wp->value_F == 0)
+    if (wp->work_3 == 0)
     {
         func_80103760(wp);
         return;

@@ -11,7 +11,7 @@ void func_8010901C(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     if (wp->type == 0)
     {
         flag           = wp->pos_38.pad;
@@ -45,7 +45,7 @@ void func_801090CC(STAGE_OBJ50 *wp)
         func_80051B68(wp, 7, 0, 0);
         pos = wp->pos_38;
         pos.y -= 0x2D;
-        func_800341BC(&pos, 0x28, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
+        func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
         wp->value_48 = 0;
     }
 }
@@ -57,7 +57,7 @@ void func_8010919C(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 5;
+        ep->be_flag  = MOVE | MODEL;
         ep->id       = 0x80;
         ep->type     = 0x41;
         ep->pos_38   = wp->pos_38;
@@ -156,7 +156,7 @@ void func_801092F8(STAGE_OBJ50 *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
             }
@@ -336,7 +336,7 @@ void func_80109A60(STAGE_OBJ50 *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag            = 1;
+            obj->be_flag            = MOVE;
             obj->id                 = 0x10;
             obj->value_4            = 1;
             obj->position           = wp->pos_38;
@@ -356,7 +356,7 @@ void func_80109B28(STAGE_OBJ50 *wp)
     D_80111CC4[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x2D;
-    func_800341BC(&pos, 0x32, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x32, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
     wp->value_48 = 0;
 }
 
@@ -365,7 +365,7 @@ void func_80109BE8(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     flag           = wp->pos_38.pad;
     wp->pos_38.pad = 0;
     wp->value_44   = flag;
@@ -450,7 +450,7 @@ void func_80109CCC(STAGE_OBJ50 *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -465,7 +465,7 @@ void func_80109EB8(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 5;
+        ep->be_flag  = MOVE | MODEL;
         ep->id       = 0x80;
         ep->type     = 0x41;
         ep->pos_38   = wp->pos_38;
@@ -578,7 +578,7 @@ void func_8010A044(STAGE_OBJ50 *wp)
             {
                 func_80042314(&Player_work);
                 pl->target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -658,7 +658,7 @@ void func_8010A32C(ST04_EV *wp)
             if (!func_8003A13C())
             {
                 func_80042314(pl);
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 func_8001E3F0(0x1A);
                 wp->routine_1++;
             }

@@ -19,10 +19,10 @@ void stcom32_func_004C(STCOM32_WORK *wp)
     STCOM_FIXED_VECTOR scale;
     uint8 i;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (wp->type == 0)
     {
-        wp->be_flag |= 4;
+        wp->be_flag |= MODEL;
         Model_work_init(wp, &wp->type);
         m = &wp->u_14.model.matrix;
         STCOM32_IDENTITY(m);
@@ -92,7 +92,7 @@ void stcom32_func_02FC(STCOM32_WORK *wp)
             stcom32_func_0678(wp);
         }
     }
-    func_800341BC(&pos, 0x28, 0, 0x8000, wp->slot, &wp->hit_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->hit_48, 0x4000000, 0, 0x80);
 }
 
 // Picked up: the player holds it up while the message runs.
@@ -123,7 +123,7 @@ void stcom32_func_03E8(STCOM32_WORK *wp)
             if (wp->timer_A > 0x10)
             {
                 wp->timer_A = 0;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
                 wp->routine_1++;
             }
             else
@@ -137,7 +137,7 @@ void stcom32_func_03E8(STCOM32_WORK *wp)
                 func_8005C150(2, 0, stcom32_D_00A8[wp->type], 0);
                 if (wp->type == 0)
                 {
-                    wp->be_flag |= 2;
+                    wp->be_flag |= TRANS;
                     wp->pos_38.x = pl->position.x;
                     wp->pos_38.y = pl->position.y - 0xC8;
                     wp->pos_38.z = pl->position.z;
@@ -171,7 +171,7 @@ void stcom32_func_03E8(STCOM32_WORK *wp)
                 {
                     wp->routine_1 = 0xA;
                 }
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
             }
             break;
         case 5:
@@ -184,7 +184,7 @@ void stcom32_func_03E8(STCOM32_WORK *wp)
             Sce_flag_on(stcom32_D_0068[wp->type]);
             func_80042314(pl);
             pl->target_184 = NULL;
-            pl->be_flag |= 2;
+            pl->be_flag |= TRANS;
             func_80031A4C(wp);
             break;
     }

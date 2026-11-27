@@ -310,7 +310,7 @@ sint32 func_80048E18(SVECTOR *pos)
 // The lowest ceiling over obj (func_80048EA4 with its box and the height it moved by).
 sint32 Obj_ceiling_height_get(MODEL_WORK *obj)
 {
-    return func_80048EA4(&obj->pos, obj->hit_78, obj->pos.vy - obj->old.vy, obj->slot);
+    return func_80048EA4(&obj->pos, obj->hit_78, obj->pos.vy - obj->old.vy, obj->work_id);
 }
 
 // The lowest ceiling over pos among the map blocks around it (func_8004B1E0), with the box ent
@@ -520,7 +520,7 @@ sint32 Ceiling_height_get(SVECTOR *pos)
 // floor_height_get for obj at its position, with its collision box and pool kind.
 sint32 Obj_floor_height_get(MODEL_WORK *obj)
 {
-    return floor_height_get(&obj->pos, (VECTOR *)obj->hit_78, obj->slot);
+    return floor_height_get(&obj->pos, (VECTOR *)obj->hit_78, obj->work_id);
 }
 
 // The highest floor below pos among the map blocks around it (func_8004B1E0), less the height in
@@ -623,7 +623,7 @@ sint32 func_8004976C(PL_WORK *pl)
 {
     sint32 turn;
 
-    if (func_8002FE74(pl->slot) != 0)
+    if (func_8002FE74(pl->work_id) != 0)
     {
         turn = 0;
     }
@@ -631,7 +631,7 @@ sint32 func_8004976C(PL_WORK *pl)
     {
         turn = pl->unk116;
     }
-    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->slot);
+    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->work_id);
 }
 
 // The nearest wall face on one side of pos, for the box ent, among the STG_HITs around pos whose
@@ -776,7 +776,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_800497CC);
 
 sint32 func_80049C24(MODEL_WORK *obj)
 {
-    return func_80049C54(&obj->pos, &obj->old, obj->hit_78, obj->slot);
+    return func_80049C54(&obj->pos, &obj->old, obj->hit_78, obj->work_id);
 }
 
 // What is at pos, for the box ent: 0x80000000 if the move from prev crosses x or z = 0 far
@@ -1430,7 +1430,7 @@ sint32 Obj_map_push_out(MODEL_WORK *obj)
     sint32 slide;
 
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide  = (func_8002FE74(obj->slot) == 0) << 15;
+    slide  = (func_8002FE74(obj->work_id) == 0) << 15;
     result = map_push_out(&obj->pos, &obj->old, obj->field_74, slide);
     if (result != 0)
     {
@@ -3707,7 +3707,7 @@ sint32 Front_hit_event(PL_WORK *pl)
         return 0;
     }
     obj = NULL;
-    if (!(pl->slot & 0xF0))
+    if (!(pl->work_id & 0xF0))
     {
         obj = pl;
         if (obj->flags_BD != 0)
@@ -4289,7 +4289,7 @@ void func_80051B40(void)
 
 void func_80051B68(MODEL_WORK *obj, sint32 arg1, sint32 arg2, sint32 arg3)
 {
-    if (obj->be_flag & 3)
+    if (obj->be_flag & (MOVE | TRANS))
     {
         D_80098894->obj.model = obj;
         D_80098894->kind_4    = arg1;
@@ -4303,7 +4303,7 @@ void func_80051BAC(MODEL_WORK *obj)
 {
     MODEL_WORK **list;
 
-    if (obj->be_flag & 3)
+    if (obj->be_flag & (MOVE | TRANS))
     {
         list       = D_80098898;
         *list      = obj;
@@ -4445,7 +4445,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
     old_74 = obj->field_74;
     func_800536B0(solid, &now, &prev, part);
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide = (func_8002FE74(obj->slot) == 0) << 15;
+    slide = (func_8002FE74(obj->work_id) == 0) << 15;
     if (func_80052674(obj, solid, &now, keep, slide) == 0)
     {
         if (obj->field_76 != 0 && owner == obj->field_C0)
@@ -4458,7 +4458,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
                 rot.vx = solid->ang.vx - obj->ang.vx;
                 rot.vy = solid->ang.vy - obj->ang.vy;
                 rot.vz = solid->ang.vz - obj->ang.vz;
-                if (obj->slot == 0)
+                if (obj->work_id == 0)
                 {
                     rot.vx += ((PL_WORK *)obj)->unk114;
                     rot.vy += ((PL_WORK *)obj)->unk116;
@@ -4470,7 +4470,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
                 zero.vz = 0;
                 func_800301A8(&mtx, &push, &zero);
             }
-            else if (obj->slot == 0)
+            else if (obj->work_id == 0)
             {
                 rot.vx = ((PL_WORK *)obj)->unk114;
                 rot.vy = ((PL_WORK *)obj)->unk116;
@@ -4533,7 +4533,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
             if (move.vz >= 0 ? move.vz < lim : -move.vz < lim)
             {
             hurt:
-                if (obj->slot == 0 && D_1F8000F7 == 0)
+                if (obj->work_id == 0 && D_1F8000F7 == 0)
                 {
                     ((PL_WORK *)obj)->owner_188.hit_0 = (((PL_WORK *)obj)->owner_188.hit_0 + (hit & 0xFF)) | (hit & ~0xFF);
                     ((PL_WORK *)obj)->unk71 =
@@ -4738,7 +4738,7 @@ sint32 obj_solid_push_out(MODEL_WORK *solid, MODEL_WORK *obj, sint32 part, sint3
     func_800536B0(solid, &now, &prev, part);
     result = 0;
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide = (func_8002FE74(obj->slot) == 0) << 15;
+    slide = (func_8002FE74(obj->work_id) == 0) << 15;
     if (func_80052674(obj, solid, &now, keep, slide) != 0)
     {
         cur = obj->pos_l;
@@ -4948,7 +4948,7 @@ void Ride_move(PL_WORK *pl, MODEL_WORK *obj)
     SVECTOR ang;
     SVECTOR inv;
 
-    if (obj->slot < 0x80)
+    if (obj->work_id < 0x80)
     {
         pos = pl->pos_l;
         now = obj->pos_l;
@@ -4984,7 +4984,7 @@ void Ride_move_saved(PL_WORK *pl, MODEL_WORK *obj)
     SVECTOR ang;
     SVECTOR inv;
 
-    if (obj->slot < 0x80)
+    if (obj->work_id < 0x80)
     {
         pos = pl->pos_428;
         now = obj->pos_l;

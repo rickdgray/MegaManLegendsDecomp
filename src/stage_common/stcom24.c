@@ -59,12 +59,12 @@ void stcom24_func_0000(STCOM24_WORK *wp)
     if (ctl->flags_0 & 1)
     {
         ctl->pos_18 = wp->joints_180[0];
-        func_800341BC(pos, 0x6E, 0, 0x8000, wp->slot, &ctl->body_20, ctl->kind_10 | 0x4880000, 0x800000, 0);
+        func_800341BC(pos, 0x6E, 0, 0x8000, wp->work_id, &ctl->body_20, ctl->kind_10 | 0x4880000, 0x800000, 0);
         if (ctl->flags_0 & 2)
         {
             ctl->pos_18.x += (rsin(wp->rotation.y + 0x800) * 100) >> 12;
             ctl->pos_18.z += (rcos(wp->rotation.y + 0x800) * 100) >> 12;
-            func_800341BC(pos, 0x50, 0, 0x8000, wp->slot, &ctl->claw_30, ctl->kind_14 | 0x4880000, 0x800000, 0);
+            func_800341BC(pos, 0x50, 0, 0x8000, wp->work_id, &ctl->claw_30, ctl->kind_14 | 0x4880000, 0x800000, 0);
         }
     }
     ctl->body_20.hit_0 = 0;
@@ -79,8 +79,8 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     wp->value_66     = 0;
     wp->jump_74      = 0;
     wp->jump_prev_75 = 0;
-    wp->be_flag |= 2;
-    wp->rotation.y = (wp->param_C << 9) & 0xE00;
+    wp->be_flag |= TRANS;
+    wp->rotation.y = (wp->work_0 << 9) & 0xE00;
     Model_work_init(wp, NULL);
     wp->scale.v.x = 0x200;
     wp->scale.v.y = 0x200;
@@ -221,7 +221,7 @@ void stcom24_func_07E4(STCOM24_WORK *wp)
         shot = Open_SHL_WORK();
         if (shot != NULL)
         {
-            shot->be_flag          = 1;
+            shot->be_flag          = MOVE;
             shot->id               = 9;
             shot->type             = 3;
             shot->position         = wp->joints_180[1];
@@ -454,7 +454,7 @@ void stcom24_func_0D38(STCOM24_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag         = 5;
+                effect->be_flag         = MOVE | MODEL;
                 effect->id              = 0x80;
                 effect->type            = 0x41;
                 effect->sprite.position = wp->position;

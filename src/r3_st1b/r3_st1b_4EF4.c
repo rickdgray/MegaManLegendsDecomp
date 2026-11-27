@@ -28,7 +28,7 @@ void func_80104FE4(STAGE_OBJ *wp, uint16 *arg1)
     wp->value_78                = 0;
     wp->anim_AC                 = 0;
     wp->anim_prev_AD            = 0xFF;
-    wp->u_C.b.byte_C            = 0;
+    wp->u_C.b.work_0            = 0;
     wp->value_48.words.fraction = 0;
     wp->value_44.words.integer  = 0;
     wp->value_44.words.fraction = 0;
@@ -39,7 +39,7 @@ void func_80104FE4(STAGE_OBJ *wp, uint16 *arg1)
 
 void func_80105078(STAGE_OBJ *wp, sint16 *base)
 {
-    wp->position_fixed.v.y = rsin(++wp->u_C.b.byte_C << 6) * 0x140 + (*base << 16);
+    wp->position_fixed.v.y = rsin(++wp->u_C.b.work_0 << 6) * 0x140 + (*base << 16);
     func_80030150(&wp->position_fixed.v, &wp->position);
 }
 
@@ -50,7 +50,7 @@ void func_801050E8(STAGE_OBJ *wp)
 
 void func_80105108(STAGE_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x42100200;
@@ -99,7 +99,7 @@ void func_801051F4(STAGE_OBJ *wp)
 void func_80105290(STAGE_OBJ *wp)
 {
     D_8010E6F8[wp->routine_1](wp);
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);

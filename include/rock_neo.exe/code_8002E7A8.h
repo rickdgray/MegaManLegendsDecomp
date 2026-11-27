@@ -47,6 +47,11 @@
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
+// Bits of a pool slot's be_flag (Capcom's names; see "Work pool slots" below).
+#define MOVE  0x01 // live: the pool update runs the slot (with bit 0 of flags)
+#define TRANS 0x02
+#define MODEL 0x04 // a model: the slot's EFC is EFC_MODEL
+
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
 
@@ -73,7 +78,7 @@ struct PL_WORK;
 //   EFC_MODEL (Capcom sets TRANS | MODEL before Model_work_init); bit 6: Model_parts_draw and
 //   func_8002831C skip their distance cull while the object is nearer than Scratch_fog_0; bit 7:
 //   set by W48_80_WORK's variant_E.
-// - 0x01 slot: pool kind (0x10 * pool number) ORed with the slot index. Capcom's work_id.
+// - 0x01 work_id (Capcom's): pool kind (0x10 * pool number) | slot index.
 // - 0x02 id (the kind), 0x03 type (its variant).
 // - 0x06 flags: set to 3 on open, bits 0-1 changed by func_8002F3A8, bit 5 keeps the slot alive in
 //   func_8002F420 (moved instead of closed), bit 6 set by func_80033500/func_8003354C.
@@ -94,9 +99,9 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
-    uint8 id; // the kind: index of Eve_work_tbl (eve_work_exec); id and type are cleared
-              // by one halfword store (on open)
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // the kind: index of Eve_work_tbl (eve_work_exec); id and type are cleared
+                   // by one halfword store (on open)
     uint8 type;
     uint8 flag_4;
     uint8 flag_5;
@@ -106,11 +111,11 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3;
-    sint8 field_C; // field_C to field_F are cleared by one word store (on open); the stage events'
-                   // timer (r3 overlays' STAGE_EVENT.timer_C)
-    sint8 field_D;
-    sint8 field_E;
-    sint8 field_F;
+    sint8 work_0; // work_0 to work_3 are cleared by one word store (on open); the stage events'
+                  // timer (r3 overlays' STAGE_EVENT.timer_C)
+    sint8 work_1;
+    sint8 work_2;
+    sint8 work_3;
     uint32 field_10;
     SVECTOR pos; // 0x14: position (x, height, z); x and z moved by func_8002F998
     uint8 pad_1C[8];
@@ -181,7 +186,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
     uint8 id;      // MODEL_WORK.id; id and type are cleared by one halfword store (on open)
     uint8 type;    // MODEL_WORK.type; func_80015428 sets it to the object's index (0..15)
     uint8 handler; // second index of Work_3C0_tbl (first: id): the kind's routine (func_80016FD4)
@@ -192,10 +197,10 @@ typedef struct
     uint8 routine_1; // set (with routine_2 cleared) by the event steps of code_800680BC
     uint8 routine_2;
     uint8 routine_3;
-    sint8 field_C;   // field_C to timer_F are cleared by one word store (on open)
-    sint8 slot_D;    // nonzero: play the sound of field_E (func_800150E0)
-    sint8 field_E;   // sound: 0-2 repeat every timer_F frames, 3-4 play once
-    sint8 timer_F;   // frames to the next repeat of the sound
+    sint8 work_0;    // work_0 to timer_F are cleared by one word store (on open)
+    sint8 slot_D;    // nonzero: play the sound of work_2 (func_800150E0) (Capcom: work_1)
+    sint8 work_2;    // sound: 0-2 repeat every timer_F frames, 3-4 play once
+    sint8 timer_F;   // frames to the next repeat of the sound (Capcom: work_3)
     HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search), or 0
     // 0x14-0x5C: the MODEL_WORK layout (a model kind).
     SVECTOR pos;     // 0x14: position (x, height, z)
@@ -272,7 +277,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
     uint8 id;      // the kind; id and type are cleared together by one halfword store
     uint8 type;    // the kind's variant (selects the sound id in func_80046848)
     uint8 handler; // index into the dispatch tables of func_800485E4
@@ -300,9 +305,9 @@ typedef void (*WORK48_FUNC)(WORK_48 *wp);
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
-    uint8 id;   // the shot kind; id and type are cleared together by one halfword store
-    uint8 type; // the kind's variant
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // the shot kind; id and type are cleared together by one halfword store
+    uint8 type;    // the kind's variant
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -311,10 +316,12 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value for shot 0x33 type 0xFE: Map_draw passes routine_2 * 2 and
     uint8 routine_3; // routine_3 * 2 as the size of the box it marks the shot with
-    sint8 field_C;   // 0x0C-0x0F: bytes of the shot kind (PL_SHL_WORK: owner, slot), cleared by one
+    sint8 work_0;    // 0x0C-0x0F: bytes of the shot kind (PL_SHL_WORK: owner, slot), cleared by one
                      // word store on open; a byte, since a uint32 there changes how that store is
                      // scheduled (Open_SHL_WORK)
-    uint8 pad_D[3];
+    uint8 work_1;    // 0D
+    uint8 work_2;    // 0E
+    uint8 work_3;    // 0F
     HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search, ids below
                      // 0x80), or 0; cleared on open
     // 0x14-0x5C: the MODEL_WORK layout (a model kind: Model_work_init binds kinds 0x10 and 0x60).
@@ -347,9 +354,9 @@ typedef void (*SHL_FUNC)(SHL_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
-    uint8 id;   // the shot kind; id and type are cleared together by one halfword store
-    uint8 type; // 0x80 while the object holds a slot of D_80098798 (pl_shot_spawn)
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // the shot kind; id and type are cleared together by one halfword store
+    uint8 type;    // 0x80 while the object holds a slot of D_80098798 (pl_shot_spawn)
     uint8 flag_4;
     uint8 flag_5;
     uint8 flags; // 6: see above
@@ -358,12 +365,12 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3; // also a timer or counter in some kinds (func_800433FC, func_80043A8C)
-    sint8 field_C;   // field_C to pad_F are cleared by one word store (on open); id of the owning
+    sint8 work_0;    // work_0 to work_3 are cleared by one word store (on open); id of the owning
                      // player for the kinds of D_8008A0CC (func_800433C0); read with lb
                      // (func_800435F8, func_80043E78), passed to func_80036294 as (uint8)
-    sint8 slot_D;    // slot claimed by func_8003545C
-    sint8 field_E;
-    uint8 pad_F;
+    sint8 slot_D;    // slot claimed by func_8003545C (Capcom: work_1)
+    sint8 work_2;
+    uint8 work_3;
     uint32 field_10;
     // 0x14-0x5C: the MODEL_WORK layout.
     SVECTOR pos;  // 0x14: position (x, height, z); pad: set by pl_shot_spawn
@@ -404,9 +411,9 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
-    uint8 id; // the kind: index of Work_50_tbl (func_80017528); id and type are cleared
-              // by one halfword store (on open)
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // the kind: index of Work_50_tbl (func_80017528); id and type are cleared
+                   // by one halfword store (on open)
     uint8 type;
     uint8 flag_4;
     uint8 flag_5;
@@ -417,10 +424,10 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3;
-    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
-    sint8 slot_D;
-    sint8 field_E; // set to -0x80 by the event step func_80068728
-    uint8 pad_F;
+    sint8 work_0; // work_0 to work_3 are cleared by one word store (on open)
+    sint8 slot_D; // Capcom: work_1
+    sint8 work_2; // set to -0x80 by the event step func_80068728
+    uint8 work_3;
     HIT_ENT *box_10; // 0x10: box the player's search in front tests at efc's pos (front_box_search), or 0
     EFC efc;         // 0x14: drawn by work_50_draw, like WORK_48's
     uint8 pad_44[0xC];
@@ -431,9 +438,9 @@ typedef void (*WORK50_FUNC)(WORK_50 *wp);
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;
-    uint8 id; // the kind: first index of Work_5A4_tbl (func_80017094); id and type are
-              // cleared by one halfword store (on open)
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // the kind: first index of Work_5A4_tbl (func_80017094); id and type are
+                   // cleared by one halfword store (on open)
     uint8 type;
     uint8 handler; // second index of Work_5A4_tbl: the kind's routine
     uint8 flag_5;
@@ -443,10 +450,10 @@ typedef struct
     uint8 routine_1; // set (with routine_2 cleared) by the event steps of code_800680BC
     uint8 routine_2;
     uint8 routine_3;
-    sint8 field_C; // field_C to pad_F are cleared by one word store (on open)
-    sint8 slot_D;  // set and cleared by the event steps (func_800687D8, func_8006854C)
-    sint8 field_E;
-    uint8 pad_F;
+    sint8 work_0; // work_0 to work_3 are cleared by one word store (on open)
+    sint8 slot_D; // set and cleared by the event steps (func_800687D8, func_8006854C) (Capcom: work_1)
+    sint8 work_2;
+    uint8 work_3;
     HIT_ENT *box_10; // 0x10: box the player's search in front tests (front_box_search), or 0
     // 0x14-0x5C: the MODEL_WORK layout (a model kind).
     SVECTOR pos;  // 0x14: position (x, height, z)
@@ -560,7 +567,7 @@ typedef struct
 // Capcom's MODEL_WORK (their source passes EM_WORK to Model_work_init, Obj_pos_set and EM_Char_Set
 // as `(MODEL_WORK *)`): the layout every model object starts with: PL_WORK and the slots of the
 // model pools (SHL_WORK, WORK_3C0, WORK_5A4). Like Capcom, each object keeps its own type and is
-// cast to MODEL_WORK for these functions. The header (be_flag, slot, flags at 6) is common
+// cast to MODEL_WORK for these functions. The header (be_flag, work_id, flags at 6) is common
 // to every pool slot, so the functions that only touch it (func_8002F3A8) take this type too.
 // Names from Capcom's source: id, type, pos, pos_l, old, old_l, spd, add, ang.
 // The stage collision services (func_80037694, code_80048620's func_80049C24, Obj_map_push_out,
@@ -568,7 +575,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // see "Work pool slots" above
-    uint8 slot;    // pool kind (0x10 * pool number) ORed with the slot index
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
     uint8 id;      // matched against the EBD entries (func_8002FA38)
     uint8 type;    // Model_work_init's `sub` usually points here
     uint8 flag_4;

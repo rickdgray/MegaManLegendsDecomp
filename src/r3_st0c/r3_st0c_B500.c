@@ -91,7 +91,7 @@ void func_8010B6D8(ST0C_WHEEL *wp)
     STAGE_PANEL_MATRIX unused_m[2];
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 4;
+        wp->be_flag |= MODEL;
         Model_work_init(wp, &wp->type);
         wp->value_10 = 0;
         wp->color_40 = 0x808080;

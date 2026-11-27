@@ -18,7 +18,7 @@ void stcom13_func_004C(STCOM13_WORK *wp)
     sint16 life;
 
     ctl = &wp->ctl;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0]       = 0x2000200;
     wp->scale.words[1]       = 0x200;
@@ -117,11 +117,11 @@ void stcom13_func_01D8(STCOM13_WORK *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->be_flag & 1) && (ctl->flags_0 & 2))
+    if ((wp->be_flag & MOVE) && (ctl->flags_0 & 2))
     {
         ctl->pos_C = wp->position;
         if (wp != NULL)
@@ -132,7 +132,7 @@ void stcom13_func_01D8(STCOM13_WORK *wp)
         {
             ctl->pos_C.y -= 40;
         }
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->slot, &ctl->hit_14, 0x4000000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->work_id, &ctl->hit_14, 0x4000000, 0x800000, 0x80);
     }
 }
 
@@ -314,7 +314,7 @@ void stcom13_func_08B0(STCOM13_WORK *wp)
                         {
                             break;
                         }
-                        effect->be_flag         = 3;
+                        effect->be_flag         = MOVE | TRANS;
                         effect->id              = 0x83;
                         effect->type            = 0;
                         effect->sprite.pos_8[0] = wp->joints_180[stcom13_D_0030[wp->routine_3][i]].x;
@@ -459,7 +459,7 @@ sint32 stcom13_func_0DA8(STCOM13_WORK *wp)
                     {
                         break;
                     }
-                    effect->be_flag         = 1;
+                    effect->be_flag         = MOVE;
                     effect->id              = 0x83;
                     effect->type            = 3;
                     effect->sprite.pos_8[0] = wp->joints_180[stcom13_D_0040[i]].x;

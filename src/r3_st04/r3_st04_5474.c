@@ -11,7 +11,7 @@ void func_801054B0(ST04_ACTOR *wp)
     STCOM_FIXED_VECTOR fixed;
     ST04_ACTOR_CTL *ctl;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl;
     if (wp->type != 0)
     {
@@ -81,11 +81,11 @@ void func_801055F0(ST04_ACTOR *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         func_80051B68(wp, 1, -1, 0);
     }
@@ -217,7 +217,7 @@ void func_80105B18(ST04_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010C9CC[wp->type](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -259,7 +259,7 @@ void func_80105C08(ST04_ACTOR *wp)
                 pos.y = -1;
                 pos.z = 0xE10;
                 func_80039FAC(&cam, 0x100, Angle_xz_svector(&pos, &wp->position) + 0x800, D_800A396C);
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
                 wp->routine_0 = 0xA;
             }
             else if (Sce_flag_test(0x60F))
@@ -295,7 +295,7 @@ void func_80105C08(ST04_ACTOR *wp)
             if (!(Moji_flag & 0x8000000))
             {
                 func_80039E18();
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0++;
             }
             break;
@@ -382,7 +382,7 @@ void func_80106048(ST04_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -405,7 +405,7 @@ void func_801060E8(ST04_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010CA2C[wp->type](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -518,7 +518,7 @@ void func_801061D8(ST04_ACTOR *wp)
             if (--wp->routine_2 == 0)
             {
                 wp->routine_2 = 0x1E;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
                 wp->routine_0++;
             }
             else
@@ -542,7 +542,7 @@ void func_801061D8(ST04_ACTOR *wp)
                 D_800A395C = 1;
                 func_80039820();
                 func_80042314(pl);
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 func_80031824(wp);
             }
             break;
@@ -554,7 +554,7 @@ void func_80106568(ST04_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -595,7 +595,7 @@ void func_801065FC(ST04_ACTOR *wp)
     if (ctl->flags_0 & 8)
     {
         ctl->target_C = wp->value_180;
-        func_800341BC(&ctl->target_C, 0x20, 0, 0x8000, wp->slot, &ctl->at_14, ctl->value_8 | 0x4880000, 0x800000, 0x80);
+        func_800341BC(&ctl->target_C, 0x20, 0, 0x8000, wp->work_id, &ctl->at_14, ctl->value_8 | 0x4880000, 0x800000, 0x80);
     }
     Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     func_80051B68(wp, 1, -1, 0);
@@ -609,8 +609,8 @@ void func_801067A8(ST04_GUARD *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->value_64   = 0;
-    wp->be_flag |= 2;
-    wp->rotation.y = (wp->u_C.b.byte_C << 9) & 0xE00;
+    wp->be_flag |= TRANS;
+    wp->rotation.y = (wp->u_C.b.work_0 << 9) & 0xE00;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -1003,7 +1003,7 @@ void func_80107264(ST04_ACTOR *wp)
             wp->turn_64     = dir >> 3;
             ctl[1].value_1E = 0;
             D_80111D60      = D_800A395A[0];
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             D_80111D64    = D_800A395A[1];
             D_800A395A[0] = 0x10;
             D_800A395A[1] = 0xF0;
@@ -1025,7 +1025,7 @@ void func_80107264(ST04_ACTOR *wp)
             {
                 wp->routine_2 = 2;
                 wp->anim_AC   = 8;
-                MojiTaskExec2(0, wp->value_D);
+                MojiTaskExec2(0, wp->work_1);
                 wp->ctl.timer_4 = 0x78;
             }
             break;
@@ -1048,7 +1048,7 @@ void func_80107264(ST04_ACTOR *wp)
                 D_800A395A[1]          = D_80111D64;
                 D_800A3988[0]          = D_800A3964;
                 Player_work.flags_bd &= 0x7F;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->ctl.flags_0 |= 0x11;
             }
             else
@@ -1173,7 +1173,7 @@ void func_801078A0(ST04_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010CAA8[wp->type](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -1290,7 +1290,7 @@ void func_80107C24(ST04_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;

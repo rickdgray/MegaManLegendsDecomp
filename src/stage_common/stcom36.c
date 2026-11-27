@@ -44,7 +44,7 @@ void stcom36_func_0118(void)
         if (stcom36_D_0000 & (0x80000000 >> i))
         {
             obj  = stcom36_E2_0000[i];
-            kind = func_8002FE74(obj->slot);
+            kind = func_8002FE74(obj->work_id);
             switch (kind)
             {
                 case 0x20:

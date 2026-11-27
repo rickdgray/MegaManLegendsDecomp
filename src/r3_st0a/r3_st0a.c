@@ -63,7 +63,7 @@ void func_8010058C(STAGE_ROOM *wp)
                 obj = Open_EVE_WORK();
                 if (obj != NULL)
                 {
-                    obj->be_flag = 1;
+                    obj->be_flag = MOVE;
                     obj->id      = 0xD;
                     obj->value_4 = 0;
                     obj->type    = 0;
@@ -95,7 +95,7 @@ void func_8010058C(STAGE_ROOM *wp)
             obj = Open_EVE_WORK();
             if (obj != NULL)
             {
-                obj->be_flag = 1;
+                obj->be_flag = MOVE;
                 obj->id      = 0xD;
                 obj->value_4 = 0;
                 obj->type    = 1;

@@ -23,7 +23,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 id;                          // 02
     uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
@@ -47,7 +47,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02: index into D_80098844
     uint8 type;                             // 03: stcom09_D_0000 handler
     uint8 reserved04[2];                    // 04

@@ -26,7 +26,7 @@ void func_8010D8AC(STAGE_OBJ *wp)
 {
     if (wp->type == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     wp->position_prev.z = 0x10;
     wp->routine_0++;
@@ -83,10 +83,10 @@ void func_8010D9F8(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0E_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->be_flag   = 1;
+            fx->be_flag   = MOVE;
             fx->id        = 0x11;
             fx->type      = textured;
-            fx->value_C   = type;
+            fx->work_0    = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;
             fx->xy_1C.h.y = pos->y;
@@ -130,10 +130,10 @@ void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0E_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->be_flag   = 1;
+            fx->be_flag   = MOVE;
             fx->id        = 0x11;
             fx->type      = textured;
-            fx->value_C   = type;
+            fx->work_0    = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;
             fx->xy_1C.h.y = pos->y;

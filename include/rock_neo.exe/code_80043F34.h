@@ -11,8 +11,8 @@
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x80
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x80
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -22,12 +22,12 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value: the colour's fade level (func_8004441C)
     uint8 routine_3; // also a counter: the spin, RotMatrixY(++routine_3 << 7) (func_8004441C)
-    sint8 sound_C;   // nonzero: func_80043F70 plays sound 0xA1 after the init
-    sint8 size_D;    // column of D_8008A138 (func_80043F70) and index into D_80097DDC, the size
+    sint8 sound_C;   // nonzero: func_80043F70 plays sound 0xA1 after the init (Capcom: work_0)
+    sint8 size_D;    // column of D_8008A138 (func_80043F70) and index into D_80097DDC, the size (Capcom: work_1)
                      // passed to func_800341BC (func_800441CC)
-    sint8 variant_E; // index into D_80097DE0 (the model id), nonzero sets bit 7 of be_flag
+    sint8 variant_E; // index into D_80097DE0 (the model id), nonzero sets bit 7 of be_flag (Capcom: work_2)
                      // (func_80043F70); 0 or 1 selects func_800441CC's func_800341BC call
-    sint8 level_F;   // nonzero in variant 0, type 6: adds 0x20/0x30/0x40 to Player_work's owner
+    sint8 level_F;   // nonzero in variant 0, type 6: adds 0x20/0x30/0x40 to Player_work's owner (Capcom: work_3)
     uint32 field_10;
     uint8 *data_14;  // model data of the EBD entry, set by Model_work_init
     MATRIX mtx;      // 0x18: rotation and scale (diagonal = pos_38.pad)
@@ -61,8 +61,8 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x81
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x81
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -87,8 +87,8 @@ typedef void (*W48_81_FUNC)(W48_81_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x82
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x82
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -98,8 +98,10 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value: the step (1..5) indexing func_80044BA0's per-step tables
     uint8 routine_3; // also a timer: frames left in the step, from D_8008A240 (func_80044BA0)
-    sint8 field_C;   // set by the spawner (func_80043E00)
-    uint8 pad_D[3];
+    sint8 work_0;    // set by the spawner (func_80043E00)
+    uint8 work_1;    // 0D
+    uint8 work_2;    // 0E
+    uint8 work_3;    // 0F
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour
@@ -117,8 +119,8 @@ typedef void (*W48_82_FUNC)(W48_82_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x83
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x83
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -146,8 +148,8 @@ typedef void (*W48_83_FUNC)(W48_83_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x84
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x84
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -157,8 +159,10 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value: the step indexing D_8008A278 (func_80045170)
     uint8 routine_3; // also a timer: frames left in the step, from D_8008A278 (func_80045170)
-    sint8 field_C;
-    uint8 pad_D[3];
+    sint8 work_0;
+    uint8 work_1; // 0D
+    uint8 work_2; // 0E
+    uint8 work_3; // 0F
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour
@@ -176,8 +180,8 @@ typedef void (*W48_84_FUNC)(W48_84_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x85
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x85
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -236,7 +240,7 @@ extern uint8 D_8008A248[]; // W48_82_WORK.field_24 of func_80044BA0, indexed by 
 
 // The same per-step tables for func_800450B0/func_80045170 (kind 0x84): bytes for field_22/23
 // (splat labels the second byte D_8008A26D), durations, and a scale for field_24 (times
-// field_C, >> 4) indexed by routine_1
+// work_0, >> 4) indexed by routine_1
 extern uint8 D_8008A26C[][2];
 extern uint8 D_8008A278[];
 extern uint8 D_8008A280[];

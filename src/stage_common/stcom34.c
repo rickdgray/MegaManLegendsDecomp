@@ -22,9 +22,9 @@ void stcom34_func_003C(STCOM34_WORK *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0;
-    wp->value_D   = 0;
-    wp->value_E   = 0;
-    wp->value_F   = 0;
+    wp->work_1    = 0;
+    wp->work_2    = 0;
+    wp->work_3    = 0;
     for (i = 0; i < 4; i++)
     {
         sparks[i].yaw_0    = rand() & 0x1F;

@@ -16,7 +16,7 @@ void func_800D8854(SHL_WORK *wp)
     wp->col_c4 = 0;
     wp->col_c8 = 0;
     wp->box_78 = &D_800D9008;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     if (wp->type & 0x40)
     {
@@ -154,15 +154,15 @@ void func_800D8DC4(SHL_WORK *wp)
     }
     if (wp->type & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->slot, &wp->col_c4, 0x8000005, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->work_id, &wp->col_c4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_c)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->work_id, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
 }
 
@@ -173,7 +173,7 @@ void func_800D8F08(SHL_WORK *wp, sint32 arg)
     fx = func_80031618();
     if (fx)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x85;
         fx->x_1c    = wp->pos.vx;
         fx->y_1e    = wp->pos.vy;
@@ -184,22 +184,22 @@ void func_800D8F08(SHL_WORK *wp, sint32 arg)
         if (wp->type == 0x40)
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
         else if (wp->type == 0x41)
         {
             fx->value_40 = (wp->rot_y - 0x400) & 0xFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
         else if (wp->type == 0x42)
         {
             fx->value_40 = 0xFFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
         else
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
-            fx->flag_3   = arg;
+            fx->type     = arg;
         }
     }
 }

@@ -154,7 +154,7 @@ void func_80100E68(ST10_PL *wp)
             wp->rot_440.x  = 0;
             wp->rot_440.z  = 0;
             wp->target_184 = NULL;
-            wp->be_flag &= ~2;
+            wp->be_flag &= ~TRANS;
             wp->fixed_428.x = wp->pos_438.x << 16;
             wp->routine_D++;
             wp->fixed_428.y = wp->pos_438.y << 16;
@@ -197,7 +197,7 @@ void func_80100E68(ST10_PL *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag           = 5;
+                effect->be_flag           = MOVE | MODEL;
                 effect->id                = 0x80;
                 effect->type              = 0x41;
                 effect->sprite.position   = obj->position;
@@ -287,7 +287,7 @@ void func_801011B8(STAGE_ROOM *wp)
         case 11:
             func_80042314(&Player_work);
             D_800A395C = 1;
-            STAGE_PL.be_flag |= 2;
+            STAGE_PL.be_flag |= TRANS;
             func_8003A264();
             wp->flags_0 = 0;
             break;

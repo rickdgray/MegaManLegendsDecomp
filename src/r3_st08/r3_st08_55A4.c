@@ -6,7 +6,7 @@ void func_801055A4(ST08_ACTOR *wp)
     ST08_HIT *hit;
     STAGE_OBJ50 *ep;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->position.z        = 0x328;
     wp->position.x        = (wp->type ^ 1) << 8;
@@ -19,7 +19,7 @@ void func_801055A4(ST08_ACTOR *wp)
     wp->turn_64           = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->value_F           = 0;
+    wp->work_3            = 0;
     wp->hit.flags_0       = 0;
     wp->rotation.v.y      = 0x400;
     wp->hit.value_2       = 0x400;
@@ -45,7 +45,7 @@ void func_801055A4(ST08_ACTOR *wp)
     ep = (STAGE_OBJ50 *)func_80031734();
     if (ep != NULL)
     {
-        ep->be_flag  = 1;
+        ep->be_flag  = MOVE;
         ep->id       = 0x1F;
         ep->value_44 = (sint32)wp;
     }
@@ -64,44 +64,44 @@ void func_80105718(ST08_ACTOR *wp)
     hit                     = &wp->hit;
     if (ST08_SCENE.value_4 == 5)
     {
-        switch (wp->value_F)
+        switch (wp->work_3)
         {
             case 0:
                 wp->position.x -= 10;
                 if (wp->position.x < -0x100)
                 {
-                    wp->value_E = 0;
-                    wp->value_F++;
+                    wp->work_2 = 0;
+                    wp->work_3++;
                 }
                 break;
             case 1:
-                wp->position.x = ((rcos(++wp->value_E * 0x80 + 0x400) * 40) >> 12) - 0x100;
-                wp->position.z = ((rsin((wp->value_E + 8) * 0x80) * 40) >> 12) + 0x300;
+                wp->position.x = ((rcos(++wp->work_2 * 0x80 + 0x400) * 40) >> 12) - 0x100;
+                wp->position.z = ((rsin((wp->work_2 + 8) * 0x80) * 40) >> 12) + 0x300;
                 hit->value_2 -= 0x80;
-                if (wp->value_E >= 0x10)
+                if (wp->work_2 >= 0x10)
                 {
                     hit->value_2   = 0xC00;
                     wp->position.z = 0x2D8;
-                    wp->value_F++;
+                    wp->work_3++;
                 }
                 break;
             case 2:
                 wp->position.x += 10;
                 if (wp->position.x > 0x100)
                 {
-                    wp->value_E = 0;
-                    wp->value_F++;
+                    wp->work_2 = 0;
+                    wp->work_3++;
                 }
                 break;
             case 3:
-                wp->position.x = ((rcos(++wp->value_E * 0x80 + 0xC00) * 40) >> 12) + 0x100;
-                wp->position.z = ((rsin((wp->value_E + 0x18) * 0x80) * 40) >> 12) + 0x300;
+                wp->position.x = ((rcos(++wp->work_2 * 0x80 + 0xC00) * 40) >> 12) + 0x100;
+                wp->position.z = ((rsin((wp->work_2 + 0x18) * 0x80) * 40) >> 12) + 0x300;
                 hit->value_2 -= 0x80;
-                if (wp->value_E >= 0x10)
+                if (wp->work_2 >= 0x10)
                 {
                     hit->value_2   = 0x400;
                     wp->position.z = 0x328;
-                    wp->value_F    = 0;
+                    wp->work_3     = 0;
                 }
                 break;
         }
@@ -109,9 +109,9 @@ void func_80105718(ST08_ACTOR *wp)
         wp->position_fixed.z = wp->position.z << 16;
         wp->position_fixed.y = wp->position.y << 16;
         wp->rotation.v       = *(STCOM_SVECTOR *)hit; // the hit block starts with the rotation
-        if (wp->value_D != 0)
+        if (wp->work_1 != 0)
         {
-            if (--wp->value_D & 1)
+            if (--wp->work_1 & 1)
             {
                 wp->rotation.v.y = (sint16)(wp->rotation.v.y + 0x100) + (wp->type ^ 1) * 48;
             }
@@ -134,17 +134,17 @@ void func_80105718(ST08_ACTOR *wp)
             {
                 Scene_work.value_A = (uint8)(Scene_work.value_A - 1) - ST08_SCENE.value_B;
             }
-            wp->value_D = 0x10;
+            wp->work_1 = 0x10;
         }
     }
     else
     {
-        wp->value_D    = 0;
+        wp->work_1     = 0;
         wp->rotation.v = *(STCOM_SVECTOR *)&wp->hit;
     }
     pos = wp->position;
     pos.y -= 0x28;
-    func_800341BC(&pos, 0x4B, 0, 0x8000, wp->slot, &hit->value_8, 0x4800000, 0, 0x80);
+    func_800341BC(&pos, 0x4B, 0, 0x8000, wp->work_id, &hit->value_8, 0x4800000, 0, 0x80);
     hit->value_8 = 0;
     func_80032488(wp);
     Model_Shadow_Trans(wp, 0x50, 0x200, 0);
@@ -162,7 +162,7 @@ void func_80105B9C(ST08_ACTOR *wp, ST08_HIT *hit)
 
     pos = wp->position;
     pos.y -= 0x1E;
-    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->slot, &hit->value_8, 0xC800000, 0x800000, 0x80);
+    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->work_id, &hit->value_8, 0xC800000, 0x800000, 0x80);
     hit->value_8 = 0;
 }
 
@@ -181,7 +181,7 @@ void func_80105C2C(ST08_ACTOR *wp)
     wp->turn_64           = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->position_fixed.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.y = wp->position_fixed_prev.y = wp->position.y << 16;
@@ -214,7 +214,7 @@ void func_80105D54(ST08_ACTOR *wp)
         obj = Open_SHL_WORK();
         if (obj != NULL)
         {
-            obj->be_flag = 1;
+            obj->be_flag = MOVE;
             obj->id      = 0x21;
         }
         angle                 = Angle_xz_svector(&wp->position, &Player_work.position);
@@ -337,7 +337,7 @@ void func_80106254(ST08_ACTOR *wp)
     STAGE_OBJ50 *ep;
 
     wp->type = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->turn_64           = 0;
     wp->rotation.words[0] = 0;
@@ -381,7 +381,7 @@ void func_80106254(ST08_ACTOR *wp)
     ep = (STAGE_OBJ50 *)func_80031734();
     if (ep != NULL)
     {
-        ep->be_flag  = 1;
+        ep->be_flag  = MOVE;
         ep->id       = 0x1F;
         ep->value_44 = (sint32)wp;
         ep->type     = 0;
@@ -427,9 +427,9 @@ void func_80106428(ST08_ACTOR *wp)
         wp->position_fixed.z = wp->position.z << 16;
         wp->position_fixed.y = wp->position.y << 16;
         wp->rotation.v       = *(STCOM_SVECTOR *)hit; // the hit block starts with the rotation
-        if (wp->value_D != 0)
+        if (wp->work_1 != 0)
         {
-            if (--wp->value_D & 1)
+            if (--wp->work_1 & 1)
             {
                 wp->rotation.v.y = (sint16)(wp->rotation.v.y + 0x100) + (wp->type ^ 1) * 48;
             }
@@ -441,17 +441,17 @@ void func_80106428(ST08_ACTOR *wp)
         if (hit->value_8 & 0x8000000)
         {
             Scene_work.value_A += ST08_SCENE.value_B + 2;
-            wp->value_D = 0x10;
+            wp->work_1 = 0x10;
         }
     }
     else
     {
-        wp->value_D    = 0;
+        wp->work_1     = 0;
         wp->rotation.v = *(STCOM_SVECTOR *)&wp->hit;
     }
     pos = wp->position;
     pos.y -= 0x14;
-    func_800341BC(&pos, 0x4B, 0, 0x8000, wp->slot, &hit->value_8, 0x4800000, 0, 0x80);
+    func_800341BC(&pos, 0x4B, 0, 0x8000, wp->work_id, &hit->value_8, 0x4800000, 0, 0x80);
     hit->value_8 = 0;
     func_80032488(wp);
     Model_Shadow_Trans(wp, 0x50, 0x200, 0);

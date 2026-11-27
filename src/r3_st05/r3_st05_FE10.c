@@ -11,7 +11,7 @@ void func_8010FE4C(ST05_ACTOR *wp)
     ST05_ACTOR_CTL *ctl;
     STCOM_FIXED_VECTOR fixed; // copied but never read
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl2;
     if (wp->type != 0)
     {
@@ -72,7 +72,7 @@ void func_8010FF58(ST05_ACTOR *wp)
     }
     *(uint16 *)0x1F800132 = wp->ctl2.timer_A;
     Model_parts_mtx_set_y(wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -238,7 +238,7 @@ void func_8011049C(ST05_OBJ *wp, STAGE_SCENE_WORK *scene, ST05_FALL *fall)
 {
     sint16 y;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0]     = 0x02000200;
     wp->scale.words[1]     = 0x200;
@@ -374,7 +374,7 @@ void func_80110850(ST05_ACTOR *wp)
 void func_80110970(ST05_ACTOR *wp)
 {
     wp->id = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->id                      = 0xC;
     wp->scale.v.z               = 0x200;

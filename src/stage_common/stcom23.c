@@ -25,7 +25,7 @@ void stcom23_func_003C(STCOM23_WORK *wp)
     wp->value_C0 = 0;
     wp->hit_C4   = 0;
     wp->value_C8 = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->model_78 = stcom23_D_0000[wp->type].model_10;
     v.x          = 0;
     v.y          = 0;
@@ -184,7 +184,7 @@ void stcom23_func_0934(STCOM23_WORK *wp)
 // Registers the hit box.
 void stcom23_func_0954(STCOM23_WORK *wp)
 {
-    func_800341BC(&wp->position, stcom23_D_0000[wp->type].size_1F, 0, 0x8000, wp->slot, &wp->hit_C4,
+    func_800341BC(&wp->position, stcom23_D_0000[wp->type].size_1F, 0, 0x8000, wp->work_id, &wp->hit_C4,
                   stcom23_D_0000[wp->type].hit_kind_21 | 0x40A0000, 0, 0x80);
     wp->hit_C4 = 0;
 }
@@ -215,7 +215,7 @@ void stcom23_func_0AAC(STCOM23_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->be_flag           = 5;
+        effect->be_flag           = MOVE | MODEL;
         effect->id                = 0x80;
         effect->type              = 0x42;
         effect->sprite.position.x = wp->position.x;

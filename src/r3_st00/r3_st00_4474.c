@@ -116,14 +116,14 @@ void func_80104864(STAGE_STCOM15_WORK_348 *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->be_flag & 1) && (ctl->flags_0 & 4))
+    if ((wp->be_flag & MOVE) && (ctl->flags_0 & 4))
     {
         ctl->pos_C = wp->joints_180[0];
-        func_800341BC(&ctl->pos_C, 0x30, 0, 0x8000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->pos_C, 0x30, 0, 0x8000, wp->work_id, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->hit_14 = 0;
 }
@@ -136,7 +136,7 @@ void func_80104A08(STAGE_STCOM15_WORK_348 *wp)
     wp->rotation.x          = 0;
     wp->rotation.z          = 0;
     *(uint32 *)&wp->turn_64 = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0]          = 0x02000200;
     wp->scale.words[1]          = 0x200;
@@ -172,7 +172,7 @@ void func_80104A08(STAGE_STCOM15_WORK_348 *wp)
                 wp->routine_1 = 4;
                 wp->routine_2 = 0xFF;
                 wp->routine_3 = 0;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
                 func_800322A8(wp, 0, 0);
                 wp->ctl.flags_0 = (wp->ctl.flags_0 | 0x40) & ~6;
                 break;
@@ -248,7 +248,7 @@ void func_80104BE4(ST00_ACTOR_B *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag         = 5;
+                fx->be_flag         = MOVE | MODEL;
                 fx->id              = 0x80;
                 fx->type            = 0x41;
                 fx->sprite.position = wp->position;
@@ -534,7 +534,7 @@ void func_80105740(STAGE_STCOM15_WORK_348 *wp)
             {
                 break;
             }
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             ctl->flags_0 |= 6;
             // fall through
         case 0:
@@ -808,7 +808,7 @@ void func_8010602C(STAGE_OBJ *wp)
 
 void func_8010606C(ST00_SWAY *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->position_fixed.x = D_8011BF60[wp->type].x << 16;
     wp->position_fixed.y = D_8011BF60[wp->type].y << 16;
@@ -870,7 +870,7 @@ void func_801062EC(ST00_ACTOR_B *wp)
     if (ctl->flags_0 & 8)
     {
         ctl->pos_C = wp->value_180;
-        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->work_id, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0x80);
     }
     ctl->hit_14 = 0;
 }
@@ -882,7 +882,7 @@ void func_8010648C(ST00_OBJ *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->u_64.word  = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;

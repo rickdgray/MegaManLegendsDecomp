@@ -54,7 +54,7 @@ void func_80100524(void)
                 else if (!Sce_flag_test(3))
                 {
                     STAGE_PL_BYTE(0x44E) = 0;
-                    pl->be_flag |= 3;
+                    pl->be_flag |= MOVE | TRANS;
                 }
                 break;
             default:
@@ -389,7 +389,7 @@ void func_80101064(STAGE_ROOM *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag = 1;
+            obj->be_flag = MOVE;
             obj->id      = 9;
             obj->value_4 = 2;
         }
@@ -1113,7 +1113,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             vec.z = obj->position.z;
             func_80039FFC(&vec, 0x12C, Angle_xz_svector(&pos, &pl->position) + 0x20, D_800A396C + 0x61);
             pl->flags_BD |= 0x40;
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             wp->routine_6++;
             break;
         case 1:
@@ -1164,7 +1164,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             if (!(Moji_flag & 0x08000000))
             {
                 wp->routine_6++;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 Sce_event_next();
                 obj                        = D_8011CB34[2];
                 obj->routine_1             = 1;
@@ -1172,7 +1172,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[0];
                 obj->routine_1             = 2;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[2]->slot;
+                obj->timer_C               = D_8011CB34[2]->work_id;
             }
             break;
         case 4:
@@ -1222,8 +1222,8 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[2];
                 obj->routine_1             = 2;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[3]->slot;
-                obj->value_D               = D_8011CB34[4]->slot;
+                obj->timer_C               = D_8011CB34[3]->work_id;
+                obj->work_1                = D_8011CB34[4]->work_id;
                 wp->timer_C                = 0xC8;
             }
             break;
@@ -1233,7 +1233,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[0];
                 obj->routine_1             = 1;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[4]->slot;
+                obj->timer_C               = D_8011CB34[4]->work_id;
             }
             if (wp->timer_C == 0x50)
             {
@@ -1241,7 +1241,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[3];
                 obj->routine_1             = 1;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[4]->slot;
+                obj->timer_C               = D_8011CB34[4]->work_id;
             }
             break;
         case 9:
@@ -1260,7 +1260,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 wp->timer_C = 0xB4;
                 Sound_call(0x10F, 0, 0);
                 D_8011CB34[4]->rotation.y = 0x800;
-                D_8011CB34[4]->value_F |= 0x40;
+                D_8011CB34[4]->work_3 |= 0x40;
                 D_8011CB34[4]->routine_1 = 1;
                 D_8011CB34[4]->routine_2 = 0;
                 D_8011CB34[4]->routine_3 = 0;
@@ -1287,7 +1287,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             wp->flags_0 = 0;
             Sce_flag_on(0);
             pl->flags_BD &= ~0x40;
-            pl->be_flag |= 2;
+            pl->be_flag |= TRANS;
             break;
     }
     if ((uint32)(wp->routine_6 - 3) < 8 && *(uint8 *)wp->tbl_A4 != 0xFF)
@@ -1346,7 +1346,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
             vec.z   = spawned->position.z;
             func_80039FFC(&vec, 0x140, Angle_xz_svector(&pos, &pl->position), D_800A396C - 0x30);
             pl->flags_BD |= 0x40;
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             wp->routine_6++;
             break;
         case 1:
@@ -1369,7 +1369,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 pl->fixed_428.x = 0x18BD0000;
                 pl->fixed_428.y = 0xFFFF0000;
                 pl->fixed_428.z = 0x50290000;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 pl->flags_BD |= 0x10;
                 func_80030150(&pl->fixed_428, &pl->pos_438);
                 pl->rot_440.y = 0xDE8;
@@ -1421,7 +1421,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 pl->fixed_428.x = 0x18220000;
                 pl->fixed_428.y = 0xFFFF0000;
                 pl->fixed_428.z = 0x4F7C0000;
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
                 func_80030150(&pl->fixed_428, &pl->pos_438);
                 pl->rot_440.y = 0x9B2;
                 Sce_event_next();
@@ -1491,7 +1491,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 stcom36_func_0028(0xF);
                 wp->timer_C = 0x1E;
                 wp->routine_6++;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
             }
             break;
         case 13:

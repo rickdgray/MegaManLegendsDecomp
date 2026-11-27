@@ -140,7 +140,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03: the bone it hangs from
     uint8 reserved04[4];                    // 04
@@ -148,10 +148,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 parent_C;                         // 0C: the object it belongs to
-    sint8 owner_D;                          // 0D: the object whose bones place it
-    uint8 flags_E;                          // 0E
-    uint8 value_F;                          // 0F
+    sint8 parent_C;                         // 0C: the object it belongs to (Capcom: work_0)
+    sint8 owner_D;                          // 0D: the object whose bones place it (Capcom: work_1)
+    uint8 flags_E;                          // 0E (Capcom: work_2)
+    uint8 work_3;                           // 0F
     sint32 value_10;                        // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -198,7 +198,7 @@ typedef void (*ST1D_ARM_FUNC)(ST1D_ARM *wp);
 typedef struct
 {
     sint8 be_flag;              // 00
-    uint8 slot;                 // 01
+    uint8 work_id;              // 01
     uint8 reserved02[10];       // 02
     sint8 flags_C;              // 0C
     sint8 arm_D;                // 0D
@@ -229,7 +229,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 id;                          // 02
     uint8 type;                        // 03
     uint8 value_4;                     // 04
@@ -242,7 +242,7 @@ typedef struct
 } ST1D_SHOT_OBJ;
 
 // An object func_80107AF0 spawns: copied into a new 0x3C0 slot (D_80113FC0, by the spawner's
-// value_C).
+// work_0).
 typedef struct
 {
     uint8 flags_0;          // 00
@@ -263,7 +263,7 @@ typedef void (*ST1D_VIEW_FUNC)(ST1D_VIEW *wp);
 struct ST1D_VIEW
 {
     sint8 be_flag;                          // 0
-    uint8 slot;                             // 1
+    uint8 work_id;                          // 1
     uint8 id;                               // 2
     uint8 type;                             // 3
     uint8 value_4;                          // 4
@@ -272,10 +272,10 @@ struct ST1D_VIEW
     uint8 routine_1;                        // 9
     uint8 routine_2;                        // A
     uint8 routine_3;                        // B
-    sint8 value_C;                          // C
-    sint8 value_D;                          // D
-    sint8 value_E;                          // E
-    sint8 value_F;                          // F
+    sint8 work_0;                           // C
+    sint8 work_1;                           // D
+    sint8 work_2;                           // E
+    sint8 work_3;                           // F
     sint32 value_10;                        // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C

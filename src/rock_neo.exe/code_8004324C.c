@@ -91,16 +91,16 @@ void func_800433FC(PL_SHL_WORK *wp)
     VECTOR out; // launch vector)
     PL_WORK *pl;
 
-    wp->field_E = wp->pos.pad;
-    pl          = func_80036294((uint8)wp->field_C);
-    pl->unk198  = 0;
+    wp->work_2 = wp->pos.pad;
+    pl         = func_80036294((uint8)wp->work_0);
+    pl->unk198 = 0;
     func_800354E0(wp->slot_D);
     wp->routine_3 = 11;
     wp->routine_0++;
     wp->owner_C4.hit_0  = 0;
     wp->owner_C4.mask_4 = 0;
     wp->hit_78          = 0;
-    if (wp->field_E)
+    if (wp->work_2)
     {
         wp->old = pl->joint_pos[11];
     }
@@ -118,8 +118,8 @@ void func_800434F0(PL_SHL_WORK *wp)
     PL_WORK *pl;
     PL_WORK *cur;
 
-    pl      = func_80036294((uint8)wp->field_C);
-    cur     = func_80036294((uint8)wp->field_C);
+    pl      = func_80036294((uint8)wp->work_0);
+    cur     = func_80036294((uint8)wp->work_0);
     wp->old = cur->pos;
     if (--wp->routine_3 == 0)
     {
@@ -141,7 +141,7 @@ void func_800435BC(PL_SHL_WORK *wp)
 {
     PL_WORK *pl;
 
-    pl         = func_80036294((uint8)wp->field_C);
+    pl         = func_80036294((uint8)wp->work_0);
     pl->unk198 = 0;
     Close_PL_SHL_WORK(wp);
 }
@@ -151,18 +151,18 @@ void func_800435F8(PL_SHL_WORK *wp)
     sint32 id;
     PL_WORK *pl;
 
-    id = wp->field_C;
+    id = wp->work_0;
     pl = func_80036294((uint8)id);
-    if (wp->field_E)
+    if (wp->work_2)
     {
         wp->pos = pl->joint_pos[11];
         if (id)
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->slot, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->work_id, &wp->owner_C4, 0x28000008, 0, 0x80);
         }
         else
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->slot, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->work_id, &wp->owner_C4, 0x28000008, 0, 0x80);
         }
     }
     else
@@ -170,11 +170,11 @@ void func_800435F8(PL_SHL_WORK *wp)
         wp->pos = pl->joint_pos[14];
         if (id)
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->slot, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x6000, wp->work_id, &wp->owner_C4, 0x28000008, 0, 0x80);
         }
         else
         {
-            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->slot, &wp->owner_C4, 0x28000008, 0, 0x80);
+            func_8003430C(&wp->pos, 0x20, &wp->old, 0x20, 0x200, 0x4000, wp->work_id, &wp->owner_C4, 0x28000008, 0, 0x80);
         }
     }
     wp->old = wp->pos;
@@ -187,7 +187,7 @@ void func_80043740(PL_SHL_WORK *wp)
     e = (W48_84_WORK *)func_80031618();
     if (e != 0)
     {
-        e->be_flag   = 1;
+        e->be_flag   = MOVE;
         e->id        = 0x84;
         e->type      = 0;
         e->pos_1C[0] = wp->pos.vx;
@@ -379,7 +379,7 @@ void func_80043E00(PL_SHL_WORK *wp, uint8 arg)
         e->pos_1C[1] = wp->pos.vy;
         e->pos_1C[2] = wp->pos.vz;
         e->type      = 1;
-        e->field_C   = arg;
+        e->work_0    = arg;
     }
 }
 
@@ -390,12 +390,12 @@ void func_80043E78(PL_SHL_WORK *wp)
 
     pad = wp->field_98;
     val = func_800375D4(Player_work, 1);
-    if (wp->field_C)
+    if (wp->work_0)
     {
-        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x6000, wp->slot, &wp->owner_C4, val | 0x8000000, 0, 0x80);
+        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x6000, wp->work_id, &wp->owner_C4, val | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x4000, wp->slot, &wp->owner_C4, val | 0x8000000, 0, 0x80);
+        func_8003430C(&wp->pos, pad, &wp->old, pad, 0x200, 0x4000, wp->work_id, &wp->owner_C4, val | 0x8000000, 0, 0x80);
     }
 }

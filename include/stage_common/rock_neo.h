@@ -8,8 +8,13 @@
 
 // The header of every pool slot, in every overlay's views (as ROCK_NEO's code_8002E7A8.h, "Work
 // pool slots"): 0x00 be_flag (Capcom's): bit 0 (MOVE) live, bit 1 (TRANS), bit 2 (MODEL) a model,
-// bit 6 no distance cull nearer than the fog; 0x01 slot: pool kind | slot index (Capcom's
-// work_id); 0x02 id; 0x03 type; 0x06 flags; 0x08 routine_0 to routine_3 (Capcom's).
+// bit 6 no distance cull nearer than the fog; 0x01 work_id (Capcom's): pool kind (0x10 *
+// pool number) | slot index; 0x02 id; 0x03 type; 0x06 flags; 0x08 routine_0 to routine_3 (Capcom's).
+
+// Bits of a pool slot's be_flag (Capcom's names, as ROCK_NEO's code_8002E7A8.h).
+#define MOVE  0x01 // live: the pool update runs the slot
+#define TRANS 0x02
+#define MODEL 0x04 // a model
 
 // Evaluates `x` twice, like Capcom's own.
 #define STCOM_ABS(x) ((x) < 0 ? -(x) : (x))
@@ -102,7 +107,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 id;            // 02
     uint8 type;          // 03
     uint8 reserved04[4]; // 04
@@ -122,7 +127,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 reserved02[6];               // 02
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09

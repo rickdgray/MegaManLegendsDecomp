@@ -9,7 +9,7 @@ void func_80107B44(ST12_ORBITER *wp)
     if (wp->routine_0 == 0)
     {
         wp->orbit.angle_8 = 0x800;
-        wp->be_flag |= 6;
+        wp->be_flag |= TRANS | MODEL;
         wp->rotation.x     = 0;
         wp->rotation.z     = 0;
         wp->orbit.x_0      = wp->position.x;

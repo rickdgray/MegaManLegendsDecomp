@@ -12,11 +12,11 @@ void func_800D8804(SHL_WORK *wp)
     p.vz = wp->draw.spr.z_94;
     if (wp->index_c)
     {
-        func_800341BC(&p, 8, 0, 0x6000, wp->slot, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x6000, wp->work_id, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_800341BC(&p, 8, 0, 0x4000, wp->slot, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x4000, wp->work_id, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     Model_Shadow_Trans(wp, 0x18, 0x200, 0);
     func_80051BAC(wp);
@@ -67,7 +67,7 @@ void func_800D8928(SHL_WORK *wp)
     wp->draw.spr.scale_96 = D_800D95BC[0].scale_96;
     wp->draw.spr.scale_97 = D_800D95BC[0].scale_97;
     wp->draw.spr.size_98  = 0x18;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->value_74 = 1;
     func_800D94C0(wp);
     wp->draw.spr.x_90 = wp->pos.vx;
@@ -238,7 +238,7 @@ void func_800D8FEC(SHL_WORK *wp)
     wp->old_pos           = wp->pos;
     wp->draw.spr.scale_97 = wp->draw.spr.scale_96 = 0xD8;
     wp->draw.spr.size_98                          = 0x20;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
 }
 
 sint16 func_800D90B0(SHL_WORK *wp)
@@ -291,9 +291,9 @@ sint16 func_800D90B0(SHL_WORK *wp)
                 fx = func_80031618();
                 if (fx)
                 {
-                    fx->be_flag = 1;
+                    fx->be_flag = MOVE;
                     fx->id      = 0x83;
-                    fx->flag_3  = 0;
+                    fx->type    = 0;
                     fx->spr     = wp->draw.spr;
                 }
             }
@@ -307,9 +307,9 @@ sint16 func_800D90B0(SHL_WORK *wp)
             fx = func_80031618();
             if (fx)
             {
-                fx->be_flag = 1;
+                fx->be_flag = MOVE;
                 fx->id      = 0x83;
-                fx->flag_3  = 0;
+                fx->type    = 0;
                 fx->spr     = wp->draw.spr;
             }
         }
@@ -358,9 +358,9 @@ void func_800D935C(SHL_WORK *wp)
 
 void func_800D9450(SHL_WORK *wp, SHL_FX *fx)
 {
-    fx->be_flag = 5;
+    fx->be_flag = MOVE | MODEL;
     fx->id      = 0x80;
-    fx->flag_3  = 2;
+    fx->type    = 2;
     fx->value_e = 1;
     if (Player_work.value_51c == 0)
     {
@@ -402,8 +402,8 @@ sint32 func_800D9508(SVECTOR *a, SVECTOR *b)
 
 void func_800D9574(SHL_WORK *wp, SHL_FX *fx)
 {
-    fx->be_flag = 1;
+    fx->be_flag = MOVE;
     fx->id      = 0x19;
-    fx->flag_3  = 0;
+    fx->type    = 0;
     fx->pos_38  = wp->pos;
 }

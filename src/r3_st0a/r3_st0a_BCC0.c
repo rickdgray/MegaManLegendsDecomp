@@ -194,12 +194,12 @@ void func_8010C0A0(ST0A_EM *wp)
         {
             case 0:
             case 6:
-                wp->routine_1 = wp->byte_D;
+                wp->routine_1 = wp->work_1;
                 break;
             case 3:
-                if (wp->byte_F & 4)
+                if (wp->work_3 & 4)
                 {
-                    wp->byte_F &= ~4;
+                    wp->work_3 &= ~4;
                     wp->routine_1 = 5;
                     ext->flags_0 |= 0x100;
                     break;
@@ -276,7 +276,7 @@ void func_8010C0A0(ST0A_EM *wp)
     {
         return;
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x200, 0x200, 1);
         func_80051B68(wp, 1, 0, D_8009884C[wp->id]->value_C | 0x1000000);
@@ -285,7 +285,7 @@ void func_8010C0A0(ST0A_EM *wp)
     {
         return;
     }
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         if (ext->flags_0 & 2)
         {
@@ -294,7 +294,7 @@ void func_8010C0A0(ST0A_EM *wp)
             ext->fpos_70.y   = ext->hit_C.pos_0.y << 16;
             ext->fpos_70.z   = ext->hit_C.pos_0.z << 16;
             func_8002FFC4(&ext->hit_C.pos_0, &ext->fpos_70, wp->rotation.y, 0xD00, -0x3200, 0);
-            func_800341BC(&ext->hit_C.pos_0, 0x20, 0, 0x8000, wp->slot, &ext->hit_C.hit_8, 0x4080000, 0, 0x80);
+            func_800341BC(&ext->hit_C.pos_0, 0x20, 0, 0x8000, wp->work_id, &ext->hit_C.hit_8, 0x4080000, 0, 0x80);
         }
         if (ext->flags_0 & 0x800)
         {
@@ -306,8 +306,8 @@ void func_8010C0A0(ST0A_EM *wp)
                 ext->fpos_70.z   = ext->hit_C.pos_0.z << 16;
                 func_8002FFC4(&ext->hit_C.pos_0, &ext->fpos_70, (wp->rotation.y + ext->angle_42) & 0xFFF, D_80116260[i].x << 4,
                               D_80116260[i].y << 4, D_80116260[i].z << 4);
-                func_800341BC(&ext->hit_C.pos_0, 0x40, 0, 0x8000, wp->slot, &ext->hit_88[i].hit_8, D_8009884C[wp->id]->value_D | 0x4080000,
-                              0, 0x80);
+                func_800341BC(&ext->hit_C.pos_0, 0x40, 0, 0x8000, wp->work_id, &ext->hit_88[i].hit_8,
+                              D_8009884C[wp->id]->value_D | 0x4080000, 0, 0x80);
                 if (!(ext->flags_0 & 0x1000) && i < 2)
                 {
                     if (ext->flags_0 & 0x8000)
@@ -316,7 +316,7 @@ void func_8010C0A0(ST0A_EM *wp)
                         fx = func_80031618();
                         if (fx != NULL)
                         {
-                            fx->be_flag         = 5;
+                            fx->be_flag         = MOVE | MODEL;
                             fx->id              = 0x80;
                             fx->type            = 0x42;
                             fx->value_C         = 1;
@@ -333,13 +333,13 @@ void func_8010C0A0(ST0A_EM *wp)
         if (ext->flags_0 & 0x20)
         {
             ext->hit_58.pos_0 = wp->joint_180[8];
-            func_800341BC(&ext->hit_58.pos_0, 0x100, 0, 0x8000, wp->slot, &ext->hit_58.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
+            func_800341BC(&ext->hit_58.pos_0, 0x100, 0, 0x8000, wp->work_id, &ext->hit_58.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
                           0x80);
         }
         if (ext->flags_0 & 0x40)
         {
             ext->hit_48.pos_0 = wp->joint_180[3];
-            func_800341BC(&ext->hit_48.pos_0, 0x100, 0, 0x8000, wp->slot, &ext->hit_48.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
+            func_800341BC(&ext->hit_48.pos_0, 0x100, 0, 0x8000, wp->work_id, &ext->hit_48.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
                           0x80);
         }
     }
@@ -426,13 +426,13 @@ void func_8010CBBC(ST0A_EM *wp)
             {
                 if (--ext->timer_4 < 0)
                 {
-                    wp->byte_D = func_8010E95C(wp);
+                    wp->work_1 = func_8010E95C(wp);
                     goto turn;
                 }
             }
             else if (--ext->timer_4 < 0)
             {
-                wp->byte_D = func_8010E95C(wp);
+                wp->work_1 = func_8010E95C(wp);
                 goto turn;
             }
             else if (ext->value_40 == 0)
@@ -442,12 +442,12 @@ void func_8010CBBC(ST0A_EM *wp)
                     angle = Muku(&wp->position, &pl->position, wp->rotation.y, 0x80);
                     if (ST0A_ABS(angle) < 0x80 && wp->dist_80 < 0x200000)
                     {
-                        wp->byte_D = 2;
+                        wp->work_1 = 2;
                         goto turn;
                     }
                     if (ST0A_ABS(angle) < 0x80 && wp->dist_80 < 0x1200000)
                     {
-                        wp->byte_D = 0xB;
+                        wp->work_1 = 0xB;
                         goto turn;
                     }
                 }
@@ -456,7 +456,7 @@ void func_8010CBBC(ST0A_EM *wp)
                     angle = Muku(&wp->position, &pl->position, wp->rotation.y, 0x600);
                     if (ST0A_ABS(angle) < 0x600)
                     {
-                        wp->byte_D = 1;
+                        wp->work_1 = 1;
                     turn:
                         ext->value_44 = (wp->rotation.y + ext->angle_42) & 0xFFF;
                         ext->flags_0 |= 1;
@@ -502,7 +502,7 @@ void func_8010CE0C(ST0A_EM *wp)
                 wp->anim_AC = 4;
                 wp->routine_2 += 2;
             }
-            else if (ext->obj_80[0]->u_C.b.byte_C != 0)
+            else if (ext->obj_80[0]->u_C.b.work_0 != 0)
             {
                 wp->anim_AC = 4;
                 wp->routine_2++;
@@ -513,7 +513,7 @@ void func_8010CE0C(ST0A_EM *wp)
             if (--ext->timer_4 == 0)
             {
                 wp->routine_2++;
-                ext->obj_80[0]->u_C.b.byte_C -= 0x80;
+                ext->obj_80[0]->u_C.b.work_0 -= 0x80;
                 ext->obj_80[0] = NULL;
             }
             break;
@@ -660,12 +660,12 @@ void func_8010D2F4(ST0A_EM *wp)
                 obj = func_80031418();
                 if (obj != NULL)
                 {
-                    obj->be_flag          = 1;
+                    obj->be_flag          = MOVE;
                     obj->id               = 0;
                     obj->value_4          = 6;
                     obj->type             = 0;
-                    obj->u_C.b.byte_C     = wp->slot;
-                    obj->u_E.b.byte_F     = 1;
+                    obj->u_C.b.work_0     = wp->work_id;
+                    obj->u_E.b.work_3     = 1;
                     obj->position         = wp->position;
                     obj->position_fixed.v = wp->position_fixed.v;
                     func_8002FFC4(&obj->position, &obj->position_fixed.v, wp->rotation.y, 0xD00, -0x2E20, 0);
@@ -683,7 +683,7 @@ void func_8010D2F4(ST0A_EM *wp)
             }
             break;
         case 4:
-            if (wp->byte_F & 2)
+            if (wp->work_3 & 2)
             {
                 if (--ext->timer_4 < 0)
                 {
@@ -697,7 +697,7 @@ void func_8010D2F4(ST0A_EM *wp)
             if (--ext->timer_4 < 0)
             {
                 wp->routine_2++;
-                wp->byte_F &= ~2;
+                wp->work_3 &= ~2;
                 ext->timer_4 = 0xF;
                 ext->flags_0 &= ~2;
             }
@@ -774,7 +774,7 @@ void func_8010D6C0(ST0A_EM *wp)
                         ext->fpos_70.y = wp->position.y << 16;
                         ext->fpos_70.z = wp->position.z << 16;
                         func_8002FFC4(&ext->pos_68, &ext->fpos_70, wp->rotation.y, 0xD00, -0x3200, 0);
-                        obj->be_flag    = 1;
+                        obj->be_flag    = MOVE;
                         obj->id         = 3;
                         obj->position   = ext->pos_68;
                         obj->rotation.y = (uint16)(wp->rotation.y + ((rand() & 0x3FF) + 0x800)) - 0x200;
@@ -948,13 +948,13 @@ void func_8010DD20(ST0A_EM *wp)
             {
                 if (--ext->timer_4 < 0)
                 {
-                    wp->byte_D = func_8010E95C(wp);
+                    wp->work_1 = func_8010E95C(wp);
                     goto turn;
                 }
             }
             else if (--ext->timer_4 < 0)
             {
-                wp->byte_D = func_8010E95C(wp);
+                wp->work_1 = func_8010E95C(wp);
                 goto turn;
             }
             else if (ext->value_40 == 0)
@@ -964,12 +964,12 @@ void func_8010DD20(ST0A_EM *wp)
                     step = Muku(&wp->position, &pl->position, wp->rotation.y, 0x80);
                     if (ST0A_ABS(step) < 0x80 && wp->dist_80 < 0x200000)
                     {
-                        wp->byte_D = 2;
+                        wp->work_1 = 2;
                         goto turn;
                     }
                     if (ST0A_ABS(step) < 0x80 && wp->dist_80 < 0x1200000)
                     {
-                        wp->byte_D = 0xB;
+                        wp->work_1 = 0xB;
                         goto turn;
                     }
                 }
@@ -978,7 +978,7 @@ void func_8010DD20(ST0A_EM *wp)
                     step = Muku(&wp->position, &pl->position, wp->rotation.y, 0x600);
                     if (ST0A_ABS(step) < 0x600)
                     {
-                        wp->byte_D = 1;
+                        wp->work_1 = 1;
                     turn:
                         ext->value_44 = (wp->rotation.y + ext->angle_42) & 0xFFF;
                         ext->flags_0 |= 1;
@@ -1058,7 +1058,7 @@ void func_8010E254(ST0A_EM *wp)
                 fx = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->be_flag         = 5;
+                    fx->be_flag         = MOVE | MODEL;
                     fx->id              = 0x80;
                     fx->type            = 0x41;
                     fx->value_C         = 1;
@@ -1171,7 +1171,7 @@ void func_8010E590(ST0A_EM *wp)
             step           = Muku(&wp->position, &pl->position, wp->rotation.y, 0x10);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             ext->angle_42  = (ext->angle_42 - step) & 0xFFF;
-            if (ext->obj_80[0]->u_C.b.byte_C != 0 && ext->obj_80[1]->u_C.b.byte_C != 0)
+            if (ext->obj_80[0]->u_C.b.work_0 != 0 && ext->obj_80[1]->u_C.b.work_0 != 0)
             {
                 wp->anim_AC = 0xE;
                 wp->routine_2 += 3;
@@ -1181,7 +1181,7 @@ void func_8010E590(ST0A_EM *wp)
             step           = Muku(&wp->position, &pl->position, wp->rotation.y, 0x10);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             ext->angle_42  = (ext->angle_42 - step) & 0xFFF;
-            if (ext->obj_80[0]->u_C.b.byte_C != 0)
+            if (ext->obj_80[0]->u_C.b.work_0 != 0)
             {
                 wp->anim_AC = 0xE;
                 wp->routine_2 += 2;
@@ -1191,7 +1191,7 @@ void func_8010E590(ST0A_EM *wp)
             step           = Muku(&wp->position, &pl->position, wp->rotation.y, 0x10);
             wp->rotation.y = (wp->rotation.y + step) & 0xFFF;
             ext->angle_42  = (ext->angle_42 - step) & 0xFFF;
-            if (ext->obj_80[1]->u_C.b.byte_C != 0)
+            if (ext->obj_80[1]->u_C.b.work_0 != 0)
             {
                 wp->anim_AC = 0xE;
                 wp->routine_2++;
@@ -1204,12 +1204,12 @@ void func_8010E590(ST0A_EM *wp)
                 wp->routine_2++;
                 if (ext->obj_80[0] != NULL)
                 {
-                    ext->obj_80[0]->u_C.b.byte_C -= 0x80;
+                    ext->obj_80[0]->u_C.b.work_0 -= 0x80;
                     ext->obj_80[0] = NULL;
                 }
                 if (ext->obj_80[1] != NULL)
                 {
-                    ext->obj_80[1]->u_C.b.byte_C -= 0x80;
+                    ext->obj_80[1]->u_C.b.work_0 -= 0x80;
                     ext->obj_80[1] = NULL;
                 }
             }
@@ -1299,7 +1299,7 @@ sint32 func_8010EB40(void)
     obj = func_80031498();
     if (obj != NULL)
     {
-        obj->be_flag          = 1;
+        obj->be_flag          = MOVE;
         obj->id               = 1;
         obj->value_4          = 1;
         obj->u_C.b[0]         = 1;
@@ -1410,11 +1410,11 @@ sint32 func_8010EE60(ST0A_EM *wp, sint32 index)
     if (obj != NULL)
     {
         ext->obj_80[index >> 3] = obj;
-        obj->be_flag            = 1;
+        obj->be_flag            = MOVE;
         obj->id                 = 2;
         obj->value_4            = 0;
         obj->type               = 0;
-        obj->u_C.b.byte_D       = 0;
+        obj->u_C.b.work_1       = 0;
         obj->position           = wp->joint_180[index];
         obj->position_fixed.v.x = obj->position.x << 16;
         obj->position_fixed.v.y = obj->position.y << 16;

@@ -263,7 +263,7 @@ typedef struct
 struct STAGE_WORK
 {
     sint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 reserved02;    // 02
     uint8 type;          // 03
     uint8 reserved04[4]; // 04
@@ -271,8 +271,8 @@ struct STAGE_WORK
     uint8 routine_1;     // 09
     uint8 routine_2;     // 0A
     uint8 routine_3;     // 0B
-    sint8 timer_C;       // 0C
-    sint8 value_D;       // 0D
+    sint8 timer_C;       // 0C (Capcom: work_0)
+    sint8 work_1;        // 0D
     union
     {
         struct
@@ -319,7 +319,7 @@ typedef struct STAGE_EFFECT STAGE_EFFECT;
 struct STAGE_EFFECT
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 id;            // 02
     uint8 type;          // 03
     uint8 reserved04[2]; // 04
@@ -329,10 +329,10 @@ struct STAGE_EFFECT
     uint8 routine_1;     // 09
     uint8 routine_2;     // 0A
     uint8 routine_3;     // 0B
-    sint8 value_C;       // 0C
-    sint8 timer_D;       // 0D
-    sint8 frame_E;       // 0E
-    sint8 type_F;        // 0F
+    sint8 work_0;        // 0C
+    sint8 timer_D;       // 0D (Capcom: work_1)
+    sint8 frame_E;       // 0E (Capcom: work_2)
+    sint8 type_F;        // 0F (Capcom: work_3)
     uint8 reserved10[4]; // 10
     uint32 mode_14;      // 14
     uint32 color_18;     // 18
@@ -380,7 +380,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 reserved02[6]; // 02
     uint8 routine_0;     // 08
     uint8 reserved09[3]; // 09
@@ -396,7 +396,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 id;              // 02
     uint8 reserved03[9];   // 03
     sint8 timer_C;         // 0C
@@ -494,7 +494,7 @@ typedef struct STAGE_OBJ STAGE_OBJ;
 struct STAGE_OBJ
 {
     sint8 be_flag;    // 00
-    uint8 slot;       // 01
+    uint8 work_id;    // 01
     uint8 id;         // 02
     uint8 type;       // 03
     uint8 value_4;    // 04
@@ -509,8 +509,8 @@ struct STAGE_OBJ
     {
         struct
         {
-            sint8 byte_C; // 0C
-            sint8 byte_D; // 0D
+            sint8 work_0; // 0C
+            sint8 work_1; // 0D
         } b;
         sint16 timer; // 0C
     } u_C;
@@ -518,8 +518,8 @@ struct STAGE_OBJ
     {
         struct
         {
-            sint8 byte_E; // 0E
-            sint8 byte_F; // 0F
+            sint8 work_2; // 0E
+            sint8 work_3; // 0F
         } b;
         sint16 angle; // 0E
     } u_E;
@@ -591,7 +591,7 @@ typedef struct STAGE_FX STAGE_FX;
 struct STAGE_FX
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 id;            // 02
     uint8 type;          // 03
     uint8 reserved04[2]; // 04
@@ -601,10 +601,10 @@ struct STAGE_FX
     uint8 routine_1;     // 09
     uint8 routine_2;     // 0A
     uint8 routine_3;     // 0B
-    sint8 value_C;       // 0C
-    sint8 timer_D;       // 0D
-    sint8 frame_E;       // 0E
-    sint8 type_F;        // 0F
+    sint8 work_0;        // 0C
+    sint8 timer_D;       // 0D (Capcom: work_1)
+    sint8 frame_E;       // 0E (Capcom: work_2)
+    sint8 type_F;        // 0F (Capcom: work_3)
     uint8 reserved10[4]; // 10
     uint32 mode_14;      // 14
     uint32 color_18;     // 18
@@ -684,7 +684,7 @@ struct STAGE_ROOM
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 id;                          // 02
     uint8 type;                        // 03
     uint8 reserved04[4];               // 04
@@ -692,8 +692,10 @@ typedef struct
     uint8 routine_1;                   // 09
     uint8 routine_2;                   // 0A
     uint8 routine_3;                   // 0B
-    uint8 reserved0C[3];               // 0C
-    uint8 value_F;                     // 0F
+    uint8 work_0;                      // 0C
+    uint8 work_1;                      // 0D
+    uint8 work_2;                      // 0E
+    uint8 work_3;                      // 0F
     uint8 reserved10[4];               // 10
     STCOM_SVECTOR position;            // 14
     STAGE_FIXED_VECTOR position_fixed; // 1C
@@ -752,7 +754,7 @@ STAGE_UV4 func_8002DD1C(void *tbl, sint32 idx);
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 id;              // 02
     uint8 type;            // 03
     uint8 reserved04[2];   // 04
@@ -762,10 +764,10 @@ typedef struct
     uint8 routine_1;       // 09
     uint8 routine_2;       // 0A
     uint8 routine_3;       // 0B
-    sint8 timer_C;         // 0C
-    sint8 step_D;          // 0D
-    sint8 value_E;         // 0E
-    sint8 value_F;         // 0F
+    sint8 timer_C;         // 0C (Capcom: work_0)
+    sint8 step_D;          // 0D (Capcom: work_1)
+    sint8 work_2;          // 0E
+    sint8 work_3;          // 0F
     uint8 reserved10[0xC]; // 10
     uint32 key_1C;         // 1C
     uint8 reserved20[4];   // 20
@@ -775,7 +777,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 id;               // 02
     uint8 type;             // 03
     uint8 reserved04[2];    // 04
@@ -810,7 +812,7 @@ typedef struct
 struct STAGE_ACTOR
 {
     sint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
@@ -818,10 +820,10 @@ struct STAGE_ACTOR
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    sint8 value_D;                          // 0D
-    sint8 value_E;                          // 0E
-    uint8 reserved0F;                       // 0F
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    sint8 work_1;                           // 0D
+    sint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -864,7 +866,7 @@ typedef void (*STAGE_OBJ50_FUNC)(STAGE_OBJ50 *wp);
 struct STAGE_OBJ50
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 id;            // 02
     uint8 type;          // 03
     uint8 reserved04[4]; // 04
@@ -922,7 +924,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 reserved09[4];    // 09
@@ -949,7 +951,7 @@ typedef void (*STAGE_PART_FUNC)(STAGE_OBJ *wp, void *part);
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 reserved2[6];                // 02
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09
@@ -1102,14 +1104,17 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
-    sint8 index_C;          // 0C
-    uint8 reserved0D[0xB];  // 0D
+    sint8 index_C;          // 0C (Capcom: work_0)
+    uint8 work_1;           // 0D
+    uint8 work_2;           // 0E
+    uint8 work_3;           // 0F
+    uint8 reserved10[8];    // 10
     STAGE_MATRIX matrix_18; // 18
     STCOM_SVECTOR pos_38;   // 38
     uint32 color_40;        // 40
@@ -1201,7 +1206,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag; // 00
-    uint8 slot;    // 01
+    uint8 work_id; // 01
     uint8 value_2; // 02
     uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
@@ -1251,9 +1256,9 @@ typedef struct
 typedef struct
 {
     sint8 be_flag; // 00
-    uint8 slot;
-    uint8 id;     // 02
-    uint8 flag_3; // 03
+    uint8 work_id;
+    uint8 id;   // 02
+    uint8 type; // 03
     uint8 reserved04[0x18];
     sint16 x_1c; // 1C
     sint16 y_1e; // 1E
@@ -1277,7 +1282,7 @@ void func_8003430C(void *pos_a, sint32 a1, void *pos_b, sint32 a3, sint32 a4, si
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 reserved02[10];              // 02
     sint8 routine_C;                   // 0C
     sint8 routine_D;                   // 0D
@@ -1304,7 +1309,7 @@ typedef void (*STAGE_SPAWNED_FUNC)(STAGE_SPAWNED *wp);
 struct STAGE_SPAWNED
 {
     uint8 be_flag;    // 00
-    uint8 slot;       // 01: pool id and slot
+    uint8 work_id;    // 01: pool id and slot
     uint8 id;         // 02: first index into the pool's handler table
     uint8 type;       // 03
     uint8 handler;    // 04: second index (two-level tables)
@@ -1337,7 +1342,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag;             // 00
-    uint8 slot;                // 01
+    uint8 work_id;             // 01
     uint8 id;                  // 02
     uint8 type;                // 03: 0xFF for the spawner
     uint8 reserved04[4];       // 04
@@ -1369,7 +1374,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 id;                          // 02
     uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
@@ -1470,7 +1475,7 @@ typedef struct
 typedef struct
 {
     sint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
@@ -1478,8 +1483,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 value_C;                          // 0C
-    uint8 reserved0D[3];                    // 0D
+    sint8 work_0;                           // 0C
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -1551,7 +1558,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02: index into D_80098844
     uint8 type;                             // 03: flags
     uint8 reserved04[4];                    // 04
@@ -1559,10 +1566,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C
-    sint8 param_D;                          // 0D: frames before it charges again
-    uint8 param_E;                          // 0E: routine_1 to go back to
-    uint8 param_F;                          // 0F: life multiplier - 1 (low 7 bits)
+    uint8 work_0;                           // 0C
+    sint8 work_1;                           // 0D: frames before it charges again
+    uint8 work_2;                           // 0E: routine_1 to go back to
+    uint8 work_3;                           // 0F: life multiplier - 1 (low 7 bits)
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16
@@ -1602,7 +1609,7 @@ typedef void (*STAGE_STCOM15_FUNC_4E0)(STAGE_STCOM15_WORK_4E0 *wp);
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02: index into D_80098844
     uint8 type;                             // 03: flags
     uint8 reserved04[4];                    // 04
@@ -1610,10 +1617,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C
-    sint8 param_D;                          // 0D: frames before it charges again
-    uint8 param_E;                          // 0E: routine_1 to go back to
-    uint8 param_F;                          // 0F: life multiplier - 1 (low 7 bits)
+    uint8 work_0;                           // 0C
+    sint8 work_1;                           // 0D: frames before it charges again
+    uint8 work_2;                           // 0E: routine_1 to go back to
+    uint8 work_3;                           // 0F: life multiplier - 1 (low 7 bits)
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16
@@ -1698,7 +1705,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 id;               // 02
     uint8 type;             // 03
     uint8 reserved04[4];    // 04
@@ -1706,10 +1713,10 @@ typedef struct
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
-    sint8 value_C;          // 0C
-    sint8 value_D;          // 0D
-    sint8 value_E;          // 0E
-    sint8 value_F;          // 0F
+    sint8 work_0;           // 0C
+    sint8 work_1;           // 0D
+    sint8 work_2;           // 0E
+    sint8 work_3;           // 0F
     uint8 reserved10[8];    // 10
     STAGE_MATRIX matrix_18; // 18
     STCOM_SVECTOR pos_38;   // 38

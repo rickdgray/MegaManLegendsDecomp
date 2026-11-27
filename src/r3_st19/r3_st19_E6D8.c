@@ -18,7 +18,7 @@ void func_8010E6D8(STAGE_SPARK *wp)
 
 void func_8010E764(STAGE_SPARK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->routine_0++;
     func_8010E6D8(wp);
 }
@@ -43,10 +43,10 @@ void func_8010E7F4(ST19_SPARK *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            ep->be_flag  = 1;
+            ep->be_flag  = MOVE;
             ep->type     = 1;
             ep->flags    = wp->flags;
-            ep->value_C  = 0;
+            ep->work_0   = 0;
             ep->timer_D  = (rand() & 7) * 2 + 0x40;
             ep->x_1C     = wp->x_1C + (rand() & 0xF);
             ep->y_1E     = wp->y_1E;
@@ -91,10 +91,10 @@ ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 1;
+        ep->be_flag  = MOVE;
         ep->id       = 0;
         ep->type     = 0;
-        ep->value_C  = 0;
+        ep->work_0   = 0;
         ep->width_E  = width;
         ep->type_F   = type;
         ep->x_1C     = pos->x;

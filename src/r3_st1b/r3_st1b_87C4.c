@@ -72,7 +72,7 @@ void func_801089A4(STAGE_OBJ *wp)
 
 void func_80108AEC(STAGE_OBJ *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     if (Scene_work.reserved00[1] == 0x48)
     {
@@ -128,7 +128,7 @@ void func_80108C80(STAGE_OBJ *wp)
 void func_80108CCC(STAGE_WORK *wp)
 {
     D_8010E8E0[wp->routine_1](wp);
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -166,7 +166,7 @@ void func_80108E2C(ST1B_VIEW *wp)
     wp->vec_AC.pad = 0;
     wp->value_78   = 0;
     wp->routine_1  = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->value_4EA = (sint16)(uint16)wp->rotation.y;
     Model_work_init(wp, NULL);
     wp->value_158  = 0x02000200;
@@ -196,7 +196,7 @@ void func_80108EDC(ST1B_TALKER *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x32, 0x2AB, 0);
     }
@@ -270,7 +270,7 @@ void func_8010915C(ST1B_TALKER *wp)
     }
     turn >>= 3;
     talk->turn_6 = turn;
-    func_80063BC8(&wp->position, 0, 0, wp->value_C);
+    func_80063BC8(&wp->position, 0, 0, wp->work_0);
 }
 
 void func_80109228(ST1B_TALKER *wp)
@@ -406,7 +406,7 @@ void func_80109600(STAGE_OBJ *wp)
 
 void func_80109748(STAGE_OBJ *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     if (Scene_work.reserved00[1] == 0x48)
     {
@@ -523,7 +523,7 @@ void func_80109AC8(STAGE_OBJ *wp)
 void func_80109B14(STAGE_WORK *wp)
 {
     D_8010EA40[wp->routine_1](wp);
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);

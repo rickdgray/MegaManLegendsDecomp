@@ -21,7 +21,7 @@ void func_800D8884(SHL_WORK *wp)
     wp->col_c0 = 0;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     func_800354E0(wp->bit_d);
     func_800D9570(wp);
@@ -74,7 +74,7 @@ void func_800D8A98(SHL_WORK *wp)
     wp->box_78 = &D_800D96F8;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     rot.vx = wp->rot.vx = func_80039B80();
     rot.vy = wp->rot.vy = Player_work.rot.vy;
@@ -211,7 +211,8 @@ void func_800D8F50(SHL_WORK *wp)
     v.vz   = D_800D9798[level].width + 0x1000;
     v.vy   = D_800D9798[level].len + 0x1000;
     ScaleMatrix(&wp->draw.mdl.mtx_8c, &v);
-    func_8003430C(&dir, D_800D9778[level], &wp->pos, D_800D9778[level], 0x200, 0x4000, wp->slot, &wp->col_bc, flags | 0x28000000, 0, 0x80);
+    func_8003430C(&dir, D_800D9778[level], &wp->pos, D_800D9778[level], 0x200, 0x4000, wp->work_id, &wp->col_bc, flags | 0x28000000, 0,
+                  0x80);
     wp->col_bc = 0;
     wp->col_c0 = 0;
 }
@@ -236,7 +237,7 @@ void func_800D922C(SHL_WORK *wp)
     b.vx = (f.w.x + (d.vx << 8)) >> 16;
     b.vy = (f.w.y + (d.vy << 8)) >> 16;
     b.vz = (f.w.z + (d.vz << 8)) >> 16;
-    func_8003430C(&a, size, &b, size, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x28000000, 0, 0x80);
+    func_8003430C(&a, size, &b, size, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x28000000, 0, 0x80);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
 }
@@ -248,7 +249,7 @@ void func_800D9398(SHL_WORK *wp)
     sint8 level;
 
     level = Player_work.value_53c;
-    func_8003430C(&wp->pos, 8, &wp->old_pos, 0x5C, 0x200, 0x4000, wp->slot, &wp->col_c4, D_800D9704[level] | 0x8000000, 0, 0x80);
+    func_8003430C(&wp->pos, 8, &wp->old_pos, 0x5C, 0x200, 0x4000, wp->work_id, &wp->col_c4, D_800D9704[level] | 0x8000000, 0, 0x80);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
 }
@@ -260,10 +261,10 @@ void func_800D942C(SHL_WORK *wp)
     np = Open_PL_SHL_WORK();
     if (np)
     {
-        np->be_flag = 1;
+        np->be_flag = MOVE;
         np->value_2 = wp->value_2;
         np->type    = 1;
-        np->index_c = wp->slot;
+        np->index_c = wp->work_id;
     }
 }
 
@@ -282,10 +283,10 @@ void func_800D947C(SHL_WORK *wp)
     np   = Open_PL_SHL_WORK();
     if (np)
     {
-        np->be_flag       = 1;
+        np->be_flag       = MOVE;
         np->value_2       = wp->value_2;
         np->type          = 2;
-        np->index_c       = wp->slot;
+        np->index_c       = wp->work_id;
         np->draw.spr.x_90 = v.vx >> 16;
         np->draw.spr.y_92 = v.vy >> 16;
         np->draw.spr.z_94 = v.vz >> 16;

@@ -30,7 +30,7 @@ typedef struct
 typedef struct STCOM01_WORK
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
@@ -38,10 +38,10 @@ typedef struct STCOM01_WORK
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C
-    uint8 param_D;                          // 0D
-    uint8 param_E;                          // 0E
-    uint8 param_F;                          // 0F
+    uint8 work_0;                           // 0C
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16
@@ -93,7 +93,7 @@ extern STCOM01_FUNC stcom01_D_0788[];   // ctl.routine handlers (stcom01_func_25
 extern STCOM01_PARAM3 stcom01_D_0000[]; // by id: Model_Shadow_Trans's arguments
 extern uint8 stcom01_D_04E0[];          // speed by id (stcom01_func_2918)
 extern uint8 stcom01_D_059C[4][16];     // random wait times (stcom01_func_0414)
-extern uint8 stcom01_D_0608[];          // 4 x 16 random steps, row by param_D bits 4-5
+extern uint8 stcom01_D_0608[];          // 4 x 16 random steps, row by work_1 bits 4-5
 extern uint8 stcom01_D_0648[2][16];     // random wait times (stcom01_func_0610)
 extern uint8 stcom01_D_0668[16];        // random wait times (stcom01_func_0610)
 extern uint8 stcom01_D_0694[16];        // random choice (stcom01_func_0CD8)

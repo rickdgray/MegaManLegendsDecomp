@@ -15,7 +15,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 reserved02;                       // 02
     uint8 type;                             // 03: bit 7 picks stcom06_D_0018 over stcom06_D_0000
     uint8 reserved04[4];                    // 04
@@ -23,10 +23,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 count_C;                          // 0C: frames in flight
-    sint8 timer_D;                          // 0D
-    uint8 flags_E;                          // 0E
-    sint8 index_F;                          // 0F
+    uint8 count_C;                          // 0C: frames in flight (Capcom: work_0)
+    sint8 timer_D;                          // 0D (Capcom: work_1)
+    uint8 flags_E;                          // 0E (Capcom: work_2)
+    sint8 index_F;                          // 0F (Capcom: work_3)
     uint8 reserved10[4];                    // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C

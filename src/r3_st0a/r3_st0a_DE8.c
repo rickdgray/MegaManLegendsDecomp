@@ -157,7 +157,7 @@ void func_801011B4(STAGE_ROOM *wp)
                 // statement order found by search
                 pl->routine_0 = 3;
                 pl->routine_1 = 1;
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
                 pl->flags_bd |= 0x10;
                 pl->value_440   = 0;
                 pl->pos_438.x   = -0x1280;
@@ -392,7 +392,7 @@ void func_801018B0(STAGE_ROOM *wp)
         STAGE_PL.value_448 = 0x80;
         STAGE_PL.value_168 = 0;
         STAGE_PL.value_169 = 6;
-        STAGE_PL.be_flag |= 2;
+        STAGE_PL.be_flag |= TRANS;
     }
     switch (wp->routine_6)
     {

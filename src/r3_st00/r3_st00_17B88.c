@@ -30,7 +30,7 @@ void func_80117CCC(STAGE_FX *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     func_80117B88(wp);
@@ -40,7 +40,7 @@ void func_80117D14(STAGE_FX *wp)
 {
 
     wp->frame_E = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -94,10 +94,10 @@ void func_80117D80(STAGE_FX *wp)
         ep = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->be_flag        = 1;
+            ep->be_flag        = MOVE;
             ep->id             = 6;
             ep->type           = 0;
-            ep->value_C        = 6;
+            ep->work_0         = 6;
             ep->timer_D        = 1;
             angle              = rand() & 0xFFF;
             radius             = (rand() & 0x1F) + 0x64;
@@ -133,7 +133,7 @@ void func_80117F94(STAGE_FX *wp)
 
 void func_80117FF8(STAGE_FX *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -209,7 +209,7 @@ void func_80118264(STAGE_OBJ *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     func_801181E4(wp);
@@ -240,10 +240,10 @@ void func_801182C0(STAGE_FX *wp)
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 6;
         ep->type    = 2;
-        ep->value_C = 6;
+        ep->work_0  = 6;
         ep->timer_D = 1;
         ep->frame_E = 0;
         ep->type_F  = 0;
@@ -266,10 +266,10 @@ void func_801182C0(STAGE_FX *wp)
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 6;
         ep->type    = 2;
-        ep->value_C = 6;
+        ep->work_0  = 6;
         ep->timer_D = 1;
         ep->frame_E = 1;
         ep->type_F  = 0;
@@ -311,7 +311,7 @@ void func_80118518(void)
 
 void func_80118520(STAGE_OBJ *wp)
 {
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80118518();
         return;
@@ -336,7 +336,7 @@ STAGE_FX *func_801185BC(STAGE_OBJ *owner, sint32 x, sint32 y, sint32 z, uint8 va
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag      = 1;
+        fx->be_flag      = MOVE;
         fx->id           = 6;
         fx->type         = variant;
         fx->timer_D      = 0;
@@ -356,10 +356,10 @@ void func_80118648(STCOM_SVECTOR *pos, sint16 a1, sint16 a2, ST00_POINT_FX *owne
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag  = 1;
+        fx->be_flag  = MOVE;
         fx->id       = 9;
         fx->type     = variant;
-        fx->value_C  = 9;
+        fx->work_0   = 9;
         fx->timer_D  = 1;
         fx->frame_E  = 0x1E;
         fx->mode_14  = 0x3D48002E;
@@ -386,11 +386,11 @@ void func_8011877C(STCOM_SVECTOR *pos, sint32 a1, sint32 a2)
     fx = (ST00_POINT_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag    = 1;
+        fx->be_flag    = MOVE;
         fx->id         = 9;
-        fx->value_C    = 9;
-        fx->value_D    = 0;
-        fx->value_E    = 0;
+        fx->work_0     = 9;
+        fx->work_1     = 0;
+        fx->work_2     = 0;
         fx->x_28.value = pos->x << 16;
         fx->y_2C.value = pos->y << 16;
         fx->z_30.value = pos->z << 16;
@@ -407,9 +407,9 @@ void func_80118814(ST00_POINT_FX *wp)
 
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
-    if (--wp->value_E == 0)
+    if (--wp->work_2 == 0)
     {
         func_80031988(wp);
         return;
@@ -458,7 +458,7 @@ void func_80118960(ST00_POINT_FX *wp)
     switch (wp->routine_1)
     {
         case 0:
-            if (++wp->value_E == 0xF)
+            if (++wp->work_2 == 0xF)
             {
                 wp->routine_1++;
             }
@@ -467,9 +467,9 @@ void func_80118960(ST00_POINT_FX *wp)
         case 1:
             func_80118648(&pos, wp->value_38, wp->value_3A, wp, step);
             func_80118648(&pos, wp->value_38, wp->value_3A, wp, step);
-            wp->value_E++;
+            wp->work_2++;
             wp->speed_34.value += 0x10000;
-            if (wp->value_E == 0x1E)
+            if (wp->work_2 == 0x1E)
             {
                 func_80031988(wp);
             }
@@ -479,7 +479,7 @@ void func_80118960(ST00_POINT_FX *wp)
 
 void func_80118AA0(STAGE_OBJ *wp)
 {
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80118960(wp);
         return;

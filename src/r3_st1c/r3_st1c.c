@@ -83,7 +83,7 @@ void func_801002B0(STAGE_ROOM_WORK *wp)
                 {
                     op->id      = 0x22;
                     op->index_C = i;
-                    op->be_flag |= 1;
+                    op->be_flag |= MOVE;
                 }
             }
         }

@@ -57,7 +57,7 @@ void func_80068244(SCENE_WORK *sw)
         wp            = sw->obj_24[0];
         wp->routine_1 = 0;
         wp->routine_2 = 0;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         func_800680BC(0);
     }
 }
@@ -72,19 +72,19 @@ void func_80068290(SCENE_WORK *sw)
     {
         func_800680BC(1);
         w0 = sw->obj_24[0];
-        w0->be_flag &= ~2;
+        w0->be_flag &= ~TRANS;
         wp            = sw->obj_24[1];
         wp->routine_1 = 11;
         wp->pos_l.vx  = 0xFE480000;
         wp->routine_2 = 0;
         wp->pos_l.vz  = 0xFE700000;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp            = sw->obj_24[2];
         wp->routine_1 = 0;
         wp->routine_2 = 0;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         w3 = sw->obj_24[3];
-        w3->be_flag |= 2;
+        w3->be_flag |= TRANS;
     }
 }
 
@@ -99,7 +99,7 @@ void func_80068344(SCENE_WORK *sw)
         wp->routine_2 = 0;
         wp->ang.vy    = 0x800;
         wp->pos_l.vx  = 0xFEA20000;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
 }
 
@@ -115,7 +115,7 @@ void func_80068388(SCENE_WORK *sw)
         wp->pos_l.vz  = 0xFF380000;
         wp->routine_2 = 0;
         wp->ang.vy    = 0xC00;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     if (sw->timer_10 == 62)
     {
@@ -203,9 +203,9 @@ void func_8006854C(SCENE_WORK *sw)
         wp->slot_F8[7].hide_3  = 0;
         wp->slot_F8[18].hide_3 = -1;
         wp->slot_F8[19].hide_3 = -1;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp = sw->obj_24[2];
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         sw->field_64 = 1;
         sw->field_74 = 2;
         sw->field_68 = sw->field_6C = sw->field_70 = 0;
@@ -258,7 +258,7 @@ void func_80068728(SCENE_WORK *sw)
         wp->routine_2 = 0;
         w3            = sw->obj_24[3];
         sw->field_64  = 0;
-        w3->field_E   = -0x80;
+        w3->work_2    = -0x80;
     }
 }
 
@@ -373,7 +373,7 @@ void func_8006890C(SCENE_WORK *sw)
         w0            = sw->obj_24[0];
         w0->routine_1 = 1;
         w0->routine_2 = 0;
-        w0->be_flag |= 2;
+        w0->be_flag |= TRANS;
         wp   = sw->obj_24[1];
         mask = ~2;
         wp->be_flag &= mask;
@@ -391,13 +391,13 @@ void func_80068998(SCENE_WORK *sw)
     {
         func_800680BC(1);
         w0 = sw->obj_24[0];
-        w0->be_flag &= ~2;
+        w0->be_flag &= ~TRANS;
         wp = sw->obj_24[1];
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp            = sw->obj_24[2];
         wp->routine_1 = 6;
         wp->routine_2 = 0;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
 }
 
@@ -413,7 +413,7 @@ void func_80068A24(SCENE_WORK *sw)
         w0            = sw->obj_24[0];
         w0->routine_1 = 1;
         w0->routine_2 = 0;
-        w0->be_flag |= 2;
+        w0->be_flag |= TRANS;
         wp   = sw->obj_24[1];
         mask = ~2;
         wp->be_flag &= mask;
@@ -431,13 +431,13 @@ void func_80068AB0(SCENE_WORK *sw)
     {
         func_800680BC(1);
         w0 = sw->obj_24[0];
-        w0->be_flag &= ~3;
+        w0->be_flag &= ~(MOVE | TRANS);
         wp            = sw->obj_24[1];
         wp->routine_1 = 8;
         wp->routine_2 = 0;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp = sw->obj_24[2];
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
 }
 
@@ -451,7 +451,7 @@ void func_80068B3C(SCENE_WORK *sw)
     {
         func_800680BC(0);
         w0 = sw->obj_24[0];
-        w0->be_flag |= 3;
+        w0->be_flag |= MOVE | TRANS;
         wp   = sw->obj_24[1];
         mask = ~2;
         wp->be_flag &= mask;
@@ -480,7 +480,7 @@ void func_80068BE4(SCENE_WORK *sw)
     {
         func_800680BC(1);
         w0 = sw->obj_24[0];
-        w0->be_flag &= ~2;
+        w0->be_flag &= ~TRANS;
         wp            = sw->obj_24[1];
         wp->routine_1 = 9;
         wp->pos_l.vx  = 0xFF1F0000;
@@ -488,16 +488,16 @@ void func_80068BE4(SCENE_WORK *sw)
         wp->pos_l.vz  = 0xFE700000;
         wp->routine_2 = 0;
         wp->ang.vy    = 0x400;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp = sw->obj_24[2];
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     if (sw->timer_10 == 50)
     {
         wp            = sw->obj_24[1];
         wp->routine_1 = 10;
         wp->routine_2 = 0;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
 }
 
@@ -544,7 +544,7 @@ void func_80068DAC(SCENE_WORK *sw)
         case 0:
             if (func_80042238(Player_work))
             {
-                Player_work[0].be_flag &= ~3;
+                Player_work[0].be_flag &= ~(MOVE | TRANS);
                 sw->routine_4++;
                 Cd_xa_play_id(0x2001000B);
             }
@@ -600,7 +600,7 @@ void func_80068DAC(SCENE_WORK *sw)
                 D_800C3570 = 2;
                 sw->unk00  = 0;
                 Cd_subcmd(0, 1, 0);
-                Player_work[0].be_flag |= 1;
+                Player_work[0].be_flag |= MOVE;
                 func_80042314(Player_work);
                 func_8001E390(0x2EB);
                 Sce_flag_on(0x55);

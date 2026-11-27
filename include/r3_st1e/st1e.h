@@ -40,7 +40,7 @@ extern STAGE_OBJ_FUNC D_801058DC[];
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 reserved02;      // 02
     uint8 type;            // 03
     uint8 reserved04[4];   // 04
@@ -63,16 +63,16 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
-    sint8 value_C;          // 0C
-    sint8 value_D;          // 0D
-    sint8 value_E;          // 0E
-    sint8 value_F;          // 0F
+    sint8 work_0;           // 0C
+    sint8 work_1;           // 0D
+    sint8 work_2;           // 0E
+    sint8 work_3;           // 0F
     uint8 reserved10[0x18]; // 10
     ST1E_SCROLL_POS pos;    // 28
 } ST1E_SCROLL;

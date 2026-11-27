@@ -17,12 +17,12 @@ void func_80118308(STAGE_PANEL_WORK *wp)
     D_8011E4C0[wp->routine_0](wp);
     if ((sint8)wp->value_D == 0xA)
     {
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
         STAGE_CELLS[wp->cell_44].value = wp->matrix.words[6];
     }
     if (Sce_flag_test(0x606) != 0 && (sint8)wp->value_D == 0x17)
     {
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
     }
     if (Sce_flag_test(0x7B0) == 0)
     {
@@ -68,7 +68,7 @@ void func_80118308(STAGE_PANEL_WORK *wp)
 
 void func_8011864C(STAGE_PANEL_WORK *wp)
 {
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;
@@ -138,7 +138,7 @@ void func_80118878(STAGE_PANEL_WORK *wp)
     if (--wp->timer_B == 0)
     {
         wp->routine_0++;
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
         Sound_call(0x185, 0, 0);
         Sce_flag_off(0x7B2);
         STAGE_CELLS[wp->cell_44].value = wp->matrix.words[6];
@@ -160,7 +160,7 @@ void func_8011893C(STAGE_PANEL_WORK *wp)
             wp->matrix.m.m[0][0] = 0;
             wp->routine_0++;
             RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Sce_flag_on(0x7B2);
             Sound_call2(0x106, &wp->pos_38);
         }
@@ -176,7 +176,7 @@ void func_8011893C(STAGE_PANEL_WORK *wp)
         wp->matrix.m.m[0][0] = 0;
         wp->routine_0++;
         RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         Sce_flag_on(0x7B2);
         Sound_call2(0x106, &wp->pos_38);
         Sce_flag_off(0x7B1);
@@ -225,7 +225,7 @@ void func_80118B7C(ST09_BOX *wp)
     wp->matrix.words[5] = 0;
     wp->matrix.words[6] = 0;
     wp->matrix.words[7] = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->color_40              = 0x808080;
     wp->matrix.f.ctl.flags_0  = 0xE;
@@ -258,17 +258,17 @@ void func_80118C3C(ST09_BOX *wp)
         func_80118FC0(wp);
     }
     D_8011E4E4[wp->routine_1](wp);
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         if (wp->routine_1 != 1)
         {
             func_80051B68(wp, 5, -1, 0);
         }
-        if ((wp->be_flag & 1) && (wp->matrix.f.ctl.flags_0 & 4))
+        if ((wp->be_flag & MOVE) && (wp->matrix.f.ctl.flags_0 & 4))
         {
             wp->pos_38.y -= 0x80;
-            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011E4F4[wp->type >> 4], wp->slot, &wp->matrix.f.ctl.hit_4, D_8011E4EC[wp->type >> 4], 0,
-                          0x80);
+            func_800341BC(&wp->pos_38, 0xA0, 0, D_8011E4F4[wp->type >> 4], wp->work_id, &wp->matrix.f.ctl.hit_4, D_8011E4EC[wp->type >> 4],
+                          0, 0x80);
             wp->pos_38.y += 0x80;
         }
     }
@@ -300,7 +300,7 @@ void func_80118DC0(ST09_BOX *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag         = 5;
+                fx->be_flag         = MOVE | MODEL;
                 fx->id              = 0x80;
                 fx->type            = 0x42;
                 fx->sprite.position = wp->pos_38;
@@ -434,7 +434,7 @@ void func_80119074(STAGE_PANEL_WORK *wp)
 
 void func_80119374(STAGE_PANEL_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->routine_0++;
 }
 
@@ -466,7 +466,7 @@ void func_80119404(STAGE_PANEL_WORK *wp)
     if (--wp->timer_B == 0)
     {
         wp->routine_0++;
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
         Sound_call(0x185, 0, 0);
         Sce_flag_off(0x7B2);
         STAGE_CELLS[wp->cell_44].value = wp->matrix.words[6];
@@ -488,7 +488,7 @@ void func_801194C8(STAGE_PANEL_WORK *wp)
             wp->matrix.m.m[0][0] = 0;
             wp->routine_0++;
             RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Sce_flag_on(0x7B2);
             Sound_call2(0x106, &wp->pos_38);
         }
@@ -504,7 +504,7 @@ void func_801194C8(STAGE_PANEL_WORK *wp)
         wp->matrix.m.m[0][0] = 0;
         wp->routine_0++;
         RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         Sce_flag_on(0x7B2);
         Sound_call2(0x106, &wp->pos_38);
         Sce_flag_off(0x7B1);
@@ -592,7 +592,7 @@ void func_801196C0(void)
                             wp = func_80031734();
                             if (wp != NULL)
                             {
-                                wp->be_flag = 5;
+                                wp->be_flag = MOVE | MODEL;
                                 wp->id      = 0x21;
                                 wp->type    = i;
                                 Model_work_init(wp, &wp->type);

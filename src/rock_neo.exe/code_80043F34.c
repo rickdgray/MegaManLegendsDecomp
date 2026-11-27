@@ -41,7 +41,7 @@ void func_80043F70(W48_80_WORK *wp)
     }
     else
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     sub            = wp->type & 0xF;
     wp->hw_44[0]   = D_8008A138[sub][wp->size_D][0];
@@ -74,7 +74,7 @@ void func_80043F70(W48_80_WORK *wp)
         e = (W48_80_WORK *)func_80031618();
         if (e != NULL)
         {
-            e->be_flag = 5;
+            e->be_flag = MOVE | MODEL;
             e->id      = 0x80;
             e->type    = 5;
             e->pos_38  = wp->pos_38;
@@ -138,7 +138,7 @@ void func_800441CC(W48_80_WORK *wp)
         case 0:
             if (wp->type & 0x40)
             {
-                func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->slot, &D_800986C0, size | 0x10000000, 0, 0x80);
+                func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->work_id, &D_800986C0, size | 0x10000000, 0, 0x80);
             }
             else if (wp->type == 6)
             {
@@ -175,16 +175,16 @@ void func_800441CC(W48_80_WORK *wp)
                 }
                 else
                 {
-                    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xC000, wp->slot, &D_800986C0, 0x31000000, 0, 0x80);
+                    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xC000, wp->work_id, &D_800986C0, 0x31000000, 0, 0x80);
                 }
             }
             else
             {
-                func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xC000, wp->slot, &D_800986C0, size | 0x10000000, 0, 0x80);
+                func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xC000, wp->work_id, &D_800986C0, size | 0x10000000, 0, 0x80);
             }
             break;
         case 1:
-            func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0x4000, wp->slot, &D_800986C0, size | 0x10000000, 0, 0x80);
+            func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0x4000, wp->work_id, &D_800986C0, size | 0x10000000, 0, 0x80);
             break;
         case 2:
         default:
@@ -393,7 +393,7 @@ void func_8004495C(W48_81_WORK *wp)
 
 void func_80044998(W48_81_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init((MODEL_WORK *)wp, 0);
     wp->rgbc_40 = 0x2808080;
     // The word at 0x10 of the block the model data's word at 0x70 points to
@@ -447,7 +447,7 @@ void func_80044AEC(W48_82_WORK *wp)
     wp->routine_2 = 0;
     wp->routine_1 = 0;
     wp->routine_0++;
-    if (wp->field_C != 0)
+    if (wp->work_0 != 0)
     {
         Sound_call2(0x9B, (SVECTOR *)wp->pos_1C);
     }
@@ -486,7 +486,7 @@ void func_80044C94(W48_83_WORK *wp)
     wp->code_14  = 0x3D48002E;
     wp->rgbc_18  = 0x2E404040;
     wp->field_22 = 0x20;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->field_23 = 0;
     wp->flags |= 0x20;
     switch (wp->type)
@@ -624,9 +624,9 @@ void func_800450B0(W48_84_WORK *wp)
     wp->field_23 = D_8008A26C[0][1];
     if (wp->type == 0)
     {
-        wp->field_C = 12;
+        wp->work_0 = 12;
     }
-    wp->field_24  = (D_8008A280[0] * wp->field_C) >> 4;
+    wp->field_24  = (D_8008A280[0] * wp->work_0) >> 4;
     wp->field_26  = rand() & 0x3F;
     wp->routine_3 = D_8008A278[0];
     wp->routine_2 = 0;
@@ -652,7 +652,7 @@ void func_80045170(W48_84_WORK *wp)
             wp->routine_3 = D_8008A278[step];
             wp->field_22  = D_8008A26C[step][0];
             wp->field_23  = D_8008A26C[step][1];
-            wp->field_24  = (D_8008A280[wp->routine_1] * wp->field_C) >> 4;
+            wp->field_24  = (D_8008A280[wp->routine_1] * wp->work_0) >> 4;
         }
     }
 }
@@ -720,7 +720,7 @@ void func_80045400(W48_85_WORK *wp)
 
 void func_8004548C(W48_85_WORK *wp)
 {
-    if (func_80049C54((SVECTOR *)wp->pos_1C, (SVECTOR *)wp->pos_1C, 0, wp->slot) == 0)
+    if (func_80049C54((SVECTOR *)wp->pos_1C, (SVECTOR *)wp->pos_1C, 0, wp->work_id) == 0)
     {
         wp->code_14 = 0x3D48002E;
         wp->rgbc_18 = 0x2E000000 | (wp->routine_2 << 3) | (wp->routine_2 << 11) | (wp->routine_2 << 19);

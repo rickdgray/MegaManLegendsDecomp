@@ -70,7 +70,7 @@ void stcom19_func_0000(STCOM19_WORK *wp)
 
 void stcom19_func_02F4(STCOM19_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->routine_0++;
 }
 
@@ -102,7 +102,7 @@ void stcom19_func_0384(STCOM19_WORK *wp)
     if (--wp->timer_B == 0)
     {
         wp->routine_0++;
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
         Sound_call(0x185, 0, 0);
         Sce_flag_off(0x7B2);
         STCOM19_CELLS[wp->cell_44].value = wp->matrix.words[6];
@@ -124,7 +124,7 @@ void stcom19_func_0448(STCOM19_WORK *wp)
             wp->matrix.m.m[0][0] = 0;
             wp->routine_0++;
             RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Sce_flag_on(0x7B2);
             Sound_call2(0x106, &wp->pos_38);
         }
@@ -140,7 +140,7 @@ void stcom19_func_0448(STCOM19_WORK *wp)
         wp->matrix.m.m[0][0] = 0;
         wp->routine_0++;
         RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         Sce_flag_on(0x7B2);
         Sound_call2(0x106, &wp->pos_38);
         Sce_flag_off(0x7B1);
@@ -227,7 +227,7 @@ void stcom19_func_0640(void)
                             wp = func_80031734();
                             if (wp != NULL)
                             {
-                                wp->be_flag = 5;
+                                wp->be_flag = MOVE | MODEL;
                                 wp->id      = 0x2F;
                                 wp->type    = list[k].spawn_E[i] >> 4;
                                 Model_work_init(wp, &wp->type);

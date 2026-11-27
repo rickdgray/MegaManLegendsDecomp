@@ -9,7 +9,7 @@
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 reserved02;       // 02
     uint8 type;             // 03: which effect (stcom03_func_003C)
     uint8 reserved04[4];    // 04
@@ -17,8 +17,11 @@ typedef struct
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B: also a countdown (stcom03_func_02CC)
-    sint8 param_C;          // 0C
-    uint8 reserved0D[7];    // 0D
+    sint8 work_0;           // 0C
+    uint8 work_1;           // 0D
+    uint8 work_2;           // 0E
+    uint8 work_3;           // 0F
+    uint8 reserved10[4];    // 10
     uint32 mode_14;         // 14: draw mode word
     uint32 color_18;        // 18: GPU code and RGB
     uint8 reserved1C[6];    // 1C

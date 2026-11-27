@@ -22,7 +22,7 @@ typedef void (*ST12_OBJ50_FUNC)(ST12_OBJ50 *wp);
 struct ST12_OBJ50
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 id;              // 02
     uint8 type;            // 03
     uint8 reserved04[4];   // 04
@@ -124,7 +124,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 reserved09[3];                    // 09

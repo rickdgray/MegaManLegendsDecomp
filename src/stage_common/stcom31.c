@@ -41,8 +41,8 @@ void stcom31_func_00F8(STCOM31_WORK *wp)
     wp->value_74          = 0;
     wp->rotation.v.x      = 0;
     wp->rotation.v.z      = 0;
-    wp->be_flag |= 4;
-    wp->rotation.v.y = (wp->param_C << 9) & 0xE00;
+    wp->be_flag |= MODEL;
+    wp->rotation.v.y = (wp->work_0 << 9) & 0xE00;
     Model_work_init(wp, NULL);
     m                           = &wp->matrix;
     wp->ctl.flags_0             = 0;
@@ -65,7 +65,7 @@ void stcom31_func_01F8(STCOM31_WORK *wp)
 {
     if (Sce_flag_test(4) != 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     stcom31_D_000C[wp->routine_1](wp);
     wp->pos_AC = wp->position;
@@ -124,8 +124,8 @@ void stcom31_func_033C(STCOM31_WORK *wp)
         case 0:
             wp->routine_2   = 1;
             wp->ctl.timer_4 = 0x1E;
-            wp->be_flag |= 2;
-            if (wp->param_F & 0x40)
+            wp->be_flag |= TRANS;
+            if (wp->work_3 & 0x40)
             {
                 wp->velocity.v.x = 0;
                 stcom31_E_0020   = 4;
@@ -140,7 +140,7 @@ void stcom31_func_033C(STCOM31_WORK *wp)
             ctl->waypoint_8  = 1;
             // fall through
         case 1:
-            if (wp->param_F & 0x40)
+            if (wp->work_3 & 0x40)
             {
                 point = &stcom31_D_0050[ctl->waypoint_8];
             }
@@ -195,7 +195,7 @@ void stcom31_func_033C(STCOM31_WORK *wp)
             {
                 break;
             }
-            effect->be_flag   = 1;
+            effect->be_flag   = MOVE;
             effect->id        = 0x83;
             effect->type      = 1;
             stcom31_E_0018[0] = wp->position;

@@ -25,11 +25,11 @@ void stcom05_func_003C(STCOM05_WORK *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix, &scale);
     wp->pos_saved = wp->position;
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         func_80051B68(wp, 1, -1, 0x1000008);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x104, 0x200, 1);
     }
@@ -529,11 +529,11 @@ void stcom05_func_0F78(STCOM05_WORK *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix, &scale);
     wp->pos_saved = wp->position;
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         func_80051B68(wp, 1, -1, 0x20000008);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x104, 0x200, 1);
     }
@@ -549,7 +549,7 @@ void stcom05_func_10C0(STCOM05_WORK *wp)
     wp->value_64          = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->data_78 = stcom05_D_00B0;
     wp->data_10 = stcom05_D_00BC;

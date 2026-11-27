@@ -28,7 +28,7 @@ void stcom22_func_0078(STCOM22_WORK *wp)
     STCOM_FIXED_VECTOR unused;
     STCOM_SVECTOR unused2;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     STCOM22_IDENTITY(&wp->matrix);
     wp->matrix.f.ctl.rot.x = 0;
     wp->matrix.f.ctl.rot.z = 0;
@@ -503,7 +503,7 @@ void stcom22_func_0F00(STCOM22_WORK *wp)
 
 void stcom22_func_0F3C(STCOM22_WORK *wp)
 {
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     STCOM22_IDENTITY(&wp->matrix);
     wp->matrix.f.ctl.rot.x = 0;
     wp->matrix.f.ctl.rot.y = 0;
@@ -632,7 +632,7 @@ void stcom22_func_14A8(STCOM22_WORK *wp)
 {
     STCOM_SVECTOR pos;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->matrix.f.ctl.rot.x = 0;
     wp->matrix.f.ctl.rot.y = 0;
     wp->matrix.f.ctl.rot.z = 0;
@@ -739,7 +739,7 @@ void stcom22_func_1758(STCOM22_WORK *wp)
 
 void stcom22_func_17E0(STCOM22_WORK *wp)
 {
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     STCOM22_IDENTITY(&wp->matrix);
     Model_work_init(wp, &wp->type);
     wp->routine_0          = 1;
@@ -762,7 +762,7 @@ void stcom22_func_1864(STCOM22_WORK *wp)
     pos = wp->pos_38;
     pos.y -= 0x28;
     pos.z -= 0x80;
-    func_800341BC(&pos, 0x3C, 0, 0xC000, wp->slot, hit, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x3C, 0, 0xC000, wp->work_id, hit, 0x4000000, 0, 0x80);
     stcom22_D_00A0[wp->routine_1](wp);
     wp->u_48.hit = 0;
 }
@@ -857,7 +857,7 @@ void stcom22_func_1B28(STCOM22_WORK *wp)
     STCOM22_CTL *ctl;
     STCOM22_WORK *gate;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     STCOM22_IDENTITY(&wp->matrix);
     ctl = &wp->matrix.f.ctl;
     if (Game_work.value_50 == 0xE)
@@ -876,7 +876,7 @@ void stcom22_func_1B28(STCOM22_WORK *wp)
     gate          = func_80031734();
     if (gate != NULL)
     {
-        gate->be_flag   = 1;
+        gate->be_flag   = MOVE;
         gate->id        = 0x16;
         gate->type      = 0;
         gate->value_C   = 0;
@@ -912,7 +912,7 @@ void stcom22_func_1C5C(STCOM22_WORK *wp)
 
     pos = wp->pos_38;
     pos.y -= 0x96;
-    func_800341BC(&pos, 0x96, 0, 0x8000, wp->slot, &wp->matrix.f.ctl.rot, 0x4000001, 0, 0x80);
+    func_800341BC(&pos, 0x96, 0, 0x8000, wp->work_id, &wp->matrix.f.ctl.rot, 0x4000001, 0, 0x80);
     pl  = &Player_work;
     ctl = &wp->matrix.f.ctl;
     if (wp->routine_2 == 0 && Sce_flag_test(Game_work.value_50 == 0xE ? 0x608 : 0x605))

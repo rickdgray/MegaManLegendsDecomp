@@ -9,7 +9,7 @@ void func_80124AB4(ST1A_50 *wp)
 
 void func_80124B18(ST1A_50 *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *rot)
 {
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     wp->color_40  = 0x808080;
     rot->x        = 0;
@@ -399,10 +399,10 @@ void func_801255CC(ST1A_50 *wp)
     fx = func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x1C;
         fx->type    = 0;
-        fx->value_C = wp->slot;
+        fx->value_C = wp->work_id;
         fx->value_D = wp->type;
     }
 }
@@ -417,7 +417,7 @@ void func_80125628(ST1A_HAND50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 6;
+            wp->be_flag |= TRANS | MODEL;
             Model_work_init(wp, &wp->type);
             wp->color_40 = 0x808080;
             wp->routine_0++;

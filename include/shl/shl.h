@@ -9,6 +9,11 @@
 // module's first function (0x800D8804), which runs one shot object per call: it dispatches on
 // routine_0 through the module's own table.
 
+// Bits of a pool slot's be_flag (Capcom's names, as ROCK_NEO's code_8002E7A8.h).
+#define MOVE  0x01 // live: the pool update runs the slot
+#define TRANS 0x02
+#define MODEL 0x04 // a model
+
 // A 16.16 fixed-point position; the halfword view reads the integer parts.
 typedef union
 {
@@ -143,7 +148,7 @@ extern SHL_PLAYER Player_work;
 typedef struct SHL_WORK
 {
     uint8 be_flag; // 00
-    uint8 slot;    // 01
+    uint8 work_id; // 01
     uint8 value_2; // 02
     uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
@@ -211,13 +216,13 @@ extern SHL_GAME Game_work;
 typedef struct
 {
     sint8 be_flag; // 00
-    uint8 slot;
-    uint8 id;     // 02
-    uint8 flag_3; // 03
+    uint8 work_id;
+    uint8 id;   // 02
+    uint8 type; // 03
     uint8 reserved04[4];
     uint8 routine_0; // 08
     uint8 reserved09;
-    uint8 index_a; // 0A
+    uint8 routine_2; // 0A: also a value: the size, indexing D_8008A310 (r3_shl07), as in W48_86
     uint8 reserved0b;
     uint8 value_c; // 0C
     uint8 value_d; // 0D

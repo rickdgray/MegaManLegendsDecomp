@@ -35,7 +35,7 @@ void func_800456D8(W48_86_WORK *wp)
 {
     if (rand() & 1)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     Model_work_init((MODEL_WORK *)wp, &wp->type);
     wp->routine_0++;
@@ -224,7 +224,7 @@ void func_80045CE8(SVECTOR *pos, uint32 num, uint32 weights, uint32 kind)
         {
             continue;
         }
-        wp->be_flag = 5;
+        wp->be_flag = MOVE | MODEL;
         wp->type    = 0;
         wp->id      = 0x86;
         pick        = rand() & 0xFF;
@@ -292,7 +292,7 @@ void func_80045FE4(WORK_48 *wp)
 {
     SPEC_ENT *ent;
 
-    switch (func_8002FE74(wp->slot))
+    switch (func_8002FE74(wp->work_id))
     {
         case 0x40:
             ent = D_8009884C[wp->id];
@@ -314,7 +314,7 @@ void func_80046008(WORK_48 *wp)
 {
     SPEC_ENT *ent;
 
-    switch (func_8002FE74(wp->slot))
+    switch (func_8002FE74(wp->work_id))
     {
         case 0x40:
             ent = D_8009884C[wp->id];
@@ -344,7 +344,7 @@ void func_8004602C(W48_87_WORK *wp)
         func_80046F38();
     }
     D_8008A6A8[wp->routine_0](wp);
-    if (wp->type != 0 && (wp->be_flag & 2) && wp->routine_0 < 5)
+    if (wp->type != 0 && (wp->be_flag & TRANS) && wp->routine_0 < 5)
     {
         wp->routine_1++;
         if (wp->routine_1 >= 4)
@@ -370,7 +370,7 @@ void func_8004602C(W48_87_WORK *wp)
 
 void func_800461A4(W48_87_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init((MODEL_WORK *)wp, &wp->type);
     wp->routine_0++;
     Sound_call2(0x9B, &wp->pos_38);
@@ -478,7 +478,7 @@ void func_800465C8(W48_87_WORK *wp)
     sint32 h;
     sint32 limit;
 
-    wp->be_flag ^= 2;
+    wp->be_flag ^= TRANS;
     if (--wp->routine_3 == 0)
     {
         wp->routine_0++;
@@ -770,7 +770,7 @@ void func_80046F38(void)
 
 void func_80047148(WORK_48 *wp, SVECTOR *pos)
 {
-    switch (func_8002FE74(wp->slot))
+    switch (func_8002FE74(wp->work_id))
     {
         case 0x40:
             func_80046B34(pos, D_8009884C[wp->id][0].spec);
@@ -791,7 +791,7 @@ void func_80047228(WORK_48 *wp, SVECTOR *pos, sint32 n)
 {
     SPEC_ENT *e;
 
-    switch (func_8002FE74(wp->slot))
+    switch (func_8002FE74(wp->work_id))
     {
         case 0x40:
             e = D_8009884C[wp->id] + n;
@@ -827,7 +827,7 @@ void func_80047354(W48_88_WORK *wp)
 
     if (wp->type == 0xFF)
     {
-        wp->be_flag                       = 3;
+        wp->be_flag                       = MOVE | TRANS;
         wp->efc.sprite.rgbc               = 0x2C808080;
         wp->routine_0                     = 3;
         *(uint32 *)&wp->efc.sprite.pos[0] = *(sint32 *)&wp->efc.model.pos;
@@ -838,14 +838,14 @@ void func_80047354(W48_88_WORK *wp)
     }
     if (wp->type == 0xFE)
     {
-        wp->field_C = 0;
-        wp->type    = 0xC2;
+        wp->work_0 = 0;
+        wp->type   = 0xC2;
     }
     else
     {
-        wp->field_C = 1;
+        wp->work_0 = 1;
     }
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     p = wp->hw_44;
     switch (wp->type & 0xF)
     {
@@ -909,7 +909,7 @@ void func_80047354(W48_88_WORK *wp)
         e = (W48_80_WORK *)func_80031618();
         if (e != NULL)
         {
-            e->be_flag = 5;
+            e->be_flag = MOVE | MODEL;
             e->id      = 0x80;
             e->type    = 5;
             e->pos_38  = wp->efc.model.pos;
@@ -917,7 +917,7 @@ void func_80047354(W48_88_WORK *wp)
         e = (W48_80_WORK *)func_80031618();
         if (e != NULL)
         {
-            e->be_flag = 5;
+            e->be_flag = MOVE | MODEL;
             e->id      = 0x80;
             e->type    = 6;
             e->pos_38  = wp->efc.model.pos;
@@ -956,7 +956,7 @@ void func_80047354(W48_88_WORK *wp)
     wp->routine_0++;
     wp->routine_3 = 0;
     sub           = svec_distance(&wp->efc.model.pos, &Player_work[0].pos); // dead store, needed to match
-    if (wp->field_C != 0)
+    if (wp->work_0 != 0)
     {
         Sound_call2(0xA1, &wp->efc.model.pos);
     }
@@ -967,15 +967,15 @@ void func_800476A4(W48_88_WORK *wp)
     D_8008A718[wp->routine_1](wp);
     if (wp->type & 0x40)
     {
-        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xA000, wp->slot, &D_800986D8, 0x10000008, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xA000, wp->work_id, &D_800986D8, 0x10000008, 0, 0x80);
     }
     else if (wp->type == 6)
     {
-        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->slot, &D_800986D8, 0x30000000, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->work_id, &D_800986D8, 0x30000000, 0, 0x80);
     }
     else
     {
-        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->slot, &D_800986D8, 0x10000008, 0, 0x80);
+        func_800341BC(&wp->efc.model.pos, wp->efc.model.pos.pad / 2, 0, 0xC000, wp->work_id, &D_800986D8, 0x10000008, 0, 0x80);
     }
 }
 
@@ -1371,7 +1371,7 @@ void func_80048354(W48_8A_WORK *wp)
 void func_80048390(W48_8A_WORK *wp)
 {
     wp->field_24 = 0x20;
-    wp->field_C  = 0x80;
+    wp->work_0   = 0x80;
     wp->code_14  = 0x3D48002C;
     wp->rgbc_18  = 0x2EC06060;
     wp->idx_D    = 0;

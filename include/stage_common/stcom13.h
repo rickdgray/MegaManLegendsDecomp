@@ -27,7 +27,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02: index into D_80098844
     uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
@@ -37,7 +37,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 reserved0C[4];                    // 0C
+    uint8 work_0;                           // 0C
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16

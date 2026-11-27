@@ -24,7 +24,7 @@ void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x01400140;
             wp->scale.words[1] = 0x140;
@@ -198,7 +198,7 @@ void func_8010F774(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;

@@ -7,7 +7,7 @@
 
 void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init((MODEL_WORK *)wp, 0);
     *(uint32 *)&wp->scale.vx = 0x04000400;
     *(uint32 *)&wp->scale.vz = 0x42100400;
@@ -23,7 +23,7 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     *(uint32 *)&wp->ang.vx = 0;
     *(uint32 *)&wp->ang.vz = 0;
     wp->box_10             = 0;
-    sp->data               = D_800820E0[wp->field_C][wp->type];
+    sp->data               = D_800820E0[wp->work_0][wp->type];
     if (sp->data == NULL)
     {
         wp->routine_0 = 2;
@@ -122,7 +122,7 @@ void script_exec(WORK_3C0 *wp, SCRIPT_WORK *sp)
                 break;
             case 17:
                 wp->slot_D  = 1;
-                wp->field_E = sp->data[sp->pos + 1];
+                wp->work_2  = sp->data[sp->pos + 1];
                 wp->timer_F = 0;
                 sp->pos += 2;
                 break;
@@ -209,7 +209,7 @@ void func_800150E0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     wp->scale.vz += sp->add_E;
     if (wp->slot_D)
     {
-        switch (wp->field_E)
+        switch (wp->work_2)
         {
             case 0:
                 if (wp->timer_F == 0)
@@ -293,12 +293,12 @@ void func_80015428(CODE_800133D8_WORK *wp)
                     op = func_80031418();
                     if (op != NULL)
                     {
-                        op->be_flag             = 1;
+                        op->be_flag             = MOVE;
                         op->type                = i;
                         op->id                  = 0;
                         *(uint16 *)&op->handler = 0;
-                        *(uint32 *)&op->field_C = 0;
-                        op->field_C             = wp->field_8;
+                        *(uint32 *)&op->work_0  = 0;
+                        op->work_0              = wp->field_8;
                     }
                 }
                 wp->timer_6 = 300;

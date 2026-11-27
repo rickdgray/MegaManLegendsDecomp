@@ -7,7 +7,7 @@ void func_80114580(ST0A_PROP *wp)
 
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 6;
+        wp->be_flag |= TRANS | MODEL;
         func_8002F9EC(wp, (sint32)&wp->type);
         wp->color_40 = 0x808080;
         wp->routine_0++;

@@ -11,7 +11,7 @@ void func_80119BE8(STAGE_EV *wp)
         obj = func_800317AC(i);
         if (obj != NULL)
         {
-            obj->be_flag = 1;
+            obj->be_flag = MOVE;
             obj->id      = 0;
             break;
         }

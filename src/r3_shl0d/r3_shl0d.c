@@ -21,7 +21,7 @@ void func_800D8840(SHL0D_WORK *wp)
     wp->bit_d     = 0;
     wp->value_e   = 0;
     wp->value_f   = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     level             = Player_work.value_55e;
     wp->beam.len_bd   = 8;
@@ -159,7 +159,7 @@ void func_800D8D08(SHL0D_WORK *wp)
         b.vx = (wp->fpos.w.x + step.vx * (uint8)m) >> 16;
         b.vy = (wp->fpos.w.y + step.vy * (uint8)m) >> 16;
         b.vz = (wp->fpos.w.z + step.vz * (uint8)m) >> 16;
-        func_8003430C(&a, bp->size_c0, &b, bp->size_c0, 0x200, 0x4000, wp->slot, &wp->beam.hit[i], bp->flags_c4 | 0x8000000, 0, 0x80);
+        func_8003430C(&a, bp->size_c0, &b, bp->size_c0, 0x200, 0x4000, wp->work_id, &wp->beam.hit[i], bp->flags_c4 | 0x8000000, 0, 0x80);
         wp->beam.hit[i * 2]     = 0;
         wp->beam.hit[i * 2 + 1] = 0;
     }
@@ -174,7 +174,7 @@ void func_800D8D08(SHL0D_WORK *wp)
         b.vx = (wp->fpos.w.x + step.vx * (uint8)(k & 0xF8)) >> 16;
         b.vy = (wp->fpos.w.y + step.vy * (uint8)(k & 0xF8)) >> 16;
         b.vz = (wp->fpos.w.z + step.vz * (uint8)(k & 0xF8)) >> 16;
-        func_8003430C(&a, bp->size_c0, &b, bp->size_c0, 0x200, 0x4000, wp->slot, &wp->beam.hit[i], bp->flags_c4 | 0x8000000, 0, 0x80);
+        func_8003430C(&a, bp->size_c0, &b, bp->size_c0, 0x200, 0x4000, wp->work_id, &wp->beam.hit[i], bp->flags_c4 | 0x8000000, 0, 0x80);
         wp->beam.hit[i * 2]     = 0;
         wp->beam.hit[i * 2 + 1] = 0;
     }
@@ -211,9 +211,9 @@ sint32 func_800D9010(SHL0D_WORK *wp)
                 fx = func_80031618();
                 if (fx)
                 {
-                    fx->be_flag = 1;
+                    fx->be_flag = MOVE;
                     fx->id      = 0x8A;
-                    fx->flag_3  = 1;
+                    fx->type    = 1;
                     fx->x_1c    = b.vx;
                     fx->y_1e    = b.vy;
                     fx->z_20    = b.vz;

@@ -16,7 +16,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 reserved02;       // 02
     uint8 type;             // 03
     uint8 reserved04[4];    // 04
@@ -34,7 +34,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;       // 00
-    uint8 slot;          // 01
+    uint8 work_id;       // 01
     uint8 reserved02;    // 02
     uint8 type;          // 03
     uint8 reserved04[4]; // 04

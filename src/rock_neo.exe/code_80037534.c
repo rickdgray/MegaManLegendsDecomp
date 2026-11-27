@@ -175,7 +175,7 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             e = func_80031618();
             if (e != 0)
             {
-                e->be_flag = 5;
+                e->be_flag = MOVE | MODEL;
                 e->id      = 0x80;
                 e->type    = 2;
                 r          = rand();
@@ -199,7 +199,7 @@ void func_80037890(sint32 n0, sint32 n1, uint16 id)
             if (e != 0)
             {
                 e->id      = 0x83;
-                e->be_flag = 1;
+                e->be_flag = MOVE;
                 e->type    = 2;
                 r          = rand();
                 a          = j * step1 - (r & 0x1F);

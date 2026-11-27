@@ -11,7 +11,7 @@ void func_80111300(STAGE_OBJ50 *wp)
     }
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     if ((uint32)((uint16)STAGE_PL.rotation.y - 0x3AC) >= 0x8A9)
@@ -79,7 +79,7 @@ void func_801113A4(void)
                             wp = func_80031734();
                             if (wp != NULL)
                             {
-                                wp->be_flag = 5;
+                                wp->be_flag = MOVE | MODEL;
                                 wp->id      = 0x34;
                                 wp->type    = list[k].spawn_E[i] >> 4;
                                 Model_work_init(wp, &wp->type);
@@ -151,7 +151,7 @@ void func_80111830(STAGE_OBJ50 *wp)
     flag          = 0;
     wp->routine_0 = 7;
     wp->model_10  = D_80115294;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (wp->type == 0)
     {
         switch (Game_work.value_51)
@@ -269,7 +269,7 @@ void func_80111AF0(STAGE_PANEL_WORK *wp)
     {
         Sound_key_off_voice(0x10);
         wp->routine_0++;
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
         STAGE_CELLS[wp->cell_44].value = wp->matrix.words[6];
     }
 }
@@ -398,7 +398,7 @@ void func_80111D78(void)
                         if (wp != NULL)
                         {
                             done0       = 1;
-                            wp->be_flag = 5;
+                            wp->be_flag = MOVE | MODEL;
                             wp->id      = 0x35;
                             if (k == 0)
                             {
@@ -447,7 +447,7 @@ void func_80111D78(void)
                             if (wp != NULL)
                             {
                                 done1       = 1;
-                                wp->be_flag = 5;
+                                wp->be_flag = MOVE | MODEL;
                                 wp->id      = 0x35;
                                 if (j == 1)
                                 {

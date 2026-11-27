@@ -22,7 +22,7 @@ typedef union
 struct STCOM21_WORK
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01: pool id and slot
+    uint8 work_id;         // 01: pool id and slot
     uint8 id;              // 02
     uint8 type;            // 03
     uint8 reserved04[4];   // 04
@@ -55,7 +55,7 @@ typedef void (*STCOM21_FUNC)(STCOM21_WORK *wp);
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 id;                          // 02
     uint8 type;                        // 03
     uint8 handler;                     // 04

@@ -271,7 +271,7 @@ typedef struct ST02_SPARK ST02_SPARK;
 struct ST02_SPARK
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 id;               // 02
     uint8 type;             // 03
     uint8 reserved04[2];    // 04
@@ -281,10 +281,10 @@ struct ST02_SPARK
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B: emitter: frames to the next spark
-    sint8 value_C;          // 0C
-    sint8 timer_D;          // 0D
-    sint8 width_E;          // 0E: emitter: the sparks' width
-    sint8 type_F;           // 0F: growth per frame
+    sint8 work_0;           // 0C
+    sint8 timer_D;          // 0D (Capcom: work_1)
+    sint8 width_E;          // 0E: emitter: the sparks' width (Capcom: work_2)
+    sint8 type_F;           // 0F: growth per frame (Capcom: work_3)
     uint8 reserved10[4];    // 10
     uint32 mode_14;         // 14
     uint32 color_18;        // 18
@@ -362,7 +362,7 @@ extern uint32 D_8010A5DC;
 typedef struct
 {
     uint8 be_flag;        // 00
-    uint8 slot;           // 01
+    uint8 work_id;        // 01
     uint8 reserved02[6];  // 02
     uint8 routine_0;      // 08
     uint8 routine_1;      // 09

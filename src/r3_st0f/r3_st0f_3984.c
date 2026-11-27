@@ -7,7 +7,7 @@ void func_80103984(ST0F_OBJ *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_801060F4[wp->routine_0](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -70,7 +70,7 @@ void func_80103A74(ST0F_OBJ *wp)
                 if (func_8003A13C() == 0)
                 {
                     pl->flags_bd &= ~0x40;
-                    pl->be_flag |= 2;
+                    pl->be_flag |= TRANS;
                     wp->routine_1 = 1;
                 }
             }
@@ -84,7 +84,7 @@ void func_80103C28(ST0F_OBJ *wp)
     wp->value_64   = 0x80;
     wp->rotation.z = 0;
     wp->rotation.x = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->ctl.angle_0 = wp->rotation.y;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
@@ -110,7 +110,7 @@ sint32 func_80103CD8(ST0F_OBJ *wp)
     {
         wp->value_64   = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
         pl->target_184 = NULL;
-        pl->be_flag &= ~2;
+        pl->be_flag &= ~TRANS;
         pl->flags_bd |= 0x40;
         D_801061A0.x = wp->value_180.x;
         D_801061A0.y = wp->value_180.y - 0x20;
@@ -151,7 +151,7 @@ void func_80103E70(ST0F_OBJ *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010612C[wp->type](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }

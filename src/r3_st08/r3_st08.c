@@ -202,7 +202,7 @@ void func_80100984(STAGE_ROOM *wp)
         obj = func_80031734();
         if (obj != NULL)
         {
-            obj->be_flag = 1;
+            obj->be_flag = MOVE;
             obj->id      = 0x33;
         }
         wp->routine_4 = 0xFF;
@@ -610,7 +610,7 @@ void func_80101604(STAGE_ROOM *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag   = 1;
+            obj->be_flag   = MOVE;
             obj->id        = 8;
             obj->routine_0 = 2;
         }
@@ -642,7 +642,7 @@ void func_80101798(void)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag = 1;
+            obj->be_flag = MOVE;
             obj->id      = 8;
             obj->type    = i;
         }
@@ -650,13 +650,13 @@ void func_80101798(void)
     shot = Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->be_flag = 1;
+        shot->be_flag = MOVE;
         shot->id      = 0x21;
     }
     item = func_80031734();
     if (item != NULL)
     {
-        item->be_flag = 1;
+        item->be_flag = MOVE;
         item->id      = 0x1F;
         item->type    = 1;
     }
@@ -940,7 +940,7 @@ void func_80101FE0(STAGE_ROOM *wp)
             {
                 pl->routine_0 = 3;
                 pl->routine_1 = 0;
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
                 wp->routine_5 = 0;
                 wp->routine_6 = 0;
                 wp->routine_7 = 0;
@@ -1017,7 +1017,7 @@ void func_801021D8(STAGE_ROOM *wp)
             D_800C356D = 0;
             D_800C3571 = 0xFF;
             D_800C3570 = 2;
-            pl->be_flag |= 3;
+            pl->be_flag |= MOVE | TRANS;
             Sce_flag_on(0x22E);
             wp->flags_0 = 0;
             break;
@@ -1094,7 +1094,7 @@ void func_80102498(STAGE_ROOM *wp)
             vec.y = actor->position.y - 0x92;
             vec.z = actor->position.z;
             func_80039FFC(&vec, 0xD4, Angle_xz_svector(&pos, &pl->position), 0);
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             wp->routine_5++;
             break;
         case 1:
@@ -1102,9 +1102,9 @@ void func_80102498(STAGE_ROOM *wp)
             actor->rotation.v.y += turn;
             if (!func_8003A13C() && turn == 0)
             {
-                actor->value_D = 9;
-                actor->value_E = 1;
-                wp->frame_10   = 0x10;
+                actor->work_1 = 9;
+                actor->work_2 = 1;
+                wp->frame_10  = 0x10;
                 wp->routine_5++;
             }
             break;
@@ -1118,9 +1118,9 @@ void func_80102498(STAGE_ROOM *wp)
         case 3:
             if (!(Moji_flag & 0x8000000))
             {
-                actor->value_D = 5;
-                actor->value_E = 1;
-                wp->frame_10   = 0x22;
+                actor->work_1 = 5;
+                actor->work_2 = 1;
+                wp->frame_10  = 0x22;
                 wp->routine_5++;
             }
             break;
@@ -1129,15 +1129,15 @@ void func_80102498(STAGE_ROOM *wp)
             {
                 func_80039E50();
                 actor->rotation.v.y     = 0xA78;
-                actor->value_D          = 6;
-                actor->value_E          = 1;
+                actor->work_1           = 6;
+                actor->work_2           = 1;
                 actor->position.x       = -0x4CE;
                 actor->position.z       = 0x71C;
                 actor->position_fixed.x = actor->position_fixed_prev.x = actor->position.x << 16;
                 actor->position_fixed.z = actor->position_fixed_prev.z = actor->position.z << 16;
                 pl->pos_438.x                                          = -0x514;
                 pl->pos_438.z                                          = 0x692;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 pl->flags_bd |= 0x10;
                 pl->fixed_428.x = pl->pos_438.x << 16;
                 pl->fixed_428.z = pl->pos_438.z << 16;
@@ -1156,18 +1156,18 @@ void func_80102498(STAGE_ROOM *wp)
         case 5:
             if (--wp->frame_10 == 0)
             {
-                actor->value_D = 7;
-                actor->value_E = 1;
-                wp->frame_10   = 0x2D;
+                actor->work_1 = 7;
+                actor->work_2 = 1;
+                wp->frame_10  = 0x2D;
                 wp->routine_5++;
             }
             break;
         case 6:
             if (--wp->frame_10 == 0)
             {
-                actor->value_D = 9;
-                actor->value_E = 1;
-                wp->frame_10   = 0x14;
+                actor->work_1 = 9;
+                actor->work_2 = 1;
+                wp->frame_10  = 0x14;
                 wp->routine_5++;
             }
             break;
@@ -1175,17 +1175,17 @@ void func_80102498(STAGE_ROOM *wp)
             if (--wp->frame_10 == 0)
             {
                 MojiTaskExec2(0, 0x1C);
-                actor->value_D = 10;
-                actor->value_E = 1;
+                actor->work_1 = 10;
+                actor->work_2 = 1;
                 wp->routine_5++;
             }
             break;
         case 8:
             if (!(Moji_flag & 0x8000000))
             {
-                actor->value_D = 0xD;
-                actor->value_E = 1;
-                wp->frame_10   = 10;
+                actor->work_1 = 0xD;
+                actor->work_2 = 1;
+                wp->frame_10  = 10;
                 wp->routine_5++;
             }
             break;
@@ -1195,8 +1195,8 @@ void func_80102498(STAGE_ROOM *wp)
             if (turn == 0)
             {
                 MojiTaskExec2(0, 0x24);
-                actor->value_D = 8;
-                actor->value_E = 1;
+                actor->work_1 = 8;
+                actor->work_2 = 1;
                 wp->routine_5++;
             }
             break;
@@ -1219,8 +1219,8 @@ void func_80102498(STAGE_ROOM *wp)
                 pos.z                   = -0x1E0;
                 actor->rotation.v.y     = Angle_xz_svector(&actor->position, &pos);
                 actor->velocity.v.x     = 0x320;
-                actor->value_D          = 2;
-                actor->value_E          = 1;
+                actor->work_1           = 2;
+                actor->work_2           = 1;
                 pl->flags_bd |= 0x10;
                 pl->rot_440.y = Angle_xz_svector(&pl->pos_438, &actor->position);
                 wp->routine_5++;

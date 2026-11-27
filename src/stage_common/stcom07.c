@@ -14,7 +14,7 @@ void stcom07_func_0000(STCOM07_WORK *wp)
 
 void stcom07_func_003C(STCOM07_WORK *wp)
 {
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;

@@ -46,7 +46,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
@@ -57,7 +57,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01: pool id and slot (func_80036294)
+    uint8 work_id;                          // 01: pool id and slot (func_80036294)
     uint8 id;                               // 02: first index into the pool's handler table
     uint8 type;                             // 03
     uint8 handler;                          // 04: second index (two-level tables)
@@ -80,7 +80,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 id;               // 02
     uint8 type;             // 03
     uint8 reserved04[4];    // 04

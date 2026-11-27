@@ -20,7 +20,7 @@ void stcom25_func_003C(STCOM25_WORK *wp)
     wp->ctl.nodes_0 = stcom25_D_03B4[wp->course_C];
     wp->ctl.start_4 = stcom25_D_03E0[wp->course_C];
     wp->ctl.order_8 = stcom25_D_040C[wp->course_C];
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->position.x       = (wp->ctl.start_4[wp->start_D].x_0 - 0x40) << 9;
     wp->position.y       = 0;
     wp->position.z       = (wp->ctl.start_4[wp->start_D].z_1 - 0x40) << 9;

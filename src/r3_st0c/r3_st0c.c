@@ -29,7 +29,7 @@ void func_80100168(STAGE_ROOM *wp)
                 owner->id               = 0x11;
                 owner->position.x       = -0x1AFF;
                 i                       = 3;
-                owner->be_flag          = 1;
+                owner->be_flag          = MOVE;
                 owner->position.y       = -1;
                 owner->type             = 0;
                 owner->position_fixed.x = owner->position.x << 16;
@@ -155,7 +155,7 @@ void func_80100168(STAGE_ROOM *wp)
             if (pl->position.z < 0x1C20)
             {
                 D_800C0F96 = 0;
-                D_801129A0->be_flag |= 6;
+                D_801129A0->be_flag |= TRANS | MODEL;
                 func_8001E6C0(0, 0, 0);
                 D_800BC7F0    = D_8010BF78;
                 wp->tbl_A4    = (STAGE_ROOM2_FUNC *)D_8010C088;
@@ -279,7 +279,7 @@ void func_80100A40(STAGE_ROOM *wp)
     STAGE_PL.value_440        = 0x400;
     STAGE_PL.value_442        = 0;
     STAGE_PL.value_444        = 0;
-    obj->be_flag |= 6;
+    obj->be_flag |= TRANS | MODEL;
     D_801129A0->routine_1        = 3;
     D_801129A0->u_C.b[0]         = 0;
     D_801129A0->position.x       = -0x1ADA;
@@ -539,10 +539,10 @@ void func_80101350(uint8 arg0)
 
 void func_80101398(ST0C_OBJ *wp)
 {
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         wp->value_448 = 0;
-        wp->u_C.b.byte_D++;
+        wp->u_C.b.work_1++;
     }
 }
 
@@ -550,21 +550,21 @@ void func_801013C0(ST0C_OBJ *wp)
 {
     sint8 temp_v1;
 
-    temp_v1 = wp->u_C.b.byte_D;
+    temp_v1 = wp->u_C.b.work_1;
     switch (temp_v1)
     {
         case 0:
             wp->value_448    = 0xD;
-            wp->u_E.b.byte_E = 0;
-            wp->u_C.b.byte_D++;
+            wp->u_E.b.work_2 = 0;
+            wp->u_C.b.work_1++;
             return;
         case 1:
-            wp->u_E.b.byte_E++;
+            wp->u_E.b.work_2++;
             wp->value_430 += 0xFFFB0000;
-            if (wp->u_E.b.byte_E == 0x1E)
+            if (wp->u_E.b.work_2 == 0x1E)
             {
-                wp->u_C.b.byte_C = 0;
-                wp->u_C.b.byte_D = 0;
+                wp->u_C.b.work_0 = 0;
+                wp->u_C.b.work_1 = 0;
             }
             return;
     }
@@ -574,12 +574,12 @@ void func_8010143C(ST0C_OBJ *wp)
 {
     sint8 temp_v1;
 
-    temp_v1 = wp->u_C.b.byte_D;
+    temp_v1 = wp->u_C.b.work_1;
     switch (temp_v1)
     {
         case 0:
             wp->value_448 = 0xC;
-            wp->u_C.b.byte_D++;
+            wp->u_C.b.work_1++;
             return;
         case 1:
             wp->value_430 += 0x50000;
@@ -589,12 +589,12 @@ void func_8010143C(ST0C_OBJ *wp)
 
 void func_8010148C(ST0C_OBJ *wp)
 {
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         wp->value_448 = 0x80;
         wp->value_168 = 0;
         wp->value_169 = 0;
-        wp->u_C.b.byte_D++;
+        wp->u_C.b.work_1++;
     }
 }
 
@@ -658,9 +658,9 @@ void func_801015E0(STAGE_ROOM *wp)
         fx = (STAGE_FX *)func_80031618();
         if (fx != NULL)
         {
-            fx->be_flag = 1;
+            fx->be_flag = MOVE;
             fx->id      = 5;
-            fx->value_C = 5;
+            fx->work_0  = 5;
             fx->frame_E = 2;
             fx->x_1C    = 0x85;
             fx->y_1E    = -0x16E;
@@ -695,17 +695,17 @@ void func_801016DC(STAGE_ROOM *wp)
         {
             func_80101350(0);
         }
-        wp->child_24->be_flag &= ~2;
+        wp->child_24->be_flag &= ~TRANS;
         pl->routine_C = 3;
         pl->value_D   = 0;
     }
     if (wp->frame_10 == 1)
     {
-        pl->be_flag &= ~1;
+        pl->be_flag &= ~MOVE;
     }
     if (wp->frame_10 == 0x14)
     {
-        pl->be_flag |= 1;
+        pl->be_flag |= MOVE;
     }
 }
 
@@ -862,7 +862,7 @@ void func_801019A8(STAGE_ROOM *wp)
                 }
                 wp->flags_0 = 0;
                 Cd_subcmd(0, 1, 0);
-                STAGE_PL.be_flag |= 1;
+                STAGE_PL.be_flag |= MOVE;
                 func_80042314(&Player_work);
             }
             break;

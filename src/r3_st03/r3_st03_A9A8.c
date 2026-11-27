@@ -193,7 +193,7 @@ void func_8010AEEC(ST03_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     func_8010AFC0(wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -341,7 +341,7 @@ void func_8010B2CC(ST03_ACTOR *wp)
     sint16 y;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -365,7 +365,7 @@ void func_8010B370(ST03_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     func_8010B444(wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -437,8 +437,8 @@ void func_8010B444(ST03_ACTOR *wp)
             {
                 wp->routine_0 = wp->routine_1 = wp->routine_2 = wp->routine_3 = 0;
                 wp->timer_C                                                   = 0x5C;
-                wp->value_D = wp->value_E = wp->value_F = 0;
-                wp->value_4                             = 0;
+                wp->work_1 = wp->work_2 = wp->work_3 = 0;
+                wp->value_4                          = 0;
             }
             break;
     }
@@ -450,7 +450,7 @@ void func_8010B63C(ST03_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -480,7 +480,7 @@ void func_8010B6D0(ST03_OBJ *wp)
     wp->value_70               = 0;
     wp->value_74               = 0;
     wp->rotation.y             = 0x800;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->rotation_prev      = wp->rotation;
     wp->position.x         = -0x9C0;
     wp->position.y         = -1;
@@ -522,14 +522,14 @@ void func_8010B858(ST03_ACTOR *wp)
     {
         func_80051B68(wp, 1, -1, 0);
     }
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80032488(wp);
     }
     else
     {
-        func_800322A8(wp, wp->value_E, 0);
-        wp->value_D = 0;
+        func_800322A8(wp, wp->work_2, 0);
+        wp->work_1 = 0;
     }
     Model_Shadow_Trans(wp, 0x30, 0x200, 0);
 }

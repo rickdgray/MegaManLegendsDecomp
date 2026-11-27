@@ -79,7 +79,7 @@ void player_work_init(PL_WORK *pl, sint32 load)
     }
     else
     {
-        pl->be_flag               = 3;
+        pl->be_flag               = MOVE | TRANS;
         pl->flags                 = 3;
         *(uint16 *)&pl->id        = 0; // id, type
         *(uint16 *)&pl->flag_4    = 0; // flag_4, flag_5
@@ -216,7 +216,8 @@ void func_8003C2D8(void)
         func_8003C4EC(&Player_work[0]);
         if (Player_work[0].unk449 == 0 && Player_work[0].unk110 == 0)
         {
-            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].slot, &Player_work[0].owner_188, 0x2000000, 0x800000, 0);
+            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].work_id, &Player_work[0].owner_188, 0x2000000, 0x800000,
+                          0);
         }
     }
     if ((sint8)Player_work[1].be_flag & Player_work[1].flags & 1)
@@ -224,7 +225,7 @@ void func_8003C2D8(void)
         func_8003C4EC(&Player_work[1]);
         if (Player_work[1].unk449 == 0 && Player_work[1].unk110 == 0)
         {
-            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].slot, &Player_work[1].owner_188, 0x2000000,
+            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].work_id, &Player_work[1].owner_188, 0x2000000,
                           0x800000, 0);
         }
     }
@@ -336,7 +337,7 @@ void func_8003C4EC(PL_WORK *pl)
     func_8002D004(pl, pl->unk168, pl->unk169);
     Pl_pose_unpack(pl);
     Pl_joint_mtx_set(pl);
-    if (pl->be_flag & 2)
+    if (pl->be_flag & TRANS)
     {
         Pl_Shadow_Trans(pl, 0x32, 0x2AB, 0);
     }
@@ -780,7 +781,7 @@ void func_8003D1E0(PL_WORK *pl)
                 wp = func_80031618();
                 if (wp != NULL)
                 {
-                    wp->be_flag = 1;
+                    wp->be_flag = MOVE;
                     wp->id      = 0x89;
                     wp->type    = 0;
                 }
@@ -790,7 +791,7 @@ void func_8003D1E0(PL_WORK *pl)
                 wp = func_80031618();
                 if (wp != NULL)
                 {
-                    wp->be_flag = 1;
+                    wp->be_flag = MOVE;
                     wp->id      = 0x89;
                     wp->type    = 1;
                 }
@@ -929,7 +930,7 @@ void func_8003D1E0(PL_WORK *pl)
             wp = func_80031618();
             if (wp != NULL)
             {
-                wp->be_flag = 1;
+                wp->be_flag = MOVE;
                 wp->id      = 0x89;
                 wp->type    = 1;
             }
@@ -939,7 +940,7 @@ void func_8003D1E0(PL_WORK *pl)
             wp = func_80031618();
             if (wp != NULL)
             {
-                wp->be_flag = 1;
+                wp->be_flag = MOVE;
                 wp->id      = 0x89;
                 wp->type    = 0;
             }
@@ -1813,7 +1814,7 @@ void func_8003EB08(PL_WORK *pl)
                 pos.vz += pl->hit_78->min_4 - 1;
             }
             pos.vy -= 0x98;
-            h = func_80048EA4(&pos, 0, 0, pl->slot) + 0x98;
+            h = func_80048EA4(&pos, 0, 0, pl->work_id) + 0x98;
             if (ABS(pl->pos.vy - h) < 0x20)
             {
                 pl->pos.vy   = h;
@@ -2974,8 +2975,8 @@ sint32 func_80040818(PL_WORK *pl)
     }
     from.vy -= 0x98;
     to.vy -= 0x98;
-    floor = func_80048EA4(&from, 0, 0, pl->slot);
-    if (floor != func_80048EA4(&to, 0, 0, pl->slot))
+    floor = func_80048EA4(&from, 0, 0, pl->work_id);
+    if (floor != func_80048EA4(&to, 0, 0, pl->work_id))
     {
         return 0;
     }
@@ -3213,7 +3214,7 @@ sint32 front_box_search(PL_WORK *pl)
     {
         for (wp3c0 = D_8009F108, i = 0; i < 16; i++, wp3c0++)
         {
-            if ((wp3c0->be_flag & 3) == 3 && wp3c0->box_10 != NULL)
+            if ((wp3c0->be_flag & (MOVE | TRANS)) == 3 && wp3c0->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &wp3c0->pos, &wp3c0->ang, wp3c0->box_10);
                 if (dist != 0 && dist < best)
@@ -3225,7 +3226,7 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (wp5a4 = D_800C3580, i = 0; i < 4; i++, wp5a4++)
         {
-            if ((wp5a4->be_flag & 3) == 3 && wp5a4->box_10 != NULL)
+            if ((wp5a4->be_flag & (MOVE | TRANS)) == 3 && wp5a4->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &wp5a4->pos, &wp5a4->ang, wp5a4->box_10);
                 if (dist != 0 && dist < best)
@@ -3237,7 +3238,7 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (shl = D_8009CF88, i = 0; i < 32; i++, shl++)
         {
-            if ((shl->be_flag & 3) == 3 && shl->id < 0x80 && shl->box_10 != NULL)
+            if ((shl->be_flag & (MOVE | TRANS)) == 3 && shl->id < 0x80 && shl->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &shl->pos, &shl->ang, shl->box_10);
                 if (dist != 0 && dist < best)
@@ -3249,9 +3250,9 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (wp50 = D_800BF118, i = 0; i < 32; i++, wp50++)
         {
-            if ((wp50->be_flag & 3) == 3 && wp50->box_10 != NULL)
+            if ((wp50->be_flag & (MOVE | TRANS)) == 3 && wp50->box_10 != NULL)
             {
-                if (wp50->be_flag & 4)
+                if (wp50->be_flag & MODEL)
                 {
                     pos.vx = wp50->efc.model.pos.vx;
                     pos.vy = wp50->efc.model.pos.vy;
@@ -3777,7 +3778,7 @@ sint32 func_80042238(PL_WORK *pl)
 {
     pl->unk449 = -1;
     pl->flags_BD |= 0x40;
-    if (pl->be_flag & 1)
+    if (pl->be_flag & MOVE)
     {
         if (pl->routine_0 == 1)
         {
@@ -3826,9 +3827,9 @@ void func_80042314(PL_WORK *pl)
     *(uint32 *)&pl->owner_188.vec_8.vz = 0; // vz, pad
     pl->unk168                         = 0;
     pl->unk169                         = 0;
-    if (pl->be_flag & 1)
+    if (pl->be_flag & MOVE)
     {
-        pl->be_flag = 3;
+        pl->be_flag = MOVE | TRANS;
         pl->flags   = 3;
         if (pl->routine_0 == 3)
         {
@@ -3915,7 +3916,7 @@ sint32 func_80042458(PL_WORK *pl)
 
 void func_800424D4(PL_WORK *pl, W48_80_WORK *wp)
 {
-    wp->be_flag = 7;
+    wp->be_flag = MOVE | TRANS | MODEL;
     wp->id      = 0x80;
     wp->type    = 2;
     wp->pos_38  = pl->joint_pos[pl->routine_2 >> 1];
@@ -3923,7 +3924,7 @@ void func_800424D4(PL_WORK *pl, W48_80_WORK *wp)
 
 void func_80042528(PL_WORK *pl, W48_83_WORK *wp, sint16 n)
 {
-    wp->be_flag = 3;
+    wp->be_flag = MOVE | TRANS;
     wp->id      = 0x83;
     wp->type    = 0;
     switch (n)

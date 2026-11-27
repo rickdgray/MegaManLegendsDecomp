@@ -10,7 +10,7 @@ void func_8010207C(sint8 index)
     if (stcom36_D_0000 & (0x80000000 >> index))
     {
         obj  = stcom36_E2_0000[index];
-        kind = func_8002FE74(obj->slot);
+        kind = func_8002FE74(obj->work_id);
         if (kind == 0x20 || kind == 0x60)
         {
             obj->routine_0 = 2;

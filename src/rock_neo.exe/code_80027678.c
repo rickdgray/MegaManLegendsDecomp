@@ -386,7 +386,7 @@ void func_8002831C(MODEL_WORK *wp)
         {
             continue;
         }
-        if ((wp->slot & 0xE0) == 0x40)
+        if ((wp->work_id & 0xE0) == 0x40)
         {
             gte_MulMatrix0(&Scratch_view_mtx, &((WORK_5A4 *)wp)->mtx_240[i], &Scratch_mtx);
         }
@@ -662,7 +662,7 @@ void Model_parts_draw(MODEL_WORK *wp)
         {
             continue;
         }
-        if ((wp->slot & 0xE0) == 0x40)
+        if ((wp->work_id & 0xE0) == 0x40)
         {
             gte_MulMatrix0(&Scratch_view_mtx, &((WORK_5A4 *)wp)->mtx_240[i], &Scratch_mtx);
         }

@@ -12,7 +12,7 @@
 typedef struct
 {
     sint8 be_flag;   // 00
-    uint8 slot;      // 01
+    uint8 work_id;   // 01
     uint8 id;        // 02
     uint8 type;      // 03
     uint8 reserved4; // 04
@@ -26,8 +26,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_C; // 0C
-            sint8 byte_D; // 0D
+            sint8 work_0; // 0C
+            sint8 work_1; // 0D
         } b;
         sint16 timer; // 0C
     } u_C;
@@ -35,8 +35,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_E; // 0E
-            sint8 byte_F; // 0F
+            sint8 work_2; // 0E
+            sint8 work_3; // 0F
         } b;
         sint16 angle; // 0E
     } u_E;
@@ -171,7 +171,7 @@ typedef void (*ST0C_WHEEL_FUNC)(ST0C_WHEEL *wp);
 struct ST0C_WHEEL
 {
     uint8 be_flag;             // 00
-    uint8 slot;                // 01
+    uint8 work_id;             // 01
     uint8 reserved02;          // 02
     uint8 type;                // 03
     uint8 reserved04[4];       // 04
@@ -214,7 +214,7 @@ typedef void (*ST0C_VIEW_FUNC)(ST0C_VIEW *wp);
 struct ST0C_VIEW
 {
     sint8 be_flag;        // 0
-    uint8 slot;           // 1
+    uint8 work_id;        // 1
     uint8 id;             // 2
     uint8 type;           // 3
     uint8 value_4;        // 4
@@ -295,7 +295,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag;              // 00
-    uint8 slot;                 // 01
+    uint8 work_id;              // 01
     uint8 value_2;              // 02
     uint8 type;                 // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];        // 04
@@ -334,9 +334,9 @@ typedef struct
 typedef struct
 {
     sint8 be_flag;          // 00
-    uint8 slot;             // 01
+    uint8 work_id;          // 01
     uint8 id;               // 02
-    uint8 flag_3;           // 03
+    uint8 type;             // 03
     uint8 reserved04[0x18]; // 04
     sint16 x_1C;            // 1C
     sint16 y_1E;            // 1E
@@ -355,7 +355,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                     // 00
-    uint8 slot;                        // 01
+    uint8 work_id;                     // 01
     uint8 reserved02[10];              // 02
     sint8 routine_C;                   // 0C
     sint8 value_D;                     // 0D
@@ -375,7 +375,7 @@ typedef void (*ST0C_PL_FUNC)(ST0C_PL *wp);
 typedef struct
 {
     sint8 be_flag; // 00
-    uint8 slot;    // 01
+    uint8 work_id; // 01
     uint8 id;      // 02
     uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];

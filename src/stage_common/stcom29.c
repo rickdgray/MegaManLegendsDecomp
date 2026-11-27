@@ -87,7 +87,7 @@ void stcom29_func_013C(STCOM29_WORK *wp)
             break;
         case 5:
             func_80042314(pl);
-            pl->be_flag |= 2;
+            pl->be_flag |= TRANS;
             Sce_flag_off(0x60D);
             wp->script_C  = 1;
             wp->step_D    = 0;
@@ -310,7 +310,7 @@ void stcom29_func_09A4(STCOM29_WORK *wp)
             {
                 func_80042314(&Player_work);
                 pl->target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
                 Sce_flag_off(0x60C);

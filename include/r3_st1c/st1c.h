@@ -8,7 +8,7 @@
 typedef struct
 {
     sint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
@@ -16,8 +16,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    uint8 reserved0D[3];                    // 0D
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -41,7 +43,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 id;              // 02
     uint8 type;            // 03
     uint8 reserved04[4];   // 04
@@ -97,8 +99,8 @@ void func_80102FD0(ST1C_OBJ *wp);
 void func_80103178(ST1C_OBJ *wp);
 void Sce_flag_off(sint32 flag);
 void func_8001E3F0(sint32 arg);
-extern STCOM_SVECTOR D_80104484[]; // position and y rotation by value_C (func_801034C8)
-extern uint8 D_801044C4[];         // variant by value_C
+extern STCOM_SVECTOR D_80104484[]; // position and y rotation by work_0 (func_801034C8)
+extern uint8 D_801044C4[];         // variant by work_0
 extern uint8 D_801044CC[];
 void func_801034C8(ST1C_OBJ50 *wp);
 

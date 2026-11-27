@@ -15,7 +15,7 @@ void stcom21_func_0000(STCOM21_WORK *wp)
     stcom21_D_0000[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x50;
-    func_800341BC(&pos, 0x64, 0, 0x8000, wp->slot, &wp->y_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x64, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
     wp->y_48.value = 0;
 }
 
@@ -25,7 +25,7 @@ void stcom21_func_00C0(STCOM21_WORK *wp)
     STCOM_FIXED_VECTOR unused;
     sint32 flag;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     STCOM21_IDENTITY(&wp->matrix);
     RotMatrixY((wp->type & 3) << 10, &wp->matrix.m);
@@ -387,7 +387,7 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag         = 1;
+                effect->be_flag         = MOVE;
                 effect->id              = 0xB;
                 effect->type            = 3;
                 effect->timer_E         = 0x14;
@@ -432,13 +432,13 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag           = 5;
+                effect->be_flag           = MOVE | MODEL;
                 effect->id                = 0x80;
                 effect->type              = 0x41;
                 effect->sprite.position   = wp->pos_38;
                 effect->sprite.position.y = wp->pos_38.y - 0x64;
                 wp->u_44.effect           = effect;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
                 if (!(wp->value_C & 8))
                 {
                     stcom21_func_0D9C();
@@ -571,7 +571,7 @@ void stcom21_func_0EC4(STCOM21_WORK *wp)
     // Never used; it reserves retail's frame.
     STCOM_FIXED_VECTOR unused;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     if (wp->type == 0)
     {
         wp->u_44.flag  = wp->pos_38.pad;
@@ -597,7 +597,7 @@ void stcom21_func_0F74(STCOM21_WORK *wp)
         func_80051B68(wp, 7, 0, 0);
         pos = wp->pos_38;
         pos.y -= 0x2D;
-        func_800341BC(&pos, 0x28, 0, 0x8000, wp->slot, &wp->y_48, 0x4000000, 0, 0x80);
+        func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
         wp->y_48.value = 0;
     }
 }
@@ -610,7 +610,7 @@ void stcom21_func_1044(STCOM21_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->be_flag           = 5;
+        effect->be_flag           = MOVE | MODEL;
         effect->id                = 0x80;
         effect->type              = 0x41;
         effect->sprite.position   = wp->pos_38;
@@ -703,7 +703,7 @@ void stcom21_func_11A0(STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
             }
@@ -869,7 +869,7 @@ void stcom21_func_1908(STCOM21_WORK *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag          = 1;
+            obj->be_flag          = MOVE;
             obj->id               = 0x10;
             obj->handler          = 1;
             obj->position         = wp->pos_38;
@@ -890,7 +890,7 @@ void stcom21_func_19D0(STCOM21_WORK *wp)
     stcom21_D_0078[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x2D;
-    func_800341BC(&pos, 0x32, 0, 0x8000, wp->slot, &wp->y_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x32, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
     wp->y_48.value = 0;
 }
 
@@ -899,7 +899,7 @@ void stcom21_func_1A90(STCOM21_WORK *wp)
     // Never used; it reserves retail's frame.
     STCOM_FIXED_VECTOR unused;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->u_44.flag  = wp->pos_38.pad;
     wp->pos_38.pad = 0;
     Model_work_init(wp, &wp->type);
@@ -976,7 +976,7 @@ void stcom21_func_1B74(STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -992,7 +992,7 @@ void stcom21_func_1D60(STCOM21_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->be_flag           = 5;
+        effect->be_flag           = MOVE | MODEL;
         effect->id                = 0x80;
         effect->type              = 0x41;
         effect->sprite.position   = wp->pos_38;

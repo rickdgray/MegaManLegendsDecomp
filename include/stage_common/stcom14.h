@@ -12,7 +12,7 @@
 
 typedef void (*STCOM14_FUNC)(STCOM_EFFECT *wp);
 
-extern STCOM14_FUNC stcom14_D_0000[]; // handlers by type while value_D is 0
+extern STCOM14_FUNC stcom14_D_0000[]; // handlers by type while work_1 is 0
 extern STCOM14_FUNC stcom14_D_0010[]; // handlers by type otherwise
 
 // ROCK_NEO.EXE: frees a 0x48-byte work slot.

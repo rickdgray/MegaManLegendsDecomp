@@ -18,7 +18,7 @@ typedef struct
 typedef struct
 {
     STCOM25_NODE *nodes_0; // CC
-    STCOM25_NODE *start_4; // D0: start records, by param_D
+    STCOM25_NODE *start_4; // D0: start records, by work_1
     uint8 *order_8;        // D4: node order for the scripted course (start next[0] == 6)
     uint8 dir_C;           // D8: direction it rolls, 0..3
     uint8 dir_D;           // D9
@@ -39,7 +39,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 id;                               // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04

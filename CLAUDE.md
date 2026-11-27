@@ -350,7 +350,9 @@ What decompilers show vs. what to write:
 - **Embedded TIM images:** image data in the binary is often a whole TIM file, read at fixed
   offsets (CLUT pixels at +0x14). Name the symbol `*_tim`.
 - **`routine_N` state machines and table jumps** (`xxx_tbl[wp->routine_0](wp)`) are the house
-  pattern for modes and states. Byte fields `routine_0`…`routine_3` start most `_WORK` structs.
+  pattern for modes and states. Byte fields `routine_0`…`routine_3` start most `_WORK` structs;
+  a pool slot starts with an 8-byte header instead (`be_flag`, `work_id`, `id`, `type`, ...;
+  see "Objects of several kinds") and has `routine_0`…`routine_3` at 0x8-0xB.
 - **GPU primitives:** separate byte stores in the assembly → PsyQ's macros (`setSprt`, `setRGB0`,
   …). A single word store covering several fields → a named macro of ours that expands to that
   one store (e.g. `SET_CODE_RGB(p, code, r, g, b)`). Never an inline function: macros are textual,
@@ -464,7 +466,13 @@ has a type, use it, and grow it: replace the `pad`/`unk` bytes with the field yo
   header of the first file that uses it.
 
 **Objects of several kinds.** A pool slot holds whichever kind of object was opened in it; the
-kind is the id byte at 2 (`id_2`, Capcom's `ep->id`), and the pool update calls `handler[id_2]`.
+kind is the id byte at 2 (`id`, Capcom's `ep->id`), and the pool update calls `handler[id]`.
+Every slot starts with the same header, in Capcom's names: `be_flag` (0x00; bits `MOVE` = 1, live,
+run by the pool update; `TRANS` = 2; `MODEL` = 4, a model; the `#define`s are in
+`code_8002E7A8.h`, `stage_common/rock_neo.h` and `shl/shl.h`), `work_id` (0x01: pool kind
+(0x10 * pool number) | slot index), `id` (0x02), `type` (0x03), `flags` (0x06),
+`routine_0`…`routine_3` (0x08-0x0B) and `work_0`…`work_3` (0x0C-0x0F). Write `be_flag`'s bits with
+the names (`wp->be_flag |= TRANS;`).
 Don't give the generic type a union view for one kind's bytes. Capcom's source handles kinds two
 ways; follow the one the object's layout shows:
 
@@ -602,7 +610,9 @@ goes in the comment (`// 0x158: scale (0x400 = 1), ...`).
 - **Not understood yet: leave the placeholder.** A field whose job isn't known keeps a default
   name with its offset (`pad_C8`, `unk_26`, `field_C4`). Don't invent a temporary name that will
   be replaced later; rename it once its purpose is clear.
-- **Capcom's names keep their own form**, offset digit included: `routine_0` … `routine_3`.
+- **Capcom's names keep their own form**: in `routine_0` … `routine_3` and `work_0` … `work_3`
+  the digit is Capcom's index, not an offset (a pool slot's `routine_0` is at 0x08, `work_0` at
+  0x0C), and they keep those names.
 - **Two fields that seem to want the same name mean the understanding is incomplete.** Fields of
   one struct do different jobs, so their names differ by purpose (`pos` and `pos_saved`), never by
   offset (`pos` and `pos_428`). If you can't tell what sets them apart, leave the second one a

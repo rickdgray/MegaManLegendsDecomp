@@ -88,7 +88,7 @@ void func_8011B00C(ST06_EVENT *wp)
     slot = (ST06_SLOT50 *)func_80031734();
     if (slot != NULL)
     {
-        slot->be_flag = 1;
+        slot->be_flag = MOVE;
         slot->id      = 0x13;
         slot->value_4 = 0;
         slot->type    = 0;
@@ -98,7 +98,7 @@ void func_8011B00C(ST06_EVENT *wp)
     shot = (ST06_SHOT *)Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->be_flag = 1;
+        shot->be_flag = MOVE;
         shot->id      = 0xF;
         shot->type    = 0;
         shot->value_C = 0;
@@ -109,7 +109,7 @@ void func_8011B00C(ST06_EVENT *wp)
         if (fx != NULL)
         {
             D_8012BB20[i] = fx;
-            fx->be_flag   = 1;
+            fx->be_flag   = MOVE;
             fx->id        = 0xC;
             fx->type      = 0;
             fx->value_C   = 0;

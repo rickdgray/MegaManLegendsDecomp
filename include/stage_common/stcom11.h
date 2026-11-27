@@ -9,7 +9,7 @@
 typedef struct
 {
     uint8 be_flag;                          // 00
-    uint8 slot;                             // 01
+    uint8 work_id;                          // 01
     uint8 reserved02;                       // 02
     uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
@@ -17,10 +17,10 @@ typedef struct
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A: animation frame (0, 2, 4, 6)
     uint8 routine_3;                        // 0B: frames left
-    uint8 param_C;                          // 0C: signed speed for type 2
-    sint8 param_D;                          // 0D
-    sint8 timer_E;                          // 0E: frames to the next trail effect
-    uint8 reserved0F;                       // 0F
+    uint8 work_0;                           // 0C: signed speed for type 2
+    sint8 work_1;                           // 0D
+    sint8 timer_E;                          // 0E: frames to the next trail effect (Capcom: work_2)
+    uint8 work_3;                           // 0F
     uint32 value_10;                        // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16

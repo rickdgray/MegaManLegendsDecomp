@@ -16,7 +16,7 @@ typedef union
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 id;              // 02
     uint8 type;            // 03: 0xFF for the spawner
     uint8 reserved04[4];   // 04

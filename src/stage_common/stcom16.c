@@ -20,7 +20,7 @@ void stcom16_func_0000(STCOM16_WORK *wp)
     fade                    = &wp->fade;
     if (wp->type == 2 && wp->routine_0 != 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     stcom16_D_000C[wp->routine_0](wp);
     if (wp->type == 2)
@@ -39,7 +39,7 @@ void stcom16_func_0000(STCOM16_WORK *wp)
             }
             if ((wp->scale.v.pad & 0x8000) && fade->b_2 == 0)
             {
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
             }
         }
     }
@@ -57,7 +57,7 @@ void stcom16_func_01D8(STCOM16_WORK *wp)
     func_8003354C(wp);
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0]      = 0x1000100;
     wp->scale.words[1]      = 0x100;
@@ -82,7 +82,7 @@ void stcom16_func_01D8(STCOM16_WORK *wp)
         wp->velocity.v.x = 0x50;
         wp->routine_1    = 0;
         wp->routine_2    = 0;
-        wp->param_F      = 0;
+        wp->work_3       = 0;
         wp->anim_AC      = 1;
         wp->ctl.timer_3D = 120;
         wp->ctl.count_3C = 0;
@@ -302,7 +302,7 @@ void stcom16_func_0370(STCOM16_WORK *wp)
             {
                 wp->velocity.v.x = 0x50;
                 wp->routine_2    = 0;
-                wp->param_F      = 0;
+                wp->work_3       = 0;
                 wp->ctl.timer_3D = 120;
                 wp->ctl.count_3C = 0;
                 wp->ground.flags_6 &= ~0x81;
@@ -326,23 +326,23 @@ void stcom16_func_0370(STCOM16_WORK *wp)
     {
         if ((wp->scale.v.pad & 0x8000) && fade->b_2 == 0)
         {
-            wp->be_flag &= ~2;
+            wp->be_flag &= ~TRANS;
         }
-        if (!(wp->be_flag & 2))
+        if (!(wp->be_flag & TRANS))
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0x80);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->work_id, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0x80);
         }
         else
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->work_id, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
         }
     }
     else
     {
         ctl->pos_0 = wp->joints_180[0];
-        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
+        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->work_id, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
     }
     if (ground->flags_6 & 2)
     {
@@ -353,14 +353,14 @@ void stcom16_func_0370(STCOM16_WORK *wp)
         ctl->pos_0.x = wp->joints_180[2].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[2].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[2].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->slot, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->work_id, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
         ApplyMatrix(&wp->mats_1E8[4], &claw, &ofs);
         ctl->pos_0.x = wp->joints_180[4].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[4].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[4].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->slot, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->work_id, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
     }
-    if (wp->type != 2 && (wp->be_flag & 2))
+    if (wp->type != 2 && (wp->be_flag & TRANS))
     {
         Model_Shadow_Trans(wp, 0xA0, 0x200, 0);
     }
@@ -446,21 +446,21 @@ void stcom16_func_0E4C(STCOM16_WORK *wp)
             {
                 if (!(wp->stun.rand_2 & 1))
                 {
-                    if (wp->param_F == 0)
+                    if (wp->work_3 == 0)
                     {
                         wp->ctl.count_3C++;
                     }
                     if (wp->ctl.count_3C != 1)
                     {
                         wp->ctl.timer_3D = 120;
-                        wp->param_F      = 0;
+                        wp->work_3       = 0;
                         return;
                     }
                 }
                 wp->routine_2       = 3;
-                wp->param_D         = -0x80;
-                wp->param_E         = 0;
-                wp->param_F         = 3;
+                wp->work_1          = -0x80;
+                wp->work_2          = 0;
+                wp->work_3          = 3;
                 wp->ctl.position_30 = wp->position;
                 wp->ctl.timer_3D    = 10;
                 wp->ctl.count_3C    = 0;
@@ -476,7 +476,7 @@ void stcom16_func_0E4C(STCOM16_WORK *wp)
 
 void stcom16_func_0FB4(STCOM16_WORK *wp)
 {
-    if (wp->param_E == 0)
+    if (wp->work_2 == 0)
     {
         if (wp->rotation.y == ((wp->ctl.angle_38 - 0x400) & 0xFFF))
         {
@@ -519,12 +519,12 @@ void stcom16_func_10A0(STCOM16_WORK *wp)
     wp->ctl.timer_3D = 10;
     if (wp->stun.rand_2 & 1)
     {
-        wp->param_E = 0;
+        wp->work_2  = 0;
         wp->anim_AC = 13;
     }
     else
     {
-        wp->param_E = 1;
+        wp->work_2  = 1;
         wp->anim_AC = 14;
     }
     func_800322A8(wp, wp->anim_AC, 0);
@@ -548,7 +548,7 @@ void stcom16_func_1128(STCOM16_WORK *wp)
     {
         wp->velocity.v.x = 0x50;
         wp->routine_2    = 0;
-        wp->param_F      = 0;
+        wp->work_3       = 0;
         wp->ctl.count_3C = 0;
         wp->anim_AC      = 1;
         wp->ground.flags_6 &= ~1;
@@ -1047,7 +1047,7 @@ void stcom16_func_2068(STCOM16_WORK *wp)
         wp->velocity.v.x = 0x50;
         wp->routine_1    = 0;
         wp->routine_2    = 0;
-        wp->param_F      = 0;
+        wp->work_3       = 0;
         wp->ctl.timer_3D = 120;
         wp->ctl.count_3C = 0;
         wp->ground.flags_6 &= ~3;
@@ -1113,7 +1113,7 @@ void stcom16_func_20D8(STCOM16_WORK *wp)
                     wp->routine_2 = 0;
                 }
                 wp->velocity.v.x = 0x50;
-                wp->param_F      = 0;
+                wp->work_3       = 0;
                 ctl->timer_3D    = 120;
                 ctl->count_3C    = 0;
                 ground->flags_6  = 0;
@@ -1152,14 +1152,14 @@ void stcom16_func_23AC(STCOM16_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->be_flag         = 5;
+        effect->be_flag         = MOVE | MODEL;
         effect->id              = 0x80;
         effect->type            = 0x40;
         effect->sprite.position = wp->joints_180[0];
         func_80047148(wp, &wp->joints_180[0], effect);
     }
     wp->routine_0 = 2;
-    wp->be_flag &= ~2;
+    wp->be_flag &= ~TRANS;
 }
 
 void stcom16_func_2434(STCOM16_WORK *wp)
@@ -1202,14 +1202,14 @@ void stcom16_func_2534(STCOM16_WORK *wp)
     {
         wp->anim_AC = 13;
         func_800322A8(wp, 13, 0);
-        wp->param_E      = 0;
+        wp->work_2       = 0;
         wp->ctl.angle_38 = wp->rotation.y;
     }
     else
     {
         wp->anim_AC = 14;
         func_800322A8(wp, 14, 0);
-        wp->param_E      = 1;
+        wp->work_2       = 1;
         wp->ctl.angle_38 = wp->rotation.y;
     }
     wp->routine_2 = 1;
@@ -1274,7 +1274,7 @@ void stcom16_func_2748(STCOM16_WORK *wp)
         wp->velocity.v.x = 0x50;
         wp->routine_1    = 0;
         wp->routine_2    = 0;
-        wp->param_F      = 0;
+        wp->work_3       = 0;
         wp->ctl.count_3C = 0;
         wp->anim_AC      = 1;
         wp->ground.flags_6 &= ~1;

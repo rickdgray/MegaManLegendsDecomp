@@ -41,22 +41,22 @@ void func_8010E8A0(STAGE_OBJ *wp)
         wp->routine_0 = 2;
         return;
     }
-    wp->u_C.b.byte_C = -1;
+    wp->u_C.b.work_0 = -1;
     wp->position.x   = STAGE_PL.position.x >> 9;
     wp->position.z   = STAGE_PL.position.z >> 9;
     while (i < 6)
     {
         if (func_8010ECB0(wp, &D_80110C90[i]))
         {
-            wp->u_C.b.byte_C = i;
+            wp->u_C.b.work_0 = i;
             break;
         }
         i++;
     }
-    if (wp->u_C.b.byte_C != -1 && !((STAGE_GAME.value_174 >> wp->u_C.b.byte_C) & 1) && D_80110C78[wp->u_C.b.byte_C](wp) &&
-        !Sce_flag_test(D_80110CA8[wp->u_C.b.byte_C]))
+    if (wp->u_C.b.work_0 != -1 && !((STAGE_GAME.value_174 >> wp->u_C.b.work_0) & 1) && D_80110C78[wp->u_C.b.work_0](wp) &&
+        !Sce_flag_test(D_80110CA8[wp->u_C.b.work_0]))
     {
-        if ((3 >> wp->u_C.b.byte_C) & 1)
+        if ((3 >> wp->u_C.b.work_0) & 1)
         {
             wp->routine_1 = 1;
         }
@@ -77,7 +77,7 @@ void func_8010EA14(STAGE_OBJ *wp)
             {
                 wp->position.x = STAGE_PL.position.x >> 9;
                 wp->position.z = STAGE_PL.position.z >> 9;
-                if (func_8010ECB0(wp, &D_80110C90[wp->u_C.b.byte_C]))
+                if (func_8010ECB0(wp, &D_80110C90[wp->u_C.b.work_0]))
                 {
                     wp->routine_2++;
                 }
@@ -89,9 +89,9 @@ void func_8010EA14(STAGE_OBJ *wp)
             }
             break;
         case 1:
-            MojiTaskExec2(0, D_80110CC0[wp->u_C.b.byte_C]);
+            MojiTaskExec2(0, D_80110CC0[wp->u_C.b.work_0]);
             STAGE_PL.flags_bd |= 0x40;
-            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.byte_C;
+            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.work_0;
             wp->routine_2++;
             break;
         case 2:
@@ -114,7 +114,7 @@ void func_8010EB78(STAGE_OBJ *wp)
             {
                 wp->position.x = STAGE_PL.position.x >> 9;
                 wp->position.z = STAGE_PL.position.z >> 9;
-                if (func_8010ECB0(wp, &D_80110C90[wp->u_C.b.byte_C]))
+                if (func_8010ECB0(wp, &D_80110C90[wp->u_C.b.work_0]))
                 {
                     wp->routine_2++;
                 }
@@ -126,8 +126,8 @@ void func_8010EB78(STAGE_OBJ *wp)
             }
             break;
         case 1:
-            MojiTaskExec2(4, D_80110CC0[wp->u_C.b.byte_C]);
-            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.byte_C;
+            MojiTaskExec2(4, D_80110CC0[wp->u_C.b.work_0]);
+            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.work_0;
             wp->routine_2++;
             break;
         case 2:
@@ -173,7 +173,7 @@ void func_8010ED68(STAGE_EV *wp)
         ev = func_800317AC(i);
         if (ev != NULL)
         {
-            ev->be_flag = 1;
+            ev->be_flag = MOVE;
             ev->id      = 0;
             break;
         }

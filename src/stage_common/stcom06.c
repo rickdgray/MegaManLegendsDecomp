@@ -26,11 +26,11 @@ void stcom06_func_0000(STCOM06_WORK *wp)
     {
         if (wp->routine_2 != 0)
         {
-            func_800341BC(&pos, 0x20, 0, 0x4000, wp->slot, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
+            func_800341BC(&pos, 0x20, 0, 0x4000, wp->work_id, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         else
         {
-            func_800341BC(&pos, 0x20, 0, 0x8000, wp->slot, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
+            func_800341BC(&pos, 0x20, 0, 0x8000, wp->work_id, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         func_80051BAC(wp);
     }
@@ -73,7 +73,7 @@ void stcom06_func_0128(STCOM06_WORK *wp)
     }
     wp->sprite.value_10 = 0x20;
     wp->value_74        = 1;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (stcom06_func_0A80(wp) != 0)
     {
         wp->routine_0 = 3;
@@ -341,7 +341,7 @@ void stcom06_func_0934(STCOM06_WORK *wp)
         wp->sprite.value_F = stcom06_D_0000[wp->index_F].b;
     }
     wp->sprite.value_10 = 0x20;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
 }
 
 sint16 stcom06_func_0A80(STCOM06_WORK *wp)
@@ -389,7 +389,7 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
                 effect = func_80031618();
                 if (effect != NULL)
                 {
-                    effect->be_flag = 1;
+                    effect->be_flag = MOVE;
                     effect->id      = 0x83;
                     effect->type    = 0;
                     effect->sprite  = wp->sprite;
@@ -405,7 +405,7 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag = 1;
+                effect->be_flag = MOVE;
                 effect->id      = 0x83;
                 effect->type    = 0;
                 effect->sprite  = wp->sprite;
@@ -456,7 +456,7 @@ void stcom06_func_0D1C(STCOM06_WORK *wp)
 
 void stcom06_func_0E10(STCOM06_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->be_flag = 5;
+    effect->be_flag = MOVE | MODEL;
     effect->id      = 0x80;
     if (wp->routine_2 != 0)
     {
@@ -471,7 +471,7 @@ void stcom06_func_0E10(STCOM06_WORK *wp, STCOM_EFFECT *effect)
 
 void stcom06_func_0E68(STCOM06_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->be_flag         = 1;
+    effect->be_flag         = MOVE;
     effect->id              = 0x19;
     effect->type            = 0;
     effect->sprite.position = wp->position;

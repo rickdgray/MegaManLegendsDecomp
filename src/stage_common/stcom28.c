@@ -22,7 +22,7 @@ void stcom28_func_003C(STCOM28_WORK *wp)
     wp->accel.z    = 0;
     wp->accel.y    = 0;
     wp->accel.x    = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     Track_reset(wp->ctl.track_C, 9, -0x60);
     wp->data_78       = stcom28_D_000C;
@@ -69,7 +69,7 @@ void stcom28_func_00E8(STCOM28_WORK *wp)
         {
             stcom28_func_0574(wp);
         }
-        if (wp->be_flag & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x28, 0x200, 0);
         }
@@ -187,7 +187,7 @@ void stcom28_func_0574(STCOM28_WORK *wp)
     wp->ctl.hit_2C = 0;
     wp->ctl.pos_24 = wp->position;
     wp->ctl.pos_24.y -= 0x28;
-    func_800341BC(&wp->ctl.pos_24, 0x28, 0, 0x8000, wp->slot, &wp->ctl.hit_2C, wp->ctl.kind_3C | 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->ctl.pos_24, 0x28, 0, 0x8000, wp->work_id, &wp->ctl.hit_2C, wp->ctl.kind_3C | 0x4080000, 0x800000, 0);
 }
 
 void stcom28_func_05FC(STCOM28_WORK *wp)
@@ -497,7 +497,7 @@ void stcom28_func_0D40(STCOM28_WORK *wp)
         effect = func_80031618();
         if (effect != NULL)
         {
-            effect->be_flag         = 5;
+            effect->be_flag         = MOVE | MODEL;
             effect->id              = 0x80;
             effect->type            = 0;
             effect->sprite.position = wp->position;

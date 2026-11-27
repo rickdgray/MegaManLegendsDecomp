@@ -8,7 +8,7 @@ void func_80105E2C(sint8 index)
     if (stcom36_D_0000 & (0x80000000 >> index))
     {
         obj = stcom36_E2_0000[index];
-        switch (func_8002FE74(obj->slot))
+        switch (func_8002FE74(obj->work_id))
         {
             case 0x20:
                 obj->routine_0 = 2;
@@ -30,7 +30,7 @@ void func_80105F2C(sint8 index)
     if (stcom36_D_0000 & (0x80000000 >> index))
     {
         obj = stcom36_E2_0000[index];
-        switch (func_8002FE74(obj->slot))
+        switch (func_8002FE74(obj->work_id))
         {
             case 0x20:
                 obj->routine_0 = 2;
@@ -286,9 +286,9 @@ void func_801067D0(STAGE_ROOM *wp)
     {
         MojiTaskExec2(0, 0x79);
         child               = wp->child_24;
-        child->u_E.b.byte_E = 8;
+        child->u_E.b.work_2 = 8;
         child               = wp->child_24;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
     }
     if (wp->frame_10 == 0x3D)
     {
@@ -995,11 +995,11 @@ void func_80107CEC(void)
         op = func_80031418();
         if (op != NULL)
         {
-            op->be_flag      = 1;
+            op->be_flag      = MOVE;
             op->id           = 0x32;
             op->value_4      = 0;
             op->type         = 0;
-            op->u_C.b.byte_C = i;
+            op->u_C.b.work_0 = i;
         }
     }
 }
@@ -1015,7 +1015,7 @@ uint8 func_80107D68(void)
     slot = func_80031734();
     if (slot != NULL)
     {
-        slot->be_flag = 1;
+        slot->be_flag = MOVE;
         slot->id      = 0x32;
     }
     return 1;
@@ -1052,15 +1052,15 @@ void func_80107E08(STAGE_STCOM15_WORK_348 *wp)
     {
         func_80032488(wp);
     }
-    if ((wp->be_flag & 2) && !(ctl->flags_0 & 0x20))
+    if ((wp->be_flag & TRANS) && !(ctl->flags_0 & 0x20))
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->be_flag & 1) && (ctl->flags_0 & 2))
+    if ((wp->be_flag & MOVE) && (ctl->flags_0 & 2))
     {
         ctl->pos_C = wp->position;
         ctl->pos_C.y -= 0x28;
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x4000000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->work_id, &ctl->hit_14, ctl->value_8 | 0x4000000, 0x800000, 0x80);
     }
     ctl->hit_14 = 0;
 }
@@ -1071,7 +1071,7 @@ void func_80107FF0(ST05_VILLAGER *wp)
     sint16 life;
 
     ctl = &wp->ctl;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if ((wp->type & 0xF0) != 0x50)
     {
         wp->rotation.x = 0;
@@ -1117,14 +1117,14 @@ void func_80107FF0(ST05_VILLAGER *wp)
             break;
         case 0x30:
             wp->routine_1 = 0x10;
-            wp->be_flag &= ~2;
+            wp->be_flag &= ~TRANS;
             ctl->flags_0 = (ctl->flags_0 & ~6) | 0x20;
             func_800322A8(wp, 0xA, 0);
             break;
         case 0x40:
             wp->routine_1 = 0xF;
-            wp->value_D   = 0;
-            wp->be_flag &= ~2;
+            wp->work_1    = 0;
+            wp->be_flag &= ~TRANS;
             ctl->flags_0 = (ctl->flags_0 & ~6) | 0x20;
             func_800322A8(wp, 0, 0);
             break;
@@ -1140,7 +1140,7 @@ void func_80107FF0(ST05_VILLAGER *wp)
         ctl->other_38 = (ST05_HELD *)Open_SHL_WORK();
         if (ctl->other_38 != NULL)
         {
-            ctl->other_38->be_flag          = 1;
+            ctl->other_38->be_flag          = MOVE;
             ctl->other_38->id               = 6;
             ctl->other_38->type             = 0x80;
             ctl->other_38->position.x       = wp->position.x;
@@ -1202,9 +1202,9 @@ void func_80108324(ST05_VILLAGER *wp)
                 break;
             case 13:
             case 14:
-                if (wp->value_D != 0)
+                if (wp->work_1 != 0)
                 {
-                    wp->value_D--;
+                    wp->work_1--;
                     break;
                 }
                 // fall through
@@ -1251,7 +1251,7 @@ void func_80108324(ST05_VILLAGER *wp)
 
 void func_80108590(ST05_OBJ *wp)
 {
-    if (wp->u_C.b.byte_C != 0)
+    if (wp->u_C.b.work_0 != 0)
     {
         wp->value_380->routine_0 = 0;
     }
@@ -1284,7 +1284,7 @@ void func_801085CC(ST05_VILLAGER *wp)
                 {
                     break;
                 }
-                ep->be_flag = 3;
+                ep->be_flag = MOVE | TRANS;
                 ep->id      = 0x83;
                 ep->x_1C    = wp->value_180[i].x;
                 ep->y_1E    = wp->value_180[i].y;
@@ -1310,11 +1310,11 @@ void func_801085CC(ST05_VILLAGER *wp)
             }
             // fall through
         case 2:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             ctl->value_6 = (ctl->value_6 + 1) & 3;
             if (wp->value_6E <= 0 && ctl->value_6 == 0)
             {
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
             }
             Obj_pos_set(wp, 0, wp->velocity.v.y << 4, 0);
             wp->position.y -= 0x34;
@@ -1329,7 +1329,7 @@ void func_801085CC(ST05_VILLAGER *wp)
                 else
                 {
                     wp->routine_2 = 1;
-                    wp->be_flag |= 2;
+                    wp->be_flag |= TRANS;
                     wp->accel_4C.x >>= 1;
                     wp->accel_4C.y >>= 1;
                     ctl->timer_4 = wp->accel_4C.y;
@@ -1339,7 +1339,7 @@ void func_801085CC(ST05_VILLAGER *wp)
             wp->position_fixed.y = wp->position.y << 16;
             break;
         case 3:
-            wp->be_flag ^= 2;
+            wp->be_flag ^= TRANS;
             if (--wp->ctl.timer_4 < 0)
             {
                 wp->ctl.flags_0 |= 1;
@@ -1875,11 +1875,11 @@ void func_801095E0(ST05_VILLAGER *wp)
             }
             break;
     }
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl->value_6 = (ctl->value_6 + 1) & 3;
     if (wp->value_6E <= 0 && ctl->value_6 == 0)
     {
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
     }
 }
 
@@ -1965,11 +1965,11 @@ void func_8010984C(ST05_VILLAGER *wp)
             }
             break;
     }
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl->value_6 = (ctl->value_6 + 1) & 3;
     if (wp->value_6E <= 0 && ctl->value_6 == 0)
     {
-        wp->be_flag &= ~2;
+        wp->be_flag &= ~TRANS;
     }
 }
 
@@ -2113,7 +2113,7 @@ void func_80109D44(ST05_VILLAGER *wp)
     }
     if (ctl->flags_0 & 0x10)
     {
-        wp->value_D = 0;
+        wp->work_1 = 0;
         ctl->flags_0 |= 1;
     }
 }
@@ -2135,7 +2135,7 @@ void func_80109E84(ST05_VILLAGER *wp)
         case 1:
             wp->routine_2 = 2;
             wp->anim_AC   = 0x11;
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             ctl->timer_4  = 8;
             ctl->value_8  = 0;
             wp->value_10B = -1;
@@ -2163,7 +2163,7 @@ void func_80109E84(ST05_VILLAGER *wp)
             if (--ctl->timer_4 < 0)
             {
                 wp->routine_2 = 6;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
             }
             else
             {
@@ -2181,16 +2181,16 @@ void func_80109F84(ST05_VILLAGER *wp)
     switch (wp->routine_2)
     {
         case 0:
-            wp->value_D      = 0;
+            wp->work_1       = 0;
             wp->ctl.other_38 = (ST05_HELD *)Open_SHL_WORK();
             if (wp->ctl.other_38 == NULL)
             {
                 wp->routine_1             = 0xF;
                 *(uint16 *)&wp->routine_2 = 0;
-                wp->value_D               = 1;
+                wp->work_1                = 1;
                 break;
             }
-            wp->ctl.other_38->be_flag   = 1;
+            wp->ctl.other_38->be_flag   = MOVE;
             wp->ctl.other_38->routine_0 = 4;
             wp->ctl.other_38->id        = 6;
             wp->ctl.other_38->type      = 0x80;
@@ -2200,7 +2200,7 @@ void func_80109F84(ST05_VILLAGER *wp)
             wp->ctl.value_8             = 0;
             wp->value_10B               = -1;
             wp->value_10F               = -1;
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             // fall through
         case 1:
             if (--ctl->timer_4 >= 0)
@@ -2238,8 +2238,8 @@ void func_80109F84(ST05_VILLAGER *wp)
             {
                 wp->routine_1             = 0xF;
                 *(uint16 *)&wp->routine_2 = 0;
-                wp->value_D               = 1;
-                wp->be_flag &= ~2;
+                wp->work_1                = 1;
+                wp->be_flag &= ~TRANS;
             }
             else
             {
@@ -2265,9 +2265,9 @@ void func_8010A21C(ST05_VILLAGER *wp)
             wp->value_10B   = -1;
             wp->value_10F   = -1;
             wp->ctl.timer_4 = 0xF;
-            wp->value_D     = 0;
+            wp->work_1      = 0;
             wp->ctl.value_8 = 0;
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             held->routine_1             = 5;
             *(uint16 *)&held->routine_2 = 0;
             // fall through
@@ -2275,7 +2275,7 @@ void func_8010A21C(ST05_VILLAGER *wp)
             if (--ctl->timer_4 >= 0)
             {
                 wp->rotation.y =
-                    (wp->rotation.y + Muku(&wp->position, &ST05_VILLAGERS[wp->value_E]->position, wp->rotation.y, 0x40)) & 0xFFF;
+                    (wp->rotation.y + Muku(&wp->position, &ST05_VILLAGERS[wp->work_2]->position, wp->rotation.y, 0x40)) & 0xFFF;
                 wp->position.y -= 4;
                 wp->position_fixed.y   = wp->position.y << 16;
                 held->position.x       = wp->position.x;
@@ -2287,15 +2287,15 @@ void func_8010A21C(ST05_VILLAGER *wp)
                 held->rotation.y       = wp->rotation.y;
                 break;
             }
-            wp->routine_2                         = 2;
-            wp->timer_C                           = 0;
-            ctl->timer_4                          = 8;
-            held->routine_1                       = 2;
-            *(uint16 *)&held->routine_2           = 0;
-            ST05_VILLAGERS[wp->value_E]->value_C4 = ST05_VILLAGERS[wp->value_E]->value_180[0];
-            ST05_VILLAGERS[wp->value_E]->value_C4.y -= 0x140;
-            func_80030934(held, ST05_VILLAGERS[wp->value_E], 0x18, 0);
-            ST05_VILLAGERS[ST05_VILLAGERS[wp->value_E]->value_D]->value_F &= ~0x40;
+            wp->routine_2                        = 2;
+            wp->timer_C                          = 0;
+            ctl->timer_4                         = 8;
+            held->routine_1                      = 2;
+            *(uint16 *)&held->routine_2          = 0;
+            ST05_VILLAGERS[wp->work_2]->value_C4 = ST05_VILLAGERS[wp->work_2]->value_180[0];
+            ST05_VILLAGERS[wp->work_2]->value_C4.y -= 0x140;
+            func_80030934(held, ST05_VILLAGERS[wp->work_2], 0x18, 0);
+            ST05_VILLAGERS[ST05_VILLAGERS[wp->work_2]->work_1]->work_3 &= ~0x40;
             // fall through
         case 2:
             if (--ctl->timer_4 >= 0)
@@ -2311,8 +2311,8 @@ void func_8010A21C(ST05_VILLAGER *wp)
             {
                 wp->routine_1             = 0xF;
                 *(uint16 *)&wp->routine_2 = 0;
-                wp->value_D               = 1;
-                wp->be_flag &= ~2;
+                wp->work_1                = 1;
+                wp->be_flag &= ~TRANS;
             }
             else
             {

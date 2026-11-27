@@ -16,7 +16,7 @@ void func_80107DDC(ST0D_VILLAGER *wp)
         func_80108040(wp, &wp->talk);
     }
     func_80051B68(wp, 1, -1, 0);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -32,8 +32,8 @@ void func_80107DDC(ST0D_VILLAGER *wp)
 
 void func_80107EF8(ST0D_VILLAGER *wp, ST0D_TALK *talk)
 {
-    wp->be_flag |= 2;
-    if (wp->value_C == 0)
+    wp->be_flag |= TRANS;
+    if (wp->work_0 == 0)
     {
         Model_work_init(wp, &wp->type);
     }
@@ -53,11 +53,11 @@ void func_80107EF8(ST0D_VILLAGER *wp, ST0D_TALK *talk)
     wp->value_B2         = 0;
     wp->anim_AC          = 0;
     wp->anim_prev_AD     = 0xFF;
-    talk->msg_0          = D_8010E428[wp->value_D];
-    talk->flag_on_4      = D_8010E43C[wp->value_D];
-    talk->flag_8         = D_8010E47C[wp->value_D];
+    talk->msg_0          = D_8010E428[wp->work_1];
+    talk->flag_on_4      = D_8010E43C[wp->work_1];
+    talk->flag_8         = D_8010E47C[wp->work_1];
     talk->first_C        = 1;
-    talk->shot_10        = D_8010E468[wp->value_D];
+    talk->shot_10        = D_8010E468[wp->work_1];
     wp->routine_1        = 0;
     wp->routine_0++;
 }
@@ -76,7 +76,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
             {
                 wp->turn_64    = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
                 pl->target_184 = NULL;
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
                 pl->flags_bd |= 0x80;
                 cam.x = wp->value_180.x;
                 cam.y = wp->value_180.y - 0x20;
@@ -105,7 +105,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
                 {
                     break;
                 }
-                switch (wp->value_E)
+                switch (wp->work_2)
                 {
                     case 0:
                         func_80039E18();
@@ -133,7 +133,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
             }
             else
             {
-                switch (wp->value_E)
+                switch (wp->work_2)
                 {
                     case 0:
                         func_80039E18();
@@ -171,7 +171,7 @@ void func_80108040(ST0D_VILLAGER *wp, ST0D_TALK *talk)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x80;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1++;
             }
             break;
@@ -234,7 +234,7 @@ ST0D_GRID_OBJ *func_80108468(STAGE_OBJ *owner, uint8 rows, STCOM_SVECTOR *origin
         return NULL;
     }
     grid        = &wp->grid;
-    wp->be_flag = 1;
+    wp->be_flag = MOVE;
     wp->id      = 0x12;
     wp->value_4 = 0;
     wp->flags |= 0x20;
@@ -243,7 +243,7 @@ ST0D_GRID_OBJ *func_80108468(STAGE_OBJ *owner, uint8 rows, STCOM_SVECTOR *origin
     wp->value_10        = 0;
     wp->grid.mode_0     = 3;
     wp->grid.mask_1     = 0x3F;
-    wp->grid.reserved02 = owner->slot;
+    wp->grid.reserved02 = owner->work_id;
     wp->grid.rows_3     = rows;
     wp->grid.kind_B     = 0;
     wp->grid.value_10   = 0x2E808080;
@@ -277,7 +277,7 @@ ST0D_GRID_OBJ *func_801085AC(STAGE_OBJ *owner, sint8 variant, STCOM_SVECTOR *ori
         return NULL;
     }
     grid         = &wp->grid;
-    wp->be_flag  = 1;
+    wp->be_flag  = MOVE;
     wp->id       = 0x12;
     wp->value_4  = 0;
     wp->type     = variant;
@@ -307,7 +307,7 @@ ST0D_GRID_OBJ *func_801085AC(STAGE_OBJ *owner, sint8 variant, STCOM_SVECTOR *ori
             return NULL;
     }
     grid->mask_1     = 0x3F;
-    grid->reserved02 = owner->slot;
+    grid->reserved02 = owner->work_id;
     grid->frame_C    = 0;
     for (i = 0; i < grid->rows_3; i++)
     {
@@ -383,22 +383,22 @@ void func_801088C8(STAGE_OBJ *wp, ST0D_GRID6 *grid)
         switch (i)
         {
             case 0:
-                on = wp->u_C.b.byte_C & 1;
+                on = wp->u_C.b.work_0 & 1;
                 break;
             case 1:
-                on = ((uint8)wp->u_C.b.byte_C >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 1) & 1;
                 break;
             case 2:
-                on = ((uint8)wp->u_C.b.byte_C >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 2) & 1;
                 break;
             case 3:
-                on = wp->u_C.b.byte_D & 1;
+                on = wp->u_C.b.work_1 & 1;
                 break;
             case 4:
-                on = ((uint8)wp->u_C.b.byte_D >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_1 >> 1) & 1;
                 break;
             case 5:
-                on = ((uint8)wp->u_C.b.byte_D >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_1 >> 2) & 1;
                 break;
         }
         if (on)
@@ -441,22 +441,22 @@ void func_80108A8C(STAGE_OBJ *wp, ST0D_GRID6 *grid)
         switch (i)
         {
             case 0:
-                on = wp->u_C.b.byte_C & 1;
+                on = wp->u_C.b.work_0 & 1;
                 break;
             case 1:
-                on = ((uint8)wp->u_C.b.byte_C >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 1) & 1;
                 break;
             case 2:
-                on = ((uint8)wp->u_C.b.byte_C >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 2) & 1;
                 break;
             case 3:
-                on = ((uint8)wp->u_C.b.byte_C >> 3) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 3) & 1;
                 break;
             case 4:
-                on = ((uint8)wp->u_C.b.byte_C >> 4) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 4) & 1;
                 break;
             case 5:
-                on = ((uint8)wp->u_C.b.byte_C >> 5) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 5) & 1;
                 break;
         }
         if (on)
@@ -744,7 +744,7 @@ void func_8010957C(ST0D_BOBBER *wp)
 
 void func_8010964C(ST0D_BOBBER *wp, ST0D_BOB *bob)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     func_8002F9EC(wp, 0);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -780,7 +780,7 @@ void func_80109834(STAGE_OBJ *wp)
     wp->anim_prev_AD        = wp->anim_AC;
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         Model_work_init(wp, NULL);
         wp->scale.words[0] = 0x02000200;
         wp->scale.words[1] = 0x42100200;
@@ -800,7 +800,7 @@ void func_80109834(STAGE_OBJ *wp)
 
 void func_80109944(ST0D_MARKER *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->position.x        = -0x4B0;
     wp->value_64          = 0;

@@ -22,7 +22,7 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // 00
-    uint8 slot;    // 01
+    uint8 work_id; // 01
     uint8 reserved02[4];
     uint8 flags; // 06
     uint8 reserved07;

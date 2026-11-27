@@ -31,10 +31,10 @@ void func_8011FB90(ST1A_EMITTER *wp)
     fx    = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag    = 1;
+        fx->be_flag    = MOVE;
         fx->id         = 0x13;
         fx->type       = 0;
-        fx->value_C    = wp->slot;
+        fx->work_0     = wp->work_id;
         fx->timer_D    = wp->frame_D;
         fx->u_28.count = wp->angle_CC;
         fx->x_1C       = owner->vec_188.x;
@@ -51,7 +51,7 @@ void func_8011FB90(ST1A_EMITTER *wp)
 
 void func_8011FC74(STAGE_OBJ *wp)
 {
-    if (wp->u_C.b.byte_C == 0)
+    if (wp->u_C.b.work_0 == 0)
     {
         Close_SHL_WORK(wp);
     }

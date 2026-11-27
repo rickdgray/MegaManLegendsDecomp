@@ -42,7 +42,7 @@ extern STAGE_OBJ_FUNC D_80106BFC[];
 typedef struct
 {
     uint8 be_flag;         // 00
-    uint8 slot;            // 01
+    uint8 work_id;         // 01
     uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09

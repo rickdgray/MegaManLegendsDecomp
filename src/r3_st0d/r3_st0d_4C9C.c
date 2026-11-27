@@ -10,9 +10,9 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
     STCOM_PL_WORK *pl;
 
     pl      = &Player_work;
-    msg     = D_8010DC14[wp->value_D];
-    flag_on = D_8010DC28[wp->value_D];
-    flag    = D_8010DC74[wp->value_D];
+    msg     = D_8010DC14[wp->work_1];
+    flag_on = D_8010DC28[wp->work_1];
+    flag    = D_8010DC74[wp->work_1];
     switch (wp->routine_1)
     {
         case 0:
@@ -46,7 +46,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
                     }
                     else
                     {
-                        wp->value_E   = 0;
+                        wp->work_2    = 0;
                         wp->routine_1 = 4;
                     }
                 }
@@ -64,7 +64,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
                 }
                 else
                 {
-                    wp->value_E   = 0;
+                    wp->work_2    = 0;
                     wp->routine_1 = 4;
                 }
             }
@@ -88,9 +88,9 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
             {
                 Sce_flag_on(flag_on);
             }
-            if (wp->value_E == 1)
+            if (wp->work_2 == 1)
             {
-                shot = D_8010DC60[wp->value_D];
+                shot = D_8010DC60[wp->work_1];
                 if (shot != (ST0D_CAM_SHOT *)0x7FFFFFFF)
                 {
                     STAGE_CAM_REQ_PTR->mode_C   = shot->value_8;
@@ -102,7 +102,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
                     STAGE_CAM_REQ_PTR->angle_A  = shot->value_6;
                     STAGE_CAM_REQ_PTR->value_D  = 0;
                     STAGE_CAM_REQ_PTR->value_11 = 0xFF;
-                    if (wp->value_D == 4)
+                    if (wp->work_1 == 4)
                     {
                         STAGE_CAM_REQ_PTR->value_10 = 0xFF;
                     }
@@ -116,7 +116,7 @@ void func_80104C9C(ST0D_ACTOR *wp, uint16 *bob)
             }
             else
             {
-                wp->value_E   = 1;
+                wp->work_2    = 1;
                 wp->routine_1 = 0;
             }
             break;
@@ -138,7 +138,7 @@ void func_80104F40(STAGE_PROP *wp, uint16 *bob)
 
 void func_80105058(STAGE_OBJ *wp, uint16 *bob)
 {
-    if (wp->u_C.b.byte_C == 0)
+    if (wp->u_C.b.work_0 == 0)
     {
         wp->position.y = bob[1] + ((D_800BBCF8[bob[0] & 0x3F] * 5) >> 12);
         bob[0]++;
@@ -163,7 +163,7 @@ void func_801050E8(ST0D_ORBITER *wp)
     if (wp->routine_0 == 0)
     {
         wp->orbit.angle_8 = 0x800;
-        wp->be_flag |= 6;
+        wp->be_flag |= TRANS | MODEL;
         wp->rotation.x     = 0;
         wp->rotation.z     = 0;
         wp->orbit.x_0      = wp->position.x;

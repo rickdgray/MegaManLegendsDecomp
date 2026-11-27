@@ -281,7 +281,7 @@ void func_80100BAC(ST13_STCOM27_WORK *wp)
     wp->accel.z     = 0;
     wp->accel.y     = 0;
     wp->accel.x     = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     Track_reset(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_8011750C;
@@ -312,7 +312,7 @@ void func_80100CA0(ST13_STCOM27_WORK *wp)
     wp->anim_prev_AD        = wp->anim_AC;
     wp->jump_prev_75        = wp->jump_74;
     func_80100DDC(wp);
-    if (wp->value_C == 0)
+    if (wp->work_0 == 0)
     {
         ctl->sees_10 = 1;
     }
@@ -325,7 +325,7 @@ void func_80100CA0(ST13_STCOM27_WORK *wp)
     {
         func_8010103C(wp);
         func_80100FA4(wp);
-        if (wp->be_flag & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x118, 0x200, 0);
         }
@@ -340,7 +340,7 @@ void func_80100DDC(ST13_STCOM27_WORK *wp)
     sint32 dir;
 
     ctl = &wp->ctl;
-    if (wp->value_D != 0)
+    if (wp->work_1 != 0)
     {
         if (!(STAGE_FRAME & 3) && wp->damage_B2 != 0)
         {
@@ -397,12 +397,12 @@ void func_80100DDC(ST13_STCOM27_WORK *wp)
 
 void func_80100FA4(ST13_STCOM27_WORK *wp)
 {
-    if (wp->value_D != 0)
+    if (wp->work_1 != 0)
     {
         wp->ctl.hit_20 = 0;
         wp->ctl.pos_18 = wp->position;
         wp->ctl.pos_18.y -= 0x80;
-        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->slot, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->work_id, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
     }
 }
 
@@ -621,10 +621,10 @@ void func_80101614(ST13_ACTOR *wp)
             obj = Open_SHL_WORK();
             if (obj != NULL)
             {
-                obj->be_flag            = 1;
+                obj->be_flag            = MOVE;
                 obj->id                 = 5;
                 obj->type               = 0;
-                obj->value_F            = wp->slot;
+                obj->work_3             = wp->work_id;
                 obj->position           = wp->value_188;
                 obj->position_fixed.v.x = obj->position.x << 16;
                 obj->position_fixed.v.y = obj->position.y << 16;
@@ -739,7 +739,7 @@ void func_80101974(ST13_STCOM27_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->be_flag         = 5;
+                effect->be_flag         = MOVE | MODEL;
                 effect->id              = 0x80;
                 effect->type            = 0;
                 effect->sprite.position = wp->position;
@@ -887,10 +887,10 @@ void func_80101E4C(ST13_EMITTER *wp)
     fx    = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag    = 1;
+        fx->be_flag    = MOVE;
         fx->id         = 0x13;
         fx->type       = 0;
-        fx->value_C    = wp->slot;
+        fx->work_0     = wp->work_id;
         fx->timer_D    = wp->frame_D;
         fx->u_28.count = wp->angle_CC;
         fx->x_1C       = owner->vec_188.x;
@@ -907,7 +907,7 @@ void func_80101E4C(ST13_EMITTER *wp)
 
 void func_80101F30(STAGE_OBJ *wp)
 {
-    if (wp->u_C.b.byte_C == 0)
+    if (wp->u_C.b.work_0 == 0)
     {
         Close_SHL_WORK(wp);
     }

@@ -21,7 +21,7 @@ void func_800D8854(SHL_WORK *wp)
     wp->col_c0   = 0;
     wp->col_c4   = 0;
     wp->col_c8   = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     wp->value_d0 = Player_work.value_54c;
     wp->value_d4 = func_800375D4(&Player_work, 0xB);
@@ -185,7 +185,7 @@ void func_800D8E64(SHL_WORK *wp, uint16 arg)
     p.vx = wp->pos.vx;
     p.vy = wp->pos.vy - 0x28;
     p.vz = wp->pos.vz;
-    func_800341BC(&p, 0x30, 0, arg, wp->slot, &wp->col_c4, wp->value_d4 | 0x8000000, 0, 0x80);
+    func_800341BC(&p, 0x30, 0, arg, wp->work_id, &wp->col_c4, wp->value_d4 | 0x8000000, 0, 0x80);
     wp->col_bc = 0;
     wp->col_c0 = 0;
     wp->col_c4 = 0;
@@ -199,9 +199,9 @@ void func_800D8EF4(SHL_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->be_flag = 5;
+        fx->be_flag = MOVE | MODEL;
         fx->id      = 0x80;
-        fx->flag_3  = 2;
+        fx->type    = 2;
         fx->value_c = 1;
         fx->value_d = D_800D8F98[wp->value_d0];
         fx->value_e = 1;

@@ -2392,7 +2392,7 @@ void Map_draw(void)
     gte_SetTransMatrix(&Scratch_view_mtx);
     for (i = 0; i < 32; i++)
     {
-        if (D_8009CF88[i].id == 0x33 && (D_8009CF88[i].be_flag & 1) && D_8009CF88[i].type == 0xFE)
+        if (D_8009CF88[i].id == 0x33 && (D_8009CF88[i].be_flag & MOVE) && D_8009CF88[i].type == 0xFE)
         {
             pos = D_8009CF88[i].efc.model.pos;
             gte_ldv0(&pos);

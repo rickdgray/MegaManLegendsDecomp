@@ -84,7 +84,7 @@ void Work_pools_init(sint32 players)
         Mem_clear(Player_work, (uint8 *)Player_work + 0xBE4);
         for (i = 0; i < 2; i++)
         {
-            Player_work[i].slot = kind | i;
+            Player_work[i].work_id = kind | i;
         }
     }
     kind = 0x10;
@@ -93,7 +93,7 @@ void Work_pools_init(sint32 players)
     D_80098A60 = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_800BFB20[i].slot = kind | i;
+        D_800BFB20[i].work_id = kind | i;
     }
     kind = 0x20;
     Mem_clear(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
@@ -101,7 +101,7 @@ void Work_pools_init(sint32 players)
     D_8009880C = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_8009F108[i].slot = kind | i;
+        D_8009F108[i].work_id = kind | i;
     }
     kind = 0x40;
     Mem_clear(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
@@ -109,7 +109,7 @@ void Work_pools_init(sint32 players)
     D_80098B64 = 0;
     for (i = 0; i < 4; i++)
     {
-        D_800C3580[i].slot = kind | i;
+        D_800C3580[i].work_id = kind | i;
     }
     kind = 0x60;
     Mem_clear(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
@@ -117,7 +117,7 @@ void Work_pools_init(sint32 players)
     D_80098808 = 0;
     for (i = 0; i < 0x20; i++)
     {
-        D_8009CF88[i].slot = kind | i;
+        D_8009CF88[i].work_id = kind | i;
     }
     kind = 0x80;
     Mem_clear(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
@@ -127,7 +127,7 @@ void Work_pools_init(sint32 players)
     D_800988CC = 0;
     for (i = 0; i < 0x40; i++)
     {
-        D_800A3B40[i].slot = kind | i;
+        D_800A3B40[i].work_id = kind | i;
     }
     kind = 0xC0;
     Mem_clear(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
@@ -135,7 +135,7 @@ void Work_pools_init(sint32 players)
     D_80098818 = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_800A2D08[i].slot = kind | i;
+        D_800A2D08[i].work_id = kind | i;
     }
     kind = 0xE0;
     Mem_clear(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
@@ -143,7 +143,7 @@ void Work_pools_init(sint32 players)
     D_80098A4C = 0;
     for (i = 0; i < 0x20; i++)
     {
-        D_800BF118[i].slot = kind | i;
+        D_800BF118[i].work_id = kind | i;
     }
     Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
     Mem_clear(D_8015BC00, D_8015BC00 + 0x3FC);
@@ -231,7 +231,7 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
                     ev->be_flag            = e->routine_0;
                     *(uint16 *)&ev->id     = *(uint16 *)&e->id_2;
                     *(uint16 *)&ev->flag_4 = *(uint16 *)&e->flag_4;
-                    ev->field_C            = e->field_8;
+                    ev->work_0             = e->field_8;
                     ev->pos                = e->pos;
                 }
                 break;
@@ -363,7 +363,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
         bits = D_800987CC;
         for (i = 0; i < 32; i++, sh++)
         {
-            if ((sint32)(bits << i) < 0 || (sh->be_flag & 3))
+            if ((sint32)(bits << i) < 0 || (sh->be_flag & (MOVE | TRANS)))
             {
                 if (flag & WORK_KILL)
                 {
@@ -731,7 +731,7 @@ void func_8002F884(MODEL_WORK *wp, SVECTOR *d)
 // Also called on the slots of D_800BF118 (WORK_50) by func_8002F420.
 void func_8002F928(WORK_48 *wp, SVECTOR *d)
 {
-    if (wp->be_flag & 4)
+    if (wp->be_flag & MODEL)
     {
         wp->efc.model.pos.vx += d->vx;
         wp->efc.model.pos.vz += d->vz;
@@ -772,7 +772,7 @@ sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub)
     sint32 i;
 
     count = *tbl++;
-    kind  = func_8002FE74(wp->slot);
+    kind  = func_8002FE74(wp->work_id);
     if (kind == 0x60 && wp->id >= 0x80)
     {
         kind = 0x10;
@@ -1464,7 +1464,7 @@ WORK_3C0 *func_80031418(void)
             D_800987E8 |= 0x80000000 >> i;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->handler   = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
@@ -1491,7 +1491,7 @@ WORK_5A4 *func_80031498(void)
             wp->hit_78                = 0;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->handler   = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
@@ -1518,7 +1518,7 @@ SHL_WORK *Open_SHL_WORK(void)
             D_800987CC |= 0x80000000 >> i;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
@@ -1545,7 +1545,7 @@ PL_SHL_WORK *Open_PL_SHL_WORK(void)
             D_800989F0 |= 0x80000000 >> i;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
@@ -1600,7 +1600,7 @@ EVE_WORK *Open_EVE_WORK(void)
             wp->field_10              = 0;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             return wp;
@@ -1625,7 +1625,7 @@ WORK_50 *func_80031734(void)
             wp->box_10                = 0;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             return wp;
@@ -1646,7 +1646,7 @@ WORK_50 *func_800317AC(sint32 i)
             D_800989CC |= 0x80000000 >> i;
             *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
-            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->work_0    = 0;
             *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             wp->box_10                = 0;
@@ -2605,7 +2605,7 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
     uint32 i;
     uint16 z;
 
-    if (func_8002FE74(wp->slot) == 0x40)
+    if (func_8002FE74(wp->work_id) == 0x40)
     {
         mtx = ((WORK_5A4 *)wp)->mtx_240;
     }
@@ -2644,7 +2644,7 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
     }
     if (wp->flags & 0x40)
     {
-        if (func_8002FE74(wp->slot) == 0x40)
+        if (func_8002FE74(wp->work_id) == 0x40)
         {
             sc = &((WORK_5A4 *)wp)->base;
         }
@@ -3163,7 +3163,7 @@ void lock_on_search(void)
     }
     for (i = 0; i < 1; i++)
     {
-        if (!(Player_work[i].be_flag & 1))
+        if (!(Player_work[i].be_flag & MOVE))
         {
             continue;
         }
@@ -3362,7 +3362,7 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
                 wp->type = 0x80;
             }
         }
-        wp->be_flag = 1;
+        wp->be_flag = MOVE;
         // Each arm has its own copy of the decrement: GCC cross-jumps them into one tail.
         if (flag != 0)
         {
@@ -3389,7 +3389,7 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
             }
         }
         wp->pos.pad  = flag;
-        wp->field_C  = pl->slot;
+        wp->work_0   = pl->work_id;
         wp->pos_l.vx = wp->pos.vx << 16;
         wp->pos_l.vy = wp->pos.vy << 16;
         wp->pos_l.vz = wp->pos.vz << 16;
@@ -3428,7 +3428,7 @@ MODEL_WORK *func_800358F0(PL_WORK *pl)
         func_80036D40(&D_8009A300[i]);
     }
     best_d = 4000000;
-    side   = pl->slot;
+    side   = pl->work_id;
     n      = D_800988E0;
     best   = -1;
     if (side)
@@ -3561,7 +3561,7 @@ void *front_obj_search(PL_WORK *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
     for (i = 0; i < 16; i++)
     {
         w3 = &D_8009F108[i];
-        if ((w3->be_flag & 3) && max_dist >= w3->dist_80[0])
+        if ((w3->be_flag & (MOVE | TRANS)) && max_dist >= w3->dist_80[0])
         {
             other    = w3->pos;
             delta.vy = 0;
@@ -3589,7 +3589,7 @@ void *front_obj_search(PL_WORK *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
     for (i = 0; i < 4; i++)
     {
         w5 = &D_800C3580[i];
-        if ((w5->be_flag & 3) && max_dist >= w5->dist_80[0])
+        if ((w5->be_flag & (MOVE | TRANS)) && max_dist >= w5->dist_80[0])
         {
             other    = w5->pos;
             delta.vy = 0;
@@ -4003,7 +4003,7 @@ sint32 func_80036D40(SLOT_ENT *t)
             {
                 return 0;
             }
-            if (!(tg->flags & 0x80) && tg->slot < 0x60)
+            if (!(tg->flags & 0x80) && tg->work_id < 0x60)
             {
                 return 0;
             }
@@ -4125,7 +4125,7 @@ uint32 func_80037440(void)
     ((uint32 *)D_8009856C)[3] = 0;
     for (i = 0; i < 16; i++)
     {
-        if (D_800BFB20[i].be_flag & 1)
+        if (D_800BFB20[i].be_flag & MOVE)
         {
             id = D_800BFB22[i].be_flag - 0x80; // low byte of id
             if ((sint32)id < 16)

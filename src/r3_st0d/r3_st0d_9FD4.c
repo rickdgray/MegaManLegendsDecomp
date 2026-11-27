@@ -11,7 +11,7 @@ void func_8010A010(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     if (wp->type == 0)
     {
         flag           = wp->pos_38.pad;
@@ -45,7 +45,7 @@ void func_8010A0C0(STAGE_OBJ50 *wp)
         func_80051B68(wp, 7, 0, 0);
         pos = wp->pos_38;
         pos.y -= 0x2D;
-        func_800341BC(&pos, 0x28, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
+        func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
         wp->value_48 = 0;
     }
 }
@@ -57,7 +57,7 @@ void func_8010A190(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 5;
+        ep->be_flag  = MOVE | MODEL;
         ep->id       = 0x80;
         ep->type     = 0x41;
         ep->pos_38   = wp->pos_38;
@@ -155,7 +155,7 @@ void func_8010A2EC(ST0D_STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
             }
@@ -332,7 +332,7 @@ void func_8010AA54(ST0D_STCOM21_WORK *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->be_flag          = 1;
+            obj->be_flag          = MOVE;
             obj->id               = 0x10;
             obj->handler          = 1;
             obj->position         = wp->pos_38;
@@ -352,7 +352,7 @@ void func_8010AB1C(STAGE_OBJ50 *wp)
     D_8011248C[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x2D;
-    func_800341BC(&pos, 0x32, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x32, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
     wp->value_48 = 0;
 }
 
@@ -361,7 +361,7 @@ void func_8010ABDC(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     flag           = wp->pos_38.pad;
     wp->pos_38.pad = 0;
     wp->value_44   = flag;
@@ -446,7 +446,7 @@ void func_8010ACC0(ST0D_STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -461,7 +461,7 @@ void func_8010AEAC(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 5;
+        ep->be_flag  = MOVE | MODEL;
         ep->id       = 0x80;
         ep->type     = 0x41;
         ep->pos_38   = wp->pos_38;
@@ -483,8 +483,8 @@ void func_8010AF94(STAGE_OBJ *wp)
 {
     STAGE_OBJ *owner;
 
-    owner = func_80036294(wp->u_C.b.byte_C);
-    if (STAGE_GAME.value_50 != 0xD || owner->u_C.b.byte_C != 0)
+    owner = func_80036294(wp->u_C.b.work_0);
+    if (STAGE_GAME.value_50 != 0xD || owner->u_C.b.work_0 != 0)
     {
         D_801124C0[wp->type](wp);
     }
@@ -504,7 +504,7 @@ void func_8010B04C(ST0D_PAIRS *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0;
-    wp->value_F   = 0;
+    wp->work_3    = 0;
     for (i = 0, pair = wp->pair_28[0]; i < 16; i++)
     {
         pair[0] = 0;
@@ -521,10 +521,10 @@ void func_8010B08C(ST0D_FLAMES *wp)
     uint32 i;
 
     flame = wp->flame_28;
-    owner = func_80036294(wp->value_C);
+    owner = func_80036294(wp->work_0);
     if (wp->timer_D == 0)
     {
-        if (!(owner->be_flag & 1))
+        if (!(owner->be_flag & MOVE))
         {
             wp->routine_0++;
             return;
@@ -645,8 +645,8 @@ void func_8010B544(ST0D_FLAMES *wp)
     uint32 i;
 
     flame = wp->flame_28;
-    owner = func_80036294(wp->value_C);
-    if (!(owner->be_flag & 1))
+    owner = func_80036294(wp->work_0);
+    if (!(owner->be_flag & MOVE))
     {
         wp->routine_0++;
         return;
@@ -736,7 +736,7 @@ void func_8010B9B8(ST0D_FLAMES *wp)
     ST0D_FLAME *flame;
     uint32 i;
     flame = wp->flame_28;
-    owner = func_80036294(wp->value_C);
+    owner = func_80036294(wp->work_0);
     if (owner->value_44.half[0] == 0)
     {
         wp->routine_0++;

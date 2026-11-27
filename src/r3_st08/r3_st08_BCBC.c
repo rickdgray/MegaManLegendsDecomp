@@ -18,7 +18,7 @@ void func_8010BD3C(ST08_10C *wp)
     STCOM_SVECTOR pos;
 
     pos = wp->position;
-    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->slot, &wp->hit_BC, 0xC800000, 0x800000, 0x80);
+    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->work_id, &wp->hit_BC, 0xC800000, 0x800000, 0x80);
     wp->hit_BC = 0;
 }
 
@@ -36,7 +36,7 @@ void func_8010BDC0(ST08_10C *wp)
     wp->turn_64           = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->position_fixed.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.y = wp->position_fixed_prev.y = wp->position.y << 16;
@@ -66,7 +66,7 @@ void func_8010BECC(ST08_10C *wp)
             obj = func_80031418();
             if (obj != NULL)
             {
-                obj->be_flag   = 1;
+                obj->be_flag   = MOVE;
                 obj->id        = 8;
                 obj->routine_0 = 1;
             }
@@ -76,7 +76,7 @@ void func_8010BECC(ST08_10C *wp)
             shot = Open_SHL_WORK();
             if (shot != NULL)
             {
-                shot->be_flag = 1;
+                shot->be_flag = MOVE;
                 shot->id      = 0x21;
             }
         }
@@ -185,9 +185,9 @@ void func_8010C3D8(ST08_10C *wp)
 
     wp->pos_AC = wp->position;
     RotMatrixYXZ(&wp->rotation.v, &wp->matrix);
-    scale.x = size.value[wp->value_D];
-    scale.y = size.value[wp->value_D];
-    scale.z = size.value[wp->value_D];
+    scale.x = size.value[wp->work_1];
+    scale.y = size.value[wp->work_1];
+    scale.z = size.value[wp->work_1];
     ScaleMatrix(&wp->matrix, &scale);
 }
 
@@ -196,7 +196,7 @@ void func_8010C4AC(ST08_10C *wp)
     STCOM_SVECTOR pos;
 
     pos = wp->position;
-    func_800341BC(&pos, 0x78 - wp->value_D * 0x1E, 0, 0x8000, wp->slot, &wp->hit_BC, 0x4880000, 0x800000, 0x80);
+    func_800341BC(&pos, 0x78 - wp->work_1 * 0x1E, 0, 0x8000, wp->work_id, &wp->hit_BC, 0x4880000, 0x800000, 0x80);
     wp->hit_BC = 0;
 }
 
@@ -209,14 +209,14 @@ void func_8010C544(ST08_10C *wp, sint32 angle)
     obj = (ST08_10C *)Open_SHL_WORK();
     if (obj != NULL)
     {
-        obj->be_flag  = 1;
+        obj->be_flag  = MOVE;
         obj->id       = 0x26;
-        obj->value_C  = wp->value_C;
-        obj->value_D  = wp->value_D;
-        obj->value_E  = 1;
-        obj->value_F  = wp->value_F;
+        obj->work_0   = wp->work_0;
+        obj->work_1   = wp->work_1;
+        obj->work_2   = 1;
+        obj->work_3   = wp->work_3;
         obj->position = wp->position;
-        if (obj->value_C != 0)
+        if (obj->work_0 != 0)
         {
             obj->speed_CC = (rand() & 3) * 10 + 100;
         }
@@ -239,7 +239,7 @@ void func_8010C670(ST08_10C *wp)
     wp->value_70          = 0;
     wp->value_74          = 0;
     wp->rotation.v.y      = 0x400;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->position_prev    = wp->position;
     wp->value_4E         = 0x10;
     wp->velocity.v.y     = 0;
@@ -249,9 +249,9 @@ void func_8010C670(ST08_10C *wp)
     wp->position_fixed.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.y = wp->position_fixed_prev.y = wp->position.y << 16;
-    wp->data_78                                      = D_801140D0[wp->value_D];
+    wp->data_78                                      = D_801140D0[wp->work_1];
     func_8010C3D8(wp);
-    wp->type = wp->value_C * 4;
+    wp->type = wp->work_0 * 4;
     Model_work_init(wp, &wp->type);
     func_8010C4AC(wp);
     wp->routine_0++;
@@ -267,12 +267,12 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation.v;
-    if (wp->value_E != 0 && !(STAGE_FRAME & 3))
+    if (wp->work_2 != 0 && !(STAGE_FRAME & 3))
     {
-        if (++wp->type > wp->value_C * 4 + 3)
+        if (++wp->type > wp->work_0 * 4 + 3)
         {
-            wp->type    = wp->value_C * 4;
-            wp->value_E = 0;
+            wp->type   = wp->work_0 * 4;
+            wp->work_2 = 0;
         }
         Model_work_init(wp, &wp->type);
     }
@@ -283,18 +283,18 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
         angle            = Angle_xz_svector(&wp->position, &Player_work.position);
         wp->velocity.v.x = (uint32)(rsin(angle) * wp->speed_CC) >> 12;
         wp->velocity.v.z = (uint32)(rcos(angle) * wp->speed_CC) >> 12;
-        wp->value_E      = 1;
+        wp->work_2       = 1;
     }
     else if (hit & 0x2000000)
     {
         angle            = Angle_xz_svector(&wp->position, &Player_work.position);
         wp->velocity.v.x = (uint32)(rsin(angle) * wp->speed_CC) >> 12;
         wp->velocity.v.z = (uint32)(rcos(angle) * wp->speed_CC) >> 12;
-        wp->value_E      = 1;
+        wp->work_2       = 1;
     }
     else if (hit & 0x8000000)
     {
-        if (wp->value_C != 0)
+        if (wp->work_0 != 0)
         {
             Sound_call2(0x16B, &wp->position);
         }
@@ -302,9 +302,9 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
         {
             Sound_call2(0x16C, &wp->position);
         }
-        if (wp->value_D == 2)
+        if (wp->work_1 == 2)
         {
-            if (wp->value_C != 0)
+            if (wp->work_0 != 0)
             {
                 owner->u_C.b.lo++;
             }
@@ -316,9 +316,9 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
             Close_SHL_WORK(wp);
             return;
         }
-        wp->value_D++;
-        wp->value_E      = 1;
-        wp->data_78      = D_801140D0[wp->value_D];
+        wp->work_1++;
+        wp->work_2       = 1;
+        wp->data_78      = D_801140D0[wp->work_1];
         angle            = Angle_xz_svector(&wp->position, &Player_work.position);
         dir              = angle + 0x400;
         wp->velocity.v.x = (uint32)(rsin(dir) * wp->speed_CC) >> 12;
@@ -330,7 +330,7 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
         angle            = Angle_xz_svector(&wp->position, &wp->value_C4);
         wp->velocity.v.x = (uint32)(rsin(angle) * wp->speed_CC) >> 12;
         wp->velocity.v.z = (uint32)(rcos(angle) * wp->speed_CC) >> 12;
-        wp->value_E      = 1;
+        wp->work_2       = 1;
     }
     wp->rotation.v.y = (wp->rotation.v.y + 8) & 0xFFF;
     wp->velocity.v.y += wp->value_4E;
@@ -341,12 +341,12 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
     ground = Obj_map_push_out(wp);
     if (ground != 0)
     {
-        wp->value_E = 1;
+        wp->work_2 = 1;
         Wall_reflect_spd(&wp->velocity.v, ground);
     }
     func_8010C3D8(wp);
     func_8010C4AC(wp);
-    Model_Shadow_Trans(wp, 100 - wp->value_D * 20, 0x200, 0);
+    Model_Shadow_Trans(wp, 100 - wp->work_1 * 20, 0x200, 0);
 }
 
 void func_8010CB24(STAGE_FX *wp)

@@ -62,7 +62,7 @@ void func_80107DBC(STAGE_SHOT *wp, sint32 arg);
 typedef struct
 {
     sint8 be_flag; // 00
-    uint8 slot;    // 01
+    uint8 work_id; // 01
     uint8 id;      // 02
     uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];

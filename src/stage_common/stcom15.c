@@ -26,14 +26,14 @@ void stcom15_func_0000(STCOM15_WORK *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->be_flag & 1) && (ctl->flags_0 & 4))
+    if ((wp->be_flag & MOVE) && (ctl->flags_0 & 4))
     {
         ctl->pos_C = wp->joints_180[0];
-        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ctl->pos_C, 0x50, 0, 0x8000, wp->work_id, &ctl->hit_14, ctl->value_8 | 0x4880000, 0x800000, 0);
     }
     ctl->hit_14 = 0;
 }
@@ -48,7 +48,7 @@ void stcom15_func_01A4(STCOM15_WORK *wp)
     *(uint32 *)&wp->turn_64 = 0;
     wp->velocity.words[0]   = 0;
     wp->velocity.words[1]   = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x2000200;
     wp->scale.words[1] = 0x200;
@@ -62,7 +62,7 @@ void stcom15_func_01A4(STCOM15_WORK *wp)
         ctl->flags_0 = 0xE;
     }
     *(uint32 *)&ctl->timer_4 = 0;
-    if (wp->param_C & 0x10)
+    if (wp->work_0 & 0x10)
     {
         ctl->level_6 = 1;
     }
@@ -77,7 +77,7 @@ void stcom15_func_01A4(STCOM15_WORK *wp)
     ctl->effect_40   = NULL;
     ctl->turn_44     = 0;
     ctl->hit_48      = 0;
-    life             = (D_80098844[wp->id][ctl->level_6].life_8 << 4) * ((wp->param_F & 0x7F) + 1);
+    life             = (D_80098844[wp->id][ctl->level_6].life_8 << 4) * ((wp->work_3 & 0x7F) + 1);
     wp->data_10      = NULL;
     wp->data_78      = stcom15_D_0038;
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = life;
@@ -125,7 +125,7 @@ void stcom15_func_0394(STCOM15_WORK *wp)
         switch (wp->routine_1)
         {
             case 1:
-                wp->routine_1 = wp->param_E;
+                wp->routine_1 = wp->work_2;
                 break;
             case 6:
                 if (wp->life_6E <= 50)
@@ -173,7 +173,7 @@ void stcom15_func_0394(STCOM15_WORK *wp)
         ctl->effect_40 = func_80031618();
         if (ctl->effect_40 != NULL)
         {
-            ctl->effect_40->be_flag         = 5;
+            ctl->effect_40->be_flag         = MOVE | MODEL;
             ctl->effect_40->id              = 0x80;
             ctl->effect_40->type            = 0x41;
             ctl->effect_40->sprite.position = wp->position;
@@ -287,11 +287,11 @@ void stcom15_func_0874(STCOM15_WORK *wp)
                 *(uint16 *)&wp->routine_2 = 0;
                 if (ctl->flags_0 & 0x10)
                 {
-                    wp->param_E = 4;
+                    wp->work_2 = 4;
                 }
                 else
                 {
-                    wp->param_E = 2;
+                    wp->work_2 = 2;
                 }
             }
             else if (ctl->hit_48 & 0xF00)
@@ -300,11 +300,11 @@ void stcom15_func_0874(STCOM15_WORK *wp)
                 *(uint16 *)&wp->routine_2 = 0;
                 if (ctl->flags_0 & 0x10)
                 {
-                    wp->param_E = 4;
+                    wp->work_2 = 4;
                 }
                 else
                 {
-                    wp->param_E = 2;
+                    wp->work_2 = 2;
                 }
             }
             else if (ctl->flags_0 & 0x10)
@@ -348,7 +348,7 @@ void stcom15_func_0A30(STCOM15_WORK *wp)
                 Sound_call2(0xB4, &wp->position);
                 if (ctl->flags_0 & 0x20)
                 {
-                    ctl->timer_4 = wp->param_D;
+                    ctl->timer_4 = wp->work_1;
                     ctl->flags_0 &= ~0x20;
                 }
                 else
@@ -840,13 +840,13 @@ void stcom15_func_18EC(STCOM15_WORK *wp)
                 wp->position_fixed        = wp->position_fixed_prev;
                 wp->routine_1             = 1;
                 *(uint16 *)&wp->routine_2 = 0;
-                wp->param_E               = 4;
+                wp->work_2                = 4;
             }
             else if (ctl->hit_48 & 0xF00)
             {
                 wp->routine_1             = 1;
                 *(uint16 *)&wp->routine_2 = 0;
-                wp->param_E               = 4;
+                wp->work_2                = 4;
             }
             else if (ctl->timer_36 == 0 && wp->value_80 <= 0x11FFF)
             {
@@ -950,7 +950,7 @@ void stcom15_func_1E0C(STCOM15_WORK *wp)
     wp->ctl.shot_4C = Open_SHL_WORK();
     if (wp->ctl.shot_4C != NULL)
     {
-        wp->ctl.shot_4C->be_flag = 1;
+        wp->ctl.shot_4C->be_flag = MOVE;
         if (wp->ctl.level_6 == 0)
         {
             wp->ctl.shot_4C->id               = 6;

@@ -5,7 +5,7 @@ void func_8011E75C(ST06_BOAT *wp)
 {
     wp->color_B4 = 0x808080;
     D_8012B7CC[wp->routine_0](wp, &wp->ctl_CC);
-    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->slot, &wp->ctl_CC.hit_10, 0x4880000, 0, 0x80);
+    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->work_id, &wp->ctl_CC.hit_10, 0x4880000, 0, 0x80);
     wp->ctl_CC.hit_10 = 0;
 }
 
@@ -20,7 +20,7 @@ void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
             wp->rotation.x = 0;
             wp->rotation.y = 0x400;
             wp->rotation.z = 0;
-            wp->be_flag |= 6;
+            wp->be_flag |= TRANS | MODEL;
             wp->position_AC = wp->position;
             Model_work_init(wp, NULL);
             wp->color_B4     = 0x808080;
@@ -184,7 +184,7 @@ void func_8011EEBC(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
                 {
                     rnd         = rand();
                     bits        = rnd;
-                    fx->be_flag = 5;
+                    fx->be_flag = MOVE | MODEL;
                     fx->id      = 0x80;
                     fx->type    = 0x41;
                     fx->value_D = 1;
@@ -215,7 +215,7 @@ void func_8011EEBC(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag = 1;
+                fx->be_flag = MOVE;
                 fx->id      = 0xB;
                 fx->type    = 3;
                 fx->timer_E = 0x28;
@@ -260,7 +260,7 @@ void func_8011F2EC(ST06_10C *wp)
     obj                = STAGE_SCENE_OBJ(0);
     wp->position       = obj->position;
     wp->position_fixed = obj->position_fixed;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->color_B4 = 0x808080;
     wp->value_78 = 0;
@@ -288,9 +288,9 @@ void func_8011F454(ST06_10C *wp)
     obj                = STAGE_SCENE_OBJ(0);
     wp->position       = obj->position;
     wp->position_fixed = obj->position_fixed;
-    wp->value_C ^= 1;
+    wp->work_0 ^= 1;
     wp->position_AC = wp->position;
-    if (wp->value_C & 1)
+    if (wp->work_0 & 1)
     {
         wp->position_AC.x += 8;
     }

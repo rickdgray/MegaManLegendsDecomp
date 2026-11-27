@@ -29,7 +29,7 @@ void stcom14_func_006C(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->be_flag             = 3;
+                puff->be_flag             = MOVE | TRANS;
                 puff->id                  = wp->id;
                 puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
@@ -95,7 +95,7 @@ void stcom14_func_02A0(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->be_flag             = 3;
+                puff->be_flag             = MOVE | TRANS;
                 puff->id                  = wp->id;
                 puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
@@ -161,7 +161,7 @@ void stcom14_func_0504(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->be_flag             = 3;
+                puff->be_flag             = MOVE | TRANS;
                 puff->id                  = wp->id;
                 puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
@@ -210,7 +210,7 @@ void stcom14_func_06DC(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->be_flag             = 3;
+                puff->be_flag             = MOVE | TRANS;
                 puff->id                  = wp->id;
                 puff->type                = wp->type;
                 puff->value_C             = wp->value_C;

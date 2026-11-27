@@ -63,7 +63,7 @@ void func_801010D4(STAGE_WORK *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x2000200;
             wp->scale.words[1] = 0x200;
@@ -232,7 +232,7 @@ void func_8010163C(STAGE_OBJ *wp)
     wp->rotation.x     = 0;
     wp->rotation.y     = 0;
     wp->value_78       = 0;
-    wp->be_flag |= 3;
+    wp->be_flag |= MOVE | TRANS;
     wp->routine_0++;
     func_801016B0(wp);
     wp->rotation.z = 0xB4;
@@ -246,8 +246,8 @@ void func_801016B0(STAGE_OBJ *wp)
         {
             if (STAGE_SCENE_BYTE(9) == STAGE_SCENE_BYTE(8) && STAGE_SCENE_WORD(0x10) == 8)
             {
-                wp->u_C.b.byte_C = 1;
-                Model_work_init(wp, &wp->u_C.b.byte_C);
+                wp->u_C.b.work_0 = 1;
+                Model_work_init(wp, &wp->u_C.b.work_0);
                 func_800322A8(wp, 1, 0);
                 wp->rotation.z = 0;
                 wp->routine_1++;
@@ -255,8 +255,8 @@ void func_801016B0(STAGE_OBJ *wp)
         }
         else
         {
-            wp->u_C.b.byte_C = 0;
-            Model_work_init(wp, &wp->u_C.b.byte_C);
+            wp->u_C.b.work_0 = 0;
+            Model_work_init(wp, &wp->u_C.b.work_0);
             func_800322A8(wp, 0, 0);
         }
     }
@@ -391,7 +391,7 @@ void func_80101B88(STAGE_OBJ *wp)
         wp->value_78       = 0;
         wp->value_10       = 0;
         wp->scale.v.pad    = 0x4210;
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         Model_work_init(wp, NULL);
         func_800322A8(wp, 0, 0);
         wp->rotation.y = 0x800;
@@ -569,7 +569,7 @@ void func_8010211C(STAGE_OBJ *wp)
     wp->rotation.x     = 0;
     wp->rotation.y     = 0;
     wp->value_78       = 0;
-    wp->be_flag |= 3;
+    wp->be_flag |= MOVE | TRANS;
     wp->routine_0++;
     func_80102190(wp);
     wp->rotation.z = 0xB4;
@@ -583,8 +583,8 @@ void func_80102190(STAGE_OBJ *wp)
         {
             if (STAGE_SCENE_BYTE(9) == STAGE_SCENE_BYTE(8))
             {
-                wp->u_C.b.byte_C = 1;
-                Model_work_init(wp, &wp->u_C.b.byte_C);
+                wp->u_C.b.work_0 = 1;
+                Model_work_init(wp, &wp->u_C.b.work_0);
                 func_800322A8(wp, 1, 0);
                 wp->rotation.z = 0;
                 wp->routine_1++;
@@ -592,8 +592,8 @@ void func_80102190(STAGE_OBJ *wp)
         }
         else
         {
-            wp->u_C.b.byte_C = 0;
-            Model_work_init(wp, &wp->u_C.b.byte_C);
+            wp->u_C.b.work_0 = 0;
+            Model_work_init(wp, &wp->u_C.b.work_0);
             func_800322A8(wp, 0, 0);
         }
     }
@@ -641,7 +641,7 @@ void func_80102404(STAGE_FX *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     func_801022C0(wp);
@@ -650,7 +650,7 @@ void func_80102404(STAGE_FX *wp)
 void func_8010244C(STAGE_FX *wp)
 {
     wp->frame_E = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -704,10 +704,10 @@ void func_801024B8(STAGE_FX *wp)
         ep = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->be_flag        = 1;
+            ep->be_flag        = MOVE;
             ep->id             = 6;
             ep->type           = 0;
-            ep->value_C        = 6;
+            ep->work_0         = 6;
             ep->timer_D        = 1;
             angle              = rand() & 0xFFF;
             radius             = (rand() & 0x1F) + 0x64;
@@ -745,7 +745,7 @@ void func_801026CC(STAGE_FX *wp)
 
 void func_80102730(STAGE_FX *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -821,7 +821,7 @@ void func_8010299C(STAGE_FX *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     func_8010291C(wp);
@@ -852,10 +852,10 @@ void func_801029F8(STAGE_FX *wp)
     ep = (STAGE_FX *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 6;
         ep->type    = 2;
-        ep->value_C = 6;
+        ep->work_0  = 6;
         ep->timer_D = 1;
         ep->frame_E = 0;
         ep->type_F  = 0;
@@ -878,10 +878,10 @@ void func_801029F8(STAGE_FX *wp)
     ep = (STAGE_FX *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 6;
         ep->type    = 2;
-        ep->value_C = 6;
+        ep->work_0  = 6;
         ep->timer_D = 1;
         ep->frame_E = 1;
         ep->type_F  = 0;
@@ -954,7 +954,7 @@ STAGE_FX *func_80102CF4(STAGE_OBJ *parent, sint16 angle, sint16 radius, sint16 h
     ep = (STAGE_FX *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag             = 1;
+        ep->be_flag             = MOVE;
         ep->id                  = 6;
         ep->type                = variant;
         ep->timer_D             = 0;

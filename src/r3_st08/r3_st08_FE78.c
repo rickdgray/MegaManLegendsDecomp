@@ -16,7 +16,7 @@ void func_8010FE78(STAGE_OBJ50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 6;
+            wp->be_flag |= TRANS | MODEL;
             Model_work_init(wp, &wp->type);
             wp->color_40 = 0x808080;
             wp->routine_0++;
@@ -58,7 +58,7 @@ void func_8010FFB0(STAGE_OBJ50 *wp)
     }
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 6;
+        wp->be_flag |= TRANS | MODEL;
         Model_work_init(wp, &wp->type);
         m            = &wp->matrix.m;
         wp->color_40 = 0x808080;
@@ -115,15 +115,15 @@ void func_80110150(STAGE_OBJ *wp)
         ep = (ST08_10C *)Open_SHL_WORK();
         if (ep != NULL)
         {
-            ep->be_flag    = 1;
+            ep->be_flag    = MOVE;
             ep->id         = 0x26;
-            ep->value_C    = drops->kind_4;
-            ep->value_D    = drops->value_5;
-            ep->value_E    = 0;
-            ep->value_F    = wp->slot;
+            ep->work_0     = drops->kind_4;
+            ep->work_1     = drops->value_5;
+            ep->work_2     = 0;
+            ep->work_3     = wp->work_id;
             ep->position.x = drops->x;
             ep->position.z = drops->z;
-            if (ep->value_C != 0)
+            if (ep->work_0 != 0)
             {
                 ep->position.y = -(((rand() & 0xF) + 1) * 7 + 0x78);
                 ep->speed_CC   = (rand() & 3) * 10 + 100;
@@ -448,7 +448,7 @@ void func_80110C28(STAGE_OBJ50 *wp)
 {
     STCOM_FIXED_VECTOR unused; // never used; it reserves retail's frame
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;
@@ -473,5 +473,5 @@ void func_80110CC0(STAGE_OBJ50 *wp)
     {
         STCOM_PLAYER_WORK_PTR->target_184 = NULL;
     }
-    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
 }

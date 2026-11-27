@@ -168,7 +168,7 @@ void func_80102D24(STAGE_OBJ *wp)
 void func_80102D70(STAGE_OBJ *wp)
 {
     D_801052D4[wp->routine_1](wp);
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -193,7 +193,7 @@ void func_80102E4C(ST1E_PANEL *wp)
 {
     STAGE_XYZ *xyz;
 
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, &wp->type);
     wp->color_40 = 0x808080;
     xyz          = &D_801052EC[wp->type];
@@ -237,10 +237,10 @@ void func_80102FA4(ST1E_SCROLL *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0;
-    wp->value_C   = 0;
-    wp->value_D   = 0;
-    wp->value_E   = 0;
-    wp->value_F   = 0;
+    wp->work_0    = 0;
+    wp->work_1    = 0;
+    wp->work_2    = 0;
+    wp->work_3    = 0;
     wp->pos.frame = 0;
     wp->pos.line  = 0;
     wp->pos.count = 0;

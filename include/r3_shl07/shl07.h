@@ -4,7 +4,7 @@
 #include "common.h"
 #include "shl/shl.h"
 
-extern SHL_BOX D_8008A310[]; // indexed by an effect's index_a
+extern SHL_BOX D_8008A310[]; // indexed by an effect's routine_2
 extern uint8 D_80089ADA;
 
 extern SHL_FUNC D_800D8C28[]; // routine_0 handlers

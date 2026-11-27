@@ -12,7 +12,7 @@ void func_80110244(ST00_FOLLOWER *wp)
     wp->owner_F0 = func_80036294(wp->id_C);
     if (!(wp->flags_E & 1))
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
     }
     wp->value_54 = 0;
     wp->value_58 = 0;
@@ -20,7 +20,7 @@ void func_80110244(ST00_FOLLOWER *wp)
     wp->value_70 = 0;
     wp->value_74 = 0;
     wp->model_88 = wp->owner_F0->model_88;
-    wp->value_B2 = wp->value_D;
+    wp->value_B2 = wp->work_1;
     wp->value_BC = 0x10;
     wp->value_C0 = 0;
     wp->value_C4 = 0;
@@ -56,7 +56,7 @@ void func_8011032C(ST00_PART *wp)
         wp->color_B4 = 0x808080;
     }
     ctl->random_2 = rand();
-    if ((wp->be_flag & 2) && (ctl->flags_0 & 0x10))
+    if ((wp->be_flag & TRANS) && (ctl->flags_0 & 0x10))
     {
         wp->position         = ctl->parent_34->joint_180[wp->index_D];
         wp->position_fixed.x = wp->position.x << 16;
@@ -103,7 +103,7 @@ void func_8011032C(ST00_PART *wp)
         wp->position       = D_801224AC[0];
         wp->position_fixed = D_801224B4[0];
     }
-    if ((wp->be_flag & 1) && (ctl->flags_0 & 8))
+    if ((wp->be_flag & MOVE) && (ctl->flags_0 & 8))
     {
         D_801224AC[0] = wp->position;
         D_801224B4[0] = wp->position_fixed;
@@ -111,7 +111,8 @@ void func_8011032C(ST00_PART *wp)
         ctl->pos_C         = wp->position;
         wp->position       = D_801224AC[0];
         wp->position_fixed = D_801224B4[0];
-        func_8003430C(&ctl->pos_C, 0x50, &wp->position, 0x40, 0x200, 0xA000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x9880000, 0x800000, 0);
+        func_8003430C(&ctl->pos_C, 0x50, &wp->position, 0x40, 0x200, 0xA000, wp->work_id, &ctl->hit_14, ctl->value_8 | 0x9880000, 0x800000,
+                      0);
     }
 }
 
@@ -190,13 +191,13 @@ void func_8011085C(ST00_PART *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag = 7;
+                fx->be_flag = MOVE | TRANS | MODEL;
                 fx->id      = 0x80;
                 fx->type    = 0;
                 Obj_pos_set(wp, 0x1000, 0, 0);
                 fx->sprite.position = wp->position;
             }
-            wp->be_flag &= ~2;
+            wp->be_flag &= ~TRANS;
             wp->flags_E |= 1;
             ctl->flags_0 = (ctl->flags_0 | 1) & ~0x5E;
             break;
@@ -243,12 +244,12 @@ void func_80110BA0(ST00_PART *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag         = 7;
+                fx->be_flag         = MOVE | TRANS | MODEL;
                 fx->id              = 0x80;
                 fx->type            = 0;
                 fx->sprite.position = wp->position;
             }
-            wp->be_flag &= ~2;
+            wp->be_flag &= ~TRANS;
             wp->flags_E |= 1;
             ctl->flags_0 = (ctl->flags_0 | 1) & ~0x5E;
             break;

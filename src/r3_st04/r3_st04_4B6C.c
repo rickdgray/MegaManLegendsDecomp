@@ -11,7 +11,7 @@ void func_80104BA8(ST04_ACTOR *wp)
     STCOM_FIXED_VECTOR fixed;
     ST04_ACTOR_CTL *ctl;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl2;
     if (wp->type != 0)
     {
@@ -70,7 +70,7 @@ void func_80104CB8(ST04_ACTOR *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -124,7 +124,7 @@ void func_80104F7C(ST04_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010C984[wp->type](wp);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -178,7 +178,7 @@ void func_8010506C(ST04_ACTOR *wp)
             if (!func_8003A13C())
             {
                 pl->flags_bd &= ~0x40;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
             }
             break;
@@ -191,7 +191,7 @@ void func_801051EC(ST04_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -224,7 +224,7 @@ sint32 func_8010528C(ST04_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->be_flag &= ~2;
+        pl->be_flag &= ~TRANS;
         pl->flags_bd |= 0x40;
         D_80111D50.x = wp->value_180.x;
         D_80111D50.y = wp->value_180.y - 0x20;

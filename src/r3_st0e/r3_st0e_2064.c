@@ -19,7 +19,7 @@ void func_80102104(ST0E_ACTOR *wp)
 
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -54,7 +54,7 @@ void func_801021D4(ST0E_ACTOR *wp)
         fx = func_80031618();
         if (fx != NULL)
         {
-            fx->be_flag         = 5;
+            fx->be_flag         = MOVE | MODEL;
             fx->id              = 0x80;
             fx->type            = 0x40;
             fx->sprite.position = wp->value_188;
@@ -65,11 +65,11 @@ void func_801021D4(ST0E_ACTOR *wp)
         obj = (ST0E_10C *)Open_SHL_WORK();
         if (obj != NULL)
         {
-            obj->be_flag  = 1;
+            obj->be_flag  = MOVE;
             obj->id       = 0x2A;
             obj->type     = 1;
             obj->position = wp->position;
-            obj->byte_C   = 3;
+            obj->work_0   = 3;
         }
         func_80052528(wp);
         wp->routine_0 = 2;

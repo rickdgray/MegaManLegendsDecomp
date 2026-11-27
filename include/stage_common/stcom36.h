@@ -11,7 +11,7 @@ typedef void (*STCOM36_OBJ_FUNC)(STCOM36_OBJ *wp);
 struct STCOM36_OBJ
 {
     uint8 be_flag;    // 00
-    uint8 slot;       // 01: pool id and slot
+    uint8 work_id;    // 01: pool id and slot
     uint8 id;         // 02: first index into the pool's handler table
     uint8 type;       // 03
     uint8 handler;    // 04: second index (two-level tables)

@@ -18,7 +18,7 @@ uint8 func_80102DF8(void)
 
 void func_80102E3C(ST1C_OBJ *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->value_64               = 0;
     wp->rotation_prev.v.x      = 0;
@@ -75,7 +75,7 @@ void func_80102FD0(ST1C_OBJ *wp)
             pos.y = wp->position.y - 0x92;
             pos.z = wp->position.z;
             func_80039FAC(&pos, 0xD4, 0, 0);
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             wp->routine_2++;
             break;
         case 1:
@@ -91,7 +91,7 @@ void func_80102FD0(ST1C_OBJ *wp)
             if (D_800987B0[0] == 0)
             {
                 func_80039E18();
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_2++;
             }
             break;
@@ -129,7 +129,7 @@ void func_80103178(ST1C_OBJ *wp)
             pos.y = wp->position.y - 0x92;
             pos.z = wp->position.z;
             func_80039FAC(&pos, 0xD4, 0, 0);
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             wp->routine_2++;
             break;
         case 1:
@@ -183,7 +183,7 @@ void func_80103178(ST1C_OBJ *wp)
                     Sce_flag_off(slot + 0x54B);
                     func_8001E3F0(0x19);
                 }
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_2++;
             }
             break;
@@ -218,7 +218,7 @@ void func_8010343C(STAGE_OBJ *wp)
 void func_8010345C(STAGE_OBJ *wp)
 {
     D_80104478[wp->routine_0](wp);
-    if ((uint8)wp->be_flag & 2)
+    if ((uint8)wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x3C, 0x200, 0);
     }
@@ -234,7 +234,7 @@ void func_801034C8(ST1C_OBJ50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 6;
+            wp->be_flag |= TRANS | MODEL;
             wp->type = D_801044C4[wp->index_C];
             Model_work_init(wp, &wp->type);
             if (wp->index_C == 5)

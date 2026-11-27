@@ -18,7 +18,7 @@ void func_8010FA58(STAGE_SPARK *wp)
 
 void func_8010FAE4(STAGE_SPARK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     wp->routine_0++;
     func_8010FA58(wp);
 }
@@ -43,10 +43,10 @@ void func_8010FB74(ST03_SPARK *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            ep->be_flag  = 1;
+            ep->be_flag  = MOVE;
             ep->type     = 1;
             ep->flags    = wp->flags;
-            ep->value_C  = 0;
+            ep->work_0   = 0;
             ep->timer_D  = (rand() & 7) * 2 + 0x40;
             ep->x_1C     = wp->x_1C + (rand() & 0xF);
             ep->y_1E     = wp->y_1E;
@@ -91,10 +91,10 @@ ST03_SPARK *func_8010FD1C(STAGE_XYZ *pos, sint32 width, sint32 growth, sint16 co
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag  = 1;
+        ep->be_flag  = MOVE;
         ep->id       = 0;
         ep->type     = 0;
-        ep->value_C  = 0;
+        ep->work_0   = 0;
         ep->width_E  = width;
         ep->type_F   = growth;
         ep->x_1C     = pos->x;
@@ -133,7 +133,7 @@ void func_8010FE24(ST03_PROP *wp)
     scale.y = 0x200;
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix_8C.m, &scale);
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x80, 0x200, 0);
     }
@@ -146,7 +146,7 @@ void func_8010FF4C(ST03_PROP *wp)
     uint8 variant;
 
     variant = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->position_AC = wp->position;
     wp->rotation.x  = 0;
     wp->rotation.z  = 0;
@@ -193,7 +193,7 @@ void func_8011006C(ST03_PROP *wp)
     wp->position_AC = wp->position;
     if (wp->hit_BC.h[0] & 2)
     {
-        func_800341BC(&wp->position, 0x30, 0, 0x8000, wp->slot, hit, 0x500000A, 0, 0x80);
+        func_800341BC(&wp->position, 0x30, 0, 0x8000, wp->work_id, hit, 0x500000A, 0, 0x80);
     }
     wp->hit_BC.w = 0;
 }

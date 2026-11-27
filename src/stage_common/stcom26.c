@@ -89,7 +89,7 @@ void stcom26_func_003C(STCOM26_WORK *wp)
         block = Open_SHL_WORK();
         if (block != NULL)
         {
-            block->be_flag           = 5;
+            block->be_flag           = MOVE | MODEL;
             block->id                = 4;
             block->course_C          = wp->type;
             block->start_D           = i;

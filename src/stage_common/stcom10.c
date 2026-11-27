@@ -13,7 +13,7 @@ void stcom10_func_0000(STCOM10_WORK *wp)
 
 void stcom10_func_003C(STCOM10_WORK *wp)
 {
-    wp->be_flag      = 1;
+    wp->be_flag      = MOVE;
     wp->state.area_8 = wp->state.value_9 = -1;
     wp->state.table_0                    = stcom10_D_000C[Game_work.value_50][Game_work.value_51];
     wp->state.area_4                     = NULL;
@@ -227,7 +227,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->slot;
+                pair->flag                             = obj->work_id;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -250,7 +250,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->slot;
+                pair->flag                             = obj->work_id;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -271,7 +271,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->slot;
+                pair->flag                             = obj->work_id;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -289,7 +289,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj50->x_1C    = spawn->pos_C.x;
                 obj50->y_1E    = spawn->pos_C.y;
                 obj50->z_20    = spawn->pos_C.z;
-                pair->flag     = obj50->slot;
+                pair->flag     = obj50->work_id;
                 pair->index    = i;
                 pair++;
                 break;

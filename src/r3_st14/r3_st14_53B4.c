@@ -12,7 +12,7 @@ void func_801053F0(ST14_SPLASH *wp)
     STCOM_SVECTOR rot;
     STCOM_FIXED_VECTOR scale;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     grow                   = &wp->u_18.s.grow;
     wp->u_18.s.grow.size_4 = 0;
     if (wp->value_C & 1)
@@ -89,7 +89,7 @@ void func_80105578(ST14_SPLASH *wp)
                 effect = func_80031618();
                 if (effect != NULL)
                 {
-                    effect->be_flag         = 5;
+                    effect->be_flag         = MOVE | MODEL;
                     effect->id              = 0x17;
                     effect->type            = 1;
                     effect->value_C         = wp->value_C;

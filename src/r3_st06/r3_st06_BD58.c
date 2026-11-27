@@ -4,7 +4,7 @@
 void func_8010BD58(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -32,7 +32,7 @@ void func_8010BE28(STAGE_OBJ *wp)
 // Statement order found by search; retail stores position_prev.z twice.
 void func_8010BE64(ST06_ACTOR *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->position_fixed.x      = wp->position.x << 16;
     wp->value_78              = NULL;
@@ -61,8 +61,8 @@ void func_8010BE64(ST06_ACTOR *wp)
     wp->accel_4C.z            = 0;
     wp->routine_1             = 0;
     wp->turn_64               = 0x80;
-    func_800322A8(wp, wp->value_E, 0);
-    wp->value_D = 0;
+    func_800322A8(wp, wp->work_2, 0);
+    wp->work_1 = 0;
     wp->routine_0++;
 }
 
@@ -75,7 +75,7 @@ void func_8010BF78(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->be_flag &= ~2;
+        pl->be_flag &= ~TRANS;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -86,32 +86,32 @@ void func_8010BF78(ST06_ACTOR *wp)
         wp->routine_0 = 2;
         return;
     }
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80032488(wp);
         return;
     }
-    func_800322A8(wp, wp->value_E, 0);
-    wp->value_D = 0;
+    func_800322A8(wp, wp->work_2, 0);
+    wp->work_1 = 0;
 }
 
 void func_8010C090(STAGE_OBJ *wp)
 {
     Obj_pos_set(wp, wp->value_44.half[0], 0, 0);
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80032488(wp);
     }
     else
     {
-        func_800322A8(wp, wp->u_E.b.byte_E, 0);
-        wp->u_C.b.byte_D = 0;
+        func_800322A8(wp, wp->u_E.b.work_2, 0);
+        wp->u_C.b.work_1 = 0;
     }
 }
 
 void func_8010C0F4(ST06_ACTOR *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->data_10               = D_80125158;
     wp->scale.words[0]        = 0x2000200;
@@ -139,8 +139,8 @@ void func_8010C0F4(ST06_ACTOR *wp)
     wp->accel_4C.y            = 0;
     wp->accel_4C.z            = 0;
     wp->turn_64               = 0x80;
-    func_800322A8(wp, wp->value_E, 0);
-    wp->value_D = 0;
+    func_800322A8(wp, wp->work_2, 0);
+    wp->work_1 = 0;
     wp->routine_0++;
 }
 
@@ -188,7 +188,7 @@ void func_8010C318(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_1 = 0;
         pl->flags_bd &= ~0x80;
-        pl->be_flag |= 2;
+        pl->be_flag |= TRANS;
         wp->routine_0 = 1;
     }
     else
@@ -206,7 +206,7 @@ void func_8010C408(STAGE_OBJ *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 2;
+        wp->be_flag |= TRANS;
         func_8002F9EC(wp, NULL);
         wp->scale.words[0] = 0x2000200;
         wp->scale.words[1] = 0x200;

@@ -153,10 +153,10 @@ void func_801005E8(STAGE_EFFECT *wp)
         ep = (STAGE_EFFECT *)func_80031618();
         if (ep != NULL)
         {
-            ep->be_flag     = 1;
+            ep->be_flag     = MOVE;
             ep->id          = 0xE;
             ep->type        = wp->type;
-            ep->value_C     = 1;
+            ep->work_0      = 1;
             ep->u_28.parent = wp;
             ep->flags |= 0x20;
             ep->angle_3E   = rand() & 0xFFF;
@@ -174,7 +174,7 @@ void func_801006A0(STAGE_EFFECT *wp)
 
 void func_801006C0(STAGE_EFFECT *wp)
 {
-    if (wp->value_C == 0)
+    if (wp->work_0 == 0)
     {
         D_80102178[wp->routine_0](wp);
     }
@@ -191,12 +191,12 @@ STAGE_EFFECT *func_8010072C(STCOM_SVECTOR *pos, sint16 value, uint8 variant)
     ep = (STAGE_EFFECT *)func_80031618();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 0xE;
         ep->x_1C    = pos->x;
         ep->y_1E    = pos->y;
         ep->z_20    = pos->z;
-        ep->value_C = 0;
+        ep->work_0  = 0;
         ep->type    = variant;
         ep->flags |= 0x20;
         ep->u_28.value = value;
@@ -463,7 +463,7 @@ void func_801010FC(STAGE_WORK *wp)
     STAGE_SCENE_FACE *face;
 
     D_801024A8[wp->routine_1](wp);
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -671,7 +671,7 @@ void func_801018CC(STAGE_WORK *wp)
 void func_80101918(STAGE_WORK *wp)
 {
     D_801027C8[wp->routine_1](wp);
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -761,7 +761,7 @@ void func_80101C08(STAGE_LIGHT *wp)
 
     if (wp->routine_0 == 0)
     {
-        wp->be_flag |= 4;
+        wp->be_flag |= MODEL;
         Model_work_init(wp, NULL);
         wp->angle_C = 0;
         wp->routine_0++;
@@ -801,7 +801,7 @@ void func_80101D94(void)
     ep = Open_EVE_WORK();
     if (ep != NULL)
     {
-        ep->be_flag = 1;
+        ep->be_flag = MOVE;
         ep->id      = 0xB;
         ep->step_D  = 0;
         ep->timer_C = 0;

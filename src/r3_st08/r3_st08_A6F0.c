@@ -35,8 +35,8 @@ void func_8010A7E4(ST08_10C *wp)
     wp->value_74          = 0;
     wp->rotation.v.x      = 0;
     wp->rotation.v.z      = 0;
-    wp->be_flag |= 6;
-    wp->rotation.v.y = (wp->value_C << 9) & 0xE00;
+    wp->be_flag |= TRANS | MODEL;
+    wp->rotation.v.y = (wp->work_0 << 9) & 0xE00;
     Model_work_init(wp, &wp->type);
     m      = &wp->matrix;
     wp->id = 0x2F;

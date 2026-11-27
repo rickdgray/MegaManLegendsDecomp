@@ -343,27 +343,27 @@ void func_801017E8(STAGE_ROOM *wp)
     if (wp->frame_10 == 0x64)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0x19)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
+        child->u_C.b.work_0 = 1;
     }
     if (wp->frame_10 == 0x82)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
     if (wp->frame_10 == 0x8C)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
+        child->u_C.b.work_0 = 1;
     }
     if (wp->frame_10 == 0x13B)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
 }
 
@@ -431,22 +431,22 @@ void func_80101984(STAGE_ROOM *wp)
     if (wp->frame_10 == 0x22)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
     }
     if (wp->frame_10 == 0x3C)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0xF)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
+        child->u_C.b.work_0 = 1;
     }
     if (wp->frame_10 == 0x9F)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
 }
 
@@ -463,12 +463,12 @@ void func_80101A1C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0x19)
     {
         child               = wp->child_34;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
     }
     if (wp->frame_10 == 0x37)
     {
         child               = wp->child_34;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0xC8)
     {
@@ -530,7 +530,7 @@ void func_80101B30(STAGE_ROOM *wp)
         child->position_fixed.v.z = -0x02BC0000;
         child->rotation.y         = 0x258;
         child                     = wp->child_34;
-        child->u_C.b.byte_D       = 1;
+        child->u_C.b.work_1       = 1;
         child->routine_1          = 3;
         child->routine_2          = 0;
     }
@@ -543,7 +543,7 @@ void func_80101B30(STAGE_ROOM *wp)
     if (wp->frame_10 == 0x3C)
     {
         child               = wp->child_34;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0x41)
     {
@@ -589,7 +589,7 @@ void func_80101CB0(STAGE_ROOM *wp)
                 STAGE_PL.pos_438.y   = -1;
                 STAGE_PL.pos_438.z   = -0x87;
                 STAGE_PL.value_442   = 0x800;
-                STAGE_PL.be_flag &= ~2;
+                STAGE_PL.be_flag &= ~TRANS;
                 Cd_xa_play_id(0x20010009);
                 wp->routine_4++;
             }
@@ -625,7 +625,7 @@ void func_80101CB0(STAGE_ROOM *wp)
                 Cd_subcmd(0, 1, 0);
                 D_800A395C = 1;
                 func_80039820();
-                STAGE_PL.be_flag |= 2;
+                STAGE_PL.be_flag |= TRANS;
                 func_80042314(&Player_work);
                 STAGE_PL.value_6E = STAGE_PL.value_B0;
                 func_8005D9C4();
@@ -648,33 +648,33 @@ void func_80101EFC(STAGE_ROOM *wp)
         child               = wp->child_30;
         child->routine_1    = 6;
         child->routine_2    = 0;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
     }
     if (wp->frame_10 == 0x64)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0xA)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
+        child->u_C.b.work_0 = 1;
     }
     if (wp->frame_10 == 0x5A)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
     if (wp->frame_10 == 0x69)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
-        child->u_E.b.byte_E = 1;
+        child->u_C.b.work_0 = 1;
+        child->u_E.b.work_2 = 1;
     }
     if (wp->frame_10 == 0xA3)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
 }
 
@@ -690,21 +690,21 @@ void func_80101FBC(STAGE_ROOM *wp)
         child               = wp->child_2C;
         child->routine_1    = 6;
         child->routine_2    = 0;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
         child               = wp->child_34;
         child->routine_1    = 5;
         child->routine_2    = 0;
-        child->u_C.b.byte_D = 1;
+        child->u_C.b.work_1 = 1;
     }
     if (wp->frame_10 == 0x20)
     {
         child               = wp->child_2C;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0x34)
     {
         child               = wp->child_34;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
     if (wp->frame_10 == 0x6E)
     {
@@ -751,13 +751,13 @@ void func_80102148(STAGE_ROOM *wp)
     if (wp->frame_10 == 5)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 1;
-        child->u_E.b.byte_E = 0;
+        child->u_C.b.work_0 = 1;
+        child->u_E.b.work_2 = 0;
     }
     if (wp->frame_10 == 0x32)
     {
         child               = wp->child_30;
-        child->u_C.b.byte_C = 0;
+        child->u_C.b.work_0 = 0;
     }
 }
 
@@ -812,7 +812,7 @@ void func_801022D4(STAGE_ROOM *wp)
         case 1:
             if (func_80042238(&Player_work) != 0)
             {
-                Player_work.be_flag &= ~3;
+                Player_work.be_flag &= ~(MOVE | TRANS);
                 Obj_work_flag_change(0x56, 0x80);
                 Cd_xa_play_id(0x20000020);
                 wp->routine_4++;
@@ -861,7 +861,7 @@ void func_801022D4(STAGE_ROOM *wp)
                 D_800C3570  = 0xFF;
                 wp->flags_0 = 0;
                 Cd_subcmd(0, 1, 0);
-                Player_work.be_flag |= 1;
+                Player_work.be_flag |= MOVE;
                 func_80042314(&Player_work);
             }
             break;

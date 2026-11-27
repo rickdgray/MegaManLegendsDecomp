@@ -366,7 +366,7 @@ void func_8001E068(void)
         if (D_800988E8 & (0x80000000U >> i))
         {
             obj  = D_800ACD40[i];
-            pool = func_8002FE74(obj->slot);
+            pool = func_8002FE74(obj->work_id);
             switch (pool)
             {
                 case 0x40:
@@ -415,7 +415,7 @@ void func_8001E20C(sint8 index)
     if (D_800988E8 & (0x80000000U >> index))
     {
         obj  = D_800ACD40[index];
-        pool = func_8002FE74(obj->slot);
+        pool = func_8002FE74(obj->work_id);
         switch (pool)
         {
             case 0x40:
@@ -636,7 +636,7 @@ void *scene_obj_open(sint32 index, sint32 id, sint32 pool, SVECTOR *pos)
             ep = func_80031734();
             if (ep != NULL)
             {
-                ep->be_flag = 1;
+                ep->be_flag = MOVE;
                 ep->id      = id;
                 ep->flags |= 0x20;
                 *(uint32 *)&ep->efc.model.pos.vx = *(uint32 *)&pos->vx;
@@ -653,7 +653,7 @@ void *scene_obj_open(sint32 index, sint32 id, sint32 pool, SVECTOR *pos)
     }
     if (mp != NULL)
     {
-        mp->be_flag = 1;
+        mp->be_flag = MOVE;
         mp->id      = id;
         mp->flags |= 0x20;
         *(uint32 *)&mp->pos.vx = *(uint32 *)&pos->vx;

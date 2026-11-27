@@ -296,7 +296,7 @@ void func_80100BA4(sint32 arg)
             obj = (ST0D_ACTOR *)Open_SHL_WORK();
             if (obj != NULL)
             {
-                obj->be_flag          = 1;
+                obj->be_flag          = MOVE;
                 obj->id               = 0x12;
                 obj->type             = 3;
                 obj->position.x       = 0x700;
@@ -310,11 +310,11 @@ void func_80100BA4(sint32 arg)
                 obj->position_fixed.z = obj->position.z << 16;
                 if (Sce_flag_test(0x12))
                 {
-                    obj->value_D = 0;
+                    obj->work_1 = 0;
                 }
                 else
                 {
-                    obj->value_D = 1;
+                    obj->work_1 = 1;
                 }
                 obj->rotation.y = 0;
             }
@@ -324,7 +324,7 @@ void func_80100BA4(sint32 arg)
             obj = (ST0D_ACTOR *)Open_SHL_WORK();
             if (obj != NULL)
             {
-                obj->be_flag          = 1;
+                obj->be_flag          = MOVE;
                 obj->id               = 0x12;
                 obj->rotation.z       = 0;
                 obj->type             = 3;
@@ -336,7 +336,7 @@ void func_80100BA4(sint32 arg)
                 obj->rotation.y       = 0;
                 obj->position.z       = -0x4AA;
                 obj->timer_C          = 0;
-                obj->value_D          = 2;
+                obj->work_1           = 2;
                 obj->position_fixed.z = obj->position.z << 16;
             }
             break;
@@ -382,7 +382,7 @@ void func_80100DF0(STAGE_ROOM *wp)
             {
                 Player_work.routine_0 = 3;
                 Player_work.routine_1 = 0;
-                Player_work.be_flag &= ~2;
+                Player_work.be_flag &= ~TRANS;
                 wp->reserved09[1] = 0;
                 Cd_xa_play_id(0x20000012);
                 wp->routine_5 = 0;
@@ -610,7 +610,7 @@ void func_801014A8(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_28;
-        child->be_flag |= 2;
+        child->be_flag |= TRANS;
         child = wp->child_2C;
         child->be_flag &= 0xFD;
     }
@@ -866,7 +866,7 @@ void func_80101BE8(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.be_flag &= ~2;
+        STAGE_PL.be_flag &= ~TRANS;
         func_80031824(wp->child_2C);
         func_80031824(wp->child_30);
         Scene_obj_ent_open(D_8010CF74);
@@ -878,7 +878,7 @@ void func_80101C64(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.be_flag |= 2;
+        STAGE_PL.be_flag |= TRANS;
         func_8003187C(wp->child_28);
         Scene_obj_ent_open(&D_8010CFB0[0]);
         Scene_obj_ent_open(&D_8010CFB0[1]);
@@ -901,7 +901,7 @@ void func_80101D3C(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.be_flag |= 2;
+        STAGE_PL.be_flag |= TRANS;
         Scene_obj_ent_open(&D_8010CFB0[0]);
         Scene_obj_ent_open(&D_8010CFB0[1]);
         wp->child_24->routine_1 = 1;
@@ -969,7 +969,7 @@ void func_80101F14(STAGE_ROOM *wp)
                 obj = func_80031418();
                 if (obj != NULL)
                 {
-                    obj->be_flag = 1;
+                    obj->be_flag = MOVE;
                     obj->id      = 0x55;
                 }
                 func_80101E74();
@@ -1327,7 +1327,7 @@ void func_80102B14(STAGE_OBJ *wp, sint32 arg, STAGE_FACE *face)
 {
     sint8 i;
 
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -1466,7 +1466,7 @@ void func_80102C00(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
             {
                 ST0D_OBJ_SBYTE(wp, 0x143) = -1;
                 ST0D_OBJ_SBYTE(wp, 0x147) = -1;
-                wp->be_flag &= ~2;
+                wp->be_flag &= ~TRANS;
                 wp->routine_1++;
             }
             Obj_pos_set(wp, wp->value_44.half[0], 0, wp->value_48.half[0]);
@@ -1475,7 +1475,7 @@ void func_80102C00(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
             if (scene->u_8.value_8 == 1)
             {
                 wp->anim_AC = 5;
-                wp->be_flag |= 2;
+                wp->be_flag |= TRANS;
                 face->value_2 = 0;
                 func_80103690(wp, face, 2);
                 func_801036B8(wp, face, 3);
@@ -1665,7 +1665,7 @@ void func_80103474(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -1799,7 +1799,7 @@ void func_8010390C(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->be_flag |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -1995,20 +1995,20 @@ void func_80103EDC(ST0D_ACTOR *wp, uint16 *bob)
     fx               = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x15;
         fx->type    = 0;
-        fx->value_C = wp->slot;
+        fx->work_0  = wp->work_id;
         fx->timer_D = 0;
         fx->flags |= 0x20;
     }
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x15;
         fx->type    = 1;
-        fx->value_C = wp->slot;
+        fx->work_0  = wp->work_id;
         fx->flags |= 0x20;
     }
     wp->routine_0++;
@@ -2106,20 +2106,20 @@ void func_801042D0(ST0D_LIFT *wp, ST0D_PATH *path)
     fx           = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x15;
         fx->type    = 0;
-        fx->value_C = wp->slot;
+        fx->work_0  = wp->work_id;
         fx->timer_D = 0;
         fx->flags |= 0x20;
     }
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->be_flag = 1;
+        fx->be_flag = MOVE;
         fx->id      = 0x15;
         fx->type    = 1;
-        fx->value_C = wp->slot;
+        fx->work_0  = wp->work_id;
         fx->flags |= 0x20;
     }
     origin[1]     = &wp->position;
@@ -2251,13 +2251,13 @@ void func_80104800(ST0D_LIFT *wp, ST0D_PATH *path)
 
 void func_8010494C(ST0D_LIFT *wp, ST0D_PATH *path)
 {
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         path->box_38 = wp->position;
         path->box_30 = path->box_38;
         path->box_38.y -= 0x280;
-        func_800341BC(&path->box_30, 0x100, 0, 0, wp->slot, &wp->hit_BC, 0x2000000, 0, 0);
-        func_800341BC(&path->box_38, 0x60, 0, 0, wp->slot, &wp->hit_C4, 0x2000000, 0, 0);
+        func_800341BC(&path->box_30, 0x100, 0, 0, wp->work_id, &wp->hit_BC, 0x2000000, 0, 0);
+        func_800341BC(&path->box_38, 0x60, 0, 0, wp->work_id, &wp->hit_C4, 0x2000000, 0, 0);
     }
 }
 
@@ -2295,7 +2295,7 @@ void func_80104BE0(ST0D_ACTOR *wp, uint16 *bob)
     wp->color_B4     = 0x808080;
     wp->data_10      = D_8010DC08;
     wp->timer_C      = 0;
-    wp->value_E      = 1;
+    wp->work_2       = 1;
     bob[0]           = 0;
     bob[1]           = wp->position.y;
     wp->velocity.v.x = 0;

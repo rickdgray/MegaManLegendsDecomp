@@ -34,8 +34,8 @@ typedef struct
 typedef struct PL_WORK
 {
     uint8 be_flag; // 0x00: as in every pool slot; bit 0: the player is live (lock_on_search)
-    uint8 slot;    // 0x01: pool kind (0) ORed with the player's index (Work_pools_init); copied to
-                   // the spawned shot's field_C (pl_shot_spawn)
+    uint8 work_id; // 0x01: pool kind (0) ORed with the player's index (Work_pools_init); copied to
+                   // the spawned shot's work_0 (pl_shot_spawn)
     uint8 id;      // 0x02: id to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
     uint8 type;
     uint8 flag_4;

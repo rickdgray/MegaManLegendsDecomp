@@ -6,7 +6,7 @@
 // tools/cc.sh); the names are the same in every stage's registry.
 #define ASM_DIR TARGET_ASM "/stage_common/stcom35"
 
-// An emitter (value_D 0) that puts out a glowing puff (value_D 1) every 16 frames for 16 frames.
+// An emitter (work_1 0) that puts out a glowing puff (work_1 1) every 16 frames for 16 frames.
 void stcom35_func_0000(STCOM_EFFECT *wp)
 {
     if (wp->value_D == 0)
@@ -26,7 +26,7 @@ void stcom35_func_006C(STCOM_EFFECT *wp)
     if (!(wp->timer_B & 0xF))
     {
         fx                  = func_80031618();
-        fx->be_flag         = 3;
+        fx->be_flag         = MOVE | TRANS;
         fx->id              = wp->value_C;
         fx->type            = wp->type;
         fx->value_C         = wp->value_C;

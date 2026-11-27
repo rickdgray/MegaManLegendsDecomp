@@ -139,7 +139,7 @@ void func_80119778(STAGE_ROOM *wp)
         child->position_fixed.v.x = 0;
         child->position_fixed.v.y = -0x1000000;
         child->position_fixed.v.z = 0;
-        child->be_flag |= 2;
+        child->be_flag |= TRANS;
         func_80119838(D_800C3558, 3);
     }
     if (wp->frame_10 == 0xC8)
@@ -277,7 +277,7 @@ void func_80119BDC(STAGE_ROOM *wp)
     {
         case 0:
             func_80119A14(0);
-            wp->child_24->be_flag &= ~2;
+            wp->child_24->be_flag &= ~TRANS;
             wp->child_24->routine_0++;
             Scene_obj_ent_open(D_801226F0);
             Obj_work_flag_change(0x60, 0x80);
@@ -340,7 +340,7 @@ void func_80119EB8(STAGE_ROOM *wp)
         case 0:
             func_8003187C(wp->child_30);
             func_80119A14(3);
-            wp->child_24->be_flag |= 2;
+            wp->child_24->be_flag |= TRANS;
             wp->child_24->routine_0++;
             Obj_work_flag_change(0x60, 0x80);
             wp->routine_6++;
@@ -402,7 +402,7 @@ void func_8011A030(STAGE_ROOM *wp)
             STAGE_PL.value_448   = 0x84;
             STAGE_PL.value_76    = 1;
             STAGE_PL.value_74    = 0;
-            pl->be_flag |= 3;
+            pl->be_flag |= MOVE | TRANS;
             STAGE_PL.flags_bd |= 0x10;
             STAGE_PL.value_C0    = wp->child_28;
             STAGE_PL_BYTE(0x170) = 0;
@@ -411,7 +411,7 @@ void func_8011A030(STAGE_ROOM *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->be_flag = 1;
+                fx->be_flag = MOVE;
                 fx->id      = 0x12;
             }
             for (i = 0; i < 9; i++)
@@ -419,9 +419,9 @@ void func_8011A030(STAGE_ROOM *wp)
                 fx = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->be_flag = 1;
+                    fx->be_flag = MOVE;
                     fx->id      = 0x16;
-                    fx->value_C = i;
+                    fx->work_0  = i;
                 }
             }
             wp->routine_6++;
@@ -478,7 +478,7 @@ void func_8011A2FC(STAGE_ROOM *wp)
     switch (wp->routine_5)
     {
         case 0:
-            pl->be_flag &= ~2;
+            pl->be_flag &= ~TRANS;
             D_80122B9C           = STAGE_PL_BYTE(0x170);
             STAGE_PL_BYTE(0x170) = 0;
             Obj_work_flag_change(0x7E, 0x80);
@@ -580,7 +580,7 @@ void func_8011A574(STAGE_ROOM *wp)
                 STAGE_PL_BYTE(0x168) = 0;
                 STAGE_PL_BYTE(0x169) = 0;
                 D_800A395C           = 1;
-                pl->be_flag |= 3;
+                pl->be_flag |= MOVE | TRANS;
                 STAGE_PL_BYTE(0x170) = D_80122B9C;
                 func_80039820();
                 D_800C356C_A[0]++;

@@ -10,7 +10,7 @@ void func_80104D84(ST10_ACTOR *wp)
 {
     STCOM_FIXED_VECTOR fixed;
     ST10_ACTOR_CTL *ctl;
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl;
     if (wp->type != 0)
     {
@@ -79,11 +79,11 @@ void func_80104EC4(ST10_ACTOR *wp)
     {
         func_80032488(wp);
     }
-    if (wp->be_flag & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if (wp->be_flag & 1)
+    if (wp->be_flag & MOVE)
     {
         func_80051B68(wp, 1, -1, 0);
     }

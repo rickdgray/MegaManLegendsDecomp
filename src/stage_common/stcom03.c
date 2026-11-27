@@ -14,7 +14,7 @@ void stcom03_func_0000(STCOM03_WORK *wp)
 
 void stcom03_func_003C(STCOM03_WORK *wp)
 {
-    wp->be_flag |= 2;
+    wp->be_flag |= TRANS;
     switch (wp->type)
     {
         case 0:
@@ -34,7 +34,7 @@ void stcom03_func_003C(STCOM03_WORK *wp)
             wp->value_22              = 0x40;
             wp->value_23              = 0x20;
             *(uint16 *)&wp->routine_2 = 0;
-            switch (wp->param_C)
+            switch (wp->work_0)
             {
                 case 0:
                     wp->color_18 = 0x2E000080;
@@ -75,8 +75,8 @@ void stcom03_func_003C(STCOM03_WORK *wp)
                 uint8 size_tbl[3]  = {0x20, 0x20, 0x08};
                 uint8 param_tbl[3] = {0x08, 0x08, 0x02};
 
-                wp->size_24 = size_tbl[wp->param_C];
-                wp->param_C = param_tbl[wp->param_C];
+                wp->size_24 = size_tbl[wp->work_0];
+                wp->work_0  = param_tbl[wp->work_0];
                 wp->be_flag |= 0x20;
             }
             break;
@@ -116,7 +116,7 @@ void stcom03_func_0330(STCOM03_WORK *wp)
     {
         case 0:
             wp->routine_1 = 1;
-            switch (wp->param_C)
+            switch (wp->work_0)
             {
                 case 0:
                     wp->color_18 = 0x2E000080;
@@ -173,7 +173,7 @@ void stcom03_func_0468(STCOM03_WORK *wp)
     else
     {
         wp->color_18 -= 0xA0A0A;
-        wp->size_24 += wp->param_C;
+        wp->size_24 += wp->work_0;
         wp->routine_1--;
     }
 }

@@ -109,9 +109,9 @@ void func_800D8BE8(SHL_WORK *wp)
         fx = func_80031618();
         if (fx)
         {
-            fx->be_flag = 5;
+            fx->be_flag = MOVE | MODEL;
             fx->id      = 0x80;
-            fx->flag_3  = 2;
+            fx->type    = 2;
             fx->value_d = 1;
             fx->value_e = 1;
             fx->pos_38  = wp->pos;
@@ -121,9 +121,9 @@ void func_800D8BE8(SHL_WORK *wp)
             fx = func_80031618();
             if (fx)
             {
-                fx->be_flag   = 5;
+                fx->be_flag   = MOVE | MODEL;
                 fx->id        = 0x80;
-                fx->flag_3    = 2;
+                fx->type      = 2;
                 fx->value_d   = 0;
                 fx->value_e   = 1;
                 fx->pos_38.vx = wp->pos.vx + ((rcos(i << 10) * 150) >> 12);
@@ -137,9 +137,9 @@ void func_800D8BE8(SHL_WORK *wp)
         fx = func_80031618();
         if (fx)
         {
-            fx->be_flag = 5;
+            fx->be_flag = MOVE | MODEL;
             fx->id      = 0x80;
-            fx->flag_3  = 2;
+            fx->type    = 2;
             fx->value_d = 2;
             fx->value_e = 1;
             fx->pos_38  = wp->pos;
@@ -149,9 +149,9 @@ void func_800D8BE8(SHL_WORK *wp)
             fx = func_80031618();
             if (fx)
             {
-                fx->be_flag   = 5;
+                fx->be_flag   = MOVE | MODEL;
                 fx->id        = 0x80;
-                fx->flag_3    = 2;
+                fx->type      = 2;
                 fx->value_d   = 1;
                 fx->value_e   = 1;
                 fx->pos_38.vx = wp->pos.vx + ((rcos(i << 9) * 250) >> 12);
@@ -171,10 +171,10 @@ void func_800D8E48(SHL_WORK *wp)
     flags = func_800375D4(&Player_work, 1);
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }

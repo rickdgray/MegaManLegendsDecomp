@@ -12,8 +12,8 @@
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x86
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x86
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -46,8 +46,8 @@ typedef void (*W48_86_FUNC)(W48_86_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x87
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x87
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -80,8 +80,8 @@ typedef void (*W48_87_FUNC)(W48_87_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x88
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x88
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -91,8 +91,10 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value: the colour's fade level, or frames left from D_8008A6CD
     uint8 routine_3; // also a counter: the spin, RotMatrixY(++routine_3 << 7) (func_800477A0)
-    sint8 field_C;
-    uint8 pad_D[3];
+    sint8 work_0;
+    uint8 work_1; // 0D
+    uint8 work_2; // 0E
+    uint8 work_3; // 0F
     uint32 field_10;
     EFC efc;         // 0x14
     sint16 hw_44[2]; // hw_44[0] += hw_44[1] each frame, then added to efc.model.pos.pad
@@ -112,8 +114,8 @@ typedef struct
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x89
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x89
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -141,8 +143,8 @@ typedef void (*W48_89_FUNC)(W48_89_WORK *wp);
 typedef struct
 {
     uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 slot;
-    uint8 id; // 0x8A
+    uint8 work_id; // pool kind (0x10 * pool number) | slot index
+    uint8 id;      // 0x8A
     uint8 type;
     uint8 handler;
     uint8 flag_5;
@@ -152,10 +154,10 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3;
-    sint8 field_C;
-    sint8 idx_D;   // index into the records of D_8008A730/D_8008A748 (func_80048390)
-    uint8 timer_E; // counts down per record
-    uint8 pad_F;
+    sint8 work_0;
+    sint8 idx_D;   // index into the records of D_8008A730/D_8008A748 (func_80048390) (Capcom: work_1)
+    uint8 timer_E; // counts down per record (Capcom: work_2)
+    uint8 work_3;
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour

@@ -16,7 +16,7 @@ void func_800D8854(SHL08_WORK *wp)
     wp->box_78 = &D_800D90CC;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->be_flag |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->flags |= 0x20;
     rot.vx = func_80039B80() + ((rand() & 7) - 4) * 2;
     rot.vy = (wp->rot_y & 0xFFF) + ((rand() & 7) - 4) * 2;
@@ -137,11 +137,11 @@ void func_800D8E38(SHL08_WORK *wp)
     p.vz  = wp->old_pos.vz;
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }
 
@@ -152,9 +152,9 @@ void func_800D8F0C(SHL08_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->be_flag   = 5;
+        fx->be_flag   = MOVE | MODEL;
         fx->id        = 0x80;
-        fx->flag_3    = 2;
+        fx->type      = 2;
         fx->value_d   = D_800D90F0[Player_work.value_534];
         fx->value_e   = 1;
         fx->pos_38.vx = wp->pos.vx;

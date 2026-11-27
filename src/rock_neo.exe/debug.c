@@ -623,11 +623,11 @@ void func_80063C30(void)
         case 1:
             if (D_800987B1 & 1)
             {
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
             }
             else
             {
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
             }
             if (pl->routine_1 == 0xB || pl->routine_1 == 0xC)
             {
@@ -637,7 +637,7 @@ void func_80063C30(void)
             {
                 if (!(fp->mode_1 & 4))
                 {
-                    pl->be_flag |= 2;
+                    pl->be_flag |= TRANS;
                 }
                 if (!(fp->mode_1 & 8) && pl->routine_1 == 0x10)
                 {
@@ -659,11 +659,11 @@ void func_80063C30(void)
         case 3:
             if (D_800987B1 & 1)
             {
-                pl->be_flag &= ~2;
+                pl->be_flag &= ~TRANS;
             }
             else
             {
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
             }
             if (pl->routine_1 == 0xB || pl->routine_1 == 0xC)
             {
@@ -672,7 +672,7 @@ void func_80063C30(void)
             if (!(Moji_flag & D_8008DD54[fp->task_no_4]))
             {
                 fp->flag_0 = 0;
-                pl->be_flag |= 2;
+                pl->be_flag |= TRANS;
             }
             break;
     }
