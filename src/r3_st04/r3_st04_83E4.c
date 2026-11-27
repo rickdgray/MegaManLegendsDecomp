@@ -8,7 +8,7 @@ void func_801083E4(ST04_ROCK *wp)
     D_8010CBB0[wp->routine_0](wp);
     wp->hit_BC[0] = 0;
     wp->pos_AC    = wp->position;
-    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, wp->hit_BC, 0x4000000, 0, 0x80);
+    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->work_id, wp->hit_BC, 0x4000000, 0, 0x80);
     Model_Shadow_Trans(wp, 0x14, 0x200, 0);
 }
 
@@ -16,7 +16,7 @@ void func_8010849C(ST04_ROCK *wp)
 {
     STCOM_FIXED_VECTOR scale;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->rotation.x      = 0x400;
     wp->rotation.z      = 0;
@@ -28,7 +28,7 @@ void func_8010849C(ST04_ROCK *wp)
     wp->matrix.words[5] = 0;
     wp->matrix.words[6] = 0;
     wp->matrix.words[7] = 0;
-    wp->rotation.y      = wp->value_F * 16;
+    wp->rotation.y      = wp->work_3 * 16;
     RotMatrixYXZ(&wp->rotation, &wp->matrix.m);
     scale.x = scale.y = scale.z = 0x200;
     ScaleMatrix(&wp->matrix.m, &scale);

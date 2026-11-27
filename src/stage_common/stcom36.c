@@ -26,7 +26,7 @@ void stcom36_func_0028(sint8 room)
         index = r->list[i].index_0;
         Scene_obj_ent_open(&r->list[i]);
         stcom36_E2_0000[index] = Scene_work.obj_24[index];
-        stcom36_E2_0000[index]->flags_6 &= ~0x20;
+        stcom36_E2_0000[index]->flags &= ~0x20;
         stcom36_D_0000 |= 0x80000000 >> index;
     }
 }
@@ -44,16 +44,16 @@ void stcom36_func_0118(void)
         if (stcom36_D_0000 & (0x80000000 >> i))
         {
             obj  = stcom36_E2_0000[i];
-            kind = func_8002FE74(obj->index_1);
+            kind = func_8002FE74(obj->work_id);
             switch (kind)
             {
                 case 0x20:
                     obj->routine_0 = 2;
-                    STCOM36_TABLE_3C0[obj->kind_2][obj->handler_4](obj);
+                    STCOM36_TABLE_3C0[obj->id][obj->handler](obj);
                     break;
                 case 0x60:
                     obj->routine_0 = 2;
-                    STCOM36_TABLE_10C[obj->kind_2](obj);
+                    STCOM36_TABLE_10C[obj->id](obj);
                     break;
             }
             stcom36_D_0000 &= ~(0x80000000 >> i);

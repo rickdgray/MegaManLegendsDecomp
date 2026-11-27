@@ -180,7 +180,7 @@ void func_80100784(STAGE_ROOM *wp)
         case 1:
             if (Sound_fade_flags == 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~(MOVE | TRANS);
                 Obj_work_flag_change(0x56, 5);
                 Obj_work_flag_change(0x28, 0x80);
                 func_8001E6C0(0, 0, 0);
@@ -280,7 +280,7 @@ void func_80100A54(STAGE_ROOM *wp)
                 D_800A395C = 1;
                 func_80039820();
                 func_80042314(&Player_work);
-                Player_work.flags_0 |= 3;
+                Player_work.be_flag |= MOVE | TRANS;
                 wp->routine_5++;
                 break;
             case 2:
@@ -373,7 +373,7 @@ void func_80100D00(STAGE_ROOM *wp)
         case 1:
             if (Sound_fade_flags == 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~(MOVE | TRANS);
                 Obj_work_flag_change(0x10, 0x80);
                 Obj_work_flag_change(0x56, 5);
                 Obj_work_flag_change(0x28, 0x80);
@@ -470,7 +470,7 @@ void func_80100F7C(STAGE_ROOM *wp)
     func_801010F4();
     pl = &Player_work;
     func_80042314(pl);
-    pl->flags_0 |= 3;
+    pl->be_flag |= MOVE | TRANS;
     func_8003697C();
     D_800A395C = 1;
     func_80039820();
@@ -489,12 +489,12 @@ void func_80101024(STAGE_ROOM *wp)
     {
         case 0xEB:
             child->routine_1    = 1;
-            child->u_C.b.byte_D = 0;
-            child->u_E.b.byte_E = 0;
+            child->u_C.b.work_1 = 0;
+            child->u_E.b.work_2 = 0;
             return;
         case 0x14F:
-            child->u_C.b.byte_D++;
-            child->u_E.b.byte_E++;
+            child->u_C.b.work_1++;
+            child->u_E.b.work_2++;
             return;
         case 0x163:
             child->routine_1 = 2;
@@ -518,12 +518,12 @@ void func_801010A8(STAGE_ROOM *wp)
         case 0x0:
             child               = wp->child_24;
             child->routine_1    = 3;
-            child->u_E.b.byte_E = 0;
+            child->u_E.b.work_2 = 0;
             return;
         case 0x64:
             child               = wp->child_24;
             child->routine_1    = 4;
-            child->u_C.b.byte_D = 0;
+            child->u_C.b.work_1 = 0;
             return;
     }
 }
@@ -535,17 +535,17 @@ void func_801010F4(void)
     wp = func_80031498();
     if (wp != NULL)
     {
-        wp->flags_0            = 1;
-        wp->kind_2             = 0x17;
+        wp->be_flag            = MOVE;
+        wp->id                 = 0x17;
         wp->position.x         = -0x104;
         wp->position.y         = 0;
         wp->position.z         = -0x15E0;
         wp->value_4            = 0;
-        wp->variant_3          = 0;
-        wp->u_C.b.byte_C       = 0;
-        wp->u_C.b.byte_D       = 0;
-        wp->u_E.b.byte_E       = 0;
-        wp->u_E.b.byte_F       = 0;
+        wp->type               = 0;
+        wp->u_C.b.work_0       = 0;
+        wp->u_C.b.work_1       = 0;
+        wp->u_E.b.work_2       = 0;
+        wp->u_E.b.work_3       = 0;
         wp->routine_0          = 0;
         wp->position_fixed.v.x = wp->position.x << 16;
         wp->position_fixed.v.y = wp->position.y << 16;

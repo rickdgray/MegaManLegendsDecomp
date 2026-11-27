@@ -9,11 +9,11 @@ void func_801169F0(STAGE_OBJ *wp)
 void func_80116A2C(ST05_VILLAGER *wp)
 {
     ST05_VILLAGER_CTL *ctl;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
-        Model_work_init(wp, &wp->variant_3);
+        Model_work_init(wp, &wp->type);
     }
     else
     {
@@ -69,7 +69,7 @@ void func_80116B70(ST05_VILLAGER *wp)
     }
     *(uint16 *)0x1F800132 = wp->ctl.timer_A;
     Model_parts_mtx_set_y(wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }

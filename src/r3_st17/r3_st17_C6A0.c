@@ -3,7 +3,7 @@
 
 void func_8010C6A0(STAGE_OBJ *wp)
 {
-    D_8011BE00[wp->variant_3](wp, wp->ext_3C0);
+    D_8011BE00[wp->type](wp, wp->ext_3C0);
 }
 
 void func_8010C6DC(STAGE_OBJ *wp)
@@ -18,7 +18,7 @@ void func_8010C6DC(STAGE_OBJ *wp)
     wp->anim_prev_AD        = wp->anim_AC;
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 0x42;
+        wp->be_flag |= 0x42;
         func_8002F9EC(wp, 0);
         wp->scale.words[0]   = 0x0C000C00;
         wp->scale.words[1]   = 0xC00;
@@ -30,7 +30,7 @@ void func_8010C6DC(STAGE_OBJ *wp)
         wp->routine_1        = 0;
         wp->routine_0++;
     }
-    step = wp->u_C.b.byte_C;
+    step = wp->u_C.b.work_0;
     if (step < 5)
     {
         if (wp->position.z > step * 0x540 + 0x1E00)
@@ -88,11 +88,11 @@ void func_8010C994(STAGE_OBJ *wp, ST17_BOSS *ext)
     sint16 life;
     STCOM_SVECTOR *pos;
 
-    wp->flags_0 |= 0x42;
+    wp->be_flag |= 0x42;
     func_8002F9EC(wp, 0);
     wp->scale.words[0] = 0x0C000C00;
     wp->scale.words[1] = 0xC00;
-    data               = D_8009884C[wp->kind_2];
+    data               = D_8009884C[wp->id];
     for (i = 0; i < 12; i++)
     {
         switch (i)
@@ -151,7 +151,7 @@ void func_8010C994(STAGE_OBJ *wp, ST17_BOSS *ext)
     ext->count_144 = 0;
     Track_reset(ext->track_148, 0, 0);
     wp->anim_prev_AD     = 0xFF;
-    wp->u_C.b.byte_C     = 0;
+    wp->u_C.b.work_0     = 0;
     wp->value_48.half[0] = 0;
     wp->value_44.half[1] = 0;
     wp->value_44.half[0] = 0;
@@ -291,7 +291,7 @@ void func_8010CE88(STAGE_OBJ *wp, ST17_BOSS *ext)
                     case 0x10:
                         wp->value_4C.half[0] = 0;
                         wp->value_4C.half[1] = 0;
-                        wp->u_C.b.byte_C     = 1;
+                        wp->u_C.b.work_0     = 1;
                         break;
                     case 0x30:
                         wp->value_4C.half[1] = 1;
@@ -828,25 +828,25 @@ void func_8010DD10(STAGE_OBJ *wp, ST17_BOSS *ext)
                             switch (i)
                             {
                                 case 2:
-                                    ext->model_C->u_C.b.byte_C |= 1;
+                                    ext->model_C->u_C.b.work_0 |= 1;
                                     break;
                                 case 3:
-                                    ext->model_10->u_C.b.byte_C |= 1;
+                                    ext->model_10->u_C.b.work_0 |= 1;
                                     break;
                                 case 4:
-                                    ext->model_10->u_C.b.byte_C |= 2;
+                                    ext->model_10->u_C.b.work_0 |= 2;
                                     break;
                                 case 5:
-                                    ext->model_10->u_C.b.byte_C |= 4;
+                                    ext->model_10->u_C.b.work_0 |= 4;
                                     break;
                                 case 6:
-                                    ext->model_10->u_C.b.byte_D |= 1;
+                                    ext->model_10->u_C.b.work_1 |= 1;
                                     break;
                                 case 7:
-                                    ext->model_10->u_C.b.byte_D |= 2;
+                                    ext->model_10->u_C.b.work_1 |= 2;
                                     break;
                                 case 8:
-                                    ext->model_10->u_C.b.byte_D |= 4;
+                                    ext->model_10->u_C.b.work_1 |= 4;
                                     break;
                             }
                         }
@@ -870,7 +870,7 @@ void func_8010DD10(STAGE_OBJ *wp, ST17_BOSS *ext)
             ext->life_A0[0]    = 0;
             ext->timer_130[10] = 0;
             ext->timer_130[0]  = 0;
-            ext->model_C->u_C.b.byte_C |= 2;
+            ext->model_C->u_C.b.work_0 |= 2;
         }
         ext->life_A0[10] = ext->life_A0[0];
         Sound_call2(0xA0, &ext->pos_20[10]);
@@ -884,7 +884,7 @@ void func_8010DD10(STAGE_OBJ *wp, ST17_BOSS *ext)
             ext->life_A0[1]    = 0;
             ext->timer_130[11] = 0;
             ext->timer_130[1]  = 0;
-            ext->model_C->u_C.b.byte_C |= 4;
+            ext->model_C->u_C.b.work_0 |= 4;
         }
         ext->life_A0[11] = ext->life_A0[1];
         Sound_call2(0xA0, &ext->pos_20[11]);
@@ -941,38 +941,38 @@ void func_8010E164(STAGE_OBJ *wp, ST17_BOSS *ext)
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0 = 1;
+                ep->be_flag = MOVE;
                 ep->value_4 = 0;
                 switch (i)
                 {
                     case 2:
-                        ep->kind_2    = 0x14;
-                        ep->variant_3 = 1;
+                        ep->id        = 0x14;
+                        ep->type      = 1;
                         ep->value_E   = 0;
                         ep->target_44 = &ext->pos_20[2];
                         break;
                     case 0:
-                        ep->kind_2    = 0x14;
-                        ep->variant_3 = 2;
+                        ep->id        = 0x14;
+                        ep->type      = 2;
                         ep->value_E   = 0;
                         ep->target_44 = &ext->pos_20[0];
                         break;
                     case 1:
-                        ep->kind_2    = 0x14;
-                        ep->variant_3 = 3;
+                        ep->id        = 0x14;
+                        ep->type      = 3;
                         ep->value_E   = 0;
                         ep->target_44 = &ext->pos_20[1];
                         break;
                     case 9:
-                        ep->kind_2    = 0x14;
-                        ep->variant_3 = 4;
+                        ep->id        = 0x14;
+                        ep->type      = 4;
                         ep->value_E   = 0;
                         ep->target_44 = &ext->pos_20[9];
                         break;
                     default:
-                        ep->flags_0                      = 5;
-                        ep->kind_2                       = 0x80;
-                        ep->variant_3                    = 0x41;
+                        ep->be_flag                      = MOVE | MODEL;
+                        ep->id                           = 0x80;
+                        ep->type                         = 0x41;
                         ep->pos_38                       = ext->pos_20[i];
                         ep->value_D                      = 1;
                         ST17_HITBOX_TBL(wp)[i + 1].off_3 = -1;
@@ -1010,22 +1010,22 @@ void func_8010E164(STAGE_OBJ *wp, ST17_BOSS *ext)
                     switch (i)
                     {
                         case 3:
-                            ext->model_10->u_C.b.byte_C &= ~1;
+                            ext->model_10->u_C.b.work_0 &= ~1;
                             break;
                         case 4:
-                            ext->model_10->u_C.b.byte_C &= ~2;
+                            ext->model_10->u_C.b.work_0 &= ~2;
                             break;
                         case 5:
-                            ext->model_10->u_C.b.byte_C &= ~4;
+                            ext->model_10->u_C.b.work_0 &= ~4;
                             break;
                         case 6:
-                            ext->model_10->u_C.b.byte_D &= ~1;
+                            ext->model_10->u_C.b.work_1 &= ~1;
                             break;
                         case 7:
-                            ext->model_10->u_C.b.byte_D &= ~2;
+                            ext->model_10->u_C.b.work_1 &= ~2;
                             break;
                         case 8:
-                            ext->model_10->u_C.b.byte_D &= ~4;
+                            ext->model_10->u_C.b.work_1 &= ~4;
                             break;
                     }
                 }
@@ -1053,7 +1053,7 @@ void func_8010E514(STAGE_OBJ *wp, ST17_BOSS *ext)
     }
     for (i = 0; i < 12; i++)
     {
-        func_800341BC(&ext->pos_20[i], D_8011BE40[i].pad, 0, 0x8000, wp->value_1, &ext->hit_D0[i], 0x04880000, 0, 0x80);
+        func_800341BC(&ext->pos_20[i], D_8011BE40[i].pad, 0, 0x8000, wp->work_id, &ext->hit_D0[i], 0x04880000, 0, 0x80);
     }
     func_80051B68(wp, 1, -1, 0);
 }
@@ -1394,10 +1394,10 @@ void func_8010EE0C(STAGE_OBJ *wp, ST17_BOSS *ext, sint32 index)
         shot = Open_SHL_WORK();
         if (shot != NULL)
         {
-            shot->flags_0   = 1;
-            shot->kind_2    = 7;
-            shot->value_4   = 0;
-            shot->variant_3 = ext->random_16 & 1;
+            shot->be_flag = MOVE;
+            shot->id      = 7;
+            shot->value_4 = 0;
+            shot->type    = ext->random_16 & 1;
             if (wp->routine_1 == 8)
             {
                 shot->value_C = 0;
@@ -1416,13 +1416,13 @@ void func_8010EE0C(STAGE_OBJ *wp, ST17_BOSS *ext, sint32 index)
             ep                       = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x14;
-                ep->value_4   = 0;
-                ep->variant_3 = 0;
-                ep->x_1C      = shot->position.x;
-                ep->y_1E      = shot->position.y;
-                ep->z_20      = shot->position.z;
+                ep->be_flag = MOVE;
+                ep->id      = 0x14;
+                ep->value_4 = 0;
+                ep->type    = 0;
+                ep->x_1C    = shot->position.x;
+                ep->y_1E    = shot->position.y;
+                ep->z_20    = shot->position.z;
             }
             Sound_call2(0x1A2, &shot->position);
             ext->count_144++;
@@ -1437,9 +1437,9 @@ void func_8010EFC8(STAGE_OBJ *wp, ST17_BOSS *ext, sint32 index)
     shot = Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->flags_0    = 1;
-        shot->kind_2     = 7;
-        shot->variant_3  = 2;
+        shot->be_flag    = MOVE;
+        shot->id         = 7;
+        shot->type       = 2;
         shot->value_C    = index;
         shot->value_D    = (ext->random_16 >> 2) & 1;
         shot->value_E    = 1;
@@ -1462,10 +1462,10 @@ void func_8010F0D8(STAGE_OBJ *wp, ST17_BOSS *ext)
     if (arm != NULL)
     {
         ext->arm_4              = arm;
-        arm->flags_0            = 1;
-        arm->kind_2             = 2;
+        arm->be_flag            = MOVE;
+        arm->id                 = 2;
         arm->value_4            = 0;
-        arm->variant_3          = 0;
+        arm->type               = 0;
         arm->value_D            = 0;
         arm->position.x         = wp->position.x - D_8011BEC8.x;
         arm->position.y         = wp->position.y + D_8011BEC8.y;
@@ -1478,10 +1478,10 @@ void func_8010F0D8(STAGE_OBJ *wp, ST17_BOSS *ext)
     if (arm != NULL)
     {
         ext->arm_8              = arm;
-        arm->flags_0            = 1;
-        arm->kind_2             = 2;
+        arm->be_flag            = MOVE;
+        arm->id                 = 2;
         arm->value_4            = 0;
-        arm->variant_3          = 0;
+        arm->type               = 0;
         arm->value_D            = 0;
         arm->position.x         = wp->position.x + D_8011BEC8.x;
         arm->position.y         = wp->position.y + D_8011BEC8.y;
@@ -1499,7 +1499,7 @@ void func_8010F23C(STAGE_OBJ *wp)
     wp->rotation_prev       = wp->rotation;
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= TRANS;
         func_8002F9EC(wp, 0);
         wp->scale.words[0] = 0x0C000C00;
         wp->scale.words[1] = 0xC00;
@@ -1531,13 +1531,13 @@ void func_8010F35C(STAGE_OBJ *wp)
 
 void func_8010F41C(STAGE_OBJ *wp, ST17_RIG2 *rig)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     func_8002F9EC(wp, 0);
     wp->scale.words[0]   = 0x0C000C00;
     wp->scale.words[1]   = 0xC00;
     wp->scale.v.pad      = 0x4210;
     wp->value_78         = 0;
-    wp->u_C.b.byte_C     = 0;
+    wp->u_C.b.work_0     = 0;
     wp->value_44.half[0] = 0;
     wp->value_48.half[0] = 0;
     rig->slot_0          = func_80105A0C(wp, 1, &rig->pos_8[0]);
@@ -1561,10 +1561,10 @@ void func_8010F520(STAGE_OBJ *wp)
 
     if (STAGE_SCENE_BYTE(9) == 1 || STAGE_SCENE_BYTE(9) == 3)
     {
-        if (wp->u_C.b.byte_C < 0x78)
+        if (wp->u_C.b.work_0 < 0x78)
         {
             wp->rotation.x++;
-            wp->u_C.b.byte_C++;
+            wp->u_C.b.work_0++;
         }
         y                      = wp->position.y + 8;
         wp->position.y         = y;
@@ -1572,7 +1572,7 @@ void func_8010F520(STAGE_OBJ *wp)
     }
     else if (STAGE_SCENE_BYTE(9) == 4)
     {
-        wp->u_C.b.byte_C = 0;
+        wp->u_C.b.work_0 = 0;
         wp->routine_0++;
     }
     func_80032538(wp);

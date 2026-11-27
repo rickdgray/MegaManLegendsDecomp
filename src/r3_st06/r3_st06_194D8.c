@@ -23,10 +23,10 @@ void func_80119514(STAGE_OBJ *wp)
                 {
                     start                       = &D_80125924[i];
                     D_8012BAAC[i]               = crab;
-                    crab->flags_0               = start->flags_0;
-                    crab->kind_2                = start->kind_1;
+                    crab->be_flag               = start->flags_0;
+                    crab->id                    = start->kind_1;
                     crab->value_4               = start->value_2;
-                    crab->variant_3             = start->variant_3;
+                    crab->type                  = start->variant_3;
                     *(uint32 *)&crab->routine_0 = 0;
                     *(sint32 *)&crab->u_C       = start->value_4;
                     crab->u_C.b.byte_C |= 0x10;
@@ -116,10 +116,10 @@ void func_801197D0(STAGE_OBJ *wp)
         {
             crab = D_8012BAAC[i];
             ctl  = &crab->ctl;
-            if (crab->kind_2 == 0x23)
+            if (crab->id == 0x23)
             {
                 track = &crab->ctl;
-                if (((wp->u_E.b.byte_F >> i) & 1) && busy == 0)
+                if (((wp->u_E.b.work_3 >> i) & 1) && busy == 0)
                 {
                     crab->ctl.flags_4 = (crab->ctl.flags_4 & ~0x80) | 0x100;
                 }
@@ -166,13 +166,13 @@ void func_801197D0(STAGE_OBJ *wp)
                     D_8012BAA8++;
                 }
             }
-            if ((crab->u_C.b.byte_C & 1) && crab->flags_0 != 0)
+            if ((crab->u_C.b.byte_C & 1) && crab->be_flag != 0)
             {
-                crab->flags_0      = 0;
+                crab->be_flag      = 0;
                 other              = (ST06_CRAB *)ctl->owner_0;
                 ctl->owner_0       = NULL;
                 other->ctl.owner_0 = NULL;
-                if (crab->kind_2 == 0x20)
+                if (crab->id == 0x20)
                 {
                     D_8012BAA4++;
                 }
@@ -220,14 +220,14 @@ void func_80119B78(ST06_CRAB *wp, sint16 slot, uint8 variant)
     {
         D_8012BAAC[slot] = part;
         D_8012BAA0 |= 1 << slot;
-        part->flags_0            = 1;
-        part->kind_2             = 0x20;
+        part->be_flag            = MOVE;
+        part->id                 = 0x20;
         part->u_C.b.byte_C       = 2;
         part->value_4            = 0;
-        part->variant_3          = variant;
+        part->type               = variant;
         part->u_C.b.byte_D       = slot - 3;
-        part->u_E.b.byte_E       = 0;
-        part->u_E.b.byte_F       = 1;
+        part->u_E.b.work_2       = 0;
+        part->u_E.b.work_3       = 1;
         part->ctl.owner_0        = (STAGE_OBJ *)wp;
         wp->ctl.owner_0          = (STAGE_OBJ *)part;
         part->position.x         = wp->position.x;
@@ -255,7 +255,7 @@ sint32 func_80119C8C(STAGE_OBJ *wp)
     chase            = 0;
     near             = 0;
     count            = 0;
-    wp->u_E.b.byte_F = 0;
+    wp->u_E.b.work_3 = 0;
     for (i = 0; i < 3; i++)
     {
         if ((D_8012BAA0 >> i) & 1)
@@ -265,7 +265,7 @@ sint32 func_80119C8C(STAGE_OBJ *wp)
             {
                 count++;
                 near++;
-                wp->u_E.b.byte_F |= 1 << i;
+                wp->u_E.b.work_3 |= 1 << i;
                 dist[i] = 0;
             }
             else
@@ -301,7 +301,7 @@ sint32 func_80119C8C(STAGE_OBJ *wp)
                 {
                     j = 2;
                 }
-                wp->u_E.b.byte_F |= 1 << j;
+                wp->u_E.b.work_3 |= 1 << j;
             }
             else
             {
@@ -310,7 +310,7 @@ sint32 func_80119C8C(STAGE_OBJ *wp)
                 {
                     j = 2;
                 }
-                wp->u_E.b.byte_F = (1 << j) ^ 7;
+                wp->u_E.b.work_3 = (1 << j) ^ 7;
             }
         }
     }

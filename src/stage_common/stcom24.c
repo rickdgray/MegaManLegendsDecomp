@@ -47,7 +47,7 @@ void stcom24_func_0000(STCOM24_WORK *wp)
     {
         if (STCOM_ABS(wp->position.y - ground) > 0x100)
         {
-            wp->variant_3 = 0;
+            wp->type = 0;
         }
         if (wp->position.y >= ground || (wp->position.y += 0x28) > ground)
         {
@@ -59,12 +59,12 @@ void stcom24_func_0000(STCOM24_WORK *wp)
     if (ctl->flags_0 & 1)
     {
         ctl->pos_18 = wp->joints_180[0];
-        func_800341BC(pos, 0x6E, 0, 0x8000, wp->index_1, &ctl->body_20, ctl->kind_10 | 0x4880000, 0x800000, 0);
+        func_800341BC(pos, 0x6E, 0, 0x8000, wp->work_id, &ctl->body_20, ctl->kind_10 | 0x4880000, 0x800000, 0);
         if (ctl->flags_0 & 2)
         {
             ctl->pos_18.x += (rsin(wp->rotation.y + 0x800) * 100) >> 12;
             ctl->pos_18.z += (rcos(wp->rotation.y + 0x800) * 100) >> 12;
-            func_800341BC(pos, 0x50, 0, 0x8000, wp->index_1, &ctl->claw_30, ctl->kind_14 | 0x4880000, 0x800000, 0);
+            func_800341BC(pos, 0x50, 0, 0x8000, wp->work_id, &ctl->claw_30, ctl->kind_14 | 0x4880000, 0x800000, 0);
         }
     }
     ctl->body_20.hit_0 = 0;
@@ -79,14 +79,14 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     wp->value_66     = 0;
     wp->jump_74      = 0;
     wp->jump_prev_75 = 0;
-    wp->flags_0 |= 2;
-    wp->rotation.y = (wp->param_C << 9) & 0xE00;
+    wp->be_flag |= TRANS;
+    wp->rotation.y = (wp->work_0 << 9) & 0xE00;
     Model_work_init(wp, NULL);
     wp->scale.v.x = 0x200;
     wp->scale.v.y = 0x200;
     wp->scale.v.z = 0x200;
     Track_reset(wp->ctl.track_40, 3, -200);
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8 << 4;
     wp->data_78                                      = stcom24_D_0000;
     wp->position.y                                   = Obj_ceiling_height_get(wp);
     wp->position_fixed.y                             = wp->position.y << 16;
@@ -99,8 +99,8 @@ void stcom24_func_033C(STCOM24_WORK *wp)
     wp->ctl.timer_4 = 180;
     wp->ctl.timer_6 = 0;
     wp->ctl.flags_0 |= 1;
-    wp->ctl.kind_10         = D_80098844[wp->kind_2]->value_B;
-    wp->ctl.kind_14         = D_80098844[wp->kind_2]->value_C;
+    wp->ctl.kind_10         = D_80098844[wp->id]->value_B;
+    wp->ctl.kind_14         = D_80098844[wp->id]->value_C;
     wp->ctl.damage_12       = 0;
     wp->ctl.damage_16       = 0;
     wp->ctl.body_20.hit_0   = 0;
@@ -117,7 +117,7 @@ void stcom24_func_04CC(STCOM24_WORK *wp)
     sint8 hit;
 
     ctl = &wp->ctl;
-    if (wp->variant_3 != 0 && Distance_xyz(&wp->position, &ctl->home_50) >= 11)
+    if (wp->type != 0 && Distance_xyz(&wp->position, &ctl->home_50) >= 11)
     {
         wp->routine_0 = 6;
         wp->routine_1 = 0;
@@ -221,9 +221,9 @@ void stcom24_func_07E4(STCOM24_WORK *wp)
         shot = Open_SHL_WORK();
         if (shot != NULL)
         {
-            shot->flags_0          = 1;
-            shot->kind_2           = 9;
-            shot->variant_3        = 3;
+            shot->be_flag          = MOVE;
+            shot->id               = 9;
+            shot->type             = 3;
             shot->position         = wp->joints_180[1];
             shot->position_fixed.x = shot->position.x << 16;
             shot->position_fixed.y = shot->position.y << 16;
@@ -254,7 +254,7 @@ void stcom24_func_0910(STCOM24_WORK *wp)
         wp->routine_1 = 1;
         if (wp->ctl.timer_4 == 0)
         {
-            if (wp->variant_3 != 0)
+            if (wp->type != 0)
             {
                 wp->routine_0 = 3;
             }
@@ -360,7 +360,7 @@ void stcom24_func_0AA0(STCOM24_WORK *wp)
     wp->position.z += (rcos(wp->ctl.angle_C + 0x800) * speed) >> 12;
     if (wp->flags_A7 < 0)
     {
-        if (wp->variant_3 != 0)
+        if (wp->type != 0)
         {
             wp->routine_0 = 6;
         }
@@ -454,9 +454,9 @@ void stcom24_func_0D38(STCOM24_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 5;
-                effect->kind_2          = 0x80;
-                effect->variant_3       = 0x41;
+                effect->be_flag         = MOVE | MODEL;
+                effect->id              = 0x80;
+                effect->type            = 0x41;
                 effect->sprite.position = wp->position;
             }
             wp->routine_0 = 7;
@@ -498,7 +498,7 @@ void stcom24_func_0E54(STCOM24_WORK *wp)
     wp->position.z += (rcos(wp->ctl.angle_C) * speed) >> 12;
     if (wp->flags_A7 < 0)
     {
-        if (wp->variant_3 != 0)
+        if (wp->type != 0)
         {
             wp->routine_0 = 6;
         }
@@ -514,7 +514,7 @@ void stcom24_func_0F20(STCOM24_WORK *wp)
 {
     sint8 hit;
 
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         if (wp->ctl.body_20.hit_0 & 0x38000000)
         {
@@ -552,7 +552,7 @@ void stcom24_func_0F20(STCOM24_WORK *wp)
 
 void stcom24_func_1024(STCOM24_WORK *wp)
 {
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &wp->ctl.home_50, wp->rotation.y, 0x100)) & 0xFFF;
     }
@@ -570,14 +570,14 @@ void stcom24_func_109C(STCOM24_WORK *wp)
     sint32 d;
 
     ctl = &wp->ctl;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &ctl->home_50, wp->rotation.y, 0x100)) & 0xFFF;
     }
     if (wp->flags_A7 < 0)
     {
         tz = 0;
-        if (wp->variant_3 != 0)
+        if (wp->type != 0)
         {
             tx   = 0;
             step = STCOM_ABS((rsin(wp->rotation.y + 0x800) * 6) >> 12);
@@ -615,7 +615,7 @@ void stcom24_func_1300(STCOM24_WORK *wp)
     STCOM24_CTL *ctl;
 
     ctl = &wp->ctl;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->position.x += (rsin(wp->rotation.y + 0x800) * 6) >> 12;
         wp->position.z += (rcos(wp->rotation.y + 0x800) * 6) >> 12;
@@ -669,7 +669,7 @@ sint8 stcom24_func_1468(STCOM24_WORK *wp)
     sint32 limit;
 
     result = 0;
-    limit  = D_80098844[wp->kind_2]->limit_9;
+    limit  = D_80098844[wp->id]->limit_9;
     ctl    = &wp->ctl;
     damage = ctl->body_20.hit_0 & 0xFFFFFF;
     if (damage != 0 && (wp->ctl.body_20.hit_0 & 0x38000000))
@@ -721,7 +721,7 @@ sint8 stcom24_func_15E8(STCOM24_WORK *wp)
 
     result = 0;
     damage = wp->ctl.claw_30.hit_0 & 0xFFFFFF;
-    limit  = D_80098844[wp->kind_2]->limit_A;
+    limit  = D_80098844[wp->id]->limit_A;
     if (damage != 0 && (wp->ctl.claw_30.hit_0 & 0x38000000))
     {
         wp->ctl.damage_16 += damage;

@@ -23,10 +23,10 @@ typedef struct
 // An effect slot carrying a copy of the shot's sprite.
 typedef struct
 {
-    sint8 routine_0; // 00
-    uint8 reserved01;
-    uint8 kind_2; // 02
-    uint8 flag_3; // 03
+    sint8 be_flag; // 00
+    uint8 work_id;
+    uint8 id;   // 02
+    uint8 type; // 03
     uint8 reserved04[0x10];
     SHL_SPRITE spr; // 14
 } SHL05_FX;

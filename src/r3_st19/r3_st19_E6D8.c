@@ -18,7 +18,7 @@ void func_8010E6D8(STAGE_SPARK *wp)
 
 void func_8010E764(STAGE_SPARK *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->routine_0++;
     func_8010E6D8(wp);
 }
@@ -43,21 +43,21 @@ void func_8010E7F4(ST19_SPARK *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->variant_3 = 1;
-            ep->flags_6   = wp->flags_6;
-            ep->value_C   = 0;
-            ep->timer_D   = (rand() & 7) * 2 + 0x40;
-            ep->x_1C      = wp->x_1C + (rand() & 0xF);
-            ep->y_1E      = wp->y_1E;
-            ep->z_20      = wp->z_20 + (rand() & 0xF);
-            ep->mode_14   = 0x3D48004E;
-            ep->u_22      = ((rand() & 3) << 5) + 0x20;
-            ep->v_23      = 0;
-            ep->w_24      = wp->width_E;
-            ep->type_F    = wp->type_F;
-            ep->rise_28   = wp->rise_28;
-            ep->owner_2C  = wp;
+            ep->be_flag  = MOVE;
+            ep->type     = 1;
+            ep->flags    = wp->flags;
+            ep->work_0   = 0;
+            ep->timer_D  = (rand() & 7) * 2 + 0x40;
+            ep->x_1C     = wp->x_1C + (rand() & 0xF);
+            ep->y_1E     = wp->y_1E;
+            ep->z_20     = wp->z_20 + (rand() & 0xF);
+            ep->mode_14  = 0x3D48004E;
+            ep->u_22     = ((rand() & 3) << 5) + 0x20;
+            ep->v_23     = 0;
+            ep->w_24     = wp->width_E;
+            ep->type_F   = wp->type_F;
+            ep->rise_28  = wp->rise_28;
+            ep->owner_2C = wp;
             for (i = 0; i < wp->count_26; i++)
             {
                 func_8010E7B8(ep);
@@ -70,7 +70,7 @@ void func_8010E7F4(ST19_SPARK *wp)
 
 void func_8010E93C(STAGE_OBJ *wp)
 {
-    if (wp->variant_3 == 1)
+    if (wp->type == 1)
     {
         func_8010E7B8(wp);
         return;
@@ -91,23 +91,23 @@ ST19_SPARK *func_8010E99C(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 0;
-        ep->variant_3 = 0;
-        ep->value_C   = 0;
-        ep->width_E   = width;
-        ep->type_F    = type;
-        ep->x_1C      = pos->x;
-        ep->y_1E      = pos->y;
-        ep->z_20      = pos->z;
-        ep->count_26  = count;
+        ep->be_flag  = MOVE;
+        ep->id       = 0;
+        ep->type     = 0;
+        ep->work_0   = 0;
+        ep->width_E  = width;
+        ep->type_F   = type;
+        ep->x_1C     = pos->x;
+        ep->y_1E     = pos->y;
+        ep->z_20     = pos->z;
+        ep->count_26 = count;
         if (hide)
         {
-            ep->flags_6 |= 0x20;
+            ep->flags |= 0x20;
         }
         else
         {
-            ep->flags_6 &= ~0x20;
+            ep->flags &= ~0x20;
         }
         ep->rise_28 = rise;
         for (i = 0; i < (sint16)count; i++)

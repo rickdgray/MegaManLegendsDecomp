@@ -101,7 +101,7 @@ void func_80119398(STAGE_OBJ *wp)
 
 void func_801193D4(STCOM02_WORK *wp)
 {
-    wp->script_1C = wp->step_20 = D_8011CF28[wp->index_3];
+    wp->script_1C = wp->step_20 = D_8011CF28[wp->type];
     wp->count_C                 = wp->step_20->count;
     wp->frame_D                 = 0;
     wp->dst_18                  = &Clut_buf[wp->script_1C->lo + (wp->script_1C->hi << 8)];
@@ -121,7 +121,7 @@ void func_80119470(STCOM02_WORK *wp)
     {
         func_80031988(wp);
     }
-    if (wp->index_3 == 1 && step->lo == 0x70)
+    if (wp->type == 1 && step->lo == 0x70)
     {
         wp->script_1C = wp->step_20 = D_8011CF28[1];
         wp->routine_0               = 2;
@@ -148,8 +148,8 @@ void func_80119580(STCOM02_WORK *wp)
     sint32 r, g, b;
     sint32 dr, dg, db;
 
-    offset = D_8011CF38[wp->index_3].offset;
-    if (D_8011CF38[wp->index_3].blend != 0)
+    offset = D_8011CF38[wp->type].offset;
+    if (D_8011CF38[wp->type].blend != 0)
     {
         for (i = 0; i < 16; i++)
         {

@@ -346,7 +346,7 @@ void func_80114CC0(STAGE_OBJ *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80032488(wp);
     }
@@ -370,11 +370,11 @@ void func_80114DAC(STAGE_OBJ *wp)
         wp->rotation.z     = 0;
         wp->scale.words[0] = 0x02000200;
         wp->scale.words[1] = 0x42100200;
-        wp->flags_0 |= 2;
+        wp->be_flag |= TRANS;
         Model_work_init(wp, NULL);
         func_800322A8(wp, 1, 0);
         func_80114FC4(wp, face, 1);
-        wp->u_C.b.byte_D = 0;
+        wp->u_C.b.work_1 = 0;
         wp->routine_1++;
         wp->routine_2++;
     }

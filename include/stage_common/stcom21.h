@@ -21,10 +21,10 @@ typedef union
 
 struct STCOM21_WORK
 {
-    uint8 flags_0;         // 00
-    uint8 index_1;         // 01: pool id and slot
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 work_id;         // 01: pool id and slot
+    uint8 id;              // 02
+    uint8 type;            // 03
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09
@@ -54,11 +54,11 @@ typedef void (*STCOM21_FUNC)(STCOM21_WORK *wp);
 // A 0x3C0-byte work slot (func_80031418) as stcom21_func_1908 sets it up.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 index_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 value_3;                     // 03
-    uint8 handler_4;                   // 04
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
+    uint8 handler;                     // 04
     uint8 reserved05[0xF];             // 05
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
@@ -80,7 +80,7 @@ extern STCOM21_FUNC stcom21_D_000C[];   // villager: routine_1 (talking)
 extern uint32 stcom21_D_001C[];         // villager's model
 extern STCOM21_OFFSET stcom21_D_0028[]; // villager: where its effect appears, by direction
 extern STCOM21_FUNC stcom21_D_0038[];   // chest: routine_0
-extern STCOM21_FUNC stcom21_D_0044[];   // chest: by variant_3
+extern STCOM21_FUNC stcom21_D_0044[];   // chest: by type
 extern STCOM21_FUNC stcom21_D_0050[];   // chest: routine_1
 extern uint32 stcom21_D_005C[];         // chest's model
 extern uint16 stcom21_D_0068[];         // lid angles

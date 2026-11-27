@@ -205,7 +205,7 @@ void func_801006A8(STAGE_WORK *wp)
     {
         case 0:
             wp->timer_C = 4;
-            wp->value_D = 5;
+            wp->work_1  = 5;
             wp->routine_2++;
             break;
         case 1:
@@ -214,10 +214,10 @@ void func_801006A8(STAGE_WORK *wp)
                 wp->timer_C = 4;
                 wp->position.x--;
             }
-            if (--wp->value_D <= 0)
+            if (--wp->work_1 <= 0)
             {
                 wp->position.y++;
-                wp->value_D = 5;
+                wp->work_1 = 5;
                 if (wp->position.y >= 0xDC)
                 {
                     wp->routine_2++;
@@ -256,7 +256,7 @@ void func_8010080C(STAGE_WORK *wp)
         wp->rot_y_56       = 0x400;
         wp->value_78       = 0;
         wp->value_10       = 0;
-        wp->flags_0 |= 2;
+        wp->be_flag |= TRANS;
         wp->routine_0++;
     }
     D_80100F8C[wp->routine_1](wp);

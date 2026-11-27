@@ -7,7 +7,7 @@ void func_8010F0F4(STAGE_OBJ *wp)
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
     wp->anim_prev_AD        = wp->anim_AC;
-    D_801162B0[wp->variant_3](wp, &Scene_work, (STAGE_FACE *)&wp->ext_3C0[0xC0]);
+    D_801162B0[wp->type](wp, &Scene_work, (STAGE_FACE *)&wp->ext_3C0[0xC0]);
     func_8010FA88(wp, (STAGE_FACE *)&wp->ext_3C0[0xC0]);
     if (wp->anim_AC != wp->anim_prev_AD)
     {
@@ -24,7 +24,7 @@ void func_8010F1F0(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x01400140;
             wp->scale.words[1] = 0x140;
@@ -198,7 +198,7 @@ void func_8010F774(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -288,7 +288,7 @@ void func_8010FA0C(ST0A_VIEW *wp, STAGE_FACE *face, sint32 index)
     face->shape_C = face->index_E = 0;
     face->shape_F = face->index_11 = 0;
     face->prev_D = face->prev_10 = -1;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         face->mouth_4 = D_80116334[index];
         face->eyes_8  = D_80116360[index];

@@ -44,7 +44,7 @@ void func_80103F60(ST0F_OBJ *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
             }
             break;
@@ -95,9 +95,9 @@ void func_801040E0(ST0F_OBJ *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
-                wp->variant_3 = 0;
+                wp->type      = 0;
                 Sce_flag_on(0x204);
             }
             break;
@@ -140,7 +140,7 @@ void func_80104264(ST0F_OBJ *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 Sce_flag_on(0x223);
                 Sce_flag_on(0x214);
                 Sce_flag_on(0x24C);
@@ -148,7 +148,7 @@ void func_80104264(ST0F_OBJ *wp)
                 STAGE_GAME_BYTE(0x78) = 1;
                 func_8001E3F0(0xA);
                 wp->routine_0 = 1;
-                wp->variant_3 = 0;
+                wp->type      = 0;
             }
             break;
     }
@@ -164,7 +164,7 @@ void func_801043CC(ST0F_OBJ *wp)
     wp->velocity.z = 0;
     wp->velocity.y = 0;
     wp->velocity.x = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x1D701D7;
     wp->scale.words[1]   = 0x1D7;
@@ -190,7 +190,7 @@ sint32 func_80104490(ST0F_OBJ *wp)
     {
         wp->value_64   = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~TRANS;
         pl->flags_bd |= 0x40;
         D_801061B0.x = wp->value_180.x;
         D_801061B0.y = wp->value_180.y - 0x20;

@@ -21,8 +21,8 @@ extern STAGE_EFFECT_FUNC D_80102128[]; // routine_1 handlers (func_801004C8)
 extern uint16 D_8010214C[];
 extern uint8 *D_80102164[];            // (u, v) frames by type_F
 extern uint8 D_80102174[];             // frame counts by type_F
-extern STAGE_EFFECT_FUNC D_80102178[]; // routine_0 handlers (func_801006C0, value_C 0)
-extern STAGE_EFFECT_FUNC D_80102184[]; // routine_0 handlers (func_801006C0, value_C 1)
+extern STAGE_EFFECT_FUNC D_80102178[]; // routine_0 handlers (func_801006C0, work_0 0)
+extern STAGE_EFFECT_FUNC D_80102184[]; // routine_0 handlers (func_801006C0, work_0 1)
 extern uint16 D_8010219E[];
 extern uint16 D_801021C8[];
 extern STAGE_MOUTH *D_80102348[];

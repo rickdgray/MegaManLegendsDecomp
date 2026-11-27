@@ -15,8 +15,8 @@ void func_800D8854(SHL_WORK *wp)
     VECTOR v;
     MATRIX m;
 
-    wp->flags_0 |= 2;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= TRANS;
+    wp->flags |= 0x20;
     func_800354E0(wp->bit_d);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
@@ -123,12 +123,12 @@ void func_800D8C6C(SHL_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 5;
-        fx->kind_2    = 0x80;
-        fx->flag_3    = 2;
-        fx->value_d   = D_800D8E2C[Player_work.value_50c];
-        fx->value_e   = 1;
-        fx->pos_38    = wp->pos;
+        fx->be_flag = MOVE | MODEL;
+        fx->id      = 0x80;
+        fx->type    = 2;
+        fx->value_d = D_800D8E2C[Player_work.value_50c];
+        fx->value_e = 1;
+        fx->pos_38  = wp->pos;
     }
 }
 
@@ -139,12 +139,12 @@ void func_800D8CF4(SHL_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 1;
-        fx->kind_2    = 0x83;
-        fx->flag_3    = 1;
-        fx->x_1c      = wp->pos.vx;
-        fx->y_1e      = wp->pos.vy;
-        fx->z_20      = wp->pos.vz;
+        fx->be_flag = MOVE;
+        fx->id      = 0x83;
+        fx->type    = 1;
+        fx->x_1c    = wp->pos.vx;
+        fx->y_1e    = wp->pos.vy;
+        fx->z_20    = wp->pos.vz;
     }
 }
 
@@ -157,10 +157,10 @@ void func_800D8D5C(SHL_WORK *wp)
     flags = func_800375D4(&Player_work, 3);
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }

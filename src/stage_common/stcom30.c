@@ -136,10 +136,10 @@ void stcom30_func_02B4(STCOM30_WORK *wp, STCOM30_SPAWN *spawn)
                 obj = func_80031418();
                 if (obj != NULL)
                 {
-                    obj->flags_0          = spawn->flags_0;
-                    obj->kind_2           = spawn->value_2;
-                    obj->value_3          = spawn->value_3;
-                    obj->handler_4        = spawn->value_4;
+                    obj->be_flag          = spawn->flags_0;
+                    obj->id               = spawn->value_2;
+                    obj->type             = spawn->value_3;
+                    obj->handler          = spawn->value_4;
                     obj->value_5          = spawn->value_5;
                     obj->rotation.y       = spawn->rotation_7 << 4;
                     obj->value_C          = spawn->value_8;
@@ -176,10 +176,10 @@ void stcom30_func_02B4(STCOM30_WORK *wp, STCOM30_SPAWN *spawn)
                     obj = Open_SHL_WORK();
                     if (obj != NULL)
                     {
-                        obj->flags_0          = spawn->flags_0;
-                        obj->kind_2           = spawn->value_2;
-                        obj->value_3          = spawn->value_3;
-                        obj->handler_4        = spawn->value_4;
+                        obj->be_flag          = spawn->flags_0;
+                        obj->id               = spawn->value_2;
+                        obj->type             = spawn->value_3;
+                        obj->handler          = spawn->value_4;
                         obj->value_5          = spawn->value_5;
                         obj->rotation.y       = spawn->rotation_7 << 4;
                         obj->value_C          = spawn->value_8;
@@ -200,18 +200,18 @@ void stcom30_func_02B4(STCOM30_WORK *wp, STCOM30_SPAWN *spawn)
                 obj50 = func_80031734();
                 if (obj50 != NULL)
                 {
-                    obj50->flags_0   = spawn->flags_0;
-                    obj50->kind_2    = spawn->value_2;
-                    obj50->variant_3 = spawn->value_3;
-                    obj50->value_4   = spawn->value_4;
-                    obj50->value_5   = spawn->value_5;
-                    obj50->value_C   = spawn->value_8;
-                    obj50->value_D   = spawn->value_9;
-                    obj50->value_E   = spawn->value_A;
-                    obj50->value_F   = spawn->value_B;
-                    obj50->pos_38.x  = spawn->pos_C.x;
-                    obj50->pos_38.y  = spawn->pos_C.y;
-                    obj50->pos_38.z  = spawn->pos_C.z;
+                    obj50->be_flag  = spawn->flags_0;
+                    obj50->id       = spawn->value_2;
+                    obj50->type     = spawn->value_3;
+                    obj50->value_4  = spawn->value_4;
+                    obj50->value_5  = spawn->value_5;
+                    obj50->value_C  = spawn->value_8;
+                    obj50->value_D  = spawn->value_9;
+                    obj50->value_E  = spawn->value_A;
+                    obj50->value_F  = spawn->value_B;
+                    obj50->pos_38.x = spawn->pos_C.x;
+                    obj50->pos_38.y = spawn->pos_C.y;
+                    obj50->pos_38.z = spawn->pos_C.z;
                 }
             }
         }
@@ -232,10 +232,10 @@ void stcom30_func_0570(STCOM30_WORK *wp, STCOM30_SPAWN *spawn)
             obj = func_80031418();
             if (obj != NULL)
             {
-                obj->flags_0          = spawn->flags_0;
-                obj->kind_2           = spawn->value_2;
-                obj->value_3          = spawn->value_3;
-                obj->handler_4        = spawn->value_4;
+                obj->be_flag          = spawn->flags_0;
+                obj->id               = spawn->value_2;
+                obj->type             = spawn->value_3;
+                obj->handler          = spawn->value_4;
                 obj->value_5          = spawn->value_5;
                 obj->rotation.y       = spawn->rotation_7 << 4;
                 obj->value_C          = spawn->value_8;
@@ -255,18 +255,18 @@ void stcom30_func_0570(STCOM30_WORK *wp, STCOM30_SPAWN *spawn)
             obj50 = func_80031734();
             if (obj50 != NULL)
             {
-                obj50->flags_0   = spawn->flags_0;
-                obj50->kind_2    = spawn->value_2;
-                obj50->variant_3 = spawn->value_3;
-                obj50->value_4   = spawn->value_4;
-                obj50->value_5   = spawn->value_5;
-                obj50->value_C   = spawn->value_8;
-                obj50->value_D   = spawn->value_9;
-                obj50->value_E   = spawn->value_A;
-                obj50->value_F   = spawn->value_B;
-                obj50->pos_38.x  = spawn->pos_C.x;
-                obj50->pos_38.y  = spawn->pos_C.y;
-                obj50->pos_38.z  = spawn->pos_C.z;
+                obj50->be_flag  = spawn->flags_0;
+                obj50->id       = spawn->value_2;
+                obj50->type     = spawn->value_3;
+                obj50->value_4  = spawn->value_4;
+                obj50->value_5  = spawn->value_5;
+                obj50->value_C  = spawn->value_8;
+                obj50->value_D  = spawn->value_9;
+                obj50->value_E  = spawn->value_A;
+                obj50->value_F  = spawn->value_B;
+                obj50->pos_38.x = spawn->pos_C.x;
+                obj50->pos_38.y = spawn->pos_C.y;
+                obj50->pos_38.z = spawn->pos_C.z;
             }
         }
         spawn++;

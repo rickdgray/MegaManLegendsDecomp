@@ -116,7 +116,7 @@ typedef union
 typedef struct
 {
     uint8 flag_0; // nonzero while the screen is fading
-    uint8 mode_1; // bit 0: keep Player_work's routine_0 bit 1 clear; bits 2-4: what func_80063C30 does
+    uint8 mode_1; // bit 0: keep Player_work's be_flag bit 1 clear; bits 2-4: what func_80063C30 does
                   // when the message ends
     uint8 pad2[2];
     uint8 task_no_4; // 0x04: Moji task the message runs in (also D_800987B4's low byte)

@@ -29,19 +29,19 @@ typedef struct
 // names other fields; the two views aren't reconciled yet). Only the fields used so far.
 typedef struct STCOM01_WORK
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C
-    uint8 param_D;                          // 0D
-    uint8 param_E;                          // 0E
-    uint8 param_F;                          // 0F
+    uint8 work_0;                           // 0C
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16
@@ -90,10 +90,10 @@ extern STCOM01_FUNC stcom01_D_0750[];   // ctl.routine handlers (stcom01_func_1C
 extern STCOM01_FUNC stcom01_D_075C[];   // ctl.routine handlers (stcom01_func_1F30)
 extern STCOM01_FUNC stcom01_D_0774[];   // ctl.routine handlers (stcom01_func_2174)
 extern STCOM01_FUNC stcom01_D_0788[];   // ctl.routine handlers (stcom01_func_257C)
-extern STCOM01_PARAM3 stcom01_D_0000[]; // by kind_2: Model_Shadow_Trans's arguments
-extern uint8 stcom01_D_04E0[];          // speed by kind_2 (stcom01_func_2918)
+extern STCOM01_PARAM3 stcom01_D_0000[]; // by id: Model_Shadow_Trans's arguments
+extern uint8 stcom01_D_04E0[];          // speed by id (stcom01_func_2918)
 extern uint8 stcom01_D_059C[4][16];     // random wait times (stcom01_func_0414)
-extern uint8 stcom01_D_0608[];          // 4 x 16 random steps, row by param_D bits 4-5
+extern uint8 stcom01_D_0608[];          // 4 x 16 random steps, row by work_1 bits 4-5
 extern uint8 stcom01_D_0648[2][16];     // random wait times (stcom01_func_0610)
 extern uint8 stcom01_D_0668[16];        // random wait times (stcom01_func_0610)
 extern uint8 stcom01_D_0694[16];        // random choice (stcom01_func_0CD8)

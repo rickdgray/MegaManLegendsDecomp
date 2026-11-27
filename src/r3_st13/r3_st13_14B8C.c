@@ -23,11 +23,11 @@ void func_80114BC8(STAGE_OBJ *wp)
         obj = func_80031498();
         if (obj != NULL)
         {
-            obj->flags_0            = 1;
-            obj->kind_2             = 0x11;
-            obj->variant_3          = i;
-            obj->u_C.b.byte_C       = 0;
-            obj->u_C.b.byte_D       = 0;
+            obj->be_flag            = MOVE;
+            obj->id                 = 0x11;
+            obj->type               = i;
+            obj->u_C.b.work_0       = 0;
+            obj->u_C.b.work_1       = 0;
             obj->position.x         = D_80118C54[i].x;
             obj->position.y         = -1;
             obj->position.z         = D_80118C54[i].z;
@@ -81,9 +81,9 @@ void func_80114E98(STAGE_OBJ *wp)
     {
         func_80042314(&Player_work);
         STAGE_PL.flags_bd &= ~0x40;
-        D_80118D50[0]->u_C.b.byte_D = 1;
-        D_80118D50[1]->u_C.b.byte_D = 1;
-        D_80118D50[2]->u_C.b.byte_D = 1;
+        D_80118D50[0]->u_C.b.work_1 = 1;
+        D_80118D50[1]->u_C.b.work_1 = 1;
+        D_80118D50[2]->u_C.b.work_1 = 1;
         func_8005D620(D_80118D50[0], 0, 0, 0x51, D_80118C74);
         func_8005D620(D_80118D50[1], 0, 0x14, 0x51, D_80118C78);
         func_8005D620(D_80118D50[2], 0, 0x28, 0x51, D_80118C7C);
@@ -140,7 +140,7 @@ void func_801150F4(STAGE_EV *wp)
     switch (wp->routine_0)
     {
         case 0:
-            if (Sce_flag_test(D_80118C80[wp->variant_3]))
+            if (Sce_flag_test(D_80118C80[wp->type]))
             {
                 STAGE_PL_BYTE(0xBD) |= 0x40;
                 wp->routine_0++;
@@ -159,7 +159,7 @@ void func_801150F4(STAGE_EV *wp)
             {
                 D_800C356C = 2;
                 D_800C356E = 0x16;
-                D_800C356F = (wp->variant_3 == 0) * 2;
+                D_800C356F = (wp->type == 0) * 2;
                 D_800C3560 = 0;
                 D_800C3562 = 0;
                 D_800C3564 = 0;
@@ -183,8 +183,8 @@ void func_80115268(STAGE_EV *wp)
         ev = func_800317AC(i);
         if (ev != NULL)
         {
-            ev->flags_0 = 1;
-            ev->kind_2  = 0;
+            ev->be_flag = MOVE;
+            ev->id      = 0;
             break;
         }
     }

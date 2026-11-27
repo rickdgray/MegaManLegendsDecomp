@@ -11,10 +11,10 @@
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    sint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    sint8 be_flag;   // 00
+    uint8 work_id;   // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     uint8 reserved4; // 04
     uint8 value_5;   // 05
     uint16 value_6;  // 06
@@ -26,8 +26,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_C; // 0C
-            sint8 byte_D; // 0D
+            sint8 work_0; // 0C
+            sint8 work_1; // 0D
         } b;
         sint16 timer; // 0C
     } u_C;
@@ -35,8 +35,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_E; // 0E
-            sint8 byte_F; // 0F
+            sint8 work_2; // 0E
+            sint8 work_3; // 0F
         } b;
         sint16 angle; // 0E
     } u_E;
@@ -164,15 +164,16 @@ typedef struct
 } ST0C_OBJ;
 
 // A 0x50-byte slot (func_80031734) that turns a model about z (func_8010B6D8; D_8010D83C by
-// variant_3).
+// type).
 typedef struct ST0C_WHEEL ST0C_WHEEL;
 typedef void (*ST0C_WHEEL_FUNC)(ST0C_WHEEL *wp);
 
 struct ST0C_WHEEL
 {
-    uint8 flags_0;             // 00
-    uint8 reserved01[2];       // 01
-    uint8 variant_3;           // 03
+    uint8 be_flag;             // 00
+    uint8 work_id;             // 01
+    uint8 reserved02;          // 02
+    uint8 type;                // 03
     uint8 reserved04[4];       // 04
     uint8 routine_0;           // 08
     uint8 routine_1;           // 09
@@ -212,10 +213,10 @@ typedef struct ST0C_VIEW ST0C_VIEW;
 typedef void (*ST0C_VIEW_FUNC)(ST0C_VIEW *wp);
 struct ST0C_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 work_id;        // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 value_5;        // 5
     uint8 value_6;        // 6
@@ -293,12 +294,12 @@ typedef union
 // A 0x10C-byte shot (shl/shl.h's SHL_WORK with a model: the fields its routines use).
 typedef struct
 {
-    uint8 flags_0;              // 00
-    uint8 value_1;              // 01
+    uint8 be_flag;              // 00
+    uint8 work_id;              // 01
     uint8 value_2;              // 02
-    uint8 type_3;               // 03: 0x40 set for a shot fired by another object
+    uint8 type;                 // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];        // 04
-    uint8 flags_6;              // 06
+    uint8 flags;                // 06
     uint8 reserved07;           // 07
     uint8 routine_0;            // 08
     uint8 routine_1;            // 09
@@ -332,10 +333,10 @@ typedef struct
 // An effect slot as the shot's sparks use it (shl/shl.h's SHL_FX).
 typedef struct
 {
-    sint8 routine_0;        // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 flag_3;           // 03
+    sint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[0x18]; // 04
     sint16 x_1C;            // 1C
     sint16 y_1E;            // 1E
@@ -353,8 +354,9 @@ typedef struct
 // +0x428/+0x438 a second position in 16.16 and in halfwords.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[0xB];             // 01
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 reserved02[10];              // 02
     sint8 routine_C;                   // 0C
     sint8 value_D;                     // 0D
     uint8 reserved0E[6];               // 0E
@@ -372,12 +374,12 @@ typedef void (*ST0C_PL_FUNC)(ST0C_PL *wp);
 // with ROCK_NEO's generic layout up to 0x88, then a model's draw data.
 typedef struct
 {
-    sint8 flags_0; // 00
-    uint8 value_1; // 01
-    uint8 kind_2;  // 02
-    uint8 type_3;  // 03: 0x40 set for a shot fired by another object
+    sint8 be_flag; // 00
+    uint8 work_id; // 01
+    uint8 id;      // 02
+    uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 routine_1; // 09

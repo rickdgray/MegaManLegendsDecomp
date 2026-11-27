@@ -12,22 +12,22 @@ void func_801053F0(ST14_SPLASH *wp)
     STCOM_SVECTOR rot;
     STCOM_FIXED_VECTOR scale;
 
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     grow                   = &wp->u_18.s.grow;
     wp->u_18.s.grow.size_4 = 0;
     if (wp->value_C & 1)
     {
-        wp->u_18.s.grow.speed_0 = D_801159F4[wp->variant_3][1];
+        wp->u_18.s.grow.speed_0 = D_801159F4[wp->type][1];
     }
     else
     {
-        wp->u_18.s.grow.speed_0 = D_801159F4[wp->variant_3][0];
+        wp->u_18.s.grow.speed_0 = D_801159F4[wp->type][0];
     }
-    grow->accel_2 = D_80115A0C[wp->variant_3][0];
-    grow->speed_6 = D_80115A24[wp->variant_3][0];
-    grow->accel_8 = D_80115A3C[wp->variant_3][0];
+    grow->accel_2 = D_80115A0C[wp->type][0];
+    grow->speed_6 = D_80115A24[wp->type][0];
+    grow->accel_8 = D_80115A3C[wp->type][0];
     grow->size_A  = 0;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     rot.x = 0;
     rot.y = ((wp->value_C << 10) & 0x800) - 0x400;
     rot.z = 0;
@@ -38,7 +38,7 @@ void func_801053F0(ST14_SPLASH *wp)
     wp->alpha_A   = 0x80;
     wp->routine_1 = 0;
     wp->routine_0++;
-    wp->timer_B = D_80115A54[wp->variant_3];
+    wp->timer_B = D_80115A54[wp->type];
 }
 
 void func_80105578(ST14_SPLASH *wp)
@@ -54,7 +54,7 @@ void func_80105578(ST14_SPLASH *wp)
     wp->u_18.s.grow.speed_0 += wp->u_18.s.grow.accel_2;
     wp->u_18.s.grow.size_4 += wp->u_18.s.grow.speed_0;
     grow = &wp->u_18.s.grow;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         timer = wp->timer_B;
         gray  = timer * 4;
@@ -89,9 +89,9 @@ void func_80105578(ST14_SPLASH *wp)
                 effect = func_80031618();
                 if (effect != NULL)
                 {
-                    effect->flags_0         = 5;
-                    effect->kind_2          = 0x17;
-                    effect->variant_3       = 1;
+                    effect->be_flag         = MOVE | MODEL;
+                    effect->id              = 0x17;
+                    effect->type            = 1;
                     effect->value_C         = wp->value_C;
                     effect->sprite.position = wp->pos_38;
                 }

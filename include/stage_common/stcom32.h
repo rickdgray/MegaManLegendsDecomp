@@ -33,10 +33,10 @@ typedef struct
 // or a sprite (1..3).
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 index_1;       // 01: pool id and slot
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 work_id;       // 01: pool id and slot
+    uint8 id;            // 02
+    uint8 type;          // 03
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -74,10 +74,10 @@ typedef void (*STCOM32_FUNC)(STCOM32_WORK *wp);
 
 extern STCOM32_FUNC stcom32_D_0000[];    // routine_0 handlers (stcom32_func_0000)
 extern uint32 stcom32_D_000C[];          // model
-extern sint32 stcom32_D_0068[];          // scene flag set once picked up, by variant_3
+extern sint32 stcom32_D_0068[];          // scene flag set once picked up, by type
 extern STCOM32_TEXTURE stcom32_D_0078[]; // by stage
-extern uint8 stcom32_D_0098[][4];        // the sprite's u, v, w, h by variant_3
-extern sint32 stcom32_D_00A8[];          // the item given, by variant_3
+extern uint8 stcom32_D_0098[][4];        // the sprite's u, v, w, h by type
+extern sint32 stcom32_D_00A8[];          // the item given, by type
 
 void stcom32_func_0678(STCOM32_WORK *wp);
 

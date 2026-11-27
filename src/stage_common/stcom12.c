@@ -24,7 +24,7 @@ void stcom12_func_0000(STCOM12_WORK *wp)
     {
         wp->routine_3++;
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -48,9 +48,9 @@ void stcom12_func_0164(STCOM12_WORK *wp)
     wp->rotation.y = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x40;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
-    scale           = stcom12_D_0038[wp->param_E];
+    scale           = stcom12_D_0038[wp->work_2];
     wp->scale.v.pad = 0x4210;
     wp->data_78     = stcom12_D_002C;
     wp->scale.v.x = wp->scale.v.y = wp->scale.v.z = scale;
@@ -66,8 +66,8 @@ void stcom12_func_0164(STCOM12_WORK *wp)
     wp->velocity.y                                = 0;
     wp->velocity.z                                = 0;
     wp->value_74                                  = 0;
-    wp->param_E                                   = 0;
-    wp->param_F                                   = 0;
+    wp->work_2                                    = 0;
+    wp->work_3                                    = 0;
     wp->routine_0                                 = 0;
     wp->routine_1                                 = 0;
     wp->routine_2                                 = 0;
@@ -75,7 +75,7 @@ void stcom12_func_0164(STCOM12_WORK *wp)
     wp->ctl.counter_0                             = 0;
     wp->ctl.hit_C                                 = 0;
     wp->ctl.value_10                              = 0;
-    switch (wp->variant_3)
+    switch (wp->type)
     {
         case 0:
         default:
@@ -89,7 +89,7 @@ void stcom12_func_0164(STCOM12_WORK *wp)
         case 2:
             func_800322A8(wp, 2, 0);
             wp->routine_0 = 7;
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~TRANS;
             break;
     }
 }
@@ -150,14 +150,14 @@ void stcom12_func_0304(STCOM12_WORK *wp)
             Obj_pos_set(wp, wp->velocity.x, 0, 0);
             hit = Obj_map_push_out(wp);
             stcom12_func_0E9C(wp, hit);
-            if (wp->param_D != 0 && wp->param_D < (Distance_xyz(&wp->position, &ctl->home_24) >> 7))
+            if (wp->work_1 != 0 && wp->work_1 < (Distance_xyz(&wp->position, &ctl->home_24) >> 7))
             {
                 wp->velocity.x = 0x80;
                 if (wp->anim_AC != 2)
                 {
                     func_800322A8(wp, 2, 0);
                 }
-                ctl->timer_4  = wp->param_D << 2;
+                ctl->timer_4  = wp->work_1 << 2;
                 wp->routine_1 = 10;
                 break;
             }
@@ -277,7 +277,7 @@ void stcom12_func_0710(STCOM12_WORK *wp)
             {
                 break;
             }
-            MojiTaskExec2(0, wp->param_C);
+            MojiTaskExec2(0, wp->work_0);
             wp->routine_1++;
             break;
         case 2:
@@ -285,7 +285,7 @@ void stcom12_func_0710(STCOM12_WORK *wp)
             {
                 break;
             }
-            if (Game_work.value_50 == 0x12 && wp->param_C == 0 && (Moji_flag & 0xFF) == 0)
+            if (Game_work.value_50 == 0x12 && wp->work_0 == 0 && (Moji_flag & 0xFF) == 0)
             {
                 wp->routine_1 = 20;
                 break;
@@ -298,7 +298,7 @@ void stcom12_func_0710(STCOM12_WORK *wp)
                 break;
             }
             pl->flags_bd &= ~0x40;
-            pl->flags_0 |= 2;
+            pl->be_flag |= TRANS;
             if (wp->anim_AC != 3)
             {
                 wp->routine_0 = 1;
@@ -306,7 +306,7 @@ void stcom12_func_0710(STCOM12_WORK *wp)
             }
             break;
         case 20:
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~TRANS;
             wp->routine_1++;
             break;
         case 3:
@@ -321,7 +321,7 @@ void stcom12_func_0710(STCOM12_WORK *wp)
             }
             pl->flags_bd &= ~0x40;
             Sce_flag_on(0x238);
-            pl->flags_0 |= 2;
+            pl->be_flag |= TRANS;
             func_80031824(wp);
             break;
     }
@@ -425,7 +425,7 @@ void stcom12_func_0B24(STCOM12_WORK *wp)
             func_80063BC8(&wp->position, 2, 0, 5);
             wp->velocity.x = 0x200;
             wp->rotation.y = 0xA8C;
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             ctl->timer_4 = 180;
             ctl->home_24 = wp->position_prev = wp->position = pl->position;
             wp->position_fixed_prev = wp->position_fixed = pl->position_fixed;
@@ -446,7 +446,7 @@ void stcom12_func_0B24(STCOM12_WORK *wp)
                 break;
             }
             func_80042314(pl);
-            pl->flags_0 |= 2;
+            pl->be_flag |= TRANS;
             Sce_flag_on(0x239);
             wp->routine_0 = 1;
             wp->routine_1 = 0;
@@ -487,7 +487,7 @@ sint32 stcom12_func_0DE4(STCOM12_WORK *wp)
     if (target == wp)
     {
         Player_work.target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~TRANS;
         Player_work.flags_bd |= 0x40;
         stcom12_E_0000.x = target->value_180.x;
         stcom12_E_0000.y = target->value_180.y - 0x20;

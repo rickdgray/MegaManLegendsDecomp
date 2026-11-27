@@ -27,7 +27,7 @@ void stcom33_func_0058(STCOM33_WORK *wp)
     sint32 ofs;
     sint32 v;
 
-    v   = wp->variant_3;
+    v   = wp->type;
     ofs = wp->scroll_A;
     if (Sce_flag_test(stcom33_D_0000[v].flag_A) == 0)
     {

@@ -109,10 +109,10 @@ void func_800D8C2C(SHL_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 5;
-        fx->kind_2    = 0x80;
-        fx->flag_3    = 2;
-        level         = Player_work.value_524;
+        fx->be_flag = MOVE | MODEL;
+        fx->id      = 0x80;
+        fx->type    = 2;
+        level       = Player_work.value_524;
         if (level >= 3)
         {
             level = 2;
@@ -134,12 +134,12 @@ void func_800D8CC0(SHL_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 1;
-        fx->kind_2    = 0x83;
-        fx->flag_3    = 1;
-        fx->x_1c      = wp->pos.vx;
-        fx->y_1e      = wp->pos.vy;
-        fx->z_20      = wp->pos.vz;
+        fx->be_flag = MOVE;
+        fx->id      = 0x83;
+        fx->type    = 1;
+        fx->x_1c    = wp->pos.vx;
+        fx->y_1e    = wp->pos.vy;
+        fx->z_20    = wp->pos.vz;
     }
 }
 
@@ -150,17 +150,17 @@ void func_800D8D28(SHL_WORK *wp)
     flags = func_800375D4(&Player_work, 6);
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, 0x20, &wp->old_pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x20, &wp->old_pos, 0x20, 0x200, 0x6000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, 0x20, &wp->old_pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x20, &wp->old_pos, 0x20, 0x200, 0x4000, wp->work_id, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }
 
 void func_800D8DD8(SHL_WORK *wp, SHL_WORK *np)
 {
-    np->flags_0 = 1;
+    np->be_flag = MOVE;
     np->value_2 = wp->value_2;
     np->index_c = wp->index_c;
     np->pos     = wp->pos;
@@ -179,8 +179,8 @@ void func_800D8E44(SHL_WORK *wp, sint32 rx, sint32 ry)
     wp->box_78 = &D_800D9090;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->flags_0 |= 2;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= TRANS;
+    wp->flags |= 0x20;
     rot.vx = rx - 0x10 - (rand() & 0xF);
     rot.vy = ry & 0xFFF;
     rot.vz = 0;

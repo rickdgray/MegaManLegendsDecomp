@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "psyq/libgte.h"
+#include "work.h" // the pool slot header and be_flag's bits
 
 // Shared by the special-weapon (SHL) modules r3_shl02 ... r3_shl0d, each loaded at 0x800D8800
 // when its weapon is equipped. ROCK_NEO.EXE's SHL table (0x80089A28) points every weapon at the
@@ -142,12 +143,12 @@ extern SHL_PLAYER Player_work;
 // One shot object: ROCK_NEO.EXE's generic object layout up to 0x88, then the draw data.
 typedef struct SHL_WORK
 {
-    uint8 flags_0; // 00
-    uint8 value_1; // 01
+    uint8 be_flag; // 00
+    uint8 work_id; // 01
     uint8 value_2; // 02
-    uint8 type_3;  // 03: 0x40 set for a shot fired by another object
+    uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 routine_1; // 09
@@ -210,14 +211,14 @@ extern SHL_GAME Game_work;
 // free one from the 64-slot table D_800A3B40.
 typedef struct
 {
-    sint8 routine_0; // 00
-    uint8 reserved01;
-    uint8 kind_2; // 02
-    uint8 flag_3; // 03
+    sint8 be_flag; // 00
+    uint8 work_id;
+    uint8 id;   // 02
+    uint8 type; // 03
     uint8 reserved04[4];
-    uint8 routine_8; // 08
+    uint8 routine_0; // 08
     uint8 reserved09;
-    uint8 index_a; // 0A
+    uint8 routine_2; // 0A: also a value: the size, indexing D_8008A310 (r3_shl07), as in W48_86
     uint8 reserved0b;
     uint8 value_c; // 0C
     uint8 value_d; // 0D

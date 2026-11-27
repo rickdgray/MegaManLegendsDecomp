@@ -3,7 +3,7 @@
 
 void func_8010603C(STAGE_WORK *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x42100200;
@@ -43,7 +43,7 @@ void func_801060F8(STAGE_OBJ *wp)
 void func_8010617C(STAGE_OBJ *wp)
 {
     D_8010E71C[wp->routine_1](wp);
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -61,7 +61,7 @@ void func_801061E4(STAGE_WORK *wp)
 
 void func_80106228(STAGE_OBJ *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x42100200;
@@ -180,7 +180,7 @@ void func_80106604(ST1B_VIEW *wp)
     wp->position_fixed_prev.pad = wp->position_fixed.pad;
     wp->rotation_prev           = wp->rotation;
     D_8010E788[wp->routine_0](wp);
-    if ((uint8)wp->flags_0 & 2)
+    if ((uint8)wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -198,7 +198,7 @@ void func_801066F4(ST1B_ACTOR *wp)
     sint32 y;
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->turn_64 = STCOM_ABS((sint16)Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x800)) >> 3;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x02000200;
@@ -242,7 +242,7 @@ void func_80106810(ST1B_ACTOR *wp)
                 cam.y         = wp->value_180.y - 0x20;
                 cam.z         = wp->value_180.z;
                 func_80039FAC(&cam, 0x100, Angle_xz_svector(&pl->position, &wp->position) + 0x800, D_800A396C);
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~TRANS;
                 wp->routine_2++;
             }
             break;
@@ -270,10 +270,10 @@ void func_80106810(ST1B_ACTOR *wp)
             if (!func_8003A13C())
             {
                 func_80042314(pl);
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = wp->routine_1 = wp->routine_2 = wp->routine_3 = 0;
-                wp->value_D = wp->value_E = wp->value_F = wp->timer_C = 0;
-                wp->value_4                                           = 1;
+                wp->work_1 = wp->work_2 = wp->work_3 = wp->timer_C = 0;
+                wp->value_4                                        = 1;
             }
             break;
     }
@@ -286,7 +286,7 @@ void func_80106A34(STAGE_OBJ *wp)
 
 void func_80106A54(STAGE_OBJ *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x42100200;
@@ -375,7 +375,7 @@ void func_80106D08(STAGE_OBJ *wp)
 void func_80106D54(STAGE_OBJ *wp)
 {
     D_8010E794[wp->routine_1](wp);
-    if (wp->u_C.b.byte_D == 0)
+    if (wp->u_C.b.work_1 == 0)
     {
         func_80030150(&wp->position_fixed.v, &wp->position);
         func_80032488(wp);
@@ -398,7 +398,7 @@ void func_80106E14(STAGE_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8010E7B0[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -461,7 +461,7 @@ void func_80106F04(ST1B_ACTOR *wp)
                 pl->flags_bd &= ~0x40;
                 wp->routine_1 = 0;
             }
-            pl->flags_0 |= 2;
+            pl->be_flag |= TRANS;
             break;
     }
     func_80051B68(wp, 1, -1, 0);
@@ -474,7 +474,7 @@ void func_8010706C(ST1B_VIEW *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->value_64   = 0x80;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     wp->value_158        = 0x02000200;
     wp->u_15C.w[0]       = 0x200;
@@ -507,7 +507,7 @@ sint32 func_80107114(ST1B_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~TRANS;
         pl->flags_bd |= 0x40;
         D_80113E74.x = wp->value_180.x;
         D_80113E74.y = wp->value_180.y - 0x20;

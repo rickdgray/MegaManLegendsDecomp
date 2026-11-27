@@ -3,7 +3,7 @@
 
 void func_80104AF0(STAGE_OBJ *wp)
 {
-    D_80117660[wp->variant_3](wp);
+    D_80117660[wp->type](wp);
 }
 
 void func_80104B2C(STAGE_OBJ *wp)
@@ -20,8 +20,8 @@ void func_80104B68(ST13_SPARK *wp)
     wp->routine_2    = 0;
     wp->routine_3    = 0;
     wp->ctl.bob_4    = 0;
-    wp->flags_0 |= 2;
-    wp->ctl.wobble_1A   = wp->value_D;
+    wp->be_flag |= TRANS;
+    wp->ctl.wobble_1A   = wp->work_1;
     wp->ctl.frame_19    = rand() & 3;
     wp->ctl.origin_10.x = wp->u_1C.spr.x;
     wp->ctl.hit_8       = 0;
@@ -33,7 +33,7 @@ void func_80104B68(ST13_SPARK *wp)
     wp->u_1C.spr.u      = D_80117644[wp->ctl.frame_19].u;
     wp->u_1C.spr.v      = D_80117644[wp->ctl.frame_19].v;
     wp->w_24            = 0x20;
-    func_800341BC(&wp->u_1C.pos, 0x20, 0, 0xA000, wp->index_1, &wp->ctl.hit_8, 0x68000010, 0, 0x80);
+    func_800341BC(&wp->u_1C.pos, 0x20, 0, 0xA000, wp->work_id, &wp->ctl.hit_8, 0x68000010, 0, 0x80);
 }
 
 void func_80104C9C(ST13_SPARK *wp)
@@ -44,7 +44,7 @@ void func_80104C9C(ST13_SPARK *wp)
     sint32 c;
 
     ctl = &wp->ctl;
-    if (func_80049C54(&wp->u_1C.pos, &wp->u_1C.pos, D_80117654, wp->index_1) == 0 && !(ctl->hit_8 & 0x2000000))
+    if (func_80049C54(&wp->u_1C.pos, &wp->u_1C.pos, D_80117654, wp->work_id) == 0 && !(ctl->hit_8 & 0x2000000))
     {
         wp->ctl.shade_18 = (ctl->timer_6 < 6) ? ctl->timer_6 * 16 : 0x80;
         c                = ctl->shade_18;
@@ -65,12 +65,12 @@ void func_80104C9C(ST13_SPARK *wp)
         pos.x          = wp->u_1C.pos.x;
         pos.y          = wp->u_1C.pos.y;
         pos.z          = wp->u_1C.pos.z;
-        pos.y          = func_80048EA4(&pos, D_80117654, 0, wp->index_1);
+        pos.y          = func_80048EA4(&pos, D_80117654, 0, wp->work_id);
         if (pos.y < wp->u_1C.pos.y)
         {
             wp->u_1C.pos.y = pos.y;
         }
-        func_800341BC(&wp->u_1C.pos, wp->w_24, 0, 0xA000, wp->index_1, &ctl->hit_8, 0x68000010, 0, 0x80);
+        func_800341BC(&wp->u_1C.pos, wp->w_24, 0, 0xA000, wp->work_id, &ctl->hit_8, 0x68000010, 0, 0x80);
         ctl->hit_8 = 0;
         if (--ctl->timer_6 != 0)
         {
@@ -84,7 +84,7 @@ void func_80104F10(STAGE_FX *wp)
 {
     STAGE_OBJ *owner;
 
-    owner = func_80036294(wp->value_C);
-    owner->u_C.b.byte_C--;
+    owner = func_80036294(wp->work_0);
+    owner->u_C.b.work_0--;
     func_80031988(wp);
 }

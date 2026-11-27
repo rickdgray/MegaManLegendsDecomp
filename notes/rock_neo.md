@@ -422,13 +422,13 @@ push-out retries), `Front_hit_event` (exits and event triggers in front of the p
 - `AREA_ENTRY` (`D_800C3558`) must be over 32 bytes (0x28, up to the WORK_5A4 pool at
   `0x800C3580`): at 0x1A, GCC (`-G32`) treats it as small data and stops keeping its address in a
   register in `Front_hit_event`.
-- `func_80048620`: `Player_work->flags_6 |= 3` gives the target's two `lui`s; `Player_work[0].`
+- `func_80048620`: `Player_work->flags |= 3` gives the target's two `lui`s; `Player_work[0].`
   keeps the field's address in a register.
 
 ## WORK_48 kinds
 
-A slot of the effect pool `D_800A3B40` (`func_80031618` / `func_80031988`) is an object whose kind is `id_2`: the
-pool update (game's `func_800172F4`/`func_800173B4`) calls `handler[id_2]`, from the stage overlay's table (pointer at
+A slot of the effect pool `D_800A3B40` (`func_80031618` / `func_80031988`) is an object whose kind is `id`: the
+pool update (game's `func_800172F4`/`func_800173B4`) calls `handler[id]`, from the stage overlay's table (pointer at
 scratchpad `0x1F800064`) for ids below 0x80, and from `D_80089858 + id * 4` for 0x80-0x8A (11 ROCK_NEO kinds). As
 Capcom does with `EM_WORK` -> `MODEL_WORK`, each ROCK_NEO kind has its own full struct and its handlers take it; the
 shared code takes the generic `WORK_48`, and callers cast at the boundary (`func_80031988((WORK_48 *)wp)`).
@@ -449,14 +449,14 @@ shared code takes the generic `WORK_48`, and callers cast at the boundary (`func
 
 The kinds come in two families laid over 0x14-0x43, the two halves of the `EFC` union that `WORK_48.efc` keeps for
 the shared code (and `SHL_WORK.efc` at 0x88): `EFC_MODEL` (`data` from `Model_work_init`, `mtx`, `pos`, `rgbc`; bit 2
-of `routine_0` set) and `EFC_SPRITE` (`code`, `rgbc`, `pos[3]`, two bytes and two halfwords, kind data from +0x14).
+of `be_flag` set) and `EFC_SPRITE` (`code`, `rgbc`, `pos[3]`, two bytes and two halfwords, kind data from +0x14).
 The kinds' own structs write them out at their offsets (`data_14`, `mtx`, `pos_38`, `rgbc_40`; `code_14`, `rgbc_18`,
 `pos_1C[3]`, `field_22..26`). `func_8002F928` moves `efc.model.pos` or `efc.sprite.pos` by that bit. The name follows Capcom's shot code (`wk_p->efc.model.m`, `.sv`, `.rgbc`). The debris kinds copy the whole
 matrix as a `MATRIX` (`func_80045AB4`), but keep their speed and acceleration in its `t` bytes, so their struct has
 `m[3][3]` plus `vx_2C..az_36` and passes `(MATRIX *)wp->m`. `func_80037890` creates kinds 0x80 and 0x83 through one
 reused local, so it stays generic. `func_80045CE8` and `func_80046B34` are spawners (of 0x86 and 0x87), not
 handlers. The overlays' kinds (below 0x80) use the generic type until they are decompiled. Older entries below use
-the names from before this split (`u_18.s`, `u_18.mtx`, `field_C.rec`, `u_44`, `field_2`/`flag_3` = `id_2`/`type_3`).
+the names from before this split (`u_18.s`, `u_18.mtx`, `field_C.rec`, `u_44`, `field_2`/`flag_3` = `id`/`type`).
 
 ## Shot pools: SHL_WORK and PL_SHL_WORK
 
@@ -474,12 +474,12 @@ match and from `EFC_MODEL`'s size (0x30); Capcom's offsets for `SHL_WORK` aren't
 The player's shots, pool `D_800BFB20[16]` (kind 0x10, `Open_PL_SHL_WORK` / `Close_PL_SHL_WORK`, spawned by `pl_shot_spawn`),
 have their own struct, `PL_SHL_WORK`: same layout, with the sprite `EFC` and the free block written out, because a
 player's shot keeps its own bytes in both (the flight direction `dir_A4` in the EFC's kind bytes, `tgt_BC` and
-`owner_C4` in the free block). Its `id_2` is byte 7 of the player's action record (`D_80089A8B`); the handlers are
+`owner_C4` in the free block). Its `id` is byte 7 of the player's action record (`D_80089A8B`); the handlers are
 `func_800433C0` and `func_800437A8` (`code_8004324C`, tables `D_8008A0CC`/`D_8008A0D8`, `PL_SHL_FUNC`).
 
 The two pools share one "current slot" global, `D_800988F8` (`PL_SHL_WORK *`; `func_80017154` and
 `func_80017210`). `func_80017210` calls the stage overlay's table (scratchpad `0x1F800060`,
-`Shl_work_tbl`) for ids below 0x80 and `D_80089820[id_2]` for the rest. `D_80089820`'s entries are
+`Shl_work_tbl`) for ids below 0x80 and `D_80089820[id]` for the rest. `D_80089820`'s entries are
 scene functions with no parameters, and both loops call them with none: with the slot passed,
 `func_80017210`'s two calls are identical and GCC cross-jumps them, which the target doesn't.
 
@@ -556,14 +556,14 @@ functions here, `scene.c` and the overlays still use the separate `D_800A39xx` e
 
 `code_80043F34` (batch 20261117 #4, recovered from its session log after the timeout revert): banked
 `func_80044D5C`, `func_80044E50`, `func_80044F44` (near-twin per-frame steps of the sprite kinds:
-`flag_3` picks how pos_1C, field_24 and the colour word move; `case 2:` shares `default:`), and
+`type` picks how pos_1C, field_24 and the colour word move; `case 2:` shares `default:`), and
 `func_800441CC`, matched later from CoastRedWood's draft: its distance test against Player_work reuses one
 temporary `t` for the player's x, the y difference and the squared radius, and reads the radius
 `pos_38.pad` as `(uint16)` then `(sint16) / 2` (the target's `lhu`); that reuse is what gives the
-target's registers (v1 for the coordinate, a1/a0/t0 for the squares). `func_8004441C` (kind 0x80's field_9 handler,
-D_8008A214) is matched: per type_3 it grows/shrinks the scale `pos_38.pad` by `hw_44`, fades the colour
+target's registers (v1 for the coordinate, a1/a0/t0 for the squares). `func_8004441C` (kind 0x80's routine_1 handler,
+D_8008A214) is matched: per type it grows/shrinks the scale `pos_38.pad` by `hw_44`, fades the colour
 (tables `D_8008A1A8`/`D_8008A1C8`, `W48_80_SCALE`, and `D_8008A1E8`, `W48_80_FADE`, by size_D), and ends by
-stepping routine_8. The sprite kinds that keep their position in `pos_1C` (`func_80045338`, `func_80045400`,
+stepping routine_0. The sprite kinds that keep their position in `pos_1C` (`func_80045338`, `func_80045400`,
 `func_8004548C`) are kind 0x85 (`W48_85_WORK`): acceleration at 0x28 and speed at 0x30, unlike the debris
 kinds 0x86/0x87, where 0x2C is the speed and 0x32 the acceleration (see "WORK_48 kinds").
 
@@ -664,8 +664,8 @@ pointer add into the delay slot and the counter to the loop tail; needs an unuse
 `0x1F800120`; the code is identical, only the register assignment differs: target d=a1, s=a2, counter=t0, ours
 d=a3, s=t0, counter=a2). `func_80035508` stays assembly (GTE; needs the repo-wide GTE decision above).
 
-`code_8002E7A8.c` (consolidation): the player and every pool slot share one object header (routine_0,
-kind_1, flags at 6, position at 0x14, 16.16 position at 0x1C, angle at 0x56, model data at 0x88/0x90-0xAC,
+`code_8002E7A8.c` (consolidation): the player and every pool slot share one object header (be_flag,
+work_id, flags at 6, position at 0x14, 16.16 position at 0x1C, angle at 0x56, model data at 0x88/0x90-0xAC,
 keyframes at 0xF8-0x106). `Obj_work_flag_change` and `func_8002F420` apply `func_8002F3A8`/`func_8002F884`/
 `func_8002F928` to several pools, `func_8002FA38` writes by kind, so `FLAG_WORK`, `MOVE_WORK`, `POS_WORK`,
 `ATTACH_WORK`, `TURN_WORK` and `POS14_WORK` stay views until that header has a type. Merged: the keyframe and
@@ -712,7 +712,7 @@ across it):
 - `Fog_param_get` (0x80036B00): `D_8009A370..74` are fields of `D_8009A350` (`FOG_BLOCK.far_r/g/b`,
   `near`; `func_80036A88` sets them); read as struct fields, the loads stay after the earlier stores.
 - The allocators: `wp = &pool[i]` before the bit test, the mask update first, then the stores; the word
-  clears at 8 and 0xC must be casts over byte fields (`EVE_WORK.field_8..F` are now bytes: the overlays'
+  clears at 8 and 0xC must be casts over byte fields (`EVE_WORK.routine_0..work_3` are now bytes: the overlays'
   `STAGE_EVENT` reads `timer_C`/`step_D`), since a cast of a `uint32` field folds back to the field.
 - `func_800323FC`: the chained `ent = wp->ent_FC = &wp->tbl_F8[...]`; `func_80032538` is
   `func_80032488` without `Model_parts_mtx_set_y`.
@@ -786,33 +786,33 @@ pre-scans the whole file, finds `D_8009802C` in this file's `.sdata` and expands
 `$gp` access (whose first instruction reads v0); the target has none, as for the extern `D_8008D7C8`
 in case 2. A tool question, not a source one (see the report).
 
-`code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.timer_B` countdown, then `routine_8`
+`code_800456D8.c`: banked `func_80045918`/`func_8004594C` (`WORK_48.routine_3` countdown, then `routine_0`
 += 2 / += 1), `func_80045A7C` (`Sound_call2(0xCF, &wp->pos_38)` then `func_80031988`), `func_80047318`
-(`D_8008A708[wp->routine_8](wp)`). Parked `func_80045FE4` and `func_80046008` (identical, `NON_MATCHING`):
-the target is `func_8002FE74(wp->kind_1)` followed by `move v1,v0`; GCC drops the dead copy for a
+(`D_8008A708[wp->routine_0](wp)`). Parked `func_80045FE4` and `func_80046008` (identical, `NON_MATCHING`):
+the target is `func_8002FE74(wp->work_id)` followed by `move v1,v0`; GCC drops the dead copy for a
 `void` function with a local, and a `return` form emits no move either (also tried `register`).
-Also banked: `func_80047D9C`/`func_80048354` (`D_8008A724`/`D_8008A76C[wp->routine_8](wp)`), `func_800485E4`
-(`D_8008A778[wp->flag_4](wp)`), `func_80048268`, `func_80046848` (`WORK_48.flag_3` picks sound 0x9E/0x9D).
+Also banked: `func_80047D9C`/`func_80048354` (`D_8008A724`/`D_8008A76C[wp->routine_0](wp)`), `func_800485E4`
+(`D_8008A778[wp->handler](wp)`), `func_80048268`, `func_80046848` (`WORK_48.type` picks sound 0x9E/0x9D).
 Banked `func_80047C84`: copies `D_8008A6C8..CF` into `WORK_48`. It was parked over the `field_14`
 word copy (the target does it third; GCC delayed it to the end), but it matches as written since the
 later `WORK_48` type changes.
-Parked `func_80047354` (`NON_MATCHING`, spawn/init of a `WORK_48` by `flag_3`): all instructions match except the
-tail layout. The target tests `flag_3 & 0x80` with `beqz` (`sub = 0` store, then `j` to the shared `Model_work_init`)
+Parked `func_80047354` (`NON_MATCHING`, spawn/init of a `WORK_48` by `type`): all instructions match except the
+tail layout. The target tests `type & 0x80` with `beqz` (`sub = 0` store, then `j` to the shared `Model_work_init`)
 and keeps the `sub = 4/5/6` arms as three separate stubs; ours inverts the 0x80 test and merges the arms. Tried
-flat if/else, nested, `goto init`, `sub = flag_3 & 0xF` vs constants.
+flat if/else, nested, `goto init`, `sub = type & 0xF` vs constants.
 Banked: `func_800469A4` (matrix at `WORK_48+0x18` with diagonal `field_3E`, `RotMatrixY(field_C.angle)`, angle
 += 0x100; chained store `m00 = m11 = m22`), `func_800459C0`/`func_8004678C` (same matrix with the diagonal
 `pos_38.pad >> 1` for m00/m22; `field_2E += field_34`, `pos_38.vy += field_2E`,
-`field_3E -= D_80097E64/D_80097EE0[field_A] >> 3`, `routine_8++` once `field_2E >= 0`), `svec_distance`
+`field_3E -= D_80097E64/D_80097EE0[routine_2] >> 3`, `routine_0++` once `field_2E >= 0`), `svec_distance`
 (distance of two SVECTORs via `SquareRoot0`), `func_80047CD8` (steps through the 8-byte records at
 `D_8008A6C8`; separate symbols indexed by `i * 8`). Parked `func_800482A8` (`NON_MATCHING`; Player_work
-`unk09 == 3` and `unk11C & unk128/unk12A` pad test, else `routine_8 = 2`; returns 1/0): the target ends the
+`unk09 == 3` and `unk11C & unk128/unk12A` pad test, else `routine_0 = 2`; returns 1/0): the target ends the
 two AND tests with `beqz`/`li 1`/`move 0`, GCC emits `sltu` for `hit != 0` (tried nested returns, a `hit`
 local with `goto fail`, and `== 0` forms).
 
 Batch (`func_80046A0C`, `_8004602C`, `_80047EC8`): banked `func_80046A0C` (proximity test like `func_80045BC8`, then
-calls `Money_add`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][field_A]`; `field_A` is kept in a
-local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_8]`, then one `Billboard_get` primitive
+calls `Money_add`/`func_80043340` with `D_8008A678`/`D_8008A680[Game_work 0x5B][routine_2]`; `routine_2` is kept in a
+local) and `func_8004602C` (per-frame draw of the effect: `D_8008A6A8[routine_0]`, then one `Billboard_get` primitive
 filled from the four columns `D_80097EC0/C2/C4/C6`, each its own symbol). Parked `func_80047EC8` (`NON_MATCHING`;
 eight spark lines around the player's position at `Player_work+0x400`/`+0x418`): structure matches; the else-branch
 angle `- 0x100 + rand` becomes `li 0xff00; addu` (as in `func_80047DD8`), the `y - (sin - 0x10)` is folded to
@@ -821,7 +821,7 @@ angle `- 0x100 + rand` becomes `li 0xff00; addu` (as in `func_80047DD8`), the `y
 
 Batch (`func_80047DD8`, `_80045BC8`, `_80046F38`, `_80045CE8`, `_800477A0`, `_80046B34`): banked
 `func_80045BC8` (proximity test of the effect at `pos_38` against both players:
-`(uint32)(dx + r + 0x32) <= 2r + 0x64` with `r = D_80097E64[field_A + 6]` as `uint32`; the second player is `Player_work[1]`). Parked, all `NON_MATCHING` with the best attempt kept:
+`(uint32)(dx + r + 0x32) <= 2r + 0x64` with `r = D_80097E64[routine_2 + 6]` as `uint32`; the second player is `Player_work[1]`). Parked, all `NON_MATCHING` with the best attempt kept:
 - `func_80047DD8`: only `- 0x100 + (rand() & 0xFF)` differs (GCC folds it into `ori 0xff00`; the target does `addiu -0x100`
   then `addu`) and one `addu` operand order. The `Player_work` base is hoisted by taking the result of
   `func_800482A8` in a `uint8` local first, then `pl = Player_work`.
@@ -834,8 +834,8 @@ Batch (`func_80047DD8`, `_80045BC8`, `_80046F38`, `_80045CE8`, `_800477A0`, `_80
 - `func_80045CE8` (spawns `count` effects round a circle; `weights` bytes pick one of five tables, `kind` picks a row of
   `D_8008A2B0`): whole body matches; only the prologue move order (a2, a3, a1 vs a1, a2, a3) differs. What made the
   body match: `for (...; i++, ang += step)`, signed `switch` value, `(rnd & 3)` written inline (no local), stores
-  in the order `field_A`, `field_3E`, `field_C`, `field_C+2`.
-- `func_800477A0` (per-frame colour/scale fade of a `WORK_48`, `switch (flag_3 & 0xF)` with cases 0/3/default sharing
+  in the order `routine_2`, `field_3E`, `ang_y_C`, `ang_x_E`.
+- `func_800477A0` (per-frame colour/scale fade of a `WORK_48`, `switch (type & 0xF)` with cases 0/3/default sharing
   code): prologue, sums and jump table match; the target keeps the five colour tails separate (each ends in a jump
   to one shared `or; sw`) with the channel in a2, GCC cross-jumps them. Separate locals per case did not help.
 - `func_80046B34` (two bursts of effects, `spec` packs count/kind of each): only register allocation; the target
@@ -855,7 +855,7 @@ of the 8 bytes scheduled between the `D` load and the `addiu 1`); this build put
 written inline folds to `(ground - 1) - D`, so a local `h = D + 1` is needed to get the separate `addiu`.
 
 `code_800456D8.c` (consolidation): `WORK_48`'s 0x18-0x37 is a union `u_18` by kind: `mtx` (the model kinds, with
-bit 2 of `routine_0` set, position in `pos_38`; replaces the `(MATRIX *)&field_18` casts and the raw word stores of
+bit 2 of `be_flag` set, position in `pos_38`; replaces the `(MATRIX *)&field_18` casts and the raw word stores of
 `func_80047354`) and `s` (`field_18`, `pos_1C` for the kinds without bit 2, which `func_8002F928`/`POS_WORK` moves,
 `field_22..24`, and the debris speed/acceleration `vx_2C..az_36`, which share the bytes of `mtx.t` while the debris
 uses `mtx.m`). `HIT_ENT` (`D_8008A310`, `D_8008A618`) is three (min, max) halfword pairs; `D_8008A622` is written as
@@ -869,7 +869,7 @@ GCC always cross-jumps the identical `sub` stores the target keeps separate), `f
 `func_800477A0` and `func_80047EC8` (banked later, below). What made each match:
 - `func_80045FE4`/`func_80046008`: the `move v1,v0` is a dead `switch` on the result that picks a `SPEC_ENT *`
   from the four kind tables and never uses it.
-- `func_80047228`: the `+ n` is added in each case (`e = D_8009884C[wp->id_2] + n;`), then `e->spec`.
+- `func_80047228`: the `+ n` is added in each case (`e = D_8009884C[wp->id] + n;`), then `e->spec`.
 - `func_800482A8`: returns `uint8`; `pad`/`hit` `uint16` locals, `if (hit) return 1;` and the fail block as the
   `else` of the state test (with the `fail:` label inside it), `return 0` last.
 - `func_80047DD8`: no local for the result (`if (func_800482A8(wp) == 0)`, the `uint8` return gives the `andi`), a
@@ -887,10 +887,10 @@ GCC always cross-jumps the identical `sub` stores the target keeps separate), `f
 Later drafts banked the last three (the file has no parked function left among them):
 - `func_80046B34`: the first count's clamp is `if ((spec & 0xFF) > 16) count = 16; else count = spec & 0xFF;`
   (the mask written twice), the second goes through the same `count` (`count = count2; if (count > 16) ...`), all
-  locals `uint32`, `continue` on a failed open and on `idx >= 5`; `ptr_44` before `field_A` in the first loop.
+  locals `uint32`, `continue` on a failed open and on `idx >= 5`; `ptr_44` before `routine_2` in the first loop.
 - `func_800477A0`: each case's colour as an `if`/`else` that assigns `c` in both arms (no `c = 0x80` before the test),
-  `c | 0x02000000 | (c << 8) | (c << 16)`; case 5 is `c = (8 - field_A) * 16`; `routine_8++` before the
-  `pos.pad = 0`; `RotMatrixY(++wp->timer_B << 7, ...)`.
+  `c | 0x02000000 | (c << 8) | (c << 16)`; case 5 is `c = (8 - routine_2) * 16`; `routine_0++` before the
+  `pos.pad = 0`; `RotMatrixY(++wp->routine_3 << 7, ...)`.
 - `func_80047EC8`: `W48_89_WORK.pos_1C` is `sint16` and `W48_89_LINES.ang` `uint16`; early `return` on
   `func_800482A8`; `if (++d->idx[i] >= 8)`; the else angle `(sint16)(ang.vy - 0x100) + (rand() & 0xFF)` (as in
   `func_80047DD8`); `y - (sint16)((sin * h >> 12) - 16)` keeps the `- 16` on the sine term; the primitive's words in
@@ -899,9 +899,9 @@ Later drafts banked the last three (the file has no parked function left among t
 `code_8004324C.c` (batch 1): banked `func_8004324C` (player `unk174 & 0xC0 || unk177`; must be `if (a || b)
 return 1; return 0;`: two separate `if`s fold the second test to `sltu`, a bare `return a || b` uses a temp),
 `Money_check` (`-(Game_work.money < -amount)`: -1 when `money` can't cover a negative change; `money` at
-`Game_work+0x1C`, capped at 999999 by `Money_add`), `func_800433C0` (`D_8008A0CC[wp->routine_8](wp)` on a
+`Game_work+0x1C`, capped at 999999 by `Money_add`), `func_800433C0` (`D_8008A0CC[wp->routine_0](wp)` on a
 `SHL_WORK` of the `D_800BFB20` pool), `func_800435BC`, `func_80043740` and `func_80043E00` (spawn a `WORK_48`
-at the slot's position; in `func_80043E00` the `flag_3`/`field_C` stores are written after the position).
+at the slot's position; in `func_80043E00` the `type`/`work_0` stores are written after the position).
 Batch 2: banked `Money_add` (0x80043294; `amount` added to `money`, clamped to 999999 when positive, reset to 0
 on underflow when not, which also adds it to `Game_work+0x20`/`+0x24` by `c`; does nothing unless `b == 0`),
 `func_80043340` (`Player_work[n].unk6E += amount`, capped at `unkB0`; player 0's losses are added to
@@ -910,7 +910,7 @@ has one call per value of the `0x6000`/`0x4000` argument, and `func_800435F8` re
 its `field_E` test: the target duplicates the `0x6000` setup). `field_C` is `sint8` (read with `lb`; the
 `(uint8)` casts give the `andi`/`lbu` before `func_80036294`), and `func_800375D4` returns `sint32` (the caller
 doesn't re-extend it).
-`SHL_WORK.field_8` is split into `routine_8`/`field_9`/`field_A`/`timer_B`; `field_C` holds the owning player's
+`SHL_WORK.field_8` is split into `routine_0`...`routine_3`; `work_0` holds the owning player's
 id (`func_80036294` returns a `PL_WORK`: `func_800433FC` reads its `joint_pos[11]`/`[14]`; `+0x198` is that
 player's state flag for the slot).
 Batch 3: banked `func_800433FC` (frame has 0x18 bytes of unused locals: an `SVECTOR` + `VECTOR`, like
@@ -925,9 +925,9 @@ store-flags the 0/1 argument of `func_80043E00` (`id != 0x7FFF`) into `xori`/`sl
 branches; if/else, switch, ternary, goto and two calls (not cross-jumped) all tried. The speed multiplies
 also differ by a v0/v1 swap (target loads the table byte before `dir.vx`). The rest, including the
 `if (...) {...} else { close: ...; return; } func_80043E78(wp);` layout, matches.
-Banked `func_800437A8` (the shot's update: `D_8008A0D8[wp->routine_8](wp)`, a table of `func_800437F8` and
+Banked `func_800437A8` (the shot's update: `D_8008A0D8[wp->routine_0](wp)`, a table of `func_800437F8` and
 `func_80043A8C`, then `func_80051BAC(wp)`, which the player code also calls: it pushes the object on the
-list at `D_80098898` when `routine_0 & 3`, and clears `+0x7C`).
+list at `D_80098898` when `be_flag & 3`, and clears `+0x7C`).
 `SHL_WORK` fields from these: `spd`/`add` (0x44/0x4C, MODEL_WORK's), `hit_78` (`HIT_ENT *`, read by
 `func_80049C24`), `field_7C`, `field_88`, `rgbc_8C`, `x_90`..`z_94`, `field_96`/`97`, `field_9A`, `dir_A4`,
 `tgt_BC` (tested as two words, Capcom's `*(uint32 *)&v.vx` idiom).
@@ -940,7 +940,7 @@ entry's frame and resets the timer. Entry bytes 0 and 1 are copied to `Scene_wor
 (called only from overlays ST15/ST1B/ST1E) installs a table and sets `D_800BC7F0 = arg`; `Sce_event_timer_clear`
 (many overlays) clears the timers and both bytes. Banked steps `func_8006885C`, `func_8006888C` (calls stage code
 `func_80101D94` at frame 10), `func_800688BC`, `func_800688E4`, `func_80068BC0`, `func_80068CB8`: at frame 0
-each sets `field_9` (and clears `field_A`) of one of `Scene_work.obj_24[0..2]`. `obj_24` is `void *[16]`:
+each sets `routine_1` (and clears `routine_2`) of one of `Scene_work.obj_24[0..2]`. `obj_24` is `void *[16]`:
 `scene_obj_open` fills it from four pools by the kind byte of each object entry, and this scene's entries
 (`D_8008FF88`, opened by `event_scene_init`) make `[0]` a `WORK_3C0`, `[1]`/`[2]` `WORK_5A4`, `[3]` a `WORK_50`.
 The object must be read into a local of that type: the byte stores alias the array.
@@ -956,7 +956,7 @@ field written at each use: a `sint16 *col = &wp->pos_180[n].col` local adds an `
 frame comes for free: no unused local needed.
 Also banked: `func_80068244`, `func_8006849C`, `func_8006890C`, `func_80068998`, `func_80068AB0`,
 `func_80068B3C`: call `func_800680BC(0/1/2)` and set or clear bit 1 (sometimes bit 0) of
-`obj_24[0..2]->routine_0`. `func_8006849C` tests `Scene_work.field_0C` (0x0C, otherwise only cleared by
+`obj_24[0..2]->be_flag`. `func_8006849C` tests `Scene_work.field_0C` (0x0C, otherwise only cleared by
 `func_8001DDE4`) instead of `timer_10`. Two matching idioms: when two objects clear bit 1, the mask is an
 `int` local (`mask = ~2`; a literal folds to `andi 0xFD` at each use, the target loads -3 once), and the
 register split shows which objects shared one pointer local (`obj_24[0]` separate, `[1]`/`[2]` one local).
@@ -1054,19 +1054,19 @@ Also banked in `scene.c` (from CoastRedWood's drafts): `Angle_xz` (angle from (x
 object from the pool its third argument names, stores it in `Scene_work.obj_24[index]`; the 0xE0 /
 `WORK_50` case copies the position into `efc.model.pos` as two words; it needs `goto end` when that pool
 is full, a `break` leaves the other pools' pointer uninitialized on that path and costs a saved
-register), `func_8001E068` / `func_8001E20C` (all / one of the `D_800ACD40` objects: `routine_8 = 2`
+register), `func_8001E068` / `func_8001E20C` (all / one of the `D_800ACD40` objects: `routine_0 = 2`
 and one call of its pool's handler, or `func_80031824` for a `WORK_3C0` of id 0x10; the pool from
 `func_8002FE74` must go through a `sint32` local, the switch on the `uint32` return gives `sltiu`
 for the target's `slti`), `Sce_flag_on` (sets the bit; buster parts 0x500-0x51F join
 `rb_parts_sort_data`, and set their twin flag + 0x80, as do 0x540-0x543 and 0x558-0x57F; key items
 `PL_KEY_ITEM_00` + n set or clear the flags listed in the code), and `Sce_camera_update` (steps the camera
-script `arg_C0`, then adds the three velocities). `WORK_50` bytes 8-0xB are `routine_8` ... `timer_B`
+script `arg_C0`, then adds the three velocities). `WORK_50` bytes 8-0xB are `routine_0` ... `routine_3`
 like the other pools' (was one `field_8` word).
 Also from the drafts: `func_8001F580(file, close, set)` (`func_8002FBF4` if `close`, `Game_work.unk06A =
 file` if `set`, then `Cd_read_comb(file)`; called by r3_st06, r3_st19, r3_st1a) and `func_8001F3C8`
 (from `func_800158F0` and r3_sup: area file `D_800893BC[stage_no][area_no + 1]`, `func_8001F5E4`,
 `Sce_read_sync(0)`, `Obj_work_flag_change(0x3FE, WORK_KILL)` unless `D_800C356C` is -1; then
-`D_80089790[stage_no]()` and resets: player 0's `routine_8`..`field_B` word, `flags_BD` bit 6,
+`D_80089790[stage_no]()` and resets: player 0's `routine_0`..`routine_3` word, `flags_BD` bit 6,
 `weapon_right_no`/`unk171` from `unk44E`/`unk44F`, `Game_work.unk07E`, `Sce_flag_off(0x1FF)`). In `_3C8` the
 `gw = &Game_work` and `pw` locals must be assigned *before* `stage_no`/`area_no` are read: assigned
 after the call (the draft's order) GCC derives `&Game_work` from the first load's address
@@ -1200,8 +1200,8 @@ and `on` as `uint16` members of a struct over `Joy1` matched the whole binary, s
 shared `PAD_*` accessors, so it waits for the owner.
 
 `code_80027678.c`: banked `work_48_draw` / `work_50_draw` (draw every slot of `D_800A3B40` /
-`D_800BF118` whose `routine_0` and `flags` both have bit 1 (`WORK_DRAW`), through
-`D_800898D0[(routine_0 >> 2) & 7](&wp->efc, (sint8)routine_0)`; so `WORK_50` has an `EFC` at 0x14;
+`D_800BF118` whose `be_flag` and `flags` both have bit 1 (`WORK_DRAW`), through
+`D_800898D0[(be_flag >> 2) & 7](&wp->efc, (sint8)be_flag)`; so `WORK_50` has an `EFC` at 0x14;
 called by `Obj_draw_all` with `shl_work_draw` for `D_800BFB20`), `func_8002CFA4` (clears the map
 block masks at `0x8015BC00`, the billboard count and some scratchpad state; fog bytes to 0xE00),
 the model-data accessors the overlays use on `MODEL_WORK.data_88` (a `PARTS_MODEL`; packed id
@@ -1235,7 +1235,7 @@ other way round); splitting the nops in any loop doesn't change it. Its frame ha
 above `opz`/`otz`, which only a block-local array (declared after their first `&`) reproduces.
 
 `code_80027678.c`, third round (from CoastRedWood's drafts): banked the `EFC` draw functions of
-`D_800898D0` (indexed by `routine_0` bits 2-4): `Efc_sprite_draw` (0 and 2: sprite EFC as a
+`D_800898D0` (indexed by `be_flag` bits 2-4): `Efc_sprite_draw` (0 and 2: sprite EFC as a
 camera-facing POLY_FT4, rolled by `angle` with flag 0x20; `EFC_SPRITE` now has `u`/`v` (read as one
 halfword), `size`, `angle` and a signed `pos`), `Efc_model_draw` (1 and 3: model EFC through
 `func_8002A6E8`, matrix and position scaled by `Scratch_scale_shift`; flag 0x80 another fog CLUT row)
@@ -1315,11 +1315,11 @@ game.c from CoastRedWood's drafts: `game_timer_count` (`Game_work.timer_0c`, cap
 `func_80016FD4` (WORK_3C0), `func_80017094` (WORK_5A4), `func_80017154` (PL_SHL_WORK),
 `eve_work_exec` (EVE_WORK), `func_80017528` (WORK_50). The pools' handler tables sit on the
 scratchpad at `0x1F800058`-`0x1F80006C` (`Work_3C0_tbl` ..., code_8002E7A8.h; `0x1F800060`/`0x64`
-are used by func_80017210/func_800172F4). The loops read `routine_0` signed (`lb`), so they cast.
-`func_80017154` calls `D_80089820[id_2]`, a table of scene functions that take nothing
+are used by func_80017210/func_800172F4). The loops read `be_flag` signed (`lb`), so they cast.
+`func_80017154` calls `D_80089820[id]`, a table of scene functions that take nothing
 (`func_8001F9AC`, `func_8001F820`): an odd pairing, but it is what the bytes say.
-EVE_WORK, WORK_50, WORK_5A4: `field_2` split into `id_2`/`type_3` (the allocators store both at
-once with `*(uint16 *)&wp->id_2`; `func_800317AC` still matches).
+EVE_WORK, WORK_50, WORK_5A4: `field_2` split into `id`/`type` (the allocators store both at
+once with `*(uint16 *)&wp->id`; `func_800317AC` still matches).
 
 Twins run (one of each all-assembly twin group, then `twins.py --apply`):
 - `func_80013F60` (`code_800133D8`; `routine_1++` of `D_80098AA8` unless `D_80098A72`) and its

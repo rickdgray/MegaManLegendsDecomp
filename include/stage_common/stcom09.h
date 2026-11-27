@@ -22,10 +22,10 @@ typedef struct
 // The 0x10C-byte slot stcom09_func_0D28 spawns (stcom06's emitter, kind 6).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
@@ -46,12 +46,12 @@ typedef union
 // The 0x3C0-byte work slot stcom09 runs on (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 index_3;                          // 03: stcom09_D_0000 handler
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03: stcom09_D_0000 handler
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -105,7 +105,7 @@ typedef struct
 
 typedef void (*STCOM09_FUNC)(STCOM09_WORK *wp);
 
-extern STCOM09_FUNC stcom09_D_0000[]; // handlers by index_3 (stcom09_func_0000)
+extern STCOM09_FUNC stcom09_D_0000[]; // handlers by type (stcom09_func_0000)
 extern STCOM09_FUNC stcom09_D_0008[]; // routine_0 handlers (stcom09_func_06A0)
 extern uint8 stcom09_D_001C[];        // data_10
 extern uint8 stcom09_D_0028[];        // data_78

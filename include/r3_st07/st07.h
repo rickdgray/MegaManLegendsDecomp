@@ -41,8 +41,9 @@ extern STAGE_OBJ_FUNC D_80106BFC[];
 // A room-script object with a position at +0x38 (child_48 of func_801012A0; func_801043F8).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 work_id;         // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09
     uint8 routine_2;       // 0A

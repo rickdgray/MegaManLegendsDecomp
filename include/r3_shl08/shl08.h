@@ -7,12 +7,12 @@
 // The homing shot: SHL_WORK's header and model data, a target and a four-point trail.
 typedef struct
 {
-    uint8 flags_0; // 00
-    uint8 value_1; // 01
+    uint8 be_flag; // 00
+    uint8 work_id; // 01
     uint8 reserved02;
-    uint8 type_3; // 03: 0x80 set while homing
+    uint8 type; // 03: 0x80 set while homing
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 reserved09[2];

@@ -15,7 +15,7 @@ void stcom21_func_0000(STCOM21_WORK *wp)
     stcom21_D_0000[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x50;
-    func_800341BC(&pos, 0x64, 0, 0x8000, wp->index_1, &wp->y_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x64, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
     wp->y_48.value = 0;
 }
 
@@ -25,10 +25,10 @@ void stcom21_func_00C0(STCOM21_WORK *wp)
     STCOM_FIXED_VECTOR unused;
     sint32 flag;
 
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= TRANS | MODEL;
+    Model_work_init(wp, &wp->type);
     STCOM21_IDENTITY(&wp->matrix);
-    RotMatrixY((wp->variant_3 & 3) << 10, &wp->matrix.m);
+    RotMatrixY((wp->type & 3) << 10, &wp->matrix.m);
     wp->color_40   = 0x808080;
     wp->model_10   = stcom21_D_001C;
     wp->y_48.value = 0;
@@ -48,8 +48,8 @@ void stcom21_func_00C0(STCOM21_WORK *wp)
         else if (Sce_flag_test(flag + 1))
         {
             wp->value_C |= 2;
-            wp->variant_3 += 4;
-            Model_work_init(wp, &wp->variant_3);
+            wp->type += 4;
+            Model_work_init(wp, &wp->type);
         }
         else if (Sce_flag_test(flag + 2))
         {
@@ -375,10 +375,10 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             }
             break;
         case 20:
-            wp->variant_3 += 4;
-            Model_work_init(wp, &wp->variant_3);
+            wp->type += 4;
+            Model_work_init(wp, &wp->type);
             STCOM21_IDENTITY(&wp->matrix);
-            RotMatrixY((wp->variant_3 & 3) << 10, &wp->matrix.m);
+            RotMatrixY((wp->type & 3) << 10, &wp->matrix.m);
             wp->value_B = 0;
             wp->routine_2++;
             Sound_call2(0xA4, &wp->pos_38);
@@ -387,14 +387,14 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 1;
-                effect->kind_2          = 0xB;
-                effect->variant_3       = 3;
+                effect->be_flag         = MOVE;
+                effect->id              = 0xB;
+                effect->type            = 3;
                 effect->timer_E         = 0x14;
                 effect->value_C         = 0;
                 effect->value_D         = 0;
                 effect->value_F         = 8;
-                effect->sprite.pos_8[0] = wp->pos_38.x + stcom21_D_0028[wp->variant_3 & 3].x;
+                effect->sprite.pos_8[0] = wp->pos_38.x + stcom21_D_0028[wp->type & 3].x;
                 effect->sprite.pos_8[1] = wp->pos_38.y - 0xC8;
                 effect->sprite.pos_8[2] = wp->pos_38.z;
                 effect->routine_1       = 4;
@@ -432,13 +432,13 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0           = 5;
-                effect->kind_2            = 0x80;
-                effect->variant_3         = 0x41;
+                effect->be_flag           = MOVE | MODEL;
+                effect->id                = 0x80;
+                effect->type              = 0x41;
                 effect->sprite.position   = wp->pos_38;
                 effect->sprite.position.y = wp->pos_38.y - 0x64;
                 wp->u_44.effect           = effect;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~TRANS;
                 if (!(wp->value_C & 8))
                 {
                     stcom21_func_0D9C();
@@ -451,7 +451,7 @@ void stcom21_func_0768(STCOM21_WORK *wp)
             break;
         case 31:
             effect = wp->u_44.effect;
-            if ((sint8)effect->flags_0 == 0)
+            if ((sint8)effect->be_flag == 0)
             {
                 wp->routine_2 = 0x28;
             }
@@ -497,7 +497,7 @@ void stcom21_func_0768(STCOM21_WORK *wp)
 // Whether the player faces the villager from the front.
 uint8 stcom21_func_0CE8(STCOM21_WORK *wp, STCOM_PL_WORK *pl)
 {
-    return func_80031EF0(&wp->pos_38, ((wp->variant_3 << 10) - 0x400) & 0xC00, 0x1FF, &pl->position, pl->rotation.y, 0x1FF);
+    return func_80031EF0(&wp->pos_38, ((wp->type << 10) - 0x400) & 0xC00, 0x1FF, &pl->position, pl->rotation.y, 0x1FF);
 }
 
 // Whether the player talks to the villager: picks the conversation.
@@ -571,13 +571,13 @@ void stcom21_func_0EC4(STCOM21_WORK *wp)
     // Never used; it reserves retail's frame.
     STCOM_FIXED_VECTOR unused;
 
-    wp->flags_0 |= 6;
-    if (wp->variant_3 == 0)
+    wp->be_flag |= TRANS | MODEL;
+    if (wp->type == 0)
     {
         wp->u_44.flag  = wp->pos_38.pad;
         wp->pos_38.pad = 0;
     }
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     STCOM21_IDENTITY(&wp->matrix);
     RotMatrixY(wp->value_F << 6, &wp->matrix.m);
     wp->color_40   = 0x808080;
@@ -591,13 +591,13 @@ void stcom21_func_0F74(STCOM21_WORK *wp)
 {
     STCOM_SVECTOR pos;
 
-    stcom21_D_0044[wp->variant_3](wp);
-    if (wp->variant_3 != 2)
+    stcom21_D_0044[wp->type](wp);
+    if (wp->type != 2)
     {
         func_80051B68(wp, 7, 0, 0);
         pos = wp->pos_38;
         pos.y -= 0x2D;
-        func_800341BC(&pos, 0x28, 0, 0x8000, wp->index_1, &wp->y_48, 0x4000000, 0, 0x80);
+        func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
         wp->y_48.value = 0;
     }
 }
@@ -610,9 +610,9 @@ void stcom21_func_1044(STCOM21_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0           = 5;
-        effect->kind_2            = 0x80;
-        effect->variant_3         = 0x41;
+        effect->be_flag           = MOVE | MODEL;
+        effect->id                = 0x80;
+        effect->type              = 0x41;
         effect->sprite.position   = wp->pos_38;
         effect->sprite.position.y = wp->pos_38.y - 0x28;
         func_80031A4C(wp);
@@ -703,7 +703,7 @@ void stcom21_func_11A0(STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
             }
@@ -766,17 +766,17 @@ void stcom21_func_1524(STCOM21_WORK *wp)
     lid = func_80031734();
     if (lid != NULL)
     {
-        lid->flags_0    = wp->flags_0;
-        lid->variant_3  = 2;
-        lid->kind_2     = wp->kind_2;
+        lid->be_flag    = wp->be_flag;
+        lid->type       = 2;
+        lid->id         = wp->id;
         lid->pos_38     = wp->pos_38;
         lid->pos_38.y   = wp->pos_38.y - 0x50;
         lid->routine_1  = 0;
         lid->value_B    = 0;
         lid->u_44.chest = wp;
-        Model_work_init(lid, &lid->variant_3);
-        wp->variant_3 = 1;
-        Model_work_init(wp, &wp->variant_3);
+        Model_work_init(lid, &lid->type);
+        wp->type = 1;
+        Model_work_init(wp, &wp->type);
         STCOM21_IDENTITY(&wp->matrix);
         RotMatrixY(wp->value_F << 6, &wp->matrix.m);
         wp->routine_1 = 0;
@@ -818,12 +818,12 @@ void stcom21_func_1688(STCOM21_WORK *wp)
             wp->pos_38.y = wp->y_48.words.integer;
             if (top < wp->pos_38.y)
             {
-                chest->variant_3  = 0;
+                chest->type       = 0;
                 chest->routine_0  = 1;
                 chest->routine_1  = 0;
                 chest->y_48.value = 0;
                 chest->speed_4C   = 0;
-                Model_work_init(chest, &chest->variant_3);
+                Model_work_init(chest, &chest->type);
                 STCOM21_IDENTITY(&chest->matrix);
                 RotMatrixX(0, &chest->matrix.m);
                 RotMatrixY(chest->value_B << 6, &chest->matrix.m);
@@ -869,9 +869,9 @@ void stcom21_func_1908(STCOM21_WORK *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0          = 1;
-            obj->kind_2           = 0x10;
-            obj->handler_4        = 1;
+            obj->be_flag          = MOVE;
+            obj->id               = 0x10;
+            obj->handler          = 1;
             obj->position         = wp->pos_38;
             obj->rotation.y       = i * 0x600;
             obj->position_fixed.x = obj->position.x << 16;
@@ -890,7 +890,7 @@ void stcom21_func_19D0(STCOM21_WORK *wp)
     stcom21_D_0078[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x2D;
-    func_800341BC(&pos, 0x32, 0, 0x8000, wp->index_1, &wp->y_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x32, 0, 0x8000, wp->work_id, &wp->y_48, 0x4000000, 0, 0x80);
     wp->y_48.value = 0;
 }
 
@@ -899,10 +899,10 @@ void stcom21_func_1A90(STCOM21_WORK *wp)
     // Never used; it reserves retail's frame.
     STCOM_FIXED_VECTOR unused;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->u_44.flag  = wp->pos_38.pad;
     wp->pos_38.pad = 0;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     STCOM21_IDENTITY(&wp->matrix);
     RotMatrixY(wp->value_F << 10, &wp->matrix.m);
     wp->color_40   = 0x808080;
@@ -976,7 +976,7 @@ void stcom21_func_1B74(STCOM21_WORK *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -992,9 +992,9 @@ void stcom21_func_1D60(STCOM21_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0           = 5;
-        effect->kind_2            = 0x80;
-        effect->variant_3         = 0x41;
+        effect->be_flag           = MOVE | MODEL;
+        effect->id                = 0x80;
+        effect->type              = 0x41;
         effect->sprite.position   = wp->pos_38;
         effect->sprite.position.y = wp->pos_38.y - 0x28;
         func_80031A4C(wp);

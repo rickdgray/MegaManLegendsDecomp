@@ -11,11 +11,11 @@
 #define RGB_SCALE(c, r, g, b)                                                                                                              \
     ((((((c)&0xFF) * (r)) >> 7) & 0xFF) | (((((c)&0xFF00) * (g)) >> 7) & 0xFF00) | (((((c)&0xFF0000) * (b)) >> 7) & 0xFF0000))
 
-// A slot is drawn when bit 1 is set in both routine_0 and flags (bit 0 is the update's; see
-// Work_3C0_tbl); bits 2-4 of routine_0 pick its draw function in D_800898D0.
+// A slot is drawn when bit 1 is set in both be_flag and flags (bit 0 is the update's; see
+// Work_3C0_tbl); bits 2-4 of be_flag pick its draw function in D_800898D0.
 #define WORK_DRAW 2
 
-// Draw function of an EFC (D_800898D0), given the slot's routine_0 as flags.
+// Draw function of an EFC (D_800898D0), given the slot's be_flag as flags.
 typedef void (*EFC_DRAW_FUNC)(EFC *efc, sint32 flags);
 
 // Billboard sprite queued by Billboard_get (0x28 bytes from Map_prim_ptr, listed in
@@ -99,7 +99,7 @@ typedef struct
 extern PRIM_MESH *D_800898EC[3][5];          // by body variant: first mesh of each of the 5 body parts
 extern uint8 D_80089928[3][5];               // by body variant: number of meshes of each body part
 extern uint8 D_80089938[];                   // joint (PL_WORK.joint_mtx) of each mesh, in that order
-extern EFC_DRAW_FUNC D_800898D0[7];          // by bits 2-4 of routine_0: sprite, model, ...
+extern EFC_DRAW_FUNC D_800898D0[7];          // by bits 2-4 of be_flag: sprite, model, ...
 extern uint32 Shadow_num;                    // number of queued shadows (cleared by func_8002CFA4)
 extern SHADOW Shadow_tbl[SHADOW_MAX];        // the queued shadows
 extern uint32 D_800988FC;                    // number of queued billboards

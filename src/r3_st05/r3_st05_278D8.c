@@ -11,7 +11,7 @@ void func_80127914(STAGE_MATRIX_OBJ *wp)
     STCOM_FIXED_VECTOR scale;
 
     STAGE_MATRIX_IDENTITY(wp->matrix_18.w);
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     scale.z = 0x200;
     scale.y = 0x200;
     scale.x = 0x200;
@@ -43,7 +43,7 @@ void func_80127A0C(STAGE_OBJ50 *wp)
         wp->matrix.words[5] = 0;
         wp->matrix.words[6] = 0;
         wp->matrix.words[7] = 0;
-        wp->flags_0 |= 6;
+        wp->be_flag |= TRANS | MODEL;
         D_80137FA8   = 0x400;
         D_80137FA4   = 0x400;
         D_80137FA0.x = 0x400;

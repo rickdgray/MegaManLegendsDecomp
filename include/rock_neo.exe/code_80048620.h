@@ -181,7 +181,7 @@ sint32 Pos_map_push_out(SVECTOR *pos, SVECTOR *old, sint32 n, HIT_ENT *ent);
 sint32 Wall_reflect_spd(sint16 *vel, sint32 hit);
 // The map cell value at pos for the box ent, with the hit's flags in bits 16-19; 0 if open.
 sint32 func_80049C54(SVECTOR *pos, SVECTOR *prev, HIT_ENT *ent, sint32 kind);
-// If obj's routine_0 has bit 0 or 1 set, pushes obj on the list at D_80098898; clears +0x7C.
+// If obj's be_flag has bit 0 or 1 set, pushes obj on the list at D_80098898; clears +0x7C.
 // Called with player objects, SHL_WORK shots and the stage overlays' objects.
 void func_80051BAC(MODEL_WORK *obj);
 sint32 func_80048CEC(sint32 index); // Map_cells[index]
@@ -204,7 +204,7 @@ sint32 func_80050A90(SVECTOR *v);
 sint32 func_80050AFC(SVECTOR *v);
 void func_80050B74(SVECTOR *v);
 void func_80050BB4(SVECTOR *v);
-// If obj's routine_0 has bit 0 or 1 set, pushes obj and the three values on the D_80098894 list.
+// If obj's be_flag has bit 0 or 1 set, pushes obj and the three values on the D_80098894 list.
 void func_80051B68(MODEL_WORK *obj, sint32 arg1, sint32 arg2, sint32 arg3);
 // Called with an object about to be closed (func_8002FBF4): clears field_76 and field_C0 of every
 // live player, WORK_3C0, WORK_5A4 and SHL_WORK whose field_C0 is that object.

@@ -149,7 +149,7 @@ void func_801005A0(STAGE_ROOM *wp)
         case 1:
             if (Sound_fade_flags == 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~(MOVE | TRANS);
                 Obj_work_flag_change(0x56, 5);
                 Obj_work_flag_change(0x28, 0x80);
                 func_8001E6C0(0, 0, 0);
@@ -249,7 +249,7 @@ void func_80100870(STAGE_ROOM *wp)
                 D_800A395C = 1;
                 func_80039820();
                 func_80042314(&Player_work);
-                Player_work.flags_0 |= 3;
+                Player_work.be_flag |= MOVE | TRANS;
                 wp->routine_5++;
                 break;
             case 2:
@@ -332,12 +332,12 @@ void func_80100AE8(STAGE_ROOM *wp)
         child            = wp->child_24;
         child->routine_1 = 5;
         child->routine_2 = 0;
-        child->u_C.b.byte_D++;
+        child->u_C.b.work_1++;
     }
     if (wp->frame_10 == 0x32)
     {
         child               = wp->child_24;
-        child->u_C.b.byte_D = 0;
+        child->u_C.b.work_1 = 0;
     }
 }
 
@@ -347,7 +347,7 @@ void func_80100B38(ST0E_TALKER *wp)
 
     face = &wp->face_500;
     D_80110150[wp->routine_1](wp);
-    if (wp->value_D == 0)
+    if (wp->work_1 == 0)
     {
         func_80032488(wp);
     }
@@ -360,9 +360,9 @@ void func_80100BAC(ST0E_TALKER *wp)
     uint32 i;
 
     face = &wp->face_500;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->rotation.x = 0;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->rotation.y = 0xC00;
     }
@@ -389,7 +389,7 @@ void func_80100BAC(ST0E_TALKER *wp)
     wp->part_100[18].value_3 = -1;
     wp->part_100[19].value_3 = -1;
     wp->routine_2            = 0;
-    wp->value_D++;
+    wp->work_1++;
 }
 
 void func_80100CA8(STAGE_OBJ *wp)
@@ -397,10 +397,10 @@ void func_80100CA8(STAGE_OBJ *wp)
     if (wp->routine_2 == 0)
     {
         func_800322A8(wp, 2, 0);
-        wp->u_C.b.byte_D = 0;
+        wp->u_C.b.work_1 = 0;
         wp->routine_2++;
     }
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->position.x += 3;
     }
@@ -481,7 +481,7 @@ void func_80100F50(ST0E_TALKER *wp)
     face  = &wp->face_500;
     if (wp->routine_2 == 0)
     {
-        if (wp->variant_3 == 0)
+        if (wp->type == 0)
         {
             wp->rotation.y = 0x100;
         }

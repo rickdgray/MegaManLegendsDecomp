@@ -14,7 +14,7 @@ void stcom02_func_0000(STCOM02_WORK *wp)
 
 void stcom02_func_003C(STCOM02_WORK *wp)
 {
-    wp->script_1C = wp->step_20 = stcom02_D_0000[wp->index_3];
+    wp->script_1C = wp->step_20 = stcom02_D_0000[wp->type];
     wp->count_C                 = wp->step_20->count;
     wp->frame_D                 = 0;
     wp->dst_18                  = &Clut_buf[wp->script_1C->lo + (wp->script_1C->hi << 8)];
@@ -48,9 +48,9 @@ void stcom02_func_0140(STCOM02_WORK *wp)
     sint32 r, g, b;
     sint32 dr, dg, db;
 
-    offset = stcom02_D_006C[wp->index_3].offset;
-    count  = stcom02_D_006C[wp->index_3].count;
-    if (stcom02_D_006C[wp->index_3].blend != 0)
+    offset = stcom02_D_006C[wp->type].offset;
+    count  = stcom02_D_006C[wp->type].count;
+    if (stcom02_D_006C[wp->type].blend != 0)
     {
         for (i = 0; i < count; i++)
         {

@@ -27,7 +27,7 @@ void func_801078D4(STAGE_OBJ *wp)
                 dz = pl->position.z - rec->z_2;
                 if ((uint32)dx < rec->w_4 && (uint32)dz < rec->d_6)
                 {
-                    wp->u_C.b.byte_C = i;
+                    wp->u_C.b.work_0 = i;
                     wp->routine_0++;
                     wp->routine_1 = rec->routine_9;
                     break;
@@ -149,7 +149,7 @@ void func_80107C48(STAGE_OBJ *wp)
 
 void func_80107D40(STAGE_OBJ *wp)
 {
-    D_80117828[wp->routine_1](wp, &D_801177FC[Game_work.value_51][wp->u_C.b.byte_C]);
+    D_80117828[wp->routine_1](wp, &D_801177FC[Game_work.value_51][wp->u_C.b.work_0]);
 }
 
 void func_80107DA0(STAGE_OBJ *wp)

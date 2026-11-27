@@ -11,15 +11,18 @@
 // that drifts near its home position at a wobbling height above the ground.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[7];                    // 01
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 reserved0A;                       // 0A
     uint8 routine_3;                        // 0B: 0 on the first frame
-    uint8 reserved0C;                       // 0C
-    sint8 range_D;                          // 0D: how far it may stray (in 128ths), 0 for no limit
-    uint8 reserved0E[6];                    // 0E
+    uint8 work_0;                           // 0C
+    sint8 range_D;                          // 0D: how far it may stray (in 128ths), 0 for no limit (Capcom: work_1)
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
+    uint8 reserved10[4];                    // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C: position as 16.16
     STCOM_SVECTOR position_prev;            // 2C

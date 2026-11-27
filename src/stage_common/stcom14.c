@@ -10,11 +10,11 @@ void stcom14_func_0000(STCOM_EFFECT *wp)
 {
     if (wp->value_D == 0)
     {
-        stcom14_D_0000[wp->variant_3](wp);
+        stcom14_D_0000[wp->type](wp);
     }
     else
     {
-        stcom14_D_0010[wp->variant_3](wp);
+        stcom14_D_0010[wp->type](wp);
     }
 }
 
@@ -29,9 +29,9 @@ void stcom14_func_006C(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->flags_0             = 3;
-                puff->kind_2              = wp->kind_2;
-                puff->variant_3           = wp->variant_3;
+                puff->be_flag             = MOVE | TRANS;
+                puff->id                  = wp->id;
+                puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
                 puff->value_D             = 1;
                 puff->timer_E             = 8;
@@ -95,9 +95,9 @@ void stcom14_func_02A0(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->flags_0             = 3;
-                puff->kind_2              = wp->kind_2;
-                puff->variant_3           = wp->variant_3;
+                puff->be_flag             = MOVE | TRANS;
+                puff->id                  = wp->id;
+                puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
                 puff->value_D             = 1;
                 puff->timer_E             = 0x10;
@@ -161,9 +161,9 @@ void stcom14_func_0504(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->flags_0             = 3;
-                puff->kind_2              = wp->kind_2;
-                puff->variant_3           = wp->variant_3;
+                puff->be_flag             = MOVE | TRANS;
+                puff->id                  = wp->id;
+                puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
                 puff->value_D             = 1;
                 puff->timer_E             = 0x40 - (rand() & 0xF);
@@ -210,9 +210,9 @@ void stcom14_func_06DC(STCOM_EFFECT *wp)
             puff = func_80031618();
             if (puff != NULL)
             {
-                puff->flags_0             = 3;
-                puff->kind_2              = wp->kind_2;
-                puff->variant_3           = wp->variant_3;
+                puff->be_flag             = MOVE | TRANS;
+                puff->id                  = wp->id;
+                puff->type                = wp->type;
                 puff->value_C             = wp->value_C;
                 puff->value_D             = 1;
                 puff->timer_E             = wp->timer_E - (rand() & 0xF);

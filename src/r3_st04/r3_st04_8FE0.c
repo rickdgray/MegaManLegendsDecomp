@@ -11,14 +11,14 @@ void func_8010901C(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->flags_0 |= 6;
-    if (wp->variant_3 == 0)
+    wp->be_flag |= TRANS | MODEL;
+    if (wp->type == 0)
     {
         flag           = wp->pos_38.pad;
         wp->pos_38.pad = 0;
         wp->value_44   = flag;
     }
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;
     wp->matrix.words[2] = 0x1000;
@@ -39,13 +39,13 @@ void func_801090CC(STAGE_OBJ50 *wp)
 {
     STCOM_SVECTOR pos;
 
-    D_80111C90[wp->variant_3](wp);
-    if (wp->variant_3 != 2)
+    D_80111C90[wp->type](wp);
+    if (wp->type != 2)
     {
         func_80051B68(wp, 7, 0, 0);
         pos = wp->pos_38;
         pos.y -= 0x2D;
-        func_800341BC(&pos, 0x28, 0, 0x8000, wp->index_1, &wp->value_48, 0x4000000, 0, 0x80);
+        func_800341BC(&pos, 0x28, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
         wp->value_48 = 0;
     }
 }
@@ -57,11 +57,11 @@ void func_8010919C(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 5;
-        ep->kind_2    = 0x80;
-        ep->variant_3 = 0x41;
-        ep->pos_38    = wp->pos_38;
-        ep->pos_38.y  = wp->pos_38.y - 0x28;
+        ep->be_flag  = MOVE | MODEL;
+        ep->id       = 0x80;
+        ep->type     = 0x41;
+        ep->pos_38   = wp->pos_38;
+        ep->pos_38.y = wp->pos_38.y - 0x28;
         func_80031A4C(wp);
     }
 }
@@ -156,7 +156,7 @@ void func_801092F8(STAGE_OBJ50 *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_1 = 0;
                 wp->routine_2 = 0;
             }
@@ -218,17 +218,17 @@ void func_8010967C(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031734();
     if (ep != NULL)
     {
-        ep->flags_0   = wp->flags_0;
-        ep->variant_3 = 2;
-        ep->kind_2    = wp->kind_2;
+        ep->be_flag   = wp->be_flag;
+        ep->type      = 2;
+        ep->id        = wp->id;
         ep->pos_38    = wp->pos_38;
         ep->pos_38.y  = wp->pos_38.y - 0x50;
         ep->routine_1 = 0;
         ep->routine_3 = 0;
         ep->value_44  = (sint32)wp;
-        Model_work_init(ep, &ep->variant_3);
-        wp->variant_3 = 1;
-        Model_work_init(wp, &wp->variant_3);
+        Model_work_init(ep, &ep->type);
+        wp->type = 1;
+        Model_work_init(wp, &wp->type);
         wp->matrix.words[0] = 0x1000;
         wp->matrix.words[1] = 0;
         wp->matrix.words[2] = 0x1000;
@@ -277,12 +277,12 @@ void func_801097E0(STAGE_OBJ50 *wp)
             wp->pos_38.y = ST04_OBJ50_Y(wp);
             if (top < wp->pos_38.y)
             {
-                chest->variant_3 = 0;
+                chest->type      = 0;
                 chest->routine_0 = 1;
                 chest->routine_1 = 0;
                 chest->value_48  = 0;
                 chest->value_4C  = 0;
-                Model_work_init(chest, &chest->variant_3);
+                Model_work_init(chest, &chest->type);
                 STAGE_MATRIX_IDENTITY(chest->matrix.words);
                 RotMatrixX(0, &chest->matrix.m);
                 RotMatrixY(chest->routine_3 << 6, &chest->matrix.m);
@@ -336,8 +336,8 @@ void func_80109A60(STAGE_OBJ50 *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0            = 1;
-            obj->kind_2             = 0x10;
+            obj->be_flag            = MOVE;
+            obj->id                 = 0x10;
             obj->value_4            = 1;
             obj->position           = wp->pos_38;
             obj->rotation.y         = i * 0x600;
@@ -356,7 +356,7 @@ void func_80109B28(STAGE_OBJ50 *wp)
     D_80111CC4[wp->routine_0](wp);
     pos = wp->pos_38;
     pos.y -= 0x2D;
-    func_800341BC(&pos, 0x32, 0, 0x8000, wp->index_1, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&pos, 0x32, 0, 0x8000, wp->work_id, &wp->value_48, 0x4000000, 0, 0x80);
     wp->value_48 = 0;
 }
 
@@ -365,11 +365,11 @@ void func_80109BE8(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
     sint32 flag;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     flag           = wp->pos_38.pad;
     wp->pos_38.pad = 0;
     wp->value_44   = flag;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;
     wp->matrix.words[2] = 0x1000;
@@ -450,7 +450,7 @@ void func_80109CCC(STAGE_OBJ50 *wp)
             {
                 func_80042314(pl);
                 Player_work.target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -465,11 +465,11 @@ void func_80109EB8(STAGE_OBJ50 *wp)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 5;
-        ep->kind_2    = 0x80;
-        ep->variant_3 = 0x41;
-        ep->pos_38    = wp->pos_38;
-        ep->pos_38.y  = wp->pos_38.y - 0x28;
+        ep->be_flag  = MOVE | MODEL;
+        ep->id       = 0x80;
+        ep->type     = 0x41;
+        ep->pos_38   = wp->pos_38;
+        ep->pos_38.y = wp->pos_38.y - 0x28;
         func_80031A4C(wp);
     }
 }
@@ -578,7 +578,7 @@ void func_8010A044(STAGE_OBJ50 *wp)
             {
                 func_80042314(&Player_work);
                 pl->target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -596,7 +596,7 @@ void func_8010A284(ST04_EV *wp)
     ST04_SLOT *slot;
 
     slot = Scene_obj_ent_open(D_80111D2C);
-    slot->flags_6 &= ~0x20;
+    slot->flags &= ~0x20;
     wp->slot_1C   = slot;
     wp->routine_0 = 1;
 }
@@ -658,7 +658,7 @@ void func_8010A32C(ST04_EV *wp)
             if (!func_8003A13C())
             {
                 func_80042314(pl);
-                pl->flags_0 |= 2;
+                pl->be_flag |= TRANS;
                 func_8001E3F0(0x1A);
                 wp->routine_1++;
             }

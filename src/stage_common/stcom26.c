@@ -25,73 +25,73 @@ void stcom26_func_003C(STCOM26_WORK *wp)
         case 5:
             if (gw->value_52 == 0)
             {
-                wp->variant_3 = 0;
+                wp->type = 0;
             }
             else if (gw->value_52 == 1)
             {
-                wp->variant_3 = 1;
+                wp->type = 1;
             }
             else if (gw->value_52 < 8)
             {
-                wp->variant_3 = 2;
+                wp->type = 2;
             }
             else
             {
-                wp->variant_3 = 3;
+                wp->type = 3;
             }
             break;
         case 6:
             if (gw->value_52 == 0)
             {
-                wp->variant_3 = 4;
+                wp->type = 4;
             }
             else if (gw->value_52 < 6)
             {
-                wp->variant_3 = 5;
+                wp->type = 5;
             }
             else if (gw->value_52 < 8)
             {
-                wp->variant_3 = 6;
+                wp->type = 6;
             }
             else
             {
-                wp->variant_3 = 7;
+                wp->type = 7;
             }
             break;
         case 8:
             if (gw->value_52 < 8)
             {
-                wp->variant_3 = 8;
+                wp->type = 8;
             }
             else
             {
-                wp->variant_3 = 9;
+                wp->type = 9;
             }
             break;
         case 0x19:
-            wp->variant_3 = 10;
+            wp->type = 10;
             break;
         default:
-            wp->variant_3 = 0xFF;
+            wp->type = 0xFF;
             break;
     }
     if (gw->value_51 != 0)
     {
-        wp->variant_3 = 0xFF;
+        wp->type = 0xFF;
     }
-    if (wp->variant_3 == 0xFF)
+    if (wp->type == 0xFF)
     {
         func_80031A4C(wp);
         return;
     }
-    for (i = 0; i < stcom26_D_0000[wp->variant_3][0]; i++)
+    for (i = 0; i < stcom26_D_0000[wp->type][0]; i++)
     {
         block = Open_SHL_WORK();
         if (block != NULL)
         {
-            block->flags_0           = 5;
-            block->kind_2            = 4;
-            block->course_C          = wp->variant_3;
+            block->be_flag           = MOVE | MODEL;
+            block->id                = 4;
+            block->course_C          = wp->type;
             block->start_D           = i;
             *(i + wp->slot_14.bytes) = ((uint32)block - (uint32)D_8009CF88) / sizeof(STCOM25_WORK);
             stcom26_E_0000[i]        = block;
@@ -112,7 +112,7 @@ void stcom26_func_028C(STCOM26_WORK *wp)
 {
     sint16 i;
 
-    for (i = 0; i < stcom26_D_0000[wp->variant_3][0]; i++)
+    for (i = 0; i < stcom26_D_0000[wp->type][0]; i++)
     {
         Close_SHL_WORK(stcom26_E_0000[i]);
     }
@@ -130,7 +130,7 @@ void stcom26_func_0344(STCOM26_WORK *wp)
     uint32 word;
 
     word = 0;
-    for (i = 0; i < stcom26_D_0000[wp->variant_3][0]; i++)
+    for (i = 0; i < stcom26_D_0000[wp->type][0]; i++)
     {
         if ((i & 3) == 0)
         {
@@ -155,12 +155,12 @@ void stcom26_func_03F4(STCOM26_WORK *wp)
     uint8 flags;
 
     clear = 0;
-    for (i = 0; i < stcom26_D_0000[wp->variant_3][0]; i++)
+    for (i = 0; i < stcom26_D_0000[wp->type][0]; i++)
     {
         block = &D_8009CF88[stcom26_E_0040[i]];
         block->ctl.flags_F &= ~6;
         ctl = &block->ctl;
-        for (j = 0; j < stcom26_D_0000[wp->variant_3][0]; j++)
+        for (j = 0; j < stcom26_D_0000[wp->type][0]; j++)
         {
             if (i != j)
             {
@@ -182,7 +182,7 @@ void stcom26_func_03F4(STCOM26_WORK *wp)
             ctl->flags_F  = flags & ~0x10;
             ctl->value_1C = 0xF;
         }
-        for (j = 0; j < stcom26_D_0000[wp->variant_3][0]; j++)
+        for (j = 0; j < stcom26_D_0000[wp->type][0]; j++)
         {
             if (i != j)
             {
@@ -401,7 +401,7 @@ void stcom26_func_0CE8(STCOM26_WORK *wp)
 {
     sint16 i;
 
-    for (i = 0; i < stcom26_D_0000[wp->variant_3][0]; i++)
+    for (i = 0; i < stcom26_D_0000[wp->type][0]; i++)
     {
         stcom26_func_0DAC(&D_8009CF88[stcom26_E_0040[i]]);
     }

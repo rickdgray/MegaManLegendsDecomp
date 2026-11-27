@@ -2,6 +2,7 @@
 #define STAGE_COMMON_ROCK_NEO_H
 
 #include "common.h"
+#include "work.h" // the pool slot header and be_flag's bits
 
 // ROCK_NEO.EXE declarations used by the shared stage code. Overlays don't see ROCK_NEO.EXE's
 // headers when compiling, so these are the stage code's own views: only the fields it uses.
@@ -96,10 +97,10 @@ typedef struct
 // A 0x48-byte effect slot from func_80031618 (only the fields used so far).
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01;    // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 work_id;       // 01
+    uint8 id;            // 02
+    uint8 type;          // 03
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09: also a frame counter (stcom14)
@@ -116,8 +117,9 @@ typedef struct
 // Player_work (ROCK_NEO's PL_WORK)
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[7];               // 01
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 reserved02[6];               // 02
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09
     uint8 value_0a;                    // 0A

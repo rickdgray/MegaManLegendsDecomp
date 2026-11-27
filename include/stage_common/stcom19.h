@@ -15,10 +15,10 @@ typedef union
 // The 0x50-byte work slot of a floor panel that turns over (func_80031734).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01;      // 01
-    uint8 kind_2;          // 02
-    uint8 value_3;         // 03: 0xFF for the spawner
+    uint8 be_flag;         // 00
+    uint8 work_id;         // 01
+    uint8 id;              // 02
+    uint8 type;            // 03: 0xFF for the spawner
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 reserved09[2];   // 09

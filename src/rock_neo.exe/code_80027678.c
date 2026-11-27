@@ -47,12 +47,12 @@ void Obj_draw_all(void)
     if (D_80098824 == 0)
     {
         pl = &Player_work[0];
-        if (((sint8)pl->routine_0 & Player_work[0].flags_6 & 2) && func_80027F78(pl, D_8009BF88[Dbl_buff_idx]) != 0)
+        if (((sint8)pl->be_flag & Player_work[0].flags & 2) && func_80027F78(pl, D_8009BF88[Dbl_buff_idx]) != 0)
         {
             pl_body_draw(pl, D_8009BF88[Dbl_buff_idx]);
         }
         pl = &Player_work[1];
-        if (((sint8)pl->routine_0 & Player_work[1].flags_6 & 2) && func_80027F78(pl, D_8009AE48[Dbl_buff_idx]) != 0)
+        if (((sint8)pl->be_flag & Player_work[1].flags & 2) && func_80027F78(pl, D_8009AE48[Dbl_buff_idx]) != 0)
         {
             pl_body_draw(pl, D_8009AE48[Dbl_buff_idx]);
         }
@@ -342,7 +342,7 @@ void func_8002831C(MODEL_WORK *wp)
     gte_stsxy(&sxy);
     gte_stszotz(&z);
     wp->flags &= 0x7F;
-    if (!(wp->routine_0 & 0x40) || z >= Scratch_fog_0)
+    if (!(wp->be_flag & 0x40) || z >= Scratch_fog_0)
     {
         if (z > Scratch_fog_0 || z < (0x30 >> Scratch_scale_shift))
         {
@@ -386,7 +386,7 @@ void func_8002831C(MODEL_WORK *wp)
         {
             continue;
         }
-        if ((wp->kind_1 & 0xE0) == 0x40)
+        if ((wp->work_id & 0xE0) == 0x40)
         {
             gte_MulMatrix0(&Scratch_view_mtx, &((WORK_5A4 *)wp)->mtx_240[i], &Scratch_mtx);
         }
@@ -562,12 +562,12 @@ void Model_draw_all(void)
             a = &D_800C3580[i];
             if (Game_work.stage_no == 0x17)
             {
-                if ((sint8)a->routine_0 & a->flags & 2)
+                if ((sint8)a->be_flag & a->flags & 2)
                 {
                     func_8002831C((MODEL_WORK *)a);
                 }
             }
-            else if ((sint8)a->routine_0 & a->flags & 2)
+            else if ((sint8)a->be_flag & a->flags & 2)
             {
                 Model_parts_draw((MODEL_WORK *)a);
             }
@@ -581,12 +581,12 @@ void Model_draw_all(void)
             b = &D_8009F108[i];
             if (Game_work.stage_no == 0x17)
             {
-                if ((sint8)b->routine_0 & b->flags & 2)
+                if ((sint8)b->be_flag & b->flags & 2)
                 {
                     func_8002831C((MODEL_WORK *)b);
                 }
             }
-            else if ((sint8)b->routine_0 & b->flags & 2)
+            else if ((sint8)b->be_flag & b->flags & 2)
             {
                 Model_parts_draw((MODEL_WORK *)b);
             }
@@ -599,7 +599,7 @@ void Model_draw_all(void)
 // (func_80029608) at the level of detail its depth picks, by the part's matrix times the view
 // matrix, in the object's RGB555 colour (scale.pad; 0: each part's own, part_180[n].pad),
 // depth-cued. Bit 7 of flags says whether it was drawn: it is skipped beyond the fog, too near or
-// off the screen, unless routine_0 has bit 6 and it is nearer than the fog.
+// off the screen, unless be_flag has bit 6 and it is nearer than the fog.
 void Model_parts_draw(MODEL_WORK *wp)
 {
     VECTOR v;
@@ -618,7 +618,7 @@ void Model_parts_draw(MODEL_WORK *wp)
     gte_stsxy(&sxy);
     gte_stszotz(&z);
     wp->flags &= 0x7F;
-    if (!(wp->routine_0 & 0x40) || z >= Scratch_fog_0)
+    if (!(wp->be_flag & 0x40) || z >= Scratch_fog_0)
     {
         if (z > Scratch_fog_0 || z < (0x30 >> Scratch_scale_shift))
         {
@@ -662,7 +662,7 @@ void Model_parts_draw(MODEL_WORK *wp)
         {
             continue;
         }
-        if ((wp->kind_1 & 0xE0) == 0x40)
+        if ((wp->work_id & 0xE0) == 0x40)
         {
             gte_MulMatrix0(&Scratch_view_mtx, &((WORK_5A4 *)wp)->mtx_240[i], &Scratch_mtx);
         }
@@ -810,7 +810,7 @@ void shl_work_draw(void)
     for (i = 0; i < 16; i++)
     {
         ps    = &D_800BFB20[i];
-        flags = (sint8)ps->routine_0;
+        flags = (sint8)ps->be_flag;
         if (flags & ps->flags & WORK_DRAW)
         {
             D_800898D0[(flags & 0x1C) >> 2]((EFC *)&ps->code_88, flags);
@@ -819,7 +819,7 @@ void shl_work_draw(void)
     for (i = 0; i < 32; i++)
     {
         sh    = &D_8009CF88[i];
-        flags = (sint8)sh->routine_0;
+        flags = (sint8)sh->be_flag;
         if (flags & sh->flags & WORK_DRAW)
         {
             D_800898D0[(flags & 0x1C) >> 2](&sh->efc, flags);
@@ -836,7 +836,7 @@ void work_48_draw(void)
     for (i = 0; i < 64; i++)
     {
         wp    = &D_800A3B40[i];
-        flags = (sint8)wp->routine_0;
+        flags = (sint8)wp->be_flag;
         if (flags & wp->flags & WORK_DRAW)
         {
             D_800898D0[(flags & 0x1C) >> 2](&wp->efc, flags);
@@ -853,7 +853,7 @@ void work_50_draw(void)
     for (i = 0; i < 32; i++)
     {
         wp    = &D_800BF118[i];
-        flags = (sint8)wp->routine_0;
+        flags = (sint8)wp->be_flag;
         if (flags & wp->flags & WORK_DRAW)
         {
             D_800898D0[(flags & 0x1C) >> 2](&wp->efc, flags);

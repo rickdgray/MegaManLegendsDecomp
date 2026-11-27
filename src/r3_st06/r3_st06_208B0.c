@@ -10,7 +10,7 @@ void func_801208EC(ST06_10C *wp)
 {
     STCOM_MATRIX rot;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->matrix_8C.w[0]      = 0x200;
     wp->matrix_8C.w[2]      = 0x200;
@@ -31,7 +31,7 @@ void func_80120968(ST06_10C *wp)
 
     lit   = wp->owner_B8->parts_2C8.lit_14;
     parts = &wp->owner_B8->parts_2C8;
-    if (lit >> 1 == wp->variant_3 && (lit & 1))
+    if (lit >> 1 == wp->type && (lit & 1))
     {
         wp->matrix_8C.w[0] = 0x200;
         wp->matrix_8C.w[1] = 0;
@@ -41,7 +41,7 @@ void func_80120968(ST06_10C *wp)
         RotMatrixYXZ(&wp->rotation, &rot);
         MulMatrix2(&rot, &wp->matrix_8C.m);
     }
-    if (!(parts->mask_10 & (1 << wp->variant_3)))
+    if (!(parts->mask_10 & (1 << wp->type)))
     {
         Close_SHL_WORK(wp);
     }
@@ -69,8 +69,8 @@ void func_80120AAC(ST06_10C_B *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->value_C      = 0;
-            wp->value_D      = 0;
+            wp->work_0       = 0;
+            wp->work_1       = 0;
             wp->turn_64      = 0;
             wp->rotation.v.x = 0;
             wp->rotation.v.z = 0;
@@ -78,42 +78,42 @@ void func_80120AAC(ST06_10C_B *wp)
             wp->value_70     = 0;
             wp->value_74     = 0;
             wp->color_B4     = 0x808080;
-            wp->flags_0 |= 6;
+            wp->be_flag |= TRANS | MODEL;
             func_80120A2C(wp, 0x200);
-            wp->kind_2    = 4;
-            wp->variant_3 = 8;
-            Model_work_init(wp, &wp->variant_3);
-            wp->kind_2 = 0x29;
+            wp->id   = 4;
+            wp->type = 8;
+            Model_work_init(wp, &wp->type);
+            wp->id = 0x29;
             wp->routine_0++;
             break;
         case 1:
-            if (wp->value_D == 0)
+            if (wp->work_1 == 0)
             {
                 if (wp->rotation.v.y == 0x800)
                 {
-                    if (wp->position.z >= D_8012B91C[wp->value_C].limit_0)
+                    if (wp->position.z >= D_8012B91C[wp->work_0].limit_0)
                     {
-                        wp->value_D = 8;
+                        wp->work_1 = 8;
                     }
                 }
-                else if (wp->rotation.v.y == 0x400 && wp->position.x <= D_8012B91C[wp->value_C].limit_0)
+                else if (wp->rotation.v.y == 0x400 && wp->position.x <= D_8012B91C[wp->work_0].limit_0)
                 {
-                    wp->value_D = 8;
+                    wp->work_1 = 8;
                 }
-                if (wp->value_D == 8)
+                if (wp->work_1 == 8)
                 {
-                    if (D_8012B91C[wp->value_C].turn_2 == 0)
+                    if (D_8012B91C[wp->work_0].turn_2 == 0)
                     {
                         Close_SHL_WORK(wp);
                         break;
                     }
-                    wp->value_C++;
+                    wp->work_0++;
                 }
             }
             else
             {
-                wp->rotation.v.y += D_8012B91C[wp->value_C - 1].turn_2;
-                wp->value_D--;
+                wp->rotation.v.y += D_8012B91C[wp->work_0 - 1].turn_2;
+                wp->work_1--;
             }
             Obj_pos_set(wp, wp->velocity.v.x, 0, 0);
             wp->position.y       = Obj_ceiling_height_get(wp);

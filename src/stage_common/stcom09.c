@@ -11,8 +11,8 @@ void stcom09_func_0000(STCOM09_WORK *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
-    stcom09_D_0000[wp->index_3](wp);
-    if (wp->flags_0 & 2)
+    stcom09_D_0000[wp->type](wp);
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0xC, 0x200, 0);
     }
@@ -25,7 +25,7 @@ void stcom09_func_00CC(STCOM09_WORK *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x40;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -52,7 +52,7 @@ void stcom09_func_00CC(STCOM09_WORK *wp)
     wp->hit.pos_8.x += wp->position.x;
     wp->hit.pos_8.y += wp->position.y;
     wp->hit.pos_8.z += wp->position.z;
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8;
     wp->routine_1                                    = 0;
 }
 
@@ -103,8 +103,8 @@ void stcom09_func_0268(STCOM09_WORK *wp)
                 pl->value_448 = 0x30;
                 pl->value_C   = 0;
                 Obj_work_flag_change(0x3FE, 1);
-                wp->flags_0 |= 1;
-                wp->flags_6 |= 1;
+                wp->be_flag |= MOVE;
+                wp->flags |= 1;
                 wp->routine_0++;
             }
             break;
@@ -192,13 +192,13 @@ void stcom09_func_0268(STCOM09_WORK *wp)
             Obj_work_flag_change(0x3FE, 2);
             func_80042314(pl);
             pl->target_184 = NULL;
-            pl->flags_0 |= 2;
+            pl->be_flag |= TRANS;
             hit->flags_0 &= ~2;
             wp->routine_0 = 1;
             break;
     }
     func_80051B68(wp, 1, 0, 0);
-    func_800341BC(&wp->position, 0x28, 0, 0x8000, wp->value_1, &hit->hit_18, 0x4000000, 0, 0x80);
+    func_800341BC(&wp->position, 0x28, 0, 0x8000, wp->work_id, &hit->hit_18, 0x4000000, 0, 0x80);
     hit->hit_18 = 0;
 }
 
@@ -227,7 +227,7 @@ void stcom09_func_06A0(STCOM09_WORK *wp)
     }
     else
     {
-        func_800341BC(&hit->pos_8, hit->size_16, 0, 0x8000, wp->value_1, &hit->hit_18, hit->value_4, 0, 0);
+        func_800341BC(&hit->pos_8, hit->size_16, 0, 0x8000, wp->work_id, &hit->hit_18, hit->value_4, 0, 0);
     }
     if (wp->anim_prev_AD == wp->anim_AC)
     {
@@ -353,9 +353,9 @@ void stcom09_func_0A64(STCOM09_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0         = 5;
-        effect->kind_2          = 0x80;
-        effect->variant_3       = 0;
+        effect->be_flag         = MOVE | MODEL;
+        effect->id              = 0x80;
+        effect->type            = 0;
         effect->sprite.position = wp->hit.pos_8;
         func_80047148(wp, &wp->position, effect);
         func_80031824(wp);
@@ -464,9 +464,9 @@ uint8 stcom09_func_0D28(STCOM09_WORK *wp)
     shot = Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->flags_0   = 3;
-        shot->kind_2    = 6;
-        shot->variant_3 = 0;
+        shot->be_flag = MOVE | TRANS;
+        shot->id      = 6;
+        shot->type    = 0;
         Obj_pos_set(wp, 0x6E, 0, 0);
         wp->position.y -= 60;
         shot->position         = wp->position;

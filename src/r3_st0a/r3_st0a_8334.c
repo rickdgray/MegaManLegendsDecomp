@@ -19,16 +19,16 @@ ST0A_GRID_OBJ *func_80108334(STAGE_OBJ *owner, uint8 rows, STCOM_SVECTOR *origin
         return NULL;
     }
     grid        = &wp->grid;
-    wp->flags_0 = 1;
-    wp->kind_2  = 0x12;
+    wp->be_flag = MOVE;
+    wp->id      = 0x12;
     wp->value_4 = 0;
-    wp->flags_6 |= 0x20;
+    wp->flags |= 0x20;
     wp->value_C         = 0;
-    wp->variant_3       = 2;
+    wp->type            = 2;
     wp->value_10        = 0;
     wp->grid.mode_0     = 3;
     wp->grid.mask_1     = 0x3F;
-    wp->grid.reserved02 = owner->value_1;
+    wp->grid.reserved02 = owner->work_id;
     wp->grid.rows_3     = rows;
     wp->grid.kind_B     = 0;
     wp->grid.value_10   = 0x2E808080;
@@ -61,12 +61,12 @@ ST0A_GRID_OBJ *func_80108478(STAGE_OBJ *owner, sint8 variant, STCOM_SVECTOR *ori
     {
         return NULL;
     }
-    grid          = &wp->grid;
-    wp->flags_0   = 1;
-    wp->kind_2    = 0x12;
-    wp->value_4   = 0;
-    wp->variant_3 = variant;
-    wp->value_C   = 0;
+    grid        = &wp->grid;
+    wp->be_flag = MOVE;
+    wp->id      = 0x12;
+    wp->value_4 = 0;
+    wp->type    = variant;
+    wp->value_C = 0;
     switch (variant)
     {
         case 0:
@@ -92,7 +92,7 @@ ST0A_GRID_OBJ *func_80108478(STAGE_OBJ *owner, sint8 variant, STCOM_SVECTOR *ori
             return NULL;
     }
     grid->mask_1     = 0x3F;
-    grid->reserved02 = owner->value_1;
+    grid->reserved02 = owner->work_id;
     grid->frame_C    = 0;
     for (i = 0; i < grid->rows_3; i++)
     {
@@ -117,7 +117,7 @@ void func_80108624(uint8 *wp, sint32 value)
 
 void func_80108630(STAGE_OBJ *wp)
 {
-    D_80116144[wp->variant_3](wp, &wp->model_88);
+    D_80116144[wp->type](wp, &wp->model_88);
 }
 
 void func_8010866C(STAGE_OBJ *wp, ST0A_GRID6 *grid)
@@ -168,22 +168,22 @@ void func_80108794(STAGE_OBJ *wp, ST0A_GRID6 *grid)
         switch (i)
         {
             case 0:
-                on = wp->u_C.b.byte_C & 1;
+                on = wp->u_C.b.work_0 & 1;
                 break;
             case 1:
-                on = ((uint8)wp->u_C.b.byte_C >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 1) & 1;
                 break;
             case 2:
-                on = ((uint8)wp->u_C.b.byte_C >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 2) & 1;
                 break;
             case 3:
-                on = wp->u_C.b.byte_D & 1;
+                on = wp->u_C.b.work_1 & 1;
                 break;
             case 4:
-                on = ((uint8)wp->u_C.b.byte_D >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_1 >> 1) & 1;
                 break;
             case 5:
-                on = ((uint8)wp->u_C.b.byte_D >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_1 >> 2) & 1;
                 break;
         }
         if (on)
@@ -226,22 +226,22 @@ void func_80108958(STAGE_OBJ *wp, ST0A_GRID6 *grid)
         switch (i)
         {
             case 0:
-                on = wp->u_C.b.byte_C & 1;
+                on = wp->u_C.b.work_0 & 1;
                 break;
             case 1:
-                on = ((uint8)wp->u_C.b.byte_C >> 1) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 1) & 1;
                 break;
             case 2:
-                on = ((uint8)wp->u_C.b.byte_C >> 2) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 2) & 1;
                 break;
             case 3:
-                on = ((uint8)wp->u_C.b.byte_C >> 3) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 3) & 1;
                 break;
             case 4:
-                on = ((uint8)wp->u_C.b.byte_C >> 4) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 4) & 1;
                 break;
             case 5:
-                on = ((uint8)wp->u_C.b.byte_C >> 5) & 1;
+                on = ((uint8)wp->u_C.b.work_0 >> 5) & 1;
                 break;
         }
         if (on)

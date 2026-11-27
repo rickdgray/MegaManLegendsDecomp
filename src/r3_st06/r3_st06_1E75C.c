@@ -5,7 +5,7 @@ void func_8011E75C(ST06_BOAT *wp)
 {
     wp->color_B4 = 0x808080;
     D_8012B7CC[wp->routine_0](wp, &wp->ctl_CC);
-    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->value_1, &wp->ctl_CC.hit_10, 0x4880000, 0, 0x80);
+    func_800341BC(&wp->position, 0x200, 0, 0x8000, wp->work_id, &wp->ctl_CC.hit_10, 0x4880000, 0, 0x80);
     wp->ctl_CC.hit_10 = 0;
 }
 
@@ -20,7 +20,7 @@ void func_8011E7E8(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
             wp->rotation.x = 0;
             wp->rotation.y = 0x400;
             wp->rotation.z = 0;
-            wp->flags_0 |= 6;
+            wp->be_flag |= TRANS | MODEL;
             wp->position_AC = wp->position;
             Model_work_init(wp, NULL);
             wp->color_B4     = 0x808080;
@@ -182,12 +182,12 @@ void func_8011EEBC(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
                 fx   = func_80031618();
                 if (fx != NULL)
                 {
-                    rnd           = rand();
-                    bits          = rnd;
-                    fx->flags_0   = 5;
-                    fx->kind_2    = 0x80;
-                    fx->variant_3 = 0x41;
-                    fx->value_D   = 1;
+                    rnd         = rand();
+                    bits        = rnd;
+                    fx->be_flag = MOVE | MODEL;
+                    fx->id      = 0x80;
+                    fx->type    = 0x41;
+                    fx->value_D = 1;
                     func_80030058(&fixed, wp->rotation.y, -0x2000, 0, 0);
                     func_80030150(&fixed, &pos);
                     if (!(rnd & 1))
@@ -215,13 +215,13 @@ void func_8011EEBC(ST06_BOAT *wp, ST06_BOAT_CTL *ctl)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->flags_0   = 1;
-                fx->kind_2    = 0xB;
-                fx->variant_3 = 3;
-                fx->timer_E   = 0x28;
-                fx->value_C   = 0;
-                fx->value_D   = 0;
-                fx->value_F   = 0xC;
+                fx->be_flag = MOVE;
+                fx->id      = 0xB;
+                fx->type    = 3;
+                fx->timer_E = 0x28;
+                fx->value_C = 0;
+                fx->value_D = 0;
+                fx->value_F = 0xC;
                 func_80030058(&fixed, wp->rotation.y, -0x2000, 0, 0);
                 func_80030150(&fixed, &pos);
                 fx->sprite.pos_8[0] = wp->position.x + pos.x;
@@ -260,7 +260,7 @@ void func_8011F2EC(ST06_10C *wp)
     obj                = STAGE_SCENE_OBJ(0);
     wp->position       = obj->position;
     wp->position_fixed = obj->position_fixed;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->color_B4 = 0x808080;
     wp->value_78 = 0;
@@ -288,9 +288,9 @@ void func_8011F454(ST06_10C *wp)
     obj                = STAGE_SCENE_OBJ(0);
     wp->position       = obj->position;
     wp->position_fixed = obj->position_fixed;
-    wp->value_C ^= 1;
+    wp->work_0 ^= 1;
     wp->position_AC = wp->position;
-    if (wp->value_C & 1)
+    if (wp->work_0 & 1)
     {
         wp->position_AC.x += 8;
     }

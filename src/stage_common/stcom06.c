@@ -11,7 +11,7 @@ void stcom06_func_0000(STCOM06_WORK *wp)
     STCOM_SVECTOR pos;
 
     stcom06_D_0030[wp->routine_0](wp);
-    if (!(wp->type_3 & 1))
+    if (!(wp->type & 1))
     {
         wp->index_F++;
     }
@@ -22,15 +22,15 @@ void stcom06_func_0000(STCOM06_WORK *wp)
     pos.x = wp->sprite.pos_8[0];
     pos.y = wp->sprite.pos_8[1];
     pos.z = wp->sprite.pos_8[2];
-    if (!(wp->type_3 & 1))
+    if (!(wp->type & 1))
     {
         if (wp->routine_2 != 0)
         {
-            func_800341BC(&pos, 0x20, 0, 0x4000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
+            func_800341BC(&pos, 0x20, 0, 0x4000, wp->work_id, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         else
         {
-            func_800341BC(&pos, 0x20, 0, 0x8000, wp->value_1, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
+            func_800341BC(&pos, 0x20, 0, 0x8000, wp->work_id, &wp->sprite.hit_14, 0x8000000, 0, 0x80);
         }
         func_80051BAC(wp);
     }
@@ -61,7 +61,7 @@ void stcom06_func_0128(STCOM06_WORK *wp)
     wp->position_fixed_prev.z = wp->position_fixed.z - (wp->velocity.v.z << 10);
     func_80030150(&wp->position_fixed_prev, &wp->position_prev);
     wp->value_78 = 0;
-    if (wp->type_3 & 0x80)
+    if (wp->type & 0x80)
     {
         wp->sprite.value_E = stcom06_D_0018[wp->index_F].a;
         wp->sprite.value_F = stcom06_D_0018[wp->index_F].b;
@@ -73,7 +73,7 @@ void stcom06_func_0128(STCOM06_WORK *wp)
     }
     wp->sprite.value_10 = 0x20;
     wp->value_74        = 1;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     if (stcom06_func_0A80(wp) != 0)
     {
         wp->routine_0 = 3;
@@ -112,7 +112,7 @@ void stcom06_func_0320(STCOM06_WORK *wp)
             {
                 stcom06_func_0E10(wp, effect);
             }
-            wp->flags_0 = 0;
+            wp->be_flag = 0;
             Close_SHL_WORK(wp);
             return;
         }
@@ -125,12 +125,12 @@ void stcom06_func_0320(STCOM06_WORK *wp)
         {
             stcom06_func_0E10(wp, effect);
         }
-        wp->flags_0 = 0;
+        wp->be_flag = 0;
         Close_SHL_WORK(wp);
         return;
     }
     wp->sprite.hit_14 = 0;
-    if (!(wp->type_3 & 1))
+    if (!(wp->type & 1))
     {
         if (wp->value_7C != 0)
         {
@@ -140,7 +140,7 @@ void stcom06_func_0320(STCOM06_WORK *wp)
             {
                 stcom06_func_0E10(wp, effect);
             }
-            wp->flags_0 = 0;
+            wp->be_flag = 0;
             Close_SHL_WORK(wp);
             return;
         }
@@ -152,7 +152,7 @@ void stcom06_func_0320(STCOM06_WORK *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->position_prev       = wp->position;
     wp->sprite.color_4.word = 0x2C808080;
-    if (wp->type_3 & 0x80)
+    if (wp->type & 0x80)
     {
         wp->sprite.value_E = stcom06_D_0018[wp->index_F].a;
         wp->sprite.value_F = stcom06_D_0018[wp->index_F].b;
@@ -195,7 +195,7 @@ void stcom06_func_0594(STCOM06_WORK *wp)
     wp->sprite.pos_8[0] = wp->position.x = wp->position_fixed.x >> 16;
     wp->sprite.pos_8[1] = wp->position.y = wp->position_fixed.y >> 16;
     wp->sprite.pos_8[2] = wp->position.z = wp->position_fixed.z >> 16;
-    if (wp->type_3 & 0x80)
+    if (wp->type & 0x80)
     {
         wp->sprite.value_E = stcom06_D_0018[wp->index_F].a;
         wp->sprite.value_F = stcom06_D_0018[wp->index_F].b;
@@ -211,7 +211,7 @@ void stcom06_func_0594(STCOM06_WORK *wp)
     {
         stcom06_func_0E10(wp, effect);
     }
-    wp->flags_0 = 0;
+    wp->be_flag = 0;
     Close_SHL_WORK(wp);
 }
 
@@ -245,7 +245,7 @@ void stcom06_func_06A0(STCOM06_WORK *wp)
             {
                 stcom06_func_0E10(wp, effect);
             }
-            wp->flags_0 = 0;
+            wp->be_flag = 0;
             Close_SHL_WORK(wp);
             return;
         }
@@ -258,14 +258,14 @@ void stcom06_func_06A0(STCOM06_WORK *wp)
         {
             stcom06_func_0E10(wp, effect);
         }
-        wp->flags_0 = 0;
+        wp->be_flag = 0;
         Close_SHL_WORK(wp);
         return;
     }
     wp->sprite.hit_14 = 0;
     if (wp->velocity.words[0] != 0 || wp->velocity.v.z != 0)
     {
-        if (wp->type_3 & 0x80)
+        if (wp->type & 0x80)
         {
             wp->sprite.value_E = stcom06_D_0018[wp->index_F].a;
             wp->sprite.value_F = stcom06_D_0018[wp->index_F].b;
@@ -312,7 +312,7 @@ void stcom06_func_06A0(STCOM06_WORK *wp)
     {
         stcom06_func_0E10(wp, effect);
     }
-    wp->flags_0 = 0;
+    wp->be_flag = 0;
     Close_SHL_WORK(wp);
 }
 
@@ -330,7 +330,7 @@ void stcom06_func_0934(STCOM06_WORK *wp)
     wp->sprite.pos_8[2]     = wp->position.z;
     wp->position_fixed_prev = wp->position_fixed;
     wp->position_prev       = wp->position;
-    if (wp->type_3 & 0x80)
+    if (wp->type & 0x80)
     {
         wp->sprite.value_E = stcom06_D_0018[wp->index_F].a;
         wp->sprite.value_F = stcom06_D_0018[wp->index_F].b;
@@ -341,7 +341,7 @@ void stcom06_func_0934(STCOM06_WORK *wp)
         wp->sprite.value_F = stcom06_D_0000[wp->index_F].b;
     }
     wp->sprite.value_10 = 0x20;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
 }
 
 sint16 stcom06_func_0A80(STCOM06_WORK *wp)
@@ -389,10 +389,10 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
                 effect = func_80031618();
                 if (effect != NULL)
                 {
-                    effect->flags_0   = 1;
-                    effect->kind_2    = 0x83;
-                    effect->variant_3 = 0;
-                    effect->sprite    = wp->sprite;
+                    effect->be_flag = MOVE;
+                    effect->id      = 0x83;
+                    effect->type    = 0;
+                    effect->sprite  = wp->sprite;
                 }
             }
         }
@@ -405,10 +405,10 @@ sint16 stcom06_func_0A80(STCOM06_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0   = 1;
-                effect->kind_2    = 0x83;
-                effect->variant_3 = 0;
-                effect->sprite    = wp->sprite;
+                effect->be_flag = MOVE;
+                effect->id      = 0x83;
+                effect->type    = 0;
+                effect->sprite  = wp->sprite;
             }
         }
         Wall_reflect_spd(&wp->velocity.v, hit);
@@ -456,23 +456,23 @@ void stcom06_func_0D1C(STCOM06_WORK *wp)
 
 void stcom06_func_0E10(STCOM06_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->flags_0 = 5;
-    effect->kind_2  = 0x80;
+    effect->be_flag = MOVE | MODEL;
+    effect->id      = 0x80;
     if (wp->routine_2 != 0)
     {
-        effect->variant_3 = 2;
+        effect->type = 2;
     }
     else
     {
-        effect->variant_3 = 0x42;
+        effect->type = 0x42;
     }
     effect->sprite.position = wp->position;
 }
 
 void stcom06_func_0E68(STCOM06_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->flags_0         = 1;
-    effect->kind_2          = 0x19;
-    effect->variant_3       = 0;
+    effect->be_flag         = MOVE;
+    effect->id              = 0x19;
+    effect->type            = 0;
     effect->sprite.position = wp->position;
 }

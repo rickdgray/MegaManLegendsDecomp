@@ -10,13 +10,13 @@ typedef void (*STCOM36_OBJ_FUNC)(STCOM36_OBJ *wp);
 
 struct STCOM36_OBJ
 {
-    uint8 flags_0;    // 00
-    uint8 index_1;    // 01: pool id and slot
-    uint8 kind_2;     // 02: first index into the pool's handler table
-    uint8 value_3;    // 03
-    uint8 handler_4;  // 04: second index (two-level tables)
+    uint8 be_flag;    // 00
+    uint8 work_id;    // 01: pool id and slot
+    uint8 id;         // 02: first index into the pool's handler table
+    uint8 type;       // 03
+    uint8 handler;    // 04: second index (two-level tables)
     uint8 value_5;    // 05
-    uint8 flags_6;    // 06: 0x20 cleared once the room's script has it
+    uint8 flags;      // 06: 0x20 cleared once the room's script has it
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
 };

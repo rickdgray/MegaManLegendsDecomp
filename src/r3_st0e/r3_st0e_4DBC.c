@@ -13,7 +13,7 @@ void func_80104DF8(ST0E_ACTOR *wp)
     wp->scale.v.z   = 0x200;
     wp->scale.v.pad = 0x4210;
     wp->rotation.x  = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->rotation.y   = (rand() & 0x1F) << 7;
     wp->rotation.z   = 0;
     wp->velocity.v.x = wp->velocity.v.y = wp->velocity.v.z = 0;
@@ -21,7 +21,7 @@ void func_80104DF8(ST0E_ACTOR *wp)
     Model_work_init(wp, NULL);
     Track_reset(&wp->ctl, 9, -0x60);
     wp->data_78  = D_801103A4;
-    wp->value_6E = wp->value_B0 = D_80098844[wp->kind_2]->life_8 * 16;
+    wp->value_6E = wp->value_B0 = D_80098844[wp->id]->life_8 * 16;
     wp->position.y              = -0x200;
     wp->value_74                = 1;
     wp->ctl.value_10            = 0;
@@ -45,7 +45,7 @@ void func_80104F10(ST0E_ACTOR *wp)
     ctl                     = &wp->ctl;
     wp->scale.v.pad         = 0x4210;
     wp->anim_prev_AD        = wp->anim_AC;
-    if (wp->value_80 >= 2500 * 2500 && !(wp->flags_6 & 0x80))
+    if (wp->value_80 >= 2500 * 2500 && !(wp->flags & 0x80))
     {
         wp->routine_0 = 2;
         wp->routine_1 = 0;
@@ -69,7 +69,7 @@ void func_80104F10(ST0E_ACTOR *wp)
         {
             func_801051B0(wp);
         }
-        if (wp->flags_0 & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x40, 0x200, 0);
         }
@@ -124,7 +124,7 @@ void func_801051B0(ST0E_ACTOR *wp)
 {
     wp->ctl.hit.flags_0 = 0;
     wp->ctl.pos_18      = wp->position;
-    func_800341BC(&wp->ctl.pos_18, 0x40, 0, 0x8000, wp->value_1, &wp->ctl.hit, wp->ctl.hit.value_8 | 0x4000000, 0, 0);
+    func_800341BC(&wp->ctl.pos_18, 0x40, 0, 0x8000, wp->work_id, &wp->ctl.hit, wp->ctl.hit.value_8 | 0x4000000, 0, 0);
 }
 
 void func_80105228(ST0E_ACTOR *wp)
@@ -148,7 +148,7 @@ void func_80105228(ST0E_ACTOR *wp)
             wp->velocity.v.x    = 0x180;
             wp->velocity.v.y    = 0;
             wp->value_4E        = 0;
-            wp->ctl.hit.value_8 = D_80098844[wp->kind_2]->value_A;
+            wp->ctl.hit.value_8 = D_80098844[wp->id]->value_A;
             wp->routine_2       = 1;
         }
         ctl->hit.timer_10 = 0x3C;
@@ -201,7 +201,7 @@ void func_80105414(ST0E_ACTOR *wp)
         wp->anim_AC = 2;
         if (wp->routine_1 == 3)
         {
-            wp->ctl.hit.value_8 = D_80098844[wp->kind_2]->value_A;
+            wp->ctl.hit.value_8 = D_80098844[wp->id]->value_A;
         }
         wp->velocity.v.y = 0;
         wp->routine_2++;
@@ -270,9 +270,9 @@ void func_801055F8(ST0E_ACTOR *wp)
         effect = func_80031618();
         if (effect != NULL)
         {
-            effect->flags_0         = 5;
-            effect->kind_2          = 0x80;
-            effect->variant_3       = 0;
+            effect->be_flag         = MOVE | MODEL;
+            effect->id              = 0x80;
+            effect->type            = 0;
             effect->sprite.position = wp->position;
         }
         func_80047148(wp, &wp->position, effect);
@@ -359,15 +359,15 @@ void func_801057F8(ST0E_PROP *wp)
     scale.y = 0x200;
     scale.z = 0x200;
     ScaleMatrix(m, &scale);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x32 - (wp->rotation.v.z >> 6), 0x2C0 - (wp->rotation.v.z >> 4) * 3, 0);
     }
-    if ((wp->flags_0 & 1) && (wp->ctl.flags_0 & 2))
+    if ((wp->be_flag & MOVE) && (wp->ctl.flags_0 & 2))
     {
         wp->position.y -= 0x20;
         wp->position_fixed.y = wp->position.y << 16;
-        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
+        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->work_id, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
         wp->position.y += 0x20;
         wp->position_fixed.y = wp->position.y << 16;
     }
@@ -388,8 +388,8 @@ void func_801059A8(ST0E_PROP *wp)
     wp->value_74          = 0;
     wp->rotation.v.x      = 0x400;
     wp->rotation.v.z      = 0;
-    wp->flags_0 |= 6;
-    wp->rotation.v.y = (wp->param_C << 9) & 0xE00;
+    wp->be_flag |= TRANS | MODEL;
+    wp->rotation.v.y = (wp->work_0 << 9) & 0xE00;
     Model_work_init(wp, NULL);
     m                           = &wp->matrix;
     wp->ctl.flags_0             = 0;
@@ -439,7 +439,7 @@ void func_80105B60(ST0E_PROP *wp)
     {
         case 0:
             wp->ctl.timer_4 = 0x3C;
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             wp->routine_2++;
             // fall through
         case 1:
@@ -507,7 +507,7 @@ void func_80105D94(ST0E_PROP *wp)
         case 0:
             wp->routine_2    = 1;
             wp->spin_64.h[1] = 0x400;
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             // fall through
         case 1:
             wp->velocity.v.x += wp->accel.x;
@@ -545,7 +545,7 @@ void func_80105EF0(ST0E_PROP *wp)
             wp->routine_2    = 1;
             wp->velocity.v.y = -0x32;
             wp->accel.y      = 4;
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             // fall through
         case 1:
             wp->position.y += wp->velocity.v.y;

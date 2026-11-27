@@ -17,7 +17,7 @@ void stcom18_func_0000(STCOM18_WORK *wp)
 void stcom18_func_009C(STCOM18_WORK *wp)
 {
     wp->sprite.value_12 = 0;
-    wp->flags_0 |= 0x22;
+    wp->be_flag |= 0x22;
     if (!(wp->flags_F & 1))
     {
         wp->sprite.value_E = 0x40;
@@ -78,7 +78,7 @@ void stcom18_func_009C(STCOM18_WORK *wp)
     wp->data_10  = NULL;
     wp->value_78 = 0;
     wp->hit_BC   = 0;
-    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
+    func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->work_id, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
     if (func_80049C24(wp))
     {
         wp->routine_0 = 2;
@@ -130,7 +130,7 @@ void stcom18_func_0260(STCOM18_WORK *wp)
     }
     else
     {
-        wp->flags_0 = 0;
+        wp->be_flag = 0;
         Close_SHL_WORK(wp);
     }
     if (wp->hit_BC & 0x2000000)
@@ -140,7 +140,7 @@ void stcom18_func_0260(STCOM18_WORK *wp)
     }
     else
     {
-        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->value_1, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10, 0, 0xA000, wp->work_id, &wp->hit_BC, wp->kind_E | 0x8000000, 0, 0x80);
         wp->hit_BC = 0;
         hit        = func_80049C24(wp);
         if (hit)
@@ -170,23 +170,23 @@ void stcom18_func_04C8(STCOM18_WORK *wp)
             stcom18_func_0574(wp, effect);
         }
     }
-    wp->flags_0 = 0;
+    wp->be_flag = 0;
     Close_SHL_WORK(wp);
 }
 
 void stcom18_func_0534(STCOM18_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->flags_0         = 7;
-    effect->kind_2          = 0x80;
-    effect->variant_3       = 0x42;
+    effect->be_flag         = MOVE | TRANS | MODEL;
+    effect->id              = 0x80;
+    effect->type            = 0x42;
     effect->sprite.position = wp->position;
 }
 
 void stcom18_func_0574(STCOM18_WORK *wp, STCOM_EFFECT *effect)
 {
-    effect->flags_0         = 3;
-    effect->kind_2          = 0x83;
-    effect->variant_3       = 0;
+    effect->be_flag         = MOVE | TRANS;
+    effect->id              = 0x83;
+    effect->type            = 0;
     effect->sprite.pos_8[0] = wp->position.x;
     effect->sprite.pos_8[1] = -1;
     effect->sprite.pos_8[2] = wp->position.z;

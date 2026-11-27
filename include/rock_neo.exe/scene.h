@@ -37,10 +37,10 @@ typedef struct
 typedef struct
 {
     uint8 index_00; // the object's index in Scene_work.obj_24
-    uint8 id_01;    // the object's id_2
+    uint8 id_01;    // the object's id
     uint8 flag_02;  // copied to the object's flag_4
     uint8 kind_03;  // pool: 0x20 WORK_3C0, 0x40 WORK_5A4, 0x60 SHL_WORK, 0xE0 WORK_50 (scene_obj_open)
-    uint8 type_04;  // copied to the object's type_3
+    uint8 type_04;  // copied to the object's type
     uint8 unk05[3];
     uint32 field_08; // copied to the object's field_C
     SVECTOR pos_0C;  // position, pad the Y angle (scene_obj_open)

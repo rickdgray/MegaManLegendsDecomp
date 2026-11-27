@@ -15,7 +15,7 @@ void func_80111F98(STAGE_PROP *wp)
     scale.y = 0x200;
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix_8C.m, &scale);
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & MOVE)
     {
         ((ST03_DRAW3_FUNC)func_80051B68)(wp, 1, -1);
     }
@@ -33,7 +33,7 @@ void func_80112098(STAGE_PROP *wp)
     wp->value_64    = 0;
     wp->value_70    = 0;
     wp->value_74    = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->flags_BC = 0;
     wp->u_C0.w   = 0;
@@ -85,7 +85,7 @@ void func_80112240(STAGE_PROP *wp)
         case 1:
             if (pl->target_184 == wp)
             {
-                func_80063BC8(&wp->position, 0, 0, wp->value_C);
+                func_80063BC8(&wp->position, 0, 0, wp->work_0);
                 wp->routine_2++;
             }
             break;

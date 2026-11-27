@@ -22,7 +22,7 @@ void stcom17_func_00B0(STCOM17_WORK *wp)
 
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl;
     if (STCOM_STAGE_ROOM == 0xA)
     {
@@ -48,7 +48,7 @@ void stcom17_func_00B0(STCOM17_WORK *wp)
     ctl->timer_48      = 0;
     ctl->timer_49      = 0;
     ctl->damage_40     = 0;
-    switch (wp->variant_3)
+    switch (wp->type)
     {
         case 0:
             break;
@@ -58,7 +58,7 @@ void stcom17_func_00B0(STCOM17_WORK *wp)
     }
     ctl->power_42 = 0;
     Track_reset(ctl->track_18, 11, -0x60);
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8 << 4;
     wp->anim_AC                                      = 0;
     wp->routine_0                                    = 1;
     wp->scale.v.pad                                  = 0x4210;
@@ -115,7 +115,7 @@ void stcom17_func_021C(STCOM17_WORK *wp)
             if (!held)
             {
                 ctl->damage_40 += damage;
-                if (!(ctl->flags_4A & 4) && ctl->damage_40 >= D_80098844[wp->kind_2]->limit_9)
+                if (!(ctl->flags_4A & 4) && ctl->damage_40 >= D_80098844[wp->id]->limit_9)
                 {
                     ctl->flags_4A |= 4;
                     ctl->damage_40  = 0;
@@ -164,7 +164,7 @@ void stcom17_func_021C(STCOM17_WORK *wp)
     {
         func_80051B68(wp, 1, -1, 0x1000008);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0xA0, 0x200, 0);
     }
@@ -173,7 +173,7 @@ void stcom17_func_021C(STCOM17_WORK *wp)
         ctl->pos_0.x = wp->joints_180[0].x;
         ctl->pos_0.y = wp->joints_180[0].y - 0x8C;
         ctl->pos_0.z = wp->joints_180[0].z;
-        func_800341BC(&ctl->pos_0, 0x118, 0, 0x8000, wp->value_1, &ctl->hit_8, ctl->power_42 | 0x4080000, 0x800000, 0);
+        func_800341BC(&ctl->pos_0, 0x118, 0, 0x8000, wp->work_id, &ctl->hit_8, ctl->power_42 | 0x4080000, 0x800000, 0);
     }
 }
 
@@ -184,7 +184,7 @@ void stcom17_func_0510(STCOM17_WORK *wp)
 
 void stcom17_func_0530(STCOM17_WORK *wp)
 {
-    if (!(wp->variant_3 & 0xF0))
+    if (!(wp->type & 0xF0))
     {
         if (wp->ctl.flags_4A & 0x10)
         {
@@ -194,7 +194,7 @@ void stcom17_func_0530(STCOM17_WORK *wp)
     else if (wp->ctl.flags_4A & 0x10)
     {
         wp->routine_1    = 2;
-        wp->ctl.timer_46 = wp->param_D * 60;
+        wp->ctl.timer_46 = wp->work_1 * 60;
     }
 }
 
@@ -207,7 +207,7 @@ void stcom17_func_0594(STCOM17_WORK *wp)
     sint32 mode;
 
     ctl  = &wp->ctl;
-    mode = wp->variant_3 & 0xF;
+    mode = wp->type & 0xF;
     if (mode == 0)
     {
         if (wp->ctl.flags_4A & 0x10)
@@ -345,7 +345,7 @@ void stcom17_func_0594(STCOM17_WORK *wp)
     }
     else if (mode == 2)
     {
-        wp->rotation.y = (wp->rotation.y + wp->param_E) & 0xFFF;
+        wp->rotation.y = (wp->rotation.y + wp->work_2) & 0xFFF;
         aim            = Muku(&wp->position, &Player_work.position, (wp->rotation.y + wp->ctl.turn_44) & 0xFFF, 12);
         if (aim != 0)
         {
@@ -363,7 +363,7 @@ void stcom17_func_0594(STCOM17_WORK *wp)
         {
             wp->ctl.timer_49 = 0;
         }
-        if (aim * wp->param_E > 0)
+        if (aim * wp->work_2 > 0)
         {
             aim = Muku(&wp->position, &Player_work.position, (wp->rotation.y + ctl->turn_44) & 0xFFF, 6);
         }
@@ -435,8 +435,8 @@ void stcom17_func_0BE4(STCOM17_WORK *wp)
             if (shot != NULL)
             {
                 Sound_call2(0xDD, &wp->position);
-                shot->flags_0          = 3;
-                shot->kind_2           = 1;
+                shot->be_flag          = MOVE | TRANS;
+                shot->id               = 1;
                 shot->value_4          = 0;
                 shot->value_F          = 3;
                 shot->position.x       = wp->joints_180[1].x;
@@ -456,9 +456,9 @@ void stcom17_func_0BE4(STCOM17_WORK *wp)
                 effect = func_80031618();
                 if (effect != NULL)
                 {
-                    effect->flags_0         = 3;
-                    effect->kind_2          = 0xF;
-                    effect->variant_3       = 3;
+                    effect->be_flag         = MOVE | TRANS;
+                    effect->id              = 0xF;
+                    effect->type            = 3;
                     effect->value_C         = 1;
                     effect->sprite.pos_8[0] = shot->position.x;
                     effect->sprite.pos_8[1] = shot->position.y;
@@ -600,19 +600,19 @@ void stcom17_func_1168(STCOM17_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0         = 5;
-        effect->kind_2          = 0x80;
-        effect->variant_3       = 0x40;
+        effect->be_flag         = MOVE | MODEL;
+        effect->id              = 0x80;
+        effect->type            = 0x40;
         effect->sprite.position = wp->joints_180[1];
         func_80047148(wp, &wp->joints_180[0], effect);
     }
     func_80052528(wp);
-    wp->flags_0               = 1;
-    wp->kind_2                = 0;
-    wp->variant_3             = 1;
+    wp->be_flag               = MOVE;
+    wp->id                    = 0;
+    wp->type                  = 1;
     wp->value_4               = 1;
     *(uint32 *)&wp->routine_0 = 0;
-    *(uint32 *)&wp->param_C   = 0;
+    *(uint32 *)&wp->work_0    = 0;
     wp->position              = wp->joints_180[2];
     wp->position_fixed.x      = wp->joints_180[1].x << 16;
     wp->position_fixed.y      = wp->joints_180[1].y << 16;
@@ -630,7 +630,7 @@ void stcom17_func_1278(STCOM17_WORK *wp)
     pl                   = &Player_work;
     Player_work.value_C4 = Player_work.position;
     wp->value_C4         = wp->joints_180[1];
-    if (wp->value_80 <= 0x7FFFFF && (wp->flags_6 & 0x80))
+    if (wp->value_80 <= 0x7FFFFF && (wp->flags & 0x80))
     {
         if ((func_80030628(wp, pl, &wp->ctl.size_28, &wp->ctl.fixed_30, wp->rotation.y + wp->ctl.turn_44) & 2) && wp->ctl.timer_53 == 0)
         {
@@ -702,9 +702,9 @@ void stcom17_func_1470(STCOM17_WORK *wp)
                         if (shot != NULL)
                         {
                             Sound_call2(0xEB, &wp->position);
-                            shot->flags_0          = 1;
-                            shot->kind_2           = 0x2E;
-                            shot->variant_3        = 0x42;
+                            shot->be_flag          = MOVE;
+                            shot->id               = 0x2E;
+                            shot->type             = 0x42;
                             shot->angle_64         = wp->rotation.y;
                             shot->position.x       = wp->joints_180[1].x;
                             shot->position.z       = wp->joints_180[1].z;
@@ -774,7 +774,7 @@ void stcom17_func_1690(STCOM17_GUN_WORK *wp)
     stcom17_D_0034[wp->routine_0](wp);
     Mem_copy4(&wp->ctl.vec_8, (void *)0x1F800120, 8);
     Model_parts_mtx_set_y(wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x50, 0x200, 0);
     }
@@ -797,7 +797,7 @@ void stcom17_func_1690(STCOM17_GUN_WORK *wp)
             wp->ctl.timer_68 = 0;
         }
         ctl->pos_0 = wp->joints_180[2];
-        func_800341BC(&ctl->pos_0, 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_28, ctl->power_5C | 0x4080000, 0, 0);
+        func_800341BC(&ctl->pos_0, 0xA0, 0, 0x8000, wp->work_id, &ctl->hit_28, ctl->power_5C | 0x4080000, 0, 0);
     }
     ctl->hit_28 = 0;
 }
@@ -806,7 +806,7 @@ void stcom17_func_1854(STCOM17_GUN_WORK *wp)
 {
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     Model_work_init(wp, NULL);
     *(uint32 *)&wp->ctl.angle_20 = 0;
     wp->scale.words[0]           = 0x2000200;
@@ -830,9 +830,9 @@ void stcom17_func_1854(STCOM17_GUN_WORK *wp)
     wp->ctl.timer_68             = 0;
     wp->ctl.angle_60             = wp->ctl.angle_20;
     wp->ctl.dist_40              = wp->value_80;
-    wp->ctl.power_5C             = D_80098844[wp->kind_2]->value_A;
+    wp->ctl.power_5C             = D_80098844[wp->id]->value_A;
     Track_reset(wp->ctl.track_30, 12, -0x60);
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8 << 4;
     wp->routine_0                                    = 1;
     wp->routine_1                                    = 0;
     wp->routine_2                                    = 0;
@@ -945,8 +945,8 @@ void stcom17_func_1C60(STCOM17_GUN_WORK *wp)
         if (shot != NULL)
         {
             Sound_call2(0x148, &wp->position);
-            shot->flags_0          = 3;
-            shot->kind_2           = 1;
+            shot->be_flag          = MOVE | TRANS;
+            shot->id               = 1;
             shot->value_4          = 0;
             shot->value_F          = 3;
             shot->position.x       = wp->joints_180[3].x;
@@ -976,9 +976,9 @@ void stcom17_func_1C60(STCOM17_GUN_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 3;
-                effect->kind_2          = 0x83;
-                effect->variant_3       = 0;
+                effect->be_flag         = MOVE | TRANS;
+                effect->id              = 0x83;
+                effect->type            = 0;
                 effect->sprite.pos_8[0] = wp->joints_180[3].x;
                 effect->sprite.pos_8[1] = wp->joints_180[3].y;
                 effect->sprite.pos_8[2] = wp->joints_180[3].z;
@@ -1032,22 +1032,22 @@ void stcom17_func_1FFC(STCOM17_GUN_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0         = 5;
-        effect->kind_2          = 0x80;
-        effect->variant_3       = 0x40;
+        effect->be_flag         = MOVE | MODEL;
+        effect->id              = 0x80;
+        effect->type            = 0x40;
         effect->sprite.position = wp->joints_180[2];
         func_80047148(wp, &wp->joints_180[0], effect);
     }
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
-        wp->flags_0               = 1;
-        wp->kind_2                = 0;
-        wp->variant_3             = 1;
+        wp->be_flag               = MOVE;
+        wp->id                    = 0;
+        wp->type                  = 1;
         wp->value_4               = 1;
         *(uint32 *)&wp->routine_0 = 0;
-        *(uint32 *)&wp->param_C   = 0;
+        *(uint32 *)&wp->work_0    = 0;
         wp->position              = wp->joints_180[2];
-        if (wp->variant_3 != 0)
+        if (wp->type != 0)
         {
             gun = wp;
         }

@@ -10,7 +10,7 @@ void func_80107428(ST0A_VIEW *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= TRANS;
             func_8002F9EC(wp, 0);
             wp->value_158  = 0x02000200;
             wp->u_15C.w[0] = 0x200;

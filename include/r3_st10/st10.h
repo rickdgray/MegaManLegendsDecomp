@@ -29,19 +29,19 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    sint8 value_D;                          // 0D
-    sint8 value_E;                          // 0E
-    uint8 reserved0F;                       // 0F
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    sint8 work_1;                           // 0D
+    sint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -85,17 +85,20 @@ typedef void (*ST10_PROP_FUNC)(ST10_PROP *wp);
 
 struct ST10_PROP
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    uint8 reserved0D[7];                    // 0D
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
+    uint8 reserved10[4];                    // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
     STCOM_SVECTOR position_prev;            // 2C
@@ -121,8 +124,9 @@ struct ST10_PROP
 // +0x428/+0x438 a second position in 16.16 and in halfwords.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[0xB];             // 01
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 reserved02[10];              // 02
     sint8 routine_C;                   // 0C
     sint8 routine_D;                   // 0D
     uint8 reserved0E[6];               // 0E
@@ -156,10 +160,10 @@ typedef struct ST10_VIEW ST10_VIEW;
 typedef void (*ST10_VIEW_FUNC)(ST10_VIEW *wp);
 struct ST10_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 work_id;        // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -261,12 +265,12 @@ typedef union
 // A 0x10C-byte shot (shl/shl.h's SHL_WORK with a model: the fields its routines use).
 typedef struct
 {
-    uint8 flags_0;              // 00
-    uint8 value_1;              // 01
+    uint8 be_flag;              // 00
+    uint8 work_id;              // 01
     uint8 value_2;              // 02
-    uint8 type_3;               // 03: 0x40 set for a shot fired by another object
+    uint8 type;                 // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];        // 04
-    uint8 flags_6;              // 06
+    uint8 flags;                // 06
     uint8 reserved07;           // 07
     uint8 routine_0;            // 08
     uint8 routine_1;            // 09
@@ -300,10 +304,10 @@ typedef struct
 // An effect slot as the shot's sparks use it (shl/shl.h's SHL_FX).
 typedef struct
 {
-    sint8 routine_0;        // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 flag_3;           // 03
+    sint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[0x18]; // 04
     sint16 x_1C;            // 1C
     sint16 y_1E;            // 1E
@@ -325,12 +329,12 @@ typedef void (*ST10_ACTOR_FUNC)(ST10_ACTOR *wp);
 // with ROCK_NEO's generic layout up to 0x88, then a model's draw data.
 typedef struct
 {
-    sint8 flags_0; // 00
-    uint8 value_1; // 01
-    uint8 kind_2;  // 02
-    uint8 type_3;  // 03: 0x40 set for a shot fired by another object
+    sint8 be_flag; // 00
+    uint8 work_id; // 01
+    uint8 id;      // 02
+    uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 routine_1; // 09

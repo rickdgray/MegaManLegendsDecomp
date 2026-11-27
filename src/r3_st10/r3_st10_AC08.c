@@ -19,7 +19,7 @@ void func_8010ACA4(ST10_PROP *wp)
     wp->velocity.x = 0;
     wp->turn_64    = 0x40;
     wp->value_78   = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     wp->position_AC = wp->position;
     RotMatrix(&wp->rotation, &wp->matrix);
     scale.x = 0x200;
@@ -27,7 +27,7 @@ void func_8010ACA4(ST10_PROP *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix, &scale);
     wp->color_B4 = 0x808080;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     wp->routine_0 = 1;
     wp->routine_1 = 0;
     wp->routine_2 = 0;
@@ -52,7 +52,7 @@ void func_8010AD74(ST10_PROP *wp)
     pos.y -= 0x50;
     pos.x += (rsin(angle) * 0) >> 12;
     pos.z += (rcos(angle) * 0) >> 12;
-    func_800341BC(&pos, 0x80, 0, 0x8000, wp->value_1, &wp->hit_BC, 0x8880000, 0, 0x80);
+    func_800341BC(&pos, 0x80, 0, 0x8000, wp->work_id, &wp->hit_BC, 0x8880000, 0, 0x80);
     wp->hit_BC = 0;
 }
 
@@ -60,15 +60,15 @@ void func_8010AE98(STAGE_OBJ *wp)
 {
     STAGE_FX *fx;
 
-    if (wp->u_C.b.byte_C == 0)
+    if (wp->u_C.b.work_0 == 0)
     {
         fx = (STAGE_FX *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0      = 1;
-            fx->kind_2       = 0xB;
-            fx->variant_3    = 3;
-            fx->value_C      = 0;
+            fx->be_flag      = MOVE;
+            fx->id           = 0xB;
+            fx->type         = 3;
+            fx->work_0       = 0;
             fx->timer_D      = 0;
             fx->frame_E      = 0x14;
             fx->type_F       = 8;
@@ -76,12 +76,12 @@ void func_8010AE98(STAGE_OBJ *wp)
             fx->y_1E         = wp->position.y - 0x50;
             fx->z_20         = wp->position.z - 0x28;
             fx->routine_1    = 4;
-            wp->u_C.b.byte_C = 8;
+            wp->u_C.b.work_0 = 8;
         }
     }
     else
     {
-        wp->u_C.b.byte_C--;
+        wp->u_C.b.work_0--;
     }
 }
 
@@ -99,9 +99,9 @@ void func_8010AF9C(ST10_SHL *wp)
     wp->col_c4 = 0;
     wp->col_c8 = 0;
     wp->box_78 = D_801148D4;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
-    if (wp->type_3 & 0x40)
+    wp->be_flag |= TRANS | MODEL;
+    wp->flags |= 0x20;
+    if (wp->type & 0x40)
     {
         rot.x = wp->rot_x;
     }
@@ -112,7 +112,7 @@ void func_8010AF9C(ST10_SHL *wp)
     }
     rot.y = wp->rot_y & 0xFFF;
     rot.z = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         rot.x += ((rand() & 7) - 4) * 2;
         rot.y += ((rand() & 7) - 4) * 2;
@@ -145,7 +145,7 @@ void func_8010AF9C(ST10_SHL *wp)
     rot.y = 0;
     rot.z = -0x1000;
     ApplyMatrix(&wp->mtx_8c, &rot, &v);
-    if (!(wp->type_3 & 0x40) && ST10_PL_SBYTE(0x507) >= 3)
+    if (!(wp->type & 0x40) && ST10_PL_SBYTE(0x507) >= 3)
     {
         wp->vel.x = (uint32)(v.x * 15) >> 1;
         wp->vel.y = (uint32)(v.y * 15) >> 1;
@@ -161,7 +161,7 @@ void func_8010AF9C(ST10_SHL *wp)
     wp->ay     = 0;
     wp->az     = 0;
     wp->hit_7c = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         wp->fpos.v.x += wp->vel.x * 0x1C0;
         wp->fpos.v.y += wp->vel.y * 0x1C0;
@@ -173,9 +173,9 @@ void func_8010AF9C(ST10_SHL *wp)
     wp->old_fpos           = wp->fpos;
     wp->old_pos            = wp->pos;
     wp->color_b4           = 0x02808080;
-    wp->kind_2             = 0x82;
+    wp->id                 = 0x82;
     Model_work_init(wp, 0);
-    wp->kind_2  = 0x2E;
+    wp->id      = 0x2E;
     wp->timer_b = func_80037634(&Player_work, 2);
     wp->routine_0++;
     func_8010B660(wp, 0);
@@ -187,7 +187,7 @@ void func_8010B3A4(ST10_SHOT *wp)
 {
     if (func_80037694((STCOM23_WORK *)wp, 0) || wp->hit_7C)
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -211,7 +211,7 @@ void func_8010B3A4(ST10_SHOT *wp)
     }
     else
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -237,17 +237,17 @@ void func_8010B51C(ST10_SHOT *wp)
     {
         flags = 0x1000;
     }
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_C4, 0x8000005, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->work_id, &wp->col_C4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_C)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_C4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->work_id, &wp->col_C4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_C4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->work_id, &wp->col_C4, flags | 0x8000000, 0, 0x80);
     }
 }
 
@@ -258,33 +258,33 @@ void func_8010B660(ST10_SHOT *wp, sint32 arg)
     fx = (ST10_SHOT_FX *)func_80031618();
     if (fx)
     {
-        fx->routine_0 = 1;
-        fx->kind_2    = 0x85;
-        fx->x_1C      = wp->pos.x;
-        fx->y_1E      = wp->pos.y;
-        fx->z_20      = wp->pos.z;
-        fx->vx_30     = wp->vel.x;
-        fx->vy_32     = wp->vel.y;
-        fx->vz_34     = wp->vel.z;
-        if (wp->type_3 == 0x40)
+        fx->be_flag = MOVE;
+        fx->id      = 0x85;
+        fx->x_1C    = wp->pos.x;
+        fx->y_1E    = wp->pos.y;
+        fx->z_20    = wp->pos.z;
+        fx->vx_30   = wp->vel.x;
+        fx->vy_32   = wp->vel.y;
+        fx->vz_34   = wp->vel.z;
+        if (wp->type == 0x40)
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
-        else if (wp->type_3 == 0x41)
+        else if (wp->type == 0x41)
         {
             fx->value_40 = (wp->rot_y - 0x400) & 0xFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
-        else if (wp->type_3 == 0x42)
+        else if (wp->type == 0x42)
         {
             fx->value_40 = 0xFFFF;
-            fx->flag_3   = arg + 0x10;
+            fx->type     = arg + 0x10;
         }
         else
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
-            fx->flag_3   = arg;
+            fx->type     = arg;
         }
     }
 }

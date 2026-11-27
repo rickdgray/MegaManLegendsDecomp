@@ -46,21 +46,21 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    sint8 value_D;                          // 0D
-    sint8 value_E;                          // 0E
-    uint8 reserved0F;                       // 0F
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    sint8 work_1;                           // 0D
+    sint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -118,18 +118,20 @@ typedef struct
 // +0x4E0).
 typedef struct
 {
-    sint8 flags_0;            // 00
-    uint8 value_1;            // 01
-    uint8 kind_2;             // 02
-    uint8 variant_3;          // 03
+    sint8 be_flag;            // 00
+    uint8 work_id;            // 01
+    uint8 id;                 // 02
+    uint8 type;               // 03
     uint8 reserved04[4];      // 04
     uint8 routine_0;          // 08
     uint8 routine_1;          // 09
     uint8 routine_2;          // 0A
     uint8 routine_3;          // 0B
-    sint8 timer_C;            // 0C
-    sint8 value_D;            // 0D
-    uint8 reserved0E[0x46];   // 0E
+    sint8 timer_C;            // 0C (Capcom: work_0)
+    sint8 work_1;             // 0D
+    uint8 work_2;             // 0E
+    uint8 work_3;             // 0F
+    uint8 reserved10[0x44];   // 10
     STCOM_SVECTOR rotation;   // 54
     uint8 reserved5C[0x2C];   // 5C
     void *model_88;           // 88
@@ -165,9 +167,10 @@ typedef void (*ST0E_LEVER_FUNC)(ST0E_LEVER *wp);
 
 struct ST0E_LEVER
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[2];    // 01
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 reserved02;       // 02
+    uint8 type;             // 03
     uint8 reserved04;       // 04
     uint8 value_5;          // 05: picks the scene flag
     uint8 reserved06[2];    // 06
@@ -175,7 +178,11 @@ struct ST0E_LEVER
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
-    uint8 reserved0C[0xC];  // 0C
+    uint8 work_0;           // 0C
+    uint8 work_1;           // 0D
+    uint8 work_2;           // 0E
+    uint8 work_3;           // 0F
+    uint8 reserved10[8];    // 10
     ST0E_ROT_MATRIX matrix; // 18
     uint8 reserved38[8];    // 38
     uint32 color_40;        // 40
@@ -212,9 +219,10 @@ typedef struct
 // A 0x50-byte slot of a panel whose face colors are kept per variant (func_8010BFB4).
 typedef struct
 {
-    uint8 flags_0;        // 00
-    uint8 reserved01[2];  // 01
-    uint8 variant_3;      // 03
+    uint8 be_flag;        // 00
+    uint8 work_id;        // 01
+    uint8 reserved02;     // 02
+    uint8 type;           // 03
     uint8 reserved04[4];  // 04
     uint8 routine_0;      // 08
     uint8 routine_1;      // 09
@@ -289,17 +297,20 @@ typedef struct
 // func_80108E00).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 value_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[4];               // 04
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09
     uint8 routine_2;                   // 0A
     uint8 routine_3;                   // 0B
-    sint8 flag_C;                      // 0C: which scene flag the hit sets
-    uint8 reserved0D[7];               // 0D
+    sint8 flag_C;                      // 0C: which scene flag the hit sets (Capcom: work_0)
+    uint8 work_1;                      // 0D
+    uint8 work_2;                      // 0E
+    uint8 work_3;                      // 0F
+    uint8 reserved10[4];               // 10
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
     uint8 reserved2C[0x18];            // 2C
@@ -344,19 +355,19 @@ typedef struct
 // A 0x10C-byte work slot with a model matrix at +0x8C.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 byte_C;                           // 0C
-    sint8 byte_D;                           // 0D
-    sint8 byte_E;                           // 0E
-    sint8 byte_F;                           // 0F
+    sint8 work_0;                           // 0C
+    sint8 work_1;                           // 0D
+    sint8 work_2;                           // 0E
+    sint8 work_3;                           // 0F
     uint8 reserved10[4];                    // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -400,17 +411,19 @@ typedef void (*ST0E_PROP_FUNC)(ST0E_PROP *wp);
 
 struct ST0E_PROP
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C: heading / 0x200
-    uint8 reserved0D[3];                    // 0D
+    uint8 work_0;                           // 0C: heading / 0x200
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     sint32 value_10;                        // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -480,17 +493,20 @@ typedef void (*ST0E_GLOW_FUNC)(ST0E_GLOW *wp);
 
 struct ST0E_GLOW
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01;    // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03: nonzero to draw
+    uint8 be_flag;       // 00
+    uint8 work_id;       // 01
+    uint8 id;            // 02
+    uint8 type;          // 03: nonzero to draw
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
     uint8 routine_2;     // 0A
     uint8 routine_3;     // 0B
-    sint8 value_C;       // 0C
-    uint8 reserved0D[7]; // 0D
+    sint8 work_0;        // 0C
+    uint8 work_1;        // 0D
+    uint8 work_2;        // 0E
+    uint8 work_3;        // 0F
+    uint8 reserved10[4]; // 10
     uint32 mode_14;      // 14
     uint32 color_18;     // 18
     union
@@ -533,10 +549,10 @@ typedef struct ST0E_VIEW ST0E_VIEW;
 typedef void (*ST0E_VIEW_FUNC)(ST0E_VIEW *wp);
 struct ST0E_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 work_id;        // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 value_5;        // 5
     uint8 value_6;        // 6

@@ -22,17 +22,17 @@ void stcom34_func_003C(STCOM34_WORK *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0;
-    wp->value_D   = 0;
-    wp->value_E   = 0;
-    wp->value_F   = 0;
+    wp->work_1    = 0;
+    wp->work_2    = 0;
+    wp->work_3    = 0;
     for (i = 0; i < 4; i++)
     {
         sparks[i].yaw_0    = rand() & 0x1F;
         sparks[i].pitch_1  = rand() & 0xF;
         sparks[i].delay_2  = (rand() & 0x3F) + 1;
-        sparks[i].length_3 = stcom34_D_0000[wp->variant_3].length_0 + (rand() & 0x1F);
-        sparks[i].speed_4  = stcom34_D_0000[wp->variant_3].speed_2;
-        sparks[i].dist_6   = stcom34_D_0000[wp->variant_3].dist_4 + (rand() & 0x3F);
+        sparks[i].length_3 = stcom34_D_0000[wp->type].length_0 + (rand() & 0x1F);
+        sparks[i].speed_4  = stcom34_D_0000[wp->type].speed_2;
+        sparks[i].dist_6   = stcom34_D_0000[wp->type].dist_4 + (rand() & 0x3F);
     }
 }
 
@@ -90,9 +90,9 @@ void stcom34_func_014C(STCOM34_WORK *wp)
                 sparks[i].yaw_0    = rand() & 0x1F;
                 sparks[i].pitch_1  = rand() & 0xF;
                 sparks[i].delay_2  = (rand() & 0x3F) + 1;
-                sparks[i].length_3 = stcom34_D_0000[wp->variant_3].length_0 + (rand() & 0x1F);
-                sparks[i].speed_4  = stcom34_D_0000[wp->variant_3].speed_2;
-                sparks[i].dist_6   = stcom34_D_0000[wp->variant_3].dist_4 + (rand() & 0x3F);
+                sparks[i].length_3 = stcom34_D_0000[wp->type].length_0 + (rand() & 0x1F);
+                sparks[i].speed_4  = stcom34_D_0000[wp->type].speed_2;
+                sparks[i].dist_6   = stcom34_D_0000[wp->type].dist_4 + (rand() & 0x3F);
             }
         }
         else

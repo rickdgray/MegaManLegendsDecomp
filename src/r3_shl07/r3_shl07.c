@@ -41,7 +41,7 @@ void func_800D888C(SHL_WORK *wp)
     for (i = 0; i < 64; i++)
     {
         fx = &D_800A3B40[i];
-        if (fx->routine_0 == 0 || fx->kind_2 != 0x87 || fx->routine_8 >= 5)
+        if (fx->be_flag == 0 || fx->id != 0x87 || fx->routine_0 >= 5)
         {
             continue;
         }
@@ -72,7 +72,7 @@ void func_800D888C(SHL_WORK *wp)
             fx->pos_38.vx += (d.vx * push) >> 12;
             fx->pos_38.vz += (d.vz * push) >> 12;
             tmp = fx->pos_38;
-            Pos_map_push_out(&tmp, &old, 1, &D_8008A310[fx->index_a]);
+            Pos_map_push_out(&tmp, &old, 1, &D_8008A310[fx->routine_2]);
             fx->pos_38.vx = tmp.vx;
             fx->pos_38.vy = tmp.vy;
             fx->pos_38.vz = tmp.vz;

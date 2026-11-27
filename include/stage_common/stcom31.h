@@ -19,15 +19,17 @@ typedef struct
 // Close_SHL_WORK).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[7];                    // 01
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    uint8 param_C;                          // 0C: heading / 0x200
-    uint8 reserved0D[2];                    // 0D
-    uint8 param_F;                          // 0F: 0x40 picks the second course
+    uint8 work_0;                           // 0C: heading / 0x200
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F: 0x40 picks the second course
     uint32 value_10;                        // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -64,7 +66,7 @@ extern STCOM31_FUNC stcom31_D_0000[];      // routine_0 handlers (stcom31_func_0
 extern STCOM31_FUNC stcom31_D_000C[];      // routine_1 handlers (stcom31_func_01F8)
 extern uint32 stcom31_D_0014[];            // data_78
 extern STCOM31_WAYPOINT stcom31_D_0020[];  // the first course
-extern STCOM31_WAYPOINT stcom31_D_0050[];  // the second course (param_F & 0x40)
+extern STCOM31_WAYPOINT stcom31_D_0050[];  // the second course (work_3 & 0x40)
 extern STCOM_SVECTOR stcom31_D_0078[4][4]; // exhaust offsets: four sets of four
 extern STCOM_FIXED_VECTOR stcom31_E_0000;  // an exhaust puff's position as 16.16
 // Declared as arrays: an 8-byte struct is small data to GCC, which folds every field to an

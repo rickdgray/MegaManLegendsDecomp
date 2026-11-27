@@ -13,7 +13,7 @@ void stcom08_func_0000(STCOM08_WORK *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     stcom08_D_0000[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0xC, 0x200, 0);
     }
@@ -33,7 +33,7 @@ void stcom08_func_00F0(STCOM08_WORK *wp)
     wp->rotation.y = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x80;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->rot_speed_66 = (rand() & 0xF) - 8;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x1800180;

@@ -30,19 +30,19 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
     uint8 routine_3;                        // 0B
-    sint8 timer_C;                          // 0C
-    sint8 value_D;                          // 0D
-    sint8 value_E;                          // 0E
-    uint8 reserved0F;                       // 0F
+    sint8 timer_C;                          // 0C (Capcom: work_0)
+    sint8 work_1;                           // 0D
+    sint8 work_2;                           // 0E
+    uint8 work_3;                           // 0F
     void *data_10;                          // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -85,15 +85,17 @@ typedef void (*ST04_ACTOR_FUNC)(ST04_ACTOR *wp);
 // A 0x10C-byte work slot: a rock that is knocked into the air and bounces (r3_st04_83E4.c).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01
     uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A: 1 while flying
     uint8 routine_3;                        // 0B
-    uint8 reserved0C[3];                    // 0C
-    sint8 value_F;                          // 0F: heading / 16
+    uint8 work_0;                           // 0C
+    uint8 work_1;                           // 0D
+    uint8 work_2;                           // 0E
+    sint8 work_3;                           // 0F: heading / 16
     uint8 reserved10[4];                    // 10
     STCOM_SVECTOR position;                 // 14
     STCOM_FIXED_VECTOR position_fixed;      // 1C
@@ -123,23 +125,29 @@ typedef void (*ST04_ROCK_FUNC)(ST04_ROCK *wp);
 // The scene slot that ST04_EV watches (Scene_obj_ent_open's): the header and position.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[5];    // 01
-    uint8 flags_6;          // 06
+    uint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 reserved02[4];    // 02
+    uint8 flags;            // 06
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
-    uint8 reserved0C[8];    // 0C
+    uint8 work_0;           // 0C
+    uint8 work_1;           // 0D
+    uint8 work_2;           // 0E
+    uint8 work_3;           // 0F
+    uint8 reserved10[4];    // 10
     STCOM_SVECTOR position; // 14
 } ST04_SLOT;
 
 // A 0x24-byte event slot that drives a scene slot (Scene_obj_ent_open's) kept at +0x1C.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[7];    // 01
+    uint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
     uint8 reserved0A[0x12]; // 0A
@@ -374,7 +382,7 @@ void func_801085EC(ST04_ROCK *wp);
 sint32 func_80108794(ST04_ROCK *wp);
 void func_801088BC(ST04_ROCK *wp);
 
-extern STAGE_OBJ50_FUNC D_80111C90[]; // by variant_3
+extern STAGE_OBJ50_FUNC D_80111C90[]; // by type
 extern STAGE_OBJ50_FUNC D_80111CC4[]; // by routine_0
 
 uint8 func_801099D8(STAGE_OBJ50 *wp);
@@ -384,7 +392,7 @@ void func_8010967C(STAGE_OBJ50 *wp);
 extern STCOM_SVECTOR D_80111D40; // highest x, y, z
 extern STCOM_SVECTOR D_80111D48; // lowest x, y, z
 
-// routine handlers by variant_3 (func_80104F7C, func_80105B18, func_801060E8, func_801078A0)
+// routine handlers by type (func_80104F7C, func_80105B18, func_801060E8, func_801078A0)
 extern ST04_ACTOR_FUNC D_8010C984[];
 extern ST04_ACTOR_FUNC D_8010C9CC[];
 extern ST04_ACTOR_FUNC D_8010CA2C[];
@@ -411,8 +419,9 @@ STCOM_MATRIX *RotMatrixX(sint32 r, STCOM_MATRIX *m);
 // Player_work as the villagers see it: where a scene puts the player (+0x428..+0x448).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[0x13];            // 01
+    uint8 be_flag;                     // 00
+    uint8 work_id;                     // 01
+    uint8 reserved02[18];              // 02
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
     uint8 reserved2C[0x28];            // 2C
@@ -449,13 +458,13 @@ void func_80104CB8(ST04_ACTOR *wp);
 // A 0x3C0-byte enemy slot of this stage set up by func_801067A8 (its own block at +0x348).
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 work_id;    // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -465,8 +474,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_C; // 0C
-            sint8 byte_D; // 0D
+            sint8 work_0; // 0C
+            sint8 work_1; // 0D
         } b;
         sint16 timer; // 0C
     } u_C;
@@ -474,8 +483,8 @@ typedef struct
     {
         struct
         {
-            sint8 byte_E; // 0E
-            sint8 byte_F; // 0F
+            sint8 work_2; // 0E
+            sint8 work_3; // 0F
         } b;
         sint16 angle; // 0E
     } u_E;

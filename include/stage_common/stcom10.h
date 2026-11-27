@@ -45,8 +45,9 @@ typedef struct
 // sets scene flags (stcom10_func_0134).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 work_id;         // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
     STCOM10_STATE state;   // 14
@@ -55,11 +56,11 @@ typedef struct
 // A work slot as stcom10_func_05F4 sets it up (the 0x3C0, 0x5A4 and 0x10C pools).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01: pool id and slot (func_80036294)
-    uint8 kind_2;                           // 02: first index into the pool's handler table
-    uint8 value_3;                          // 03
-    uint8 handler_4;                        // 04: second index (two-level tables)
+    uint8 be_flag;                          // 00
+    uint8 work_id;                          // 01: pool id and slot (func_80036294)
+    uint8 id;                               // 02: first index into the pool's handler table
+    uint8 type;                             // 03
+    uint8 handler;                          // 04: second index (two-level tables)
     uint8 value_5;                          // 05
     uint8 reserved06[2];                    // 06
     uint8 routine_0;                        // 08
@@ -78,10 +79,10 @@ typedef struct
 // A 0x50-byte slot (func_80031734).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 index_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 value_3;          // 03
+    uint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 reserved09[3];    // 09

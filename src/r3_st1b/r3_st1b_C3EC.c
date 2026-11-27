@@ -6,7 +6,7 @@ void func_8010C3EC(STAGE_EV *wp)
     switch (wp->routine_0)
     {
         case 0:
-            if (Sce_flag_test(D_80113E5C[wp->variant_3]))
+            if (Sce_flag_test(D_80113E5C[wp->type]))
             {
                 STAGE_PL_BYTE(0xBD) |= 0x40;
                 wp->routine_0++;
@@ -25,7 +25,7 @@ void func_8010C3EC(STAGE_EV *wp)
             {
                 D_800C356C = 2;
                 D_800C356E = 0x16;
-                D_800C356F = (wp->variant_3 == 0) * 2;
+                D_800C356F = (wp->type == 0) * 2;
                 D_800C3560 = 0;
                 D_800C3562 = 0;
                 D_800C3564 = 0;

@@ -21,7 +21,7 @@ void func_80108610(ST0E_VIEW *wp)
     wp->value_50   = 0;
     wp->u_4C.h[1]  = 0;
     wp->u_4C.h[0]  = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     Model_work_init(wp, NULL);
     wp->value_78  = 0;
     wp->value_6E  = 0;
@@ -52,14 +52,14 @@ void func_80108694(ST0E_VIEW *wp)
         wp->value_E8 = 0;
         wp->vec_E0   = wp->position;
         wp->vec_E0.y -= 0x80;
-        func_800341BC(&wp->vec_E0, 0x80, 0, 0x8000, wp->value_1, &wp->value_E8, 0x04080000, 0, 0);
+        func_800341BC(&wp->vec_E0, 0x80, 0, 0x8000, wp->work_id, &wp->value_E8, 0x04080000, 0, 0);
         wp->vec_AC = wp->position;
         RotMatrix(rot, &wp->matrix_8C);
         scale.x = 0x200;
         scale.y = 0x200;
         scale.z = 0x200;
         ScaleMatrix(&wp->matrix_8C, &scale);
-        if (wp->flags_0 & 2)
+        if (wp->be_flag & TRANS)
         {
             Model_Shadow_Trans(wp, 0x80, 0x200, 0);
         }
@@ -77,14 +77,14 @@ void func_80108820(ST0E_VIEW *wp)
         wp->value_6E += damage;
         Sound_call2(0xA0, &wp->position);
         wp->value_B4 = 0xFFFFFF;
-        if (wp->value_6E >= D_80098928[wp->kind_2]->life_8 * 16)
+        if (wp->value_6E >= D_80098928[wp->id]->life_8 * 16)
         {
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->flags_0         = 5;
-                fx->kind_2          = 0x80;
-                fx->variant_3       = 0;
+                fx->be_flag         = MOVE | MODEL;
+                fx->id              = 0x80;
+                fx->type            = 0;
                 fx->sprite.position = wp->position;
             }
             func_80047148(wp, &wp->position, fx);
@@ -129,9 +129,9 @@ void func_80108A44(ST0E_VIEW *wp)
     obj = func_80031418();
     if (obj != NULL)
     {
-        obj->flags_0          = 1;
-        obj->kind_2           = 0x3E;
-        obj->variant_3        = 0;
+        obj->be_flag          = MOVE;
+        obj->id               = 0x3E;
+        obj->type             = 0;
         obj->routine_0        = 0;
         obj->routine_1        = 0;
         obj->routine_2        = 0;
@@ -180,7 +180,7 @@ void func_80108D30(ST0E_ITEM *wp)
 {
     ST0E_ITEM_HIT *hit;
 
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->code_88    = 0x3DC8000B;
     wp->rotation.x = 0;
     wp->scale_96   = 0xA0;
@@ -196,7 +196,7 @@ void func_80108D30(ST0E_ITEM *wp)
     wp->value_64 = 0;
     wp->value_70 = 0;
     wp->value_74 = 0;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         wp->routine_1 = 0;
     }
@@ -243,7 +243,7 @@ void func_80108E00(ST0E_ITEM *wp)
         wp->z_94   = wp->position.z;
         hit->pos_0 = wp->position;
         hit->pos_0.y -= 0x20;
-        func_800341BC(hit, 0x20, 0, 0xA000, wp->value_1, &hit->flags_8, 0x04080000, 0, 0x80);
+        func_800341BC(hit, 0x20, 0, 0xA000, wp->work_id, &hit->flags_8, 0x04080000, 0, 0x80);
         hit->flags_8 = 0;
         return;
     }

@@ -13,16 +13,16 @@ void func_80103760(STAGE_EV *wp)
         ep = Open_EVE_WORK();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->kind_2    = 6;
-            ep->variant_3 = i;
-            ep->step_D    = 0;
-            ep->timer_C   = 0;
-            ep->value_F   = 1;
-            ep->key_1C    = Stage_hed_model_get(D_80105BB8[i + base]);
-            if (wp->flags_6 & 0x20)
+            ep->be_flag = MOVE;
+            ep->id      = 6;
+            ep->type    = i;
+            ep->step_D  = 0;
+            ep->timer_C = 0;
+            ep->work_3  = 1;
+            ep->key_1C  = Stage_hed_model_get(D_80105BB8[i + base]);
+            if (wp->flags & 0x20)
             {
-                ep->flags_6 |= 0x20;
+                ep->flags |= 0x20;
             }
         }
     }
@@ -167,10 +167,10 @@ void func_80103D34(void)
 
 void func_80103D3C(STAGE_EV *wp)
 {
-    if (wp->value_F == 0)
+    if (wp->work_3 == 0)
     {
         func_80103760(wp);
         return;
     }
-    D_80105C34[wp->variant_3](wp);
+    D_80105C34[wp->type](wp);
 }

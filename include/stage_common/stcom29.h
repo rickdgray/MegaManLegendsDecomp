@@ -15,9 +15,10 @@ typedef struct
 // The 0x24-byte event slot of the scripted objects (freed through Close_EVE_WORK).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[2];    // 01
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 work_id;          // 01
+    uint8 reserved02;       // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -32,9 +33,10 @@ typedef struct
 // The 0x24-byte event slot of the five-layer texture animation.
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01[2]; // 01
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 work_id;       // 01
+    uint8 reserved02;    // 02
+    uint8 type;          // 03
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -64,11 +66,11 @@ typedef union
 typedef void (*STCOM29_FUNC)(STCOM29_WORK *wp);
 typedef void (*STCOM29_ANIM_FUNC)(STCOM29_ANIM_WORK *wp);
 
-extern uint32 stcom29_D_0000[];            // model keys by variant_3
+extern uint32 stcom29_D_0000[];            // model keys by type
 extern uint8 stcom29_D_000C[][8];          // UV corners by frame
 extern STCOM29_STEP *stcom29_D_00BC[];     // scripts
-extern STCOM29_FUNC *stcom29_D_00E0[];     // routine_0 handlers by variant_3 (stcom29_func_0000)
-extern uint8 stcom29_D_010C[];             // the model's part by variant_3
+extern STCOM29_FUNC *stcom29_D_00E0[];     // routine_0 handlers by type (stcom29_func_0000)
+extern uint8 stcom29_D_010C[];             // the model's part by type
 extern uint8 stcom29_D_0110[5][29][2];     // each layer's (frame, time) steps
 extern uint8 stcom29_D_0234[5][4];         // each layer's first u per corner
 extern uint8 stcom29_D_0248[];             // each layer's texture entry

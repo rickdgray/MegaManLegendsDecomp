@@ -10,7 +10,7 @@ void func_8010A5D0(ST03_ACTOR *wp)
 {
     ST03_ACTOR_CTL *ctl;
 
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     ctl = &wp->ctl;
     Model_work_init(wp, NULL);
     wp->scale.words[0]       = 0x01D701D7;
@@ -30,7 +30,7 @@ void func_8010A5D0(ST03_ACTOR *wp)
     wp->velocity.words[0] = 0;
     wp->velocity.words[1] = 0;
     wp->data_10           = D_80117090;
-    switch (wp->variant_3)
+    switch (wp->type)
     {
         case 0:
             wp->routine_0             = 1;
@@ -89,7 +89,7 @@ void func_8010A788(ST03_ACTOR *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & TRANS)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }

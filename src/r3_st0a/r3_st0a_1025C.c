@@ -17,11 +17,11 @@ void func_80110298(ST0A_10C_B *wp)
     wp->sprite.color_4.word = 0x2E40E040;
     wp->routine_1           = 0;
     wp->routine_2           = 0;
-    wp->byte_C              = 0;
-    wp->byte_E              = 0;
-    wp->byte_F              = 0;
+    wp->work_0              = 0;
+    wp->work_2              = 0;
+    wp->work_3              = 0;
     wp->count_CC            = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= TRANS;
     wp->sprite.pos_8[0] = wp->position.x = wp->position_fixed.f.x.words.integer;
     wp->sprite.pos_8[1] = wp->position.y = wp->position_fixed.f.y.words.integer;
     wp->sprite.pos_8[2] = wp->position.z = wp->position_fixed.f.z.words.integer;
@@ -39,7 +39,7 @@ void func_8011038C(ST0A_10C *wp)
     wp->sprite.pos_8[2] = wp->position.z;
     if (wp->routine_3 == 0)
     {
-        wp->byte_C = 1;
+        wp->work_0 = 1;
         wp->routine_0++;
         wp->sprite.dir_1C = func_8011092C(wp);
         Sound_call2(0xF1, &wp->position);
@@ -59,7 +59,7 @@ void func_80110438(ST0A_10C_B *wp)
     hit = func_80049C24(wp);
     if (hit != 0)
     {
-        func_80037738(hit, D_80116404[wp->byte_D]);
+        func_80037738(hit, D_80116404[wp->work_1]);
         wp->routine_3 = 0x18;
         wp->count_CC  = 0;
         wp->routine_0++;
@@ -76,7 +76,7 @@ void func_80110438(ST0A_10C_B *wp)
     }
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->position_prev       = wp->position;
-    if (wp->byte_C >= 0)
+    if (wp->work_0 >= 0)
     {
         wp->sprite.pos_8[0] = wp->position.x;
         wp->sprite.pos_8[1] = wp->position.y;
@@ -116,9 +116,9 @@ void func_80110438(ST0A_10C_B *wp)
         wp->sprite.pos_8[1] = wp->position.y;
         wp->sprite.pos_8[2] = wp->position.z;
     }
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & MOVE)
     {
-        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->reserved01, &wp->sprite.hit_14, D_801163F8[wp->byte_D] | 0x49000000, 0, 0x80);
+        func_800341BC(&wp->position, 0xC0, 0, 0xA000, wp->work_id, &wp->sprite.hit_14, D_801163F8[wp->work_1] | 0x49000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -137,7 +137,7 @@ void func_80110878(ST0A_10C_B *wp)
     else
     {
         wp->sprite.color_4.word = 0x2E000000;
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~TRANS;
     }
     wp->count_CC++;
     if (wp->routine_3 == 0)
@@ -329,10 +329,10 @@ void func_80111118(ST0A_PIECE *wp)
     wp->hit_C4 = 0;
     wp->hit_C8 = 0;
     wp->box_78 = D_801164E0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= TRANS | MODEL;
     for (variant = 0; variant < 4; variant++)
     {
-        wp->variant_3 = variant;
+        wp->type = variant;
         Model_work_init(wp, &variant);
         wp->models_CC[variant] = model->model_0;
     }
@@ -490,7 +490,7 @@ void func_80111788(ST0A_PIECE *wp)
 
 void func_80111864(ST0A_PIECE *wp)
 {
-    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->hit_C4, 0x4000005, 0, 0);
+    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->work_id, &wp->hit_C4, 0x4000005, 0, 0);
 }
 
 void func_801118B4(ST0A_PIECE *wp)
@@ -499,9 +499,9 @@ void func_801118B4(ST0A_PIECE *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0         = 5;
-        effect->kind_2          = 0x80;
-        effect->variant_3       = 0x42;
+        effect->be_flag         = MOVE | MODEL;
+        effect->id              = 0x80;
+        effect->type            = 0x42;
         effect->sprite.position = wp->position;
     }
 }

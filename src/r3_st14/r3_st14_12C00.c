@@ -37,7 +37,7 @@ void func_80112C3C(STAGE_OBJ *wp)
     }
     else
     {
-        wp->u_C.b.byte_D = 0;
+        wp->u_C.b.work_1 = 0;
         wp->routine_0    = 1;
         wp->routine_1    = 0;
         wp->routine_2    = 0;
@@ -65,13 +65,13 @@ void func_80112DCC(STAGE_OBJ *wp)
         wp->routine_0 = 2;
         return;
     }
-    wp->u_C.b.byte_C = -1;
+    wp->u_C.b.work_0 = -1;
     wp->position.x   = Player_work.position.x >> 9;
     wp->position.z   = Player_work.position.z >> 9;
     for (; i < 7; i++)
     {
-        wp->u_C.b.byte_C = i;
-        if (D_80116208[i](wp) && !((STAGE_GAME.value_174 >> wp->u_C.b.byte_C) & 1))
+        wp->u_C.b.work_0 = i;
+        if (D_80116208[i](wp) && !((STAGE_GAME.value_174 >> wp->u_C.b.work_0) & 1))
         {
             wp->routine_1 = 1;
             wp->routine_2 = 0;
@@ -89,12 +89,12 @@ void func_80112ECC(STAGE_OBJ *wp)
             {
                 wp->position.x = Player_work.position.x >> 9;
                 wp->position.z = Player_work.position.z >> 9;
-                if (wp->u_C.b.byte_D == 1)
+                if (wp->u_C.b.work_1 == 1)
                 {
-                    wp->u_C.b.byte_D = 0;
+                    wp->u_C.b.work_1 = 0;
                     wp->routine_2++;
                 }
-                else if (func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]))
+                else if (func_80113084(wp, &D_80116224[wp->u_C.b.work_0]))
                 {
                     wp->routine_2++;
                 }
@@ -106,18 +106,18 @@ void func_80112ECC(STAGE_OBJ *wp)
             }
             break;
         case 1:
-            MojiTaskExec2(4, D_80116248[wp->u_C.b.byte_C]);
-            if ((0x48 >> wp->u_C.b.byte_C) & 1)
+            MojiTaskExec2(4, D_80116248[wp->u_C.b.work_0]);
+            if ((0x48 >> wp->u_C.b.work_0) & 1)
             {
                 STAGE_PL.flags_bd |= 0x40;
             }
-            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.byte_C;
+            STAGE_GAME_U16(0x174) |= 1 << wp->u_C.b.work_0;
             wp->routine_2++;
             break;
         case 2:
             if (!(Moji_flag & 0x800000))
             {
-                if ((0x48 >> wp->u_C.b.byte_C) & 1)
+                if ((0x48 >> wp->u_C.b.work_0) & 1)
                 {
                     STAGE_PL.flags_bd &= ~0x40;
                 }
@@ -140,12 +140,12 @@ sint32 func_80113084(STAGE_OBJ *wp, ST14_BOX *box)
 
 sint32 func_80113110(STAGE_OBJ *wp)
 {
-    return func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]) != 0;
+    return func_80113084(wp, &D_80116224[wp->u_C.b.work_0]) != 0;
 }
 
 sint32 func_80113148(STAGE_OBJ *wp)
 {
-    if (func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]) && Sce_flag_test(0x41))
+    if (func_80113084(wp, &D_80116224[wp->u_C.b.work_0]) && Sce_flag_test(0x41))
     {
         Sce_flag_on(0x5E);
         return 1;
@@ -155,7 +155,7 @@ sint32 func_80113148(STAGE_OBJ *wp)
 
 sint32 func_801131A4(STAGE_OBJ *wp)
 {
-    if (func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]))
+    if (func_80113084(wp, &D_80116224[wp->u_C.b.work_0]))
     {
         Sce_flag_on(0x5D);
         return 1;
@@ -165,7 +165,7 @@ sint32 func_801131A4(STAGE_OBJ *wp)
 
 sint32 func_801131F0(STAGE_OBJ *wp)
 {
-    if (func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]))
+    if (func_80113084(wp, &D_80116224[wp->u_C.b.work_0]))
     {
         Sce_flag_on(0x6E);
         return 1;
@@ -175,7 +175,7 @@ sint32 func_801131F0(STAGE_OBJ *wp)
 
 sint32 func_8011323C(STAGE_OBJ *wp)
 {
-    if (!func_80113084(wp, &D_80116224[wp->u_C.b.byte_C]) || Sce_flag_test(0x521))
+    if (!func_80113084(wp, &D_80116224[wp->u_C.b.work_0]) || Sce_flag_test(0x521))
     {
         return 0;
     }
@@ -186,7 +186,7 @@ sint32 func_80113290(STAGE_OBJ *wp)
 {
     if ((Sce_flag_test(0x531) != 0) || (Sce_flag_test(0x532) != 0) || (Sce_flag_test(0x533) != 0))
     {
-        wp->u_C.b.byte_D = 1;
+        wp->u_C.b.work_1 = 1;
         return 1;
     }
     return 0;
@@ -216,8 +216,8 @@ void func_80113338(STAGE_EV *wp)
         ev = func_800317AC(i);
         if (ev != NULL)
         {
-            ev->flags_0 = 1;
-            ev->kind_2  = 0;
+            ev->be_flag = MOVE;
+            ev->id      = 0;
             break;
         }
     }
