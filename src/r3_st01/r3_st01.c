@@ -256,7 +256,7 @@ void func_8010080C(STAGE_WORK *wp)
         wp->rot_y_56       = 0x400;
         wp->value_78       = 0;
         wp->value_10       = 0;
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         wp->routine_0++;
     }
     D_80100F8C[wp->routine_1](wp);

@@ -25,11 +25,11 @@ typedef struct
 // A work slot as stcom30 sets it up (func_80031418, Open_SHL_WORK).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 index_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 value_3;                     // 03
-    uint8 handler_4;                   // 04
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
+    uint8 handler;                     // 04
     uint8 value_5;                     // 05
     uint8 reserved06[6];               // 06
     uint8 value_C;                     // 0C
@@ -46,10 +46,10 @@ typedef struct
 // A 0x50-byte slot (func_80031734).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 index_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 value_4;          // 04
     uint8 value_5;          // 05
     uint8 reserved06[6];    // 06
@@ -64,8 +64,9 @@ typedef struct
 // The 0x50-byte slot stcom30 runs on (freed through func_80031A4C).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[7];    // 01
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 spawned_9;        // 09: the room's objects are out
     uint8 reserved0A[0x22]; // 0A

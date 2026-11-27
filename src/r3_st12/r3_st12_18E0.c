@@ -65,7 +65,7 @@ void func_801019EC(ST12_OBJ50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            variant = wp->variant_3;
+            variant = wp->type;
             Model_work_init(wp, &variant);
             wp->color_40 = 0x808080;
             wp->routine_0++;
@@ -73,7 +73,7 @@ void func_801019EC(ST12_OBJ50 *wp)
         case 1:
             ST12_IDENTITY(&wp->matrix);
             rot.x      = wp->value_C;
-            rot.y      = D_80108BA0[wp->variant_3];
+            rot.y      = D_80108BA0[wp->type];
             m.words[0] = 0x1000;
             rot.z      = 0;
             m.words[1] = 0;

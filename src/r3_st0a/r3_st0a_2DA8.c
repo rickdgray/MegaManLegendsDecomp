@@ -7,7 +7,7 @@ void func_80102DA8(STAGE_OBJ *wp)
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
     wp->anim_prev_AD        = wp->anim_AC;
-    D_80115938[wp->variant_3](wp, &Scene_work, (STCOM_SVECTOR *)&wp->reserved30C[0x3C]);
+    D_80115938[wp->type](wp, &Scene_work, (STCOM_SVECTOR *)&wp->reserved30C[0x3C]);
     if (wp->anim_AC != wp->anim_prev_AD)
     {
         func_800322A8(wp, wp->anim_AC, 0);
@@ -23,7 +23,7 @@ void func_80102E8C(STAGE_OBJ *wp, STAGE_OBJ *arg1)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -54,7 +54,7 @@ void func_80102F58(STAGE_OBJ *wp, STAGE_OBJ *arg1)
     switch (temp_v1)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -88,7 +88,7 @@ void func_80103098(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *hit)
     switch (wp->routine_1)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -404,7 +404,7 @@ void func_801038EC(STAGE_OBJ *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *hit)
     switch (wp->routine_1)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             Model_work_init(wp, NULL);
             wp->scale.words[0] = 0x02000200;
             wp->scale.words[1] = 0x200;
@@ -691,7 +691,7 @@ void func_80104030(ST0A_EN *wp)
 {
     sint16 life;
 
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]          = 0x2000200;
     wp->scale.words[1]          = 0x200;
@@ -710,7 +710,7 @@ void func_80104030(ST0A_EN *wp)
     wp->ctl.home_34           = wp->position;
     wp->ctl.held_3C           = NULL;
     wp->ctl.owner_40          = func_80036294(wp->byte_C);
-    life                      = D_80098844[wp->kind_2]->life_28;
+    life                      = D_80098844[wp->id]->life_28;
     wp->data_78               = D_80115988;
     wp->routine_0             = 1;
     wp->data_10               = NULL;
@@ -774,15 +774,15 @@ void func_80104154(ST0A_EN *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->flags_0 & 1) && (ctl->flags_0 & 2))
+    if ((wp->be_flag & 1) && (ctl->flags_0 & 2))
     {
         ctl->pos_C = wp->position;
         ctl->pos_C.y -= 0x28;
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14, 0x4000000, 0x800000, 0);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->slot, &ctl->hit_14, 0x4000000, 0x800000, 0);
     }
 }
 
@@ -821,9 +821,9 @@ void func_801043F8(ST0A_EN *wp)
             ctl->held_3C = (ST0A_HELD *)Open_SHL_WORK();
             if (ctl->held_3C != NULL)
             {
-                ctl->held_3C->flags_0   = 1;
-                ctl->held_3C->kind_2    = 6;
-                ctl->held_3C->variant_3 = 0x81;
+                ctl->held_3C->be_flag   = 1;
+                ctl->held_3C->id        = 6;
+                ctl->held_3C->type      = 0x81;
                 ctl->held_3C->routine_0 = 4;
                 ctl->flags_0 |= 0x20;
             }
@@ -854,7 +854,7 @@ void func_801043F8(ST0A_EN *wp)
             {
                 if (ctl->flags_0 & 0x20)
                 {
-                    ctl->held_3C->variant_3 = 0x80;
+                    ctl->held_3C->type      = 0x80;
                     ctl->held_3C->routine_0 = 0;
                     ctl->held_3C->angle_64  = wp->rotation.y;
                     ctl->held_3C->speed_9C  = 0x20;
@@ -955,7 +955,7 @@ sint32 func_8010490C(ST0A_EN *wp)
             if (wp->ctl.flags_0 & 8)
             {
                 wp->ctl.damage_A += damage;
-                if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.damage_A >= D_80098844[wp->kind_2]->stun_29)
+                if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.damage_A >= D_80098844[wp->id]->stun_29)
                 {
                     Sound_call2(0xA2, &wp->position);
                     wp->rotation.y            = (wp->ctl.owner_40->rotation.y + 0x800) & 0xFFF;

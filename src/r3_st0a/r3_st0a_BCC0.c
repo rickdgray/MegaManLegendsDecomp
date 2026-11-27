@@ -10,7 +10,7 @@ void func_8010BCC0(ST0A_VIEW *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 0x42;
+            wp->be_flag |= 0x42;
             Model_work_init(wp, NULL);
             wp->value_158  = 0x02800280;
             wp->u_15C.w[0] = 0x280;
@@ -69,7 +69,7 @@ void func_8010BECC(ST0A_EM *wp)
     sint16 life;
 
     ext = &wp->ext;
-    wp->flags_0 |= 0x42;
+    wp->be_flag |= 0x42;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x2800280;
     wp->scale.words[1] = 0x280;
@@ -112,9 +112,9 @@ void func_8010BECC(ST0A_EM *wp)
     Track_reset(ext->track_24, 0, -0x320);
     ext->angle_42 = 0xC00;
     ext->value_44 = (wp->rotation.y + 0xC00) & 0xFFF;
-    ext->value_46 = ext->value_F4 = D_8009884C[wp->kind_2]->value_E << 5;
+    ext->value_46 = ext->value_F4 = D_8009884C[wp->id]->value_E << 5;
     ext->value_F0                 = 0;
-    life                          = D_8009884C[wp->kind_2]->life_8 << 5;
+    life                          = D_8009884C[wp->id]->life_8 << 5;
     wp->life_6E                   = life;
     wp->value_78                  = 0;
     wp->value_10                  = 0;
@@ -150,26 +150,26 @@ void func_8010C0A0(ST0A_EM *wp)
     func_8005D4C0();
     if (ext->flags_0 & 0x400)
     {
-        if (wp->life_6E - D_8009884C[wp->kind_2]->value_B > 0)
+        if (wp->life_6E - D_8009884C[wp->id]->value_B > 0)
         {
-            wp->life_6E -= D_8009884C[wp->kind_2]->value_B;
+            wp->life_6E -= D_8009884C[wp->id]->value_B;
             ext->flags_0 &= ~0x400;
         }
         else
         {
-            ext->hit_C.hit_8 |= 0x10000000 | D_8009884C[wp->kind_2]->value_B;
+            ext->hit_C.hit_8 |= 0x10000000 | D_8009884C[wp->id]->value_B;
         }
     }
     if (ext->flags_0 & 0x4000)
     {
-        if (wp->life_6E - D_8009884C[wp->kind_2]->value_F > 0)
+        if (wp->life_6E - D_8009884C[wp->id]->value_F > 0)
         {
-            wp->life_6E -= D_8009884C[wp->kind_2]->value_F;
+            wp->life_6E -= D_8009884C[wp->id]->value_F;
             ext->flags_0 &= ~0x4000;
         }
         else
         {
-            ext->hit_C.hit_8 |= 0x10000000 | D_8009884C[wp->kind_2]->value_F;
+            ext->hit_C.hit_8 |= 0x10000000 | D_8009884C[wp->id]->value_F;
         }
     }
     if (ext->flags_0 & 0x1000)
@@ -276,16 +276,16 @@ void func_8010C0A0(ST0A_EM *wp)
     {
         return;
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x200, 0x200, 1);
-        func_80051B68(wp, 1, 0, D_8009884C[wp->kind_2]->value_C | 0x1000000);
+        func_80051B68(wp, 1, 0, D_8009884C[wp->id]->value_C | 0x1000000);
     }
     if (ext->flags_0 & 0x200)
     {
         return;
     }
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         if (ext->flags_0 & 2)
         {
@@ -294,7 +294,7 @@ void func_8010C0A0(ST0A_EM *wp)
             ext->fpos_70.y   = ext->hit_C.pos_0.y << 16;
             ext->fpos_70.z   = ext->hit_C.pos_0.z << 16;
             func_8002FFC4(&ext->hit_C.pos_0, &ext->fpos_70, wp->rotation.y, 0xD00, -0x3200, 0);
-            func_800341BC(&ext->hit_C.pos_0, 0x20, 0, 0x8000, wp->value_1, &ext->hit_C.hit_8, 0x4080000, 0, 0x80);
+            func_800341BC(&ext->hit_C.pos_0, 0x20, 0, 0x8000, wp->slot, &ext->hit_C.hit_8, 0x4080000, 0, 0x80);
         }
         if (ext->flags_0 & 0x800)
         {
@@ -306,8 +306,8 @@ void func_8010C0A0(ST0A_EM *wp)
                 ext->fpos_70.z   = ext->hit_C.pos_0.z << 16;
                 func_8002FFC4(&ext->hit_C.pos_0, &ext->fpos_70, (wp->rotation.y + ext->angle_42) & 0xFFF, D_80116260[i].x << 4,
                               D_80116260[i].y << 4, D_80116260[i].z << 4);
-                func_800341BC(&ext->hit_C.pos_0, 0x40, 0, 0x8000, wp->value_1, &ext->hit_88[i].hit_8,
-                              D_8009884C[wp->kind_2]->value_D | 0x4080000, 0, 0x80);
+                func_800341BC(&ext->hit_C.pos_0, 0x40, 0, 0x8000, wp->slot, &ext->hit_88[i].hit_8, D_8009884C[wp->id]->value_D | 0x4080000,
+                              0, 0x80);
                 if (!(ext->flags_0 & 0x1000) && i < 2)
                 {
                     if (ext->flags_0 & 0x8000)
@@ -316,9 +316,9 @@ void func_8010C0A0(ST0A_EM *wp)
                         fx = func_80031618();
                         if (fx != NULL)
                         {
-                            fx->flags_0         = 5;
-                            fx->kind_2          = 0x80;
-                            fx->variant_3       = 0x42;
+                            fx->be_flag         = 5;
+                            fx->id              = 0x80;
+                            fx->type            = 0x42;
                             fx->value_C         = 1;
                             fx->value_D         = 0;
                             fx->sprite.position = ext->hit_C.pos_0;
@@ -333,14 +333,14 @@ void func_8010C0A0(ST0A_EM *wp)
         if (ext->flags_0 & 0x20)
         {
             ext->hit_58.pos_0 = wp->joint_180[8];
-            func_800341BC(&ext->hit_58.pos_0, 0x100, 0, 0x8000, wp->value_1, &ext->hit_58.hit_8,
-                          D_8009884C[wp->kind_2]->value_A | 0x4000000, 0, 0x80);
+            func_800341BC(&ext->hit_58.pos_0, 0x100, 0, 0x8000, wp->slot, &ext->hit_58.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
+                          0x80);
         }
         if (ext->flags_0 & 0x40)
         {
             ext->hit_48.pos_0 = wp->joint_180[3];
-            func_800341BC(&ext->hit_48.pos_0, 0x100, 0, 0x8000, wp->value_1, &ext->hit_48.hit_8,
-                          D_8009884C[wp->kind_2]->value_A | 0x4000000, 0, 0x80);
+            func_800341BC(&ext->hit_48.pos_0, 0x100, 0, 0x8000, wp->slot, &ext->hit_48.hit_8, D_8009884C[wp->id]->value_A | 0x4000000, 0,
+                          0x80);
         }
     }
     if (!(ext->flags_0 & 0x200) && (sint32)Moji_flag >= 0)
@@ -660,11 +660,11 @@ void func_8010D2F4(ST0A_EM *wp)
                 obj = func_80031418();
                 if (obj != NULL)
                 {
-                    obj->flags_0          = 1;
-                    obj->kind_2           = 0;
+                    obj->be_flag          = 1;
+                    obj->id               = 0;
                     obj->value_4          = 6;
-                    obj->variant_3        = 0;
-                    obj->u_C.b.byte_C     = wp->value_1;
+                    obj->type             = 0;
+                    obj->u_C.b.byte_C     = wp->slot;
                     obj->u_E.b.byte_F     = 1;
                     obj->position         = wp->position;
                     obj->position_fixed.v = wp->position_fixed.v;
@@ -774,8 +774,8 @@ void func_8010D6C0(ST0A_EM *wp)
                         ext->fpos_70.y = wp->position.y << 16;
                         ext->fpos_70.z = wp->position.z << 16;
                         func_8002FFC4(&ext->pos_68, &ext->fpos_70, wp->rotation.y, 0xD00, -0x3200, 0);
-                        obj->flags_0    = 1;
-                        obj->kind_2     = 3;
+                        obj->be_flag    = 1;
+                        obj->id         = 3;
                         obj->position   = ext->pos_68;
                         obj->rotation.y = (uint16)(wp->rotation.y + ((rand() & 0x3FF) + 0x800)) - 0x200;
                     }
@@ -1058,9 +1058,9 @@ void func_8010E254(ST0A_EM *wp)
                 fx = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->flags_0         = 5;
-                    fx->kind_2          = 0x80;
-                    fx->variant_3       = 0x41;
+                    fx->be_flag         = 5;
+                    fx->id              = 0x80;
+                    fx->type            = 0x41;
                     fx->value_C         = 1;
                     fx->value_D         = 0;
                     fx->sprite.position = wp->ext.pos_68;
@@ -1299,12 +1299,12 @@ sint32 func_8010EB40(void)
     obj = func_80031498();
     if (obj != NULL)
     {
-        obj->flags_0          = 1;
-        obj->kind_2           = 1;
+        obj->be_flag          = 1;
+        obj->id               = 1;
         obj->value_4          = 1;
         obj->u_C.b[0]         = 1;
         obj->u_C.b[3]         = 1;
-        obj->variant_3        = 0;
+        obj->type             = 0;
         obj->u_C.b[1]         = 0;
         obj->u_C.b[2]         = 0;
         obj->position_fixed.x = 0xEB000000;
@@ -1345,7 +1345,7 @@ sint32 func_8010EBE8(ST0A_EM *wp)
                 {
                     wp->ext.flags_0 &= ~0xC;
                     wp->life_6E               = 0;
-                    damage                    = D_8009884C[wp->kind_2]->value_9;
+                    damage                    = D_8009884C[wp->id]->value_9;
                     wp->routine_1             = 8;
                     *(uint16 *)&wp->routine_2 = 0;
                 }
@@ -1357,7 +1357,7 @@ sint32 func_8010EBE8(ST0A_EM *wp)
             if (ext->flags_0 & 8)
             {
                 ext->value_A += damage;
-                if ((ext->hit_C.hit_8 & 0x20000000) || ext->value_A >= D_8009884C[wp->kind_2]->value_9)
+                if ((ext->hit_C.hit_8 & 0x20000000) || ext->value_A >= D_8009884C[wp->id]->value_9)
                 {
                     Sound_call2(0xA2, &wp->position);
                     ext->value_A = 0;
@@ -1410,10 +1410,10 @@ sint32 func_8010EE60(ST0A_EM *wp, sint32 index)
     if (obj != NULL)
     {
         ext->obj_80[index >> 3] = obj;
-        obj->flags_0            = 1;
-        obj->kind_2             = 2;
+        obj->be_flag            = 1;
+        obj->id                 = 2;
         obj->value_4            = 0;
-        obj->variant_3          = 0;
+        obj->type               = 0;
         obj->u_C.b.byte_D       = 0;
         obj->position           = wp->joint_180[index];
         obj->position_fixed.v.x = obj->position.x << 16;

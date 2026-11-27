@@ -56,12 +56,12 @@ typedef struct ST1A_PUFF ST1A_PUFF;
 
 struct ST1A_PUFF
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01;    // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 slot;          // 01
+    uint8 id;            // 02
+    uint8 type;          // 03
     uint8 reserved04[2]; // 04
-    uint8 flags_6;       // 06
+    uint8 flags;         // 06
     uint8 reserved07;    // 07
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -96,10 +96,10 @@ struct ST1A_PUFF
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 value_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 value_4;                     // 04
     uint8 value_5;                     // 05
     uint8 value_6;                     // 06
@@ -171,10 +171,10 @@ typedef struct
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    sint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    sint8 be_flag;   // 00
+    uint8 slot;      // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     uint8 reserved4; // 04
     uint8 value_5;   // 05
     uint8 value_6;   // 06
@@ -322,10 +322,10 @@ typedef struct
 // A 0x10C-byte piece of debris that falls and shrinks (func_80121968, func_80121ED4).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03: 0 and 1 fall, others bounce
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03: 0 and 1 fall, others bounce
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09: also its turn, in 16ths
@@ -397,13 +397,13 @@ typedef void (*ST1A_10C_FUNC)(ST1A_10C *wp);
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    uint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    uint8 be_flag;   // 00
+    uint8 slot;      // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     uint8 reserved4; // 04
     uint8 value_5;   // 05
-    uint8 flags_6;   // 06
+    uint8 flags;     // 06
     uint8 value_7;   // 07
     uint8 routine_0; // 08
     uint8 routine_1; // 09
@@ -913,12 +913,12 @@ void func_80103A4C(void);
 // matrix from it).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 value_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[2];    // 04
-    uint8 flags_6;          // 06
+    uint8 flags;            // 06
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -978,10 +978,10 @@ typedef struct ST1A_VIEW ST1A_VIEW;
 
 struct ST1A_VIEW
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -1201,10 +1201,10 @@ typedef struct ST1A_VIEW_B ST1A_VIEW_B;
 
 struct ST1A_VIEW_B
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -1328,10 +1328,10 @@ typedef struct ST1A_VIEW_C ST1A_VIEW_C;
 
 struct ST1A_VIEW_C
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -1457,8 +1457,9 @@ typedef struct ST1A_FOLLOWER ST1A_FOLLOWER;
 
 struct ST1A_FOLLOWER
 {
-    uint8 flags_0;           // 00
-    uint8 reserved01[7];     // 01
+    uint8 be_flag;           // 00
+    uint8 slot;              // 01
+    uint8 reserved02[6];     // 02
     uint8 routine_0;         // 08
     uint8 reserved09[5];     // 09
     sint8 value_E;           // 0E
@@ -1502,13 +1503,13 @@ typedef struct
 // A 0x3C0-byte villager slot driven by the scene, with a talking face at +0x348 (STAGE_OBJ's fields).
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 slot;       // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -1609,13 +1610,13 @@ void func_8012806C(ST1A_50 *wp);
 // A 0x3C0-byte slot with a talking face's scripts at +0x348 (func_8011259C).
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 slot;       // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -1698,10 +1699,10 @@ void func_80111F80(ST1A_TALKER *wp, STAGE_FACE2 *face);
 // ST1A_10C as func_801218D0 sees it: eight 8-byte pieces from +0xCC.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved4;                        // 04
     uint8 value_5;                          // 05
     uint8 value_6;                          // 06
@@ -1769,10 +1770,10 @@ typedef struct ST1A_VIEW_D ST1A_VIEW_D;
 
 struct ST1A_VIEW_D
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -1919,10 +1920,10 @@ typedef struct ST1A_VIEW_E ST1A_VIEW_E;
 
 struct ST1A_VIEW_E
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -2069,10 +2070,10 @@ typedef struct ST1A_VIEW_F ST1A_VIEW_F;
 
 struct ST1A_VIEW_F
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -2220,8 +2221,9 @@ void func_80110E20(ST1A_VIEW_F *wp);
 // pad halfword is the part's palette, STAGE_PAL).
 typedef struct
 {
-    sint8 flags_0;               // 00
-    uint8 reserved01[0xB];       // 01
+    sint8 be_flag;               // 00
+    uint8 slot;                  // 01
+    uint8 reserved02[10];        // 02
     uint8 count_C;               // 0C
     uint8 reserved0D;            // 0D
     sint8 flags_E;               // 0E
@@ -2242,9 +2244,10 @@ typedef struct
 // launched from its owner's part 15 (func_80122268).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[2];                    // 01
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02;                       // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -2295,13 +2298,13 @@ typedef struct
 // A watching object: ST1A_NPC with the eye script at +0x348.
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 slot;       // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -2392,13 +2395,13 @@ extern ST1A_TALKER_FUNC D_801321D0[]; // by scene: the talker's script step, or 
 // ST1A_NPC with ST1A_FACE at +0x348.
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 slot;       // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -2516,10 +2519,10 @@ void func_8001D974(void);
 // A 0x3C0-byte slot that sends 0x48-byte effects (kind 0x13) from the joint +0x188 of the slot
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -2549,10 +2552,10 @@ typedef struct ST1A_VIEW_G ST1A_VIEW_G;
 
 struct ST1A_VIEW_G
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -2686,10 +2689,10 @@ typedef struct
 // A drifting spark (func_801289F4, func_80128B28).
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 index_1;       // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 slot;          // 01
+    uint8 id;            // 02
+    uint8 type;          // 03
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -2739,10 +2742,10 @@ typedef struct
 
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -2785,10 +2788,10 @@ void func_80116C10(ST1A_STCOM27_WORK *wp);
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    sint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    sint8 be_flag;   // 00
+    uint8 slot;      // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     uint8 reserved4; // 04
     uint8 value_5;   // 05
     uint8 value_6;   // 06
@@ -2957,10 +2960,10 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -3023,10 +3026,10 @@ typedef struct ST1A_VIEW_H ST1A_VIEW_H;
 
 struct ST1A_VIEW_H
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -3195,10 +3198,10 @@ typedef struct ST1A_VIEW_I ST1A_VIEW_I;
 
 struct ST1A_VIEW_I
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -3348,10 +3351,10 @@ typedef struct ST1A_VIEW_J ST1A_VIEW_J;
 
 struct ST1A_VIEW_J
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -3514,12 +3517,12 @@ typedef struct
 // stcom27's work slot with its block at +0x4E0 instead of +0x348 (func_80116C10).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -3580,12 +3583,12 @@ typedef struct
 
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -3645,12 +3648,12 @@ typedef struct
 
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -3699,10 +3702,10 @@ typedef struct ST1A_VIEW_K ST1A_VIEW_K;
 
 struct ST1A_VIEW_K
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -3896,8 +3899,9 @@ void func_8010702C(void);
 // A 0x50-byte slot (STAGE_50) as func_8010160C raises it.
 typedef struct
 {
-    sint8 flags_0;          // 00
-    uint8 reserved01[0x37]; // 01
+    sint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02[54];   // 02
     STCOM_SVECTOR pos_38;   // 38
     uint8 reserved40[0x10]; // 40
 } ST1A_LIFT_50;
@@ -3999,8 +4003,9 @@ typedef struct
 // A 0x3C0-byte slot drawing another slot's model (func_801231A0): the owner, its scale and color.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 reserved01[7];                    // 01
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
     uint8 routine_2;                        // 0A
@@ -4044,10 +4049,10 @@ void func_80123260(ST1A_COPY *wp);
 // A 0x50-byte slot (STAGE_OBJ50's layout) with two halfwords at +0x44 from D_80138E10 (func_8012A118).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 index_1;         // 01
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03: bit 7, and a type in the low four bits
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 id;              // 02
+    uint8 type;            // 03: bit 7, and a type in the low four bits
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09
@@ -4081,10 +4086,10 @@ extern ST1A_PAIR16 D_80138E10[][4];
 // the floor (func_801220D0).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[0x10];                 // 04
     STCOM_SVECTOR position;                 // 14
     STAGE_FIXED_VECTOR position_fixed;      // 1C
@@ -4102,10 +4107,10 @@ sint32 func_80048EA4(STCOM_SVECTOR *pos, void *box, sint32 dy, sint32 kind);
 // (func_80119B18).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[6];    // 04
     uint8 routine_2;        // 0A
     uint8 routine_3;        // 0B
@@ -4168,10 +4173,10 @@ typedef struct
 // The 0x10C-byte slot the aiming boss spawns (func_8011DCD8): it follows a target position.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[8];    // 04
     uint8 fire_C;           // 0C
     uint8 reserved0D[0xAB]; // 0D
@@ -4222,10 +4227,10 @@ typedef struct
 // A 0x50-byte slot that hangs off its owner's matrix (func_80125628): the angle at +0x48 is a word.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 value_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -4276,12 +4281,13 @@ typedef struct
     uint8 u, v, w, h;
 } ST1A_TEX;
 
-// A 0x48-byte effect slot drawing a wall's shards by variant_3 (func_8012A984).
+// A 0x48-byte effect slot drawing a wall's shards by type (func_8012A984).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[2];    // 01
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02;       // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 reserved09[0x1F]; // 09

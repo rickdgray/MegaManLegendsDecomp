@@ -10,11 +10,11 @@ void func_80114838(ST0B_SPLASH *wp)
 {
     sint32 arg;
 
-    wp->flags_0 |= 2;
-    if (wp->variant_3 >= 2)
+    wp->be_flag |= 2;
+    if (wp->type >= 2)
     {
         wp->routine_0 = 3;
-        switch (wp->variant_3 - 2)
+        switch (wp->type - 2)
         {
             case 0:
             case 1:
@@ -39,16 +39,16 @@ void func_80114838(ST0B_SPLASH *wp)
         return;
     }
     wp->matrix.s.size[2] = 0;
-    wp->matrix.s.size[0] = D_8011BCD0[wp->variant_3][wp->value_C];
-    wp->matrix.s.size[1] = D_8011BCE8[wp->variant_3][wp->value_C];
-    if (wp->variant_3 == 0)
+    wp->matrix.s.size[0] = D_8011BCD0[wp->type][wp->value_C];
+    wp->matrix.s.size[1] = D_8011BCE8[wp->type][wp->value_C];
+    if (wp->type == 0)
     {
         wp->matrix.s.size[3] = D_8011BD00[wp->value_C];
-        wp->matrix.s.size[4] = D_8011BD18[wp->variant_3][wp->value_C];
+        wp->matrix.s.size[4] = D_8011BD18[wp->type][wp->value_C];
         wp->matrix.s.size[5] = 0;
         Sound_call2(0x14F, &wp->pos_38);
     }
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     wp->matrix.s.w[0]    = 0x1000;
     wp->matrix.s.w[2]    = 0x1000;
     wp->matrix.s.w[4]    = 0x1000;
@@ -70,7 +70,7 @@ void func_80114A14(ST0B_SPLASH *wp)
     size = wp->matrix.s.size;
     size[0] += size[1];
     size[2] += size[0];
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         size[3] += size[4];
         size[5] += size[3];
@@ -134,7 +134,7 @@ void func_80114B44(ST0B_SPLASH *wp)
     wp->routine_1++;
     angle = wp->routine_1 << 7;
     turn  = angle; // a second variable: retail keeps the angle in a1 and copies it to a0
-    switch (wp->variant_3 - 2)
+    switch (wp->type - 2)
     {
         case 0:
             wp->matrix.m.m[0][0] = wp->matrix.m.m[2][2] = 0x300;
@@ -165,7 +165,7 @@ void func_80114C94(ST0B_SPLASH *wp)
     wp->matrix.s.w[3] = 0;
     wp->routine_1     = frame;
     frame             = (uint8)frame;
-    switch (wp->variant_3 - 2)
+    switch (wp->type - 2)
     {
         case 0:
             wp->matrix.m.m[0][0] = wp->matrix.m.m[2][2] = 0x300;
@@ -205,7 +205,7 @@ void func_80114DAC(ST0B_RING *wp)
         return;
     }
     c = level * 8;
-    if (wp->variant_3 == 4)
+    if (wp->type == 4)
     {
         size        = (wp->routine_1 + 0xC) << 6;
         wp->size_28 = size;
@@ -225,7 +225,7 @@ void func_80114E5C(ST0B_DRIFT *wp)
     uint32 uv;
 
     D_8011BE20[wp->routine_0](wp);
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         p          = Billboard_get();
         p->code_4  = wp->color_18;
@@ -242,9 +242,9 @@ void func_80114E5C(ST0B_DRIFT *wp)
 
 void func_80114F1C(STAGE_OBJ *wp)
 {
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
     wp->position_prev.z = 0x10;
     wp->routine_0++;
@@ -301,9 +301,9 @@ void func_80115068(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0B_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0   = 1;
-            fx->kind_2    = 0x11;
-            fx->variant_3 = textured;
+            fx->be_flag   = 1;
+            fx->id        = 0x11;
+            fx->type      = textured;
             fx->value_C   = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;
@@ -348,9 +348,9 @@ void func_80115270(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0B_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0   = 1;
-            fx->kind_2    = 0x11;
-            fx->variant_3 = textured;
+            fx->be_flag   = 1;
+            fx->id        = 0x11;
+            fx->type      = textured;
             fx->value_C   = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;
@@ -387,7 +387,7 @@ void func_80115478(STAGE_OBJ *wp)
     owner = func_80036294(wp->u_C.b.byte_C);
     if (STAGE_GAME.value_50 != 0xD || owner->u_C.b.byte_C != 0)
     {
-        D_8011BE48[wp->variant_3](wp);
+        D_8011BE48[wp->type](wp);
     }
 }
 
@@ -425,7 +425,7 @@ void func_80115570(ST0B_FLAMES *wp)
     owner = func_80036294(wp->value_C);
     if (wp->timer_D == 0)
     {
-        if (!(owner->flags_0 & 1))
+        if (!(owner->be_flag & 1))
         {
             wp->routine_0++;
             return;
@@ -547,7 +547,7 @@ void func_80115A28(ST0B_FLAMES *wp)
 
     flame = wp->flame_28;
     owner = func_80036294(wp->value_C);
-    if (!(owner->flags_0 & 1))
+    if (!(owner->be_flag & 1))
     {
         wp->routine_0++;
         return;
@@ -702,7 +702,7 @@ void func_80116170(STAGE_FX *wp)
 {
     wp->mode_14  = 0x3DC8000A;
     wp->color_18 = 0x2E808080;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->u_22      = D_8011BE78[0];
     wp->v_23      = D_8011BE79[0];
     wp->w_24      = D_8011BE8C[0];

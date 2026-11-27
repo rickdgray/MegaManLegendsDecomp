@@ -3,7 +3,7 @@
 
 void func_801293A4(STAGE_OBJ *wp)
 {
-    D_80138D74[wp->variant_3](wp);
+    D_80138D74[wp->type](wp);
 }
 
 void func_801293E0(STAGE_OBJ *wp)
@@ -21,7 +21,7 @@ void func_8012941C(STAGE_FX *wp)
     wp->routine_3 = 0;
     wp->frame_E   = 0;
     wp->type_F    = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->timer_D -= 3;
     owner        = func_80036294(wp->value_C);
     wp->x_1C     = owner->pos_38.x + D_80138D24[wp->timer_D * 3];
@@ -142,7 +142,7 @@ void func_8012984C(STAGE_FX *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->frame_E  = D_80138D56[wp->timer_D * 4];
     wp->type_F   = 0;
     owner        = func_80036294(wp->value_C);
@@ -188,7 +188,7 @@ void func_80129A60(STAGE_FX *wp)
     wp->routine_2 = 0;
     wp->routine_3 = 0x10;
     wp->frame_E   = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->type_F  = rand() & 7;
     wp->mode_14 = 0x3DC00029;
     wp->w_24    = 0x40;
@@ -205,7 +205,7 @@ void func_80129AE0(STAGE_OBJ *wp)
     {
         wp->u_E.b.byte_F = 0;
     }
-    if (!(owner->flags_0 & 1))
+    if (!(owner->be_flag & 1))
     {
         func_80031988((STCOM_EFFECT *)wp);
     }
@@ -265,7 +265,7 @@ void func_80129D64(STAGE_OBJ *wp)
     wp->routine_1 = 0;
     wp->routine_2 = 0;
     wp->routine_3 = 0x10;
-    wp->flags_0 |= 0x22;
+    wp->be_flag |= 0x22;
     wp->u_E.b.byte_F = rand() & 1;
     func_80129EC4(wp);
 }
@@ -280,7 +280,7 @@ void func_80129DCC(STAGE_OBJ *wp)
     {
         wp->u_E.b.byte_F = 0;
     }
-    if (!(owner->flags_0 & 1))
+    if (!(owner->be_flag & 1))
     {
         func_80031988((STCOM_EFFECT *)wp);
     }
@@ -346,8 +346,8 @@ void func_8012A118(ST1A_LAMP *wp)
 {
     uint32 type;
 
-    wp->flags_0 |= 2;
-    type                 = wp->variant_3 & 0xF;
+    wp->be_flag |= 2;
+    type                 = wp->type & 0xF;
     wp->value_44         = D_80138E10[type][wp->value_D].value_0;
     wp->value_46         = D_80138E10[type][wp->value_D].value_2;
     wp->color_40         = 0x2808080;
@@ -362,13 +362,13 @@ void func_8012A118(ST1A_LAMP *wp)
     wp->matrix.words[6]  = 0;
     wp->matrix.words[7]  = 0;
     wp->matrix.m.m[0][0] = wp->matrix.m.m[1][1] = wp->matrix.m.m[2][2] = 0;
-    if (wp->variant_3 & 0x80)
+    if (wp->type & 0x80)
     {
         type = 4;
     }
     else
     {
-        type = wp->variant_3 & 0xF;
+        type = wp->type & 0xF;
         if (type >= 7)
         {
             goto outside;
@@ -412,7 +412,7 @@ void func_8012A270(STAGE_OBJ50 *wp)
     {
         color = D_80138EE0[wp->value_E][wp->u_C.b.hi] + 0x20;
     }
-    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->index_1, D_801397DC, color | 0x10000000, 0, 0x80);
+    func_800341BC(&wp->pos_38, wp->pos_38.pad / 2, 0, 0xA000, wp->slot, D_801397DC, color | 0x10000000, 0, 0x80);
 }
 
 // Packing color within each case preserves the separate brightness clamps.
@@ -421,7 +421,7 @@ void func_8012A374(ST1A_LAMP *wp)
     sint32 c;
     sint32 low;
 
-    switch (wp->variant_3 & 0xF)
+    switch (wp->type & 0xF)
     {
         case 0:
         default:
@@ -524,7 +524,7 @@ void func_8012A374(ST1A_LAMP *wp)
             wp->color_40 = (c | 0x2000000) | (c << 8) | (c << 16);
             break;
     }
-    if (wp->variant_3 & 0x20)
+    if (wp->type & 0x20)
     {
         wp->pos_38.y -= 0x28;
     }
@@ -565,8 +565,8 @@ void func_8012A730(STAGE_FX *wp)
     wp->mode_14  = 0x3D48002C;
     wp->color_18 = 0x2EC06060;
     wp->timer_D  = 0;
-    wp->flags_0 |= 0x22;
-    if (wp->variant_3 != 0)
+    wp->be_flag |= 0x22;
+    if (wp->type != 0)
     {
         wp->frame_E = D_80138F18[0].frames_4;
         wp->u_22    = D_80138F18[wp->timer_D].u_0;
@@ -586,7 +586,7 @@ void func_8012A824(STAGE_FX *wp)
 {
     if (--wp->frame_E == 0)
     {
-        if (wp->variant_3 != 0)
+        if (wp->type != 0)
         {
             wp->w_24 += 8;
             wp->timer_D++;
@@ -633,8 +633,8 @@ void func_8012A984(ST1A_SHARDS *wp)
             // fall through
         case 1:
             wp->time_28++;
-            rec = D_801393A0[wp->variant_3].list_0;
-            for (i = 0; i < D_801393A0[wp->variant_3].count_4; i++, rec++)
+            rec = D_801393A0[wp->type].list_0;
+            for (i = 0; i < D_801393A0[wp->type].count_4; i++, rec++)
             {
                 pos.x      = (rec->pos_0.x + rec->vel_8.x * wp->time_28) >> 4;
                 pos.y      = (rec->pos_0.y + rec->vel_8.y * wp->time_28) >> 4;
@@ -664,7 +664,7 @@ void func_8012ABE0(ST1A_PUFF *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             wp->routine_0++;
             // fall through
         case 1:
@@ -697,10 +697,10 @@ void func_8012AD08(ST1A_PUFF *wp)
         ep = (ST1A_PUFF *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0    = 1;
-            ep->kind_2     = 0x21;
-            ep->variant_3  = 1;
-            ep->flags_6    = wp->flags_6;
+            ep->be_flag    = 1;
+            ep->id         = 0x21;
+            ep->type       = 1;
+            ep->flags      = wp->flags;
             ep->value_C    = 0;
             ep->timer_D    = (rand() & 7) * 2 - (sint8)(wp->timer_D - 0x40);
             ep->x_1C       = wp->x_1C + (rand() & 0xF);
@@ -771,7 +771,7 @@ void func_8012AE60(ST1A_PUFF *wp)
 
 void func_8012B284(ST1A_PUFF *wp)
 {
-    switch (wp->variant_3)
+    switch (wp->type)
     {
         case 0:
             if (wp->routine_0 != 2)
@@ -798,25 +798,25 @@ STAGE_FX *func_8012B320(STCOM_SVECTOR *pos, sint32 frame, sint32 type, sint32 co
     ep = (ST1A_PUFF *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 0x21;
-        ep->variant_3 = 0;
-        ep->color_18  = color;
-        ep->value_C   = 0;
-        ep->timer_D   = 0;
-        ep->frame_E   = frame;
-        ep->type_F    = type;
-        ep->x_1C      = pos->x;
-        ep->y_1E      = pos->y;
-        ep->z_20      = pos->z;
-        ep->h_26      = count;
+        ep->be_flag  = 1;
+        ep->id       = 0x21;
+        ep->type     = 0;
+        ep->color_18 = color;
+        ep->value_C  = 0;
+        ep->timer_D  = 0;
+        ep->frame_E  = frame;
+        ep->type_F   = type;
+        ep->x_1C     = pos->x;
+        ep->y_1E     = pos->y;
+        ep->z_20     = pos->z;
+        ep->h_26     = count;
         if (attach)
         {
-            ep->flags_6 |= 0x20;
+            ep->flags |= 0x20;
         }
         else
         {
-            ep->flags_6 &= ~0x20;
+            ep->flags &= ~0x20;
         }
         ep->value_28 = count_28;
         for (i = 0; i < (sint16)count; i++)
@@ -835,11 +835,11 @@ STAGE_FX *func_8012B440(sint16 x, sint16 y, uint8 arg2, sint16 arg3, sint16 arg4
     ep = (STAGE_FX *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0    = 1;
-        ep->kind_2     = 0x21;
+        ep->be_flag    = 1;
+        ep->id         = 0x21;
         ep->value_C    = arg2;
         ep->x_1C       = x;
-        ep->variant_3  = 2;
+        ep->type       = 2;
         ep->y_1E       = y;
         ep->u_28.count = (sint16)arg3;
         ep->h_26       = 0;

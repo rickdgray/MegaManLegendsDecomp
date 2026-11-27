@@ -31,10 +31,10 @@ void func_8011FB90(ST1A_EMITTER *wp)
     fx    = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0    = 1;
-        fx->kind_2     = 0x13;
-        fx->variant_3  = 0;
-        fx->value_C    = wp->index_1;
+        fx->be_flag    = 1;
+        fx->id         = 0x13;
+        fx->type       = 0;
+        fx->value_C    = wp->slot;
         fx->timer_D    = wp->frame_D;
         fx->u_28.count = wp->angle_CC;
         fx->x_1C       = owner->vec_188.x;

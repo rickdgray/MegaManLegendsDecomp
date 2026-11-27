@@ -7,7 +7,7 @@
 
 void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
 {
-    wp->routine_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init((MODEL_WORK *)wp, 0);
     *(uint32 *)&wp->scale.vx = 0x04000400;
     *(uint32 *)&wp->scale.vz = 0x42100400;
@@ -23,10 +23,10 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     *(uint32 *)&wp->ang.vx = 0;
     *(uint32 *)&wp->ang.vz = 0;
     wp->box_10             = 0;
-    sp->data               = D_800820E0[wp->field_C][wp->type_3];
+    sp->data               = D_800820E0[wp->field_C][wp->type];
     if (sp->data == NULL)
     {
-        wp->routine_8 = 2;
+        wp->routine_0 = 2;
         return;
     }
     sp->pos       = 0;
@@ -38,7 +38,7 @@ void func_80014AC0(WORK_3C0 *wp, SCRIPT_WORK *sp)
     sp->add_A     = 0;
     sp->add_C     = 0;
     sp->add_E     = 0;
-    wp->routine_8++;
+    wp->routine_0++;
     func_800150E0(wp, sp);
 }
 
@@ -161,7 +161,7 @@ void script_exec(WORK_3C0 *wp, SCRIPT_WORK *sp)
                 sp->pos += 2;
                 break;
             case 27:
-                wp->routine_8 = 2;
+                wp->routine_0 = 2;
                 return;
             case 26:
                 sp->pos = sp->data[sp->pos + 1];
@@ -275,7 +275,7 @@ void func_800153CC(WORK_3C0 *wp, SCRIPT_WORK *sp)
 
 void func_800153EC(WORK_3C0 *wp)
 {
-    D_80082104[wp->routine_8](wp, &wp->script);
+    D_80082104[wp->routine_0](wp, &wp->script);
 }
 
 void func_80015428(CODE_800133D8_WORK *wp)
@@ -293,10 +293,10 @@ void func_80015428(CODE_800133D8_WORK *wp)
                     op = func_80031418();
                     if (op != NULL)
                     {
-                        op->routine_0           = 1;
-                        op->type_3              = i;
-                        op->id_2                = 0;
-                        *(uint16 *)&op->flag_4  = 0;
+                        op->be_flag             = 1;
+                        op->type                = i;
+                        op->id                  = 0;
+                        *(uint16 *)&op->handler = 0;
                         *(uint32 *)&op->field_C = 0;
                         op->field_C             = wp->field_8;
                     }

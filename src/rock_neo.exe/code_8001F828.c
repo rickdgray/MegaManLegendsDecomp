@@ -2392,7 +2392,7 @@ void Map_draw(void)
     gte_SetTransMatrix(&Scratch_view_mtx);
     for (i = 0; i < 32; i++)
     {
-        if (D_8009CF88[i].id_2 == 0x33 && (D_8009CF88[i].routine_0 & 1) && D_8009CF88[i].type_3 == 0xFE)
+        if (D_8009CF88[i].id == 0x33 && (D_8009CF88[i].be_flag & 1) && D_8009CF88[i].type == 0xFE)
         {
             pos = D_8009CF88[i].efc.model.pos;
             gte_ldv0(&pos);
@@ -2401,7 +2401,7 @@ void Map_draw(void)
             gte_stotz(&otz);
             if (otz > 0)
             {
-                func_800272D0(sxy.vx, sxy.vy, D_8009CF88[i].field_A * 2, D_8009CF88[i].timer_B * 2);
+                func_800272D0(sxy.vx, sxy.vy, D_8009CF88[i].routine_2 * 2, D_8009CF88[i].routine_3 * 2);
             }
         }
     }

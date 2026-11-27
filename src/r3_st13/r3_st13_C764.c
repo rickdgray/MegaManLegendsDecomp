@@ -13,12 +13,12 @@ void func_8010C764(STCOM16_WORK *wp)
     ctl                     = &wp->ctl;
     wp->stun.rand_2         = rand();
     fade                    = &wp->fade;
-    if (wp->variant_3 == 2 && wp->routine_0 != 0)
+    if (wp->type == 2 && wp->routine_0 != 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
     D_80118480[wp->routine_0](wp);
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         if (wp->routine_0 != 0)
         {
@@ -34,11 +34,11 @@ void func_8010C764(STCOM16_WORK *wp)
             }
             if ((wp->scale.v.pad & 0x8000) && fade->b_2 == 0)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
         }
     }
-    if (wp->variant_3 == 2 && (ctl->hit_8 & 0xFFFFFF))
+    if (wp->type == 2 && (ctl->hit_8 & 0xFFFFFF))
     {
         wp->scale.v.pad = 0x7FFF;
     }
@@ -52,7 +52,7 @@ void func_8010C93C(STCOM16_WORK *wp)
     func_8003354C(wp);
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]      = 0x1000100;
     wp->scale.words[1]      = 0x100;
@@ -61,18 +61,18 @@ void func_8010C93C(STCOM16_WORK *wp)
     *(uint32 *)wp->value_70 = 0;
     *(uint32 *)&wp->jump_74 = 0;
     wp->ctl.timer_3E        = 0;
-    wp->power_73            = D_80098844[wp->kind_2]->value_A;
-    wp->ground.value_4      = D_80098844[wp->kind_2]->value_B;
+    wp->power_73            = D_80098844[wp->id]->value_A;
+    wp->ground.value_4      = D_80098844[wp->id]->value_B;
     wp->stun.hits_4         = 0;
     wp->stun.damage_0       = 0;
     wp->stun.timer_5        = 30;
     wp->fade.on_3           = 0;
     wp->ground.flags_6      = 0;
     Track_reset(wp->ctl.track_20, 5, -0x60);
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 << 4;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8 << 4;
     ctl                                              = &wp->ctl;
     wp->routine_0                                    = 1;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->velocity.v.x = 0x50;
         wp->routine_1    = 0;
@@ -145,7 +145,7 @@ void func_8010CAD4(STCOM16_WORK *wp)
         else
         {
             wp->scale.v.pad = 0x7FFF;
-            if ((!(wp->ground.flags_6 & 0x10) && wp->stun.damage_0 >= D_80098844[wp->kind_2]->limit_9) || (wp->ctl.hit_8 & 0x20000000))
+            if ((!(wp->ground.flags_6 & 0x10) && wp->stun.damage_0 >= D_80098844[wp->id]->limit_9) || (wp->ctl.hit_8 & 0x20000000))
             {
                 if (wp->routine_1 != 5)
                 {
@@ -225,7 +225,7 @@ void func_8010CAD4(STCOM16_WORK *wp)
                     }
                     else if (wp->value_80 <= 0x1E847 && wp->ctl.timer_3E == 0)
                     {
-                        if (wp->variant_3 != 2)
+                        if (wp->type != 2)
                         {
                             wp->routine_1 = 3;
                             wp->routine_2 = 0;
@@ -248,7 +248,7 @@ void func_8010CAD4(STCOM16_WORK *wp)
                             ground->flags_6 |= 0x80;
                         }
                         ctl->turn_3A = 0x10;
-                        if (wp->variant_3 != 2 && !(ground->flags_6 & 1))
+                        if (wp->type != 2 && !(ground->flags_6 & 1))
                         {
                             wp->routine_1   = 4;
                             wp->anim_AC     = 5;
@@ -269,7 +269,7 @@ void func_8010CAD4(STCOM16_WORK *wp)
                     wp->ctl.turn_3A = 0x10;
                     if (wp->value_80 <= 0x1E847 && wp->ctl.timer_3E == 0)
                     {
-                        if (wp->variant_3 != 2)
+                        if (wp->type != 2)
                         {
                             wp->routine_1 = 3;
                             wp->routine_2 = 0;
@@ -317,27 +317,27 @@ void func_8010CAD4(STCOM16_WORK *wp)
     {
         func_8010EF4C(wp);
     }
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         if ((wp->scale.v.pad & 0x8000) && fade->b_2 == 0)
         {
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~2;
         }
-        if (!(wp->flags_0 & 2))
+        if (!(wp->be_flag & 2))
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0x80);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0x80);
         }
         else
         {
             ctl->pos_0 = wp->joints_180[0];
-            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
+            func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
         }
     }
     else
     {
         ctl->pos_0 = wp->joints_180[0];
-        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->value_1, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
+        func_800341BC(&ctl->pos_0, 0x50, 0, 0x8000, wp->slot, &ctl->hit_8, wp->power_73 | 0x4080000, 0x800000, 0);
     }
     if (ground->flags_6 & 2)
     {
@@ -348,14 +348,14 @@ void func_8010CAD4(STCOM16_WORK *wp)
         ctl->pos_0.x = wp->joints_180[2].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[2].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[2].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->slot, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
         ApplyMatrix(&wp->mats_1E8[4], &claw, &ofs);
         ctl->pos_0.x = wp->joints_180[4].x + ofs.x;
         ctl->pos_0.y = wp->joints_180[4].y + ofs.y;
         ctl->pos_0.z = wp->joints_180[4].z + ofs.z;
-        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->value_1, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_0, 0x28, 0, 0x8000, wp->slot, ctl->hit_18, ground->value_4 | 0x5080000, 0, 0x80);
     }
-    if (wp->variant_3 != 2 && (wp->flags_0 & 2))
+    if (wp->type != 2 && (wp->be_flag & 2))
     {
         Model_Shadow_Trans(wp, 0xA0, 0x200, 0);
     }
@@ -384,7 +384,7 @@ void func_8010D408(STCOM16_WORK *wp)
     {
         func_80032488(wp);
     }
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         wp->scale.v.pad = -0x8000;
         fade->r_0 = fade->g_1 = fade->b_2 = 0;
@@ -394,7 +394,7 @@ void func_8010D408(STCOM16_WORK *wp)
 void func_8010D4C4(STCOM16_WORK *wp)
 {
     D_801184B4[wp->routine_2](wp);
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.r_0 -= 4;
@@ -565,7 +565,7 @@ void func_8010D928(STCOM16_WORK *wp)
     STCOM16_CTL *ctl;
 
     ctl = &wp->ctl;
-    if (wp->variant_3 == 2 && wp->routine_1 == 0 && wp->routine_2 == 6)
+    if (wp->type == 2 && wp->routine_1 == 0 && wp->routine_2 == 6)
     {
         if (wp->ground.count_7 < 0xB4)
         {
@@ -591,7 +591,7 @@ void func_8010D928(STCOM16_WORK *wp)
 void func_8010DA34(STCOM16_WORK *wp)
 {
     D_801184D0[wp->routine_2](wp);
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         if (wp->ctl.timer_3F == 0)
         {
@@ -640,7 +640,7 @@ void func_8010DB94(STCOM16_WORK *wp)
     {
         wp->anim_AC = 2;
         func_800322A8(wp, 2, 0);
-        if (wp->variant_3 == 2)
+        if (wp->type == 2)
         {
             wp->ctl.timer_3F = 7;
             wp->fade.r_0     = 0;
@@ -658,7 +658,7 @@ void func_8010DC5C(STCOM16_WORK *wp)
     if (!func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &Player_work.position_fixed, Player_work.rotation.y, 0x400) ||
         wp->stun.timer_6 == 0)
     {
-        if (wp->variant_3 == 2 && wp->stun.timer_6 == 0)
+        if (wp->type == 2 && wp->stun.timer_6 == 0)
         {
             wp->routine_1 = 5;
             wp->routine_2 = 0;
@@ -685,7 +685,7 @@ void func_8010DC5C(STCOM16_WORK *wp)
             wp->ground.flags_6 |= 2;
             func_800322A8(wp, wp->anim_AC, 0);
             Sound_call2(0x15B, &wp->position);
-            wp->ground.value_4 = D_80098844[wp->kind_2]->value_C;
+            wp->ground.value_4 = D_80098844[wp->id]->value_C;
             func_8010DEF4(wp);
         }
         else
@@ -755,7 +755,7 @@ void func_8010DEF4(STCOM16_WORK *wp)
         wp->ctl.turn_3A = 0x20;
         func_8010D928(wp);
     }
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.b_2++;
@@ -773,7 +773,7 @@ void func_8010DEF4(STCOM16_WORK *wp)
     }
     if (wp->flags_A7 == -1)
     {
-        if (wp->variant_3 != 2)
+        if (wp->type != 2)
         {
             ground->flags_6 &= ~2;
             wp->velocity.v.x = 0x50;
@@ -807,7 +807,7 @@ void func_8010E084(STCOM16_WORK *wp)
         wp->anim_AC = 3;
         wp->ground.flags_6 |= 2;
         func_800322A8(wp, wp->anim_AC, 0);
-        wp->ground.value_4 = D_80098844[wp->kind_2]->value_B;
+        wp->ground.value_4 = D_80098844[wp->id]->value_B;
         wp->routine_2      = 1;
     }
 }
@@ -849,7 +849,7 @@ void func_8010E1A8(STCOM16_WORK *wp)
     if (wp->flags_A7 == -1)
     {
         wp->ctl.timer_3E = 60;
-        if (wp->variant_3 != 2)
+        if (wp->type != 2)
         {
             wp->routine_1 = 0;
             wp->routine_2 = 6;
@@ -920,7 +920,7 @@ void func_8010E3F8(STCOM16_WORK *wp)
         wp->routine_1 = 1;
         wp->routine_2 = 0;
     }
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.r_0 -= 4;
@@ -948,7 +948,7 @@ void func_8010E504(STCOM16_WORK *wp)
 
     ground = &wp->ground;
     D_80118500[wp->routine_2](wp);
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         if (wp->fade.b_2 == 0)
         {
@@ -1057,7 +1057,7 @@ void func_8010E83C(STCOM16_WORK *wp)
 
     ctl    = &wp->ctl;
     ground = &wp->ground;
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         wp->scale.v.pad = (wp->fade.r_0 & 0x1F) | ((wp->fade.g_1 & 0x1F) << 5) | ((wp->fade.b_2 & 0x1F) << 10);
         wp->fade.b_2++;
@@ -1095,7 +1095,7 @@ void func_8010E83C(STCOM16_WORK *wp)
         case 4:
             if (wp->flags_A7 == -1)
             {
-                if (wp->variant_3 == 2 && (ground->flags_6 & 0x10))
+                if (wp->type == 2 && (ground->flags_6 & 0x10))
                 {
                     wp->routine_1 = 8;
                     wp->routine_2 = 0;
@@ -1147,14 +1147,14 @@ void func_8010EB10(STCOM16_WORK *wp)
     effect = func_80031618();
     if (effect != NULL)
     {
-        effect->flags_0         = 5;
-        effect->kind_2          = 0x80;
-        effect->variant_3       = 0x40;
+        effect->be_flag         = 5;
+        effect->id              = 0x80;
+        effect->type            = 0x40;
         effect->sprite.position = wp->joints_180[0];
         func_80047148(wp, &wp->joints_180[0], effect);
     }
     wp->routine_0 = 2;
-    wp->flags_0 &= ~2;
+    wp->be_flag &= ~2;
 }
 
 void func_8010EB98(STCOM16_WORK *wp)

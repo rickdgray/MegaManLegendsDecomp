@@ -19,10 +19,10 @@ typedef struct
 // +0x4E0).
 typedef struct
 {
-    sint8 flags_0;            // 00
-    uint8 value_1;            // 01
-    uint8 kind_2;             // 02
-    uint8 variant_3;          // 03
+    sint8 be_flag;            // 00
+    uint8 slot;               // 01
+    uint8 id;                 // 02
+    uint8 type;               // 03
     uint8 reserved04[4];      // 04
     uint8 routine_0;          // 08
     uint8 routine_1;          // 09
@@ -77,10 +77,10 @@ typedef struct
 // A 0x5A4-byte work slot of a villager (the fields this stage's routines use).
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -143,10 +143,10 @@ typedef struct
 // A 0x10C-byte slot (Open_SHL_WORK) with a rotation at +0x64 (the pieces func_8010D8FC spawns).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
@@ -206,13 +206,13 @@ typedef struct
 // A 0x3C0-byte actor slot of this stage (STAGE_OBJ's fields, then ST14_ACTOR_CTL at +0x328).
 typedef struct
 {
-    sint8 flags_0;    // 00
-    uint8 value_1;    // 01
-    uint8 kind_2;     // 02
-    uint8 variant_3;  // 03
+    sint8 be_flag;    // 00
+    uint8 slot;       // 01
+    uint8 id;         // 02
+    uint8 type;       // 03
     uint8 value_4;    // 04
     uint8 reserved05; // 05
-    uint8 flags_6;    // 06
+    uint8 flags;      // 06
     uint8 reserved07; // 07
     uint8 routine_0;  // 08
     uint8 routine_1;  // 09
@@ -335,10 +335,10 @@ typedef void (*ST14_SPLASH_FUNC)(ST14_SPLASH *wp);
 
 struct ST14_SPLASH
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01;      // 01
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 id;              // 02
+    uint8 type;            // 03
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09
@@ -380,10 +380,10 @@ typedef void (*ST14_PROP_FUNC)(ST14_PROP *wp);
 
 struct ST14_PROP
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

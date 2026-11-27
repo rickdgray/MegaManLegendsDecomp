@@ -9,9 +9,9 @@
 
 typedef void (*PL_SHL_FUNC)(PL_SHL_WORK *wp);
 
-extern PL_SHL_FUNC D_8008A0CC[]; // routine_8 dispatch table of func_800433C0
-extern PL_SHL_FUNC D_8008A0D8[]; // routine_8 dispatch table of func_800437A8: func_800437F8, func_80043A8C
-// Called by id_2 for each live slot of D_800BFB20 (func_80017154) and, for ids 0x80 and up, of
+extern PL_SHL_FUNC D_8008A0CC[]; // routine_0 dispatch table of func_800433C0
+extern PL_SHL_FUNC D_8008A0D8[]; // routine_0 dispatch table of func_800437A8: func_800437F8, func_80043A8C
+// Called by id for each live slot of D_800BFB20 (func_80017154) and, for ids 0x80 and up, of
 // D_8009CF88 (func_80017210). Its entries are scene functions that take nothing (func_8001F9AC,
 // func_8001FA94, func_8001F820, ...), and the calls pass nothing: with the slot as argument,
 // func_80017210's two calls come out identical and GCC merges them, which the target doesn't.

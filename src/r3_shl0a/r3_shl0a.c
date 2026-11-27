@@ -15,8 +15,8 @@ void func_800D8854(SHL_WORK *wp)
     MATRIX m;
     sint32 speed;
 
-    wp->flags_0 |= 0xA;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 0xA;
+    wp->flags |= 0x20;
     func_800354E0(wp->bit_d);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
@@ -109,20 +109,20 @@ void func_800D8BE8(SHL_WORK *wp)
         fx = func_80031618();
         if (fx)
         {
-            fx->routine_0 = 5;
-            fx->kind_2    = 0x80;
-            fx->flag_3    = 2;
-            fx->value_d   = 1;
-            fx->value_e   = 1;
-            fx->pos_38    = wp->pos;
+            fx->be_flag = 5;
+            fx->id      = 0x80;
+            fx->flag_3  = 2;
+            fx->value_d = 1;
+            fx->value_e = 1;
+            fx->pos_38  = wp->pos;
         }
         for (i = 0; i < 4; i++)
         {
             fx = func_80031618();
             if (fx)
             {
-                fx->routine_0 = 5;
-                fx->kind_2    = 0x80;
+                fx->be_flag   = 5;
+                fx->id        = 0x80;
                 fx->flag_3    = 2;
                 fx->value_d   = 0;
                 fx->value_e   = 1;
@@ -137,20 +137,20 @@ void func_800D8BE8(SHL_WORK *wp)
         fx = func_80031618();
         if (fx)
         {
-            fx->routine_0 = 5;
-            fx->kind_2    = 0x80;
-            fx->flag_3    = 2;
-            fx->value_d   = 2;
-            fx->value_e   = 1;
-            fx->pos_38    = wp->pos;
+            fx->be_flag = 5;
+            fx->id      = 0x80;
+            fx->flag_3  = 2;
+            fx->value_d = 2;
+            fx->value_e = 1;
+            fx->pos_38  = wp->pos;
         }
         for (i = 0; i < 8; i++)
         {
             fx = func_80031618();
             if (fx)
             {
-                fx->routine_0 = 5;
-                fx->kind_2    = 0x80;
+                fx->be_flag   = 5;
+                fx->id        = 0x80;
                 fx->flag_3    = 2;
                 fx->value_d   = 1;
                 fx->value_e   = 1;
@@ -171,10 +171,10 @@ void func_800D8E48(SHL_WORK *wp)
     flags = func_800375D4(&Player_work, 1);
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, size, &wp->old_pos, size, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }

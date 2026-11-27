@@ -8,7 +8,7 @@ void func_80112B18(STAGE_OBJ *wp)
 
 void func_80112B54(STAGE_OBJ *wp)
 {
-    D_8011558C[wp->variant_3](wp);
+    D_8011558C[wp->type](wp);
 }
 
 void func_80112B90(STAGE_OBJ *wp)
@@ -149,8 +149,8 @@ void func_80112F64(STAGE_EV *wp)
         ev = func_800317AC(i);
         if (ev != NULL)
         {
-            ev->flags_0 = 1;
-            ev->kind_2  = 0;
+            ev->be_flag = 1;
+            ev->id      = 0;
             break;
         }
     }

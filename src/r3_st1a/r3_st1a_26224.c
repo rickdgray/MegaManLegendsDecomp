@@ -9,10 +9,10 @@ void func_80126224(ST1A_50 *wp)
 
 void func_80126288(STAGE_FX *wp)
 {
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->value_40 = 0x808080;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->value_38.words.integer = 0x100;
     }
@@ -22,7 +22,7 @@ void func_80126288(STAGE_FX *wp)
 
 void func_801262EC(ST1A_50 *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *rot)
 {
-    D_801335C8[wp->variant_3](wp, scene, rot);
+    D_801335C8[wp->type](wp, scene, rot);
 }
 
 void func_80126328(STAGE_FX *wp, STAGE_SCENE_WORK *scene)
@@ -94,7 +94,7 @@ void func_801264AC(STAGE_OBJ *wp)
 
 void func_80126514(STAGE_OBJ *wp)
 {
-    D_801335DC[wp->variant_3](wp);
+    D_801335DC[wp->type](wp);
 }
 
 void func_80126550(STAGE_OBJ *wp)
@@ -168,9 +168,9 @@ void func_80126780(STAGE_OBJ *wp)
         wp->routine_0 = 2;
         return;
     }
-    wp->kind_2 = 0x2F;
+    wp->id = 0x2F;
     func_8012742C(wp);
-    wp->kind_2       = 0x36;
+    wp->id           = 0x36;
     wp->u_C.b.byte_C = 0;
     wp->u_C.b.byte_D = 0;
     wp->u_E.b.byte_F = 1;
@@ -179,12 +179,12 @@ void func_80126780(STAGE_OBJ *wp)
 
 void func_80126830(ST1A_FX *wp)
 {
-    if (wp->owner_44->variant_3 == 4)
+    if (wp->owner_44->type == 4)
     {
-        wp->kind_2 = 0x2F;
+        wp->id = 0x2F;
     }
     func_8012742C((STAGE_FX *)wp);
-    wp->kind_2  = 0x36;
+    wp->id      = 0x36;
     wp->value_C = 1;
     wp->timer_D = 1;
     wp->type_F  = 0;
@@ -196,12 +196,12 @@ void func_80126890(STAGE_OBJ *wp)
     func_8012742C(wp);
     wp->u_C.b.byte_C = 2;
     wp->u_E.b.byte_F = 0;
-    wp->u_C.b.byte_D = wp->variant_3 != 6;
+    wp->u_C.b.byte_D = wp->type != 6;
 }
 
 void func_801268D8(STAGE_OBJ *wp)
 {
-    D_801335FC[wp->variant_3](wp);
+    D_801335FC[wp->type](wp);
 }
 
 void func_80126914(STAGE_EV *wp)
@@ -400,11 +400,11 @@ void func_80126EA8(STAGE_EV *wp)
     }
     if (wp->value_E == 0)
     {
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
     }
     else
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
     ST1A_GAME_U32(0x174) &= ~8;
 }
@@ -466,11 +466,11 @@ void func_801272A4(ST1A_FOLLOWER *wp)
     wp->value_40  = owner->value_40;
     if (wp->value_E == 0)
     {
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
     }
     else
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
 }
 
@@ -515,7 +515,7 @@ void func_801273A0(ST1A_50 *wp)
 
 void func_8012742C(STAGE_FX *wp)
 {
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->value_40  = 0x808080;
     wp->frame_E   = 0x20;
@@ -532,10 +532,10 @@ void func_8012748C(ST1A_50 *wp)
     child = (ST1A_50 *)func_80031734();
     if (child != NULL)
     {
-        child->flags_0   = 1;
-        child->kind_2    = 0x36;
-        child->variant_3 = 5;
-        if (wp->variant_3 != 4)
+        child->be_flag = 1;
+        child->id      = 0x36;
+        child->type    = 5;
+        if (wp->type != 4)
         {
             child->pos_38.x = wp->pos_38.x + 0x300;
         }
@@ -564,7 +564,7 @@ void func_8012751C(ST1A_50 *wp)
     sint32 edge_x;
 
     edge_x = 0x200;
-    if (wp->variant_3 != 4)
+    if (wp->type != 4)
     {
         edge_x = 0x300;
     }
@@ -614,7 +614,7 @@ void func_801277C4(STAGE_OBJ *wp)
 
 void func_80127814(STAGE_OBJ *wp)
 {
-    D_80133678[wp->variant_3](wp);
+    D_80133678[wp->type](wp);
 }
 
 void func_80127850(STAGE_OBJ *wp)
@@ -643,24 +643,24 @@ void func_801278C0(STAGE_OBJ50 *wp)
         wp->routine_0 = 2;
         return;
     }
-    wp->value_44  = 0;
-    wp->kind_2    = 0x16;
-    wp->variant_3 = 0;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
-    wp->kind_2    = 0x37;
-    wp->variant_3 = 2;
-    wp->color_40  = 0x2808080;
+    wp->value_44 = 0;
+    wp->id       = 0x16;
+    wp->type     = 0;
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
+    wp->id       = 0x37;
+    wp->type     = 2;
+    wp->color_40 = 0x2808080;
     func_801280DC(wp);
     for (i = 0; i < 12; i++)
     {
         ep = (STAGE_OBJ50 *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->kind_2    = 0x18;
-            ep->variant_3 = 1;
-            ep->u_C.b.lo  = wp->index_1;
+            ep->be_flag  = 1;
+            ep->id       = 0x18;
+            ep->type     = 1;
+            ep->u_C.b.lo = wp->slot;
         }
     }
     wp->value_48  = 0;
@@ -672,12 +672,12 @@ void func_801278C0(STAGE_OBJ50 *wp)
 
 void func_801279E8(STAGE_OBJ *wp)
 {
-    wp->kind_2    = 0x16;
-    wp->variant_3 = 1;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
-    wp->kind_2                  = 0x37;
-    wp->variant_3               = 3;
+    wp->id   = 0x16;
+    wp->type = 1;
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
+    wp->id                      = 0x37;
+    wp->type                    = 3;
     wp->position_fixed_prev.pad = 0x2C808080;
     wp->value_48.value          = 0;
     wp->routine_0               = 1;
@@ -690,12 +690,12 @@ void func_80127A68(STAGE_OBJ *wp)
 {
     func_8012800C(wp);
     wp->u_C.b.byte_C = 2;
-    wp->u_C.b.byte_D = wp->variant_3 != 4;
+    wp->u_C.b.byte_D = wp->type != 4;
 }
 
 void func_80127AA8(STAGE_OBJ *wp)
 {
-    D_80133690[wp->variant_3](wp);
+    D_80133690[wp->type](wp);
 }
 
 void func_80127AE4(STAGE_EV *wp)
@@ -836,11 +836,11 @@ void func_80127EA4(ST1A_FOLLOWER *wp)
     wp->value_E   = wp->owner_44->value_E;
     if (wp->value_E == 0)
     {
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
     }
     else
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
 }
 
@@ -877,7 +877,7 @@ void func_80127F3C(STAGE_OBJ50 *wp)
     wp->matrix.words[5] = 0;
     wp->matrix.words[6] = 0;
     wp->matrix.words[7] = 0;
-    if (wp->variant_3 == 2 || wp->variant_3 == 3)
+    if (wp->type == 2 || wp->type == 3)
     {
         scale.x = scale.y = scale.z = 0x600;
         scale.pad                   = 0;
@@ -897,7 +897,7 @@ void func_80127F3C(STAGE_OBJ50 *wp)
 
 void func_8012800C(STAGE_FX *wp)
 {
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->value_40  = 0x808080;
     wp->frame_E   = 0x20;
@@ -914,14 +914,14 @@ void func_8012806C(ST1A_50 *wp)
     child = (ST1A_50 *)func_80031734();
     if (child != NULL)
     {
-        child->flags_0   = 1;
-        child->kind_2    = 0x37;
-        child->variant_3 = 1;
-        child->pos_38.x  = wp->pos_38.x + 0x400;
-        child->pos_38.y  = wp->pos_38.y;
-        child->pos_38.z  = wp->pos_38.z;
-        child->link_44   = wp;
-        wp->link_44      = child;
+        child->be_flag  = 1;
+        child->id       = 0x37;
+        child->type     = 1;
+        child->pos_38.x = wp->pos_38.x + 0x400;
+        child->pos_38.y = wp->pos_38.y;
+        child->pos_38.z = wp->pos_38.z;
+        child->link_44  = wp;
+        wp->link_44     = child;
     }
 }
 
@@ -932,14 +932,14 @@ void func_801280DC(ST1A_50 *wp)
     child = (ST1A_50 *)func_80031734();
     if (child != NULL)
     {
-        child->flags_0   = 1;
-        child->kind_2    = 0x37;
-        child->variant_3 = 3;
-        child->pos_38.x  = wp->pos_38.x;
-        child->pos_38.y  = wp->pos_38.y;
-        child->pos_38.z  = wp->pos_38.z;
-        child->link_44   = wp;
-        wp->link_44      = child;
+        child->be_flag  = 1;
+        child->id       = 0x37;
+        child->type     = 3;
+        child->pos_38.x = wp->pos_38.x;
+        child->pos_38.y = wp->pos_38.y;
+        child->pos_38.z = wp->pos_38.z;
+        child->link_44  = wp;
+        wp->link_44     = child;
     }
 }
 
@@ -951,8 +951,8 @@ void func_8012814C(ST1A_50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 6;
-            Model_work_init(wp, &wp->variant_3);
+            wp->be_flag |= 6;
+            Model_work_init(wp, &wp->type);
             wp->color_40 = 0x808080;
             wp->routine_0++;
             // fall through
@@ -997,11 +997,11 @@ void func_801281F8(STAGE_OBJ50 *wp)
 
 void func_80128310(STAGE_FX *wp)
 {
-    wp->kind_2 = 0x29;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->id = 0x29;
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->value_C   = 0;
-    wp->kind_2    = 0x3B;
+    wp->id        = 0x3B;
     wp->value_40  = 0x808080;
     wp->timer_D   = 4;
     wp->frame_E   = 0;

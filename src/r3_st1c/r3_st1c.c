@@ -81,9 +81,9 @@ void func_801002B0(STAGE_ROOM_WORK *wp)
                 op = (ST1C_OBJ50 *)func_80031734();
                 if (op != NULL)
                 {
-                    op->kind_2  = 0x22;
+                    op->id      = 0x22;
                     op->index_C = i;
-                    op->flags_0 |= 1;
+                    op->be_flag |= 1;
                 }
             }
         }

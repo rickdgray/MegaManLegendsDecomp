@@ -15,9 +15,9 @@ void func_801076F8(ST11_SHL *wp)
     wp->col_c4 = 0;
     wp->col_c8 = 0;
     wp->box_78 = D_8010A484;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
-    if (wp->type_3 & 0x40)
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
+    if (wp->type & 0x40)
     {
         rot.x = wp->rot_x;
     }
@@ -28,7 +28,7 @@ void func_801076F8(ST11_SHL *wp)
     }
     rot.y = wp->rot_y & 0xFFF;
     rot.z = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         rot.x += ((rand() & 7) - 4) * 2;
         rot.y += ((rand() & 7) - 4) * 2;
@@ -61,7 +61,7 @@ void func_801076F8(ST11_SHL *wp)
     rot.y = 0;
     rot.z = -0x1000;
     ApplyMatrix(&wp->mtx_8c, &rot, &v);
-    if (!(wp->type_3 & 0x40) && ST11_PL_SBYTE(0x507) >= 3)
+    if (!(wp->type & 0x40) && ST11_PL_SBYTE(0x507) >= 3)
     {
         wp->vel.x = (uint32)(v.x * 15) >> 1;
         wp->vel.y = (uint32)(v.y * 15) >> 1;
@@ -77,7 +77,7 @@ void func_801076F8(ST11_SHL *wp)
     wp->ay     = 0;
     wp->az     = 0;
     wp->hit_7c = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         wp->fpos.v.x += wp->vel.x * 0x1C0;
         wp->fpos.v.y += wp->vel.y * 0x1C0;
@@ -89,9 +89,9 @@ void func_801076F8(ST11_SHL *wp)
     wp->old_fpos           = wp->fpos;
     wp->old_pos            = wp->pos;
     wp->color_b4           = 0x02808080;
-    wp->kind_2             = 0x82;
+    wp->id                 = 0x82;
     Model_work_init(wp, 0);
-    wp->kind_2  = 0x2E;
+    wp->id      = 0x2E;
     wp->timer_b = func_80037634(&Player_work, 2);
     wp->routine_0++;
     func_80107DBC(wp, 0);
@@ -103,7 +103,7 @@ void func_80107B00(STAGE_SHOT *wp)
 {
     if (func_80037694(wp, 0) || wp->hit_7c)
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -127,7 +127,7 @@ void func_80107B00(STAGE_SHOT *wp)
     }
     else
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -153,17 +153,17 @@ void func_80107C78(STAGE_SHOT *wp)
     {
         flags = 0x1000;
     }
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->slot, &wp->col_c4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_c)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
 }
 
@@ -174,25 +174,25 @@ void func_80107DBC(STAGE_SHOT *wp, sint32 arg)
     fx = (STAGE_SHOT_FX *)func_80031618();
     if (fx)
     {
-        fx->routine_0 = 1;
-        fx->kind_2    = 0x85;
-        fx->x_1c      = wp->pos.x;
-        fx->y_1e      = wp->pos.y;
-        fx->z_20      = wp->pos.z;
-        fx->vx_30     = wp->vel.x;
-        fx->vy_32     = wp->vel.y;
-        fx->vz_34     = wp->vel.z;
-        if (wp->type_3 == 0x40)
+        fx->be_flag = 1;
+        fx->id      = 0x85;
+        fx->x_1c    = wp->pos.x;
+        fx->y_1e    = wp->pos.y;
+        fx->z_20    = wp->pos.z;
+        fx->vx_30   = wp->vel.x;
+        fx->vy_32   = wp->vel.y;
+        fx->vz_34   = wp->vel.z;
+        if (wp->type == 0x40)
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
             fx->flag_3   = arg + 0x10;
         }
-        else if (wp->type_3 == 0x41)
+        else if (wp->type == 0x41)
         {
             fx->value_40 = (wp->rot_y - 0x400) & 0xFFF;
             fx->flag_3   = arg + 0x10;
         }
-        else if (wp->type_3 == 0x42)
+        else if (wp->type == 0x42)
         {
             fx->value_40 = 0xFFFF;
             fx->flag_3   = arg + 0x10;

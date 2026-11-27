@@ -193,7 +193,7 @@ void func_8010AEEC(ST03_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     func_8010AFC0(wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -341,8 +341,8 @@ void func_8010B2CC(ST03_ACTOR *wp)
     sint16 y;
 
     wp->turn_64 = 0x80;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
@@ -365,7 +365,7 @@ void func_8010B370(ST03_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     func_8010B444(wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -450,8 +450,8 @@ void func_8010B63C(ST03_ACTOR *wp)
     sint16 temp_v0;
 
     wp->turn_64 = 0x80;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
@@ -468,7 +468,7 @@ void func_8010B63C(ST03_ACTOR *wp)
 
 void func_8010B6D0(ST03_OBJ *wp)
 {
-    wp->variant_3              = 1;
+    wp->type                   = 1;
     wp->scale.words[1]         = 0x200;
     wp->scale.words[0]         = 0x02000200;
     wp->value_64               = 0;
@@ -480,7 +480,7 @@ void func_8010B6D0(ST03_OBJ *wp)
     wp->value_70               = 0;
     wp->value_74               = 0;
     wp->rotation.y             = 0x800;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->rotation_prev      = wp->rotation;
     wp->position.x         = -0x9C0;
     wp->position.y         = -1;
@@ -489,7 +489,7 @@ void func_8010B6D0(ST03_OBJ *wp)
     wp->position_fixed.v.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.v.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.v.y = wp->position_fixed_prev.y = wp->position.y << 16;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     func_800322A8(wp, 0, 0);
     wp->routine_0++;
 }

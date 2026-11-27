@@ -27,10 +27,10 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 value_4;                          // 04
     uint8 reserved05[3];                    // 05
     uint8 routine_0;                        // 08
@@ -105,10 +105,10 @@ typedef struct
 // names other fields; the two views aren't reconciled yet). Only the fields used so far.
 typedef struct ST1B_STCOM01_WORK
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -163,8 +163,9 @@ typedef struct
 // A 0x10C-byte slot (Open_SHL_WORK) whose model runs round a circle (func_8010AF9C).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[7];                    // 01
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 reserved09[3];                    // 09
     sint8 value_C;                          // 0C: nonzero: func_8002F9EC sets it up
@@ -238,10 +239,10 @@ typedef struct ST1B_VIEW ST1B_VIEW;
 typedef void (*ST1B_VIEW_FUNC)(ST1B_VIEW *wp);
 struct ST1B_VIEW
 {
-    sint8 flags_0;   // 0
-    uint8 value_1;   // 1
-    uint8 kind_2;    // 2
-    uint8 variant_3; // 3
+    sint8 be_flag;   // 0
+    uint8 slot;      // 1
+    uint8 id;        // 2
+    uint8 type;      // 3
     uint8 value_4;   // 4
     uint8 value_5;   // 5
     uint8 value_6;   // 6
@@ -327,10 +328,10 @@ typedef struct
 // A 0x5A4-byte work slot of a villager who talks, with its talk block at +0x4E0.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

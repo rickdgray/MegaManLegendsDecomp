@@ -32,9 +32,10 @@ typedef struct
 // that wanders near its home, flees from the player and can be picked up.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[2];                    // 01
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02;                       // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

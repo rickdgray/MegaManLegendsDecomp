@@ -70,7 +70,7 @@ void func_80100298(STAGE_EFFECT *wp)
 {
     wp->frame_E = 0;
     wp->timer_D = 0;
-    wp->flags_0 |= 0x22;
+    wp->be_flag |= 0x22;
     wp->type_F   = rand() & 3;
     wp->mode_14  = 0x3CC00028;
     wp->w_24     = 0x20;
@@ -153,12 +153,12 @@ void func_801005E8(STAGE_EFFECT *wp)
         ep = (STAGE_EFFECT *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0     = 1;
-            ep->kind_2      = 0xE;
-            ep->variant_3   = wp->variant_3;
+            ep->be_flag     = 1;
+            ep->id          = 0xE;
+            ep->type        = wp->type;
             ep->value_C     = 1;
             ep->u_28.parent = wp;
-            ep->flags_6 |= 0x20;
+            ep->flags |= 0x20;
             ep->angle_3E   = rand() & 0xFFF;
             ep->value_40   = wp->u_28.value << 16;
             ep->y_30.value = wp->y_1E << 16;
@@ -191,14 +191,14 @@ STAGE_EFFECT *func_8010072C(STCOM_SVECTOR *pos, sint16 value, uint8 variant)
     ep = (STAGE_EFFECT *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 0xE;
-        ep->x_1C      = pos->x;
-        ep->y_1E      = pos->y;
-        ep->z_20      = pos->z;
-        ep->value_C   = 0;
-        ep->variant_3 = variant;
-        ep->flags_6 |= 0x20;
+        ep->be_flag = 1;
+        ep->id      = 0xE;
+        ep->x_1C    = pos->x;
+        ep->y_1E    = pos->y;
+        ep->z_20    = pos->z;
+        ep->value_C = 0;
+        ep->type    = variant;
+        ep->flags |= 0x20;
         ep->u_28.value = value;
         return ep;
     }
@@ -761,7 +761,7 @@ void func_80101C08(STAGE_LIGHT *wp)
 
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 4;
+        wp->be_flag |= 4;
         Model_work_init(wp, NULL);
         wp->angle_C = 0;
         wp->routine_0++;
@@ -801,8 +801,8 @@ void func_80101D94(void)
     ep = Open_EVE_WORK();
     if (ep != NULL)
     {
-        ep->flags_0 = 1;
-        ep->kind_2  = 0xB;
+        ep->be_flag = 1;
+        ep->id      = 0xB;
         ep->step_D  = 0;
         ep->timer_C = 0;
         ep->key_1C  = Stage_hed_model_get(0xC0000);

@@ -35,7 +35,7 @@ void func_801039B8(ST19_OBJ *wp)
 
     wp->rotation.x = 0;
     wp->rotation.z = 0;
-    wp->flags_0 |= 0x42;
+    wp->be_flag |= 0x42;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -85,7 +85,7 @@ void func_80103B3C(ST19_OBJ *wp)
     func_80104B80(wp);
     func_8003648C(wp->track_300, wp);
     spin = (ST19_SPIN *)&wp->value_2C8;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         D_801179E8[wp->value_349](wp);
     }
@@ -93,7 +93,7 @@ void func_80103B3C(ST19_OBJ *wp)
     {
         D_801179FC[wp->routine_1](wp);
     }
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         D_801179F4[wp->value_34B](wp);
     }
@@ -108,19 +108,19 @@ void func_80103B3C(ST19_OBJ *wp)
     Model_parts_mtx_set_y(wp);
     spin->pos_8 = ST19_OBJ_JOINT(wp)[0];
     spin->pos_8.y -= 0xB8;
-    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
+    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->slot, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
     spin->pos_8     = ST19_OBJ_JOINT(wp)[1];
     spin->step_4C.x = spin->pos_8.x << 16;
     spin->step_4C.y = spin->pos_8.y << 16;
     spin->step_4C.z = spin->pos_8.z << 16;
     func_8002FFC4(&spin->pos_8, &spin->step_4C, wp->rotation.y & 0xFFF, 0, 0x3C0, 0x3C0);
-    func_800341BC(&spin->pos_8, 0xB4, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
+    func_800341BC(&spin->pos_8, 0xB4, 0, 0x8000, wp->slot, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
     spin->pos_8     = ST19_OBJ_JOINT(wp)[3];
     spin->step_4C.x = spin->pos_8.x << 16;
     spin->step_4C.y = spin->pos_8.y << 16;
     spin->step_4C.z = spin->pos_8.z << 16;
     func_8002FFC4(&spin->pos_8, &spin->step_4C, wp->rotation.y & 0xFFF, 0, 0x3C0, -0x3C0);
-    func_800341BC(&spin->pos_8, 0xB4, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
+    func_800341BC(&spin->pos_8, 0xB4, 0, 0x8000, wp->slot, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
     spin->step_5C.x = 0;
     spin->step_5C.y = 0xC59;
     spin->step_5C.z = 0;
@@ -128,7 +128,7 @@ void func_80103B3C(ST19_OBJ *wp)
     spin->pos_8.x = ST19_OBJ_JOINT(wp)[2].x + spin->step_4C.x;
     spin->pos_8.y = ST19_OBJ_JOINT(wp)[2].y + spin->step_4C.y;
     spin->pos_8.z = ST19_OBJ_JOINT(wp)[2].z + spin->step_4C.z;
-    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
+    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->slot, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
     spin->step_5C.x = 0;
     spin->step_5C.y = 0xC59;
     spin->step_5C.z = 0;
@@ -136,7 +136,7 @@ void func_80103B3C(ST19_OBJ *wp)
     spin->pos_8.x = ST19_OBJ_JOINT(wp)[4].x + spin->step_4C.x;
     spin->pos_8.y = ST19_OBJ_JOINT(wp)[4].y + spin->step_4C.y;
     spin->pos_8.z = ST19_OBJ_JOINT(wp)[4].z + spin->step_4C.z;
-    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->value_1, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
+    func_800341BC(&spin->pos_8, 0x118, 0, 0x8000, wp->slot, spin->hit_20[0], wp->u_70.b[3] | 0x5080000, 0, 0x80);
     spin->wheel_10[0] = ST19_OBJ_JOINT(wp)[1];
     spin->step_4C.x   = spin->wheel_10[0].x << 16;
     spin->step_4C.y   = spin->wheel_10[0].y << 16;
@@ -144,7 +144,7 @@ void func_80103B3C(ST19_OBJ *wp)
     func_8002FFC4(&spin->wheel_10[0], &spin->step_4C, wp->rotation.y & 0xFFF, 0, -0xD40, -0x698);
     if (spin->life_64[0] >= 0)
     {
-        func_800341BC(&spin->wheel_10[0], 0x8C, 0, 0x8000, wp->value_1, spin->hit_20[1], wp->u_70.b[3] | 0x5080000, 0, 0);
+        func_800341BC(&spin->wheel_10[0], 0x8C, 0, 0x8000, wp->slot, spin->hit_20[1], wp->u_70.b[3] | 0x5080000, 0, 0);
     }
     spin->wheel_10[1] = ST19_OBJ_JOINT(wp)[3];
     spin->step_4C.x   = spin->wheel_10[1].x << 16;
@@ -153,7 +153,7 @@ void func_80103B3C(ST19_OBJ *wp)
     func_8002FFC4(&spin->wheel_10[1], &spin->step_4C, wp->rotation.y & 0xFFF, 0, -0xD40, 0x698);
     if (spin->life_64[1] >= 0)
     {
-        func_800341BC(&spin->wheel_10[1], 0x8C, 0, 0x8000, wp->value_1, spin->hit_20[2], wp->u_70.b[3] | 0x5080000, 0, 0);
+        func_800341BC(&spin->wheel_10[1], 0x8C, 0, 0x8000, wp->slot, spin->hit_20[2], wp->u_70.b[3] | 0x5080000, 0, 0);
     }
     for (i = 0; i < 3; i++)
     {
@@ -201,10 +201,10 @@ void func_80104124(ST19_OBJ *wp)
                 if (held != NULL)
                 {
                     spin->held_48   = held;
-                    held->flags_0   = 1;
-                    held->kind_2    = 2;
+                    held->be_flag   = 1;
+                    held->id        = 2;
                     held->handler_4 = 0;
-                    held->variant_3 = 0;
+                    held->type      = 0;
                     held->value_D   = 2;
                     flags           = spin->value_85;
                     spin->timer_86  = 10;
@@ -389,8 +389,8 @@ void func_801046A0(ST19_OBJ *wp)
                 shell = (ST19_SHELL *)Open_SHL_WORK();
                 if (shell != NULL)
                 {
-                    shell->flags_0   = 3;
-                    shell->kind_2    = 1;
+                    shell->be_flag   = 3;
+                    shell->id        = 1;
                     shell->handler_4 = 0;
                     shell->value_F   = 4;
                     if (i == 0)
@@ -520,9 +520,9 @@ void func_80104B80(ST19_WHEELS *wp)
                 fx = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->flags_0           = 5;
-                    fx->kind_2            = 0x80;
-                    fx->variant_3         = 0x40;
+                    fx->be_flag           = 5;
+                    fx->id                = 0x80;
+                    fx->type              = 0x40;
                     fx->value_D           = 1;
                     fx->sprite.position.x = ctl->wheel_10[i - 1].x;
                     fx->sprite.position.y = ctl->wheel_10[i - 1].y;
@@ -617,9 +617,9 @@ void func_80104FE8(ST19_SPARKER *wp)
             ep            = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0           = 5;
-                ep->kind_2            = 0x80;
-                ep->variant_3         = 0x40;
+                ep->be_flag           = 5;
+                ep->id                = 0x80;
+                ep->type              = 0x40;
                 ep->value_D           = wp->random_346 & 3;
                 ep->sprite.position.x = wp->joint_180[joint].x + wp->spark_324.x;
                 ep->sprite.position.y = wp->joint_180[joint].y + wp->spark_324.y;
@@ -667,8 +667,8 @@ void func_8010522C(STAGE_OBJ *wp)
         wp->scale.words[1] = 0x200;
         wp->scale.v.pad    = 0x4210;
         wp->rotation.y     = 0x400;
-        wp->flags_0 |= 2;
-        Model_work_init(wp, &wp->variant_3);
+        wp->be_flag |= 2;
+        Model_work_init(wp, &wp->type);
         func_800322A8(wp, 8, 0);
         func_80032538(wp);
         Model_parts_mtx_set_yxz(wp);
@@ -766,7 +766,7 @@ void func_8010556C(ST19_OBJ *wp)
     STAGE_OBJ *child;
     sint8 i;
 
-    wp->flags_0 |= 0x42;
+    wp->be_flag |= 0x42;
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     Model_work_init(wp, NULL);
@@ -778,10 +778,10 @@ void func_8010556C(ST19_OBJ *wp)
     wp->data_78        = D_80117ACC;
     Track_reset(ST19_OBJ_CTL(wp)->track_4C, 0, -0x60);
     ctl           = ST19_OBJ_CTL(wp);
-    wp->u_70.b[3] = D_80098844[wp->kind_2]->value_A;
-    wp->value_B2 = wp->value_B0 = wp->value_6E = D_80098844[wp->kind_2]->value_8 << 6;
-    ctl->life_70[0]                            = D_80098844[wp->kind_2]->value_B << 4;
-    ctl->life_70[1]                            = D_80098844[wp->kind_2]->value_B << 4;
+    wp->u_70.b[3] = D_80098844[wp->id]->value_A;
+    wp->value_B2 = wp->value_B0 = wp->value_6E = D_80098844[wp->id]->value_8 << 6;
+    ctl->life_70[0]                            = D_80098844[wp->id]->value_B << 4;
+    ctl->life_70[1]                            = D_80098844[wp->id]->value_B << 4;
     wp->routine_0                              = 1;
     wp->routine_1                              = 0;
     wp->scale.v.pad                            = 0;
@@ -797,13 +797,13 @@ void func_8010556C(ST19_OBJ *wp)
     child = func_80031418();
     if (child != NULL)
     {
-        child->flags_0            = 1;
-        child->kind_2             = 0x40;
-        child->variant_3          = 0;
+        child->be_flag            = 1;
+        child->id                 = 0x40;
+        child->type               = 0;
         child->value_4            = 0;
         child->reserved05         = 0;
         child->rotation.y         = wp->rotation.y;
-        child->u_C.b.byte_C       = wp->value_1;
+        child->u_C.b.byte_C       = wp->slot;
         child->u_C.b.byte_D       = 0;
         child->u_E.b.byte_E       = 0;
         child->u_E.b.byte_F       = 0;
@@ -814,7 +814,7 @@ void func_8010556C(ST19_OBJ *wp)
         child->position_fixed.v.y = child->position.y << 16;
         child->position_fixed.v.z = child->position.z << 16;
     }
-    wp->u_C.b.byte_C   = child->value_1;
+    wp->u_C.b.byte_C   = child->slot;
     wp->data_78        = D_80117ACC;
     ctl->timer_7C      = 0x14;
     ctl->value_80      = 0xC;
@@ -864,41 +864,41 @@ void func_80105818(ST19_TURRET *wp)
         Model_parts_mtx_set_y(wp);
         ctl->pos_1C = wp->joint_180[0];
         ctl->pos_1C.y += 0x40;
-        func_800341BC(&ctl->pos_1C, 0xB4, 0, 0x8000, wp->value_1, &ctl->hit_2C, wp->hit_kind_73 | 0x5080000, 0, 0);
+        func_800341BC(&ctl->pos_1C, 0xB4, 0, 0x8000, wp->slot, &ctl->hit_2C, wp->hit_kind_73 | 0x5080000, 0, 0);
         ctl->pos_1C = wp->joint_180[1];
         ctl->pos_1C.y += 0x14;
-        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->slot, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
         ctl->pos_1C = wp->joint_180[2];
         ctl->pos_1C.y += 0x59;
-        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->slot, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
         ctl->pos_1C = wp->joint_180[5];
         ctl->pos_1C.y += 0x59;
-        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->value_1, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_1C, 0xA0, 0, 0x8000, wp->slot, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
         ctl->pos_1C = wp->joint_180[3];
         ctl->pos_1C.y += 0xA0;
         ctl->fixed_C.x = ctl->pos_1C.x << 16;
         ctl->fixed_C.y = ctl->pos_1C.y << 16;
         ctl->fixed_C.z = ctl->pos_1C.z << 16;
         func_8002FFC4(&ctl->pos_1C, &ctl->fixed_C, wp->rotation.y & 0xFFF, 0x2C0, 0, 0);
-        func_800341BC(&ctl->pos_1C, 0xA3, 0, 0x8000, wp->value_1, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_1C, 0xA3, 0, 0x8000, wp->slot, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
         ctl->pos_1C = wp->joint_180[6];
         ctl->pos_1C.y += 0xA0;
         ctl->fixed_C.x = ctl->pos_1C.x << 16;
         ctl->fixed_C.y = ctl->pos_1C.y << 16;
         ctl->fixed_C.z = ctl->pos_1C.z << 16;
         func_8002FFC4(&ctl->pos_1C, &ctl->fixed_C, wp->rotation.y & 0xFFF, 0x2C0, 0, 0);
-        func_800341BC(&ctl->pos_1C, 0xA3, 0, 0x8000, wp->value_1, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
+        func_800341BC(&ctl->pos_1C, 0xA3, 0, 0x8000, wp->slot, &ctl->hit_34[2], wp->hit_kind_73 | 0x5080000, 0, 0x80);
         if (ctl->life_70[0] > 0)
         {
             ctl->pos_1C = wp->joint_180[4];
             ctl->pos_1C.y -= 0x20;
-            func_800341BC(&ctl->pos_1C, 0x24, 0, 0x8000, wp->value_1, &ctl->hit_34[0], wp->hit_kind_73 | 0x4080000, 0, 0);
+            func_800341BC(&ctl->pos_1C, 0x24, 0, 0x8000, wp->slot, &ctl->hit_34[0], wp->hit_kind_73 | 0x4080000, 0, 0);
         }
         if (ctl->life_70[1] > 0)
         {
             ctl->pos_1C = wp->joint_180[7];
             ctl->pos_1C.y -= 0x20;
-            func_800341BC(&ctl->pos_1C, 0x24, 0, 0x8000, wp->value_1, &ctl->hit_34[1], wp->hit_kind_73 | 0x4080000, 0, 0);
+            func_800341BC(&ctl->pos_1C, 0x24, 0, 0x8000, wp->slot, &ctl->hit_34[1], wp->hit_kind_73 | 0x4080000, 0, 0);
         }
         if ((wp->flags_A6 & 1) || (ctl->flags_7B & 1))
         {
@@ -927,7 +927,7 @@ void func_80105818(ST19_TURRET *wp)
         func_80032538(wp);
         Model_parts_mtx_set_y(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 300, 0x200, 1);
     }
@@ -1033,8 +1033,8 @@ void func_8010601C(ST19_TURRET *wp)
     {
         target = &pl->position;
         Sound_call2(0x1B1, &wp->position);
-        shell->flags_0          = 3;
-        shell->kind_2           = 1;
+        shell->be_flag          = 3;
+        shell->id               = 1;
         shell->handler_4        = 0;
         shell->value_F          = 1;
         shell->position.x       = wp->joint_180[joint].x;
@@ -1057,13 +1057,13 @@ void func_8010601C(ST19_TURRET *wp)
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 3;
-        fx->kind_2    = 0xF;
-        fx->variant_3 = 3;
-        fx->value_C   = 1;
-        fx->x_1C      = shell->position.x;
-        fx->y_1E      = shell->position.y;
-        fx->z_20      = shell->position.z;
+        fx->be_flag = 3;
+        fx->id      = 0xF;
+        fx->type    = 3;
+        fx->value_C = 1;
+        fx->x_1C    = shell->position.x;
+        fx->y_1E    = shell->position.y;
+        fx->z_20    = shell->position.z;
     }
     ctl->timer_7C = 0x14;
     ctl->count_7D = 0;
@@ -1176,9 +1176,9 @@ void func_801064A0(ST19_TURRET *wp)
             shell = Open_SHL_WORK();
             if (shell != NULL)
             {
-                shell->variant_3          = 5;
-                shell->flags_0            = 1;
-                shell->kind_2             = 0;
+                shell->type               = 5;
+                shell->be_flag            = 1;
+                shell->id                 = 0;
                 shell->target_B8          = &STAGE_PL.value_3A8;
                 shell->position.x         = wp->joint_180[i * 3 + 2].x;
                 shell->position.y         = wp->joint_180[i * 3 + 2].y - 0x50;
@@ -1206,13 +1206,13 @@ void func_801064A0(ST19_TURRET *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->flags_0   = 3;
-                fx->kind_2    = 0xF;
-                fx->variant_3 = 3;
-                fx->value_C   = 1;
-                fx->x_1C      = shell->position.x;
-                fx->y_1E      = shell->position.y;
-                fx->z_20      = shell->position.z;
+                fx->be_flag = 3;
+                fx->id      = 0xF;
+                fx->type    = 3;
+                fx->value_C = 1;
+                fx->x_1C    = shell->position.x;
+                fx->y_1E    = shell->position.y;
+                fx->z_20    = shell->position.z;
             }
         }
     }
@@ -1361,9 +1361,9 @@ void func_80106ADC(ST19_TURRET *wp)
                 shell = Open_SHL_WORK();
                 if (shell != NULL)
                 {
-                    shell->variant_3          = 5;
-                    shell->flags_0            = 1;
-                    shell->kind_2             = 0;
+                    shell->type               = 5;
+                    shell->be_flag            = 1;
+                    shell->id                 = 0;
                     shell->target_B8          = &STAGE_PL.value_3A8;
                     shell->position.x         = wp->joint_180[i * 3 + 2].x;
                     shell->position.y         = wp->joint_180[i * 3 + 2].y - 0x50;
@@ -1391,13 +1391,13 @@ void func_80106ADC(ST19_TURRET *wp)
                 fx = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->flags_0   = 3;
-                    fx->kind_2    = 0xF;
-                    fx->variant_3 = 3;
-                    fx->value_C   = 1;
-                    fx->x_1C      = shell->position.x;
-                    fx->y_1E      = shell->position.y;
-                    fx->z_20      = shell->position.z;
+                    fx->be_flag = 3;
+                    fx->id      = 0xF;
+                    fx->type    = 3;
+                    fx->value_C = 1;
+                    fx->x_1C    = shell->position.x;
+                    fx->y_1E    = shell->position.y;
+                    fx->z_20    = shell->position.z;
                 }
             }
             ctl->life_70[2] = 0xB4;
@@ -1480,9 +1480,9 @@ void func_80106CF4(ST19_TURRET *wp)
                 fx                             = func_80031618();
                 if (fx != NULL)
                 {
-                    fx->flags_0           = 5;
-                    fx->kind_2            = 0x80;
-                    fx->variant_3         = 0x40;
+                    fx->be_flag           = 5;
+                    fx->id                = 0x80;
+                    fx->type              = 0x40;
                     fx->value_D           = 1;
                     fx->sprite.position.x = wp->joint_180[i * 3 + 4].x;
                     fx->sprite.position.y = wp->joint_180[i * 3 + 4].y - 0x20;
@@ -1585,9 +1585,9 @@ void func_8010720C(ST19_TURRET *wp)
             ep          = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0           = 5;
-                ep->kind_2            = 0x80;
-                ep->variant_3         = 0x40;
+                ep->be_flag           = 5;
+                ep->id                = 0x80;
+                ep->type              = 0x40;
                 ep->value_D           = ctl->random_78 & 3;
                 ep->sprite.position.x = wp->joint_180[joint].x + ctl->rot_24.x;
                 ep->sprite.position.y = wp->joint_180[joint].y + ctl->rot_24.y;
@@ -1637,8 +1637,8 @@ void func_801074A4(STAGE_OBJ *wp)
         wp->scale.words[1] = 0x200;
         wp->scale.v.pad    = 0x4210;
         wp->rotation.y     = 0x400;
-        wp->flags_0 |= 2;
-        Model_work_init(wp, &wp->variant_3);
+        wp->be_flag |= 2;
+        Model_work_init(wp, &wp->type);
         func_800322A8(wp, 8, 0);
         func_80032538(wp);
         Model_parts_mtx_set_yxz(wp);
@@ -1723,7 +1723,7 @@ void func_80107724(ST19_OBJ *wp)
     ST19_GAME_78 *g;
 
     home = (ST19_HOME *)&wp->reserved348;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x200;
@@ -1736,7 +1736,7 @@ void func_80107724(ST19_OBJ *wp)
     wp->value_38C      = 0;
     wp->value_37C      = 0x04800000;
     wp->data_358       = D_80117BF6;
-    wp->data_354       = D_80117C94[wp->variant_3];
+    wp->data_354       = D_80117C94[wp->type];
     g                  = (ST19_GAME_78 *)&STAGE_GAME.value_78;
     if (g->value_0 != 0 && g->value_1 == 0x19 && g->value_2 == 3)
     {
@@ -1900,7 +1900,7 @@ void func_80107DD4(ST19_OBJ *wp)
         home->hitpos_38  = *(STCOM_SVECTOR *)&wp->value_180;
         if (home->hit_15 != 0)
         {
-            func_800341BC(&home->hitpos_38, 0x3C, 0, 0x8000, wp->value_1, &home->hit_40, home->hit_kind_34, 0, 0);
+            func_800341BC(&home->hitpos_38, 0x3C, 0, 0x8000, wp->slot, &home->hit_40, home->hit_kind_34, 0, 0);
         }
         if (!(home->flags_14 & 2))
         {
@@ -1912,7 +1912,7 @@ void func_80107DD4(ST19_OBJ *wp)
         {
             home->value_18 |= func_80108DB4(wp);
         }
-        if (wp->flags_0 & 2)
+        if (wp->be_flag & 2)
         {
             Model_Shadow_Trans(wp, 0x30, 0x200, 0);
         }
@@ -2161,11 +2161,11 @@ void func_80108750(ST19_OBJ *wp)
         wp->routine_0 = 1;
         return;
     }
-    if (!func_80108CAC(wp->position, home->pos_0, D_80117CC4[wp->variant_3][0], D_80117CC4[wp->variant_3][1]))
+    if (!func_80108CAC(wp->position, home->pos_0, D_80117CC4[wp->type][0], D_80117CC4[wp->type][1]))
     {
         wp->data_358  = D_80117C64;
         wp->routine_0 = 1;
-        wp->data_354  = D_80117C94[wp->variant_3];
+        wp->data_354  = D_80117C94[wp->type];
     }
 }
 
@@ -2179,7 +2179,7 @@ void func_8010896C(ST19_OBJ *wp)
         home->data_10 = D_80117C74;
         if (home->hit_15 < 2)
         {
-            home->data_C = &D_80117C94[wp->variant_3][0x20];
+            home->data_C = &D_80117C94[wp->type][0x20];
         }
         wp->routine_0 = 1;
         return;
@@ -2194,23 +2194,23 @@ void func_8010896C(ST19_OBJ *wp)
     }
     if (!(home->flags_14 & 1))
     {
-        if (func_80108CAC(STAGE_PL.position, home->pos_0, D_80117CC4[wp->variant_3][0], D_80117CC4[wp->variant_3][1]) &&
-            func_80108CAC(STAGE_PL.position, wp->position, D_80117CC4[wp->variant_3][2], D_80117CC4[wp->variant_3][3]) &&
+        if (func_80108CAC(STAGE_PL.position, home->pos_0, D_80117CC4[wp->type][0], D_80117CC4[wp->type][1]) &&
+            func_80108CAC(STAGE_PL.position, wp->position, D_80117CC4[wp->type][2], D_80117CC4[wp->type][3]) &&
             (wp->anim_AC != 0 || STAGE_PL.routine_1 >= 7 || (STAGE_PL.routine_1 >= 2 && STAGE_PL.routine_1 < 4)))
         {
             home->flags_14 |= 1;
             if (home->hit_15 != 0)
             {
-                home->data_C  = &D_80117C94[wp->variant_3][0x10];
+                home->data_C  = &D_80117C94[wp->type][0x10];
                 home->data_10 = D_80117C54;
                 wp->routine_0 = 1;
             }
         }
     }
-    else if (!func_80108CAC(STAGE_PL.position, home->pos_0, D_80117CC4[wp->variant_3][0], D_80117CC4[wp->variant_3][1]))
+    else if (!func_80108CAC(STAGE_PL.position, home->pos_0, D_80117CC4[wp->type][0], D_80117CC4[wp->type][1]))
     {
         home->flags_14 &= ~1;
-        home->data_C = D_80117C94[wp->variant_3];
+        home->data_C = D_80117C94[wp->type];
     }
 }
 

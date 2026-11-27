@@ -38,12 +38,12 @@ typedef struct
 // that can be stunned and knocked about, dropping effects from its joints.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -133,10 +133,10 @@ typedef struct
 // hits, and falls off when the boss breaks.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -182,13 +182,13 @@ typedef void (*ST09_STCOM36_OBJ_FUNC)(ST09_STCOM36_OBJ *wp);
 // From r3_st03 (STCOM36_OBJ).
 struct ST09_STCOM36_OBJ
 {
-    uint8 flags_0;          // 00
-    uint8 index_1;          // 01: pool id and slot
-    uint8 kind_2;           // 02: first index into the pool's handler table
-    uint8 value_3;          // 03
-    uint8 handler_4;        // 04: second index (two-level tables)
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01: pool id and slot
+    uint8 id;               // 02: first index into the pool's handler table
+    uint8 type;             // 03
+    uint8 handler;          // 04: second index (two-level tables)
     uint8 value_5;          // 05
-    uint8 flags_6;          // 06: 0x20 cleared once the room's script has it
+    uint8 flags;            // 06: 0x20 cleared once the room's script has it
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -212,10 +212,10 @@ typedef struct ST09_VIEW ST09_VIEW;
 typedef void (*ST09_VIEW_FUNC)(ST09_VIEW *wp);
 struct ST09_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -377,10 +377,10 @@ typedef struct ST09_VIEW_B ST09_VIEW_B;
 typedef void (*ST09_VIEW_B_FUNC)(ST09_VIEW_B *wp);
 struct ST09_VIEW_B
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8
@@ -745,8 +745,9 @@ typedef struct
 // lifts (func_8011720C).
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01[3]; // 01
+    uint8 be_flag;       // 00
+    uint8 slot;          // 01
+    uint8 reserved02[2]; // 02
     uint8 value_4;       // 04
     uint8 delay_5[3];    // 05: per lift
     union
@@ -796,10 +797,10 @@ typedef union
 // A breakable box (a 0x50-byte slot, func_80118B30; as stcom22's crate).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 index_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03: low nibble: what breaking it does; high nibble: its size
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03: low nibble: what breaking it does; high nibble: its size
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -856,10 +857,10 @@ typedef struct
 // A platform that slides back and forth (a 0x10C-byte slot, func_80115898).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03: low 7 bits: spin speed
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03: low 7 bits: spin speed
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -938,10 +939,10 @@ typedef struct
 // STAGE_ACTOR as r3_st09's actors use it.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

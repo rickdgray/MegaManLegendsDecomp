@@ -7,7 +7,7 @@ void func_80107470(STAGE_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_80113AF4[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -51,8 +51,8 @@ void func_80107620(STAGE_ACTOR *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x80;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
     wp->scale.v.pad      = 0x4210;
@@ -73,7 +73,7 @@ void func_801076BC(STAGE_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_80113AF8[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -171,7 +171,7 @@ void func_801077AC(STAGE_ACTOR *wp)
                 cam->rot_40 = 0xEEE << 16;
                 cam->rot_44 = 0x30 << 16;
                 cam->rot_48 = 0xFA << 16;
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 wp->routine_2 = 0;
                 wp->routine_1++;
             }
@@ -182,7 +182,7 @@ void func_801077AC(STAGE_ACTOR *wp)
                 D_800A395C = 1;
                 func_80039820();
                 func_80042314(pl);
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->reserved04[0] = 0;
                 wp->timer_C       = 0x2C;
                 wp->value_D       = 0;
@@ -206,7 +206,7 @@ void func_80107AE4(STAGE_ACTOR *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x80;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;

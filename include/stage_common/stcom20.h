@@ -32,8 +32,8 @@ typedef struct
 // The 0x10C-byte work slot of a floating mine (freed through ROCK_NEO's Close_SHL_WORK).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
     uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

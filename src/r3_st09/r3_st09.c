@@ -159,8 +159,8 @@ void func_80100788(STAGE_ROOM_WORK *wp)
                 wp->timer_C        = 0x1E;
                 wp->routine_6++;
                 Obj_work_flag_change(0x3FE, 5);
-                obj->flags_0 |= 3;
-                obj->flags_6 |= 3;
+                obj->be_flag |= 3;
+                obj->flags |= 3;
             }
             break;
         case 1:
@@ -198,8 +198,8 @@ void func_80100788(STAGE_ROOM_WORK *wp)
                 wp->flags_0 = 0;
                 D_800A395C  = 1;
                 Obj_work_flag_change(0x3FE, 0xA);
-                obj->flags_0 |= 3;
-                obj->flags_6 |= 3;
+                obj->be_flag |= 3;
+                obj->flags |= 3;
             }
             break;
     }
@@ -249,7 +249,7 @@ void func_80100B20(sint8 skip)
             index = D_8011DD68[i].index_0;
             Scene_obj_ent_open(&D_8011DD68[i]);
             D_8011EA60[index] = STAGE_SCENE_OBJ(index);
-            D_8011EA60[index]->flags_6 &= ~0x20;
+            D_8011EA60[index]->flags &= ~0x20;
             D_8011DD60 |= 0x80000000 >> index;
         }
     }
@@ -267,16 +267,16 @@ void func_80100BF0(void)
         if (D_8011DD60 & (0x80000000 >> i))
         {
             obj  = D_8011EA60[i];
-            kind = func_8002FE74(obj->index_1);
+            kind = func_8002FE74(obj->slot);
             switch (kind)
             {
                 case 0x20:
                     obj->routine_0 = 2;
-                    ST09_STCOM36_TABLE_3C0[obj->kind_2][obj->handler_4](obj);
+                    ST09_STCOM36_TABLE_3C0[obj->id][obj->handler](obj);
                     break;
                 case 0x60:
                     obj->routine_0 = 2;
-                    ST09_STCOM36_TABLE_10C[obj->kind_2](obj);
+                    ST09_STCOM36_TABLE_10C[obj->id](obj);
                     break;
             }
             D_8011DD60 &= ~(0x80000000 >> i);
@@ -292,11 +292,11 @@ void func_80100D14(sint8 index)
     if (D_8011DD60 & (0x80000000 >> index))
     {
         obj  = D_8011EA60[index];
-        kind = func_8002FE74(obj->index_1);
+        kind = func_8002FE74(obj->slot);
         if (kind == 0x20 || kind == 0x60)
         {
             obj->routine_0 = 2;
-            ST09_STCOM36_TABLE_3C0[obj->kind_2][obj->handler_4](obj);
+            ST09_STCOM36_TABLE_3C0[obj->id][obj->handler](obj);
         }
         D_8011DD60 &= ~(0x80000000 >> index);
     }
@@ -325,7 +325,7 @@ void func_80100DF4(ST09_VIEW *wp)
     }
     STAGE_SP_13A = ext->u_3C.h[0];
     Model_parts_mtx_set_y(wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -350,11 +350,11 @@ void func_80100DF4(ST09_VIEW *wp)
         wp->rotation.y                  = wp->u_64.h[0];
         ext->u_4C.i++;
     } while (ext->u_4C.i < 2);
-    if ((wp->flags_0 & 2) && (ext->flags_0 & 4))
+    if ((wp->be_flag & 2) && (ext->flags_0 & 4))
     {
         ext->pos_C = wp->vec_180;
         ext->pos_C.y += 30;
-        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->value_1, &ext->value_14, ext->value_8 | 0x4880000, 0x800000, 0);
+        func_800341BC(&ext->pos_C, 0x50, 0, 0x8000, wp->slot, &ext->value_14, ext->value_8 | 0x4880000, 0x800000, 0);
     }
     ext->value_14 = 0;
 }
@@ -368,7 +368,7 @@ void func_8010116C(ST09_VIEW *wp)
     wp->u_64.w[0]  = 0;
     wp->u_44.w[0]  = 0;
     wp->u_48.w[0]  = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->value_158               = 0x02000200;
     wp->u_15C.w[0]              = 0x200;
@@ -377,7 +377,7 @@ void func_8010116C(ST09_VIEW *wp)
     *(sint32 *)&wp->ext.value_8 = 0;
     wp->ext.value_14            = 0;
     wp->ext.value_18            = 0;
-    Track_reset(wp->ext.u_24.track, D_80098844[wp->kind_2]->value_F, -0x60);
+    Track_reset(wp->ext.u_24.track, D_80098844[wp->id]->value_F, -0x60);
     wp->ext.u_34.h[0]         = 0;
     wp->ext.u_34.h[1]         = 0;
     wp->ext.u_3C.h[0]         = 0;
@@ -385,7 +385,7 @@ void func_8010116C(ST09_VIEW *wp)
     wp->ext.obj_40            = func_80036294(wp->u_C.b[1]);
     wp->ext.u_44.fx[0]        = (STAGE_FX *)func_80036294(wp->ext.obj_40->u_C.b.byte_D);
     wp->ext.u_44.fx[1]        = (STAGE_FX *)func_80036294(wp->ext.obj_40->u_E.b.byte_E);
-    life                      = D_80098844[wp->kind_2]->life_8 << 4;
+    life                      = D_80098844[wp->id]->life_8 << 4;
     wp->data_78               = D_8011DE20;
     wp->value_10              = 0;
     wp->routine_0             = 1;
@@ -477,9 +477,9 @@ void func_801012B4(ST09_VIEW *wp)
             ext->effect_50 = func_80031618();
             if (ext->effect_50 != NULL)
             {
-                ext->effect_50->flags_0         = 5;
-                ext->effect_50->kind_2          = 0x80;
-                ext->effect_50->variant_3       = 0x41;
+                ext->effect_50->be_flag         = 5;
+                ext->effect_50->id              = 0x80;
+                ext->effect_50->type            = 0x41;
                 ext->effect_50->sprite.position = wp->position;
             }
             func_80031824(wp);
@@ -531,9 +531,9 @@ void func_80101580(ST09_VIEW *wp)
             ext->effect_50 = func_80031618();
             if (ext->effect_50 != NULL)
             {
-                ext->effect_50->flags_0         = 5;
-                ext->effect_50->kind_2          = 0x80;
-                ext->effect_50->variant_3       = 0x41;
+                ext->effect_50->be_flag         = 5;
+                ext->effect_50->id              = 0x80;
+                ext->effect_50->type            = 0x41;
                 ext->effect_50->sprite.position = wp->position;
             }
             func_80031824(wp);
@@ -593,7 +593,7 @@ void func_801017F0(ST09_VIEW *wp)
             wp->value_AC      = 1;
             wp->ext.value_8   = 0;
             wp->ext.u_34.h[1] = (wp->ext.u_2.h & 0x1F) + 0x10;
-            if (wp->variant_3 == 0)
+            if (wp->type == 0)
             {
                 wp->ext.u_34.h[0] = 300;
             }
@@ -626,7 +626,7 @@ void func_801017F0(ST09_VIEW *wp)
                 *(uint16 *)&wp->routine_2 = 0;
                 break;
             }
-            if (wp->variant_3 == 0 && ext->u_34.h[0] == 0)
+            if (wp->type == 0 && ext->u_34.h[0] == 0)
             {
                 wp->routine_1             = 4;
                 *(uint16 *)&wp->routine_2 = 0;
@@ -646,7 +646,7 @@ void func_801017F0(ST09_VIEW *wp)
                 }
                 break;
             }
-            if (wp->variant_3 == 0 && ext->u_34.h[1] == 0 &&
+            if (wp->type == 0 && ext->u_34.h[1] == 0 &&
                 func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x100, &ext->u_58.obj->position_fixed.v, ext->u_58.obj->rotation.y,
                               0x100))
             {
@@ -670,16 +670,16 @@ void func_801017F0(ST09_VIEW *wp)
                         break;
                 }
             }
-            if (wp->variant_3 == 1 && ext->u_34.h[0] == 0 &&
+            if (wp->type == 1 && ext->u_34.h[0] == 0 &&
                 func_80031DCC(&wp->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF, 0x18, &ext->u_58.obj->position_fixed.v,
                               ext->u_58.obj->rotation.y, 0x300))
             {
                 ext->piece_54 = (STAGE_PIECE *)Open_SHL_WORK();
                 if (ext->piece_54 != NULL)
                 {
-                    ext->piece_54->flags_0        = 1;
-                    ext->piece_54->kind_2         = 9;
-                    ext->piece_54->variant_3      = 0;
+                    ext->piece_54->be_flag        = 1;
+                    ext->piece_54->id             = 9;
+                    ext->piece_54->type           = 0;
                     ext->piece_54->position       = wp->position;
                     ext->piece_54->position_fixed = wp->position_fixed;
                     func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF,
@@ -711,7 +711,7 @@ void func_80101C3C(ST09_VIEW *wp)
         case 0:
             wp->routine_2   = 1;
             wp->value_AC    = 2;
-            wp->ext.value_8 = D_80098844[wp->kind_2]->value_A;
+            wp->ext.value_8 = D_80098844[wp->id]->value_A;
             // fall through
         case 1:
             if (wp->u_A4.b[2] == 2)
@@ -1288,9 +1288,9 @@ void func_80102B4C(ST09_VIEW *wp)
                     ext->piece_54 = (STAGE_PIECE *)Open_SHL_WORK();
                     if (ext->piece_54 != NULL)
                     {
-                        ext->piece_54->flags_0        = 1;
-                        ext->piece_54->kind_2         = 9;
-                        ext->piece_54->variant_3      = 0;
+                        ext->piece_54->be_flag        = 1;
+                        ext->piece_54->id             = 9;
+                        ext->piece_54->type           = 0;
                         ext->piece_54->position       = wp->position;
                         ext->piece_54->position_fixed = wp->position_fixed;
                         func_8002FFC4(&ext->piece_54->position, &ext->piece_54->position_fixed, (wp->rotation.y + ext->u_3C.h[0]) & 0xFFF,
@@ -1441,12 +1441,12 @@ sint32 func_801031E8(ST09_VIEW *wp)
             if (wp->value_6E <= 0)
             {
                 wp->ext.flags_0 = (wp->ext.flags_0 & ~2) | 0x820;
-                wp->ext.u_4C.i  = D_80098844[wp->kind_2]->limit_9;
+                wp->ext.u_4C.i  = D_80098844[wp->id]->limit_9;
             }
             if (wp->ext.flags_0 & 0x20)
             {
                 wp->ext.value_A += wp->ext.u_4C.i;
-                if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
+                if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->id]->limit_9)
                 {
                     Sound_call2(0xA2, &wp->position);
                     if (wp->ext.from_1C.pad & 1)
@@ -1485,7 +1485,7 @@ sint32 func_801031E8(ST09_VIEW *wp)
                     Sound_call2(0xA0, &wp->position);
                 }
             }
-            else if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->kind_2]->limit_9)
+            else if ((wp->ext.value_14 & 0x20000000) || wp->ext.value_A >= D_80098844[wp->id]->limit_9)
             {
                 Sound_call2(0xA2, &wp->position);
             }

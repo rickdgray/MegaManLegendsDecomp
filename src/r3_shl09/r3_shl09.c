@@ -2,11 +2,11 @@
 #include "shl09.h"
 
 // Module entry: ROCK_NEO.EXE's SHL table (0x80089A28) points every special weapon here.
-// type_3 selects the object: 0 the beam, 1 the orbiting shot, 2 its spark.
+// type selects the object: 0 the beam, 1 the orbiting shot, 2 its spark.
 void func_800D8804(SHL_WORK *wp)
 {
-    wp->type_3 &= 0x7F;
-    D_800D9730[wp->type_3](wp);
+    wp->type &= 0x7F;
+    D_800D9730[wp->type](wp);
 }
 
 void func_800D8848(SHL_WORK *wp)
@@ -21,14 +21,14 @@ void func_800D8884(SHL_WORK *wp)
     wp->col_c0 = 0;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
     func_800354E0(wp->bit_d);
     func_800D9570(wp);
     wp->old_fpos          = wp->fpos;
     wp->old_pos           = wp->pos;
     wp->draw.mdl.color_b4 = 0x02808080;
-    Model_work_init(wp, &wp->type_3);
+    Model_work_init(wp, &wp->type);
     func_800D8F50(wp);
     Sound_call2(0x12E, &wp->pos);
     wp->value_f   = 0xD;
@@ -74,8 +74,8 @@ void func_800D8A98(SHL_WORK *wp)
     wp->box_78 = &D_800D96F8;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
     rot.vx = wp->rot.vx = func_80039B80();
     rot.vy = wp->rot.vy = Player_work.rot.vy;
     rot.vz = wp->rot.vz = 0x680;
@@ -91,7 +91,7 @@ void func_800D8A98(SHL_WORK *wp)
     wp->old_fpos          = wp->fpos;
     wp->old_pos           = wp->pos;
     wp->draw.mdl.color_b4 = 0x02808080;
-    Model_work_init(wp, &wp->type_3);
+    Model_work_init(wp, &wp->type);
     func_800D9398(wp);
     wp->value_e   = 4;
     wp->value_f   = func_80037634(&Player_work, 9) / 50;
@@ -151,7 +151,7 @@ void func_800D8E68(SHL_WORK *wp)
     wp->bit_d             = 0;
     wp->draw.spr.code_88  = 0x3D48002C;
     wp->draw.spr.color_8c = 0x2E808080;
-    wp->flags_0 |= 0x22;
+    wp->be_flag |= 0x22;
     wp->draw.spr.scale_96 = D_800D9724[wp->bit_d].scale_96;
     wp->draw.spr.scale_97 = D_800D9724[wp->bit_d].scale_97;
     wp->draw.spr.size_98  = 0x60;
@@ -211,8 +211,7 @@ void func_800D8F50(SHL_WORK *wp)
     v.vz   = D_800D9798[level].width + 0x1000;
     v.vy   = D_800D9798[level].len + 0x1000;
     ScaleMatrix(&wp->draw.mdl.mtx_8c, &v);
-    func_8003430C(&dir, D_800D9778[level], &wp->pos, D_800D9778[level], 0x200, 0x4000, wp->value_1, &wp->col_bc, flags | 0x28000000, 0,
-                  0x80);
+    func_8003430C(&dir, D_800D9778[level], &wp->pos, D_800D9778[level], 0x200, 0x4000, wp->slot, &wp->col_bc, flags | 0x28000000, 0, 0x80);
     wp->col_bc = 0;
     wp->col_c0 = 0;
 }
@@ -237,7 +236,7 @@ void func_800D922C(SHL_WORK *wp)
     b.vx = (f.w.x + (d.vx << 8)) >> 16;
     b.vy = (f.w.y + (d.vy << 8)) >> 16;
     b.vz = (f.w.z + (d.vz << 8)) >> 16;
-    func_8003430C(&a, size, &b, size, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x28000000, 0, 0x80);
+    func_8003430C(&a, size, &b, size, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x28000000, 0, 0x80);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
 }
@@ -249,7 +248,7 @@ void func_800D9398(SHL_WORK *wp)
     sint8 level;
 
     level = Player_work.value_53c;
-    func_8003430C(&wp->pos, 8, &wp->old_pos, 0x5C, 0x200, 0x4000, wp->value_1, &wp->col_c4, D_800D9704[level] | 0x8000000, 0, 0x80);
+    func_8003430C(&wp->pos, 8, &wp->old_pos, 0x5C, 0x200, 0x4000, wp->slot, &wp->col_c4, D_800D9704[level] | 0x8000000, 0, 0x80);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
 }
@@ -261,10 +260,10 @@ void func_800D942C(SHL_WORK *wp)
     np = Open_PL_SHL_WORK();
     if (np)
     {
-        np->flags_0 = 1;
+        np->be_flag = 1;
         np->value_2 = wp->value_2;
-        np->type_3  = 1;
-        np->index_c = wp->value_1;
+        np->type    = 1;
+        np->index_c = wp->slot;
     }
 }
 
@@ -283,10 +282,10 @@ void func_800D947C(SHL_WORK *wp)
     np   = Open_PL_SHL_WORK();
     if (np)
     {
-        np->flags_0       = 1;
+        np->be_flag       = 1;
         np->value_2       = wp->value_2;
-        np->type_3        = 2;
-        np->index_c       = wp->value_1;
+        np->type          = 2;
+        np->index_c       = wp->slot;
         np->draw.spr.x_90 = v.vx >> 16;
         np->draw.spr.y_92 = v.vy >> 16;
         np->draw.spr.z_94 = v.vz >> 16;

@@ -5,13 +5,13 @@
 #include "stage_common/rock_neo.h"
 
 // The 0x10C-byte work slot stcom11 runs on (freed through ROCK_NEO's Close_SHL_WORK): a sprite
-// thrown in one of four ways (type_3).
+// thrown in one of four ways (type).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
     uint8 reserved02;                       // 02
-    uint8 type_3;                           // 03
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

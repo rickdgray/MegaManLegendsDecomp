@@ -18,9 +18,10 @@ typedef struct
 // The 0x3C0-byte work slot stcom04 runs on (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[2];                    // 01
-    uint8 index_3;                          // 03: stcom04_D_0000 handler
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02;                       // 02
+    uint8 type;                             // 03: stcom04_D_0000 handler
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09: also a counter
@@ -68,7 +69,7 @@ typedef struct
 
 typedef void (*STCOM04_FUNC)(STCOM04_WORK *wp);
 
-extern STCOM04_FUNC stcom04_D_0000[];     // handlers by index_3 (stcom04_func_0000)
+extern STCOM04_FUNC stcom04_D_0000[];     // handlers by type (stcom04_func_0000)
 extern STCOM04_FUNC stcom04_D_0008[];     // routine_0 handlers (stcom04_func_0B58)
 extern uint8 stcom04_D_0010[];            // data_78 (stcom04_func_00CC)
 extern STCOM_FIXED_VECTOR stcom04_E_0000; // another object's data: position for func_80039FAC

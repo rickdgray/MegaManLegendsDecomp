@@ -46,12 +46,12 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -118,10 +118,10 @@ typedef struct
 // +0x4E0).
 typedef struct
 {
-    sint8 flags_0;            // 00
-    uint8 value_1;            // 01
-    uint8 kind_2;             // 02
-    uint8 variant_3;          // 03
+    sint8 be_flag;            // 00
+    uint8 slot;               // 01
+    uint8 id;                 // 02
+    uint8 type;               // 03
     uint8 reserved04[4];      // 04
     uint8 routine_0;          // 08
     uint8 routine_1;          // 09
@@ -165,9 +165,10 @@ typedef void (*ST0E_LEVER_FUNC)(ST0E_LEVER *wp);
 
 struct ST0E_LEVER
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[2];    // 01
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02;       // 02
+    uint8 type;             // 03
     uint8 reserved04;       // 04
     uint8 value_5;          // 05: picks the scene flag
     uint8 reserved06[2];    // 06
@@ -212,9 +213,10 @@ typedef struct
 // A 0x50-byte slot of a panel whose face colors are kept per variant (func_8010BFB4).
 typedef struct
 {
-    uint8 flags_0;        // 00
-    uint8 reserved01[2];  // 01
-    uint8 variant_3;      // 03
+    uint8 be_flag;        // 00
+    uint8 slot;           // 01
+    uint8 reserved02;     // 02
+    uint8 type;           // 03
     uint8 reserved04[4];  // 04
     uint8 routine_0;      // 08
     uint8 routine_1;      // 09
@@ -289,10 +291,10 @@ typedef struct
 // func_80108E00).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 value_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[4];               // 04
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09
@@ -344,10 +346,10 @@ typedef struct
 // A 0x10C-byte work slot with a model matrix at +0x8C.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -400,10 +402,10 @@ typedef void (*ST0E_PROP_FUNC)(ST0E_PROP *wp);
 
 struct ST0E_PROP
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -480,10 +482,10 @@ typedef void (*ST0E_GLOW_FUNC)(ST0E_GLOW *wp);
 
 struct ST0E_GLOW
 {
-    uint8 flags_0;       // 00
-    uint8 reserved01;    // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03: nonzero to draw
+    uint8 be_flag;       // 00
+    uint8 slot;          // 01
+    uint8 id;            // 02
+    uint8 type;          // 03: nonzero to draw
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -533,10 +535,10 @@ typedef struct ST0E_VIEW ST0E_VIEW;
 typedef void (*ST0E_VIEW_FUNC)(ST0E_VIEW *wp);
 struct ST0E_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 value_5;        // 5
     uint8 value_6;        // 6

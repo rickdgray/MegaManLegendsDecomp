@@ -74,17 +74,17 @@ void player_work_init(PL_WORK *pl, sint32 load)
     save       = &Save_image;
     if (Game_work.unk082 & 0x80)
     {
-        pl->routine_0 = 0;
-        pl->flags_6   = 0;
+        pl->be_flag = 0;
+        pl->flags   = 0;
     }
     else
     {
-        pl->routine_0             = 3;
-        pl->flags_6               = 3;
-        *(uint16 *)&pl->id_2      = 0; // id_2, type_3
+        pl->be_flag               = 3;
+        pl->flags                 = 3;
+        *(uint16 *)&pl->id        = 0; // id, type
         *(uint16 *)&pl->flag_4    = 0; // flag_4, flag_5
         pl->field_C               = 0;
-        *(uint32 *)&pl->routine_8 = 0; // routine_8 ... field_B
+        *(uint32 *)&pl->routine_0 = 0; // routine_0 ... routine_3
     }
     pl->hit_78   = &D_80097D90;
     pl->flags_BD = 0;
@@ -98,11 +98,11 @@ void player_work_init(PL_WORK *pl, sint32 load)
     pl->unk449   = 0;
     if (pl == &Player_work[0])
     {
-        Player_work[0].id_2 = 0;
+        Player_work[0].id = 0;
     }
     else
     {
-        pl->id_2 = 1;
+        pl->id = 1;
     }
     func_800425FC(pl, (sint8)Game_work.unk054);
     if (load == 0)
@@ -150,7 +150,7 @@ void Player_exec(void)
 {
     uint8 flags;
 
-    if ((sint8)Player_work[0].routine_0 & Player_work[0].flags_6 & 1)
+    if ((sint8)Player_work[0].be_flag & Player_work[0].flags & 1)
     {
         flags = Player_work[0].flags_BD;
         if (!(flags & 0x40))
@@ -191,7 +191,7 @@ void Player_exec(void)
         }
         func_8003C418(&Player_work[0]);
     }
-    if ((sint8)Player_work[1].routine_0 & Player_work[1].flags_6 & 1)
+    if ((sint8)Player_work[1].be_flag & Player_work[1].flags & 1)
     {
         if (!(Player_work[1].flags_BD & 0x40))
         {
@@ -211,21 +211,20 @@ void Player_exec(void)
 
 void func_8003C2D8(void)
 {
-    if ((sint8)Player_work[0].routine_0 & Player_work[0].flags_6 & 1)
+    if ((sint8)Player_work[0].be_flag & Player_work[0].flags & 1)
     {
         func_8003C4EC(&Player_work[0]);
         if (Player_work[0].unk449 == 0 && Player_work[0].unk110 == 0)
         {
-            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].kind_1, &Player_work[0].owner_188, 0x2000000, 0x800000,
-                          0);
+            func_800341BC(&Player_work[0].joint_pos[8], 0x20, 0, 0, Player_work[0].slot, &Player_work[0].owner_188, 0x2000000, 0x800000, 0);
         }
     }
-    if ((sint8)Player_work[1].routine_0 & Player_work[1].flags_6 & 1)
+    if ((sint8)Player_work[1].be_flag & Player_work[1].flags & 1)
     {
         func_8003C4EC(&Player_work[1]);
         if (Player_work[1].unk449 == 0 && Player_work[1].unk110 == 0)
         {
-            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].kind_1, &Player_work[1].owner_188, 0x2000000,
+            func_800341BC(&Player_work[1].joint_pos[8], 0x20, 0, 0x2000, Player_work[1].slot, &Player_work[1].owner_188, 0x2000000,
                           0x800000, 0);
         }
     }
@@ -233,7 +232,7 @@ void func_8003C2D8(void)
 
 void func_8003C418(PL_WORK *pl)
 {
-    D_80089F94[pl->routine_8](pl);
+    D_80089F94[pl->routine_0](pl);
     if (func_8004324C(pl) == 0)
     {
         pl->set_104      = pl->idx_AC;
@@ -261,18 +260,18 @@ void func_8003C4EC(PL_WORK *pl)
     sint32 y;
     sint32 floor;
 
-    if (pl->field_74 == 1 && (pl->unk7C & 0x2000) && (uint32)(pl->routine_9 - 7) < 2 && pl->field_A < 4)
+    if (pl->field_74 == 1 && (pl->unk7C & 0x2000) && (uint32)(pl->routine_1 - 7) < 2 && pl->routine_2 < 4)
     {
         key_seq_set(pl, 0x15, 0, 1);
-        pl->field_A = 4;
-        pl->spd.vy  = 0;
-        pl->add.vy  = 0;
+        pl->routine_2 = 4;
+        pl->spd.vy    = 0;
+        pl->add.vy    = 0;
     }
-    if ((uint32)(pl->routine_8 - 1) < 2 && pl->field_76 != 0)
+    if ((uint32)(pl->routine_0 - 1) < 2 && pl->field_76 != 0)
     {
         Ride_move(pl, pl->ride_C0);
     }
-    if (pl->routine_8 == 3 && pl->field_76 != 0)
+    if (pl->routine_0 == 3 && pl->field_76 != 0)
     {
         Ride_move_saved(pl, pl->ride_C0);
     }
@@ -281,7 +280,7 @@ void func_8003C4EC(PL_WORK *pl)
         Front_hit_event(pl);
     }
     // field_74 == 0 and field_76 == 0, in one word
-    if ((uint32)(pl->routine_8 - 1) < 2 && !(*(uint32 *)&pl->field_74 & 0xFF00FF))
+    if ((uint32)(pl->routine_0 - 1) < 2 && !(*(uint32 *)&pl->field_74 & 0xFF00FF))
     {
         y     = pl->pos.vy;
         floor = Obj_ceiling_height_get((MODEL_WORK *)pl) - pl->hit_78->max_A;
@@ -289,26 +288,26 @@ void func_8003C4EC(PL_WORK *pl)
         {
             if (pl->field_75 == 0)
             {
-                if (pl->routine_9 == 0xE)
+                if (pl->routine_1 == 0xE)
                 {
                     func_800394AC();
                     pl->val_108 = 0;
                 }
-                if (pl->routine_9 == 3)
+                if (pl->routine_1 == 3)
                 {
-                    if (pl->field_A < 5)
+                    if (pl->routine_2 < 5)
                     {
                         Sound_call(0x8E, 0, 0);
                         Sound_call(0x8F, 0, 0);
                     }
                 }
-                pl->routine_9           = 7;
-                *(uint16 *)&pl->field_A = 4; // field_A = 4, field_B = 0
-                pl->spd.vy              = 0;
-                pl->unk168              = 0;
-                pl->unk169              = 0;
-                pl->unk110              = 1;
-                pl->unk111              = 0;
+                pl->routine_1             = 7;
+                *(uint16 *)&pl->routine_2 = 4; // routine_2 = 4, routine_3 = 0
+                pl->spd.vy                = 0;
+                pl->unk168                = 0;
+                pl->unk169                = 0;
+                pl->unk110                = 1;
+                pl->unk111                = 0;
             }
             pl->field_74 = 1;
         }
@@ -337,7 +336,7 @@ void func_8003C4EC(PL_WORK *pl)
     func_8002D004(pl, pl->unk168, pl->unk169);
     Pl_pose_unpack(pl);
     Pl_joint_mtx_set(pl);
-    if (pl->routine_0 & 2)
+    if (pl->be_flag & 2)
     {
         Pl_Shadow_Trans(pl, 0x32, 0x2AB, 0);
     }
@@ -345,7 +344,7 @@ void func_8003C4EC(PL_WORK *pl)
 
 void func_8003C7B0(PL_WORK *pl)
 {
-    *(uint32 *)&pl->routine_8          = 1; // routine_8 = 1, field_9 ... field_B = 0
+    *(uint32 *)&pl->routine_0          = 1; // routine_0 = 1, routine_1 ... routine_3 = 0
     pl->unk6C                          = 0x3C;
     pl->spd.vx                         = 0;
     pl->spd.vy                         = 0;
@@ -376,7 +375,7 @@ void func_8003C7B0(PL_WORK *pl)
     pl->unk44B                         = 0;
     pl->unk44A                         = 0;
     pl->obj_184                        = 0;
-    pl->flags_6 |= 3;
+    pl->flags |= 3;
     key_seq_set(pl, 0, 0, 1);
     func_800321C8(pl, 0, 5, 0);
 }
@@ -398,19 +397,19 @@ void func_8003C88C(PL_WORK *pl)
     hit = func_8004AF28(&pl->pos);
     if (hit != 0)
     {
-        pl->routine_9 = 0xA;
-        pl->field_A   = 0;
-        pl->field_B   = hit;
+        pl->routine_1 = 0xA;
+        pl->routine_2 = 0;
+        pl->routine_3 = hit;
     }
-    else if ((*(uint32 *)&pl->routine_8 & 0xFFFF00) == 0xA00) // routine_9 == 0xA, field_A == 0
+    else if ((*(uint32 *)&pl->routine_0 & 0xFFFF00) == 0xA00) // routine_1 == 0xA, routine_2 == 0
     {
-        pl->field_A = 1;
+        pl->routine_2 = 1;
     }
     if (pl->unk449 == 0)
     {
         if (pl->unk110 == 0)
         {
-            pl->flags_6 |= 3;
+            pl->flags |= 3;
             damage_check(pl);
         }
         else if (pl->unk110 > 0)
@@ -420,25 +419,25 @@ void func_8003C88C(PL_WORK *pl)
             {
                 pl->unk71  = 0;
                 pl->unk110 = 0;
-                pl->flags_6 |= 3;
+                pl->flags |= 3;
             }
             else if (timer & 2)
             {
-                pl->flags_6 &= 0xFD;
+                pl->flags &= 0xFD;
             }
             else
             {
-                pl->flags_6 |= 3;
+                pl->flags |= 3;
             }
         }
         else
         {
-            pl->flags_6 |= 3;
+            pl->flags |= 3;
         }
     }
     else
     {
-        pl->flags_6 |= 3;
+        pl->flags |= 3;
     }
     mode                = pl->unk174 & 0xC0;
     pl->owner_188.hit_0 = 0;
@@ -455,27 +454,27 @@ void func_8003C88C(PL_WORK *pl)
     }
     if (!(pl->flags_BD & 0x80))
     {
-        D_80089FF8[pl->routine_9](pl);
-        D_80089FA4[pl->routine_9](pl);
+        D_80089FF8[pl->routine_1](pl);
+        D_80089FA4[pl->routine_1](pl);
     }
     hit = Obj_map_push_out((MODEL_WORK *)pl);
-    if (pl->field_74 == 1 && (hit & 0x2000) && (uint32)(pl->routine_9 - 7) < 2 && pl->field_A < 4)
+    if (pl->field_74 == 1 && (hit & 0x2000) && (uint32)(pl->routine_1 - 7) < 2 && pl->routine_2 < 4)
     {
         key_seq_set(pl, 0x15, 0, 1);
-        pl->field_A = 4;
-        pl->spd.vy  = 0;
-        pl->add.vy  = 0;
+        pl->routine_2 = 4;
+        pl->spd.vy    = 0;
+        pl->add.vy    = 0;
     }
     func_80051BAC((MODEL_WORK *)pl);
 }
 
 void func_8003CB20(PL_WORK *pl)
 {
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
-        pl->field_A = 1;
-        pl->spd.vx  = 0;
-        pl->spd.vz  = 0;
+        pl->routine_2 = 1;
+        pl->spd.vx    = 0;
+        pl->spd.vz    = 0;
         pl->unk174 &= 0xFC;
         if (!(pl->unk174 & 0xC0) && pl->unk177 == 0)
         {
@@ -506,11 +505,11 @@ void func_8003CBF8(PL_WORK *pl)
 {
     uint8 flags;
 
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
-        pl->field_A = 1;
-        pl->spd.vz  = 0;
-        if (pl->field_B == 0)
+        pl->routine_2 = 1;
+        pl->spd.vz    = 0;
+        if (pl->routine_3 == 0)
         {
             pl->spd.vx = 0x50;
         }
@@ -535,7 +534,7 @@ void func_8003CBF8(PL_WORK *pl)
     }
     if (!(pl->unk174 & 0xC0) && pl->unk177 == 0)
     {
-        if (pl->field_B == 0)
+        if (pl->routine_3 == 0)
         {
             key_seq_set(pl, 0xC, 0, 0);
             func_80042044(pl, 0x20, 0x20);
@@ -558,7 +557,7 @@ void func_8003CD4C(PL_WORK *pl)
     sint32 id;
 
     id = 0;
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             switch ((sint8)pl->unk112)
@@ -635,7 +634,7 @@ void func_8003CD4C(PL_WORK *pl)
             }
             pl->spd.vx = 0x200;
             pl->unk113 = 0;
-            pl->field_A += 2;
+            pl->routine_2 += 2;
             pl->unk174 |= 4;
             key_seq_set(pl, id, 0, 1);
             func_8003D124(pl, (sint8)pl->unk112);
@@ -643,14 +642,14 @@ void func_8003CD4C(PL_WORK *pl)
         case 1:
             if (pl->cmd_A4.b.b0 == 1)
             {
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 2:
             if (pl->cmd_A4.b.ctl == -1)
             {
                 pl->unk44D = 1;
-                pl->field_A += 2;
+                pl->routine_2 += 2;
                 Pl00_shot_enable_on(pl);
                 if ((sint8)pl->unk112 != 1)
                 {
@@ -667,7 +666,7 @@ void func_8003CD4C(PL_WORK *pl)
             if (pl->cmd_A4.b.b0 == 5)
             {
                 pl->unk44D = 1;
-                pl->field_A++;
+                pl->routine_2++;
             }
             // fall through
         case 4:
@@ -682,8 +681,8 @@ void func_8003CD4C(PL_WORK *pl)
             switch ((sint8)pl->unk112)
             {
                 case 0:
-                    pl->routine_9           = 0;
-                    *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                    pl->routine_1             = 0;
+                    *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
                     break;
                 case 1:
                     Pl00_shot_enable_off(pl);
@@ -699,18 +698,18 @@ void func_8003CD4C(PL_WORK *pl)
                     break;
             }
             pl->add.vx = 0x30;
-            pl->field_A++;
+            pl->routine_2++;
             func_8003D124(pl, (sint8)pl->unk112);
             break;
         case 6:
             if (pl->cmd_A4.b.b2 == 1)
             {
-                pl->routine_9           = 0;
-                *(uint16 *)&pl->field_A = 0; // field_A, field_B
-                pl->unk116              = 0;
-                pl->unk112              = 0;
-                pl->spd.vx              = 0;
-                pl->turn_B4             = 0;
+                pl->routine_1             = 0;
+                *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
+                pl->unk116                = 0;
+                pl->unk112                = 0;
+                pl->spd.vx                = 0;
+                pl->turn_B4               = 0;
                 Pl00_shot_enable_on(pl);
                 key_seq_set(pl, 0, 0, 0);
             }
@@ -767,13 +766,13 @@ void func_8003D1E0(PL_WORK *pl)
 
     pad  = pl->pad_now;
     trig = pl->pad_on;
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             pl->unk174 |= 4;
             key_seq_set(pl, 0x38, 0, 0);
             pl->unk44A++;
-            pl->field_A += 2;
+            pl->routine_2 += 2;
             break;
         case 1:
             if (pl->keys_124[2] & pad)
@@ -781,9 +780,9 @@ void func_8003D1E0(PL_WORK *pl)
                 wp = func_80031618();
                 if (wp != NULL)
                 {
-                    wp->routine_0 = 1;
-                    wp->id_2      = 0x89;
-                    wp->type_3    = 0;
+                    wp->be_flag = 1;
+                    wp->id      = 0x89;
+                    wp->type    = 0;
                 }
             }
             if (pl->keys_124[3] & pad)
@@ -791,12 +790,12 @@ void func_8003D1E0(PL_WORK *pl)
                 wp = func_80031618();
                 if (wp != NULL)
                 {
-                    wp->routine_0 = 1;
-                    wp->id_2      = 0x89;
-                    wp->type_3    = 1;
+                    wp->be_flag = 1;
+                    wp->id      = 0x89;
+                    wp->type    = 1;
                 }
             }
-            pl->field_A++;
+            pl->routine_2++;
             // fall through
         case 2:
             if (pl->cmd_A4.b.b2 == 0)
@@ -804,8 +803,8 @@ void func_8003D1E0(PL_WORK *pl)
                 pl->unk44A++;
                 break;
             }
-            pl->field_A = 3;
-            pl->spd.vx  = 0x340;
+            pl->routine_2 = 3;
+            pl->spd.vx    = 0x340;
             // fall through
         case 3:
             if (pl->cmd_A4.b.ctl != -1)
@@ -814,7 +813,7 @@ void func_8003D1E0(PL_WORK *pl)
                 break;
             }
             Sound_call(0x8C, 0, 0);
-            pl->field_A++;
+            pl->routine_2++;
             // fall through
         case 4:
             if ((pl->keys_124[0] | pl->keys_124[1]) & pad)
@@ -907,7 +906,7 @@ void func_8003D1E0(PL_WORK *pl)
                 Sound_call(0x8E, 0, 0);
                 Sound_call(0x8F, 0, 0);
                 key_seq_set(pl, 0x3A, 0, 0);
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 5:
@@ -916,23 +915,23 @@ void func_8003D1E0(PL_WORK *pl)
             func_80041E90(pl, pl->spd.vx, 0, 0);
             if (pl->cmd_A4.b.ctl == -1)
             {
-                pl->routine_9           = 0;
-                *(uint16 *)&pl->field_A = 0; // field_A, field_B
-                pl->spd.vx              = 0;
-                pl->unk44A              = 0;
+                pl->routine_1             = 0;
+                *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
+                pl->spd.vx                = 0;
+                pl->unk44A                = 0;
             }
             break;
     }
-    if (pl->field_A == 3 || pl->field_A == 4)
+    if (pl->routine_2 == 3 || pl->routine_2 == 4)
     {
         if (pl->keys_124[3] & trig)
         {
             wp = func_80031618();
             if (wp != NULL)
             {
-                wp->routine_0 = 1;
-                wp->id_2      = 0x89;
-                wp->type_3    = 1;
+                wp->be_flag = 1;
+                wp->id      = 0x89;
+                wp->type    = 1;
             }
         }
         if (pl->keys_124[2] & trig)
@@ -940,9 +939,9 @@ void func_8003D1E0(PL_WORK *pl)
             wp = func_80031618();
             if (wp != NULL)
             {
-                wp->routine_0 = 1;
-                wp->id_2      = 0x89;
-                wp->type_3    = 0;
+                wp->be_flag = 1;
+                wp->id      = 0x89;
+                wp->type    = 0;
             }
         }
     }
@@ -956,9 +955,9 @@ void func_8003D6DC(PL_WORK *pl)
     sint32 mask;
 
     pad = pl->pad_now;
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
-        pl->field_A++;
+        pl->routine_2++;
         pl->turn_acc_B6 = 0;
         pl->unk44D      = 0;
     }
@@ -1008,7 +1007,7 @@ void func_8003D7D4(PL_WORK *pl)
     uint32 pad;
     sint16 key;
 
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             switch ((sint8)pl->unk112)
@@ -1026,7 +1025,7 @@ void func_8003D7D4(PL_WORK *pl)
                     pl->key_164  = pl->keys_124[5];
                     break;
             }
-            pl->field_A++;
+            pl->routine_2++;
             // fall through
         case 1:
             pad = pl->pad_now;
@@ -1040,14 +1039,14 @@ void func_8003D7D4(PL_WORK *pl)
             if (pl->unk116 == 0)
             {
                 pl->unk112    = 0;
-                pl->routine_9 = 0;
+                pl->routine_1 = 0;
                 if (pl->key_164 != 0)
                 {
-                    *(uint16 *)&pl->field_A = 0x100; // field_A = 0, field_B = 1
+                    *(uint16 *)&pl->routine_2 = 0x100; // routine_2 = 0, routine_3 = 1
                 }
                 else
                 {
-                    *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                    *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
                 }
                 Pl00_shot_enable_on(pl);
             }
@@ -1067,10 +1066,10 @@ void func_8003D960(PL_WORK *pl)
     uint32 key;
 
     pad = pl->pad_now;
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
-        pl->field_A = 1;
-        pl->turn_B4 = 0;
+        pl->routine_2 = 1;
+        pl->turn_B4   = 0;
         pl->unk174 |= 4;
     }
     key  = pl->keys_124[6];
@@ -1104,10 +1103,10 @@ void func_8003DA34(PL_WORK *pl)
     uint16 pad;
 
     pad = pl->pad_now;
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
-            pl->field_A++;
+            pl->routine_2++;
             pl->unk112  = 0;
             pl->unk116  = 0;
             pl->turn_B4 = 0;
@@ -1122,7 +1121,7 @@ void func_8003DA34(PL_WORK *pl)
             if (pl->cmd_A4.b.ctl == -1)
             {
                 pl->field_74 = 1;
-                pl->field_A++;
+                pl->routine_2++;
                 pl->old_idx_AD = pl->idx_AC;
                 if (pl->unk16B & 1)
                 {
@@ -1146,12 +1145,12 @@ void func_8003DA34(PL_WORK *pl)
                 if (pl->spd.vy >= 0)
                 {
                     key_seq_set(pl, 0x12, 0, 1);
-                    pl->field_A += 2;
+                    pl->routine_2 += 2;
                 }
             }
             else
             {
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 3:
@@ -1164,12 +1163,12 @@ void func_8003DA34(PL_WORK *pl)
             {
                 key_seq_set(pl, 0x12, 0, 1);
                 pl->spd.vy = 0;
-                pl->field_A += 2;
+                pl->routine_2 += 2;
             }
             break;
         case 4:
             key_seq_set(pl, 0x12, 0, 1);
-            pl->field_A++;
+            pl->routine_2++;
             // fall through
         case 5:
             func_8003E068(pl, (sint8)pl->unk112);
@@ -1185,12 +1184,12 @@ void func_8003DC5C(PL_WORK *pl)
     uint16 pad;
 
     pad = pl->pad_now;
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             pl->field_74 = 1;
             pl->unk44D   = 1;
-            pl->field_A += 2;
+            pl->routine_2 += 2;
             pl->old_idx_AD = pl->idx_AC;
             if (pl->unk16B & 1)
             {
@@ -1218,12 +1217,12 @@ void func_8003DC5C(PL_WORK *pl)
                 if (pl->spd.vy >= 0)
                 {
                     key_seq_set(pl, 0x15, 0, 1);
-                    pl->field_A += 3;
+                    pl->routine_2 += 3;
                 }
             }
             else
             {
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 3:
@@ -1236,13 +1235,13 @@ void func_8003DC5C(PL_WORK *pl)
             {
                 key_seq_set(pl, 0x15, 0, 1);
                 pl->spd.vy = 0;
-                pl->field_A += 2;
+                pl->routine_2 += 2;
             }
             break;
         case 4:
             key_seq_set(pl, 0x12, 0, 1);
             pl->spd.vx = 0x200;
-            pl->field_A++;
+            pl->routine_2++;
             // fall through
         case 5:
             func_8003E068(pl, (sint8)pl->unk112);
@@ -1267,10 +1266,10 @@ void func_8003DC5C(PL_WORK *pl)
                     }
                     else if (pl->unk44A > 0x10)
                     {
-                        pl->routine_9           = 3;
-                        *(uint16 *)&pl->field_A = 1; // field_A = 1, field_B = 0
-                        pl->spd.vx              = 0x300;
-                        pl->spd.vz              = 0;
+                        pl->routine_1             = 3;
+                        *(uint16 *)&pl->routine_2 = 1; // routine_2 = 1, routine_3 = 0
+                        pl->spd.vx                = 0x300;
+                        pl->spd.vz                = 0;
                         key_seq_set(pl, 0x3B, 0, 0);
                         return;
                     }
@@ -1278,7 +1277,7 @@ void func_8003DC5C(PL_WORK *pl)
                     {
                         key_seq_set(pl, 0x2A, 0, 0);
                     }
-                    pl->field_A++;
+                    pl->routine_2++;
                     return;
                 case 1:
                     if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[4]))
@@ -1286,7 +1285,7 @@ void func_8003DC5C(PL_WORK *pl)
                         goto land;
                     }
                     key_seq_set(pl, 0x2B, 0, 0);
-                    pl->field_A++;
+                    pl->routine_2++;
                     return;
                 case 2:
                     if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[1]))
@@ -1294,7 +1293,7 @@ void func_8003DC5C(PL_WORK *pl)
                         goto land;
                     }
                     key_seq_set(pl, 0x2D, 0, 0);
-                    pl->field_A++;
+                    pl->routine_2++;
                     return;
                 case 3:
                     if (!(pad & pl->keys_124[8]) && (pad & pl->keys_124[5]))
@@ -1302,24 +1301,24 @@ void func_8003DC5C(PL_WORK *pl)
                         goto land;
                     }
                     key_seq_set(pl, 0x2C, 0, 0);
-                    pl->field_A++;
+                    pl->routine_2++;
                     return;
             }
         land:
-            pl->spd.vx              = 0x200;
-            pl->routine_9           = 2;
-            pl->spd.vy              = 0;
-            *(uint16 *)&pl->field_A = 2; // field_A = 2, field_B = 0
+            pl->spd.vx                = 0x200;
+            pl->routine_1             = 2;
+            pl->spd.vy                = 0;
+            *(uint16 *)&pl->routine_2 = 2; // routine_2 = 2, routine_3 = 0
             key_seq_set(pl, 0x17, 0, 0);
             break;
         case 7:
             if (pl->cmd_A4.b.ctl == -1)
             {
-                pl->routine_9           = 0;
-                *(uint16 *)&pl->field_A = 0; // field_A, field_B
-                pl->spd.vx              = 0;
-                pl->spd.vz              = 0;
-                pl->unk44A              = 0;
+                pl->routine_1             = 0;
+                *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
+                pl->spd.vx                = 0;
+                pl->spd.vz                = 0;
+                pl->unk44A                = 0;
                 Pl00_shot_enable_on(pl);
                 key_seq_set(pl, 0, 0, 0);
                 pl->unk116  = 0;
@@ -1393,7 +1392,7 @@ void func_8003E068(PL_WORK *pl, sint32 dir)
     func_80041E90(pl, pl->spd.vx, pl->spd.vy, pl->spd.vz);
     if (pl->field_74 == 0)
     {
-        if (pl->routine_9 == 7)
+        if (pl->routine_1 == 7)
         {
             key_seq_set(pl, 0x13, 0, 1);
         }
@@ -1402,14 +1401,14 @@ void func_8003E068(PL_WORK *pl, sint32 dir)
             key_seq_set(pl, 0x16, 0, 1);
         }
         Sound_call(0x93, 0, 0);
-        pl->routine_9 = 8;
-        pl->field_A   = 6;
+        pl->routine_1 = 8;
+        pl->routine_2 = 6;
     }
 }
 
 void func_8003E224(PL_WORK *pl)
 {
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             pl->unk110 = -1;
@@ -1420,8 +1419,8 @@ void func_8003E224(PL_WORK *pl)
             pl->field_74 = 1;
             pl->spd.vx   = 0;
             pl->spd.vy   = 0;
-            pl->field_A++;
-            if (pl->field_B != 0)
+            pl->routine_2++;
+            if (pl->routine_3 != 0)
             {
                 pl->spd.vz = -0x200;
                 key_seq_set(pl, 0x18, 0, 1);
@@ -1439,8 +1438,8 @@ void func_8003E224(PL_WORK *pl)
                 pl->spd.vx = 0x200;
                 pl->spd.vy = -0x80;
                 pl->spd.vz = 0;
-                pl->field_A++;
-                if (pl->field_B != 0)
+                pl->routine_2++;
+                if (pl->routine_3 != 0)
                 {
                     pl->unk112 = 3;
                     pl->unk116 = -0x400;
@@ -1461,13 +1460,13 @@ void func_8003E224(PL_WORK *pl)
                 pl->unk110 = 0;
                 if (pl->field_74 != 0)
                 {
-                    pl->field_A++;
+                    pl->routine_2++;
                     key_seq_set(pl, 0x1C, 0, 1);
                 }
                 else
                 {
                     pl->spd.vy = 0;
-                    pl->field_A += 2;
+                    pl->routine_2 += 2;
                     key_seq_set(pl, 0x1B, 0, 1);
                 }
             }
@@ -1481,20 +1480,20 @@ void func_8003E224(PL_WORK *pl)
             if (pl->field_74 == 0)
             {
                 pl->spd.vy = 0;
-                pl->field_A++;
+                pl->routine_2++;
                 key_seq_set(pl, 0x1B, pl->cmd_A4.b.b0, 1);
             }
             else if (pl->cmd_A4.b.ctl == -1)
             {
                 key_seq_set(pl, 0x12, 0, 1);
-                pl->routine_9 = 7;
-                pl->field_A   = 5;
+                pl->routine_1 = 7;
+                pl->routine_2 = 5;
             }
             break;
         case 4:
             if (pl->cmd_A4.b.b2 == 1)
             {
-                if (pl->field_B != 0)
+                if (pl->routine_3 != 0)
                 {
                     pl->spd.vz = 0xC0;
                 }
@@ -1503,8 +1502,8 @@ void func_8003E224(PL_WORK *pl)
                     pl->spd.vz = -0xC0;
                 }
                 Sound_call(0x93, 0, 0);
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
                 return;
             }
             break;
@@ -1516,10 +1515,10 @@ void func_8003E4A8(PL_WORK *pl)
 {
     W48_83_WORK *wp;
 
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
-            switch (pl->field_B)
+            switch (pl->routine_3)
             {
                 case 1:
                     pl->pos_l.vz += -0x180000;
@@ -1571,13 +1570,13 @@ void func_8003E4A8(PL_WORK *pl)
             break;
         case 1:
             key_seq_set(pl, 0x13, 0, 1);
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 2:
             if (pl->cmd_A4.b.ctl == -1)
             {
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
             }
             break;
     }
@@ -1585,10 +1584,10 @@ void func_8003E4A8(PL_WORK *pl)
 
 void func_8003E6B0(PL_WORK *pl)
 {
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
-            if (pl->field_B == 0)
+            if (pl->routine_3 == 0)
             {
                 key_seq_set(pl, 0x20, 0, 1);
                 pl->spd.vx = -0x200;
@@ -1609,16 +1608,16 @@ void func_8003E6B0(PL_WORK *pl)
             Sound_call(0x97, 0, 0);
             func_800395E8();
             pl->val_108 = 0;
-            pl->field_A++;
+            pl->routine_2++;
             return;
         case 1:
             if (pl->cmd_A4.b.b2 == 1)
             {
-                pl->field_A++;
+                pl->routine_2++;
             }
             // fall through
         case 2:
-            if (pl->field_B == 0)
+            if (pl->routine_3 == 0)
             {
                 pl->spd.vx += 0x40;
             }
@@ -1632,13 +1631,13 @@ void func_8003E6B0(PL_WORK *pl)
                 return;
             }
             pl->spd.vx = 0;
-            pl->field_A++;
+            pl->routine_2++;
             return;
         case 3:
             if (pl->cmd_A4.b.ctl == -1)
             {
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
                 pl->unk71     = 0;
                 pl->unk168    = 0;
                 pl->unk169    = 0;
@@ -1649,11 +1648,11 @@ void func_8003E6B0(PL_WORK *pl)
 
 void func_8003E860(PL_WORK *pl)
 {
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
         case 1:
-            key_seq_set(pl, 0x22, pl->field_A != 0 ? 6 : 0, 1);
+            key_seq_set(pl, 0x22, pl->routine_2 != 0 ? 6 : 0, 1);
             pl->spd.vx = -0x200;
             Pl00_shot_enable_off(pl);
             pl->spd.vy   = -0x160;
@@ -1668,19 +1667,19 @@ void func_8003E860(PL_WORK *pl)
             Sound_call(0x98, 0, 0);
             func_800395E8();
             pl->val_108 = 0;
-            pl->field_A++;
+            pl->routine_2++;
             return;
         case 2:
             if (pl->field_74 == 0)
             {
                 key_seq_set(pl, 0x23, 0, 1);
                 Sound_call(0x99, 0, 0);
-                pl->field_A++;
+                pl->routine_2++;
                 return;
             }
             if (pl->cmd_A4.b.b2 == 1)
             {
-                pl->field_A += 2;
+                pl->routine_2 += 2;
             }
             pl->spd.vy += 0x30;
             func_80041E90(pl, pl->spd.vx, pl->spd.vy, pl->spd.vz);
@@ -1698,8 +1697,8 @@ void func_8003E860(PL_WORK *pl)
                 pl->unk116 = 0;
                 func_80039A38(&D_80097D9C);
                 func_8005D528();
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
                 pl->unk110    = 1;
                 pl->unk71     = 0;
                 pl->unk168    = 0;
@@ -1708,8 +1707,8 @@ void func_8003E860(PL_WORK *pl)
             }
             else
             {
-                pl->routine_8 = 2;
-                pl->routine_9 = 0;
+                pl->routine_0 = 2;
+                pl->routine_1 = 0;
             }
             return;
         case 4:
@@ -1722,7 +1721,7 @@ void func_8003E860(PL_WORK *pl)
                 }
                 Swing_Camera2(0x1E, 0x400, 0x2800, &pl->pos);
                 Sound_call(0x99, 0, 0);
-                pl->field_A++;
+                pl->routine_2++;
             }
             else
             {
@@ -1743,8 +1742,8 @@ void func_8003E860(PL_WORK *pl)
                 pl->unk116 = 0;
                 func_80039A38(&D_80097D9C);
                 func_8005D528();
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
                 pl->unk110    = 1;
                 pl->unk71     = 0;
                 pl->unk168    = 0;
@@ -1753,8 +1752,8 @@ void func_8003E860(PL_WORK *pl)
             }
             else
             {
-                pl->routine_8 = 2;
-                pl->routine_9 = 0;
+                pl->routine_0 = 2;
+                pl->routine_1 = 0;
             }
             return;
     }
@@ -1768,7 +1767,7 @@ void func_8003EB08(PL_WORK *pl)
     sint32 h;
 
     pad = pl->pad_now;
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             Pl00_shot_enable_off(pl);
@@ -1777,19 +1776,19 @@ void func_8003EB08(PL_WORK *pl)
             pl->unk44A  = 0;
             pl->turn_B4 = 0;
             pl->unk44D  = 0;
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 1:
             if (pl->cmd_A4.b.ctl == -1)
             {
                 key_seq_set(pl, 0x1E, 0, 0);
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 2:
             if (pl->keys_124[1] & pad)
             {
-                pl->field_A = 6;
+                pl->routine_2 = 6;
                 break;
             }
             pos = pl->pos;
@@ -1814,7 +1813,7 @@ void func_8003EB08(PL_WORK *pl)
                 pos.vz += pl->hit_78->min_4 - 1;
             }
             pos.vy -= 0x98;
-            h = func_80048EA4(&pos, 0, 0, pl->kind_1) + 0x98;
+            h = func_80048EA4(&pos, 0, 0, pl->slot) + 0x98;
             if (ABS(pl->pos.vy - h) < 0x20)
             {
                 pl->pos.vy   = h;
@@ -1832,7 +1831,7 @@ void func_8003EB08(PL_WORK *pl)
                 pl->field_76 = 0;
                 pl->spd.vx   = 0;
                 pl->spd.vz   = 0;
-                pl->field_A++;
+                pl->routine_2++;
                 pl->spd.vy = ((pl->pos.vy - pl->old.vy) << 5) - 0x90;
                 key_seq_set(pl, 0x1F, 0, 0);
             }
@@ -1841,7 +1840,7 @@ void func_8003EB08(PL_WORK *pl)
             func_80041E90(pl, 0, pl->spd.vy, 0);
             if (pl->cmd_A4.b.b2 == 1)
             {
-                pl->field_A++;
+                pl->routine_2++;
             }
             break;
         case 4:
@@ -1849,7 +1848,7 @@ void func_8003EB08(PL_WORK *pl)
             pl->spd.vy = -0x1B0;
             pl->spd.vz = 0;
             func_80041E90(pl, pl->spd.vx, pl->spd.vy, 0);
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 5:
             pl->spd.vy += 0x30;
@@ -1858,8 +1857,8 @@ void func_8003EB08(PL_WORK *pl)
             {
                 key_seq_set(pl, 0x13, 0, 1);
                 Sound_call(0x93, 0, 0);
-                pl->routine_9 = 8;
-                pl->field_A   = 6;
+                pl->routine_1 = 8;
+                pl->routine_2 = 6;
             }
             if (pl->cmd_A4.b.ctl == -1)
             {
@@ -1878,8 +1877,8 @@ void func_8003EB08(PL_WORK *pl)
 
 void func_8003EE68(PL_WORK *pl)
 {
-    pl->routine_9           = 7;
-    *(uint16 *)&pl->field_A = 4; // field_A = 4, field_B = 0
+    pl->routine_1             = 7;
+    *(uint16 *)&pl->routine_2 = 4; // routine_2 = 4, routine_3 = 0
     pl->field_74 = pl->field_75 = 1;
     Pl00_shot_enable_on(pl);
     key_seq_set(pl, 0x12, 0, 1);
@@ -1894,15 +1893,15 @@ void func_8003EEC0(PL_WORK *pl)
     sint32 dir;
     uint16 angle;
 
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
-        pl->field_A  = 1;
-        pl->spd.vx   = 0;
-        pl->spd.vy   = 0;
-        pl->spd.vz   = 0;
-        pl->val_108  = 0;
-        pl->ang_10A  = 0;
-        pl->turn_10E = 0;
+        pl->routine_2 = 1;
+        pl->spd.vx    = 0;
+        pl->spd.vy    = 0;
+        pl->spd.vz    = 0;
+        pl->val_108   = 0;
+        pl->ang_10A   = 0;
+        pl->turn_10E  = 0;
     }
     target = D_80097D08;
     if (target == NULL || !(D_80098B18 & 2) || func_8003F224(pl) != 0)
@@ -2063,11 +2062,11 @@ sint32 func_8003F224(PL_WORK *pl)
 
 void func_8003F288(PL_WORK *pl)
 {
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             key_seq_set(pl, 0x80, 0, 1);
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 1:
             pl->old        = pl->pos;
@@ -2079,31 +2078,31 @@ void func_8003F288(PL_WORK *pl)
             pl->ang        = pl->ang_440;
             break;
         case 2:
-            pl->routine_9 = 0xC;
-            pl->field_A   = 0;
+            pl->routine_1 = 0xC;
+            pl->routine_2 = 0;
             break;
     }
 }
 
 void func_8003F3E8(PL_WORK *pl)
 {
-    switch (pl->field_A)
+    switch (pl->routine_2)
     {
         case 0:
             key_seq_set(pl, 0x30, 0, 1);
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 1: // empty, but it keeps the compare chain's layout
             break;
         case 2:
             key_seq_set(pl, 0x31, 0, 1);
-            pl->field_A++;
+            pl->routine_2++;
             break;
         case 3:
             if (pl->cmd_A4.b.ctl == -1)
             {
-                pl->routine_9 = 0;
-                pl->field_A   = 0;
+                pl->routine_1 = 0;
+                pl->routine_2 = 0;
             }
             break;
     }
@@ -2111,40 +2110,40 @@ void func_8003F3E8(PL_WORK *pl)
 
 void func_8003F498(PL_WORK *pl)
 {
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
         key_seq_set(pl, 0x33, 0, 1);
-        pl->field_A++;
+        pl->routine_2++;
     }
 }
 
 // Same code as func_8003F498, with sequence 0x34.
 void func_8003F4E8(PL_WORK *pl)
 {
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
         key_seq_set(pl, 0x34, 0, 1);
-        pl->field_A++;
+        pl->routine_2++;
     }
 }
 
 // Same code as func_8003F498, with sequence 0x35.
 void func_8003F538(PL_WORK *pl)
 {
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
         key_seq_set(pl, 0x35, 0, 1);
-        pl->field_A++;
+        pl->routine_2++;
     }
 }
 
 // Same code as func_8003F498, with sequence 0x36.
 void func_8003F588(PL_WORK *pl)
 {
-    if (pl->field_A == 0)
+    if (pl->routine_2 == 0)
     {
         key_seq_set(pl, 0x36, 0, 1);
-        pl->field_A++;
+        pl->routine_2++;
     }
 }
 
@@ -2162,7 +2161,7 @@ void func_8003F5D8(PL_WORK *pl)
     }
     if (on & (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])))
     {
-        pl->field_B = 0;
+        pl->routine_3 = 0;
     }
     if ((pad & (pl->keys_124[10] | (pl->keys_124[0] | pl->keys_124[1] | (pl->keys_124[4] | pl->keys_124[5])) |
                 (pl->keys_124[11] | pl->keys_124[12]) | (pl->keys_124[2] | pl->keys_124[3]))) ||
@@ -2171,11 +2170,11 @@ void func_8003F5D8(PL_WORK *pl)
         pl->unk44A = 0;
         if (func_800410D4(pl) != 0 ||
             ((func_80040B68(pl, 0), func_800406A8(pl) == 0) &&
-             (func_80041044(pl) != 0 || func_80040FA8(pl) == 0 || pl->field_B != 0 ||
-              (func_80040380(pl) == 0 && func_800403D4(pl, pl->field_B) == 0 && func_80040468(pl, pl->field_B) == 0 &&
-               func_800404FC(pl, pl->field_B) == 0)) &&
+             (func_80041044(pl) != 0 || func_80040FA8(pl) == 0 || pl->routine_3 != 0 ||
+              (func_80040380(pl) == 0 && func_800403D4(pl, pl->routine_3) == 0 && func_80040468(pl, pl->routine_3) == 0 &&
+               func_800404FC(pl, pl->routine_3) == 0)) &&
              ((pl->unk174 & 0xC0) || pl->unk177 != 0 ||
-              (func_800402C4(pl) == 0 && func_80040630(pl, pl->field_B) == 0 && func_8004030C(pl, pl->field_B) == 0))))
+              (func_800402C4(pl) == 0 && func_80040630(pl, pl->routine_3) == 0 && func_8004030C(pl, pl->routine_3) == 0))))
         {
             if (func_80041158(pl) == 0)
             {
@@ -2212,15 +2211,15 @@ void func_8003F7F0(PL_WORK *pl)
             }
             if (func_800402C4(pl) == 0 && func_8004030C(pl, 0) == 0)
             {
-                if (pl->field_B != 0)
+                if (pl->routine_3 != 0)
                 {
                     if (pl->keys_124[0] & pad)
                     {
                         if (!(pl->keys_124[8] & pad))
                         {
-                            pl->routine_9           = 2;
-                            *(uint16 *)&pl->field_A = 0;
-                            pl->unk112              = 0;
+                            pl->routine_1             = 2;
+                            *(uint16 *)&pl->routine_2 = 0;
+                            pl->unk112                = 0;
                         }
                     }
                     else
@@ -2232,9 +2231,9 @@ void func_8003F7F0(PL_WORK *pl)
                 {
                     if (!(pl->keys_124[8] & pad))
                     {
-                        pl->routine_9           = 2;
-                        *(uint16 *)&pl->field_A = 0;
-                        pl->unk112              = 2;
+                        pl->routine_1             = 2;
+                        *(uint16 *)&pl->routine_2 = 0;
+                        pl->unk112                = 2;
                     }
                 }
                 else
@@ -2245,8 +2244,8 @@ void func_8003F7F0(PL_WORK *pl)
         }
         return;
     reset:
-        pl->routine_9           = 0;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 0;
+        *(uint16 *)&pl->routine_2 = 0;
     }
 }
 
@@ -2272,14 +2271,14 @@ void func_8003F97C(PL_WORK *pl)
                 {
                     if (pad & pl->keys_124[8])
                     {
-                        pl->routine_9           = 1;
-                        *(uint16 *)&pl->field_A = 0;
+                        pl->routine_1             = 1;
+                        *(uint16 *)&pl->routine_2 = 0;
                     }
                     return;
                 }
             }
-            pl->routine_9           = 0;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 0;
+            *(uint16 *)&pl->routine_2 = 0;
             Pl00_shot_enable_off(pl);
             return;
         case 1:
@@ -2308,10 +2307,10 @@ void func_8003F97C(PL_WORK *pl)
             }
             if (pad & pl->keys_124[4])
             {
-                if (pl->field_A < 5)
+                if (pl->routine_2 < 5)
                 {
-                    pl->routine_9           = 5;
-                    *(uint16 *)&pl->field_A = 0;
+                    pl->routine_1             = 5;
+                    *(uint16 *)&pl->routine_2 = 0;
                     Pl00_shot_enable_off(pl);
                 }
                 return;
@@ -2353,10 +2352,10 @@ void func_8003F97C(PL_WORK *pl)
             }
             if (pad & pl->keys_124[1])
             {
-                if (pl->field_A < 5)
+                if (pl->routine_2 < 5)
                 {
-                    pl->routine_9           = 5;
-                    *(uint16 *)&pl->field_A = 0;
+                    pl->routine_1             = 5;
+                    *(uint16 *)&pl->routine_2 = 0;
                     Pl00_shot_enable_off(pl);
                 }
                 return;
@@ -2382,10 +2381,10 @@ void func_8003F97C(PL_WORK *pl)
                 }
                 if (pad & pl->keys_124[5])
                 {
-                    if (pl->field_A < 5)
+                    if (pl->routine_2 < 5)
                     {
-                        pl->routine_9           = 5;
-                        *(uint16 *)&pl->field_A = 0;
+                        pl->routine_1             = 5;
+                        *(uint16 *)&pl->routine_2 = 0;
                         Pl00_shot_enable_off(pl);
                     }
                     return;
@@ -2398,9 +2397,9 @@ void func_8003F97C(PL_WORK *pl)
             }
             break;
     }
-    if (pl->field_A < 5)
+    if (pl->routine_2 < 5)
     {
-        pl->field_A = 5;
+        pl->routine_2 = 5;
     }
 }
 
@@ -2409,14 +2408,14 @@ void func_8003FDA8(PL_WORK *pl)
     uint16 pad;
 
     pad = pl->pad_now;
-    if (pl->field_A < 3 && !(pad & pl->keys_124[8]))
+    if (pl->routine_2 < 3 && !(pad & pl->keys_124[8]))
     {
         pl->unk44A = 0;
         Sound_call(0x8F, 0, 0);
         if (!func_800406A8(pl))
         {
-            pl->routine_9           = 0;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 0;
+            *(uint16 *)&pl->routine_2 = 0;
         }
     }
 }
@@ -2463,8 +2462,8 @@ check:
         return;
     }
 reset:
-    pl->routine_9           = 0;
-    *(uint16 *)&pl->field_A = 0;
+    pl->routine_1             = 0;
+    *(uint16 *)&pl->routine_2 = 0;
 }
 
 void func_8003FFA8(void)
@@ -2483,8 +2482,8 @@ void func_8003FFB0(PL_WORK *pl)
         (func_800406A8(pl) == 0 && func_800402C4(pl) == 0 && func_8004030C(pl, 0) == 0 && func_800404FC(pl, 0) == 0 &&
          ((mask = pl->keys_124[6] | pl->keys_124[7], (pad & mask) == mask) || !(pl->keys_124[8] & pad))))
     {
-        pl->routine_9           = 0;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 0;
+        *(uint16 *)&pl->routine_2 = 0;
     }
 }
 
@@ -2494,7 +2493,7 @@ void func_800400B8(PL_WORK *pl)
     {
         return;
     }
-    if (pl->field_74 == 0 && pl->field_A == 1)
+    if (pl->field_74 == 0 && pl->routine_2 == 1)
     {
         if (func_80040710(pl))
         {
@@ -2517,7 +2516,7 @@ void func_80040138(void)
 
 void func_80040140(PL_WORK *pl)
 {
-    if (pl->field_A == 2)
+    if (pl->routine_2 == 2)
     {
         func_80040764(pl);
     }
@@ -2532,14 +2531,14 @@ void func_80040178(PL_WORK *pl)
     sint32 y;
     sint32 top;
 
-    if (pl->field_A == 1)
+    if (pl->routine_2 == 1)
     {
         y   = pl->pos.vy;
         top = Obj_ceiling_height_get((MODEL_WORK *)pl) - 0x20;
         if (top - pl->hit_78->max_A < y)
         {
-            pl->routine_9           = 7;
-            *(uint16 *)&pl->field_A = 4; // field_A = 4, field_B = 0
+            pl->routine_1             = 7;
+            *(uint16 *)&pl->routine_2 = 4; // routine_2 = 4, routine_3 = 0
             pl->field_74 = pl->field_75 = 1;
             pl->spd.vx                  = -0x2A;
             pl->spd.vy                  = 0;
@@ -2558,8 +2557,8 @@ void func_80040224(PL_WORK *pl)
     func_80040B68(pl, 0);
     if (Game_work.unk083 != 1 && !(pl->keys_124[14] & pad))
     {
-        pl->routine_9           = 0;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 0;
+        *(uint16 *)&pl->routine_2 = 0;
         func_800394AC();
         pl->val_108 = 0;
     }
@@ -2595,8 +2594,8 @@ sint32 func_800402C4(PL_WORK *pl)
     {
         if (pl->pad_now & pl->keys_124[8])
         {
-            pl->routine_9           = 1;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 1;
+            *(uint16 *)&pl->routine_2 = 0;
             return 1;
         }
     }
@@ -2619,8 +2618,8 @@ sint32 func_8004030C(PL_WORK *pl, sint32 arg)
     {
         if (pad & pl->keys_124[8])
         {
-            pl->routine_9           = 1;
-            *(uint16 *)&pl->field_A = 0x100;
+            pl->routine_1             = 1;
+            *(uint16 *)&pl->routine_2 = 0x100;
             return 1;
         }
     }
@@ -2635,11 +2634,11 @@ sint32 func_80040380(PL_WORK *pl)
     {
         if (!(pl->pad_now & pl->keys_124[8]))
         {
-            tmp                     = pl->unk112;
-            pl->routine_9           = 2;
-            *(uint16 *)&pl->field_A = 0;
-            pl->unk112              = 0;
-            pl->unk113              = tmp;
+            tmp                       = pl->unk112;
+            pl->routine_1             = 2;
+            *(uint16 *)&pl->routine_2 = 0;
+            pl->unk112                = 0;
+            pl->unk113                = tmp;
             return 1;
         }
     }
@@ -2673,11 +2672,11 @@ sint32 func_800403D4(PL_WORK *pl, sint32 arg)
     {
         if (!(pad & pl->keys_124[8]))
         {
-            tmp                     = pl->unk112;
-            pl->routine_9           = 2;
-            *(uint16 *)&pl->field_A = 0;
-            pl->unk112              = 1;
-            pl->unk113              = tmp;
+            tmp                       = pl->unk112;
+            pl->routine_1             = 2;
+            *(uint16 *)&pl->routine_2 = 0;
+            pl->unk112                = 1;
+            pl->unk113                = tmp;
             return 1;
         }
     }
@@ -2711,11 +2710,11 @@ sint32 func_80040468(PL_WORK *pl, sint32 arg)
     {
         if (!(pad & pl->keys_124[8]))
         {
-            tmp                     = pl->unk112;
-            pl->routine_9           = 2;
-            *(uint16 *)&pl->field_A = 0;
-            pl->unk112              = 3;
-            pl->unk113              = tmp;
+            tmp                       = pl->unk112;
+            pl->routine_1             = 2;
+            *(uint16 *)&pl->routine_2 = 0;
+            pl->unk112                = 3;
+            pl->unk113                = tmp;
             return 1;
         }
     }
@@ -2739,11 +2738,11 @@ sint32 func_800404FC(PL_WORK *pl, sint32 arg)
     {
         if (!(pad & pl->keys_124[8]))
         {
-            tmp                     = pl->unk112;
-            pl->routine_9           = 2;
-            *(uint16 *)&pl->field_A = 0;
-            pl->unk112              = 2;
-            pl->unk113              = tmp;
+            tmp                       = pl->unk112;
+            pl->routine_1             = 2;
+            *(uint16 *)&pl->routine_2 = 0;
+            pl->unk112                = 2;
+            pl->unk113                = tmp;
             return 1;
         }
     }
@@ -2760,8 +2759,8 @@ sint32 func_80040574(PL_WORK *pl)
         pl->unk44A++;
         if (pl->unk44A >= 9 && pl->unk44B == 0)
         {
-            pl->routine_9           = 3;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 3;
+            *(uint16 *)&pl->routine_2 = 0;
             return 1;
         }
         return 0;
@@ -2774,8 +2773,8 @@ sint32 func_800405F4(PL_WORK *pl)
 {
     if (pl->pad_now & (pl->keys_124[2] | pl->keys_124[3]))
     {
-        pl->routine_9           = 4;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 4;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     return 0;
@@ -2797,8 +2796,8 @@ sint32 func_80040630(PL_WORK *pl, sint32 arg)
     {
         if (pad & (pl->keys_124[6] | pl->keys_124[7]))
         {
-            pl->routine_9           = 6;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 6;
+            *(uint16 *)&pl->routine_2 = 0;
             return 1;
         }
     }
@@ -2809,8 +2808,8 @@ sint32 func_800406A8(PL_WORK *pl)
 {
     if (pl->pad_on & pl->keys_124[10])
     {
-        pl->routine_9           = 7;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 7;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     return 0;
@@ -2820,8 +2819,8 @@ sint32 func_800406DC(PL_WORK *pl)
 {
     if (pl->pad_on & pl->keys_124[10])
     {
-        pl->routine_9           = 8;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 8;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     return 0;
@@ -2834,14 +2833,14 @@ sint32 func_80040710(PL_WORK *pl)
     hit = pl->pad_now & (pl->keys_124[2] | pl->keys_124[3]);
     if (hit == pl->keys_124[2])
     {
-        pl->routine_9           = 9;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 9;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     if (hit == pl->keys_124[3])
     {
-        pl->routine_9           = 9;
-        *(uint16 *)&pl->field_A = 0x100;
+        pl->routine_1             = 9;
+        *(uint16 *)&pl->routine_2 = 0x100;
         return 1;
     }
     return 0;
@@ -2864,24 +2863,24 @@ sint32 func_80040764(PL_WORK *pl)
         {
             if (hit != 0)
             {
-                pl->routine_9           = 9;
-                *(uint16 *)&pl->field_A = 0;
+                pl->routine_1             = 9;
+                *(uint16 *)&pl->routine_2 = 0;
             }
             else
             {
-                pl->routine_9           = 9;
-                *(uint16 *)&pl->field_A = 0x100;
+                pl->routine_1             = 9;
+                *(uint16 *)&pl->routine_2 = 0x100;
             }
         }
         else if (rand() & 1)
         {
-            pl->routine_9           = 9;
-            *(uint16 *)&pl->field_A = 0;
+            pl->routine_1             = 9;
+            *(uint16 *)&pl->routine_2 = 0;
         }
         else
         {
-            pl->routine_9           = 9;
-            *(uint16 *)&pl->field_A = 0x100;
+            pl->routine_1             = 9;
+            *(uint16 *)&pl->routine_2 = 0x100;
         }
         pl->unk168 = 0;
         pl->unk169 = 0;
@@ -2975,8 +2974,8 @@ sint32 func_80040818(PL_WORK *pl)
     }
     from.vy -= 0x98;
     to.vy -= 0x98;
-    floor = func_80048EA4(&from, 0, 0, pl->kind_1);
-    if (floor != func_80048EA4(&to, 0, 0, pl->kind_1))
+    floor = func_80048EA4(&from, 0, 0, pl->slot);
+    if (floor != func_80048EA4(&to, 0, 0, pl->slot))
     {
         return 0;
     }
@@ -2990,8 +2989,8 @@ sint32 func_80040818(PL_WORK *pl)
         pl->unk116   = 0;
         pl->unk112   = 0;
         func_80039A38(&D_80097D9C);
-        pl->routine_9           = 0xD;
-        *(uint16 *)&pl->field_A = dir << 8; // field_A = 0, field_B = dir
+        pl->routine_1             = 0xD;
+        *(uint16 *)&pl->routine_2 = dir << 8; // routine_2 = 0, routine_3 = dir
         return 1;
     }
     return 0;
@@ -3004,8 +3003,8 @@ sint32 func_80040AEC(PL_WORK *pl)
     pad = pl->pad_now;
     if (Game_work.unk083 == 1 || (pad & pl->keys_124[14]))
     {
-        pl->routine_9           = 14;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 14;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     return 0;
@@ -3015,8 +3014,8 @@ sint32 func_80040B34(PL_WORK *pl)
 {
     if (pl->pad_now & pl->keys_124[13])
     {
-        pl->routine_9           = 5;
-        *(uint16 *)&pl->field_A = 0;
+        pl->routine_1             = 5;
+        *(uint16 *)&pl->routine_2 = 0;
         return 1;
     }
     return 0;
@@ -3071,8 +3070,8 @@ sint32 func_80040E00(PL_WORK *pl, sint32 arg, sint16 mode, sint16 cond)
         case 1:
             if (cond == 0)
             {
-                pl->routine_9           = 0;
-                *(uint16 *)&pl->field_A = 0; // field_A, field_B
+                pl->routine_1             = 0;
+                *(uint16 *)&pl->routine_2 = 0; // routine_2, routine_3
                 return 0;
             }
             break;
@@ -3214,7 +3213,7 @@ sint32 front_box_search(PL_WORK *pl)
     {
         for (wp3c0 = D_8009F108, i = 0; i < 16; i++, wp3c0++)
         {
-            if ((wp3c0->routine_0 & 3) == 3 && wp3c0->box_10 != NULL)
+            if ((wp3c0->be_flag & 3) == 3 && wp3c0->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &wp3c0->pos, &wp3c0->ang, wp3c0->box_10);
                 if (dist != 0 && dist < best)
@@ -3226,7 +3225,7 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (wp5a4 = D_800C3580, i = 0; i < 4; i++, wp5a4++)
         {
-            if ((wp5a4->routine_0 & 3) == 3 && wp5a4->box_10 != NULL)
+            if ((wp5a4->be_flag & 3) == 3 && wp5a4->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &wp5a4->pos, &wp5a4->ang, wp5a4->box_10);
                 if (dist != 0 && dist < best)
@@ -3238,7 +3237,7 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (shl = D_8009CF88, i = 0; i < 32; i++, shl++)
         {
-            if ((shl->routine_0 & 3) == 3 && shl->id_2 < 0x80 && shl->box_10 != NULL)
+            if ((shl->be_flag & 3) == 3 && shl->id < 0x80 && shl->box_10 != NULL)
             {
                 dist = func_800414F0(pl, &shl->pos, &shl->ang, shl->box_10);
                 if (dist != 0 && dist < best)
@@ -3250,9 +3249,9 @@ sint32 front_box_search(PL_WORK *pl)
         }
         for (wp50 = D_800BF118, i = 0; i < 32; i++, wp50++)
         {
-            if ((wp50->routine_0 & 3) == 3 && wp50->box_10 != NULL)
+            if ((wp50->be_flag & 3) == 3 && wp50->box_10 != NULL)
             {
-                if (wp50->routine_0 & 4)
+                if (wp50->be_flag & 4)
                 {
                     pos.vx = wp50->efc.model.pos.vx;
                     pos.vy = wp50->efc.model.pos.vy;
@@ -3414,8 +3413,8 @@ void damage_check(PL_WORK *pl)
             pl->unk73 += damage;
             if ((sint8)pl->unk73 > (pl->unk16A + 1) * 16)
             {
-                pl->routine_9 = 0xC;
-                pl->field_A   = 1;
+                pl->routine_1 = 0xC;
+                pl->routine_2 = 1;
             }
             else
             {
@@ -3437,14 +3436,14 @@ void damage_check(PL_WORK *pl)
         pl->ang.vy = (sint16)(pl->ang.vy - 0x80) + (rand() & 0x100);
         if ((pl->unk71 & 0x7F) == 1)
         {
-            pl->field_B = 1;
+            pl->routine_3 = 1;
         }
         else
         {
-            pl->field_B = 0;
+            pl->routine_3 = 0;
         }
     }
-    else if ((uint8)(pl->routine_9 - 0xB) >= 2)
+    else if ((uint8)(pl->routine_1 - 0xB) >= 2)
     {
         pl->unk73 -= 4;
         if ((sint8)pl->unk73 < 0)
@@ -3464,14 +3463,14 @@ void func_80041A44(PL_WORK *pl, uint32 flags)
     }
     else
     {
-        if (pl->routine_9 == 0xB && pl->field_A < 2)
+        if (pl->routine_1 == 0xB && pl->routine_2 < 2)
         {
             return;
         }
         state = 0xB;
     }
-    pl->routine_9 = state;
-    pl->field_A   = 0;
+    pl->routine_1 = state;
+    pl->routine_2 = 0;
 }
 
 void func_80041AB0(PL_WORK *pl)
@@ -3484,11 +3483,11 @@ void func_80041AB0(PL_WORK *pl)
     Obj_map_push_out((MODEL_WORK *)pl);
     pl->old   = pl->pos;
     pl->old_l = pl->pos_l;
-    if (pl->routine_9 == 0)
+    if (pl->routine_1 == 0)
     {
         Game_work.routine_0 = 9;
         Game_work.routine_1 = 0;
-        pl->routine_9++;
+        pl->routine_1++;
     }
 }
 
@@ -3497,7 +3496,7 @@ void func_80041B8C(PL_WORK *pl)
     uint8 cur;
     uint32 idx;
 
-    switch (pl->routine_9)
+    switch (pl->routine_1)
     {
         case 0:
             pl->svec_438 = pl->pos;
@@ -3508,7 +3507,7 @@ void func_80041B8C(PL_WORK *pl)
         case 1:
             Pl00_shot_enable_off(pl);
             pl->flags_BD  = 0x40;
-            pl->routine_9 = 2;
+            pl->routine_1 = 2;
             // fall through
         case 2:
             pl->old        = pl->pos;
@@ -3541,7 +3540,7 @@ void func_80041B8C(PL_WORK *pl)
             break;
         case 3:
             Pl00_shot_enable_on(pl);
-            *(uint32 *)&pl->routine_8 = 1; // routine_8 = 1, routine_9 ... field_B = 0
+            *(uint32 *)&pl->routine_0 = 1; // routine_0 = 1, routine_1 ... routine_3 = 0
             pl->flags_BD              = 8;
             break;
     }
@@ -3778,11 +3777,11 @@ sint32 func_80042238(PL_WORK *pl)
 {
     pl->unk449 = -1;
     pl->flags_BD |= 0x40;
-    if (pl->routine_0 & 1)
+    if (pl->be_flag & 1)
     {
-        if (pl->routine_8 == 1)
+        if (pl->routine_0 == 1)
         {
-            switch (pl->routine_9)
+            switch (pl->routine_1)
             {
                 case 14:
                     if (Game_work.unk083 != 0)
@@ -3795,14 +3794,14 @@ sint32 func_80042238(PL_WORK *pl)
                     }
                     // fall through
                 default:
-                    // One word compare of routine_9 == 0xD and field_A == 2
-                    if ((*(uint32 *)&pl->routine_8 & 0xFFFF00) == 0x20D00)
+                    // One word compare of routine_1 == 0xD and routine_2 == 2
+                    if ((*(uint32 *)&pl->routine_0 & 0xFFFF00) == 0x20D00)
                     {
-                        pl->field_A = 6;
+                        pl->routine_2 = 6;
                     }
             }
         }
-        if (pl->routine_8 != 3)
+        if (pl->routine_0 != 3)
         {
             return 0;
         }
@@ -3827,13 +3826,13 @@ void func_80042314(PL_WORK *pl)
     *(uint32 *)&pl->owner_188.vec_8.vz = 0; // vz, pad
     pl->unk168                         = 0;
     pl->unk169                         = 0;
-    if (pl->routine_0 & 1)
+    if (pl->be_flag & 1)
     {
-        pl->routine_0 = 3;
-        pl->flags_6   = 3;
-        if (pl->routine_8 == 3)
+        pl->be_flag = 3;
+        pl->flags   = 3;
+        if (pl->routine_0 == 3)
         {
-            pl->routine_9 = 3;
+            pl->routine_1 = 3;
             return;
         }
     }
@@ -3856,7 +3855,7 @@ void Pl00_shot_enable_on(PL_WORK *pl)
 
 sint32 func_800423DC(PL_WORK *pl)
 {
-    switch (pl->routine_9)
+    switch (pl->routine_1)
     {
         case 0:
         case 1:
@@ -3886,7 +3885,7 @@ sint32 func_800423DC(PL_WORK *pl)
 
 sint32 func_80042458(PL_WORK *pl)
 {
-    switch (pl->routine_9)
+    switch (pl->routine_1)
     {
         case 0:
         case 1:
@@ -3916,17 +3915,17 @@ sint32 func_80042458(PL_WORK *pl)
 
 void func_800424D4(PL_WORK *pl, W48_80_WORK *wp)
 {
-    wp->routine_0 = 7;
-    wp->id_2      = 0x80;
-    wp->type_3    = 2;
-    wp->pos_38    = pl->joint_pos[pl->field_A >> 1];
+    wp->be_flag = 7;
+    wp->id      = 0x80;
+    wp->type    = 2;
+    wp->pos_38  = pl->joint_pos[pl->routine_2 >> 1];
 }
 
 void func_80042528(PL_WORK *pl, W48_83_WORK *wp, sint16 n)
 {
-    wp->routine_0 = 3;
-    wp->id_2      = 0x83;
-    wp->type_3    = 0;
+    wp->be_flag = 3;
+    wp->id      = 0x83;
+    wp->type    = 0;
     switch (n)
     {
         case 0:

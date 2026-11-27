@@ -12,7 +12,7 @@ void func_8012A96C(STAGE_OBJ50 *wp)
     STCOM_FIXED_VECTOR scale;
     sint32 y;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[2] = 0x1000;
@@ -24,7 +24,7 @@ void func_8012A96C(STAGE_OBJ50 *wp)
     wp->matrix.words[7] = 0;
     scale.x = scale.y = scale.z = 0x400;
     ScaleMatrix(&wp->matrix.m, &scale);
-    y             = func_80048EA4(&wp->pos_38, NULL, 0, wp->index_1);
+    y             = func_80048EA4(&wp->pos_38, NULL, 0, wp->slot);
     wp->color_40  = 0x808080;
     wp->pos_38.y  = y - 0xA;
     wp->model_10  = D_80137760;
@@ -65,7 +65,7 @@ void func_8012AA30(STAGE_OBJ50 *wp)
         Sce_flag_on(0x670);
         return;
     }
-    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->index_1, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
 }
 
 void func_8012AB24(ST05_PRIZE *wp)
@@ -89,9 +89,9 @@ void func_8012AB24(ST05_PRIZE *wp)
             cam->pos_10 = wp->pos_38.x << 16;
             cam->pos_14 = wp->pos_38.y << 16;
             cam->pos_18 = wp->pos_38.z << 16;
-            cam->rot_40 = D_80137840[wp->variant_3][wp->value_E].x << 16;
-            cam->rot_44 = D_80137840[wp->variant_3][wp->value_E].y << 16;
-            cam->rot_48 = D_80137840[wp->variant_3][wp->value_E].z << 16;
+            cam->rot_40 = D_80137840[wp->type][wp->value_E].x << 16;
+            cam->rot_44 = D_80137840[wp->type][wp->value_E].y << 16;
+            cam->rot_48 = D_80137840[wp->type][wp->value_E].z << 16;
             wp->routine_1++;
             break;
         case 2:
@@ -111,37 +111,37 @@ void func_8012AB24(ST05_PRIZE *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->flags_0           = 5;
-                fx->kind_2            = 0x80;
-                fx->variant_3         = 0x41;
+                fx->be_flag           = 5;
+                fx->id                = 0x80;
+                fx->type              = 0x41;
                 fx->sprite.position   = wp->pos_38;
                 fx->sprite.position.y = wp->pos_38.y - 0x32;
                 Sound_call(0xA4, 0, 0);
-                if (wp->variant_3 == 0)
+                if (wp->type == 0)
                 {
                     func_80037738(Map_cell_get(&wp->pos_38) | 0xF0000, 10000);
                 }
-                else if (wp->variant_3 == 1)
+                else if (wp->type == 1)
                 {
                     func_80037738(Map_cell_get(&wp->pos_38) | 0xF0000, 10000);
                     Sce_flag_on(0x671);
                 }
-                else if (wp->variant_3 == 2)
+                else if (wp->type == 2)
                 {
                     func_80037738(Map_cell_get(&D_80137820[wp->value_E]) | 0xF0000, 10000);
                     Sce_flag_on(0x672);
                 }
                 func_8012AFA0();
                 wp->fx_44 = fx;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
                 wp->routine_1++;
             }
             break;
         case 5:
             fx = wp->fx_44;
-            if ((sint8)fx->flags_0 == 0) // a signed byte test (lb)
+            if ((sint8)fx->be_flag == 0) // a signed byte test (lb)
             {
-                func_80063BC8(&wp->pos_38, 2, 0, wp->variant_3 != 0 ? 0x41 : 0x3E);
+                func_80063BC8(&wp->pos_38, 2, 0, wp->type != 0 ? 0x41 : 0x3E);
                 wp->routine_1++;
             }
             break;
@@ -175,7 +175,7 @@ void func_8012AB24(ST05_PRIZE *wp)
             }
             else
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             if (pl->flags_A7 < 0)
             {
@@ -189,11 +189,11 @@ void func_8012AB24(ST05_PRIZE *wp)
         case 14:
             if (!(Moji_flag & 0x08000000))
             {
-                if (wp->variant_3 == 1)
+                if (wp->type == 1)
                 {
                     Sce_flag_on(0x671);
                 }
-                else if (wp->variant_3 == 2)
+                else if (wp->type == 2)
                 {
                     Sce_flag_on(0x672);
                 }
@@ -206,7 +206,7 @@ void func_8012AB24(ST05_PRIZE *wp)
             if (func_8003A13C() == 0)
             {
                 func_80042314(pl);
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 func_80031A4C(wp);
                 Sce_flag_off(0x670);
             }
@@ -260,8 +260,8 @@ void func_8012B0B4(STAGE_OBJ50 *wp)
 {
     STCOM_FIXED_VECTOR unused; // unused: reserves the frame's 0x10 extra bytes
 
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     STAGE_MATRIX_IDENTITY(wp->matrix.words);
     RotMatrixY(wp->value_F << 10, &wp->matrix.m);
     func_8012B44C(wp);
@@ -317,7 +317,7 @@ void func_8012B298(STAGE_OBJ50 *wp)
         wp->routine_1 = 0;
         wp->routine_0++;
     }
-    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->index_1, &wp->value_48, 0x4000000, 0, 0x80);
+    func_800341BC(&wp->pos_38, 0x28, 0, 0x8000, wp->slot, &wp->value_48, 0x4000000, 0, 0x80);
     wp->value_48 = 0;
 }
 
@@ -347,7 +347,7 @@ void func_8012B314(STAGE_OBJ50 *wp)
             if (wp->routine_2 > 0x10)
             {
                 wp->routine_2 = 0;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
                 wp->routine_1++;
             }
             else
@@ -389,10 +389,10 @@ void func_8012B484(STAGE_OBJ50 *wp, sint32 x, sint32 z, uint8 variant, uint8 fla
     obj = (ST05_PROP *)Open_SHL_WORK();
     if (obj != NULL)
     {
-        obj->flags_0    = 1;
-        obj->kind_2     = 0x1F;
+        obj->be_flag    = 1;
+        obj->id         = 0x1F;
         obj->position.y = -1;
-        obj->variant_3  = variant;
+        obj->type       = variant;
         obj->value_C    = 0;
         obj->position.x = x;
         obj->position.z = z;
@@ -404,7 +404,7 @@ void func_8012B484(STAGE_OBJ50 *wp, sint32 x, sint32 z, uint8 variant, uint8 fla
         {
             obj->rotation.y = 0;
         }
-        obj->value_E = wp->index_1;
+        obj->value_E = wp->slot;
         obj->value_F = value;
     }
 }
@@ -599,7 +599,7 @@ void func_8012BB3C(void)
     {
         if ((sint32)(mask << i) < 0)
         {
-            switch (slot->kind_2)
+            switch (slot->id)
             {
                 case 0xE:
                 case 0x18:

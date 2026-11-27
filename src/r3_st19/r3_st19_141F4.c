@@ -370,7 +370,7 @@ void func_80114DAC(STAGE_OBJ *wp)
         wp->rotation.z     = 0;
         wp->scale.words[0] = 0x02000200;
         wp->scale.words[1] = 0x42100200;
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         Model_work_init(wp, NULL);
         func_800322A8(wp, 1, 0);
         func_80114FC4(wp, face, 1);

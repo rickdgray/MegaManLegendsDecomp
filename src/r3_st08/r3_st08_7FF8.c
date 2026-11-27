@@ -10,7 +10,7 @@ STAGE_ACTOR *func_80107FF8(void)
     wp = D_8009F108;
     for (i = 0; i < 0x10; i++, wp++)
     {
-        if (wp->flags_0 != 0 && wp->kind_2 == 0x50)
+        if (wp->be_flag != 0 && wp->id == 0x50)
         {
             break;
         }
@@ -20,7 +20,7 @@ STAGE_ACTOR *func_80107FF8(void)
 
 void func_80108040(ST08_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->turn_64      = 0;
     wp->rotation.v.x = wp->rotation_prev.x = 0;
@@ -103,8 +103,8 @@ void func_801082F0(ST08_ACTOR *wp)
             cam.y = other->position.y - 0x79;
             cam.z = other->position.z + 0x18;
             func_80039FAC(&cam, 0x107, other->rotation.y - 0x800, 0x12);
-            pl->flags_0 &= ~2;
-            wp->flags_0 &= ~2;
+            pl->be_flag &= ~2;
+            wp->be_flag &= ~2;
             wp->routine_2++;
             break;
         case 1:
@@ -118,8 +118,8 @@ void func_801082F0(ST08_ACTOR *wp)
             if (D_800987B0[0] == 0)
             {
                 func_80039E18();
-                pl->flags_0 |= 2;
-                wp->flags_0 |= 2;
+                pl->be_flag |= 2;
+                wp->be_flag |= 2;
                 wp->routine_2++;
             }
             break;
@@ -170,7 +170,7 @@ void func_8010857C(STAGE_FX *wp)
 void func_8010859C(STAGE_OBJ *wp)
 {
     D_80113B3C[wp->routine_0](wp);
-    if ((uint8)wp->flags_0 & 2)
+    if ((uint8)wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x3C, 0x200, 0);
     }

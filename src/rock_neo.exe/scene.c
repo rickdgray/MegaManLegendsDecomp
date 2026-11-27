@@ -366,20 +366,20 @@ void func_8001E068(void)
         if (D_800988E8 & (0x80000000U >> i))
         {
             obj  = D_800ACD40[i];
-            pool = func_8002FE74(obj->kind_1);
+            pool = func_8002FE74(obj->slot);
             switch (pool)
             {
                 case 0x40:
                     mp            = (WORK_5A4 *)obj;
-                    mp->routine_8 = 2;
-                    Work_5A4_tbl[mp->id_2][mp->flag_4](mp);
+                    mp->routine_0 = 2;
+                    Work_5A4_tbl[mp->id][mp->handler](mp);
                     break;
                 case 0x20:
                     wp = (WORK_3C0 *)obj;
-                    if (wp->id_2 != 0x10)
+                    if (wp->id != 0x10)
                     {
-                        wp->routine_8 = 2;
-                        Work_3C0_tbl[wp->id_2][wp->flag_4](wp);
+                        wp->routine_0 = 2;
+                        Work_3C0_tbl[wp->id][wp->handler](wp);
                     }
                     else
                     {
@@ -388,13 +388,13 @@ void func_8001E068(void)
                     break;
                 case 0x60:
                     sp            = (SHL_WORK *)obj;
-                    sp->routine_8 = 2;
-                    Shl_work_tbl[sp->id_2](sp);
+                    sp->routine_0 = 2;
+                    Shl_work_tbl[sp->id](sp);
                     break;
                 case 0xE0:
                     ep            = (WORK_50 *)obj;
-                    ep->routine_8 = 2;
-                    Work_50_tbl[ep->id_2](ep);
+                    ep->routine_0 = 2;
+                    Work_50_tbl[ep->id](ep);
                     break;
             }
             D_800988E8 &= ~(0x80000000U >> i);
@@ -415,20 +415,20 @@ void func_8001E20C(sint8 index)
     if (D_800988E8 & (0x80000000U >> index))
     {
         obj  = D_800ACD40[index];
-        pool = func_8002FE74(obj->kind_1);
+        pool = func_8002FE74(obj->slot);
         switch (pool)
         {
             case 0x40:
                 mp            = (WORK_5A4 *)obj;
-                mp->routine_8 = 2;
-                Work_5A4_tbl[mp->id_2][mp->flag_4](mp);
+                mp->routine_0 = 2;
+                Work_5A4_tbl[mp->id][mp->handler](mp);
                 break;
             case 0x20:
                 wp = (WORK_3C0 *)obj;
-                if (wp->id_2 != 0x10)
+                if (wp->id != 0x10)
                 {
-                    wp->routine_8 = 2;
-                    Work_3C0_tbl[wp->id_2][wp->flag_4](wp);
+                    wp->routine_0 = 2;
+                    Work_3C0_tbl[wp->id][wp->handler](wp);
                 }
                 else
                 {
@@ -437,13 +437,13 @@ void func_8001E20C(sint8 index)
                 break;
             case 0x60:
                 sp            = (SHL_WORK *)obj;
-                sp->routine_8 = 2;
-                Shl_work_tbl[sp->id_2](sp);
+                sp->routine_0 = 2;
+                Shl_work_tbl[sp->id](sp);
                 break;
             case 0xE0:
                 ep            = (WORK_50 *)obj;
-                ep->routine_8 = 2;
-                Work_50_tbl[ep->id_2](ep);
+                ep->routine_0 = 2;
+                Work_50_tbl[ep->id](ep);
                 break;
         }
         D_800988E8 &= ~(0x80000000U >> index);
@@ -636,8 +636,8 @@ void *scene_obj_open(sint32 index, sint32 id, sint32 pool, SVECTOR *pos)
             ep = func_80031734();
             if (ep != NULL)
             {
-                ep->routine_0 = 1;
-                ep->id_2      = id;
+                ep->be_flag = 1;
+                ep->id      = id;
                 ep->flags |= 0x20;
                 *(uint32 *)&ep->efc.model.pos.vx = *(uint32 *)&pos->vx;
                 obj                              = ep;
@@ -653,8 +653,8 @@ void *scene_obj_open(sint32 index, sint32 id, sint32 pool, SVECTOR *pos)
     }
     if (mp != NULL)
     {
-        mp->routine_0 = 1;
-        mp->id_2      = id;
+        mp->be_flag = 1;
+        mp->id      = id;
         mp->flags |= 0x20;
         *(uint32 *)&mp->pos.vx = *(uint32 *)&pos->vx;
         mp->pos.vz             = pos->vz;
@@ -687,7 +687,7 @@ void *Scene_obj_ent_open(SCENE_OBJ_ENT *ent)
         case 0x20:
         case 0x60:
         case 0xE0:
-            mp->type_3  = ent->type_04;
+            mp->type    = ent->type_04;
             mp->flag_4  = ent->flag_02;
             mp->field_C = ent->field_08;
             break;
@@ -1008,7 +1008,7 @@ sint32 func_8001F3C8(void)
         Scratch_scale_shift = 0;
         if (D_800C356C != -1)
         {
-            *(uint32 *)&pw->routine_8 = 0;
+            *(uint32 *)&pw->routine_0 = 0;
             pw->flags_BD &= ~0x40;
         }
     }

@@ -7,10 +7,10 @@
 // The 0x10C-byte slot stcom15_func_1E0C spawns (stcom06's emitter: kind 6 or 9).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C
@@ -50,10 +50,10 @@ typedef struct
 // The 0x3C0-byte work slot stcom15 runs on (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03: flags
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03: flags
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -116,7 +116,7 @@ extern STCOM15_FUNC stcom15_D_000C[]; // routine_1 handlers (stcom15_func_0394)
 extern uint8 stcom15_D_0038[];        // data_78
 extern uint8 stcom15_D_0044[];        // frames per hop (stcom15_func_13E8)
 extern uint8 stcom15_D_0050[];        // frames per hop
-extern uint8 stcom15_D_005C[];        // frames per hop (variant_3 0x40)
+extern uint8 stcom15_D_005C[];        // frames per hop (type 0x40)
 extern uint8 stcom15_D_0068[4];       // turn chances out of 16 (stcom15_func_1D40)
 extern STCOM_SVECTOR stcom15_D_006C;  // a fixed point it turns from
 

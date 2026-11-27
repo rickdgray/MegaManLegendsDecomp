@@ -20,7 +20,7 @@ void stcom11_func_003C(STCOM11_WORK *wp)
     wp->sprite.color_4.word = 0x2C808080;
     wp->value_10            = 0;
     wp->value_78            = 0;
-    wp->flags_0 |= 0x22;
+    wp->be_flag |= 0x22;
     wp->sprite.pos_8[0] = wp->position.x = wp->position_fixed.x >> 16;
     wp->sprite.pos_8[1] = wp->position.y = wp->position_fixed.y >> 16;
     wp->sprite.pos_8[2] = wp->position.z = wp->position_fixed.z >> 16;
@@ -31,7 +31,7 @@ void stcom11_func_003C(STCOM11_WORK *wp)
     wp->sprite.value_10                  = 0x20;
     wp->param_D                          = 20;
     wp->sprite.value_12                  = 0;
-    switch (wp->type_3)
+    switch (wp->type)
     {
         case 3:
             wp->sprite.value_10     = 0x30;
@@ -126,9 +126,9 @@ void stcom11_func_0308(STCOM11_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 1;
-                effect->kind_2          = 0xF;
-                effect->variant_3       = 4;
+                effect->be_flag         = 1;
+                effect->id              = 0xF;
+                effect->type            = 4;
                 effect->value_C         = 0;
                 effect->sprite.pos_8[0] = wp->sprite.pos_8[0];
                 effect->sprite.pos_8[1] = wp->sprite.pos_8[1];
@@ -146,10 +146,9 @@ void stcom11_func_0308(STCOM11_WORK *wp)
         wp->sprite.value_E = 0;
         wp->sprite.value_F = 0x40;
     }
-    else if (wp->flags_0 & 1)
+    else if (wp->be_flag & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
-                      0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->slot, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -185,9 +184,9 @@ void stcom11_func_0564(STCOM11_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 1;
-                effect->kind_2          = 0xF;
-                effect->variant_3       = 4;
+                effect->be_flag         = 1;
+                effect->id              = 0xF;
+                effect->type            = 4;
                 effect->value_C         = 0;
                 effect->sprite.pos_8[0] = wp->sprite.pos_8[0];
                 effect->sprite.pos_8[1] = wp->sprite.pos_8[1];
@@ -205,10 +204,9 @@ void stcom11_func_0564(STCOM11_WORK *wp)
         wp->sprite.value_E = 0;
         wp->sprite.value_F = 0x40;
     }
-    else if (wp->flags_0 & 1)
+    else if (wp->be_flag & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
-                      0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->slot, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }
@@ -244,9 +242,9 @@ void stcom11_func_077C(STCOM11_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 1;
-                effect->kind_2          = 0xF;
-                effect->variant_3       = 4;
+                effect->be_flag         = 1;
+                effect->id              = 0xF;
+                effect->type            = 4;
                 effect->value_C         = 0;
                 effect->sprite.pos_8[0] = wp->sprite.pos_8[0];
                 effect->sprite.pos_8[1] = wp->sprite.pos_8[1];
@@ -264,10 +262,9 @@ void stcom11_func_077C(STCOM11_WORK *wp)
         wp->sprite.value_E = 0;
         wp->sprite.value_F = 0x40;
     }
-    else if (wp->flags_0 & 1)
+    else if (wp->be_flag & 1)
     {
-        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->value_1, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0,
-                      0x80);
+        func_800341BC(&wp->position, wp->sprite.value_10 + 0x10, 0, 0xA000, wp->slot, &wp->sprite.hit_14, wp->param_D | 0x8000000, 0, 0x80);
     }
     wp->sprite.hit_14 = 0;
 }

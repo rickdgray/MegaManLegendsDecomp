@@ -10,24 +10,24 @@
 // Kind 0x80 of the WORK_48 pool (handler func_80043F34). A model kind; func_80043F70 spawns two more of it.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x80
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x80
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2; // also a value: the colour's fade level (func_8004441C)
+    uint8 routine_3; // also a counter: the spin, RotMatrixY(++routine_3 << 7) (func_8004441C)
     sint8 sound_C;   // nonzero: func_80043F70 plays sound 0xA1 after the init
     sint8 size_D;    // column of D_8008A138 (func_80043F70) and index into D_80097DDC, the size
                      // passed to func_800341BC (func_800441CC)
-    sint8 variant_E; // index into D_80097DE0 (the model id), nonzero sets bit 7 of routine_0
+    sint8 variant_E; // index into D_80097DE0 (the model id), nonzero sets bit 7 of be_flag
                      // (func_80043F70); 0 or 1 selects func_800441CC's func_800341BC call
-    sint8 level_F;   // nonzero in variant 0, type_3 6: adds 0x20/0x30/0x40 to Player_work's owner
+    sint8 level_F;   // nonzero in variant 0, type 6: adds 0x20/0x30/0x40 to Player_work's owner
     uint32 field_10;
     uint8 *data_14;  // model data of the EBD entry, set by Model_work_init
     MATRIX mtx;      // 0x18: rotation and scale (diagonal = pos_38.pad)
@@ -39,7 +39,7 @@ typedef struct
 
 typedef void (*W48_80_FUNC)(W48_80_WORK *wp);
 
-// Per-size_D scale limits of func_8004441C (type_3 0, 1 and 3; D_8008A1C8 uses only limit)
+// Per-size_D scale limits of func_8004441C (type 0, 1 and 3; D_8008A1C8 uses only limit)
 typedef struct
 {
     sint16 limit; // the scale under which the object ends
@@ -48,7 +48,7 @@ typedef struct
     sint16 field_6;
 } W48_80_SCALE;
 
-// The same for type_3 2: past limit, field_A grows by step each frame (fading the colour)
+// The same for type 2: past limit, routine_2 grows by step each frame (fading the colour)
 typedef struct
 {
     sint16 limit;
@@ -60,18 +60,18 @@ typedef struct
 // Kind 0x81 of the WORK_48 pool (handler func_8004495C). A model kind.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x81
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x81
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2;
+    uint8 routine_3; // also a timer: frames left, counted down (func_80044A00)
     uint32 field_C;
     uint32 field_10;
     uint8 *data_14; // model data of the EBD entry, set by Model_work_init
@@ -86,19 +86,19 @@ typedef void (*W48_81_FUNC)(W48_81_WORK *wp);
 // Kind 0x82 of the WORK_48 pool (handler func_80044AB0). A sprite kind; func_80043E00 spawns it.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x82
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x82
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
-    sint8 field_C; // set by the spawner (func_80043E00)
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2; // also a value: the step (1..5) indexing func_80044BA0's per-step tables
+    uint8 routine_3; // also a timer: frames left in the step, from D_8008A240 (func_80044BA0)
+    sint8 field_C;   // set by the spawner (func_80043E00)
     uint8 pad_D[3];
     uint32 field_10;
     uint32 code_14;   // packed start word
@@ -116,18 +116,18 @@ typedef void (*W48_82_FUNC)(W48_82_WORK *wp);
 // Kind 0x83 of the WORK_48 pool (handler func_80044C58). A sprite kind; func_80037890 spawns it.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x83
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x83
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2;
+    uint8 routine_3; // also a timer: frames left, reloaded from D_80097DE4[type] (func_80044C94)
     uint32 field_C;
     uint32 field_10;
     uint32 code_14;   // packed start word
@@ -145,18 +145,18 @@ typedef void (*W48_83_FUNC)(W48_83_WORK *wp);
 // Kind 0x84 of the WORK_48 pool (handler func_80045074). A sprite kind; func_80043740 spawns it.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x84
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x84
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2; // also a value: the step indexing D_8008A278 (func_80045170)
+    uint8 routine_3; // also a timer: frames left in the step, from D_8008A278 (func_80045170)
     sint8 field_C;
     uint8 pad_D[3];
     uint32 field_10;
@@ -175,18 +175,18 @@ typedef void (*W48_84_FUNC)(W48_84_WORK *wp);
 // Kind 0x85 of the WORK_48 pool (handler func_80045238). A sprite kind: add is added to spd, and spd to pos_1C, each frame.
 typedef struct
 {
-    uint8 routine_0; // 0x00-0x0B: the header shared by every kind (see WORK_48)
-    uint8 kind_1;
-    uint8 id_2; // 0x85
-    uint8 type_3;
-    uint8 flag_4;
+    uint8 be_flag; // 0x00-0x0B: the header shared by every kind (see WORK_48)
+    uint8 slot;
+    uint8 id; // 0x85
+    uint8 type;
+    uint8 handler;
     uint8 flag_5;
     uint8 flags;
     uint8 pad_7;
-    uint8 routine_8;
-    uint8 field_9;
-    uint8 field_A;
-    uint8 timer_B;
+    uint8 routine_0;
+    uint8 routine_1;
+    uint8 routine_2; // also a value: the brightness, counted down from 0x10 into rgbc_18
+    uint8 routine_3;
     uint32 field_C;
     uint32 field_10;
     uint32 code_14;   // packed start word
@@ -205,38 +205,38 @@ typedef struct
 
 typedef void (*W48_85_FUNC)(W48_85_WORK *wp);
 
-// Start values of a W48_85_WORK for func_80045274, indexed by type_3 (bits 0-3)
+// Start values of a W48_85_WORK for func_80045274, indexed by type (bits 0-3)
 typedef struct
 {
     uint32 field_14;
     uint32 field_18;
     uint8 field_22;
     uint8 field_23;
-    uint8 field_24; // used when type_3 < 0x10; otherwise field_24 is 0x40
+    uint8 field_24; // used when type < 0x10; otherwise field_24 is 0x40
     uint8 routine_8;
 } INIT_48;
 
-extern W48_80_FUNC D_8008A208[]; // routine_8 dispatch table of func_80043F34
-extern W48_80_FUNC D_8008A214[]; // field_9 dispatch table of func_800441CC
-extern W48_81_FUNC D_8008A220[]; // routine_8 dispatch table of func_8004495C
-extern W48_82_FUNC D_8008A250[]; // routine_8 dispatch table of func_80044AB0
-extern W48_83_FUNC D_8008A258[]; // routine_8 dispatch table of func_80044C58
-extern W48_84_FUNC D_8008A288[]; // routine_8 dispatch table of func_80045074
-extern W48_85_FUNC D_8008A290[]; // routine_8 dispatch table of func_80045238
+extern W48_80_FUNC D_8008A208[]; // routine_0 dispatch table of func_80043F34
+extern W48_80_FUNC D_8008A214[]; // routine_1 dispatch table of func_800441CC
+extern W48_81_FUNC D_8008A220[]; // routine_0 dispatch table of func_8004495C
+extern W48_82_FUNC D_8008A250[]; // routine_0 dispatch table of func_80044AB0
+extern W48_83_FUNC D_8008A258[]; // routine_0 dispatch table of func_80044C58
+extern W48_84_FUNC D_8008A288[]; // routine_0 dispatch table of func_80045074
+extern W48_85_FUNC D_8008A290[]; // routine_0 dispatch table of func_80045238
 
-// Two halfwords per entry, indexed by routine_8 - 5; func_80045650 stores them as bytes into
+// Two halfwords per entry, indexed by routine_0 - 5; func_80045650 stores them as bytes into
 // W48_85_WORK.field_22 and field_23 (splat labels the second halfword D_80097E0A)
 extern uint16 D_80097E08[][2];
 
-// Per-step tables of func_80044BA0, indexed by field_A (1..5): two bytes for W48_82_WORK.field_22/23
+// Per-step tables of func_80044BA0, indexed by routine_2 (1..5): two bytes for W48_82_WORK.field_22/23
 // (splat labels the second byte D_8008A235) and the step's duration
 extern uint8 D_8008A234[][2];
 extern uint8 D_8008A240[];
-extern uint8 D_8008A248[]; // W48_82_WORK.field_24 of func_80044BA0, indexed by field_9 (frame count)
+extern uint8 D_8008A248[]; // W48_82_WORK.field_24 of func_80044BA0, indexed by routine_1 (frame count)
 
 // The same per-step tables for func_800450B0/func_80045170 (kind 0x84): bytes for field_22/23
 // (splat labels the second byte D_8008A26D), durations, and a scale for field_24 (times
-// field_C, >> 4) indexed by field_9
+// field_C, >> 4) indexed by routine_1
 extern uint8 D_8008A26C[][2];
 extern uint8 D_8008A278[];
 extern uint8 D_8008A280[];
@@ -247,7 +247,7 @@ extern INIT_48 D_80097DF0[]; // 2 entries; func_80045274
 // file not identified yet)
 extern SLOT_OWNER D_800986C0;
 
-// W48_80_WORK.hw_44[0] and [1] of func_80043F70, [type_3 & 0xF][size_D] (splat labels the
+// W48_80_WORK.hw_44[0] and [1] of func_80043F70, [type & 0xF][size_D] (splat labels the
 // second halfword D_8008A13A)
 extern uint16 D_8008A138[][4][2];
 

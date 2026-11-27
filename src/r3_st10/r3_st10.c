@@ -95,7 +95,7 @@ void func_8010079C(STAGE_ROOM *wp)
         else
         {
             slot = Scene_obj_ent_open(D_801101B4);
-            slot->flags_6 &= ~0x20;
+            slot->flags &= ~0x20;
         }
         wp->routine_4++;
     }

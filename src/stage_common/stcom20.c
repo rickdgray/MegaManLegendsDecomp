@@ -21,7 +21,7 @@ void stcom20_func_0048(STCOM20_WORK *wp)
     STCOM20_CTL *ctl;
     sint16 y;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->data_78            = stcom20_D_0000;
     wp->value_74           = 1;
@@ -203,9 +203,9 @@ void stcom20_func_05FC(STCOM20_WORK *wp)
         effect = func_80031618();
         if (effect != NULL)
         {
-            effect->flags_0         = 5;
-            effect->kind_2          = 0x80;
-            effect->variant_3       = 0x42;
+            effect->be_flag         = 5;
+            effect->id              = 0x80;
+            effect->type            = 0x42;
             effect->sprite.position = wp->position;
         }
         wp->routine_0 = 2;
@@ -237,7 +237,7 @@ void stcom20_func_06E8(STCOM20_WORK *wp)
         }
     }
     stcom20_D_000C[wp->routine_1](wp);
-    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &ctl->hit_1C, 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->slot, &ctl->hit_1C, 0x4080000, 0x800000, 0);
     ctl->hit_1C = 0;
 }
 
@@ -277,7 +277,7 @@ void stcom20_func_0818(STCOM20_WORK *wp)
     rot.words[7] = 0;
     RotMatrix(&wp->rotation, &rot.m);
     MulMatrix(&m->m, &rot.m);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Pos_Shadow_Trans(&wp->pos_AC, 0x30, 0x200, wp->rotation.y);
     }

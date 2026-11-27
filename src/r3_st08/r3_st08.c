@@ -202,8 +202,8 @@ void func_80100984(STAGE_ROOM *wp)
         obj = func_80031734();
         if (obj != NULL)
         {
-            obj->flags_0 = 1;
-            obj->kind_2  = 0x33;
+            obj->be_flag = 1;
+            obj->id      = 0x33;
         }
         wp->routine_4 = 0xFF;
     }
@@ -610,8 +610,8 @@ void func_80101604(STAGE_ROOM *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0   = 1;
-            obj->kind_2    = 8;
+            obj->be_flag   = 1;
+            obj->id        = 8;
             obj->routine_0 = 2;
         }
     }
@@ -642,23 +642,23 @@ void func_80101798(void)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0   = 1;
-            obj->kind_2    = 8;
-            obj->variant_3 = i;
+            obj->be_flag = 1;
+            obj->id      = 8;
+            obj->type    = i;
         }
     }
     shot = Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->flags_0 = 1;
-        shot->kind_2  = 0x21;
+        shot->be_flag = 1;
+        shot->id      = 0x21;
     }
     item = func_80031734();
     if (item != NULL)
     {
-        item->flags_0   = 1;
-        item->kind_2    = 0x1F;
-        item->variant_3 = 1;
+        item->be_flag = 1;
+        item->id      = 0x1F;
+        item->type    = 1;
     }
     func_80101478(0, -1, -0xE0, 0x800);
 }
@@ -929,7 +929,7 @@ void func_80101FE0(STAGE_ROOM *wp)
     {
         case 0:
             slot = Scene_obj_ent_open(D_80113238);
-            slot->flags_6 &= ~0x20;
+            slot->flags &= ~0x20;
             func_8001E6C0(0, 0, 0);
             D_800BC7F0 = D_8011324C;
             wp->tbl_A4 = (STAGE_ROOM2_FUNC *)D_801132EC;
@@ -940,7 +940,7 @@ void func_80101FE0(STAGE_ROOM *wp)
             {
                 pl->routine_0 = 3;
                 pl->routine_1 = 0;
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 wp->routine_5 = 0;
                 wp->routine_6 = 0;
                 wp->routine_7 = 0;
@@ -1017,7 +1017,7 @@ void func_801021D8(STAGE_ROOM *wp)
             D_800C356D = 0;
             D_800C3571 = 0xFF;
             D_800C3570 = 2;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             Sce_flag_on(0x22E);
             wp->flags_0 = 0;
             break;
@@ -1032,12 +1032,12 @@ void func_80102328(STAGE_FX *wp)
 {
     uint8 temp_v1;
 
-    temp_v1 = wp->flags_6;
+    temp_v1 = wp->flags;
     switch (temp_v1)
     {
         case 0:
             Fade_start(0xA);
-            wp->flags_6++;
+            wp->flags++;
             return;
         case 1:
             if (D_80098A72 == 0)
@@ -1094,7 +1094,7 @@ void func_80102498(STAGE_ROOM *wp)
             vec.y = actor->position.y - 0x92;
             vec.z = actor->position.z;
             func_80039FFC(&vec, 0xD4, Angle_xz_svector(&pos, &pl->position), 0);
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             wp->routine_5++;
             break;
         case 1:
@@ -1137,7 +1137,7 @@ void func_80102498(STAGE_ROOM *wp)
                 actor->position_fixed.z = actor->position_fixed_prev.z = actor->position.z << 16;
                 pl->pos_438.x                                          = -0x514;
                 pl->pos_438.z                                          = 0x692;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 pl->flags_bd |= 0x10;
                 pl->fixed_428.x = pl->pos_438.x << 16;
                 pl->fixed_428.z = pl->pos_438.z << 16;

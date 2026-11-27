@@ -38,10 +38,10 @@ typedef struct
 // The 0x3C0-byte work slot stcom24 runs on (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03: nonzero: stays near home
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03: nonzero: stays near home
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -86,10 +86,10 @@ typedef struct
 // The 0x10C-byte slot stcom24_func_07E4 spawns (kind 9, variant 3).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C

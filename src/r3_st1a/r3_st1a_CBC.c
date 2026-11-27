@@ -176,7 +176,7 @@ void func_801010E8(STAGE_ROOM *wp)
                 STAGE_PL.value_448   = 0;
                 STAGE_PL.value_168   = 0;
                 STAGE_PL.value_169   = 0;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 STAGE_PL.flags_bd |= 0x10;
                 func_8003697C();
                 D_800A395C = 1;
@@ -262,7 +262,7 @@ void func_80101464(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         pl = &Player_work;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
     }
 }
 
@@ -286,14 +286,14 @@ void func_801014A4(ST1A_ROOM *wp)
             fx = func_80031618();
             if (fx != NULL)
             {
-                fx->flags_0   = 1;
-                fx->kind_2    = 0x1C;
-                fx->variant_3 = 1;
-                fx->value_C   = 0;
-                fx->value_D   = i;
+                fx->be_flag = 1;
+                fx->id      = 0x1C;
+                fx->type    = 1;
+                fx->value_C = 0;
+                fx->value_D = i;
             }
         }
-        wp->child[3]->flags_0 &= ~2;
+        wp->child[3]->be_flag &= ~2;
         for (i = 0xB; i < 0xE; i++)
         {
             Scene_obj_ent_open(&D_8012E958[i]);
@@ -309,7 +309,7 @@ void func_8010158C(ST1A_ROOM *wp)
     {
         for (i = 4; i < 10; i++)
         {
-            wp->child[i]->flags_0 &= ~2;
+            wp->child[i]->be_flag &= ~2;
         }
     }
 }
@@ -371,9 +371,9 @@ void func_8010160C(ST1A_ROOM_LIFT *wp)
             }
             break;
         case 2:
-            wp->slot_28->flags_0 &= ~2;
-            wp->slot_2C->flags_0 &= ~2;
-            wp->slot_4C->flags_0 &= ~2;
+            wp->slot_28->be_flag &= ~2;
+            wp->slot_2C->be_flag &= ~2;
+            wp->slot_4C->be_flag &= ~2;
             STAGE_CELL_TBL[D_801396F4].pos.y = D_801396F8;
             Stage_idx_model_set(D_801396F4, 0x31500);
             wp->routine_6++;
@@ -483,31 +483,31 @@ void func_80101954(ST1A_ROOM *wp)
             ep  = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 3;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = 0;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 3;
+                ep->value_C = obj->slot;
+                ep->value_D = 0;
             }
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 4;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = i;
-                ep->timer_E   = 0;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 4;
+                ep->value_C = obj->slot;
+                ep->value_D = i;
+                ep->timer_E = 0;
             }
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 4;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = i;
-                ep->timer_E   = 1;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 4;
+                ep->value_C = obj->slot;
+                ep->value_D = i;
+                ep->timer_E = 1;
             }
         }
     }
@@ -535,12 +535,12 @@ void func_80101AC0(STAGE_ROOM *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            child         = wp->child_24;
-            ep->flags_0   = 1;
-            ep->kind_2    = 0x1C;
-            ep->variant_3 = 2;
-            ep->value_C   = child->value_1;
-            ep->value_D   = 0;
+            child       = wp->child_24;
+            ep->be_flag = 1;
+            ep->id      = 0x1C;
+            ep->type    = 2;
+            ep->value_C = child->slot;
+            ep->value_D = 0;
         }
     }
     func_801022DC(wp, 0);
@@ -566,12 +566,12 @@ void func_80101B78(STAGE_ROOM *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            child         = wp->child_24;
-            ep->flags_0   = 1;
-            ep->kind_2    = 0x1C;
-            ep->variant_3 = 2;
-            ep->value_C   = child->value_1;
-            ep->value_D   = 1;
+            child       = wp->child_24;
+            ep->be_flag = 1;
+            ep->id      = 0x1C;
+            ep->type    = 2;
+            ep->value_C = child->slot;
+            ep->value_D = 1;
         }
     }
     func_801022DC(wp, 0);
@@ -693,31 +693,31 @@ void func_80101E54(ST1A_ROOM *wp)
             ep  = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 3;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = 0;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 3;
+                ep->value_C = obj->slot;
+                ep->value_D = 0;
             }
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 4;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = i;
-                ep->timer_E   = 0;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 4;
+                ep->value_C = obj->slot;
+                ep->value_D = i;
+                ep->timer_E = 0;
             }
             ep = func_80031618();
             if (ep != NULL)
             {
-                ep->flags_0   = 1;
-                ep->kind_2    = 0x1C;
-                ep->variant_3 = 4;
-                ep->value_C   = obj->value_1;
-                ep->value_D   = i;
-                ep->timer_E   = 1;
+                ep->be_flag = 1;
+                ep->id      = 0x1C;
+                ep->type    = 4;
+                ep->value_C = obj->slot;
+                ep->value_D = i;
+                ep->timer_E = 1;
             }
         }
         child                     = wp->child[1];
@@ -810,7 +810,7 @@ void func_801020C4(ST1A_ROOM *wp)
         obj->rotation.y         = 0x800;
         for (i = 3; i < 7; i++)
         {
-            wp->child[i]->flags_0 &= ~2;
+            wp->child[i]->be_flag &= ~2;
         }
     }
 }
@@ -1014,10 +1014,10 @@ void func_8010282C(ST1A_ROOM_FX *wp, uint8 variant)
     ep = (STAGE_FX *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 0x20;
-        ep->variant_3 = variant;
-        ep->flags_6 |= 0x20;
+        ep->be_flag = 1;
+        ep->id      = 0x20;
+        ep->type    = variant;
+        ep->flags |= 0x20;
         wp->fx_A0 = ep;
     }
 }
@@ -1117,12 +1117,12 @@ void func_80102A9C(STAGE_ROOM *wp)
                 obj = func_80031734();
                 if (obj != NULL)
                 {
-                    obj->kind_2    = 0x37;
-                    obj->variant_3 = i + 4;
-                    obj->pos_38.x  = i * 0x400 - 0x200;
-                    obj->pos_38.y  = -0xC0;
-                    obj->pos_38.z  = -0x300;
-                    obj->flags_0 |= 1;
+                    obj->id       = 0x37;
+                    obj->type     = i + 4;
+                    obj->pos_38.x = i * 0x400 - 0x200;
+                    obj->pos_38.y = -0xC0;
+                    obj->pos_38.z = -0x300;
+                    obj->be_flag |= 1;
                 }
             }
             pl->routine_0 = 3;
@@ -1136,7 +1136,7 @@ void func_80102A9C(STAGE_ROOM *wp)
             pl->value_444 = 0;
             pl->value_76  = 0;
             pl->value_74  = 0;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             pl->flags_bd |= 0x10;
             pl->fixed_428.x = pl->pos_438.x << 16;
             pl->fixed_428.y = pl->pos_438.y << 16;
@@ -1196,8 +1196,8 @@ void func_80102CC8(ST1A_ROOM_FX *wp)
         func_8010282C(wp, 0);
         obj             = Scene_obj_ent_open(&D_8012F7B8);
         obj->rotation.z = 0x140;
-        wp->child_24->flags_0 &= ~2;
-        STAGE_PL_OBJ->flags_0 &= ~2;
+        wp->child_24->be_flag &= ~2;
+        STAGE_PL_OBJ->be_flag &= ~2;
     }
     else if (wp->frame_10 < 0x168)
     {
@@ -1246,7 +1246,7 @@ void func_80102E8C(ST1A_ROOM_FX *wp)
         func_8010282C(wp, 2);
         wp->child_28->rotation.y = 0x800;
         obj                      = Scene_obj_ent_open(&D_8012F7CC);
-        obj->u_C.b.byte_C        = wp->child_28->value_1;
+        obj->u_C.b.byte_C        = wp->child_28->slot;
         obj->value_48.value      = 0;
     }
     else
@@ -1358,7 +1358,7 @@ void func_801031C8(STAGE_ROOM *wp)
             func_80031824(wp->child_38);
             func_80031824(wp->child_3C);
             func_80102590(0xF);
-            wp->child_24->flags_0 |= 2;
+            wp->child_24->be_flag |= 2;
             wp->child_24->routine_1  = 0;
             wp->child_24->position.y = -0x15;
             Fade_start(2);
@@ -1389,7 +1389,7 @@ void func_80103330(STAGE_ROOM *wp)
     switch (wp->frame_10)
     {
         case 0:
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             func_80102470(2);
             func_80102438(2);
             wp->child_24->routine_1 = 0;
@@ -1437,7 +1437,7 @@ void func_80103448(STAGE_ROOM *wp)
     {
         case 0:
             Sound_call(0x2E, 1, 0);
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             Obj_work_flag_change(0x17E, 0x80);
             func_8001E6C0(0, 0, 0);
             func_80102590(2);
@@ -1571,7 +1571,7 @@ void func_801036F4(STAGE_ROOM *wp)
             }
             break;
         case 3:
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             if (!(D_801396FC & 2))
             {
                 Obj_work_flag_change(0x17E, 0x80);
@@ -1724,9 +1724,9 @@ void func_80103CB8(STAGE_ROOM *wp)
                     ep    = func_80031618();
                     if (ep != NULL)
                     {
-                        ep->flags_0         = 5;
-                        ep->kind_2          = 0x80;
-                        ep->variant_3       = 2;
+                        ep->be_flag         = 5;
+                        ep->id              = 0x80;
+                        ep->type            = 2;
                         ep->value_D         = 3;
                         ep->value_C         = 0;
                         ep->timer_E         = 0;
@@ -1787,7 +1787,7 @@ void func_80103ECC(ST1A_ROOM_FX *wp)
             STAGE_PL.value_448   = 0x80;
             STAGE_PL.value_76    = 0;
             STAGE_PL.value_74    = 0;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             STAGE_PL.flags_bd |= 0x10;
             func_80103A14(0);
             func_801039DC(0);
@@ -1806,7 +1806,7 @@ void func_80103ECC(ST1A_ROOM_FX *wp)
             wp->routine_6++;
             break;
         case 1:
-            pl->flags_0 &= ~1;
+            pl->be_flag &= ~1;
             wp->routine_6++;
             break;
         case 2:
@@ -1854,7 +1854,7 @@ void func_80104238(STAGE_ROOM *wp)
         case 0:
             pl            = &Player_work;
             wp->routine_6 = 0;
-            pl->flags_0 |= 1;
+            pl->be_flag |= 1;
             func_80103A14(4);
             func_801039DC(1);
             break;
@@ -1896,7 +1896,7 @@ void func_80104378(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         func_80103B34(0xB, 0, 0, 0, 0);
-        Player_work.flags_0 &= ~2;
+        Player_work.be_flag &= ~2;
         Scene_obj_ent_open(D_8012FF8C);
         obj->position.y         = -0x64;
         obj->position.x         = 0;
@@ -1916,8 +1916,8 @@ void func_8010441C(STAGE_ROOM *wp)
     switch (wp->routine_6)
     {
         case 0:
-            wp->child_28->flags_0 &= ~2;
-            wp->child_24->flags_0 &= ~2;
+            wp->child_28->be_flag &= ~2;
+            wp->child_24->be_flag &= ~2;
             wp->child_24->value_44.half[1] = 0;
             func_80103B34(2, 0, -0xC1, 0x780, 0x800);
             STAGE_PL.routine_0   = 3;
@@ -1934,7 +1934,7 @@ void func_8010441C(STAGE_ROOM *wp)
             STAGE_PL.value_448   = 0x81;
             STAGE_PL.value_76    = 0;
             STAGE_PL.value_74    = 0;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             STAGE_PL.flags_bd |= 0x10;
             func_80103A14(2);
             func_801039DC(2);
@@ -1973,14 +1973,14 @@ void func_80104630(STAGE_ROOM *wp)
         case 0:
             wp->routine_6 = 0;
             func_80103B34(0xB, 0, 0, 0, 0);
-            Player_work.flags_0 &= ~2;
-            wp->child_28->flags_0 |= 2;
+            Player_work.be_flag &= ~2;
+            wp->child_28->be_flag |= 2;
             obj->position.y       = -0x12C;
             obj->position.z       = -0x96;
             obj->value_44.half[1] = -0x18;
             obj->position.x       = 0;
             obj->value_44.half[0] = 0;
-            obj->flags_0 |= 2;
+            obj->be_flag |= 2;
             obj->position_fixed.v.x = obj->position.x << 16;
             obj->position_fixed.v.y = obj->position.y << 16;
             obj->position_fixed.v.z = obj->position.z << 16;
@@ -2010,7 +2010,7 @@ void func_80104740(STAGE_ROOM *wp)
             obj->value_44.half[1]     = 4;
             obj->position.x           = 0;
             obj->value_44.half[0]     = 0;
-            obj->flags_0 |= 2;
+            obj->be_flag |= 2;
             obj->position_fixed.v.x = obj->position.x << 16;
             obj->position_fixed.v.y = obj->position.y << 16;
             obj->position_fixed.v.z = obj->position.z << 16;
@@ -2081,7 +2081,7 @@ void func_8010493C(STAGE_ROOM *wp)
     switch (wp->frame_10)
     {
         case 0:
-            wp->child_24->flags_0 &= ~2;
+            wp->child_24->be_flag &= ~2;
             func_80103B34(2, 0, -0xC1, 0x898, 0x800);
             STAGE_PL.routine_0   = 3;
             STAGE_PL.routine_1   = 1;
@@ -2097,7 +2097,7 @@ void func_8010493C(STAGE_ROOM *wp)
             STAGE_PL.value_448   = 0x83;
             STAGE_PL.value_76    = 0;
             STAGE_PL.value_74    = 0;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             STAGE_PL.flags_bd |= 0x10;
             func_80103A14(3);
             func_801039DC(3);
@@ -2125,7 +2125,7 @@ void func_80104A80(STAGE_ROOM *wp)
         obj->u_C.b.byte_D     = 0x14;
         obj->position.x       = 0;
         obj->value_44.half[0] = 0;
-        obj->flags_0 |= 2;
+        obj->be_flag |= 2;
         obj->position_fixed.v.x = obj->position.x << 16;
         obj->position_fixed.v.y = obj->position.y << 16;
         obj->position_fixed.v.z = obj->position.z << 16;
@@ -2149,7 +2149,7 @@ void func_80104BAC(STAGE_ROOM *wp)
     {
         case 0:
             STAGE_PL.value_170 = 0;
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             Obj_work_flag_change(0x7E, 0x80);
             func_8001E6C0(0, 0, 0);
             func_80103B34(0xF, 0, 0, 0, 0);
@@ -2265,7 +2265,7 @@ void func_80104EC8(ST1A_ROOM_A0 *wp)
                 STAGE_PL.value_448   = 0;
                 STAGE_PL.value_168   = 0;
                 STAGE_PL.value_169   = 0;
-                pl->flags_0 |= 3;
+                pl->be_flag |= 3;
                 STAGE_PL.flags_bd |= 0x10;
                 Cd_subcmd(0, 1, 0);
                 if (D_80139710 & 2)
@@ -2529,8 +2529,8 @@ void func_8010579C(STAGE_ROOM *wp)
     mask = ~2; // retail ands with -3 held in a register
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.flags_0 &= mask;
-        wp->child_24->flags_0 &= mask;
+        STAGE_PL.be_flag &= mask;
+        wp->child_24->be_flag &= mask;
         Scene_obj_ent_open(&D_80130534[0]);
         D_800BBB38 = 3;
         func_80106F38(0xD);
@@ -2544,7 +2544,7 @@ void func_80105818(ST1A_ROOM *wp)
 
     if (wp->frame_10 == 0)
     {
-        wp->child[1]->flags_0 &= ~2;
+        wp->child[1]->be_flag &= ~2;
         for (i = 2; i < 11; i++)
         {
             Scene_obj_ent_open(&D_80130520[i]);
@@ -2578,7 +2578,7 @@ void func_80105918(ST1A_ROOM *wp)
     {
         for (i = 2; i < 11; i++)
         {
-            wp->child[i]->flags_0 &= ~2;
+            wp->child[i]->be_flag &= ~2;
         }
         D_800BBB38 = 0;
         Scene_obj_ent_open(&D_801305FC[0]);
@@ -2594,11 +2594,11 @@ void func_8010599C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_50;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         pl = &Player_work;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         child = wp->child_24;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         func_80106F38(0xF);
     }
 }
@@ -2664,7 +2664,7 @@ void func_80105BB0(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         pl = &Player_work;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
     }
 }
 
@@ -2675,7 +2675,7 @@ void func_80105BE0(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         pl = &Player_work;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
     }
 }
 
@@ -2749,9 +2749,9 @@ void func_80105DD8(STAGE_ROOM *wp)
         pl                 = &Player_work;
         STAGE_PL.value_448 = 0x30;
         mask               = ~2;
-        pl->flags_0 &= mask;
-        wp->child_54->flags_0 &= mask;
-        wp->child_28->flags_0 |= 2;
+        pl->be_flag &= mask;
+        wp->child_54->be_flag &= mask;
+        wp->child_28->be_flag |= 2;
         D_800BBB38 = 3;
         func_80106F38(0xD);
     }
@@ -2766,7 +2766,7 @@ void func_80105E70(ST1A_ROOM *wp)
     {
         for (i = 2; i < 11; i++)
         {
-            wp->child[i]->flags_0 |= 2;
+            wp->child[i]->be_flag |= 2;
         }
         D_80139734    = 0;
         wp->routine_6 = 0;
@@ -2798,10 +2798,10 @@ void func_80105F88(ST1A_ROOM *wp)
     {
         for (i = 1; i < 11; i++)
         {
-            wp->child[i]->flags_0 &= ~2;
+            wp->child[i]->be_flag &= ~2;
         }
         D_800BBA90[3].flags_0 = 0;
-        wp->child[11]->flags_0 |= 2;
+        wp->child[11]->be_flag |= 2;
         func_80106F38(0xC);
     }
 }
@@ -2904,7 +2904,7 @@ void func_80106278(STAGE_ROOM *wp)
             STAGE_PL.value_440   = 0;
             STAGE_PL.value_442   = 0;
             STAGE_PL.value_444   = 0;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             STAGE_PL.flags_bd |= 0x10;
             func_80106FBC(4);
             func_80106FF4(4);
@@ -2954,7 +2954,7 @@ void func_801064A8(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         pl = &Player_work;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
     }
 }
 
@@ -2966,7 +2966,7 @@ void func_801064D8(STAGE_ROOM *wp)
     switch (wp->frame_10)
     {
         case 0:
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             func_80106FBC(4);
             func_80106FF4(4);
             break;
@@ -3013,8 +3013,8 @@ void func_80106628(STAGE_ROOM *wp)
     mask = ~2; // retail ands with -3 held in a register
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.flags_0 &= mask;
-        wp->child_24->flags_0 &= mask;
+        STAGE_PL.be_flag &= mask;
+        wp->child_24->be_flag &= mask;
         Scene_obj_ent_open(&D_8013064C[0]);
         Scene_obj_ent_open(&D_8013064C[1]);
         func_80106F38(0x10);
@@ -3030,8 +3030,8 @@ void func_801066A0(STAGE_ROOM *wp)
     switch (wp->frame_10)
     {
         case 0:
-            wp->child_28->flags_0 &= ~2;
-            wp->child_2C->flags_0 &= ~2;
+            wp->child_28->be_flag &= ~2;
+            wp->child_2C->be_flag &= ~2;
             STAGE_PL.routine_0   = 3;
             STAGE_PL.routine_1   = 1;
             STAGE_PL.pos_438.z   = 0x640;
@@ -3043,7 +3043,7 @@ void func_801066A0(STAGE_ROOM *wp)
             STAGE_PL.value_440   = 0;
             STAGE_PL.value_442   = 0;
             STAGE_PL.value_444   = 0;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             STAGE_PL.flags_bd |= 0x10;
             func_80106FBC(6);
             func_80106FF4(7);
@@ -3055,7 +3055,7 @@ void func_801066A0(STAGE_ROOM *wp)
             obj->position_fixed.v.y = -0xC1 << 16;
             obj->rotation.z         = 0;
             obj->position.z         = 0x5C0;
-            obj->flags_0 |= 2;
+            obj->be_flag |= 2;
             obj->rotation.x         = 0;
             obj->position_fixed.v.z = 0x5C0 << 16;
             obj->rotation.y         = 0x800;
@@ -3103,10 +3103,10 @@ void func_8010693C(ST1A_ROOM *wp)
     mask = ~2; // retail ands with -3 held in a register
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.flags_0 &= mask;
-        wp->child[0]->flags_0 &= mask;
-        wp->child[1]->flags_0 |= 2;
-        wp->child[2]->flags_0 |= 2;
+        STAGE_PL.be_flag &= mask;
+        wp->child[0]->be_flag &= mask;
+        wp->child[1]->be_flag |= 2;
+        wp->child[2]->be_flag |= 2;
         func_80106F38(0x10);
     }
 }
@@ -3123,11 +3123,11 @@ void func_801069CC(STAGE_ROOM *wp)
             func_80031824(wp->child_2C);
             wp->child_28 = NULL;
             wp->child_2C = NULL;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             func_80106FBC(6);
             func_80106FF4(8);
             STAGE_PL.value_448 = 0x80;
-            wp->child_24->flags_0 |= 2;
+            wp->child_24->be_flag |= 2;
             func_80106F38(2);
             break;
         case 0x2D:
@@ -3165,7 +3165,7 @@ void func_80106B50(STAGE_ROOM *wp)
 
     if (wp->frame_10 == 0)
     {
-        STAGE_PL.flags_0 &= ~2;
+        STAGE_PL.be_flag &= ~2;
         child                     = wp->child_24;
         child->position.y         = -0xC1;
         child->position.z         = 0x620;
@@ -3176,7 +3176,7 @@ void func_80106B50(STAGE_ROOM *wp)
         child->rotation.z         = 0;
         child->rotation.x         = 0;
         child->rotation.y         = 0x800;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
 }
 
@@ -3200,7 +3200,7 @@ void func_80106BC8(STAGE_ROOM *wp)
             STAGE_PL.value_440   = 0;
             STAGE_PL.value_442   = 0;
             STAGE_PL.value_444   = 0;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             STAGE_PL.flags_bd |= 0x10;
             wp->routine_6 = 0;
             break;

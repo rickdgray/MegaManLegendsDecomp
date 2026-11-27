@@ -4,7 +4,7 @@
 #include "common.h"
 #include "stage_common/rock_neo.h"
 
-// The 0x50-byte work slot (func_80031734) of the objects in stcom22, by variant_3: a lift that
+// The 0x50-byte work slot (func_80031734) of the objects in stcom22, by type: a lift that
 // carries the player (0, 003C..0EA8), a breakable crate (1 and 2, 0F00..13F0), a lever (4,
 // 1434..1730), a gate and its switch (6 and 7, 1758..1ED0).
 typedef struct STCOM22_WORK STCOM22_WORK;
@@ -36,10 +36,10 @@ typedef union
 
 struct STCOM22_WORK
 {
-    uint8 flags_0;         // 00
-    uint8 index_1;         // 01: pool id and slot
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01: pool id and slot
+    uint8 id;              // 02
+    uint8 type;            // 03
     uint8 reserved04;      // 04
     uint8 value_5;         // 05: lift: position (low nibble), kind (high nibble)
     uint8 reserved06[2];   // 06
@@ -70,8 +70,9 @@ typedef void (*STCOM22_FUNC)(STCOM22_WORK *wp);
 // Player_work as the lift sees it: the player's carried position at +0x428.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[7];               // 01
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 reserved02[6];               // 02
     uint8 routine_0;                   // 08
     uint8 routine_1;                   // 09
     uint8 reserved0A[0xA];             // 0A
@@ -123,7 +124,7 @@ typedef struct
 extern sint16 stcom22_D_0000[];       // lift: floor box for the ground height
 extern uint32 stcom22_D_000C[];       // a model
 extern uint32 stcom22_D_0018[];       // a model
-extern STCOM22_FUNC stcom22_D_0024[]; // by variant_3
+extern STCOM22_FUNC stcom22_D_0024[]; // by type
 extern STCOM22_FUNC stcom22_D_0044[]; // lift: routine_0
 extern STCOM22_FUNC stcom22_D_0050[]; // lift: routine_1
 extern STCOM22_FUNC stcom22_D_0068[]; // crate: routine_0

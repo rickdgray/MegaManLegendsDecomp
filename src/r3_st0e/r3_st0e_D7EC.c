@@ -7,7 +7,7 @@ void func_8010D7EC(ST0E_GLOW *wp)
     uint32 uv;
 
     D_80110BF0[wp->routine_0](wp);
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         packet          = Billboard_get();
         packet->code_4  = wp->color_18;
@@ -24,9 +24,9 @@ void func_8010D7EC(ST0E_GLOW *wp)
 
 void func_8010D8AC(STAGE_OBJ *wp)
 {
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
     wp->position_prev.z = 0x10;
     wp->routine_0++;
@@ -83,9 +83,9 @@ void func_8010D9F8(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0E_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0   = 1;
-            fx->kind_2    = 0x11;
-            fx->variant_3 = textured;
+            fx->be_flag   = 1;
+            fx->id        = 0x11;
+            fx->type      = textured;
             fx->value_C   = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;
@@ -130,9 +130,9 @@ void func_8010DC00(sint32 textured, sint32 type, sint32 count, STCOM_SVECTOR *po
         fx = (ST0E_GLOW *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0   = 1;
-            fx->kind_2    = 0x11;
-            fx->variant_3 = textured;
+            fx->be_flag   = 1;
+            fx->id        = 0x11;
+            fx->type      = textured;
             fx->value_C   = type;
             fx->color_18  = 0x2E808080;
             fx->xy_1C.h.x = pos->x;

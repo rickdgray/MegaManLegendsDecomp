@@ -18,7 +18,7 @@ void func_8010BD3C(ST08_10C *wp)
     STCOM_SVECTOR pos;
 
     pos = wp->position;
-    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->value_1, &wp->hit_BC, 0xC800000, 0x800000, 0x80);
+    func_800341BC(&pos, 0x1E, 0, 0x8000, wp->slot, &wp->hit_BC, 0xC800000, 0x800000, 0x80);
     wp->hit_BC = 0;
 }
 
@@ -27,7 +27,7 @@ void func_8010BDC0(ST08_10C *wp)
     wp->position.x        = 0x1F4;
     wp->position.y        = -0x10;
     wp->position.z        = -0xA0;
-    wp->variant_3         = 0;
+    wp->type              = 0;
     wp->turn_64           = 0;
     wp->rotation.words[0] = 0;
     wp->rotation.words[1] = 0;
@@ -36,7 +36,7 @@ void func_8010BDC0(ST08_10C *wp)
     wp->turn_64           = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     wp->position_fixed.x = wp->position_fixed_prev.x = wp->position.x << 16;
     wp->position_fixed.z = wp->position_fixed_prev.z = wp->position.z << 16;
     wp->position_fixed.y = wp->position_fixed_prev.y = wp->position.y << 16;
@@ -66,8 +66,8 @@ void func_8010BECC(ST08_10C *wp)
             obj = func_80031418();
             if (obj != NULL)
             {
-                obj->flags_0   = 1;
-                obj->kind_2    = 8;
+                obj->be_flag   = 1;
+                obj->id        = 8;
                 obj->routine_0 = 1;
             }
         }
@@ -76,8 +76,8 @@ void func_8010BECC(ST08_10C *wp)
             shot = Open_SHL_WORK();
             if (shot != NULL)
             {
-                shot->flags_0 = 1;
-                shot->kind_2  = 0x21;
+                shot->be_flag = 1;
+                shot->id      = 0x21;
             }
         }
         STAGE_SCENE_BYTE(0xB) = 0;
@@ -196,7 +196,7 @@ void func_8010C4AC(ST08_10C *wp)
     STCOM_SVECTOR pos;
 
     pos = wp->position;
-    func_800341BC(&pos, 0x78 - wp->value_D * 0x1E, 0, 0x8000, wp->value_1, &wp->hit_BC, 0x4880000, 0x800000, 0x80);
+    func_800341BC(&pos, 0x78 - wp->value_D * 0x1E, 0, 0x8000, wp->slot, &wp->hit_BC, 0x4880000, 0x800000, 0x80);
     wp->hit_BC = 0;
 }
 
@@ -209,8 +209,8 @@ void func_8010C544(ST08_10C *wp, sint32 angle)
     obj = (ST08_10C *)Open_SHL_WORK();
     if (obj != NULL)
     {
-        obj->flags_0  = 1;
-        obj->kind_2   = 0x26;
+        obj->be_flag  = 1;
+        obj->id       = 0x26;
         obj->value_C  = wp->value_C;
         obj->value_D  = wp->value_D;
         obj->value_E  = 1;
@@ -239,7 +239,7 @@ void func_8010C670(ST08_10C *wp)
     wp->value_70          = 0;
     wp->value_74          = 0;
     wp->rotation.v.y      = 0x400;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     wp->position_prev    = wp->position;
     wp->value_4E         = 0x10;
     wp->velocity.v.y     = 0;
@@ -251,8 +251,8 @@ void func_8010C670(ST08_10C *wp)
     wp->position_fixed.y = wp->position_fixed_prev.y = wp->position.y << 16;
     wp->data_78                                      = D_801140D0[wp->value_D];
     func_8010C3D8(wp);
-    wp->variant_3 = wp->value_C * 4;
-    Model_work_init(wp, &wp->variant_3);
+    wp->type = wp->value_C * 4;
+    Model_work_init(wp, &wp->type);
     func_8010C4AC(wp);
     wp->routine_0++;
 }
@@ -269,12 +269,12 @@ void func_8010C784(ST08_10C *wp, STAGE_OBJ50 *owner)
     wp->rotation_prev       = wp->rotation.v;
     if (wp->value_E != 0 && !(STAGE_FRAME & 3))
     {
-        if (++wp->variant_3 > wp->value_C * 4 + 3)
+        if (++wp->type > wp->value_C * 4 + 3)
         {
-            wp->variant_3 = wp->value_C * 4;
-            wp->value_E   = 0;
+            wp->type    = wp->value_C * 4;
+            wp->value_E = 0;
         }
-        Model_work_init(wp, &wp->variant_3);
+        Model_work_init(wp, &wp->type);
     }
     hit = wp->hit_BC;
     if (hit & 0x20000000)

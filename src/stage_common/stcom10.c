@@ -13,7 +13,7 @@ void stcom10_func_0000(STCOM10_WORK *wp)
 
 void stcom10_func_003C(STCOM10_WORK *wp)
 {
-    wp->flags_0      = 1;
+    wp->be_flag      = 1;
     wp->state.area_8 = wp->state.value_9 = -1;
     wp->state.table_0                    = stcom10_D_000C[Game_work.value_50][Game_work.value_51];
     wp->state.area_4                     = NULL;
@@ -86,7 +86,7 @@ void stcom10_func_0134(STCOM10_WORK *wp)
                                 else
                                 {
                                     obj_3C0->routine_0 = 2;
-                                    STCOM10_TABLE_3C0[obj_3C0->kind_2][obj_3C0->handler_4](obj_3C0);
+                                    STCOM10_TABLE_3C0[obj_3C0->id][obj_3C0->handler](obj_3C0);
                                 }
                                 break;
                             case 0x40:
@@ -100,7 +100,7 @@ void stcom10_func_0134(STCOM10_WORK *wp)
                                 else
                                 {
                                     obj_5A4->routine_0 = 2;
-                                    STCOM10_TABLE_5A4[obj_5A4->kind_2][obj_5A4->handler_4](obj_5A4);
+                                    STCOM10_TABLE_5A4[obj_5A4->id][obj_5A4->handler](obj_5A4);
                                 }
                                 break;
                             case 0x60:
@@ -114,7 +114,7 @@ void stcom10_func_0134(STCOM10_WORK *wp)
                                 else
                                 {
                                     obj_10C->routine_0 = 2;
-                                    STCOM10_TABLE_10C[obj_10C->kind_2](obj_10C);
+                                    STCOM10_TABLE_10C[obj_10C->id](obj_10C);
                                 }
                                 break;
                             case 0xE0:
@@ -128,7 +128,7 @@ void stcom10_func_0134(STCOM10_WORK *wp)
                                 else
                                 {
                                     obj_50->routine_0 = 2;
-                                    STCOM10_TABLE_50[obj_50->kind_2](obj_50);
+                                    STCOM10_TABLE_50[obj_50->id](obj_50);
                                 }
                                 break;
                         }
@@ -214,10 +214,10 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 {
                     break;
                 }
-                obj->flags_0          = spawn->flags_0;
-                obj->kind_2           = spawn->value_2;
-                obj->value_3          = spawn->value_3;
-                obj->handler_4        = spawn->value_4;
+                obj->be_flag          = spawn->flags_0;
+                obj->id               = spawn->value_2;
+                obj->type             = spawn->value_3;
+                obj->handler          = spawn->value_4;
                 obj->value_5          = spawn->value_5;
                 obj->value_C          = spawn->value_8;
                 obj->position_fixed.x = obj->position_fixed_prev.x = spawn->pos_C.x << 16;
@@ -227,7 +227,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->index_1;
+                pair->flag                             = obj->slot;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -237,10 +237,10 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 {
                     break;
                 }
-                obj->flags_0          = spawn->flags_0;
-                obj->kind_2           = spawn->value_2;
-                obj->value_3          = spawn->value_3;
-                obj->handler_4        = spawn->value_4;
+                obj->be_flag          = spawn->flags_0;
+                obj->id               = spawn->value_2;
+                obj->type             = spawn->value_3;
+                obj->handler          = spawn->value_4;
                 obj->value_5          = spawn->value_5;
                 obj->value_C          = spawn->value_8;
                 obj->position_fixed.x = obj->position_fixed_prev.x = spawn->pos_C.x << 16;
@@ -250,7 +250,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->index_1;
+                pair->flag                             = obj->slot;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -260,9 +260,9 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 {
                     break;
                 }
-                obj->flags_0          = spawn->flags_0;
-                obj->kind_2           = spawn->value_2;
-                obj->value_3          = spawn->value_3;
+                obj->be_flag          = spawn->flags_0;
+                obj->id               = spawn->value_2;
+                obj->type             = spawn->value_3;
                 obj->value_C          = spawn->value_8;
                 obj->position_fixed.x = obj->position_fixed_prev.x = spawn->pos_C.x << 16;
                 obj->position_fixed.y = obj->position_fixed_prev.y = spawn->pos_C.y << 16;
@@ -271,7 +271,7 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 obj->rotation.x = obj->rotation_prev.x = 0;
                 obj->rotation.y = obj->rotation_prev.y = spawn->rotation_7 << 4;
                 obj->rotation.z = obj->rotation_prev.z = 0;
-                pair->flag                             = obj->index_1;
+                pair->flag                             = obj->slot;
                 pair->index                            = i;
                 pair++;
                 break;
@@ -281,15 +281,15 @@ void stcom10_func_05F4(STCOM10_WORK *wp)
                 {
                     break;
                 }
-                obj50->flags_0 = spawn->flags_0;
-                obj50->kind_2  = spawn->value_2;
-                obj50->value_3 = spawn->value_3;
+                obj50->be_flag = spawn->flags_0;
+                obj50->id      = spawn->value_2;
+                obj50->type    = spawn->value_3;
                 obj50->value_C = spawn->value_8;
                 obj50->pos_38  = spawn->pos_C;
                 obj50->x_1C    = spawn->pos_C.x;
                 obj50->y_1E    = spawn->pos_C.y;
                 obj50->z_20    = spawn->pos_C.z;
-                pair->flag     = obj50->index_1;
+                pair->flag     = obj50->slot;
                 pair->index    = i;
                 pair++;
                 break;

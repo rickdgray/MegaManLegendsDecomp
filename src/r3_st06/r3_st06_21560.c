@@ -5,11 +5,11 @@ void func_80121560(STAGE_FX *wp)
 {
     if (wp->timer_D == 0)
     {
-        D_8012B94C[wp->variant_3](wp);
+        D_8012B94C[wp->type](wp);
     }
     else
     {
-        D_8012B950[wp->variant_3](wp);
+        D_8012B950[wp->type](wp);
     }
 }
 

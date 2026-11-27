@@ -30,7 +30,7 @@ void func_80117CCC(STAGE_FX *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         wp->routine_0++;
     }
     func_80117B88(wp);
@@ -40,7 +40,7 @@ void func_80117D14(STAGE_FX *wp)
 {
 
     wp->frame_E = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -94,9 +94,9 @@ void func_80117D80(STAGE_FX *wp)
         ep = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0        = 1;
-            ep->kind_2         = 6;
-            ep->variant_3      = 0;
+            ep->be_flag        = 1;
+            ep->id             = 6;
+            ep->type           = 0;
             ep->value_C        = 6;
             ep->timer_D        = 1;
             angle              = rand() & 0xFFF;
@@ -133,7 +133,7 @@ void func_80117F94(STAGE_FX *wp)
 
 void func_80117FF8(STAGE_FX *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     if (Game_work.value_50 == 0x16)
     {
         wp->mode_14 = 0x3CC80027;
@@ -209,7 +209,7 @@ void func_80118264(STAGE_OBJ *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         wp->routine_0++;
     }
     func_801181E4(wp);
@@ -240,13 +240,13 @@ void func_801182C0(STAGE_FX *wp)
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 6;
-        ep->variant_3 = 2;
-        ep->value_C   = 6;
-        ep->timer_D   = 1;
-        ep->frame_E   = 0;
-        ep->type_F    = 0;
+        ep->be_flag = 1;
+        ep->id      = 6;
+        ep->type    = 2;
+        ep->value_C = 6;
+        ep->timer_D = 1;
+        ep->frame_E = 0;
+        ep->type_F  = 0;
         if (Game_work.value_50 == 0x16)
         {
             ep->mode_14 = 0x3CC80027;
@@ -266,13 +266,13 @@ void func_801182C0(STAGE_FX *wp)
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 6;
-        ep->variant_3 = 2;
-        ep->value_C   = 6;
-        ep->timer_D   = 1;
-        ep->frame_E   = 1;
-        ep->type_F    = 0;
+        ep->be_flag = 1;
+        ep->id      = 6;
+        ep->type    = 2;
+        ep->value_C = 6;
+        ep->timer_D = 1;
+        ep->frame_E = 1;
+        ep->type_F  = 0;
         if (Game_work.value_50 == 0x16)
         {
             ep->mode_14 = 0x3CC80027;
@@ -326,7 +326,7 @@ void func_80118560(STAGE_OBJ *wp)
         func_80031988((STCOM_EFFECT *)wp);
         return;
     }
-    D_8011CE50[wp->variant_3](wp);
+    D_8011CE50[wp->type](wp);
 }
 
 STAGE_FX *func_801185BC(STAGE_OBJ *owner, sint32 x, sint32 y, sint32 z, uint8 variant)
@@ -336,9 +336,9 @@ STAGE_FX *func_801185BC(STAGE_OBJ *owner, sint32 x, sint32 y, sint32 z, uint8 va
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0      = 1;
-        fx->kind_2       = 6;
-        fx->variant_3    = variant;
+        fx->be_flag      = 1;
+        fx->id           = 6;
+        fx->type         = variant;
         fx->timer_D      = 0;
         fx->u_28.object  = owner;
         fx->x_2C.half[0] = x;
@@ -356,17 +356,17 @@ void func_80118648(STCOM_SVECTOR *pos, sint16 a1, sint16 a2, ST00_POINT_FX *owne
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 9;
-        fx->variant_3 = variant;
-        fx->value_C   = 9;
-        fx->timer_D   = 1;
-        fx->frame_E   = 0x1E;
-        fx->mode_14   = 0x3D48002E;
-        fx->u_22      = (rand() & 3) * 32 + 0x20;
-        fx->v_23      = 0;
-        fx->color_18  = 0x2E202020;
-        fx->w_24      = 6;
+        fx->be_flag  = 1;
+        fx->id       = 9;
+        fx->type     = variant;
+        fx->value_C  = 9;
+        fx->timer_D  = 1;
+        fx->frame_E  = 0x1E;
+        fx->mode_14  = 0x3D48002E;
+        fx->u_22     = (rand() & 3) * 32 + 0x20;
+        fx->v_23     = 0;
+        fx->color_18 = 0x2E202020;
+        fx->w_24     = 6;
         pos->x += rand() & 3;
         pos->y += rand() & 3;
         pos->z += rand() & 3;
@@ -386,8 +386,8 @@ void func_8011877C(STCOM_SVECTOR *pos, sint32 a1, sint32 a2)
     fx = (ST00_POINT_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0    = 1;
-        fx->kind_2     = 9;
+        fx->be_flag    = 1;
+        fx->id         = 9;
         fx->value_C    = 9;
         fx->value_D    = 0;
         fx->value_E    = 0;
@@ -407,7 +407,7 @@ void func_80118814(ST00_POINT_FX *wp)
 
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
     }
     if (--wp->value_E == 0)
     {
@@ -416,7 +416,7 @@ void func_80118814(ST00_POINT_FX *wp)
     }
     wp->color_18 += 0xFFFEFEFF;
     wp->w_24++;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         v.x               = 0;
         v.y               = 0;

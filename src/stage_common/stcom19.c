@@ -6,7 +6,7 @@
 // tools/cc.sh); the names are the same in every stage's registry.
 #define ASM_DIR TARGET_ASM "/stage_common/stcom19"
 
-// The panels' spawner (value_3 0xFF) or a panel: runs its routine, then lights it while the
+// The panels' spawner (type 0xFF) or a panel: runs its routine, then lights it while the
 // player stands on the far side of its edge.
 void stcom19_func_0000(STCOM19_WORK *wp)
 {
@@ -20,7 +20,7 @@ void stcom19_func_0000(STCOM19_WORK *wp)
     STCOM_FIXED_VECTOR b;
     STCOM19_MATRIX m;
 
-    if (wp->value_3 == 0xFF)
+    if (wp->type == 0xFF)
     {
         stcom19_func_0640();
         func_80031A4C(wp);
@@ -70,7 +70,7 @@ void stcom19_func_0000(STCOM19_WORK *wp)
 
 void stcom19_func_02F4(STCOM19_WORK *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->routine_0++;
 }
 
@@ -102,7 +102,7 @@ void stcom19_func_0384(STCOM19_WORK *wp)
     if (--wp->timer_B == 0)
     {
         wp->routine_0++;
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
         Sound_call(0x185, 0, 0);
         Sce_flag_off(0x7B2);
         STCOM19_CELLS[wp->cell_44].value = wp->matrix.words[6];
@@ -124,7 +124,7 @@ void stcom19_func_0448(STCOM19_WORK *wp)
             wp->matrix.m.m[0][0] = 0;
             wp->routine_0++;
             RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             Sce_flag_on(0x7B2);
             Sound_call2(0x106, &wp->pos_38);
         }
@@ -140,7 +140,7 @@ void stcom19_func_0448(STCOM19_WORK *wp)
         wp->matrix.m.m[0][0] = 0;
         wp->routine_0++;
         RotMatrixY(wp->dir_C << 10, &wp->matrix.m);
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         Sce_flag_on(0x7B2);
         Sound_call2(0x106, &wp->pos_38);
         Sce_flag_off(0x7B1);
@@ -227,10 +227,10 @@ void stcom19_func_0640(void)
                             wp = func_80031734();
                             if (wp != NULL)
                             {
-                                wp->flags_0 = 5;
-                                wp->kind_2  = 0x2F;
-                                wp->value_3 = list[k].spawn_E[i] >> 4;
-                                Model_work_init(wp, &wp->value_3);
+                                wp->be_flag = 5;
+                                wp->id      = 0x2F;
+                                wp->type    = list[k].spawn_E[i] >> 4;
+                                Model_work_init(wp, &wp->type);
                                 wp->dir_C           = list[k].spawn_E[i] & 0xF;
                                 wp->value_D         = count;
                                 pos                 = STCOM19_CELL_TBL[cell].pos;

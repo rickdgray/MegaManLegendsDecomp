@@ -9,20 +9,20 @@ void func_80124AB4(ST1A_50 *wp)
 
 void func_80124B18(ST1A_50 *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *rot)
 {
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->color_40  = 0x808080;
     rot->x        = 0;
     rot->y        = 0x1000;
     rot->z        = 0;
-    rot->pad      = D_80133264[wp->variant_3];
+    rot->pad      = D_80133264[wp->type];
     wp->routine_1 = 0;
     wp->routine_0++;
 }
 
 void func_80124BA8(ST1A_50 *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *rot)
 {
-    D_8013323C[wp->variant_3](wp, scene, rot);
+    D_8013323C[wp->type](wp, scene, rot);
 }
 
 void func_80124BE4(ST1A_50 *wp, STAGE_SCENE_WORK *scene, STCOM_SVECTOR *rot)
@@ -345,7 +345,7 @@ void func_80125438(ST1A_50 *wp, STCOM_SVECTOR *rot)
     STCOM_FIXED_VECTOR scale;
 
     STAGE_MATRIX_IDENTITY(wp->matrix_18.w);
-    if (wp->variant_3 == 2)
+    if (wp->type == 2)
     {
         scale.x = scale.y = scale.z = 0x11A0;
     }
@@ -399,11 +399,11 @@ void func_801255CC(ST1A_50 *wp)
     fx = func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 0x1C;
-        fx->variant_3 = 0;
-        fx->value_C   = wp->value_1;
-        fx->value_D   = wp->variant_3;
+        fx->be_flag = 1;
+        fx->id      = 0x1C;
+        fx->type    = 0;
+        fx->value_C = wp->slot;
+        fx->value_D = wp->type;
     }
 }
 
@@ -417,8 +417,8 @@ void func_80125628(ST1A_HAND50 *wp)
     switch (wp->routine_0)
     {
         case 0:
-            wp->flags_0 |= 6;
-            Model_work_init(wp, &wp->variant_3);
+            wp->be_flag |= 6;
+            Model_work_init(wp, &wp->type);
             wp->color_40 = 0x808080;
             wp->routine_0++;
             // fall through

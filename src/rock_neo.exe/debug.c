@@ -609,8 +609,8 @@ void func_80063C30(void)
     switch (*(sint8 *)&D_800987B2)
     {
         case 0:
-            Player_work[0].routine_9 = 0x10;
-            Player_work[0].field_A   = 0;
+            Player_work[0].routine_1 = 0x10;
+            Player_work[0].routine_2 = 0;
             Player_work[0].obj_184   = NULL;
             Player_work[0].unk44D    = 0;
             (*(sint8 *)&D_800987B2)++;
@@ -623,13 +623,13 @@ void func_80063C30(void)
         case 1:
             if (D_800987B1 & 1)
             {
-                pl->routine_0 &= ~2;
+                pl->be_flag &= ~2;
             }
             else
             {
-                pl->routine_0 |= 2;
+                pl->be_flag |= 2;
             }
-            if (pl->routine_9 == 0xB || pl->routine_9 == 0xC)
+            if (pl->routine_1 == 0xB || pl->routine_1 == 0xC)
             {
                 MojiTaskKill();
             }
@@ -637,11 +637,11 @@ void func_80063C30(void)
             {
                 if (!(fp->mode_1 & 4))
                 {
-                    pl->routine_0 |= 2;
+                    pl->be_flag |= 2;
                 }
-                if (!(fp->mode_1 & 8) && pl->routine_9 == 0x10)
+                if (!(fp->mode_1 & 8) && pl->routine_1 == 0x10)
                 {
-                    pl->field_A++;
+                    pl->routine_2++;
                 }
                 if (fp->mode_1 & 0x10)
                 {
@@ -659,20 +659,20 @@ void func_80063C30(void)
         case 3:
             if (D_800987B1 & 1)
             {
-                pl->routine_0 &= ~2;
+                pl->be_flag &= ~2;
             }
             else
             {
-                pl->routine_0 |= 2;
+                pl->be_flag |= 2;
             }
-            if (pl->routine_9 == 0xB || pl->routine_9 == 0xC)
+            if (pl->routine_1 == 0xB || pl->routine_1 == 0xC)
             {
                 MojiTaskKill();
             }
             if (!(Moji_flag & D_8008DD54[fp->task_no_4]))
             {
                 fp->flag_0 = 0;
-                pl->routine_0 |= 2;
+                pl->be_flag |= 2;
             }
             break;
     }

@@ -55,10 +55,10 @@ typedef struct
 // A 0x10C-byte work slot with a sprite at +0x88 (STCOM06_WORK's layout) and its state at +0xD0.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -91,7 +91,7 @@ typedef struct
 } ST0A_10C;
 
 // From r3_st02 (ST02_SPARK).
-// A rising spark effect and its emitter (variant_3 1 and 0): the emitter (func_80104448) sheds a
+// A rising spark effect and its emitter (type 1 and 0): the emitter (func_80104448) sheds a
 // spark every few frames (func_80113AA4); a spark fades out while it rises (func_80104184), and
 // ends when its emitter's routine does.
 typedef struct ST0A_SPARK ST0A_SPARK;
@@ -99,12 +99,12 @@ typedef struct ST0A_SPARK ST0A_SPARK;
 // From r3_st02 (ST02_SPARK).
 struct ST0A_SPARK
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[2];    // 04
-    uint8 flags_6;          // 06
+    uint8 flags;            // 06
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -162,13 +162,13 @@ typedef struct
 // A work slot (func_80031418) that carries a ST0A_GRID6 at +0x88 (func_80108334, func_80108478).
 typedef struct
 {
-    uint8 flags_0;           // 00
-    uint8 value_1;           // 01
-    uint8 kind_2;            // 02
-    uint8 variant_3;         // 03
+    uint8 be_flag;           // 00
+    uint8 slot;              // 01
+    uint8 id;                // 02
+    uint8 type;              // 03
     uint8 value_4;           // 04
     uint8 reserved05;        // 05
-    uint8 flags_6;           // 06
+    uint8 flags;             // 06
     uint8 reserved07[5];     // 07
     sint32 value_C;          // 0C
     sint32 value_10;         // 10
@@ -199,10 +199,10 @@ typedef struct ST0A_VIEW ST0A_VIEW;
 typedef void (*ST0A_VIEW_FUNC)(ST0A_VIEW *wp);
 struct ST0A_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 value_5;        // 5
     uint8 value_6;        // 6
@@ -365,12 +365,12 @@ typedef union
 // A 0x10C-byte shot (shl/shl.h's SHL_WORK with a model: the fields its routines use).
 typedef struct
 {
-    uint8 flags_0;              // 00
-    uint8 value_1;              // 01
+    uint8 be_flag;              // 00
+    uint8 slot;                 // 01
     uint8 value_2;              // 02
-    uint8 type_3;               // 03: 0x40 set for a shot fired by another object
+    uint8 type;                 // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];        // 04
-    uint8 flags_6;              // 06
+    uint8 flags;                // 06
     uint8 reserved07;           // 07
     uint8 routine_0;            // 08
     uint8 routine_1;            // 09
@@ -403,9 +403,9 @@ typedef struct
 // An effect slot as the shot's sparks use it (shl/shl.h's SHL_FX).
 typedef struct
 {
-    sint8 routine_0;        // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
+    sint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
     uint8 flag_3;           // 03
     uint8 reserved04[0x18]; // 04
     sint16 x_1C;            // 1C
@@ -425,12 +425,12 @@ typedef void (*ST0A_HIT_FUNC)(STAGE_OBJ *wp, sint32 arg, STCOM_SVECTOR *hit);
 // with ROCK_NEO's generic layout up to 0x88, then a model's draw data.
 typedef struct
 {
-    sint8 flags_0; // 00
-    uint8 value_1; // 01
-    uint8 kind_2;  // 02
-    uint8 type_3;  // 03: 0x40 set for a shot fired by another object
+    sint8 be_flag; // 00
+    uint8 slot;    // 01
+    uint8 id;      // 02
+    uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 routine_1; // 09
@@ -466,10 +466,10 @@ typedef struct
 // A 0x10C-byte work slot with a sprite at +0x88 (STCOM06_WORK's layout) and its state at +0xD0.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -558,13 +558,13 @@ typedef struct
 
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 value_4;                          // 04
     uint8 reserved05;                       // 05
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -648,10 +648,10 @@ typedef void (*ST0A_PIECE_FUNC)(ST0A_PIECE *wp);
 
 struct ST0A_PIECE
 {
-    uint8 flags_0;                // 00
-    uint8 value_1;                // 01
-    uint8 kind_2;                 // 02
-    uint8 variant_3;              // 03
+    uint8 be_flag;                // 00
+    uint8 slot;                   // 01
+    uint8 id;                     // 02
+    uint8 type;                   // 03
     uint8 reserved04[4];          // 04
     uint8 routine_0;              // 08
     uint8 routine_1;              // 09
@@ -684,10 +684,10 @@ struct ST0A_PIECE
 // A 0x24-byte event slot (STAGE_EV) with a frame count at +0x1C.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -701,10 +701,10 @@ typedef struct
 // A model slot carrying its own matrix (STAGE_LIGHT's layout): func_80114580's prop.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 value_1;          // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 reserved09[0xF];  // 09
@@ -716,12 +716,12 @@ typedef struct
 // The 0x10C-byte object a ST0A_EN carries and throws (ST0A_EN_CTL's held_3C).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 value_1;                     // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[2];               // 04
-    uint8 flags_6;                     // 06
+    uint8 flags;                       // 06
     uint8 reserved07;                  // 07
     uint8 routine_0;                   // 08
     uint8 reserved09[0xB];             // 09
@@ -757,12 +757,12 @@ typedef struct
 // A 0x3C0-byte enemy (D_8011597C's routines; stcom13's STCOM13_WORK with its block at +0x328).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09

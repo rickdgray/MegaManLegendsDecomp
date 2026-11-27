@@ -30,7 +30,7 @@ void func_801078A8(ST0E_VIEW *wp)
     wp->u_64.w[0]  = 0;
     wp->u_70.w[0]  = 0;
     wp->u_74.w[0]  = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     m = &wp->matrix_8C;
     RotMatrixYXZ(&wp->rotation, m);
@@ -41,8 +41,8 @@ void func_801078A8(ST0E_VIEW *wp)
     wp->routine_0      = 1;
     wp->value_B4       = 0x808080;
     wp->value_78       = 0;
-    wp->u_70.b[3]      = D_80098928[wp->kind_2]->value_A;
-    wp->value_6E       = D_80098928[wp->kind_2]->life_8;
+    wp->u_70.b[3]      = D_80098928[wp->id]->value_A;
+    wp->value_6E       = D_80098928[wp->id]->life_8;
     wp->hit_CC.flags_8 = 0;
 }
 
@@ -65,13 +65,13 @@ void func_801079BC(ST0E_VIEW *wp)
     ScaleMatrix(m, &scale);
     wp->vec_AC       = wp->position;
     wp->hit_CC.pos_0 = wp->position;
-    func_800341BC(hit, 0x78, 0, 0x8000, wp->value_1, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
+    func_800341BC(hit, 0x78, 0, 0x8000, wp->slot, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
     wp->hit_CC.pos_0 = wp->position;
     wp->hit_CC.pos_0.z += 0xB4;
-    func_800341BC(hit, 0x78, 0, 0x8000, wp->value_1, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
+    func_800341BC(hit, 0x78, 0, 0x8000, wp->slot, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
     wp->hit_CC.pos_0 = wp->position;
     wp->hit_CC.pos_0.z -= 0xB4;
-    func_800341BC(hit, 0x78, 0, 0x8000, wp->value_1, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
+    func_800341BC(hit, 0x78, 0, 0x8000, wp->slot, &hit->flags_8, wp->u_70.b[3] | 0x05000000, 0, 0x80);
     wp->hit_CC.flags_8 = 0;
 }
 
@@ -84,7 +84,7 @@ void func_80107BB4(ST0E_10C *wp)
 {
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
-    D_801104B0[wp->variant_3](wp);
+    D_801104B0[wp->type](wp);
     wp->value_D4 = 0;
 }
 
@@ -120,8 +120,8 @@ void func_80107C94(ST0E_VIEW *wp)
     wp->u_64.w[0]  = 0;
     wp->u_70.w[0]  = 0;
     wp->u_74.w[0]  = 0;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     m = &wp->matrix_8C;
     RotMatrixYXZ(&wp->rotation, m);
     scale.x = 0x1000;
@@ -225,11 +225,11 @@ void func_80107DE0(ST0E_VIEW *wp)
         ctl->hit.pos_0.x = wp->position.x;
         ctl->hit.pos_0.y = wp->position.y - 0x78;
         ctl->hit.pos_0.z = wp->position.z;
-        func_800341BC(&ctl->hit, 0x78, 0, 0x8000, wp->value_1, &ctl->hit.flags_8, 0x04080000, 0x800000, 0x80);
+        func_800341BC(&ctl->hit, 0x78, 0, 0x8000, wp->slot, &ctl->hit.flags_8, 0x04080000, 0x800000, 0x80);
         ctl->hit.pos_0.x = wp->position.x;
         ctl->hit.pos_0.y = wp->position.y - 0x168;
         ctl->hit.pos_0.z = wp->position.z;
-        func_800341BC(&ctl->hit, 0x78, 0, 0x8000, wp->value_1, &ctl->hit.flags_8, 0x04080000, 0x800000, 0x80);
+        func_800341BC(&ctl->hit, 0x78, 0, 0x8000, wp->slot, &ctl->hit.flags_8, 0x04080000, 0x800000, 0x80);
     }
     ctl->hit.flags_8 = 0;
 }
@@ -255,8 +255,8 @@ void func_801080AC(ST0E_VIEW *wp)
     if (wp->rotation.x < 0xC00)
     {
         wp->rotation.x = 0;
-        wp->variant_3  = 8;
-        Model_work_init(wp, &wp->variant_3);
+        wp->type       = 8;
+        Model_work_init(wp, &wp->type);
         wp->routine_1 = 0;
         wp->value_FB  = 0;
         Sound_call2(0x107, &wp->position);
@@ -341,8 +341,8 @@ void func_8010834C(ST0E_10C *wp)
     wp->value_64    = 0;
     wp->value_70    = 0;
     wp->value_74    = 0;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->routine_0 = 1;
     wp->byte_D    = 0x28;
     wp->routine_1 = 0;

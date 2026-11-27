@@ -11,39 +11,39 @@ void func_80101C64(STAGE_SPIN *wp)
     STCOM_EFFECT *effect;
     STAGE_SPIN *child;
     uint32 i;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->color_40 = 0x2808080;
     wp->angle_4C = 0;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         for (i = 0; i < 7; i++)
         {
             effect = func_80031618();
             if (effect != NULL)
             {
-                D_801162E0[i]     = effect;
-                effect->flags_0   = 1;
-                effect->kind_2    = 0x18;
-                effect->variant_3 = 0;
-                effect->value_C   = wp->value_1;
+                D_801162E0[i]   = effect;
+                effect->be_flag = 1;
+                effect->id      = 0x18;
+                effect->type    = 0;
+                effect->value_C = wp->slot;
             }
         }
     }
     child = (STAGE_SPIN *)func_80031734();
     if (child != NULL)
     {
-        child->flags_0   = wp->flags_0;
-        child->kind_2    = wp->kind_2;
-        child->variant_3 = 1;
-        child->value_C   = 0;
-        child->value_D   = 0;
-        child->value_E   = 0;
-        child->value_F   = 0;
-        child->pos_38.x  = wp->pos_38.x;
-        child->pos_38.y  = wp->pos_38.y;
-        child->pos_38.z  = wp->pos_38.z;
-        Model_work_init(child, &child->variant_3);
+        child->be_flag  = wp->be_flag;
+        child->id       = wp->id;
+        child->type     = 1;
+        child->value_C  = 0;
+        child->value_D  = 0;
+        child->value_E  = 0;
+        child->value_F  = 0;
+        child->pos_38.x = wp->pos_38.x;
+        child->pos_38.y = wp->pos_38.y;
+        child->pos_38.z = wp->pos_38.z;
+        Model_work_init(child, &child->type);
         child->color_40 = 0x2C808080;
         child->angle_4C = 0;
         child->routine_0++;

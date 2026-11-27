@@ -26,9 +26,10 @@ typedef struct
 // The 0x24-byte event slot stcom02 runs on (freed through Close_EVE_WORK).
 typedef struct
 {
-    uint8 flags_0;           // 00
-    uint8 reserved01[2];     // 01
-    uint8 index_3;           // 03: which script and range
+    uint8 be_flag;           // 00
+    uint8 slot;              // 01
+    uint8 reserved02;        // 02
+    uint8 type;              // 03: which script and range
     uint8 reserved04[4];     // 04
     uint8 routine_0;         // 08
     uint8 reserved09[3];     // 09
@@ -43,8 +44,8 @@ typedef struct
 
 typedef void (*STCOM02_FUNC)(STCOM02_WORK *wp);
 
-extern STCOM02_STEP *stcom02_D_0000[]; // scripts, by index_3
-extern STCOM02_RANGE stcom02_D_006C[]; // palette ranges, by index_3
+extern STCOM02_STEP *stcom02_D_0000[]; // scripts, by type
+extern STCOM02_RANGE stcom02_D_006C[]; // palette ranges, by type
 extern STCOM02_FUNC stcom02_D_0110[];  // routine_0 handlers (stcom02_func_0000)
 
 void stcom02_func_0140(STCOM02_WORK *wp);

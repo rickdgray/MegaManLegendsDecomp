@@ -14,8 +14,8 @@ void stcom03_func_0000(STCOM03_WORK *wp)
 
 void stcom03_func_003C(STCOM03_WORK *wp)
 {
-    wp->flags_0 |= 2;
-    switch (wp->type_3)
+    wp->be_flag |= 2;
+    switch (wp->type)
     {
         case 0:
             wp->mode_14   = 0x3D48000E;
@@ -53,7 +53,7 @@ void stcom03_func_003C(STCOM03_WORK *wp)
         case 2:
             wp->mode_14               = 0x3D48000E;
             wp->value_22              = 0x40;
-            wp->routine_1             = wp->type_3;
+            wp->routine_1             = wp->type;
             wp->value_23              = 0x20;
             *(uint16 *)&wp->routine_2 = 0;
             wp->routine_0             = 3;
@@ -77,7 +77,7 @@ void stcom03_func_003C(STCOM03_WORK *wp)
 
                 wp->size_24 = size_tbl[wp->param_C];
                 wp->param_C = param_tbl[wp->param_C];
-                wp->flags_0 |= 0x20;
+                wp->be_flag |= 0x20;
             }
             break;
         case 4:
@@ -90,7 +90,7 @@ void stcom03_func_003C(STCOM03_WORK *wp)
             *(uint16 *)&wp->routine_2 = 0;
             wp->step_26               = 0;
             wp->size_24               = 0x28;
-            wp->flags_0 |= 0x20;
+            wp->be_flag |= 0x20;
             break;
     }
 }

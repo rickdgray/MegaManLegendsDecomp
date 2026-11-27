@@ -63,10 +63,10 @@ void func_8010058C(STAGE_ROOM *wp)
                 obj = Open_EVE_WORK();
                 if (obj != NULL)
                 {
-                    obj->flags_0   = 1;
-                    obj->kind_2    = 0xD;
-                    obj->value_4   = 0;
-                    obj->variant_3 = 0;
+                    obj->be_flag = 1;
+                    obj->id      = 0xD;
+                    obj->value_4 = 0;
+                    obj->type    = 0;
                 }
                 wp->routine_4 = 1;
             }
@@ -95,10 +95,10 @@ void func_8010058C(STAGE_ROOM *wp)
             obj = Open_EVE_WORK();
             if (obj != NULL)
             {
-                obj->flags_0   = 1;
-                obj->kind_2    = 0xD;
-                obj->value_4   = 0;
-                obj->variant_3 = 1;
+                obj->be_flag = 1;
+                obj->id      = 0xD;
+                obj->value_4 = 0;
+                obj->type    = 1;
             }
             wp->routine_4 = 0xFF;
             break;

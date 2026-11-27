@@ -239,7 +239,7 @@ void func_800158F0(GAME_WORK *wp)
                 }
             }
             else if (Scene_work.unk00 == 0 && D_80098A72 == 0 && !(Moji_flag & 0x0F000000) && player->life >= 0 && player->flags_BD == 0 &&
-                     player->routine_8 == 1)
+                     player->routine_0 == 1)
             {
                 if ((PAD_ON(Joy1) & PAD_START) || Joy1.type == 0xFF)
                 {
@@ -290,7 +290,7 @@ void func_800158F0(GAME_WORK *wp)
             {
                 player->unk110 = 0;
                 player->unk111 = 0;
-                player->flags_6 |= 3;
+                player->flags |= 3;
                 wp->routine_1 += 2;
             }
             Fade_start(entry->unk19);
@@ -366,7 +366,7 @@ void game_frame_exec(void)
 }
 
 // Puts the player at the area entry: position (and its previous copies) and facing angle; reset
-// also clears field_74/75, and in routine_8 3 the saved position is set too.
+// also clears field_74/75, and in routine_0 3 the saved position is set too.
 void player_entry_set(PL_WORK *pl, AREA_ENTRY *entry, sint32 reset)
 {
     pl->pos.vx = pl->old.vx = entry->pos.vx;
@@ -380,7 +380,7 @@ void player_entry_set(PL_WORK *pl, AREA_ENTRY *entry, sint32 reset)
     {
         pl->field_74 = pl->field_75 = 0;
     }
-    if (pl->routine_8 == 3)
+    if (pl->routine_0 == 3)
     {
         pl->svec_438 = pl->pos;
         pl->pos_428  = pl->pos_l;
@@ -978,16 +978,16 @@ void func_80016E90(void)
 INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/game", func_80016E90);
 #endif
 
-// The pool updates: run the handler of every live slot (routine_0 and flags both with bit 0 set),
-// keeping the slot in a global for the handlers. routine_0 is read signed here (lb), where the
+// The pool updates: run the handler of every live slot (be_flag and flags both with bit 0 set),
+// keeping the slot in a global for the handlers. be_flag is read signed here (lb), where the
 // pools' other code reads it unsigned, hence the casts.
 void func_80016FD4(void)
 {
     for (D_80098820 = D_8009F108; D_80098820 < &D_8009F108[16]; D_80098820++)
     {
-        if ((sint8)D_80098820->routine_0 & D_80098820->flags & 1)
+        if ((sint8)D_80098820->be_flag & D_80098820->flags & 1)
         {
-            Work_3C0_tbl[D_80098820->id_2][D_80098820->flag_4](D_80098820);
+            Work_3C0_tbl[D_80098820->id][D_80098820->handler](D_80098820);
         }
     }
 }
@@ -996,9 +996,9 @@ void func_80017094(void)
 {
     for (D_800989D0 = D_800C3580; D_800989D0 < &D_800C3580[4]; D_800989D0++)
     {
-        if ((sint8)D_800989D0->routine_0 & D_800989D0->flags & 1)
+        if ((sint8)D_800989D0->be_flag & D_800989D0->flags & 1)
         {
-            Work_5A4_tbl[D_800989D0->id_2][D_800989D0->flag_4](D_800989D0);
+            Work_5A4_tbl[D_800989D0->id][D_800989D0->handler](D_800989D0);
         }
     }
 }
@@ -1007,9 +1007,9 @@ void func_80017154(void)
 {
     for (D_800988F8 = D_800BFB20; D_800988F8 < &D_800BFB20[16]; D_800988F8++)
     {
-        if ((sint8)D_800988F8->routine_0 & D_800988F8->flags & 1)
+        if ((sint8)D_800988F8->be_flag & D_800988F8->flags & 1)
         {
-            D_80089820[D_800988F8->id_2]();
+            D_80089820[D_800988F8->id]();
         }
     }
 }
@@ -1020,15 +1020,15 @@ void func_80017210(void)
 {
     for (D_800988F8 = (PL_SHL_WORK *)D_8009CF88; D_800988F8 < (PL_SHL_WORK *)&D_8009CF88[32]; D_800988F8++)
     {
-        if ((sint8)D_800988F8->routine_0 & D_800988F8->flags & 1)
+        if ((sint8)D_800988F8->be_flag & D_800988F8->flags & 1)
         {
-            if (D_800988F8->id_2 < 0x80)
+            if (D_800988F8->id < 0x80)
             {
-                Shl_work_tbl[D_800988F8->id_2]((SHL_WORK *)D_800988F8);
+                Shl_work_tbl[D_800988F8->id]((SHL_WORK *)D_800988F8);
             }
             else
             {
-                D_80089820[D_800988F8->id_2]();
+                D_80089820[D_800988F8->id]();
             }
         }
     }
@@ -1039,11 +1039,11 @@ void func_800172F4(void)
 {
     for (D_800988E4 = D_800A3B40; D_800988E4 < &D_800A3B40[64]; D_800988E4++)
     {
-        if ((sint8)D_800988E4->routine_0 & D_800988E4->flags & 1)
+        if ((sint8)D_800988E4->be_flag & D_800988E4->flags & 1)
         {
-            if (D_800988E4->id_2 < 0x80)
+            if (D_800988E4->id < 0x80)
             {
-                Work_48_tbl[D_800988E4->id_2](D_800988E4);
+                Work_48_tbl[D_800988E4->id](D_800988E4);
             }
         }
     }
@@ -1054,11 +1054,11 @@ void func_800173B4(void)
 {
     for (D_800988E4 = D_800A3B40; D_800988E4 < &D_800A3B40[64]; D_800988E4++)
     {
-        if ((sint8)D_800988E4->routine_0 & D_800988E4->flags & 1)
+        if ((sint8)D_800988E4->be_flag & D_800988E4->flags & 1)
         {
-            if (D_800988E4->id_2 >= 0x80)
+            if (D_800988E4->id >= 0x80)
             {
-                D_80089858[D_800988E4->id_2](D_800988E4);
+                D_80089858[D_800988E4->id](D_800988E4);
             }
         }
     }
@@ -1068,9 +1068,9 @@ void eve_work_exec(void)
 {
     for (D_800988F0 = D_800A2D08; D_800988F0 < &D_800A2D08[16]; D_800988F0++)
     {
-        if ((sint8)D_800988F0->routine_0 & D_800988F0->flags & 1)
+        if ((sint8)D_800988F0->be_flag & D_800988F0->flags & 1)
         {
-            Eve_work_tbl[D_800988F0->id_2](D_800988F0);
+            Eve_work_tbl[D_800988F0->id](D_800988F0);
         }
     }
 }
@@ -1079,9 +1079,9 @@ void func_80017528(void)
 {
     for (D_80098924 = D_800BF118; D_80098924 < &D_800BF118[32]; D_80098924++)
     {
-        if ((sint8)D_80098924->routine_0 & D_80098924->flags & 1)
+        if ((sint8)D_80098924->be_flag & D_80098924->flags & 1)
         {
-            Work_50_tbl[D_80098924->id_2](D_80098924);
+            Work_50_tbl[D_80098924->id](D_80098924);
         }
     }
 }

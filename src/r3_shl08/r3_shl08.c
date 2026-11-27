@@ -16,8 +16,8 @@ void func_800D8854(SHL08_WORK *wp)
     wp->box_78 = &D_800D90CC;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
     rot.vx = func_80039B80() + ((rand() & 7) - 4) * 2;
     rot.vy = (wp->rot_y & 0xFFF) + ((rand() & 7) - 4) * 2;
     rot.vz = 0;
@@ -45,10 +45,10 @@ void func_800D8854(SHL08_WORK *wp)
     wp->trail[3] = wp->trail[2] = wp->trail[1] = wp->trail[0] = wp->pos;
     wp->mdl.color_b4                                          = 0x808080;
     Model_work_init(wp, 0);
-    if (wp->type_3 >= 0x80 && (wp->target.w.w0 | wp->target.w.w1) == 0)
+    if (wp->type >= 0x80 && (wp->target.w.w0 | wp->target.w.w1) == 0)
     {
         func_800354E0(wp->bit_d);
-        wp->type_3 = 0;
+        wp->type = 0;
     }
     wp->timer_b = func_80037634(&Player_work, 8);
     wp->routine_0++;
@@ -67,7 +67,7 @@ void func_800D8AE0(SHL08_WORK *wp)
     if (func_80037694(wp, 0x20) || wp->hit_7c)
     {
         Close_PL_SHL_WORK(wp);
-        if (wp->type_3 >= 0x80)
+        if (wp->type >= 0x80)
         {
             func_800354E0(wp->bit_d);
         }
@@ -82,7 +82,7 @@ void func_800D8AE0(SHL08_WORK *wp)
     mp           = &wp->mdl;
     if (wp->timer_b-- != 0)
     {
-        if (wp->type_3 >= 0x80)
+        if (wp->type >= 0x80)
         {
             if (wp->target.w.w0 | wp->target.w.w1)
             {
@@ -102,7 +102,7 @@ void func_800D8AE0(SHL08_WORK *wp)
             else
             {
                 func_800354E0(wp->bit_d);
-                wp->type_3 = 0;
+                wp->type = 0;
             }
         }
         speed = D_800D90D8[Player_work.value_536];
@@ -116,7 +116,7 @@ void func_800D8AE0(SHL08_WORK *wp)
     else
     {
         Close_PL_SHL_WORK(wp);
-        if (wp->type_3 >= 0x80)
+        if (wp->type >= 0x80)
         {
             func_800354E0(wp->bit_d);
         }
@@ -137,11 +137,11 @@ void func_800D8E38(SHL08_WORK *wp)
     p.vz  = wp->old_pos.vz;
     if (wp->index_c)
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+        func_8003430C(&wp->pos, 0x30, &p, 0x30, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     }
 }
 
@@ -152,8 +152,8 @@ void func_800D8F0C(SHL08_WORK *wp)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 5;
-        fx->kind_2    = 0x80;
+        fx->be_flag   = 5;
+        fx->id        = 0x80;
         fx->flag_3    = 2;
         fx->value_d   = D_800D90F0[Player_work.value_534];
         fx->value_e   = 1;

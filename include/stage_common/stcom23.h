@@ -14,10 +14,10 @@ typedef union
     } f;
 } STCOM23_FIXED_VECTOR;
 
-// A missile's parameters, by variant_3 (stcom23_D_0000, 0x2C bytes each).
+// A missile's parameters, by type (stcom23_D_0000, 0x2C bytes each).
 typedef struct
 {
-    uint8 kind_0;        // 00: kind_2 while it sets up
+    uint8 kind_0;        // 00: id while it sets up
     uint8 variant_1;     // 01
     uint16 speed_2;      // 02: starting speed
     sint16 accel_4;      // 04
@@ -40,10 +40,10 @@ typedef struct
 // trail.
 typedef struct
 {
-    uint8 flags_0;                       // 00
-    uint8 index_1;                       // 01
-    uint8 kind_2;                        // 02
-    uint8 variant_3;                     // 03
+    uint8 be_flag;                       // 00
+    uint8 slot;                          // 01
+    uint8 id;                            // 02
+    uint8 type;                          // 03
     uint8 reserved04[4];                 // 04
     uint8 routine_0;                     // 08
     uint8 reserved09[2];                 // 09

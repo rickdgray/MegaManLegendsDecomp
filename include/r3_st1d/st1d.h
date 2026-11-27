@@ -139,10 +139,10 @@ typedef struct
 // A 0x3C0-byte arm of an object (D_80114D50's routines): placed by its owner's bone matrices.
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03: the bone it hangs from
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03: the bone it hangs from
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -197,8 +197,9 @@ typedef void (*ST1D_ARM_FUNC)(ST1D_ARM *wp);
 // The objects an arm reaches through func_80036294: their bone matrices from +0x208.
 typedef struct
 {
-    sint8 flags_0;              // 00
-    uint8 reserved01[0xB];      // 01
+    sint8 be_flag;              // 00
+    uint8 slot;                 // 01
+    uint8 reserved02[10];       // 02
     sint8 flags_C;              // 0C
     sint8 arm_D;                // 0D
     sint8 arm_E;                // 0E
@@ -227,10 +228,10 @@ typedef struct
 // The 0x10C-byte shot func_8010C9AC fires (Open_SHL_WORK).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 value_4;                     // 04
     uint8 reserved05[0xA];             // 05
     sint8 type_F;                      // 0F: 0x10 or 9
@@ -261,10 +262,10 @@ typedef struct ST1D_VIEW ST1D_VIEW;
 typedef void (*ST1D_VIEW_FUNC)(ST1D_VIEW *wp);
 struct ST1D_VIEW
 {
-    sint8 flags_0;                          // 0
-    uint8 value_1;                          // 1
-    uint8 kind_2;                           // 2
-    uint8 variant_3;                        // 3
+    sint8 be_flag;                          // 0
+    uint8 slot;                             // 1
+    uint8 id;                               // 2
+    uint8 type;                             // 3
     uint8 value_4;                          // 4
     uint8 reserved5[0x3];                   // 5
     uint8 routine_0;                        // 8

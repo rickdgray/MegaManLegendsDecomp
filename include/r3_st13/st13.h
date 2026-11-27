@@ -31,10 +31,10 @@ typedef struct
 // and +0x368 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -86,10 +86,10 @@ typedef struct
 // whose id is in id_F (func_80101D78, func_80101E4C).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -152,10 +152,10 @@ typedef struct
 // A 0x48-byte effect slot (func_80031618) of a spark with a hit box (func_80104B68, func_80104C9C).
 typedef struct
 {
-    uint8 flags_0;       // 00
-    uint8 index_1;       // 01
-    uint8 kind_2;        // 02
-    uint8 variant_3;     // 03
+    uint8 be_flag;       // 00
+    uint8 slot;          // 01
+    uint8 id;            // 02
+    uint8 type;          // 03
     uint8 reserved04[4]; // 04
     uint8 routine_0;     // 08
     uint8 routine_1;     // 09
@@ -200,12 +200,12 @@ typedef struct
 // stcom27's work slot with its block at +0x4E0 instead of +0x348 (func_8010103C).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 index_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[2];                    // 04
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -250,10 +250,10 @@ typedef struct
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    sint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    sint8 be_flag;   // 00
+    uint8 slot;      // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     uint8 reserved4; // 04
     uint8 value_5;   // 05
     uint8 value_6;   // 06
@@ -404,10 +404,10 @@ typedef struct ST13_VIEW ST13_VIEW;
 typedef void (*ST13_VIEW_FUNC)(ST13_VIEW *wp);
 struct ST13_VIEW
 {
-    sint8 flags_0;        // 0
-    uint8 value_1;        // 1
-    uint8 kind_2;         // 2
-    uint8 variant_3;      // 3
+    sint8 be_flag;        // 0
+    uint8 slot;           // 1
+    uint8 id;             // 2
+    uint8 type;           // 3
     uint8 value_4;        // 4
     uint8 reserved5[0x1]; // 5
     uint8 value_6;        // 6
@@ -707,10 +707,10 @@ void func_80104C9C(ST13_SPARK *wp);
 // A 0x10C-byte slot (Open_SHL_WORK) as func_80112348 fires it: STAGE_PIECE with two more words.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[0x10];            // 04
     STCOM_SVECTOR position;            // 14
     STCOM_FIXED_VECTOR position_fixed; // 1C

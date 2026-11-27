@@ -3,7 +3,7 @@
 
 void func_8010BC64(STAGE_OBJ *wp)
 {
-    D_801106A0[wp->variant_3](wp);
+    D_801106A0[wp->type](wp);
 }
 
 void func_8010BCA0(STAGE_OBJ *wp)
@@ -17,7 +17,7 @@ void func_8010BCDC(ST0E_LEVER *wp)
     wp->matrix.f.rot.x = 0;
     wp->matrix.f.rot.y = 0;
     wp->matrix.f.rot.z = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->routine_0 = 1;
     wp->routine_1 = 0;
@@ -135,32 +135,32 @@ void func_8010BFB4(ST0E_PANEL *wp)
 
     wp->matrix_18.f.value_18 = 0x400;
     wp->matrix_18.f.lit_1C   = 0;
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->color_40 = 0x02808080;
     if (Sce_flag_test(0x62D))
     {
         for (i = 0; i < 16; i++)
         {
-            uv = D_80110CF4[wp->variant_3][i];
+            uv = D_80110CF4[wp->type][i];
             Model_face_uv_set(wp->model_14, i | 0x10000, &uv);
         }
     }
-    if (wp->variant_3 == 3)
+    if (wp->type == 3)
     {
         Sce_flag_on(0x62D);
     }
     for (i = 0; i < 16; i++)
     {
-        D_80110CF4[wp->variant_3][i] = *Model_face_get(wp->model_14, i | 0x10000);
+        D_80110CF4[wp->type][i] = *Model_face_get(wp->model_14, i | 0x10000);
     }
     rec = wp->model_14->parts_70->recs_24;
     for (i = 0; i < 25; i++)
     {
-        D_80110F42[wp->variant_3][i] = rec->value_2;
+        D_80110F42[wp->type][i] = rec->value_2;
         rec++;
     }
-    wp->value_A            = (wp->variant_3 - 1) * 16;
+    wp->value_A            = (wp->type - 1) * 16;
     wp->cell_44            = Map_cell_get(&wp->pos_38);
     wp->cell_C             = STAGE_CELLS[wp->cell_44].value;
     wp->matrix_18.f.key_14 = Stage_hed_model_get(D_80110698[0]);
@@ -180,7 +180,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
     sint8 lit;
 
     pl = &STAGE_PL;
-    if (wp->variant_3 == 1)
+    if (wp->type == 1)
     {
         if (Sce_flag_test(0x604))
         {
@@ -197,7 +197,7 @@ void func_8010C1C0(ST0E_PANEL *wp)
             }
         }
     }
-    else if (wp->variant_3 == 2)
+    else if (wp->type == 2)
     {
         if ((!Sce_flag_test(0x604) || !Sce_flag_test(0x605) || !Sce_flag_test(0x606)) && wp->matrix_18.f.lit_1C != 0)
         {
@@ -248,27 +248,27 @@ void func_8010C1C0(ST0E_PANEL *wp)
         for (i = 0; i < 16; i++)
         {
             uv      = D_80110EF4[i];
-            uv.b[0] = D_80110D74[wp->variant_3 - 1][i].b[0] + anim;
-            uv.b[2] = D_80110D74[wp->variant_3 - 1][i].b[2] + anim;
-            uv.b[4] = D_80110D74[wp->variant_3 - 1][i].b[4] + anim;
-            uv.b[6] = D_80110D74[wp->variant_3 - 1][i].b[6] + anim;
-            uv.b[1] = D_80110D74[wp->variant_3 - 1][i].b[1] - (wp->variant_3 - 1) * 16;
-            uv.b[3] = D_80110D74[wp->variant_3 - 1][i].b[3] - (wp->variant_3 - 1) * 16;
-            uv.b[5] = D_80110D74[wp->variant_3 - 1][i].b[5] - (wp->variant_3 - 1) * 16;
-            uv.b[7] = D_80110D74[wp->variant_3 - 1][i].b[7] - (wp->variant_3 - 1) * 16;
+            uv.b[0] = D_80110D74[wp->type - 1][i].b[0] + anim;
+            uv.b[2] = D_80110D74[wp->type - 1][i].b[2] + anim;
+            uv.b[4] = D_80110D74[wp->type - 1][i].b[4] + anim;
+            uv.b[6] = D_80110D74[wp->type - 1][i].b[6] + anim;
+            uv.b[1] = D_80110D74[wp->type - 1][i].b[1] - (wp->type - 1) * 16;
+            uv.b[3] = D_80110D74[wp->type - 1][i].b[3] - (wp->type - 1) * 16;
+            uv.b[5] = D_80110D74[wp->type - 1][i].b[5] - (wp->type - 1) * 16;
+            uv.b[7] = D_80110D74[wp->type - 1][i].b[7] - (wp->type - 1) * 16;
             Model_face_uv_set(wp->model_14, i | 0x10000, &uv);
         }
         rec = wp->model_14->parts_70->recs_24;
         for (i = 0; i < 25; i++)
         {
-            rec->value_2 = D_80110F42[wp->variant_3][i] - ((rand() & 7) - 4);
+            rec->value_2 = D_80110F42[wp->type][i] - ((rand() & 7) - 4);
             rec++;
         }
     }
     else
     {
         wp->color_40 = 0x02000000;
-        if (wp->variant_3 == 2 && Sce_flag_test(0x604) && Sce_flag_test(0x605) && Sce_flag_test(0x606) && wp->variant_3 == 2 &&
+        if (wp->type == 2 && Sce_flag_test(0x604) && Sce_flag_test(0x605) && Sce_flag_test(0x606) && wp->type == 2 &&
             wp->matrix_18.f.lit_1C == 0)
         {
             wp->matrix_18.f.lit_1C = 1;

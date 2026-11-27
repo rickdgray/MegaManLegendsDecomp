@@ -77,8 +77,8 @@ void func_801124BC(ST06_ACTOR *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
-    D_801253BC[wp->variant_3](wp);
-    if (wp->flags_0 & 2)
+    D_801253BC[wp->type](wp);
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -189,7 +189,7 @@ void func_801125AC(ST06_ACTOR *wp)
             }
             break;
         case 10:
-            wp->variant_3 = 1;
+            wp->type      = 1;
             wp->routine_0 = 1;
             wp->routine_1 = 0;
             break;
@@ -236,7 +236,7 @@ void func_8011283C(ST06_ACTOR *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
             }
             break;
@@ -253,7 +253,7 @@ void func_801129A4(ST06_ACTOR *wp)
     wp->velocity.v.z = 0;
     wp->velocity.v.y = 0;
     wp->velocity.v.x = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -285,7 +285,7 @@ sint32 func_80112A60(ST06_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x40;
         D_8012BA60.x = wp->value_180.x;
         D_8012BA60.y = wp->value_180.y - 0x20;
@@ -299,11 +299,11 @@ sint32 func_80112A60(ST06_ACTOR *wp)
 void func_80112B90(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    D_801253F0[wp->variant_3](wp);
+    D_801253F0[wp->type](wp);
     if (wp->routine_1 != 0)
     {
         func_80051B68(wp, 3, -1, 0);
@@ -326,7 +326,7 @@ void func_80112C60(STAGE_OBJ *wp)
 
 void func_80112C9C(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_801253F8;
     wp->scale.words[0]        = 0x2000200;
@@ -369,7 +369,7 @@ void func_80112DB8(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -405,7 +405,7 @@ void func_80112ED0(STAGE_OBJ *wp)
 
 void func_80112F34(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_801253F8;
     wp->scale.words[0]        = 0x2000200;
@@ -482,7 +482,7 @@ void func_80113158(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_1 = 0;
         pl->flags_bd &= ~0x80;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         wp->routine_0 = 1;
     }
     else
@@ -496,7 +496,7 @@ void func_8011320C(STAGE_OBJ *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
-    D_80125404[wp->variant_3](wp);
+    D_80125404[wp->type](wp);
     if (wp->anim_prev_AD != wp->anim_AC)
     {
         func_800322A8(wp, wp->anim_AC, 0);
@@ -505,7 +505,7 @@ void func_8011320C(STAGE_OBJ *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x50, 0x200, 0);
     }
@@ -560,7 +560,7 @@ void func_8011335C(ST06_ACTOR *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x80;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
             }
             break;
@@ -570,7 +570,7 @@ void func_8011335C(ST06_ACTOR *wp)
 
 void func_801134B8(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -602,7 +602,7 @@ sint32 func_80113548(ST06_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         D_8012BA78.x = wp->value_180.x;
         D_8012BA78.y = wp->value_180.y - 0x20;
@@ -616,11 +616,11 @@ sint32 func_80113548(ST06_ACTOR *wp)
 void func_80113678(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    D_80125438[wp->variant_3](wp);
+    D_80125438[wp->type](wp);
     if (wp->routine_1 != 0)
     {
         func_80051B68(wp, 3, -1, 0);
@@ -643,7 +643,7 @@ void func_80113748(STAGE_OBJ *wp)
 
 void func_80113784(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_80125440;
     wp->scale.words[0]        = 0x1D701D7;
@@ -686,7 +686,7 @@ void func_801138A0(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -722,7 +722,7 @@ void func_801139B8(STAGE_OBJ *wp)
 
 void func_80113A1C(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_80125440;
     wp->scale.words[0]        = 0x1D701D7;
@@ -799,7 +799,7 @@ void func_80113C40(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_1 = 0;
         pl->flags_bd &= ~0x80;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         wp->routine_0 = 1;
     }
     else
@@ -814,7 +814,7 @@ void func_80113CF4(STAGE_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_8012544C[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -833,7 +833,7 @@ void func_80113DE4(ST06_ACTOR *wp)
     STCOM_FIXED_VECTOR unused; // retail's frame has room for it
 
     wp->turn_64 = 0x80;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;
@@ -938,7 +938,7 @@ void func_801140FC(STAGE_ACTOR *wp)
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
     D_80125464[wp->routine_0](wp);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -957,7 +957,7 @@ void func_801141EC(ST06_ACTOR *wp)
     STCOM_FIXED_VECTOR unused; // retail's frame has room for it
 
     wp->turn_64 = 0x80;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;
@@ -1038,7 +1038,7 @@ void func_80114430(STAGE_OBJ *wp)
 
 void func_80114450(STAGE_OBJ *wp)
 {
-    D_8012547C[wp->variant_3](wp);
+    D_8012547C[wp->type](wp);
 }
 
 void func_8011448C(STAGE_OBJ *wp)
@@ -1053,7 +1053,7 @@ void func_801144DC(ST06_OBJ *wp)
 
     if (wp->routine_1 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         Model_work_init(wp, NULL);
         wp->scale.words[0] = 0x2000200;
         wp->scale.words[1] = 0x200;
@@ -1177,7 +1177,7 @@ void func_80114988(ST06_BEAM *wp)
     STCOM_FIXED_VECTOR unused; // retail's frame has room for it
     STCOM_FIXED_VECTOR dir;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->data_78        = NULL;
     wp->value_10       = 0;
@@ -1313,7 +1313,7 @@ sint32 func_80114F10(ST06_BEAM *wp)
 
 void func_80114F48(ST06_BEAM *wp)
 {
-    func_800341BC(&wp->pos_1A0, 0x20, 0, 0xA000, wp->value_1, &wp->parts_2C8.hit_8, 0x64000010, 0, 0);
+    func_800341BC(&wp->pos_1A0, 0x20, 0, 0xA000, wp->slot, &wp->parts_2C8.hit_8, 0x64000010, 0, 0);
     wp->parts_2C8.hit_8 = 0;
 }
 
@@ -1324,9 +1324,9 @@ void func_80114FA8(ST06_BEAM *wp, uint8 index)
     part = (ST06_10C *)Open_SHL_WORK();
     if (part != NULL)
     {
-        part->flags_0     = 1;
-        part->kind_2      = 0x16;
-        part->variant_3   = index;
+        part->be_flag     = 1;
+        part->id          = 0x16;
+        part->type        = index;
         part->owner_B8    = wp;
         part->position_AC = wp->position;
         part->rotation    = wp->rotation;
@@ -1345,7 +1345,7 @@ void func_80115078(ST06_OBJ *wp)
     sint8 temp_v0;
     uint8 temp_v0_2;
 
-    if ((uint8)wp->flags_0 & 2)
+    if ((uint8)wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x100, 0);
     }
@@ -1366,7 +1366,7 @@ void func_80115078(ST06_OBJ *wp)
 
 void func_80115128(STAGE_OBJ *wp)
 {
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -1501,7 +1501,7 @@ void func_801154E4(STAGE_OBJ *wp)
 
 void func_80115524(STAGE_OBJ *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->rotation.y       = 0xC00;
     wp->scale.words[1]   = 0x200;
@@ -1561,14 +1561,14 @@ void func_8011569C(STAGE_OBJ *wp)
 
 void func_80115764(STAGE_OBJ *wp)
 {
-    D_80125568[wp->variant_3](wp);
+    D_80125568[wp->type](wp);
 }
 
 void func_801157A0(ST06_ACTOR *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         Model_work_init(wp, NULL);
         wp->scale.words[0] = 0x4000400;
         wp->scale.words[1] = 0x400;
@@ -1594,7 +1594,7 @@ void func_801157A0(ST06_ACTOR *wp)
 void func_801158B8(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -1611,7 +1611,7 @@ void func_801158B8(ST06_ACTOR *wp)
 
 void func_8011594C(ST06_ACTOR_B *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;

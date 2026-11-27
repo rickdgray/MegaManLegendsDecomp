@@ -3,7 +3,7 @@
 
 void func_8011422C(STAGE_OBJ *wp)
 {
-    D_80116594[wp->variant_3](wp);
+    D_80116594[wp->type](wp);
 }
 
 void func_80114268(ST0A_EV *wp)

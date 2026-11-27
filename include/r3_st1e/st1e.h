@@ -39,9 +39,10 @@ extern STAGE_OBJ_FUNC D_801058DC[];
 // A sign panel: a matrix and a sprite position (func_80102ED8).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[2];   // 01
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 reserved02;      // 02
+    uint8 type;            // 03
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 reserved09[0xF]; // 09
@@ -61,8 +62,9 @@ typedef struct
 // The scrolling text (func_80102FD8).
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[7];    // 01
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02[6];    // 02
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
     uint8 routine_2;        // 0A
@@ -127,7 +129,7 @@ extern ST1E_ANIM D_80105BE0[];
 extern ST1E_ANIM D_80105BFC[];
 extern ST1E_ANIM D_80105C08[];
 extern ST1E_ANIM D_80105C1C[];
-extern ST1E_EV_FUNC D_80105C34[]; // by variant_3 (func_80103D3C)
+extern ST1E_EV_FUNC D_80105C34[]; // by type (func_80103D3C)
 
 void func_8010033C(uint8 mode);
 void func_80101078(STAGE_ROOM *wp);

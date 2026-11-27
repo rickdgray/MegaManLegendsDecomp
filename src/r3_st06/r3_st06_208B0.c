@@ -10,7 +10,7 @@ void func_801208EC(ST06_10C *wp)
 {
     STCOM_MATRIX rot;
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->matrix_8C.w[0]      = 0x200;
     wp->matrix_8C.w[2]      = 0x200;
@@ -31,7 +31,7 @@ void func_80120968(ST06_10C *wp)
 
     lit   = wp->owner_B8->parts_2C8.lit_14;
     parts = &wp->owner_B8->parts_2C8;
-    if (lit >> 1 == wp->variant_3 && (lit & 1))
+    if (lit >> 1 == wp->type && (lit & 1))
     {
         wp->matrix_8C.w[0] = 0x200;
         wp->matrix_8C.w[1] = 0;
@@ -41,7 +41,7 @@ void func_80120968(ST06_10C *wp)
         RotMatrixYXZ(&wp->rotation, &rot);
         MulMatrix2(&rot, &wp->matrix_8C.m);
     }
-    if (!(parts->mask_10 & (1 << wp->variant_3)))
+    if (!(parts->mask_10 & (1 << wp->type)))
     {
         Close_SHL_WORK(wp);
     }
@@ -78,12 +78,12 @@ void func_80120AAC(ST06_10C_B *wp)
             wp->value_70     = 0;
             wp->value_74     = 0;
             wp->color_B4     = 0x808080;
-            wp->flags_0 |= 6;
+            wp->be_flag |= 6;
             func_80120A2C(wp, 0x200);
-            wp->kind_2    = 4;
-            wp->variant_3 = 8;
-            Model_work_init(wp, &wp->variant_3);
-            wp->kind_2 = 0x29;
+            wp->id   = 4;
+            wp->type = 8;
+            Model_work_init(wp, &wp->type);
+            wp->id = 0x29;
             wp->routine_0++;
             break;
         case 1:

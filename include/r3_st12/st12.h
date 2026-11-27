@@ -21,10 +21,10 @@ typedef void (*ST12_OBJ50_FUNC)(ST12_OBJ50 *wp);
 
 struct ST12_OBJ50
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01;      // 01
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 id;              // 02
+    uint8 type;            // 03
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09
@@ -99,7 +99,7 @@ void func_80100664(STAGE_ROOM_WORK *wp);
 void func_8010070C(STAGE_ROOM_WORK *wp);
 
 void func_80100510(STAGE_ROOM_WORK *wp);
-extern sint32 D_80108BA0[];          // y rotation by variant_3 (func_801019EC)
+extern sint32 D_80108BA0[];          // y rotation by type (func_801019EC)
 extern ST12_OBJ50_FUNC D_80108B94[]; // routine_1 handlers (func_801019EC)
 STCOM_MATRIX *MulMatrix(STCOM_MATRIX *m0, STCOM_MATRIX *m1);
 extern void *D_801080D4[];       // model table by room
@@ -123,8 +123,9 @@ typedef struct
 // A 0x10C-byte slot (Open_SHL_WORK) whose model runs round a circle (func_801050E8).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[7];                    // 01
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02[6];                    // 02
     uint8 routine_0;                        // 08
     uint8 reserved09[3];                    // 09
     sint8 value_C;                          // 0C: nonzero: func_8002F9EC sets it up

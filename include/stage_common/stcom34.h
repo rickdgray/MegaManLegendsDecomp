@@ -16,7 +16,7 @@ typedef struct
     sint16 dist_6; // 6: from the owner; it starts over below 8
 } STCOM34_SPARK;
 
-// A spark's settings by variant_3.
+// A spark's settings by type.
 typedef struct
 {
     uint8 length_0; // 0: plus 0..0x1F
@@ -29,9 +29,10 @@ typedef struct
 // The 0x48-byte effect slot (freed through ROCK_NEO's func_80031988).
 typedef struct
 {
-    uint8 flags_0;             // 00
-    uint8 reserved01[2];       // 01
-    uint8 variant_3;           // 03
+    uint8 be_flag;             // 00
+    uint8 slot;                // 01
+    uint8 reserved02;          // 02
+    uint8 type;                // 03
     uint8 reserved04[4];       // 04
     uint8 routine_0;           // 08
     uint8 routine_1;           // 09
@@ -72,7 +73,7 @@ typedef struct
 
 typedef void (*STCOM34_FUNC)(STCOM34_WORK *wp);
 
-extern STCOM34_KIND stcom34_D_0000[]; // by variant_3
+extern STCOM34_KIND stcom34_D_0000[]; // by type
 extern STCOM34_FUNC stcom34_D_0010[]; // routine_0 handlers (stcom34_func_0000)
 
 void stcom34_func_04CC(STCOM_SVECTOR a, STCOM_SVECTOR b, uint8 shade);

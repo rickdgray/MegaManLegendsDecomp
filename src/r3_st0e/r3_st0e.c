@@ -149,7 +149,7 @@ void func_801005A0(STAGE_ROOM *wp)
         case 1:
             if (Sound_fade_flags == 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~3;
                 Obj_work_flag_change(0x56, 5);
                 Obj_work_flag_change(0x28, 0x80);
                 func_8001E6C0(0, 0, 0);
@@ -249,7 +249,7 @@ void func_80100870(STAGE_ROOM *wp)
                 D_800A395C = 1;
                 func_80039820();
                 func_80042314(&Player_work);
-                Player_work.flags_0 |= 3;
+                Player_work.be_flag |= 3;
                 wp->routine_5++;
                 break;
             case 2:
@@ -360,9 +360,9 @@ void func_80100BAC(ST0E_TALKER *wp)
     uint32 i;
 
     face = &wp->face_500;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->rotation.x = 0;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->rotation.y = 0xC00;
     }
@@ -400,7 +400,7 @@ void func_80100CA8(STAGE_OBJ *wp)
         wp->u_C.b.byte_D = 0;
         wp->routine_2++;
     }
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->position.x += 3;
     }
@@ -481,7 +481,7 @@ void func_80100F50(ST0E_TALKER *wp)
     face  = &wp->face_500;
     if (wp->routine_2 == 0)
     {
-        if (wp->variant_3 == 0)
+        if (wp->type == 0)
         {
             wp->rotation.y = 0x100;
         }

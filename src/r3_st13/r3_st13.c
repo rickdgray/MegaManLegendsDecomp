@@ -281,11 +281,11 @@ void func_80100BAC(ST13_STCOM27_WORK *wp)
     wp->accel.z     = 0;
     wp->accel.y     = 0;
     wp->accel.x     = 0;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     Track_reset(wp->ctl.track_0, 7, -0x60);
     wp->data_78 = D_8011750C;
-    wp->life_6E = wp->life_max_B0 = D_8009884C[wp->kind_2]->life_8 << 4;
+    wp->life_6E = wp->life_max_B0 = D_8009884C[wp->id]->life_8 << 4;
     wp->damage_B2                 = 0;
     wp->jump_74                   = 0;
     wp->ctl.sees_10               = 0;
@@ -325,7 +325,7 @@ void func_80100CA0(ST13_STCOM27_WORK *wp)
     {
         func_8010103C(wp);
         func_80100FA4(wp);
-        if (wp->flags_0 & 2)
+        if (wp->be_flag & 2)
         {
             Model_Shadow_Trans(wp, 0x118, 0x200, 0);
         }
@@ -364,7 +364,7 @@ void func_80100DDC(ST13_STCOM27_WORK *wp)
                 wp->life_6E = 0;
                 knock       = 1;
             }
-            else if (wp->damage_B2 >= D_8009884C[wp->kind_2]->value_9 * 16)
+            else if (wp->damage_B2 >= D_8009884C[wp->id]->value_9 * 16)
             {
                 knock = 1;
             }
@@ -402,7 +402,7 @@ void func_80100FA4(ST13_STCOM27_WORK *wp)
         wp->ctl.hit_20 = 0;
         wp->ctl.pos_18 = wp->position;
         wp->ctl.pos_18.y -= 0x80;
-        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->index_1, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+        func_800341BC(&wp->ctl.pos_18, 0x80, 0, 0x8000, wp->slot, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
     }
 }
 
@@ -516,7 +516,7 @@ void func_801012E8(ST13_STCOM27_WORK *wp)
     ctl            = &wp->ctl;
     wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &pl->position, wp->rotation.y, 0x20)) & 0xFFF;
     seen           = func_80031DCC(&wp->position_fixed, wp->rotation.y, 0x400, &pl->position_fixed, pl->rotation.y, 0x800);
-    if (wp->flags_6 & 0x80)
+    if (wp->flags & 0x80)
     {
         if (ctl->count_38 < 30)
         {
@@ -581,7 +581,7 @@ void func_8010150C(STAGE_OBJ *wp)
 {
     sint32 step;
     wp->rotation.y = (wp->rotation.y + Muku(&wp->position, &Player_work.position, wp->rotation.y, 0x40)) & 0xFFF;
-    if (wp->u_4E0.face16.eyes_10 != NULL && (wp->flags_6 & 0x80))
+    if (wp->u_4E0.face16.eyes_10 != NULL && (wp->flags & 0x80))
     {
         if (rand() & 1)
         {
@@ -621,10 +621,10 @@ void func_80101614(ST13_ACTOR *wp)
             obj = Open_SHL_WORK();
             if (obj != NULL)
             {
-                obj->flags_0            = 1;
-                obj->kind_2             = 5;
-                obj->variant_3          = 0;
-                obj->value_F            = wp->value_1;
+                obj->be_flag            = 1;
+                obj->id                 = 5;
+                obj->type               = 0;
+                obj->value_F            = wp->slot;
                 obj->position           = wp->value_188;
                 obj->position_fixed.v.x = obj->position.x << 16;
                 obj->position_fixed.v.y = obj->position.y << 16;
@@ -739,9 +739,9 @@ void func_80101974(ST13_STCOM27_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 5;
-                effect->kind_2          = 0x80;
-                effect->variant_3       = 0;
+                effect->be_flag         = 5;
+                effect->id              = 0x80;
+                effect->type            = 0;
                 effect->sprite.position = wp->position;
             }
             func_80047148(wp, &wp->position, effect);
@@ -842,7 +842,7 @@ void func_80101C4C(STAGE_OBJ *wp)
 void func_80101C94(ST13_VIEW *wp)
 {
     func_800322A8(wp, 9, 0);
-    wp->value_510  = D_8009884C[wp->kind_2]->value_A | 0x1000000;
+    wp->value_510  = D_8009884C[wp->id]->value_A | 0x1000000;
     wp->u_514.h[1] = 0x3C;
     wp->value_44   = 0x400;
     wp->value_46   = 0;
@@ -887,10 +887,10 @@ void func_80101E4C(ST13_EMITTER *wp)
     fx    = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0    = 1;
-        fx->kind_2     = 0x13;
-        fx->variant_3  = 0;
-        fx->value_C    = wp->index_1;
+        fx->be_flag    = 1;
+        fx->id         = 0x13;
+        fx->type       = 0;
+        fx->value_C    = wp->slot;
         fx->timer_D    = wp->frame_D;
         fx->u_28.count = wp->angle_CC;
         fx->x_1C       = owner->vec_188.x;

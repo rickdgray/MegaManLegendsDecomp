@@ -11,8 +11,8 @@ void func_8011A440(STAGE_EV *wp)
         ev = func_800317AC(i);
         if (ev != NULL)
         {
-            ev->flags_0 = 1;
-            ev->kind_2  = 0;
+            ev->be_flag = 1;
+            ev->id      = 0;
             break;
         }
     }

@@ -26,18 +26,18 @@ void stcom27_func_003C(STCOM27_WORK *wp)
     wp->accel.z     = 0;
     wp->accel.y     = 0;
     wp->accel.x     = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     Track_reset(wp->ctl.track_0, 4, -0x60);
     wp->data_78 = stcom27_D_000C;
-    wp->life_6E = wp->life_max_B0 = D_80098844[wp->kind_2]->life_8 << 4;
+    wp->life_6E = wp->life_max_B0 = D_80098844[wp->id]->life_8 << 4;
     wp->jump_74                   = 0;
     wp->damage_B2                 = 0;
     wp->ctl.sees_10               = 0;
     wp->ctl.flags_14              = 0;
     wp->ctl.hit_20                = 0;
     wp->ctl.value_24              = 0;
-    wp->ctl.kind_30               = D_80098844[wp->kind_2]->value_B | 0x1000000;
+    wp->ctl.kind_30               = D_80098844[wp->id]->value_B | 0x1000000;
     wp->ctl.timer_34              = 0x100;
     wp->ctl.timer_36              = 0x40;
     func_800322A8(wp, 0, 0);
@@ -73,7 +73,7 @@ void stcom27_func_0168(STCOM27_WORK *wp)
         }
         stcom27_func_0600(wp);
         stcom27_func_0578(wp);
-        if (wp->flags_0 & 2)
+        if (wp->be_flag & 2)
         {
             Model_Shadow_Trans(wp, 0x78, 0x200, 0);
         }
@@ -108,7 +108,7 @@ void stcom27_func_02B4(STCOM27_WORK *wp)
         Sound_call2(0xA3, &wp->position);
         return;
     }
-    limit = D_80098844[wp->kind_2]->limit_9;
+    limit = D_80098844[wp->id]->limit_9;
     if (wp->routine_1 == 7)
     {
         pos = &wp->position;
@@ -120,9 +120,9 @@ void stcom27_func_02B4(STCOM27_WORK *wp)
             effect = func_80031618();
             if (effect != NULL)
             {
-                effect->flags_0         = 5;
-                effect->kind_2          = 0x80;
-                effect->variant_3       = 0;
+                effect->be_flag         = 5;
+                effect->id              = 0x80;
+                effect->type            = 0;
                 effect->sprite.position = wp->position;
             }
             func_80047148(wp, pos, effect);
@@ -147,7 +147,7 @@ void stcom27_func_02B4(STCOM27_WORK *wp)
         wp->anim_AC       = 3;
         wp->damage_B2     = 0;
         wp->ctl.damage_3E = 0;
-        wp->ctl.kind_30   = D_80098844[wp->kind_2]->value_B | 0x1000000;
+        wp->ctl.kind_30   = D_80098844[wp->id]->value_B | 0x1000000;
         stcom27_func_04E4(wp);
         wp->routine_1 = 6;
         wp->routine_2 = 0;
@@ -185,7 +185,7 @@ void stcom27_func_0578(STCOM27_WORK *wp)
     wp->ctl.hit_20 = 0;
     wp->ctl.pos_18 = wp->position;
     wp->ctl.pos_18.y -= 0x50;
-    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->index_1, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
+    func_800341BC(&wp->ctl.pos_18, 0x50, 0, 0x8000, wp->slot, &wp->ctl.hit_20, wp->ctl.kind_30 | 0x4080000, 0x800000, 0);
 }
 
 // Keeps it on the ground: back to its last position at a ledge.
@@ -329,7 +329,7 @@ void stcom27_func_0990(STCOM27_WORK *wp)
         wp->velocity.x   = 0x200;
         wp->velocity.y   = 0;
         wp->accel.y      = 0;
-        wp->ctl.kind_30  = D_80098844[wp->kind_2]->value_A | 0x1000000;
+        wp->ctl.kind_30  = D_80098844[wp->id]->value_A | 0x1000000;
         wp->routine_2++;
     }
 }
@@ -345,7 +345,7 @@ void stcom27_func_0A70(STCOM27_WORK *wp)
     if (wp->ctl.flags_14 & 1)
     {
         stop = 1;
-        if (wp->flags_6 & 0x80)
+        if (wp->flags & 0x80)
         {
             Swing_Camera2(0x1E, 1000, 5000, &wp->position);
         }
@@ -370,7 +370,7 @@ void stcom27_func_0A70(STCOM27_WORK *wp)
     if (stop)
     {
         wp->anim_AC   = 0;
-        ctl->kind_30  = D_80098844[wp->kind_2]->value_B | 0x1000000;
+        ctl->kind_30  = D_80098844[wp->id]->value_B | 0x1000000;
         ctl->timer_38 = 0x30;
         wp->routine_2++;
         return;

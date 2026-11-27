@@ -263,19 +263,19 @@ extern sint8 D_800BBCF0;
 extern STAGE_MOUTH_CUE D_80107868[];
 extern STAGE_MOUTH_CUE D_801078D0[];
 
-// A rising spark effect and its emitter (variant_3 1 and 0): the emitter (func_80104448) sheds a
+// A rising spark effect and its emitter (type 1 and 0): the emitter (func_80104448) sheds a
 // spark every few frames (func_801042A0); a spark fades out while it rises (func_80104184), and
 // ends when its emitter's routine does.
 typedef struct ST02_SPARK ST02_SPARK;
 
 struct ST02_SPARK
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[2];    // 04
-    uint8 flags_6;          // 06
+    uint8 flags;            // 06
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -361,8 +361,9 @@ extern uint32 D_8010A5DC;
 // A spinning model that falls and drifts (func_80105AB8): its matrix and position.
 typedef struct
 {
-    uint8 flags_0;        // 00
-    uint8 reserved01[7];  // 01
+    uint8 be_flag;        // 00
+    uint8 slot;           // 01
+    uint8 reserved02[6];  // 02
     uint8 routine_0;      // 08
     uint8 routine_1;      // 09
     uint8 routine_2;      // 0A

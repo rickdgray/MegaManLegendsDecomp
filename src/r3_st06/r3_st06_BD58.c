@@ -4,11 +4,11 @@
 void func_8010BD58(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    D_80125150[wp->variant_3](wp);
+    D_80125150[wp->type](wp);
     if (wp->routine_1 != 0)
     {
         func_80051B68(wp, 3, -1, 0);
@@ -32,7 +32,7 @@ void func_8010BE28(STAGE_OBJ *wp)
 // Statement order found by search; retail stores position_prev.z twice.
 void func_8010BE64(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->position_fixed.x      = wp->position.x << 16;
     wp->value_78              = NULL;
@@ -75,7 +75,7 @@ void func_8010BF78(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -111,7 +111,7 @@ void func_8010C090(STAGE_OBJ *wp)
 
 void func_8010C0F4(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_80125158;
     wp->scale.words[0]        = 0x2000200;
@@ -188,7 +188,7 @@ void func_8010C318(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_1 = 0;
         pl->flags_bd &= ~0x80;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         wp->routine_0 = 1;
     }
     else
@@ -199,14 +199,14 @@ void func_8010C318(ST06_ACTOR *wp)
 
 void func_8010C3CC(STAGE_OBJ *wp)
 {
-    D_80125164[wp->variant_3](wp);
+    D_80125164[wp->type](wp);
 }
 
 void func_8010C408(STAGE_OBJ *wp)
 {
     if (wp->routine_0 == 0)
     {
-        wp->flags_0 |= 2;
+        wp->be_flag |= 2;
         func_8002F9EC(wp, NULL);
         wp->scale.words[0] = 0x2000200;
         wp->scale.words[1] = 0x200;

@@ -21,7 +21,7 @@ typedef struct
 extern SHL_BOX D_800D96F8;
 extern sint32 D_800D9704[];      // hit flags by Player_work.value_53c
 extern SHL09_SCALE D_800D9724[]; // type 2 sprite scales
-extern SHL_FUNC D_800D9730[];    // handlers by type_3
+extern SHL_FUNC D_800D9730[];    // handlers by type
 extern SHL_FUNC D_800D973C[];    // type 0 routine_0 handlers
 extern SHL_FUNC D_800D9744[];    // type 1 routine_0 handlers
 extern SHL_FUNC D_800D9750[];    // type 2 routine_0 handlers

@@ -11,7 +11,7 @@ void stcom35_func_0000(STCOM_EFFECT *wp)
 {
     if (wp->value_D == 0)
     {
-        stcom35_D_0008[wp->variant_3](wp);
+        stcom35_D_0008[wp->type](wp);
     }
     else
     {
@@ -26,9 +26,9 @@ void stcom35_func_006C(STCOM_EFFECT *wp)
     if (!(wp->timer_B & 0xF))
     {
         fx                  = func_80031618();
-        fx->flags_0         = 3;
-        fx->kind_2          = wp->value_C;
-        fx->variant_3       = wp->variant_3;
+        fx->be_flag         = 3;
+        fx->id              = wp->value_C;
+        fx->type            = wp->type;
         fx->value_C         = wp->value_C;
         fx->value_D         = 1;
         fx->timer_E         = wp->timer_E;
@@ -47,7 +47,7 @@ void stcom35_func_006C(STCOM_EFFECT *wp)
         fx->sprite.value_E      = 0xA0;
         fx->sprite.value_F      = 0x60;
         fx->sprite.value_10     = 0x10;
-        if (fx->variant_3 == 0)
+        if (fx->type == 0)
         {
             fx->timer_B = 0x4E;
         }
@@ -66,7 +66,7 @@ void stcom35_func_006C(STCOM_EFFECT *wp)
 // A puff: brightens, holds, then fades.
 void stcom35_func_0190(STCOM_EFFECT *wp)
 {
-    switch (wp->variant_3)
+    switch (wp->type)
     {
         case 0:
             if (wp->timer_B >= 0x3F)

@@ -157,7 +157,7 @@ void func_801011B4(STAGE_ROOM *wp)
                 // statement order found by search
                 pl->routine_0 = 3;
                 pl->routine_1 = 1;
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 pl->flags_bd |= 0x10;
                 pl->value_440   = 0;
                 pl->pos_438.x   = -0x1280;
@@ -270,12 +270,12 @@ void func_801015D4(STAGE_OBJ *wp)
 {
     if (wp->value_10 == 0)
     {
-        wp->flags_6 = 0;
+        wp->flags = 0;
     }
-    if ((wp->flags_6 == 0) && (D_80098A72 == 0))
+    if ((wp->flags == 0) && (D_80098A72 == 0))
     {
         wp->routine_2 &= 0x7F;
-        wp->flags_6++;
+        wp->flags++;
     }
 }
 
@@ -392,7 +392,7 @@ void func_801018B0(STAGE_ROOM *wp)
         STAGE_PL.value_448 = 0x80;
         STAGE_PL.value_168 = 0;
         STAGE_PL.value_169 = 6;
-        STAGE_PL.flags_0 |= 2;
+        STAGE_PL.be_flag |= 2;
     }
     switch (wp->routine_6)
     {

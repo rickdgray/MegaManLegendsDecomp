@@ -21,7 +21,7 @@ void func_80104EF4(STAGE_OBJ *wp)
 
 void func_80104FE4(STAGE_OBJ *wp, uint16 *arg1)
 {
-    wp->flags_0 |= 0x42;
+    wp->be_flag |= 0x42;
     Model_work_init(wp, NULL);
     wp->scale.words[0]          = 0x02000200;
     wp->scale.words[1]          = 0x42100200;
@@ -50,7 +50,7 @@ void func_801050E8(STAGE_OBJ *wp)
 
 void func_80105108(STAGE_WORK *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x02000200;
     wp->scale.words[1] = 0x42100200;

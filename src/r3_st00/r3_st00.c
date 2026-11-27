@@ -34,12 +34,12 @@ void func_8010038C(void)
         case 0:
             D_8009888C                = 0x80000000;
             *(uint32 *)&pl->routine_0 = 0;
-            pl->flags_0 &= ~3;
+            pl->be_flag &= ~3;
             Sce_flag_on(0x604);
             break;
         case 1:
             pl->value_44E = 1;
-            pl->flags_0 |= 3;
+            pl->be_flag |= 3;
             break;
         case 2:
         case 3:
@@ -47,7 +47,7 @@ void func_8010038C(void)
             break;
         case 4:
             *(uint32 *)&pl->routine_0 = 0;
-            pl->flags_0 &= ~3;
+            pl->be_flag &= ~3;
             Sce_flag_on(0x605);
             break;
     }
@@ -192,16 +192,16 @@ void func_80100920(STAGE_ROOM *wp)
     }
     if (wp->frame_10 == 0x60)
     {
-        ep            = (STAGE_FX *)func_80031618();
-        ep->flags_0   = 1;
-        ep->kind_2    = 2;
-        ep->value_C   = 2;
-        ep->x_1C      = 0x10;
-        ep->variant_3 = 1;
-        ep->y_1E      = -0x194;
-        ep->timer_D   = 0;
-        ep->frame_E   = 0;
-        ep->z_20      = 0xDF0;
+        ep          = (STAGE_FX *)func_80031618();
+        ep->be_flag = 1;
+        ep->id      = 2;
+        ep->value_C = 2;
+        ep->x_1C    = 0x10;
+        ep->type    = 1;
+        ep->y_1E    = -0x194;
+        ep->timer_D = 0;
+        ep->frame_E = 0;
+        ep->z_20    = 0xDF0;
     }
 }
 
@@ -268,24 +268,24 @@ void func_80100A94(STAGE_ROOM *wp)
 
     if (wp->frame_10 == 0)
     {
-        ev            = Open_EVE_WORK();
-        ev->flags_0   = 1;
-        ev->kind_2    = 3;
-        ev->value_4   = 0;
-        ev->variant_3 = 2;
-        ev->value_5   = 0;
-        ev            = Open_EVE_WORK();
-        ev->flags_0   = 1;
-        ev->kind_2    = 3;
-        ev->value_4   = 0;
-        ev->variant_3 = 3;
-        ev->value_5   = 0;
-        ev            = Open_EVE_WORK();
-        ev->flags_0   = 1;
-        ev->kind_2    = 4;
-        ev->value_4   = 0;
-        ev->variant_3 = 0;
-        ev->value_5   = 0;
+        ev          = Open_EVE_WORK();
+        ev->be_flag = 1;
+        ev->id      = 3;
+        ev->value_4 = 0;
+        ev->type    = 2;
+        ev->value_5 = 0;
+        ev          = Open_EVE_WORK();
+        ev->be_flag = 1;
+        ev->id      = 3;
+        ev->value_4 = 0;
+        ev->type    = 3;
+        ev->value_5 = 0;
+        ev          = Open_EVE_WORK();
+        ev->be_flag = 1;
+        ev->id      = 4;
+        ev->value_4 = 0;
+        ev->type    = 0;
+        ev->value_5 = 0;
     }
     if (wp->frame_10 == 0x1A)
     {
@@ -318,7 +318,7 @@ void func_80100BE8(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_2C;
-        child->flags_0 &= 0xFD;
+        child->be_flag &= 0xFD;
         child            = wp->child_24;
         child->routine_1 = 0xA;
         other            = wp->child_24;
@@ -398,22 +398,22 @@ void func_80100D6C(STAGE_ROOM *wp)
         ep  = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->kind_2    = 0x83;
-            ep->variant_3 = 0;
-            ep->x_1C      = obj->position.x + (rand() & 0x3F) - 0x1F;
-            ep->y_1E      = obj->position.y + (rand() & 0x1F) - 0xF;
-            ep->z_20      = obj->position.z + (rand() & 0x3F) - 0x1F;
+            ep->be_flag = 1;
+            ep->id      = 0x83;
+            ep->type    = 0;
+            ep->x_1C    = obj->position.x + (rand() & 0x3F) - 0x1F;
+            ep->y_1E    = obj->position.y + (rand() & 0x1F) - 0xF;
+            ep->z_20    = obj->position.z + (rand() & 0x3F) - 0x1F;
         }
         ep = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->kind_2    = 0x83;
-            ep->variant_3 = 0;
-            ep->x_1C      = obj->position.x + (rand() & 0x3F) - 0x1F;
-            ep->y_1E      = obj->position.y + (rand() & 0x1F) - 0xF;
-            ep->z_20      = obj->position.z + (rand() & 0x3F) - 0x1F;
+            ep->be_flag = 1;
+            ep->id      = 0x83;
+            ep->type    = 0;
+            ep->x_1C    = obj->position.x + (rand() & 0x3F) - 0x1F;
+            ep->y_1E    = obj->position.y + (rand() & 0x1F) - 0xF;
+            ep->z_20    = obj->position.z + (rand() & 0x3F) - 0x1F;
         }
     }
 }
@@ -460,11 +460,11 @@ void func_80100EFC(ST00_ROOM_FX *wp)
     wp->child_60->position_fixed_prev.pad = 0x02808080;
     wp->child_30->position_fixed_prev.pad = 0;
     ep                                    = (STAGE_FX *)func_80031618();
-    ep->flags_0                           = 1;
-    ep->kind_2                            = 2;
+    ep->be_flag                           = 1;
+    ep->id                                = 2;
     ep->value_C                           = 2;
     ep->y_1E                              = -0x194;
-    ep->variant_3                         = 0;
+    ep->type                              = 0;
     ep->timer_D                           = 0;
     ep->frame_E                           = 0;
     ep->x_1C                              = 0;
@@ -506,7 +506,7 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
         case 1:
             if (func_80042238(&Player_work) != 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~3;
                 wp->routine_4++;
             }
             break;
@@ -564,7 +564,7 @@ void func_801010C4(STAGE_ROOM_WORK *wp)
                 D_800C3571 = 0xFF;
                 D_800C3570 = 2;
                 Sce_flag_off(0x604);
-                Player_work.flags_0 |= 1;
+                Player_work.be_flag |= 1;
                 func_80042314(&Player_work);
                 wp->flags_0 = 0;
                 Cd_subcmd(0, 1, 0);
@@ -618,7 +618,7 @@ void func_8010141C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_28;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         wp->child_24->routine_1 = 3;
         wp->child_24->routine_2 = 0;
     }
@@ -669,8 +669,8 @@ void func_80101528(STAGE_ROOM *wp)
         fx = (STAGE_FX *)func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0 = 1;
-            fx->kind_2  = 5;
+            fx->be_flag = 1;
+            fx->id      = 5;
             fx->value_C = 5;
             fx->frame_E = 2;
             fx->x_1C    = 0x1F4;
@@ -818,7 +818,7 @@ void func_80101794(STAGE_ROOM *wp)
         other            = wp->child_24;
         other->routine_2 = 0;
         child            = wp->child_34;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child            = wp->child_34;
         child->routine_1 = 1;
     }
@@ -900,7 +900,7 @@ void func_8010194C(STAGE_ROOM *wp)
         case 1:
             if (func_80042238(&Player_work) != 0)
             {
-                Player_work.flags_0 &= ~3;
+                Player_work.be_flag &= ~3;
                 wp->routine_4++;
             }
             break;
@@ -1063,8 +1063,8 @@ void func_80101DE4(STAGE_ROOM *wp)
         ep = (STAGE_FX *)func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0 = 1;
-            ep->kind_2  = 5;
+            ep->be_flag = 1;
+            ep->id      = 5;
             ep->value_C = 5;
             ep->frame_E = 2;
             ep->x_1C    = -0x100;
@@ -1106,7 +1106,7 @@ void func_80101F7C(STAGE_ROOM *wp)
 {
     STCOM_SVECTOR unused;
 
-    Player_work.flags_0 &= ~3;
+    Player_work.be_flag &= ~3;
     func_8001E6C0(0, 0, 0);
     D_800BC7F0 = D_8011BB3C;
     D_800C3588 = 2;
@@ -1189,7 +1189,7 @@ void func_80102058(STAGE_ROOM *wp)
                 wp->flags_0 = 0;
                 Cd_subcmd(0, 1, 0);
                 pl = &Player_work;
-                pl->flags_0 |= 1;
+                pl->be_flag |= 1;
                 func_80042314(pl);
             }
             break;

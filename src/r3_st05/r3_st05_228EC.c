@@ -17,15 +17,15 @@ void func_801228EC(ST05_PROP_B *wp)
     scale.y = 0x200;
     scale.z = 0x200;
     ScaleMatrix(m, &scale);
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x32 - (wp->rotation.v.z >> 6), 0x2C0 - (wp->rotation.v.z >> 4) * 3, 0);
     }
-    if ((wp->flags_0 & 1) && (wp->ctl.flags_0 & 2))
+    if ((wp->be_flag & 1) && (wp->ctl.flags_0 & 2))
     {
         wp->position.y -= 0x20;
         wp->position_fixed.y = wp->position.y << 16;
-        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->value_1, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
+        func_800341BC(&wp->position, 0x20, 0, 0x8000, wp->slot, &wp->ctl.hit_8, 0x4880000, 0, 0x80);
         wp->position.y += 0x20;
         wp->position_fixed.y = wp->position.y << 16;
     }
@@ -46,7 +46,7 @@ void func_80122A9C(ST05_PROP_B *wp)
     wp->value_74          = 0;
     wp->rotation.v.x      = 0x400;
     wp->rotation.v.z      = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     wp->rotation.v.y = (wp->param_C << 9) & 0xE00;
     Model_work_init(wp, NULL);
     m                           = &wp->matrix;
@@ -97,7 +97,7 @@ void func_80122C54(ST05_PROP_B *wp)
     {
         case 0:
             wp->ctl.timer_4 = 0x3C;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             wp->routine_2++;
             // fall through
         case 1:
@@ -165,7 +165,7 @@ void func_80122E88(ST05_PROP_B *wp)
         case 0:
             wp->routine_2    = 1;
             wp->spin_64.h[1] = 0x400;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             // fall through
         case 1:
             wp->velocity.v.x += wp->accel.x;
@@ -203,7 +203,7 @@ void func_80122FE4(ST05_PROP_B *wp)
             wp->routine_2    = 1;
             wp->velocity.v.y = -0x32;
             wp->accel.y      = 4;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             // fall through
         case 1:
             wp->position.y += wp->velocity.v.y;

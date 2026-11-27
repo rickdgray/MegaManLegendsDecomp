@@ -6,8 +6,8 @@ void func_8010D1F8(ST06_ACTOR *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
-    D_80125184[wp->variant_3](wp);
-    if (wp->flags_0 & 2)
+    D_80125184[wp->type](wp);
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -42,7 +42,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
         case 1:
             if (scene->flag_9 == 2)
             {
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 wp->routine_0++;
             }
             break;
@@ -88,7 +88,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             if (!(Moji_flag & 0x8000000))
             {
                 Sce_event_next();
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0++;
             }
             break;
@@ -116,7 +116,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
                 {
                     wp->routine_0++;
                     Sce_event_next();
-                    pl->flags_0 |= 2;
+                    pl->be_flag |= 2;
                 }
                 else if (scene->work_1C < 0x100)
                 {
@@ -129,7 +129,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
             if (turn == 0 && func_8003A13C() == 0)
             {
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 MojiTaskExec2(0, 0x2F);
                 func_800322A8(wp, 8, 0);
                 wp->routine_1 = 0;
@@ -148,7 +148,7 @@ void func_8010D2E8(ST06_ACTOR *wp)
             if (turn == 0 && func_8003A13C() == 0)
             {
                 MojiTaskExec2(0, 0x32);
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 func_800322A8(wp, 8, 0);
                 wp->routine_1 = 0;
                 wp->routine_0++;
@@ -183,9 +183,9 @@ void func_8010D2E8(ST06_ACTOR *wp)
             wp->routine_0++;
             break;
         case 27:
-            wp->kind_2                = 0x14;
+            wp->id                    = 0x14;
             wp->value_4               = 2;
-            wp->variant_3             = 0x80;
+            wp->type                  = 0x80;
             *(uint32 *)&wp->timer_C   = 0;
             *(uint32 *)&wp->routine_0 = 0;
             break;
@@ -232,7 +232,7 @@ void func_8010D680(ST06_ACTOR *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
             }
             break;
@@ -249,7 +249,7 @@ void func_8010D7E8(ST06_ACTOR *wp)
     wp->velocity.v.z = 0;
     wp->velocity.v.y = 0;
     wp->velocity.v.x = 0;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -281,7 +281,7 @@ sint32 func_8010D8A4(ST06_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x40;
         D_8012BA20.x = wp->value_180.x;
         D_8012BA20.y = wp->value_180.y - 0x20;
@@ -295,11 +295,11 @@ sint32 func_8010D8A4(ST06_ACTOR *wp)
 void func_8010D9D4(ST06_ACTOR *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    D_801251B8[wp->variant_3](wp);
+    D_801251B8[wp->type](wp);
     if (wp->routine_1 != 0)
     {
         func_80051B68(wp, 3, -1, 0);
@@ -322,7 +322,7 @@ void func_8010DAA4(STAGE_OBJ *wp)
 
 void func_8010DAE0(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]        = 0x2000200;
     wp->scale.words[1]        = 0x200;
@@ -365,7 +365,7 @@ void func_8010DBF4(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -401,7 +401,7 @@ void func_8010DD0C(STAGE_OBJ *wp)
 
 void func_8010DD70(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_801251C0;
     wp->scale.words[0]        = 0x2000200;
@@ -478,7 +478,7 @@ void func_8010DF94(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_1 = 0;
         pl->flags_bd &= ~0x80;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         wp->routine_0 = 1;
     }
     else
@@ -490,11 +490,11 @@ void func_8010DF94(ST06_ACTOR *wp)
 void func_8010E048(STAGE_OBJ *wp)
 {
     wp->scale.v.pad = 0x4210;
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    D_801251E0[wp->variant_3 & 0xF](wp);
+    D_801251E0[wp->type & 0xF](wp);
     if (wp->routine_3 != 0)
     {
         func_80051B68(wp, 3, -1, 0);
@@ -519,7 +519,7 @@ void func_8010E11C(ST06_ACTOR *wp)
     if (Player_work.target_184 == wp)
     {
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         cam.x = wp->value_180.x;
         cam.y = wp->value_180.y - 0x20;
@@ -541,7 +541,7 @@ void func_8010E11C(ST06_ACTOR *wp)
 
 void func_8010E234(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->data_10               = D_801251E4;
     wp->scale.words[0]        = 0x2000200;
@@ -582,7 +582,7 @@ void func_8010E34C(ST06_ACTOR *wp)
     wp->rotation.y = (wp->rotation.y + turn) & 0xFFF;
     if (turn == 0 && func_8003A13C() == 0)
     {
-        if (wp->variant_3 & 0x80)
+        if (wp->type & 0x80)
         {
             if (func_8010EB68())
             {
@@ -936,7 +936,7 @@ void func_8010EA84(ST06_ACTOR *wp)
         func_800322A8(wp, 0, 0);
         wp->routine_3 = 0;
         Player_work.flags_bd &= ~0x80;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         Sce_flag_off(0x23D);
         Sce_flag_off(0x23E);
         Sce_flag_off(0x23F);
@@ -994,7 +994,7 @@ void func_8010ECE8(STAGE_OBJ *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
-    D_801251F0[wp->variant_3](wp);
+    D_801251F0[wp->type](wp);
     if (wp->anim_prev_AD != wp->anim_AC)
     {
         func_800322A8(wp, wp->anim_AC, 0);
@@ -1003,7 +1003,7 @@ void func_8010ECE8(STAGE_OBJ *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -1058,7 +1058,7 @@ void func_8010EE38(ST06_ACTOR *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x80;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
             }
             break;
@@ -1068,7 +1068,7 @@ void func_8010EE38(ST06_ACTOR *wp)
 
 void func_8010EF94(ST06_ACTOR *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x2000200;
     wp->scale.words[1]   = 0x200;
@@ -1100,7 +1100,7 @@ sint32 func_8010F024(ST06_ACTOR *wp)
             wp->turn_64 = (sint16)Muku(&wp->position, &pl->position, wp->rotation.y, 0x800) >> 3;
         }
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x80;
         D_8012BA40.x = wp->value_180.x;
         D_8012BA40.y = wp->value_180.y - 0x20;
@@ -1166,8 +1166,8 @@ void func_8010F35C(ST06_CRAB *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->value_64   = 0;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     wp->scale.words[0]          = 0x2000200;
     wp->scale.words[1]          = 0x200;
     wp->ctl.flags_4             = 0x5E;
@@ -1178,13 +1178,13 @@ void func_8010F35C(ST06_CRAB *wp)
     wp->ctl.value_2C            = 0;
     wp->ctl.u_38.h.hi           = 0;
     wp->ctl.u_38.h.lo           = 0;
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
-        wp->life_6E = D_80098844[wp->kind_2]->life_8 * 16;
+        wp->life_6E = D_80098844[wp->id]->life_8 * 16;
     }
     else
     {
-        wp->life_6E = D_80098844[wp->kind_2]->life_8 * 8;
+        wp->life_6E = D_80098844[wp->id]->life_8 * 8;
     }
     wp->data_78      = D_80125240;
     wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E;
@@ -1293,22 +1293,22 @@ void func_8010F618(ST06_CRAB *wp)
             }
             if (ctl->value_A == 1000)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             break;
         case 2:
             func_80110498(wp);
             if (wp->ctl.value_A == 0 || wp->ctl.value_A == 1400)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             if (ctl->value_A == 1000)
             {
-                wp->flags_0 |= 2;
+                wp->be_flag |= 2;
             }
             break;
         case 3:
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~2;
             break;
     }
     ctl->value_A++;
@@ -1363,7 +1363,7 @@ void func_8010F8B0(ST06_CRAB *wp)
     {
         ctl->timer_8--;
         wp->rotation.y = (wp->rotation.y + ctl->u_3C.a.turn_1 * 4) & 0xFFF;
-        if (wp->variant_3 == 0)
+        if (wp->type == 0)
         {
             wp->value_44.half[0] = 0x100;
         }
@@ -1416,7 +1416,7 @@ void func_8010F8B0(ST06_CRAB *wp)
             {
                 probe.z += 0x6C;
             }
-            front = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->value_1);
+            front = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->slot);
             if ((front - wp->position_prev.y < 0 ? wp->position_prev.y - front : front - wp->position_prev.y) > 0)
             {
                 done = 1;
@@ -1433,7 +1433,7 @@ void func_8010F8B0(ST06_CRAB *wp)
                 {
                     probe.x += 0x6C;
                 }
-                side = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->value_1);
+                side = func_80048EA4(&probe, NULL, wp->value_44.half[1], wp->slot);
                 if ((side - wp->position_prev.y < 0 ? wp->position_prev.y - side : side - wp->position_prev.y) > 0)
                 {
                     done = 1;
@@ -1517,7 +1517,7 @@ void func_8010FD0C(ST06_CRAB *wp)
                 if (wp->value_A6 == 1)
                 {
                     wp->ctl.value_A++;
-                    if (wp->variant_3 == 0)
+                    if (wp->type == 0)
                     {
                         wp->value_44.half[0] = 0x100;
                     }
@@ -1857,12 +1857,12 @@ void func_80110734(STCOM_SVECTOR *pos)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 5;
-        ep->kind_2    = 0x80;
-        ep->variant_3 = 0x42;
-        ep->pos_38.x  = pos->x;
-        ep->pos_38.y  = pos->y;
-        ep->pos_38.z  = pos->z;
+        ep->be_flag  = 5;
+        ep->id       = 0x80;
+        ep->type     = 0x42;
+        ep->pos_38.x = pos->x;
+        ep->pos_38.y = pos->y;
+        ep->pos_38.z = pos->z;
     }
 }
 
@@ -1900,11 +1900,11 @@ void func_801107A0(ST06_CRAB *wp)
                 ctl->flags_4       = (ctl->flags_4 & ~0x1000) | 0x100;
                 ctl->u_3C.a.turn_1 = -1;
                 wp->routine_1      = 5;
-                wp->variant_3      = 0;
+                wp->type           = 0;
                 ctl->timer_8       = ctl->random_6 % 112 + 16;
                 break;
             }
-            if (wp->variant_3 == 0)
+            if (wp->type == 0)
             {
                 if (ctl->flags_4 & 0x800)
                 {
@@ -1987,9 +1987,9 @@ void func_801107A0(ST06_CRAB *wp)
 
 sint32 func_80110A54(ST06_CRAB *wp)
 {
-    wp->ctl.kind_C     = D_80098844[wp->kind_2]->value_A;
+    wp->ctl.kind_C     = D_80098844[wp->id]->value_A;
     wp->ctl.hit_pos_10 = wp->joint_180[0];
-    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
+    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->slot, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
     return 1;
 }
 
@@ -2056,8 +2056,8 @@ void func_80110CFC(ST06_CRAB *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->value_64   = 0;
-    wp->flags_0 |= 2;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 2;
+    Model_work_init(wp, &wp->type);
     wp->scale.words[0]          = 0x2000200;
     wp->scale.words[1]          = 0x200;
     wp->ctl.flags_4             = 0x5E;
@@ -2068,9 +2068,9 @@ void func_80110CFC(ST06_CRAB *wp)
     wp->ctl.value_2C            = 0;
     wp->ctl.u_3C.b.value_8      = 0;
     wp->ctl.u_3C.b.value_7      = 0;
-    wp->ctl.u_3C.b.rec_0        = D_80125278[wp->variant_3];
+    wp->ctl.u_3C.b.rec_0        = D_80125278[wp->type];
     wp->ctl.u_3C.b.flag_6       = wp->ctl.random_6 & 1;
-    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->kind_2]->life_8 * 16;
+    wp->life_prev_B2 = wp->life_max_B0 = wp->life_6E = D_80098844[wp->id]->life_8 * 16;
     wp->data_78                                      = D_8012526C;
     if (wp->u_C.b.byte_C & 0x10)
     {
@@ -2142,9 +2142,9 @@ void func_80110F18(ST06_CRAB *wp)
             part = func_80031418();
             if (part != NULL)
             {
-                part->flags_0               = 1;
-                part->kind_2                = 0;
-                part->variant_3             = 1;
+                part->be_flag               = 1;
+                part->id                    = 0;
+                part->type                  = 1;
                 part->value_4               = 1;
                 *(uint32 *)&part->routine_0 = 0;
                 *(uint32 *)&part->u_C       = 0;
@@ -2186,7 +2186,7 @@ void func_801110D8(ST06_CRAB *wp)
             }
             if (ctl->value_A == 600)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             break;
         case 1:
@@ -2195,11 +2195,11 @@ void func_801110D8(ST06_CRAB *wp)
             Obj_pos_set(wp, 0xC0, 0, 0);
             if (wp->ctl.value_A == 0 || wp->ctl.value_A == 1400)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             if (ctl->value_A == 1000)
             {
-                wp->flags_0 |= 2;
+                wp->be_flag |= 2;
             }
             break;
         case 2:
@@ -2208,7 +2208,7 @@ void func_801110D8(ST06_CRAB *wp)
             Obj_pos_set(wp, 0xC0, 0, 0);
             if (wp->ctl.value_A == 1100)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             break;
     }
@@ -2457,9 +2457,9 @@ void func_8011193C(ST06_CRAB *wp)
         fx            = func_80031618();
         if (fx != NULL)
         {
-            fx->flags_0           = 5;
-            fx->kind_2            = 0x80;
-            fx->variant_3         = 0x42;
+            fx->be_flag           = 5;
+            fx->id                = 0x80;
+            fx->type              = 0x42;
             fx->sprite.position.x = wp->joint_180[0].x;
             fx->sprite.position.y = wp->joint_180[0].y;
             fx->sprite.position.z = wp->joint_180[0].z;
@@ -2538,12 +2538,12 @@ void func_80111BE0(STCOM_SVECTOR *pos)
     ep = (STAGE_OBJ50 *)func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 5;
-        ep->kind_2    = 0x80;
-        ep->variant_3 = 0x42;
-        ep->pos_38.x  = pos->x;
-        ep->pos_38.y  = pos->y;
-        ep->pos_38.z  = pos->z;
+        ep->be_flag  = 5;
+        ep->id       = 0x80;
+        ep->type     = 0x42;
+        ep->pos_38.x = pos->x;
+        ep->pos_38.y = pos->y;
+        ep->pos_38.z = pos->z;
     }
 }
 
@@ -2554,9 +2554,9 @@ void func_80111C4C(ST06_CRAB *wp)
     shot = (ST06_SHOT *)Open_SHL_WORK();
     if (shot != NULL)
     {
-        shot->flags_0          = 1;
-        shot->kind_2           = 6;
-        shot->variant_3        = 0x80;
+        shot->be_flag          = 1;
+        shot->id               = 6;
+        shot->type             = 0x80;
         shot->routine_8        = 0;
         shot->value_C          = 0;
         shot->position         = wp->joint_180[0];
@@ -2601,9 +2601,9 @@ void func_80111CF8(ST06_CRAB *wp)
 
 sint32 func_80111D54(ST06_CRAB *wp)
 {
-    wp->ctl.kind_C     = D_80098844[wp->kind_2]->value_A;
+    wp->ctl.kind_C     = D_80098844[wp->id]->value_A;
     wp->ctl.hit_pos_10 = wp->joint_180[0];
-    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->value_1, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
+    func_800341BC(&wp->ctl.hit_pos_10, 0x80, 0, 0x8000, wp->slot, &wp->ctl.hit_18, wp->ctl.kind_C | 0x4880000, 0x800000, 0);
     return 1;
 }
 
@@ -2642,7 +2642,7 @@ void func_80111EE4(ST06_ACTOR *wp)
 {
     ST06_ACTOR_CTL *ctl;
 
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     ctl = &wp->ctl;
     Model_work_init(wp, NULL);
     wp->scale.words[0]       = 0x21A021A;
@@ -2663,7 +2663,7 @@ void func_80111EE4(ST06_ACTOR *wp)
     wp->velocity.words[0] = 0;
     wp->velocity.words[1] = 0;
     wp->data_10           = D_80125390;
-    if (wp->variant_3 != 0)
+    if (wp->type != 0)
     {
         wp->routine_1 = 1;
     }
@@ -2706,11 +2706,11 @@ void func_8011201C(ST06_ACTOR *wp)
     }
     *(uint16 *)0x1F800132 = wp->ctl.timer_A;
     Model_parts_mtx_set_y(wp);
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         func_80051B68(wp, 3, -1, 0);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }

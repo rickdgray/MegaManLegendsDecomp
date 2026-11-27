@@ -2002,7 +2002,7 @@ void Sub_screen_back_ground_set(void)
 // 0x12B, 0x134 or 0x136 at joint 4 for weapon_right_no 4, 7, 0xC or 0xD.
 void Sub_screen_sound_reinit(PL_WORK *pp)
 {
-    if ((*(uint32 *)&pp->routine_8 & 0xFFFF00) == 0x40300)
+    if ((*(uint32 *)&pp->routine_0 & 0xFFFF00) == 0x40300)
     {
         Sound_call(0x8C, 0, 0);
     }

@@ -16,7 +16,7 @@ void func_8011171C(ST0B_10C_E *wp)
     obj                = STAGE_SCENE_OBJ(0);
     wp->position       = obj->position;
     wp->position_fixed = obj->position_fixed;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->color_B4 = 0x808080;
     wp->value_78 = 0;
@@ -58,7 +58,7 @@ void func_80111884(ST0B_10C_D *wp)
 
 void func_80111934(STAGE_10C *wp)
 {
-    D_8011BB84[wp->variant_3](wp, &wp->x_CC);
+    D_8011BB84[wp->type](wp, &wp->x_CC);
 }
 
 void func_80111970(ST0B_LIFT *wp, ST0B_PATH *path)
@@ -80,7 +80,7 @@ void func_80111A9C(ST0B_ACTOR_B *wp, uint16 *bob)
 {
     STAGE_FX *fx;
 
-    wp->flags_0 = (uint8)wp->flags_0 | 6;
+    wp->be_flag = (uint8)wp->be_flag | 6;
     if (STAGE_GAME.value_50 == 0xD)
     {
         func_8002F9EC(wp, 0);
@@ -99,21 +99,21 @@ void func_80111A9C(ST0B_ACTOR_B *wp, uint16 *bob)
     fx               = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 0x15;
-        fx->variant_3 = 0;
-        fx->value_C   = wp->value_1;
-        fx->timer_D   = 0;
-        fx->flags_6 |= 0x20;
+        fx->be_flag = 1;
+        fx->id      = 0x15;
+        fx->type    = 0;
+        fx->value_C = wp->slot;
+        fx->timer_D = 0;
+        fx->flags |= 0x20;
     }
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 0x15;
-        fx->variant_3 = 1;
-        fx->value_C   = wp->value_1;
-        fx->flags_6 |= 0x20;
+        fx->be_flag = 1;
+        fx->id      = 0x15;
+        fx->type    = 1;
+        fx->value_C = wp->slot;
+        fx->flags |= 0x20;
     }
     wp->routine_0++;
 }
@@ -184,7 +184,7 @@ void func_80111E90(ST0B_LIFT *wp, ST0B_PATH_B *path)
     STAGE_FX *fx;
     STCOM_SVECTOR *origin[2];
 
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->velocity.v.x = 0x100;
     wp->color_B4     = 0x808080;
@@ -194,7 +194,7 @@ void func_80111E90(ST0B_LIFT *wp, ST0B_PATH_B *path)
     path->x_10       = wp->velocity.v.x << 16;
     path->z_14       = wp->velocity.v.z << 16;
     path->rot_20     = wp->rotation.y << 16;
-    if (wp->variant_3 == 1)
+    if (wp->type == 1)
     {
         path->step_2C = (ST0B_PATH_STEP *)D_8011B788;
     }
@@ -210,21 +210,21 @@ void func_80111E90(ST0B_LIFT *wp, ST0B_PATH_B *path)
     fx           = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 0x15;
-        fx->variant_3 = 0;
-        fx->value_C   = wp->value_1;
-        fx->timer_D   = 0;
-        fx->flags_6 |= 0x20;
+        fx->be_flag = 1;
+        fx->id      = 0x15;
+        fx->type    = 0;
+        fx->value_C = wp->slot;
+        fx->timer_D = 0;
+        fx->flags |= 0x20;
     }
     fx = (STAGE_FX *)func_80031618();
     if (fx != NULL)
     {
-        fx->flags_0   = 1;
-        fx->kind_2    = 0x15;
-        fx->variant_3 = 1;
-        fx->value_C   = wp->value_1;
-        fx->flags_6 |= 0x20;
+        fx->be_flag = 1;
+        fx->id      = 0x15;
+        fx->type    = 1;
+        fx->value_C = wp->slot;
+        fx->flags |= 0x20;
     }
     origin[1]     = &wp->position;
     origin[0]     = &wp->position;
@@ -356,13 +356,13 @@ void func_801123C0(ST0B_LIFT *wp, ST0B_PATH_B *path)
 
 void func_8011250C(ST0B_LIFT *wp, ST0B_PATH_C *path)
 {
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         path->box_38 = wp->position;
         path->box_30 = path->box_38;
         path->box_38.y -= 0x280;
-        func_800341BC(&path->box_30, 0x100, 0, 0, wp->value_1, &wp->hit_BC, 0x2000000, 0, 0);
-        func_800341BC(&path->box_38, 0x60, 0, 0, wp->value_1, &wp->hit_C4, 0x2000000, 0, 0);
+        func_800341BC(&path->box_30, 0x100, 0, 0, wp->slot, &wp->hit_BC, 0x2000000, 0, 0);
+        func_800341BC(&path->box_38, 0x60, 0, 0, wp->slot, &wp->hit_C4, 0x2000000, 0, 0);
     }
 }
 
@@ -388,7 +388,7 @@ void func_80112608(STAGE_PROP *wp, uint16 *bob)
 
 void func_801127A0(ST0B_ACTOR *wp, uint16 *bob)
 {
-    wp->flags_0 = (uint8)wp->flags_0 | 6;
+    wp->be_flag = (uint8)wp->be_flag | 6;
     if (STAGE_GAME.value_50 == 0xD)
     {
         func_8002F9EC(wp, 0);
@@ -579,7 +579,7 @@ void func_80112D10(ST0B_TRAIL5 *wp)
     wp->data_78             = D_8011BC40;
     wp->sprite.mode_0       = 0x3DC8002A;
     wp->sprite.color_4.word = 0x2E808080;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->position_fixed.v.x  = wp->position.x << 16;
     wp->position_fixed.v.y  = wp->position.y << 16;
     wp->position_fixed.v.z  = wp->position.z << 16;
@@ -665,7 +665,7 @@ void func_80113120(ST0B_10C *wp)
 
 void func_801131F0(ST0B_10C *wp)
 {
-    func_800341BC(&wp->position, 0x64, 0, 0x8000, wp->value_1, &wp->value_C4, D_80098928[wp->kind_2]->value_9 | 0x4000000, 0, 0);
+    func_800341BC(&wp->position, 0x64, 0, 0x8000, wp->slot, &wp->value_C4, D_80098928[wp->id]->value_9 | 0x4000000, 0, 0);
 }
 
 void func_8011325C(STAGE_OBJ *wp)
@@ -675,18 +675,18 @@ void func_8011325C(STAGE_OBJ *wp)
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0         = 5;
-        ep->kind_2          = 0x10;
-        ep->variant_3       = 0;
+        ep->be_flag         = 5;
+        ep->id              = 0x10;
+        ep->type            = 0;
         ep->value_C         = 0;
         ep->sprite.position = wp->position;
     }
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0         = 5;
-        ep->kind_2          = 0x10;
-        ep->variant_3       = 1;
+        ep->be_flag         = 5;
+        ep->id              = 0x10;
+        ep->type            = 1;
         ep->value_C         = 0;
         ep->sprite.position = wp->position;
     }
@@ -734,7 +734,7 @@ void func_80113410(STAGE_SPARK *wp)
 
 void func_8011349C(STAGE_SPARK *wp)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->routine_0++;
     func_80113410(wp);
 }
@@ -759,21 +759,21 @@ void func_8011352C(ST0B_SPARK *wp)
         ep = func_80031618();
         if (ep != NULL)
         {
-            ep->flags_0   = 1;
-            ep->variant_3 = 1;
-            ep->flags_6   = wp->flags_6;
-            ep->value_C   = 0;
-            ep->timer_D   = (rand() & 7) * 2 + 0x40;
-            ep->x_1C      = wp->x_1C + (rand() & 0xF);
-            ep->y_1E      = wp->y_1E;
-            ep->z_20      = wp->z_20 + (rand() & 0xF);
-            ep->mode_14   = 0x3D48004E;
-            ep->u_22      = ((rand() & 3) << 5) + 0x20;
-            ep->v_23      = 0;
-            ep->w_24      = wp->width_E;
-            ep->type_F    = wp->type_F;
-            ep->rise_28   = wp->rise_28;
-            ep->owner_2C  = wp;
+            ep->be_flag  = 1;
+            ep->type     = 1;
+            ep->flags    = wp->flags;
+            ep->value_C  = 0;
+            ep->timer_D  = (rand() & 7) * 2 + 0x40;
+            ep->x_1C     = wp->x_1C + (rand() & 0xF);
+            ep->y_1E     = wp->y_1E;
+            ep->z_20     = wp->z_20 + (rand() & 0xF);
+            ep->mode_14  = 0x3D48004E;
+            ep->u_22     = ((rand() & 3) << 5) + 0x20;
+            ep->v_23     = 0;
+            ep->w_24     = wp->width_E;
+            ep->type_F   = wp->type_F;
+            ep->rise_28  = wp->rise_28;
+            ep->owner_2C = wp;
             for (i = 0; i < wp->count_26; i++)
             {
                 func_801134F0(ep);
@@ -786,7 +786,7 @@ void func_8011352C(ST0B_SPARK *wp)
 
 void func_80113674(STAGE_OBJ *wp)
 {
-    if (wp->variant_3 == 1)
+    if (wp->type == 1)
     {
         func_801134F0(wp);
         return;
@@ -807,23 +807,23 @@ ST0B_SPARK *func_801136D4(STCOM_SVECTOR *pos, sint32 width, sint32 type, sint32 
     ep = func_80031618();
     if (ep != NULL)
     {
-        ep->flags_0   = 1;
-        ep->kind_2    = 0;
-        ep->variant_3 = 0;
-        ep->value_C   = 0;
-        ep->width_E   = width;
-        ep->type_F    = type;
-        ep->x_1C      = pos->x;
-        ep->y_1E      = pos->y;
-        ep->z_20      = pos->z;
-        ep->count_26  = count;
+        ep->be_flag  = 1;
+        ep->id       = 0;
+        ep->type     = 0;
+        ep->value_C  = 0;
+        ep->width_E  = width;
+        ep->type_F   = type;
+        ep->x_1C     = pos->x;
+        ep->y_1E     = pos->y;
+        ep->z_20     = pos->z;
+        ep->count_26 = count;
         if (hide)
         {
-            ep->flags_6 |= 0x20;
+            ep->flags |= 0x20;
         }
         else
         {
-            ep->flags_6 &= ~0x20;
+            ep->flags &= ~0x20;
         }
         ep->rise_28 = rise;
         for (i = 0; i < (sint16)count; i++)

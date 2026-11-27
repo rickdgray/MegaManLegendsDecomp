@@ -10,7 +10,7 @@ void func_80111C7C(ST14_PROP *wp)
     wp->position_fixed_prev.pad = wp->position_fixed.v.pad;
     wp->rotation_prev           = wp->rotation;
     D_80115EC0[wp->routine_0](wp);
-    if ((uint8)wp->flags_0 & 2)
+    if ((uint8)wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
@@ -23,7 +23,7 @@ void func_80111D48(ST14_PROP *wp)
     wp->rotation.x = 0;
     wp->rotation.y = 0x800;
     wp->rotation.z = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     wp->model.pos_AC = wp->position;
     RotMatrix(&wp->rotation, &wp->model.matrix_8C);
     scale.x = 0x200;
@@ -31,7 +31,7 @@ void func_80111D48(ST14_PROP *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->model.matrix_8C, &scale);
     wp->model.color_B4 = 0x808080;
-    Model_work_init(wp, &wp->variant_3);
+    Model_work_init(wp, &wp->type);
     wp->data_78 = NULL;
     wp->data_10 = D_80115EB4;
     wp->routine_0++;
@@ -81,7 +81,7 @@ void func_80111E7C(ST14_PROP *wp)
             if (func_8003A13C() == 0)
             {
                 func_80042314(pl);
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
             }
@@ -104,7 +104,7 @@ void func_80111FF4(ST14_PROP *wp)
     wp->hit_C0  = 0;
     wp->hit_C4  = 0;
     wp->hit_C8  = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     rot.x = (wp->angle_64.x + 0x400) & 0xFFF;
     rot.y = wp->angle_64.y & 0xFFF;
     rot.z = 0;
@@ -182,7 +182,7 @@ void func_801121D0(ST14_PROP *wp)
 
 void func_801123AC(ST14_PROP *wp)
 {
-    func_800341BC(&wp->position, wp->count_F * 3 + 0x40, 0, 0xA000, wp->value_1, &wp->hit_BC, 0x8000020, 0, 0x80);
+    func_800341BC(&wp->position, wp->count_F * 3 + 0x40, 0, 0xA000, wp->slot, &wp->hit_BC, 0x8000020, 0, 0x80);
     wp->hit_BC = 0;
     wp->hit_C0 = 0;
     wp->hit_C4 = 0;

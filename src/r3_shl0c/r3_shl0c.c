@@ -18,8 +18,8 @@ void func_800D8840(SHL_WORK *wp)
     wp->col_c0 = 0;
     wp->col_c4 = 0;
     wp->col_c8 = 0;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
     func_800354E0(wp->bit_d);
     wp->value_f = Player_work.value_558;
     rot.vx      = func_80039B80();
@@ -125,8 +125,8 @@ void func_800D8D74(SHL_WORK *wp)
     p.vx = (wp->fpos.w.x + (wp->vel.vx << 10)) >> 16;
     p.vy = (wp->fpos.w.y + (wp->vel.vy << 10)) >> 16;
     p.vz = (wp->fpos.w.z + (wp->vel.vz << 10)) >> 16;
-    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0, wp->value_1, &wp->col_c4, 0x2000001, 0, 0x80);
-    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0x4000, wp->value_1, &wp->col_bc, 0x28000001, 0, 0x80);
+    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0, wp->slot, &wp->col_c4, 0x2000001, 0, 0x80);
+    func_800341BC(&p, D_800D90AC[wp->value_f], 0, 0x4000, wp->slot, &wp->col_bc, 0x28000001, 0, 0x80);
     wp->col_bc = 0;
     wp->col_c0 = 0;
     wp->col_c4 = 0;

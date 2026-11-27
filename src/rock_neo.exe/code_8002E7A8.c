@@ -84,7 +84,7 @@ void Work_pools_init(sint32 players)
         Mem_clear(Player_work, (uint8 *)Player_work + 0xBE4);
         for (i = 0; i < 2; i++)
         {
-            Player_work[i].kind_1 = kind | i;
+            Player_work[i].slot = kind | i;
         }
     }
     kind = 0x10;
@@ -93,7 +93,7 @@ void Work_pools_init(sint32 players)
     D_80098A60 = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_800BFB20[i].kind_1 = kind | i;
+        D_800BFB20[i].slot = kind | i;
     }
     kind = 0x20;
     Mem_clear(D_8009F108, (uint8 *)D_8009F108 + 0x3BFC);
@@ -101,7 +101,7 @@ void Work_pools_init(sint32 players)
     D_8009880C = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_8009F108[i].kind_1 = kind | i;
+        D_8009F108[i].slot = kind | i;
     }
     kind = 0x40;
     Mem_clear(D_800C3580, (uint8 *)D_800C3580 + 0x168C);
@@ -109,7 +109,7 @@ void Work_pools_init(sint32 players)
     D_80098B64 = 0;
     for (i = 0; i < 4; i++)
     {
-        D_800C3580[i].kind_1 = kind | i;
+        D_800C3580[i].slot = kind | i;
     }
     kind = 0x60;
     Mem_clear(D_8009CF88, (uint8 *)D_8009CF88 + 0x217C);
@@ -117,7 +117,7 @@ void Work_pools_init(sint32 players)
     D_80098808 = 0;
     for (i = 0; i < 0x20; i++)
     {
-        D_8009CF88[i].kind_1 = kind | i;
+        D_8009CF88[i].slot = kind | i;
     }
     kind = 0x80;
     Mem_clear(D_800A3B40, (uint8 *)D_800A3B40 + 0x11FC);
@@ -127,7 +127,7 @@ void Work_pools_init(sint32 players)
     D_800988CC = 0;
     for (i = 0; i < 0x40; i++)
     {
-        D_800A3B40[i].kind_1 = kind | i;
+        D_800A3B40[i].slot = kind | i;
     }
     kind = 0xC0;
     Mem_clear(D_800A2D08, (uint8 *)D_800A2D08 + 0x23C);
@@ -135,7 +135,7 @@ void Work_pools_init(sint32 players)
     D_80098818 = 0;
     for (i = 0; i < 0x10; i++)
     {
-        D_800A2D08[i].kind_1 = kind | i;
+        D_800A2D08[i].slot = kind | i;
     }
     kind = 0xE0;
     Mem_clear(D_800BF118, (uint8 *)D_800BF118 + 0x9FC);
@@ -143,7 +143,7 @@ void Work_pools_init(sint32 players)
     D_80098A4C = 0;
     for (i = 0; i < 0x20; i++)
     {
-        D_800BF118[i].kind_1 = kind | i;
+        D_800BF118[i].slot = kind | i;
     }
     Mem_clear(D_800BBA90, (uint8 *)D_800BBA90 + 0x264);
     Mem_clear(D_8015BC00, D_8015BC00 + 0x3FC);
@@ -177,11 +177,11 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
                     {
                         pl--;
                     }
-                    pl->routine_0             = e->routine_0;
-                    *(uint16 *)&pl->id_2      = *(uint16 *)&e->id_2;
+                    pl->be_flag               = e->routine_0;
+                    *(uint16 *)&pl->id        = *(uint16 *)&e->id_2;
                     *(uint16 *)&pl->flag_4    = *(uint16 *)&e->flag_4;
                     pl->field_C               = e->field_8;
-                    *(uint32 *)&pl->routine_8 = 0;
+                    *(uint32 *)&pl->routine_0 = 0;
                     pl->pos_l.vx = pl->old_l.vx = e->pos.vx << 16;
                     pl->pos_l.vy = pl->old_l.vy = e->pos.vy << 16;
                     pl->pos_l.vz = pl->old_l.vz = e->pos.vz << 16;
@@ -206,8 +206,8 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
                 fill_model:
                     if (o != NULL)
                     {
-                        o->routine_0          = e->routine_0;
-                        *(uint16 *)&o->id_2   = *(uint16 *)&e->id_2;
+                        o->be_flag            = e->routine_0;
+                        *(uint16 *)&o->id     = *(uint16 *)&e->id_2;
                         *(uint16 *)&o->flag_4 = *(uint16 *)&e->flag_4;
                         o->field_C            = e->field_8;
                         o->pos_l.vx = o->old_l.vx = e->pos.vx << 16;
@@ -228,8 +228,8 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
                 ev = Open_EVE_WORK();
                 if (ev != NULL)
                 {
-                    ev->routine_0          = e->routine_0;
-                    *(uint16 *)&ev->id_2   = *(uint16 *)&e->id_2;
+                    ev->be_flag            = e->routine_0;
+                    *(uint16 *)&ev->id     = *(uint16 *)&e->id_2;
                     *(uint16 *)&ev->flag_4 = *(uint16 *)&e->flag_4;
                     ev->field_C            = e->field_8;
                     ev->pos                = e->pos;
@@ -240,14 +240,14 @@ void Obj_spawn_tbl_set(SPAWN_ENT *e, sint32 players)
             fill_efc:
                 if (fx != NULL)
                 {
-                    fx->routine_0          = e->routine_0;
-                    *(uint16 *)&fx->id_2   = *(uint16 *)&e->id_2;
-                    *(uint16 *)&fx->flag_4 = *(uint16 *)&e->flag_4;
-                    fx->field_C            = e->field_8;
-                    fx->efc.model.pos      = e->pos;
-                    fx->efc.sprite.pos[0]  = e->pos.vx;
-                    fx->efc.sprite.pos[1]  = e->pos.vy;
-                    fx->efc.sprite.pos[2]  = e->pos.vz;
+                    fx->be_flag             = e->routine_0;
+                    *(uint16 *)&fx->id      = *(uint16 *)&e->id_2;
+                    *(uint16 *)&fx->handler = *(uint16 *)&e->flag_4;
+                    fx->field_C             = e->field_8;
+                    fx->efc.model.pos       = e->pos;
+                    fx->efc.sprite.pos[0]   = e->pos.vx;
+                    fx->efc.sprite.pos[1]   = e->pos.vy;
+                    fx->efc.sprite.pos[2]   = e->pos.vz;
                 }
                 break;
         }
@@ -288,7 +288,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
                 if (flag & WORK_KILL)
                 {
                     D_8009888C &= ~(0x80000000U >> i);
-                    pl->routine_0 = 0;
+                    pl->be_flag = 0;
                 }
                 else
                 {
@@ -363,7 +363,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
         bits = D_800987CC;
         for (i = 0; i < 32; i++, sh++)
         {
-            if ((sint32)(bits << i) < 0 || (sh->routine_0 & 3))
+            if ((sint32)(bits << i) < 0 || (sh->be_flag & 3))
             {
                 if (flag & WORK_KILL)
                 {
@@ -385,7 +385,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
             bits = (&D_80098838)[i];
             for (j = 0; j < 32; j++, fx++)
             {
-                if ((sint32)(bits << j) < 0 && fx->id_2 >= 0x80)
+                if ((sint32)(bits << j) < 0 && fx->id >= 0x80)
                 {
                     if (flag & WORK_KILL)
                     {
@@ -407,7 +407,7 @@ void Obj_work_flag_change(sint32 mask, sint32 flag)
             bits = (&D_80098838)[i];
             for (j = 0; j < 32; j++, fx++)
             {
-                if ((sint32)(bits << j) < 0 && fx->id_2 < 0x80)
+                if ((sint32)(bits << j) < 0 && fx->id < 0x80)
                 {
                     if (flag & WORK_KILL)
                     {
@@ -627,7 +627,7 @@ void func_8002F420(sint32 flag, SVECTOR *d)
             mask = (&D_80098838)[i];
             for (j = 0; j < 32; j++, fx++)
             {
-                if ((sint32)(mask << j) < 0 && fx->id_2 >= 0x80)
+                if ((sint32)(mask << j) < 0 && fx->id >= 0x80)
                 {
                     if (fx->flags & 0x20)
                     {
@@ -652,7 +652,7 @@ void func_8002F420(sint32 flag, SVECTOR *d)
             mask = (&D_80098838)[i];
             for (j = 0; j < 32; j++, fx++)
             {
-                if ((sint32)(mask << j) < 0 && fx->id_2 < 0x80)
+                if ((sint32)(mask << j) < 0 && fx->id < 0x80)
                 {
                     if (fx->flags & 0x20)
                     {
@@ -731,7 +731,7 @@ void func_8002F884(MODEL_WORK *wp, SVECTOR *d)
 // Also called on the slots of D_800BF118 (WORK_50) by func_8002F420.
 void func_8002F928(WORK_48 *wp, SVECTOR *d)
 {
-    if (wp->routine_0 & 4)
+    if (wp->be_flag & 4)
     {
         wp->efc.model.pos.vx += d->vx;
         wp->efc.model.pos.vz += d->vz;
@@ -772,14 +772,14 @@ sint32 func_8002FA38(MODEL_WORK *wp, sint32 *tbl, uint8 *sub)
     sint32 i;
 
     count = *tbl++;
-    kind  = func_8002FE74(wp->kind_1);
-    if (kind == 0x60 && wp->id_2 >= 0x80)
+    kind  = func_8002FE74(wp->slot);
+    if (kind == 0x60 && wp->id >= 0x80)
     {
         kind = 0x10;
     }
     for (i = 0, e = (ATTACH_ENT *)tbl; i < count; i++, e++)
     {
-        if (kind == e->kind_0 && wp->id_2 == e->id_1 && (sub == NULL || *sub == e->sub_2))
+        if (kind == e->kind_0 && wp->id == e->id_1 && (sub == NULL || *sub == e->sub_2))
         {
             switch (kind)
             {
@@ -1462,10 +1462,10 @@ WORK_3C0 *func_80031418(void)
             wp->box_10 = 0;
             wp->hit_78 = 0;
             D_800987E8 |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
-            *(uint32 *)&wp->flag_4    = 0;
+            *(uint16 *)&wp->id        = 0;
+            *(uint32 *)&wp->handler   = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
             return wp;
@@ -1489,10 +1489,10 @@ WORK_5A4 *func_80031498(void)
             D_80098B20 |= 0x80000000 >> i;
             wp->box_10                = 0;
             wp->hit_78                = 0;
-            *(uint16 *)&wp->id_2      = 0;
-            *(uint32 *)&wp->flag_4    = 0;
+            *(uint16 *)&wp->id        = 0;
+            *(uint32 *)&wp->handler   = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
             return wp;
@@ -1516,10 +1516,10 @@ SHL_WORK *Open_SHL_WORK(void)
             wp->box_10 = 0;
             wp->hit_78 = 0;
             D_800987CC |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
+            *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
             return wp;
@@ -1543,10 +1543,10 @@ PL_SHL_WORK *Open_PL_SHL_WORK(void)
             wp->field_10 = 0;
             wp->hit_78   = 0;
             D_800989F0 |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
+            *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             *(uint32 *)&wp->field_74  = 0;
             return wp;
@@ -1571,10 +1571,10 @@ WORK_48 *func_80031618(void)
             {
                 (&D_80098838)[j] |= 0x80000000 >> i;
                 wp                        = &D_800A3B40[i + j * 0x20];
-                *(uint16 *)&wp->id_2      = 0;
-                *(uint32 *)&wp->flag_4    = 0;
+                *(uint16 *)&wp->id        = 0;
+                *(uint32 *)&wp->handler   = 0;
                 wp->field_C               = 0;
-                *(uint32 *)&wp->routine_8 = 0;
+                *(uint32 *)&wp->routine_0 = 0;
                 wp->flags                 = 3;
                 wp->field_10              = 0;
                 return wp;
@@ -1597,12 +1597,12 @@ EVE_WORK *Open_EVE_WORK(void)
         if ((sint32)(used << i) >= 0)
         {
             D_800987EC |= 0x80000000 >> i;
-            wp->field_10            = 0;
-            *(uint16 *)&wp->id_2    = 0;
-            *(uint32 *)&wp->flag_4  = 0;
-            *(uint32 *)&wp->field_C = 0;
-            *(uint32 *)&wp->field_8 = 0;
-            wp->flags               = 3;
+            wp->field_10              = 0;
+            *(uint16 *)&wp->id        = 0;
+            *(uint32 *)&wp->flag_4    = 0;
+            *(uint32 *)&wp->field_C   = 0;
+            *(uint32 *)&wp->routine_0 = 0;
+            wp->flags                 = 3;
             return wp;
         }
     }
@@ -1623,10 +1623,10 @@ WORK_50 *func_80031734(void)
         {
             D_800989CC |= 0x80000000 >> i;
             wp->box_10                = 0;
-            *(uint16 *)&wp->id_2      = 0;
+            *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             return wp;
         }
@@ -1644,10 +1644,10 @@ WORK_50 *func_800317AC(sint32 i)
         {
             wp = &D_800BF118[i];
             D_800989CC |= 0x80000000 >> i;
-            *(uint16 *)&wp->id_2      = 0;
+            *(uint16 *)&wp->id        = 0;
             *(uint32 *)&wp->flag_4    = 0;
             *(uint32 *)&wp->field_C   = 0;
-            *(uint32 *)&wp->routine_8 = 0;
+            *(uint32 *)&wp->routine_0 = 0;
             wp->flags                 = 3;
             wp->box_10                = 0;
             return wp;
@@ -1661,28 +1661,28 @@ void func_80031824(WORK_3C0 *wp)
 {
     D_8009880C |= 0x80000000 >> (((uint32)wp - (uint32)D_8009F108) / sizeof(WORK_3C0));
     D_8009880C &= D_800987E8;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void func_8003187C(WORK_5A4 *wp)
 {
     D_80098B64 |= 0x80000000 >> (((uint32)wp - (uint32)D_800C3580) / sizeof(WORK_5A4));
     D_80098B64 &= D_80098B20;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void Close_SHL_WORK(SHL_WORK *wp)
 {
     D_80098808 |= 0x80000000 >> (((uint32)wp - (uint32)D_8009CF88) / sizeof(SHL_WORK));
     D_80098808 &= D_800987CC;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void Close_PL_SHL_WORK(PL_SHL_WORK *wp)
 {
     D_80098A60 |= 0x80000000 >> (((uint32)wp - (uint32)D_800BFB20) / sizeof(PL_SHL_WORK));
     D_80098A60 &= D_800989F0;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void func_80031988(WORK_48 *wp)
@@ -1692,21 +1692,21 @@ void func_80031988(WORK_48 *wp)
     i = ((uint32)wp - (uint32)D_800A3B40) / sizeof(WORK_48);
     (&D_800988C8)[i >> 5] |= 0x80000000 >> (i & 0x1F);
     (&D_800988C8)[i >> 5] &= (&D_80098838)[i >> 5];
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void Close_EVE_WORK(EVE_WORK *wp)
 {
     D_80098818 |= 0x80000000 >> (((uint32)wp - (uint32)D_800A2D08) / sizeof(EVE_WORK));
     D_80098818 &= D_800987EC;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void func_80031A4C(WORK_50 *wp)
 {
     D_80098A4C |= 0x80000000 >> (((uint32)wp - (uint32)D_800BF118) / sizeof(WORK_50));
     D_80098A4C &= D_800989CC;
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 void func_80031AA4(void)
@@ -2605,7 +2605,7 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
     uint32 i;
     uint16 z;
 
-    if (func_8002FE74(wp->kind_1) == 0x40)
+    if (func_8002FE74(wp->slot) == 0x40)
     {
         mtx = ((WORK_5A4 *)wp)->mtx_240;
     }
@@ -2644,7 +2644,7 @@ void Model_parts_mtx_set(MODEL_WORK *wp, MATRIX *m)
     }
     if (wp->flags & 0x40)
     {
-        if (func_8002FE74(wp->kind_1) == 0x40)
+        if (func_8002FE74(wp->slot) == 0x40)
         {
             sc = &((WORK_5A4 *)wp)->base;
         }
@@ -3163,7 +3163,7 @@ void lock_on_search(void)
     }
     for (i = 0; i < 1; i++)
     {
-        if (!(Player_work[i].routine_0 & 1))
+        if (!(Player_work[i].be_flag & 1))
         {
             continue;
         }
@@ -3352,22 +3352,22 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
     wp = Open_PL_SHL_WORK();
     if (wp != NULL)
     {
-        wp->type_3 = 0;
+        wp->type = 0;
         if (idx >= 0)
         {
             slot       = func_8003545C(wp, (SLOT_OWNER *)(D_800A2F48[idx].flags & 0x7FFFFF));
             wp->slot_D = slot;
             if ((sint8)slot >= 0)
             {
-                wp->type_3 = 0x80;
+                wp->type = 0x80;
             }
         }
-        wp->routine_0 = 1;
+        wp->be_flag = 1;
         // Each arm has its own copy of the decrement: GCC cross-jumps them into one tail.
         if (flag != 0)
         {
             sel        = pl->weapon_right_no;
-            wp->id_2   = D_80089A8B[sel * 12];
+            wp->id     = D_80089A8B[sel * 12];
             wp->pos.vx = pl->joint_pos[4].vx;
             wp->pos.vy = pl->joint_pos[4].vy;
             wp->pos.vz = pl->joint_pos[4].vz;
@@ -3379,7 +3379,7 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
         else
         {
             sel        = pl->unk171;
-            wp->id_2   = D_80089A8B[sel * 12];
+            wp->id     = D_80089A8B[sel * 12];
             wp->pos.vx = pl->joint_pos[7].vx;
             wp->pos.vy = pl->joint_pos[7].vy;
             wp->pos.vz = pl->joint_pos[7].vz;
@@ -3389,7 +3389,7 @@ void pl_shot_spawn(SVECTOR *pos, sint32 found, PL_WORK *pl, sint32 idx, sint32 f
             }
         }
         wp->pos.pad  = flag;
-        wp->field_C  = pl->kind_1;
+        wp->field_C  = pl->slot;
         wp->pos_l.vx = wp->pos.vx << 16;
         wp->pos_l.vy = wp->pos.vy << 16;
         wp->pos_l.vz = wp->pos.vz << 16;
@@ -3428,7 +3428,7 @@ MODEL_WORK *func_800358F0(PL_WORK *pl)
         func_80036D40(&D_8009A300[i]);
     }
     best_d = 4000000;
-    side   = pl->kind_1;
+    side   = pl->slot;
     n      = D_800988E0;
     best   = -1;
     if (side)
@@ -3561,7 +3561,7 @@ void *front_obj_search(PL_WORK *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
     for (i = 0; i < 16; i++)
     {
         w3 = &D_8009F108[i];
-        if ((w3->routine_0 & 3) && max_dist >= w3->dist_80[0])
+        if ((w3->be_flag & 3) && max_dist >= w3->dist_80[0])
         {
             other    = w3->pos;
             delta.vy = 0;
@@ -3589,7 +3589,7 @@ void *front_obj_search(PL_WORK *pl, sint32 arc, uint32 max_dist, sint32 min_dot)
     for (i = 0; i < 4; i++)
     {
         w5 = &D_800C3580[i];
-        if ((w5->routine_0 & 3) && max_dist >= w5->dist_80[0])
+        if ((w5->be_flag & 3) && max_dist >= w5->dist_80[0])
         {
             other    = w5->pos;
             delta.vy = 0;
@@ -3637,7 +3637,7 @@ void Obj_player_dist_set(void)
         for (j = 0; j < 0x10;)
         {
             p3 = &D_8009F108[j++];
-            if (p3->routine_0 | 1)
+            if (p3->be_flag | 1)
             {
                 dx = (p3->pos.vx - pos.vx) >> 1;
                 dz = (p3->pos.vz - pos.vz) >> 1;
@@ -3655,7 +3655,7 @@ void Obj_player_dist_set(void)
         for (j = 0; j < 4;)
         {
             p5 = &D_800C3580[j++];
-            if (p5->routine_0 | 1)
+            if (p5->be_flag | 1)
             {
                 dx = (p5->pos.vx - pos.vx) >> 1;
                 dz = (p5->pos.vz - pos.vz) >> 1;
@@ -3673,7 +3673,7 @@ void Obj_player_dist_set(void)
         for (j = 0; j < 0x20;)
         {
             p1 = &D_8009CF88[j++];
-            if (p1->routine_0 | 1)
+            if (p1->be_flag | 1)
             {
                 dx = (p1->pos.vx - pos.vx) >> 1;
                 dz = (p1->pos.vz - pos.vz) >> 1;
@@ -3982,7 +3982,7 @@ sint32 func_80036D40(SLOT_ENT *t)
         return 0;
     }
     tg = func_80036294(t->id_6);
-    if ((sint8)tg->routine_0 == 0) // read with lb
+    if ((sint8)tg->be_flag == 0) // read with lb
     {
         goto clear;
     }
@@ -4003,7 +4003,7 @@ sint32 func_80036D40(SLOT_ENT *t)
             {
                 return 0;
             }
-            if (!(tg->flags & 0x80) && tg->kind_1 < 0x60)
+            if (!(tg->flags & 0x80) && tg->slot < 0x60)
             {
                 return 0;
             }
@@ -4125,9 +4125,9 @@ uint32 func_80037440(void)
     ((uint32 *)D_8009856C)[3] = 0;
     for (i = 0; i < 16; i++)
     {
-        if (D_800BFB20[i].routine_0 & 1)
+        if (D_800BFB20[i].be_flag & 1)
         {
-            id = D_800BFB22[i].routine_0 - 0x80; // low byte of id_2
+            id = D_800BFB22[i].be_flag - 0x80; // low byte of id
             if ((sint32)id < 16)
             {
                 D_8009856C[id]++;

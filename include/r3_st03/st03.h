@@ -11,10 +11,10 @@
 // accesses; the objects differ, so a field may mean different things in different routines).
 typedef struct
 {
-    sint8 flags_0;   // 00
-    uint8 value_1;   // 01
-    uint8 kind_2;    // 02
-    uint8 variant_3; // 03
+    sint8 be_flag;   // 00
+    uint8 slot;      // 01
+    uint8 id;        // 02
+    uint8 type;      // 03
     sint16 value_4;  // 04
     sint16 value_6;  // 06
     uint8 routine_0; // 08
@@ -153,10 +153,10 @@ typedef struct ST03_ACTOR ST03_ACTOR;
 // A 0x10C-byte slot (Open_SHL_WORK) a villager carries above its head and then throws.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 reserved04[4];               // 04
     uint8 routine_0;                   // 08
     uint8 reserved09[0xB];             // 09
@@ -192,13 +192,13 @@ typedef struct
 // named.
 struct ST03_ACTOR
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 value_4;                          // 04
     uint8 reserved05;                       // 05
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -260,19 +260,19 @@ struct ST03_ACTOR
     uint8 reserved388[0x38];                // 388
 };
 
-// A rising spark effect and its emitter (variant_3 1 and 0): the emitter (func_8010FD1C) sheds a
+// A rising spark effect and its emitter (type 1 and 0): the emitter (func_8010FD1C) sheds a
 // spark every few frames (func_8010FB74); a spark fades out while it rises (func_80104184), and
 // ends when its emitter's routine does.
 typedef struct ST03_SPARK ST03_SPARK;
 
 struct ST03_SPARK
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
-    uint8 variant_3;        // 03
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
+    uint8 type;             // 03
     uint8 reserved04[2];    // 04
-    uint8 flags_6;          // 06
+    uint8 flags;            // 06
     uint8 reserved07;       // 07
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09
@@ -315,10 +315,10 @@ typedef struct ST03_VIEW ST03_VIEW;
 typedef void (*ST03_VIEW_FUNC)(ST03_VIEW *wp);
 struct ST03_VIEW
 {
-    sint8 flags_0;   // 0
-    uint8 value_1;   // 1
-    uint8 kind_2;    // 2
-    uint8 variant_3; // 3
+    sint8 be_flag;   // 0
+    uint8 slot;      // 1
+    uint8 id;        // 2
+    uint8 type;      // 3
     uint8 value_4;   // 4
     uint8 value_5;   // 5
     uint8 value_6;   // 6
@@ -491,9 +491,10 @@ typedef struct
 // A work slot with its own scaled, turned matrix (func_801132F8).
 typedef struct
 {
-    uint8 flags_0;        // 00
-    uint8 reserved01[2];  // 01
-    uint8 variant_3;      // 03
+    uint8 be_flag;        // 00
+    uint8 slot;           // 01
+    uint8 reserved02;     // 02
+    uint8 type;           // 03
     uint8 reserved04[4];  // 04
     uint8 routine_0;      // 08
     uint8 reserved09[3];  // 09
@@ -518,10 +519,10 @@ typedef union
 // fields its movers use named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 id_1;                             // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -572,10 +573,11 @@ typedef struct
 // +0x428/+0x438 a second position in 16.16 and in halfwords.
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01[7];               // 01
-    uint8 routine_8;                   // 08
-    uint8 routine_9;                   // 09
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 reserved02[6];               // 02
+    uint8 routine_0;                   // 08
+    uint8 routine_1;                   // 09
     uint8 reserved0A[2];               // 0A
     sint8 routine_C;                   // 0C
     sint8 value_D;                     // 0D: the cutscene routines' step
@@ -833,7 +835,7 @@ void func_8010D400(ST03_ACTOR *wp);
 void func_8010D3E4(ST03_ACTOR *wp);
 void func_8010D404(ST03_ACTOR *wp);
 
-STAGE_OBJ *func_80036294(sint32 id); // ROCK_NEO.EXE: the spawned slot with this id (index_1)
+STAGE_OBJ *func_80036294(sint32 id); // ROCK_NEO.EXE: the spawned slot with this id (slot)
 
 void func_80106398(ST03_ACTOR *wp);
 

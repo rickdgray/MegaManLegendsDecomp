@@ -14,8 +14,8 @@ void stcom07_func_0000(STCOM07_WORK *wp)
 
 void stcom07_func_003C(STCOM07_WORK *wp)
 {
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->type_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->matrix.words[0] = 0x1000;
     wp->matrix.words[1] = 0;
     wp->matrix.words[2] = 0x1000;
@@ -25,7 +25,7 @@ void stcom07_func_003C(STCOM07_WORK *wp)
     wp->color_40 = 0x808080;
     wp->routine_0++;
     wp->quad_44 = Model_face_get(wp->model_14, 0x10000);
-    switch (wp->type_3)
+    switch (wp->type)
     {
         case 0:
             wp->quad_44[0].tex.words[0] = 0xB7D0B7E7;

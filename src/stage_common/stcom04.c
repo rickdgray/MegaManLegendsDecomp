@@ -12,8 +12,8 @@ void stcom04_func_0000(STCOM04_WORK *wp)
     wp->position_prev       = wp->position;
     wp->position_fixed_prev = wp->position_fixed;
     wp->rotation_prev       = wp->rotation;
-    stcom04_D_0000[wp->index_3](wp);
-    if (wp->flags_0 & 2)
+    stcom04_D_0000[wp->type](wp);
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0xC, 0x200, 0);
     }
@@ -24,7 +24,7 @@ void stcom04_func_00CC(STCOM04_WORK *wp)
     wp->rotation.x = 0;
     wp->rotation.z = 0;
     wp->turn_64    = 0x40;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0]   = 0x02000200;
     wp->scale.words[1]   = 0x200;
@@ -245,7 +245,7 @@ void stcom04_func_05E0(STCOM04_WORK *wp)
             if (func_8003A13C() == 0)
             {
                 pl->flags_bd &= ~0x40;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
             }
             break;
@@ -347,7 +347,7 @@ sint32 stcom04_func_08E0(STCOM04_WORK *wp)
     {
         wp->turn_64    = STCOM_ABS(Muku(&wp->position, &pl->position, wp->rotation.y, 0x800)) >> 3;
         pl->target_184 = NULL;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         pl->flags_bd |= 0x40;
         stcom04_E_0000.x = wp->value_180.x;
         stcom04_E_0000.y = wp->value_180.y - 0x20;

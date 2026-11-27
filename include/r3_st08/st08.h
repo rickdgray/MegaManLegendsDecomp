@@ -27,8 +27,9 @@ typedef struct
 // A 0x24-byte event slot (freed through Close_EVE_WORK) with a key at +0x20.
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
     uint8 value_14;        // 14
@@ -213,8 +214,9 @@ void func_80111A2C(ST08_EV *wp);
 // A 0x24-byte event slot (freed through Close_EVE_WORK) with a key at +0x1C.
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
     uint8 value_14;        // 14
@@ -248,8 +250,9 @@ typedef struct
 // Player_work as the stage's scenes see it: where a scene puts the player (+0x428..+0x448).
 typedef struct
 {
-    sint8 flags_0;                // 00
-    uint8 reserved01[7];          // 01
+    sint8 be_flag;                // 00
+    uint8 slot;                   // 01
+    uint8 reserved02[6];          // 02
     uint8 routine_0;              // 08
     uint8 routine_1;              // 09
     uint8 value_A;                // 0A
@@ -334,10 +337,10 @@ typedef struct
 // word-wide resets of +0x44..+0x74 named.
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -382,9 +385,9 @@ void func_80105B9C(ST08_ACTOR *wp, ST08_HIT *hit);
 // A 0x10C-byte slot of ROCK_NEO's pool at D_8009CF88 (32 of them), as func_80110434 reads it.
 typedef struct
 {
-    sint8 flags_0;          // 00
-    uint8 reserved01;       // 01
-    uint8 kind_2;           // 02
+    sint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 id;               // 02
     uint8 reserved03[9];    // 03
     sint8 value_C;          // 0C
     uint8 reserved0D[0xFF]; // 0D
@@ -401,10 +404,10 @@ uint8 func_80110434(STAGE_OBJ50 *wp);
 // record at +0xBC).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -472,8 +475,9 @@ extern ST08_ANIM D_80113B1C[];
 // ST08_EV as a five-layer texture animation: each layer's script step and frames left.
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
     uint8 step_14[5];      // 14
@@ -488,8 +492,9 @@ extern uint8 D_80118468[5][4];     // per layer: the four corners' base u/v
 // ST08_EV1C as a two-layer texture animation.
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01[7];   // 01
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 reserved02[6];   // 02
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
     uint8 step_14[2];      // 14

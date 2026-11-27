@@ -9,10 +9,10 @@
 // (stcom25) and keeps them from running into each other.
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 index_1;         // 01
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03: the room's set of blocks (0xFF: none)
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 id;              // 02
+    uint8 type;            // 03: the room's set of blocks (0xFF: none)
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 reserved09[0xB]; // 09
@@ -26,7 +26,7 @@ typedef struct
 
 typedef void (*STCOM26_FUNC)(STCOM26_WORK *wp);
 
-extern sint16 stcom26_D_0000[][4];         // by variant_3: [0] the number of blocks
+extern sint16 stcom26_D_0000[][4];         // by type: [0] the number of blocks
 extern STCOM26_FUNC stcom26_D_0058[];      // routine_0 (stcom26_func_0000)
 extern STCOM25_WORK *stcom26_E_0000[0x10]; // the blocks
 extern uint8 stcom26_E_0040[0x10];         // the blocks' slot numbers, unpacked each frame

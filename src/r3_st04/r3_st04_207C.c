@@ -10,11 +10,11 @@ void func_8010207C(sint8 index)
     if (stcom36_D_0000 & (0x80000000 >> index))
     {
         obj  = stcom36_E2_0000[index];
-        kind = func_8002FE74(obj->index_1);
+        kind = func_8002FE74(obj->slot);
         if (kind == 0x20 || kind == 0x60)
         {
             obj->routine_0 = 2;
-            STCOM36_TABLE_3C0[obj->kind_2][obj->handler_4](obj);
+            STCOM36_TABLE_3C0[obj->id][obj->handler](obj);
         }
         stcom36_D_0000 &= ~(0x80000000 >> index);
     }

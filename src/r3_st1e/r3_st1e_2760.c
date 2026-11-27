@@ -193,10 +193,10 @@ void func_80102E4C(ST1E_PANEL *wp)
 {
     STAGE_XYZ *xyz;
 
-    wp->flags_0 |= 6;
-    Model_work_init(wp, &wp->variant_3);
+    wp->be_flag |= 6;
+    Model_work_init(wp, &wp->type);
     wp->color_40 = 0x808080;
-    xyz          = &D_801052EC[wp->variant_3];
+    xyz          = &D_801052EC[wp->type];
     wp->pos_38.x = xyz->x;
     wp->pos_38.y = xyz->y;
     wp->pos_38.z = xyz->z;

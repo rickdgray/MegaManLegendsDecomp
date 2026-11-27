@@ -25,7 +25,7 @@ void func_8010A7E4(ST08_10C *wp)
     STCOM_MATRIX *m;
 
     wp->pos_AC            = wp->position;
-    wp->kind_2            = 4;
+    wp->id                = 4;
     wp->rotation.words[0] = 0;
     wp->rotation.words[1] = 0;
     wp->velocity.words[0] = 0;
@@ -35,11 +35,11 @@ void func_8010A7E4(ST08_10C *wp)
     wp->value_74          = 0;
     wp->rotation.v.x      = 0;
     wp->rotation.v.z      = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     wp->rotation.v.y = (wp->value_C << 9) & 0xE00;
-    Model_work_init(wp, &wp->variant_3);
-    m          = &wp->matrix;
-    wp->kind_2 = 0x2F;
+    Model_work_init(wp, &wp->type);
+    m      = &wp->matrix;
+    wp->id = 0x2F;
     RotMatrixYXZ(&wp->rotation.v, m);
     scale.x = 0x200;
     scale.y = 0x200;

@@ -72,7 +72,7 @@ void func_800D89F8(SHL_WORK *wp)
     pos.vx = tp->pos_3c8.vx + (tp->pos_3c8.vx - tp->pos_3c0.vx) * 4;
     pos.vy = tp->pos_3c8.vy + (tp->pos_3c8.vy - tp->pos_3c0.vy) * 4;
     pos.vz = tp->pos_3c8.vz + (tp->pos_3c8.vz - tp->pos_3c0.vz) * 4;
-    func_8003430C(&tp->pos_3c8, 0x14, &pos, 8, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x88000000, 0, 0x80);
+    func_8003430C(&tp->pos_3c8, 0x14, &pos, 8, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x88000000, 0, 0x80);
     wp->col_c4 = 0;
     wp->col_c8 = 0;
 }

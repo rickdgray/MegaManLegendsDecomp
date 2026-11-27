@@ -84,11 +84,11 @@ void func_8010031C(STAGE_ROOM_WORK *wp)
     {
         func_801002B8(1);
         child = wp->child_34;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_2C;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_38;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
 }
 
@@ -101,22 +101,22 @@ void func_801003A0(STAGE_ROOM_WORK *wp)
     {
         func_801002B8(0);
         child = wp->child_34;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_2C;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child            = wp->child_38;
         child->routine_1 = 1;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         object                     = wp->child_24;
         object->position_fixed.v.x = 0xFF380000;
         object->routine_1          = 0;
         object->routine_2          = 0;
         object->position_fixed.v.z = 0xFF9C0000;
-        object->flags_0 |= 2;
+        object->be_flag |= 2;
         object = wp->child_28;
-        object->flags_0 |= 2;
+        object->be_flag |= 2;
         child = wp->child_30;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
     if (wp->frame_10 == 0x96)
     {
@@ -184,15 +184,15 @@ void func_8010055C(STAGE_ROOM_WORK *wp)
     {
         func_801002B8(1);
         child = wp->child_24;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_28;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_30;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_34;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_2C;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
 }
 
@@ -207,36 +207,36 @@ void func_80100610(STAGE_ROOM_WORK *wp)
         child->routine_1 = 5;
         child->routine_2 = 0;
         child->rot_y_56  = 0xA28;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_28;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_30;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child = wp->child_34;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_2C;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
     }
     if (wp->frame_10 == 0x46)
     {
         child            = wp->child_24;
         child->routine_1 = 6;
         child->routine_2 = 0;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
     if (wp->frame_10 == 0x73)
     {
         child            = wp->child_24;
         child->routine_1 = 7;
         child->routine_2 = 0;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
     if (wp->frame_10 == 0xAA)
     {
         child            = wp->child_24;
         child->routine_1 = 8;
         child->routine_2 = 0;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
     }
 }
 
@@ -251,7 +251,7 @@ void func_80100758(STAGE_ROOM_WORK *wp)
         child->routine_2 = 0;
         child->value_D   = 1;
         child            = wp->child_30;
-        child->flags_0 &= 0xFD;
+        child->be_flag &= 0xFD;
     }
     if (wp->frame_10 == 0xA)
     {
@@ -280,16 +280,16 @@ void func_801007E0(STAGE_ROOM_WORK *wp)
     {
         func_801002B8(1);
         child = wp->child_24;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_28;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_30;
-        child->flags_0 &= ~2;
+        child->be_flag &= ~2;
         child = wp->child_34;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child->routine_2++;
         child = wp->child_2C;
-        child->flags_0 |= 2;
+        child->be_flag |= 2;
         child->routine_2++;
     }
     if (wp->frame_10 == 0x352)
@@ -386,7 +386,7 @@ void func_80100B34(STAGE_ROOM_WORK *wp)
             pl = &Player_work;
             if (func_80042238(pl) != 0)
             {
-                pl->flags_0 &= 0xFC;
+                pl->be_flag &= 0xFC;
                 Cd_xa_play_id(0x2001000A);
                 wp->routine_4++;
             }
@@ -418,7 +418,7 @@ void func_80100B34(STAGE_ROOM_WORK *wp)
             {
                 Cd_subcmd(0, 1, 0);
                 wp->flags_0 = 0;
-                Player_work.flags_0 |= 1;
+                Player_work.be_flag |= 1;
                 func_80042314(&Player_work);
                 D_800A395C = 1;
                 func_80039820();

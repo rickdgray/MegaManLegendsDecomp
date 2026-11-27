@@ -15,7 +15,7 @@ void func_80111F98(STAGE_PROP *wp)
     scale.y = 0x200;
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix_8C.m, &scale);
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         ((ST03_DRAW3_FUNC)func_80051B68)(wp, 1, -1);
     }
@@ -33,7 +33,7 @@ void func_80112098(STAGE_PROP *wp)
     wp->value_64    = 0;
     wp->value_70    = 0;
     wp->value_74    = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->flags_BC = 0;
     wp->u_C0.w   = 0;

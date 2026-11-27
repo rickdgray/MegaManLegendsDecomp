@@ -54,7 +54,7 @@ void func_80100524(void)
                 else if (!Sce_flag_test(3))
                 {
                     STAGE_PL_BYTE(0x44E) = 0;
-                    pl->flags_0 |= 3;
+                    pl->be_flag |= 3;
                 }
                 break;
             default:
@@ -259,7 +259,7 @@ void func_80100BF8(STAGE_ROOM *wp)
                 {
                     func_80103CC4(0);
                     obj = Scene_obj_ent_open(D_80116754);
-                    obj->flags_6 &= ~0x20;
+                    obj->flags &= ~0x20;
                 }
                 wp->routine_4 = 0xFF;
             }
@@ -317,7 +317,7 @@ void func_80100BF8(STAGE_ROOM *wp)
         case 5:
             if (Sce_flag_test(0x45))
             {
-                if (ST03_SCENE_OBJ_0->flags_0 != 0)
+                if (ST03_SCENE_OBJ_0->be_flag != 0)
                 {
                     func_80031824(ST03_SCENE_OBJ_0);
                 }
@@ -389,8 +389,8 @@ void func_80101064(STAGE_ROOM *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0 = 1;
-            obj->kind_2  = 9;
+            obj->be_flag = 1;
+            obj->id      = 9;
             obj->value_4 = 2;
         }
         wp->routine_4 = 0xFF;
@@ -819,8 +819,8 @@ void func_80101D54(STAGE_ROOM_WORK *wp)
             wp->routine_6++;
             // fall through
         case 2:
-            pl->routine_8   = 3;
-            pl->routine_9   = 1;
+            pl->routine_0   = 3;
+            pl->routine_1   = 1;
             pl->fixed_428.x = 0xEE180000;
             pl->fixed_428.y = 0xFFFF0000;
             pl->fixed_428.z = 0x05970000;
@@ -976,8 +976,8 @@ void func_80102224(STAGE_ROOM_WORK *wp)
             }
             wp->routine_7 = 0xA;
             wp->routine_6 += 2;
-            pl->routine_8 = 3;
-            pl->routine_9 = 1;
+            pl->routine_0 = 3;
+            pl->routine_1 = 1;
             pl->flags_BD |= 0x10;
             pl->pos_438   = pl->position;
             pl->fixed_428 = pl->position_fixed;
@@ -1113,7 +1113,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             vec.z = obj->position.z;
             func_80039FFC(&vec, 0x12C, Angle_xz_svector(&pos, &pl->position) + 0x20, D_800A396C + 0x61);
             pl->flags_BD |= 0x40;
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             wp->routine_6++;
             break;
         case 1:
@@ -1134,8 +1134,8 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 D_800BC7F0 = D_801161F8;
                 wp->tbl_A4 = (STAGE_ROOM_FUNC *)D_801161D0;
                 MojiTaskExec2(0, 0x2E);
-                pl->routine_8   = 3;
-                pl->routine_9   = 1;
+                pl->routine_0   = 3;
+                pl->routine_1   = 1;
                 pl->fixed_428.x = 0xF4940000;
                 pl->fixed_428.y = 0xFFFF0000;
                 pl->fixed_428.z = 0x048C0000;
@@ -1164,7 +1164,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             if (!(Moji_flag & 0x08000000))
             {
                 wp->routine_6++;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 Sce_event_next();
                 obj                        = D_8011CB34[2];
                 obj->routine_1             = 1;
@@ -1172,7 +1172,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[0];
                 obj->routine_1             = 2;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[2]->value_1;
+                obj->timer_C               = D_8011CB34[2]->slot;
             }
             break;
         case 4:
@@ -1222,8 +1222,8 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[2];
                 obj->routine_1             = 2;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[3]->value_1;
-                obj->value_D               = D_8011CB34[4]->value_1;
+                obj->timer_C               = D_8011CB34[3]->slot;
+                obj->value_D               = D_8011CB34[4]->slot;
                 wp->timer_C                = 0xC8;
             }
             break;
@@ -1233,7 +1233,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[0];
                 obj->routine_1             = 1;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[4]->value_1;
+                obj->timer_C               = D_8011CB34[4]->slot;
             }
             if (wp->timer_C == 0x50)
             {
@@ -1241,7 +1241,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
                 obj                        = D_8011CB34[3];
                 obj->routine_1             = 1;
                 *(uint16 *)&obj->routine_2 = 0;
-                obj->timer_C               = D_8011CB34[4]->value_1;
+                obj->timer_C               = D_8011CB34[4]->slot;
             }
             break;
         case 9:
@@ -1287,7 +1287,7 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
             wp->flags_0 = 0;
             Sce_flag_on(0);
             pl->flags_BD &= ~0x40;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             break;
     }
     if ((uint32)(wp->routine_6 - 3) < 8 && *(uint8 *)wp->tbl_A4 != 0xFF)
@@ -1313,8 +1313,8 @@ void func_8010263C(STAGE_ROOM_WORK *wp)
         {
             wp->routine_6 = 0xC;
         }
-        pl->routine_8   = 3;
-        pl->routine_9   = 1;
+        pl->routine_0   = 3;
+        pl->routine_1   = 1;
         pl->fixed_428.x = 0xF5D70000;
         pl->fixed_428.y = 0xFFFF0000;
         pl->fixed_428.z = 0x04540000;
@@ -1346,7 +1346,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
             vec.z   = spawned->position.z;
             func_80039FFC(&vec, 0x140, Angle_xz_svector(&pos, &pl->position), D_800A396C - 0x30);
             pl->flags_BD |= 0x40;
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             wp->routine_6++;
             break;
         case 1:
@@ -1364,12 +1364,12 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 func_8001E6C0(0, 0, 0);
                 D_800BC7F0      = D_8011644C;
                 wp->tbl_A4      = (STAGE_ROOM_FUNC *)D_8011642C;
-                pl->routine_8   = 3;
-                pl->routine_9   = 1;
+                pl->routine_0   = 3;
+                pl->routine_1   = 1;
                 pl->fixed_428.x = 0x18BD0000;
                 pl->fixed_428.y = 0xFFFF0000;
                 pl->fixed_428.z = 0x50290000;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 pl->flags_BD |= 0x10;
                 func_80030150(&pl->fixed_428, &pl->pos_438);
                 pl->rot_440.y = 0xDE8;
@@ -1421,7 +1421,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 pl->fixed_428.x = 0x18220000;
                 pl->fixed_428.y = 0xFFFF0000;
                 pl->fixed_428.z = 0x4F7C0000;
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 func_80030150(&pl->fixed_428, &pl->pos_438);
                 pl->rot_440.y = 0x9B2;
                 Sce_event_next();
@@ -1491,7 +1491,7 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
                 stcom36_func_0028(0xF);
                 wp->timer_C = 0x1E;
                 wp->routine_6++;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
             }
             break;
         case 13:
@@ -1571,8 +1571,8 @@ void func_80102DBC(STAGE_ROOM_WORK *wp)
         {
             wp->routine_6 = 0x11;
         }
-        pl->routine_8   = 3;
-        pl->routine_9   = 1;
+        pl->routine_0   = 3;
+        pl->routine_1   = 1;
         pl->fixed_428.x = 0x18820000;
         pl->fixed_428.y = 0xFFFF0000;
         pl->fixed_428.z = 0x510A0000;
@@ -1618,8 +1618,8 @@ void func_80103578(STAGE_ROOM_WORK *wp)
             MojiTaskExec2(0, 0x5E);
             // fall through
         case 1:
-            pl->routine_8 = 3;
-            pl->routine_9 = 1;
+            pl->routine_0 = 3;
+            pl->routine_1 = 1;
             pl->flags_BD |= 0x10;
             if (Sce_flag_test(0x16))
             {
@@ -1743,8 +1743,8 @@ void func_80103578(STAGE_ROOM_WORK *wp)
             Sound_call(0x108, 0, 0);
             wp->routine_6 = 7;
             wp->timer_C   = 0;
-            pl->routine_8 = 3;
-            pl->routine_9 = 1;
+            pl->routine_0 = 3;
+            pl->routine_1 = 1;
             pl->flags_BD |= 0x10;
             if (Sce_flag_test(0x16))
             {

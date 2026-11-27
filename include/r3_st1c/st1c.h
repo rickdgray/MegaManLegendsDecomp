@@ -7,10 +7,10 @@
 // A 0x3C0-byte work slot as this stage's objects use it (STAGE_OBJ, with the words at +0x64..+0x74).
 typedef struct
 {
-    sint8 flags_0;                          // 00
-    uint8 reserved01;                       // 01
-    uint8 kind_2;                           // 02
-    uint8 variant_3;                        // 03
+    sint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02
+    uint8 type;                             // 03
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -40,10 +40,10 @@ typedef struct
 // A 0x50-byte slot (func_80031734) as this stage's objects use it (STCOM21_WORK's layout).
 typedef struct
 {
-    uint8 flags_0;         // 00
-    uint8 reserved01;      // 01
-    uint8 kind_2;          // 02
-    uint8 variant_3;       // 03
+    uint8 be_flag;         // 00
+    uint8 slot;            // 01
+    uint8 id;              // 02
+    uint8 type;            // 03
     uint8 reserved04[4];   // 04
     uint8 routine_0;       // 08
     uint8 routine_1;       // 09

@@ -61,12 +61,12 @@ void func_80107DBC(STAGE_SHOT *wp, sint32 arg);
 // with ROCK_NEO's generic layout up to 0x88, then a model's draw data.
 typedef struct
 {
-    sint8 flags_0; // 00
-    uint8 value_1; // 01
-    uint8 kind_2;  // 02
-    uint8 type_3;  // 03: 0x40 set for a shot fired by another object
+    sint8 be_flag; // 00
+    uint8 slot;    // 01
+    uint8 id;      // 02
+    uint8 type;    // 03: 0x40 set for a shot fired by another object
     uint8 reserved04[2];
-    uint8 flags_6; // 06
+    uint8 flags; // 06
     uint8 reserved07;
     uint8 routine_0; // 08
     uint8 routine_1; // 09

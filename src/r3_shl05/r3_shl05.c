@@ -12,11 +12,11 @@ void func_800D8804(SHL_WORK *wp)
     p.vz = wp->draw.spr.z_94;
     if (wp->index_c)
     {
-        func_800341BC(&p, 8, 0, 0x6000, wp->value_1, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x6000, wp->slot, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_800341BC(&p, 8, 0, 0x4000, wp->value_1, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
+        func_800341BC(&p, 8, 0, 0x4000, wp->slot, &wp->col_c4, D_80089C6C[Player_work.value_51c].flags_0 | 0x8000000, 0, 0x80);
     }
     Model_Shadow_Trans(wp, 0x18, 0x200, 0);
     func_80051BAC(wp);
@@ -36,8 +36,8 @@ void func_800D8928(SHL_WORK *wp)
     wp->value_e   = 0;
     wp->col_c4    = 0;
     wp->col_c8    = 0;
-    wp->flags_0 |= 0; // stored back unchanged in retail
-    wp->flags_6 |= 0x20;
+    wp->be_flag |= 0; // stored back unchanged in retail
+    wp->flags |= 0x20;
     rot.vx = func_80039B80();
     rot.vy = wp->rot_y & 0xFFF;
     rot.vz = 0;
@@ -67,7 +67,7 @@ void func_800D8928(SHL_WORK *wp)
     wp->draw.spr.scale_96 = D_800D95BC[0].scale_96;
     wp->draw.spr.scale_97 = D_800D95BC[0].scale_97;
     wp->draw.spr.size_98  = 0x18;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     wp->value_74 = 1;
     func_800D94C0(wp);
     wp->draw.spr.x_90 = wp->pos.vx;
@@ -97,7 +97,7 @@ void func_800D8B90(SHL_WORK *wp)
         {
             func_800D9450(wp, fx);
         }
-        wp->flags_0 = 0;
+        wp->be_flag = 0;
         Close_PL_SHL_WORK(wp);
         return;
     }
@@ -109,7 +109,7 @@ void func_800D8B90(SHL_WORK *wp)
     func_80030150(&wp->fpos, &wp->pos);
     if ((Game_work.value_50 == 0x10 || Game_work.value_50 == 0x11) && wp->pos.vy >= -1)
     {
-        wp->flags_0 = 0;
+        wp->be_flag = 0;
         Close_PL_SHL_WORK(wp);
         return;
     }
@@ -154,7 +154,7 @@ void func_800D8D60(SHL_WORK *wp)
     {
         func_800D9450(wp, fx);
     }
-    wp->flags_0 = 0;
+    wp->be_flag = 0;
     Close_PL_SHL_WORK(wp);
 }
 
@@ -222,7 +222,7 @@ end:
         func_800D9450(wp, fx);
     }
 remove:
-    wp->flags_0 = 0;
+    wp->be_flag = 0;
     Close_PL_SHL_WORK(wp);
 }
 
@@ -238,7 +238,7 @@ void func_800D8FEC(SHL_WORK *wp)
     wp->old_pos           = wp->pos;
     wp->draw.spr.scale_97 = wp->draw.spr.scale_96 = 0xD8;
     wp->draw.spr.size_98                          = 0x20;
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
 }
 
 sint16 func_800D90B0(SHL_WORK *wp)
@@ -291,10 +291,10 @@ sint16 func_800D90B0(SHL_WORK *wp)
                 fx = func_80031618();
                 if (fx)
                 {
-                    fx->routine_0 = 1;
-                    fx->kind_2    = 0x83;
-                    fx->flag_3    = 0;
-                    fx->spr       = wp->draw.spr;
+                    fx->be_flag = 1;
+                    fx->id      = 0x83;
+                    fx->flag_3  = 0;
+                    fx->spr     = wp->draw.spr;
                 }
             }
         }
@@ -307,10 +307,10 @@ sint16 func_800D90B0(SHL_WORK *wp)
             fx = func_80031618();
             if (fx)
             {
-                fx->routine_0 = 1;
-                fx->kind_2    = 0x83;
-                fx->flag_3    = 0;
-                fx->spr       = wp->draw.spr;
+                fx->be_flag = 1;
+                fx->id      = 0x83;
+                fx->flag_3  = 0;
+                fx->spr     = wp->draw.spr;
             }
         }
         Wall_reflect_spd(&wp->vel, hit);
@@ -358,10 +358,10 @@ void func_800D935C(SHL_WORK *wp)
 
 void func_800D9450(SHL_WORK *wp, SHL_FX *fx)
 {
-    fx->routine_0 = 5;
-    fx->kind_2    = 0x80;
-    fx->flag_3    = 2;
-    fx->value_e   = 1;
+    fx->be_flag = 5;
+    fx->id      = 0x80;
+    fx->flag_3  = 2;
+    fx->value_e = 1;
     if (Player_work.value_51c == 0)
     {
         fx->value_d = 1;
@@ -402,8 +402,8 @@ sint32 func_800D9508(SVECTOR *a, SVECTOR *b)
 
 void func_800D9574(SHL_WORK *wp, SHL_FX *fx)
 {
-    fx->routine_0 = 1;
-    fx->kind_2    = 0x19;
-    fx->flag_3    = 0;
-    fx->pos_38    = wp->pos;
+    fx->be_flag = 1;
+    fx->id      = 0x19;
+    fx->flag_3  = 0;
+    fx->pos_38  = wp->pos;
 }

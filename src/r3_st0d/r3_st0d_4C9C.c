@@ -163,7 +163,7 @@ void func_801050E8(ST0D_ORBITER *wp)
     if (wp->routine_0 == 0)
     {
         wp->orbit.angle_8 = 0x800;
-        wp->flags_0 |= 6;
+        wp->be_flag |= 6;
         wp->rotation.x     = 0;
         wp->rotation.z     = 0;
         wp->orbit.x_0      = wp->position.x;

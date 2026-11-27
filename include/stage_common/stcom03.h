@@ -8,9 +8,10 @@
 // effect drawn as a semi-transparent primitive whose color word (GPU code and RGB) fades.
 typedef struct
 {
-    uint8 flags_0;          // 00
-    uint8 reserved01[2];    // 01
-    uint8 type_3;           // 03: which effect (stcom03_func_003C)
+    uint8 be_flag;          // 00
+    uint8 slot;             // 01
+    uint8 reserved02;       // 02
+    uint8 type;             // 03: which effect (stcom03_func_003C)
     uint8 reserved04[4];    // 04
     uint8 routine_0;        // 08
     uint8 routine_1;        // 09

@@ -50,7 +50,7 @@ void func_80048620(SCENE_WORK *sw)
     switch (sw->routine_5)
     {
         case 0:
-            Player_work->flags_6 |= 3;
+            Player_work->flags |= 3;
             Obj_work_flag_change(WORK_PL_SHL, WORK_KILL);
             sw->routine_5++;
             // fall through
@@ -67,7 +67,7 @@ void func_80048620(SCENE_WORK *sw)
     }
 }
 
-// Scene step (routine_5), 14 states: puts the player in routine_8 3 with the saved position 0x40
+// Scene step (routine_5), 14 states: puts the player in routine_0 3 with the saved position 0x40
 // ahead of D_800C3558.pos_00 (camera reset there), waits through func_80048A9C, sets
 // D_800C356C to 1 and waits for 2, then 3 and waits for 0, then does the same at D_800C3558.pos
 // with the camera script for its facing (D_8008A9E4). Scene flag 0x7B1 is on around each
@@ -84,8 +84,8 @@ void func_80048704(SCENE_WORK *sw)
     {
         case 0:
             func_8001E6C0(entry->pos_00.vx, entry->pos_00.vy, entry->pos_00.vz);
-            pl->routine_8   = 3;
-            pl->routine_9   = 1;
+            pl->routine_0   = 3;
+            pl->routine_1   = 1;
             pl->svec_438.vx = entry->pos_00.vx + ((rsin(entry->ang_y_10) << 6) >> 12);
             pl->svec_438.vy = pl->pos.vy;
             pl->svec_438.vz = entry->pos_00.vz + ((rcos(entry->ang_y_10) << 6) >> 12);
@@ -101,7 +101,7 @@ void func_80048704(SCENE_WORK *sw)
         case 2:
             if (Sce_flag_test(0x7B2) == 0)
             {
-                pl->routine_9++;
+                pl->routine_1++;
                 sw->step_0A = 0;
                 sw->routine_5++;
             }
@@ -133,8 +133,8 @@ void func_80048704(SCENE_WORK *sw)
             {
                 Sce_camera_work.arg_C0 = D_8008A9E4[entry->ang_y >> 10];
                 func_8001E6C0(entry->pos.vx, entry->pos.vy, entry->pos.vz);
-                pl->routine_8   = 3;
-                pl->routine_9   = 1;
+                pl->routine_0   = 3;
+                pl->routine_1   = 1;
                 pl->svec_438.vx = entry->pos.vx + ((rsin(entry->ang_y) << 6) >> 12);
                 pl->svec_438.vy = entry->pos.vy - 1;
                 pl->svec_438.vz = entry->pos.vz + ((rcos(entry->ang_y) << 6) >> 12);
@@ -156,7 +156,7 @@ void func_80048704(SCENE_WORK *sw)
         case 10:
             if (Sce_flag_test(0x7B2) == 0)
             {
-                pl->routine_9++;
+                pl->routine_1++;
                 sw->routine_5++;
             }
             break;
@@ -186,11 +186,11 @@ void func_80048704(SCENE_WORK *sw)
 void func_80048A40(WORK_48 *wp)
 {
     func_80042314(&Player_work[0]);
-    *(uint32 *)&Player_work[0].routine_8 = 0;
+    *(uint32 *)&Player_work[0].routine_0 = 0;
     D_800A395C                           = 1;
     func_80039820();
     Sce_flag_off(0x7B3);
-    wp->routine_0 = 0;
+    wp->be_flag = 0;
 }
 
 // Feeds the player's pad bits to D_800C0F96 until timer_10 passes 0x24 frames (steps 0-1) or the
@@ -310,7 +310,7 @@ sint32 func_80048E18(SVECTOR *pos)
 // The lowest ceiling over obj (func_80048EA4 with its box and the height it moved by).
 sint32 Obj_ceiling_height_get(MODEL_WORK *obj)
 {
-    return func_80048EA4(&obj->pos, obj->hit_78, obj->pos.vy - obj->old.vy, obj->kind_1);
+    return func_80048EA4(&obj->pos, obj->hit_78, obj->pos.vy - obj->old.vy, obj->slot);
 }
 
 // The lowest ceiling over pos among the map blocks around it (func_8004B1E0), with the box ent
@@ -520,7 +520,7 @@ sint32 Ceiling_height_get(SVECTOR *pos)
 // floor_height_get for obj at its position, with its collision box and pool kind.
 sint32 Obj_floor_height_get(MODEL_WORK *obj)
 {
-    return floor_height_get(&obj->pos, (VECTOR *)obj->hit_78, obj->kind_1);
+    return floor_height_get(&obj->pos, (VECTOR *)obj->hit_78, obj->slot);
 }
 
 // The highest floor below pos among the map blocks around it (func_8004B1E0), less the height in
@@ -623,7 +623,7 @@ sint32 func_8004976C(PL_WORK *pl)
 {
     sint32 turn;
 
-    if (func_8002FE74(pl->kind_1) != 0)
+    if (func_8002FE74(pl->slot) != 0)
     {
         turn = 0;
     }
@@ -631,7 +631,7 @@ sint32 func_8004976C(PL_WORK *pl)
     {
         turn = pl->unk116;
     }
-    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->kind_1);
+    return func_800497CC(&pl->pos, pl->hit_78, ((pl->ang.vy - turn + 0x200) >> 10) & 3, pl->slot);
 }
 
 // The nearest wall face on one side of pos, for the box ent, among the STG_HITs around pos whose
@@ -776,7 +776,7 @@ INCLUDE_ASM("asm/rock_neo.exe/nonmatchings/code_80048620", func_800497CC);
 
 sint32 func_80049C24(MODEL_WORK *obj)
 {
-    return func_80049C54(&obj->pos, &obj->old, obj->hit_78, obj->kind_1);
+    return func_80049C54(&obj->pos, &obj->old, obj->hit_78, obj->slot);
 }
 
 // What is at pos, for the box ent: 0x80000000 if the move from prev crosses x or z = 0 far
@@ -1430,7 +1430,7 @@ sint32 Obj_map_push_out(MODEL_WORK *obj)
     sint32 slide;
 
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide  = (func_8002FE74(obj->kind_1) == 0) << 15;
+    slide  = (func_8002FE74(obj->slot) == 0) << 15;
     result = map_push_out(&obj->pos, &obj->old, obj->field_74, slide);
     if (result != 0)
     {
@@ -3691,7 +3691,7 @@ sint32 func_80050BF4(SVECTOR *v)
 // Acts on the special hit in front of pl (front_hit_search, with pl's box): exits (kind 1 walks
 // through, keeping pl's offset; 2, 4-6 and 8 are doors, 3 a door that opens a scene), and event
 // triggers that hand a value to func_80063BC8 or set scene or game flags. Only a player
-// (kind_1's high nibble 0) not in flags_BD's scene control uses exits; the others need
+// (slot's high nibble 0) not in flags_BD's scene control uses exits; the others need
 // func_80051970 (the action button). Returns the hit's kind, or 0 if there is none.
 sint32 Front_hit_event(PL_WORK *pl)
 {
@@ -3707,7 +3707,7 @@ sint32 Front_hit_event(PL_WORK *pl)
         return 0;
     }
     obj = NULL;
-    if (!(pl->kind_1 & 0xF0))
+    if (!(pl->slot & 0xF0))
     {
         obj = pl;
         if (obj->flags_BD != 0)
@@ -4199,7 +4199,7 @@ sint32 func_80051970(PL_WORK *pl)
 
     if (pl != NULL)
     {
-        state = pl->routine_9;
+        state = pl->routine_1;
         keys  = pl->pad_on;
         if (pl->obj_184 == NULL)
         {
@@ -4289,7 +4289,7 @@ void func_80051B40(void)
 
 void func_80051B68(MODEL_WORK *obj, sint32 arg1, sint32 arg2, sint32 arg3)
 {
-    if (obj->routine_0 & 3)
+    if (obj->be_flag & 3)
     {
         D_80098894->obj.model = obj;
         D_80098894->kind_4    = arg1;
@@ -4303,7 +4303,7 @@ void func_80051BAC(MODEL_WORK *obj)
 {
     MODEL_WORK **list;
 
-    if (obj->routine_0 & 3)
+    if (obj->be_flag & 3)
     {
         list       = D_80098898;
         *list      = obj;
@@ -4445,7 +4445,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
     old_74 = obj->field_74;
     func_800536B0(solid, &now, &prev, part);
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide = (func_8002FE74(obj->kind_1) == 0) << 15;
+    slide = (func_8002FE74(obj->slot) == 0) << 15;
     if (func_80052674(obj, solid, &now, keep, slide) == 0)
     {
         if (obj->field_76 != 0 && owner == obj->field_C0)
@@ -4458,7 +4458,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
                 rot.vx = solid->ang.vx - obj->ang.vx;
                 rot.vy = solid->ang.vy - obj->ang.vy;
                 rot.vz = solid->ang.vz - obj->ang.vz;
-                if (obj->kind_1 == 0)
+                if (obj->slot == 0)
                 {
                     rot.vx += ((PL_WORK *)obj)->unk114;
                     rot.vy += ((PL_WORK *)obj)->unk116;
@@ -4470,7 +4470,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
                 zero.vz = 0;
                 func_800301A8(&mtx, &push, &zero);
             }
-            else if (obj->kind_1 == 0)
+            else if (obj->slot == 0)
             {
                 rot.vx = ((PL_WORK *)obj)->unk114;
                 rot.vy = ((PL_WORK *)obj)->unk116;
@@ -4533,7 +4533,7 @@ sint32 func_80051F08(MODEL_WORK *solid, MODEL_WORK *obj, MODEL_WORK *owner, sint
             if (move.vz >= 0 ? move.vz < lim : -move.vz < lim)
             {
             hurt:
-                if (obj->kind_1 == 0 && D_1F8000F7 == 0)
+                if (obj->slot == 0 && D_1F8000F7 == 0)
                 {
                     ((PL_WORK *)obj)->owner_188.hit_0 = (((PL_WORK *)obj)->owner_188.hit_0 + (hit & 0xFF)) | (hit & ~0xFF);
                     ((PL_WORK *)obj)->unk71 =
@@ -4738,7 +4738,7 @@ sint32 obj_solid_push_out(MODEL_WORK *solid, MODEL_WORK *obj, sint32 part, sint3
     func_800536B0(solid, &now, &prev, part);
     result = 0;
     func_8004B3C0((VECTOR *)obj->hit_78);
-    slide = (func_8002FE74(obj->kind_1) == 0) << 15;
+    slide = (func_8002FE74(obj->slot) == 0) << 15;
     if (func_80052674(obj, solid, &now, keep, slide) != 0)
     {
         cur = obj->pos_l;
@@ -4948,7 +4948,7 @@ void Ride_move(PL_WORK *pl, MODEL_WORK *obj)
     SVECTOR ang;
     SVECTOR inv;
 
-    if (obj->kind_1 < 0x80)
+    if (obj->slot < 0x80)
     {
         pos = pl->pos_l;
         now = obj->pos_l;
@@ -4984,7 +4984,7 @@ void Ride_move_saved(PL_WORK *pl, MODEL_WORK *obj)
     SVECTOR ang;
     SVECTOR inv;
 
-    if (obj->kind_1 < 0x80)
+    if (obj->slot < 0x80)
     {
         pos = pl->pos_428;
         now = obj->pos_l;

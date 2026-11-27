@@ -8,15 +8,15 @@ void func_80103CC4(sint8 index)
     if (stcom36_D_0000 & (0x80000000 >> index))
     {
         obj = stcom36_E2_0000[index];
-        switch (func_8002FE74(obj->index_1))
+        switch (func_8002FE74(obj->slot))
         {
             case 0x20:
                 obj->routine_0 = 2;
-                STAGE_SPAWNED_TABLE_3C0[obj->kind_2][obj->handler_4](obj);
+                STAGE_SPAWNED_TABLE_3C0[obj->id][obj->handler](obj);
                 break;
             case 0x60:
                 obj->routine_0 = 2;
-                STAGE_SPAWNED_TABLE_10C[obj->kind_2](obj);
+                STAGE_SPAWNED_TABLE_10C[obj->id](obj);
                 break;
         }
         stcom36_D_0000 &= ~(0x80000000 >> index);
@@ -32,13 +32,13 @@ void func_80103DC4(STAGE_ROOM_WORK *wp)
         obj = func_80031418();
         if (obj != NULL)
         {
-            obj->flags_0            = 1;
-            obj->kind_2             = 0x24;
+            obj->be_flag            = 1;
+            obj->id                 = 0x24;
             obj->value_4            = 4;
             obj->position.x         = 0x1884;
             obj->position.y         = -1;
             obj->position.z         = 0x5CDF;
-            obj->variant_3          = 0;
+            obj->type               = 0;
             obj->rotation.y         = 0;
             obj->u_E.b.byte_E       = 0;
             obj->position_fixed.v.x = obj->position.x << 16;
@@ -111,13 +111,13 @@ void func_80103EBC(ST03_ROOM_WORK *wp)
             }
             break;
         case 3:
-            pl->routine_8 = 3;
+            pl->routine_0 = 3;
             pl->pos_438.x = 0x1884;
             pl->pos_438.y = -1;
             pl->pos_438.z = 0x407E;
             pl->rot_440.y = 0x800;
             pl->anim_448  = 0x30;
-            pl->routine_9 = 1;
+            pl->routine_1 = 1;
             pl->rot_440.x = 0;
             pl->rot_440.z = 0;
             pl->flags_BD |= 0x10;
@@ -207,7 +207,7 @@ void func_80104364(ST03_ROOM_WORK *wp)
         obj = D_8009F108;
         for (i = 0; i < 0x10; i++, obj++)
         {
-            if (obj->flags_0 != 0 && obj->kind_2 == 9 && obj->value_4 == 2)
+            if (obj->be_flag != 0 && obj->id == 9 && obj->value_4 == 2)
             {
                 break;
             }
@@ -259,13 +259,13 @@ void func_801044A4(ST03_ROOM_WORK *wp)
             Sce_camera_work.rot_40 = 0x8000000;
             Sce_camera_work.rot_44 = 0;
             Sce_camera_work.rot_48 = 0;
-            pl->flags_0 &= ~2;
+            pl->be_flag &= ~2;
             wp->routine_5++;
             break;
         case 1:
             if (!(Moji_flag & 0x8000000))
             {
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->child_24->value_D = 1;
                 // One-pass block preserves retail's register allocation and scheduling.
                 do
@@ -292,7 +292,7 @@ void func_801044A4(ST03_ROOM_WORK *wp)
             {
                 func_80031824(wp->child_24);
             }
-            if (wp->child_24->flags_0 == 0)
+            if (wp->child_24->be_flag == 0)
             {
                 wp->routine_5 = 0;
                 wp->routine_4++;
@@ -327,7 +327,7 @@ void func_80104778(STAGE_ROOM_WORK *wp)
                 pl->rot_440.x   = 0;
                 pl->rot_440.y   = 0x800;
                 pl->rot_440.z   = 0;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 STAGE_PL_BYTE(0xBD) |= 0x10;
                 func_80031824(wp->child_24);
                 D_800A395C = 1;
@@ -472,7 +472,7 @@ void func_80104B80(STAGE_ROOM_WORK *wp)
             func_8003697C();
             D_800A395C = 1;
             func_80039820();
-            ((ST03_ACTOR *)wp->child_24)->flags_6 &= ~1;
+            ((ST03_ACTOR *)wp->child_24)->flags &= ~1;
             wp->routine_4++;
             break;
         case 0xB:
@@ -561,7 +561,7 @@ void func_80104F1C(STAGE_ROOM *wp)
     D_800BC7F0 = D_80116794;
     wp->tbl_A4 = D_80116810;
     slot       = Scene_obj_ent_open(&D_801167E8[0]);
-    slot->flags_6 &= ~0x20;
+    slot->flags &= ~0x20;
     Scene_obj_ent_open(&D_801167E8[1]);
     STAGE_PL.routine_0 = 3;
     STAGE_PL.routine_1 = 0;
@@ -656,15 +656,15 @@ void func_80105178(STAGE_STCOM15_WORK_348 *wp)
     {
         func_80032488(wp);
     }
-    if ((wp->flags_0 & 2) && !(ctl->flags_0 & 0x20))
+    if ((wp->be_flag & 2) && !(ctl->flags_0 & 0x20))
     {
         Model_Shadow_Trans(wp, 0x30, 0x200, 0);
     }
-    if ((wp->flags_0 & 1) && (ctl->flags_0 & 2))
+    if ((wp->be_flag & 1) && (ctl->flags_0 & 2))
     {
         ctl->pos_C = wp->position;
         ctl->pos_C.y -= 0x28;
-        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->value_1, &ctl->hit_14, ctl->value_8 | 0x4000000, 0x800000, 0x80);
+        func_800341BC(&ctl->pos_C, 0x28, 0, 0x8000, wp->slot, &ctl->hit_14, ctl->value_8 | 0x4000000, 0x800000, 0x80);
     }
     ctl->hit_14 = 0;
 }
@@ -675,8 +675,8 @@ void func_80105360(ST03_ACTOR *wp)
     sint16 life;
 
     ctl = &wp->ctl;
-    wp->flags_0 |= 2;
-    if ((wp->variant_3 & 0xF0) != 0x50)
+    wp->be_flag |= 2;
+    if ((wp->type & 0xF0) != 0x50)
     {
         wp->rotation.x = 0;
         wp->rotation.z = 0;
@@ -694,18 +694,18 @@ void func_80105360(ST03_ACTOR *wp)
     ctl->value_18            = 0;
     Track_reset(ctl->track_24, 0, -0x60);
     ctl->range_34 = 0x7FFFFFFF;
-    life          = D_80098844[wp->kind_2]->life_8;
+    life          = D_80098844[wp->id]->life_8;
     wp->value_78  = 0;
     wp->value_6E  = life;
     wp->value_B0  = life;
     wp->value_B2  = life;
-    if ((wp->variant_3 & 0xF0) != 0x50)
+    if ((wp->type & 0xF0) != 0x50)
     {
         wp->position.y       = Obj_ceiling_height_get(wp);
         wp->position_fixed.y = wp->position.y << 16;
     }
     wp->routine_0 = 1;
-    switch (wp->variant_3 & 0xF0)
+    switch (wp->type & 0xF0)
     {
         case 0:
             wp->routine_1 = 0;
@@ -721,14 +721,14 @@ void func_80105360(ST03_ACTOR *wp)
             break;
         case 0x30:
             wp->routine_1 = 0x10;
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~2;
             ctl->flags_0 = (ctl->flags_0 & ~6) | 0x20;
             func_800322A8(wp, 0xA, 0);
             break;
         case 0x40:
             wp->routine_1 = 0xF;
             wp->value_D   = 0;
-            wp->flags_0 &= ~2;
+            wp->be_flag &= ~2;
             ctl->flags_0 = (ctl->flags_0 & ~6) | 0x20;
             func_800322A8(wp, 0, 0);
             break;
@@ -738,15 +738,15 @@ void func_80105360(ST03_ACTOR *wp)
             break;
     }
     *(uint16 *)&wp->routine_2 = 0;
-    wp->variant_3 &= 0xF;
+    wp->type &= 0xF;
     if (wp->timer_C != 0)
     {
         ctl->other_38 = (ST03_HELD *)Open_SHL_WORK();
         if (ctl->other_38 != NULL)
         {
-            ctl->other_38->flags_0          = 1;
-            ctl->other_38->kind_2           = 6;
-            ctl->other_38->variant_3        = 0x80;
+            ctl->other_38->be_flag          = 1;
+            ctl->other_38->id               = 6;
+            ctl->other_38->type             = 0x80;
             ctl->other_38->position.x       = wp->position.x;
             ctl->other_38->position.y       = wp->position.y - 0x64;
             ctl->other_38->position.z       = wp->position.z;
@@ -781,7 +781,7 @@ void func_80105694(ST03_ACTOR *wp)
             case 5:
             case 6:
             case 7:
-                if (wp->variant_3 < 2 && wp->timer_C == 0)
+                if (wp->type < 2 && wp->timer_C == 0)
                 {
                     wp->routine_1 = 3;
                 }
@@ -815,7 +815,7 @@ void func_80105694(ST03_ACTOR *wp)
             default:
                 if (ctl->flags_0 & 0x10)
                 {
-                    if (wp->variant_3 < 2 && wp->timer_C == 0)
+                    if (wp->type < 2 && wp->timer_C == 0)
                     {
                         wp->routine_1 = 3;
                     }
@@ -824,7 +824,7 @@ void func_80105694(ST03_ACTOR *wp)
                         wp->routine_1 = 2;
                     }
                 }
-                else if (wp->variant_3 & 1)
+                else if (wp->type & 1)
                 {
                     wp->routine_1 = 0;
                 }
@@ -888,8 +888,8 @@ void func_8010593C(ST03_ACTOR *wp)
                 {
                     break;
                 }
-                ep->flags_0 = 3;
-                ep->kind_2  = 0x83;
+                ep->be_flag = 3;
+                ep->id      = 0x83;
                 ep->x_1C    = wp->value_180[i].x;
                 ep->y_1E    = wp->value_180[i].y;
                 ep->z_20    = wp->value_180[i].z;
@@ -914,11 +914,11 @@ void func_8010593C(ST03_ACTOR *wp)
             }
             // fall through
         case 2:
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             ctl->value_6 = (ctl->value_6 + 1) & 3;
             if (wp->value_6E <= 0 && ctl->value_6 == 0)
             {
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             Obj_pos_set(wp, 0, wp->velocity.v.y << 4, 0);
             wp->position.y -= 0x34;
@@ -933,7 +933,7 @@ void func_8010593C(ST03_ACTOR *wp)
                 else
                 {
                     wp->routine_2 = 1;
-                    wp->flags_0 |= 2;
+                    wp->be_flag |= 2;
                     wp->accel_4C.x >>= 1;
                     wp->accel_4C.y >>= 1;
                     ctl->timer_4 = wp->accel_4C.y;
@@ -943,7 +943,7 @@ void func_8010593C(ST03_ACTOR *wp)
             wp->position_fixed.y = wp->position.y << 16;
             break;
         case 3:
-            wp->flags_0 ^= 2;
+            wp->be_flag ^= 2;
             if (--wp->ctl.timer_4 < 0)
             {
                 wp->ctl.flags_0 |= 1;
@@ -1235,7 +1235,7 @@ void func_8010641C(ST03_ACTOR *wp)
             wp->ctl.value_8 = 0;
             // fall through
         case 1:
-            if (wp->variant_3 < 2 && wp->timer_C == 0)
+            if (wp->type < 2 && wp->timer_C == 0)
             {
                 turn = Muku(&Player_work.position, &wp->position, wp->rotation.y, wp->spin_66);
             }
@@ -1316,7 +1316,7 @@ void func_801065F8(ST03_ACTOR *wp)
             wp->anim_AC      = 0x18;
             wp->velocity.v.x = 0xF;
             ctl->timer_4     = 0xF;
-            ctl->value_8     = D_80098844[wp->kind_2]->value_A;
+            ctl->value_8     = D_80098844[wp->id]->value_A;
             // fall through
         case 2:
             ctl->timer_4--;
@@ -1476,11 +1476,11 @@ void func_80106950(ST03_ACTOR *wp)
             }
             break;
     }
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     ctl->value_6 = (ctl->value_6 + 1) & 3;
     if (wp->value_6E <= 0 && ctl->value_6 == 0)
     {
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
     }
 }
 
@@ -1566,11 +1566,11 @@ void func_80106BBC(ST03_ACTOR *wp)
             }
             break;
     }
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     ctl->value_6 = (ctl->value_6 + 1) & 3;
     if (wp->value_6E <= 0 && ctl->value_6 == 0)
     {
-        wp->flags_0 &= ~2;
+        wp->be_flag &= ~2;
     }
 }
 
@@ -1736,7 +1736,7 @@ void func_801071F4(ST03_ACTOR *wp)
         case 1:
             wp->routine_2 = 2;
             wp->anim_AC   = 0x11;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             ctl->timer_4  = 8;
             ctl->value_8  = 0;
             wp->value_10B = -1;
@@ -1764,7 +1764,7 @@ void func_801071F4(ST03_ACTOR *wp)
             if (--ctl->timer_4 < 0)
             {
                 wp->routine_2 = 6;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             else
             {
@@ -1791,17 +1791,17 @@ void func_801072F4(ST03_ACTOR *wp)
                 wp->value_D               = 1;
                 break;
             }
-            wp->ctl.other_38->flags_0   = 1;
+            wp->ctl.other_38->be_flag   = 1;
             wp->ctl.other_38->routine_0 = 4;
-            wp->ctl.other_38->kind_2    = 6;
-            wp->ctl.other_38->variant_3 = 0x80;
+            wp->ctl.other_38->id        = 6;
+            wp->ctl.other_38->type      = 0x80;
             wp->anim_AC                 = 0x30;
             wp->ctl.timer_4             = 0xF;
             wp->routine_2               = 1;
             wp->ctl.value_8             = 0;
             wp->value_10B               = -1;
             wp->value_10F               = -1;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             // fall through
         case 1:
             if (--ctl->timer_4 >= 0)
@@ -1840,7 +1840,7 @@ void func_801072F4(ST03_ACTOR *wp)
                 wp->routine_1             = 0xF;
                 *(uint16 *)&wp->routine_2 = 0;
                 wp->value_D               = 1;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             else
             {
@@ -1868,7 +1868,7 @@ void func_8010758C(ST03_ACTOR *wp)
             wp->ctl.timer_4 = 0xF;
             wp->value_D     = 0;
             wp->ctl.value_8 = 0;
-            wp->flags_0 |= 2;
+            wp->be_flag |= 2;
             held->routine_1             = 5;
             *(uint16 *)&held->routine_2 = 0;
             // fall through
@@ -1912,7 +1912,7 @@ void func_8010758C(ST03_ACTOR *wp)
                 wp->routine_1             = 0xF;
                 *(uint16 *)&wp->routine_2 = 0;
                 wp->value_D               = 1;
-                wp->flags_0 &= ~2;
+                wp->be_flag &= ~2;
             }
             else
             {
@@ -1932,7 +1932,7 @@ sint32 func_80107878(ST03_ACTOR *wp)
 
     ctl = &wp->ctl;
     tbl = D_801168C4;
-    if (wp->variant_3 & 1)
+    if (wp->type & 1)
     {
         tbl = D_801168BC;
     }
@@ -1997,13 +1997,12 @@ sint32 func_80107978(ST03_ACTOR *wp)
     if (wp->value_6E <= 0)
     {
         wp->ctl.flags_0 = (wp->ctl.flags_0 & ~4) | 8;
-        damage          = D_80098844[wp->kind_2]->limit_9;
+        damage          = D_80098844[wp->id]->limit_9;
     }
     if (wp->ctl.flags_0 & 8)
     {
         wp->ctl.timer_A += damage;
-        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->kind_2]->limit_9 ||
-            wp->position.y != Obj_ceiling_height_get(wp))
+        if ((wp->ctl.hit_14 & 0x20000000) || wp->ctl.timer_A >= D_80098844[wp->id]->limit_9 || wp->position.y != Obj_ceiling_height_get(wp))
         {
             if (ctl->from_1C.pad & 1)
             {

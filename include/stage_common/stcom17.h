@@ -18,10 +18,10 @@
 // The 0x10C-byte slot stcom17 spawns (Open_SHL_WORK): a shell (kind 1) or a missile (kind 0x2E).
 typedef struct
 {
-    uint8 flags_0;                     // 00
-    uint8 reserved01;                  // 01
-    uint8 kind_2;                      // 02
-    uint8 variant_3;                   // 03
+    uint8 be_flag;                     // 00
+    uint8 slot;                        // 01
+    uint8 id;                          // 02
+    uint8 type;                        // 03
     uint8 value_4;                     // 04
     uint8 reserved05[0xA];             // 05
     uint8 value_F;                     // 0F
@@ -67,13 +67,13 @@ typedef struct
 // The 0x3C0-byte work slot of the tank (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03: mode in the low nibble
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03: mode in the low nibble
     uint8 value_4;                          // 04
     uint8 reserved05;                       // 05
-    uint8 flags_6;                          // 06
+    uint8 flags;                            // 06
     uint8 reserved07;                       // 07
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -150,10 +150,10 @@ typedef struct
 // The 0x3C0-byte work slot of the gun (freed through ROCK_NEO's func_80031824).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 value_1;                          // 01
-    uint8 kind_2;                           // 02: index into D_80098844
-    uint8 variant_3;                        // 03
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 id;                               // 02: index into D_80098844
+    uint8 type;                             // 03
     uint8 value_4;                          // 04
     uint8 reserved05[3];                    // 05
     uint8 routine_0;                        // 08

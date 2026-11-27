@@ -56,7 +56,7 @@ void func_8010BF50(ST1A_NPC *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x24, 0x200, 0);
     }
@@ -64,7 +64,7 @@ void func_8010BF50(ST1A_NPC *wp)
 
 void func_8010C1C8(ST1A_NPC *wp, STAGE_FACE *face)
 {
-    wp->flags_0 |= 2;
+    wp->be_flag |= 2;
     Model_work_init(wp, NULL);
     wp->scale.words[0] = 0x2000200;
     wp->scale.words[1] = 0x42100200;
@@ -99,7 +99,7 @@ void func_8010C2B0(ST1A_NPC *wp)
     wp->position_fixed_prev = wp->position_fixed.v;
     wp->rotation_prev       = wp->rotation;
     wp->anim_prev_AD        = wp->anim_AC;
-    D_80131DC8[wp->variant_3](wp, &Scene_work, &wp->face_348);
+    D_80131DC8[wp->type](wp, &Scene_work, &wp->face_348);
     if (wp->anim_AC != wp->anim_prev_AD)
     {
         func_800322A8(wp, wp->anim_AC, wp->face_348.timer_0);
@@ -108,22 +108,22 @@ void func_8010C2B0(ST1A_NPC *wp)
     {
         func_80032488(wp);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
-        Model_Shadow_Trans(wp, D_80131DFC[wp->variant_3], 0x200, 0);
+        Model_Shadow_Trans(wp, D_80131DFC[wp->type], 0x200, 0);
     }
 }
 
 void func_8010C3CC(ST1A_NPC *wp, STAGE_FACE *face)
 {
-    wp->flags_0 |= 2;
-    wp->kind_2 = D_80131DDC[wp->variant_3];
+    wp->be_flag |= 2;
+    wp->id = D_80131DDC[wp->type];
     Model_work_init(wp, NULL);
-    wp->kind_2         = 0x30;
+    wp->id             = 0x30;
     wp->scale.words[0] = 0x2000200;
     wp->scale.words[1] = 0x42100200;
     wp->value_78       = 0;
-    wp->anim_AC        = D_80131DF0[wp->variant_3];
+    wp->anim_AC        = D_80131DF0[wp->type];
     wp->anim_prev_AD   = 0xFF;
     face->timer_0      = 0;
     wp->routine_0      = 1;
@@ -142,7 +142,7 @@ void func_8010C484(ST1A_NPC *wp, STAGE_SCENE_WORK *scene, STAGE_FACE *face)
         case 1:
             if (scene->u_8.byte[1] == 0x11 && scene->value_10 == 1)
             {
-                if (wp->variant_3 == 0)
+                if (wp->type == 0)
                 {
                     wp->rotation.y = 0x400;
                     wp->position.x -= 0x28;

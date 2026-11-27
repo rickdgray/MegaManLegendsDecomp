@@ -16,9 +16,9 @@ void func_800D8854(SHL_WORK *wp)
     wp->col_c4 = 0;
     wp->col_c8 = 0;
     wp->box_78 = &D_800D9008;
-    wp->flags_0 |= 6;
-    wp->flags_6 |= 0x20;
-    if (wp->type_3 & 0x40)
+    wp->be_flag |= 6;
+    wp->flags |= 0x20;
+    if (wp->type & 0x40)
     {
         rot.vx = wp->rot_x;
     }
@@ -29,7 +29,7 @@ void func_800D8854(SHL_WORK *wp)
     }
     rot.vy = wp->rot_y & 0xFFF;
     rot.vz = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         rot.vx += ((rand() & 7) - 4) * 2;
         rot.vy += ((rand() & 7) - 4) * 2;
@@ -62,7 +62,7 @@ void func_800D8854(SHL_WORK *wp)
     rot.vy = 0;
     rot.vz = -0x1000;
     ApplyMatrix(&wp->draw.mdl.mtx_8c, &rot, &v);
-    if (!(wp->type_3 & 0x40) && Player_work.value_507 >= 3)
+    if (!(wp->type & 0x40) && Player_work.value_507 >= 3)
     {
         wp->vel.vx = (uint32)(v.vx * 15) >> 1;
         wp->vel.vy = (uint32)(v.vy * 15) >> 1;
@@ -78,7 +78,7 @@ void func_800D8854(SHL_WORK *wp)
     wp->ay     = 0;
     wp->az     = 0;
     wp->hit_7c = 0;
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
         wp->fpos.w.x += wp->vel.vx * 0x1C0;
         wp->fpos.w.y += wp->vel.vy * 0x1C0;
@@ -102,7 +102,7 @@ void func_800D8C4C(SHL_WORK *wp)
 {
     if (func_80037694(wp, 0) || wp->hit_7c)
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -126,7 +126,7 @@ void func_800D8C4C(SHL_WORK *wp)
     }
     else
     {
-        if (wp->type_3 & 0x40)
+        if (wp->type & 0x40)
         {
             Close_SHL_WORK(wp);
         }
@@ -152,17 +152,17 @@ void func_800D8DC4(SHL_WORK *wp)
     {
         flags = 0x1000;
     }
-    if (wp->type_3 & 0x40)
+    if (wp->type & 0x40)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->value_1, &wp->col_c4, 0x8000005, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0xA000, wp->slot, &wp->col_c4, 0x8000005, 0, 0x80);
     }
     else if (wp->index_c)
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x6000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
     else
     {
-        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->value_1, &wp->col_c4, flags | 0x8000000, 0, 0x80);
+        func_8003430C(&p, 0x20, &wp->pos, 0x20, 0x200, 0x4000, wp->slot, &wp->col_c4, flags | 0x8000000, 0, 0x80);
     }
 }
 
@@ -173,25 +173,25 @@ void func_800D8F08(SHL_WORK *wp, sint32 arg)
     fx = func_80031618();
     if (fx)
     {
-        fx->routine_0 = 1;
-        fx->kind_2    = 0x85;
-        fx->x_1c      = wp->pos.vx;
-        fx->y_1e      = wp->pos.vy;
-        fx->z_20      = wp->pos.vz;
-        fx->vx_30     = wp->vel.vx;
-        fx->vy_32     = wp->vel.vy;
-        fx->vz_34     = wp->vel.vz;
-        if (wp->type_3 == 0x40)
+        fx->be_flag = 1;
+        fx->id      = 0x85;
+        fx->x_1c    = wp->pos.vx;
+        fx->y_1e    = wp->pos.vy;
+        fx->z_20    = wp->pos.vz;
+        fx->vx_30   = wp->vel.vx;
+        fx->vy_32   = wp->vel.vy;
+        fx->vz_34   = wp->vel.vz;
+        if (wp->type == 0x40)
         {
             fx->value_40 = (wp->rot_y + 0x400) & 0xFFF;
             fx->flag_3   = arg + 0x10;
         }
-        else if (wp->type_3 == 0x41)
+        else if (wp->type == 0x41)
         {
             fx->value_40 = (wp->rot_y - 0x400) & 0xFFF;
             fx->flag_3   = arg + 0x10;
         }
-        else if (wp->type_3 == 0x42)
+        else if (wp->type == 0x42)
         {
             fx->value_40 = 0xFFFF;
             fx->flag_3   = arg + 0x10;

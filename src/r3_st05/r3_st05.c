@@ -118,7 +118,7 @@ void func_80100C9C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0x1E)
     {
         D_80137DA0->value_442 = 0x800;
-        D_80137DA0->flags_0 ^= 2;
+        D_80137DA0->be_flag ^= 2;
         D_80137DA0->value_448      = 0x30;
         wp->child_24->routine_0    = 2;
         wp->child_24->u_C.b.byte_D = 9;
@@ -136,7 +136,7 @@ void func_80100D90(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         wp->child_24->position.z -= 0x40;
-        D_80137DA0->flags_0 |= 2;
+        D_80137DA0->be_flag |= 2;
     }
     if (((ST05_OBJ *)wp->child_24)->value_A6 == 1)
     {
@@ -150,7 +150,7 @@ void func_80100E08(STAGE_ROOM *wp)
 
     if (wp->frame_10 == 0)
     {
-        D_80137DA0->flags_0 ^= 2;
+        D_80137DA0->be_flag ^= 2;
         wp->reserved09[1] = 0;
     }
     if (wp->frame_10 >= 3 && wp->frame_10 < 6)
@@ -191,7 +191,7 @@ void func_8010105C(STAGE_ROOM *wp)
 {
     if (wp->frame_10 == 0)
     {
-        D_80137DA0->flags_0 |= 2;
+        D_80137DA0->be_flag |= 2;
         D_80137DA0->value_448 = 0x30;
         wp->child_24->position.x -= 0x80;
         wp->child_24->position_fixed.v.x = wp->child_24->position.x << 16;
@@ -221,7 +221,7 @@ void func_801011A0(STAGE_ROOM *wp)
         D_80137DA0->value_448 = 0x81;
         MojiTaskExec2(0, 5);
         child = wp->child_24;
-        if (child->flags_0 & 1)
+        if (child->be_flag & 1)
         {
             func_8003187C(child);
             wp->reserved09[1] |= 0x10;
@@ -350,7 +350,7 @@ void func_80101420(STAGE_ROOM *wp)
             func_80030150(&D_80137DA0->fixed_428, &D_80137DA0->pos_438);
             func_80030150(&D_80137DA0->position_fixed, &D_80137DA0->position);
             Player_work.routine_1++;
-            D_80137DA0->flags_0 |= 2;
+            D_80137DA0->be_flag |= 2;
             cam.x = Player_work.position.x;
             cam.y = Player_work.position.y - 0x96;
             cam.z = Player_work.position.z;
@@ -382,12 +382,12 @@ void func_801016F0(void)
     obj = func_80031498();
     if (obj != NULL)
     {
-        obj->flags_0            = 1;
-        obj->kind_2             = 9;
+        obj->be_flag            = 1;
+        obj->id                 = 9;
         obj->value_4            = 5;
         obj->position_fixed.v.x = 0x72C0000;
         obj->position_fixed.v.y = -0x10000;
-        obj->variant_3          = 0;
+        obj->type               = 0;
         obj->u_C.b.byte_C       = 0;
         obj->u_C.b.byte_D       = 0;
         obj->u_E.b.byte_E       = 0;
@@ -398,12 +398,12 @@ void func_801016F0(void)
     obj = func_80031418();
     if (obj != NULL)
     {
-        obj->flags_0            = 1;
-        obj->kind_2             = 0x2A;
+        obj->be_flag            = 1;
+        obj->id                 = 0x2A;
         obj->position_fixed.v.x = 0x7EC0000;
         obj->position_fixed.v.y = -0x10000;
         obj->value_4            = 0;
-        obj->variant_3          = 0;
+        obj->type               = 0;
         obj->u_C.b.byte_C       = 0;
         obj->u_C.b.byte_D       = 0;
         obj->u_E.b.byte_E       = 0;
@@ -590,7 +590,7 @@ void func_80101C24(STAGE_ROOM *wp)
             pl->value_442 = 0x800;
             pl->value_440 = 0;
             pl->value_444 = 0;
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             pl->fixed_428.x = pl->pos_438.x << 16;
             pl->fixed_428.y = pl->pos_438.y << 16;
             pl->fixed_428.z = pl->pos_438.z << 16;
@@ -602,15 +602,15 @@ void func_80101C24(STAGE_ROOM *wp)
             obj = func_80031498();
             if (obj != NULL)
             {
-                obj->flags_0               = 1;
+                obj->be_flag               = 1;
                 *(uint32 *)&obj->u_C       = 0;
                 obj->u_E.b.byte_F          = 1;
                 obj->position.x            = 0x400;
                 obj->position.y            = -1;
                 obj->position.z            = 0x2100;
-                obj->kind_2                = 0;
+                obj->id                    = 0;
                 obj->value_4               = 0;
-                obj->variant_3             = 0;
+                obj->type                  = 0;
                 *(uint32 *)&obj->routine_0 = 0;
                 obj->value_44.value        = 0;
                 obj->value_48.value        = 0;
@@ -640,7 +640,7 @@ void func_80101ED0(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         *(uint16 *)&Player_work.routine_0 = 3;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         func_8002FBF4(pl);
         Cd_read_comb(0x55);
     }
@@ -783,7 +783,7 @@ void func_80102188(STAGE_ROOM *wp)
     other = wp->child_2C;
     if (wp->frame_10 == 0)
     {
-        other->flags_0 &= ~2;
+        other->be_flag &= ~2;
         child->routine_1             = 1;
         *(uint16 *)&child->routine_2 = 0;
         func_801028D0(1);
@@ -825,7 +825,7 @@ void func_801021F4(STAGE_ROOM *wp)
         D_80137DC4 = D_80137DD4 = 8;
         D_80137DC5 = D_80137DD5 = 8;
         D_80137DC6 = D_80137DD6 = 8;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
     }
     else if (wp->frame_10 < 0x1A)
     {
@@ -915,7 +915,7 @@ void func_8010249C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         STAGE_PL.value_448 = 0;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         STAGE_PL.fixed_428.z      = STAGE_PL.pos_438.z << 16;
         *(uint16 *)&wp->routine_6 = 0;
     }
@@ -949,7 +949,7 @@ void func_801024FC(STAGE_ROOM *wp)
         child->position_fixed.v.y    = child->position.y << 16;
         child->position_fixed.v.z    = child->position.z << 16;
         other->u_E.b.byte_F          = 1;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
     }
 }
 
@@ -1213,7 +1213,7 @@ void func_80102BDC(STAGE_ROOM *wp)
                 pl->value_440 = 0;
                 pl->value_444 = 0;
                 pl->value_448 = 0x30;
-                pl->flags_0 &= ~2;
+                pl->be_flag &= ~2;
                 pl->flags_bd |= 0x10;
                 pl->fixed_428.x           = pl->pos_438.x << 16;
                 pl->fixed_428.y           = pl->pos_438.y << 16;
@@ -1493,7 +1493,7 @@ void func_80103560(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         STAGE_PL.value_448 = 0x88;
-        pl->flags_0 |= 2;
+        pl->be_flag |= 2;
         func_80103768(1);
     }
     if (wp->frame_10 == 0x14 || wp->frame_10 == 0x32 || wp->frame_10 == 0x50)
@@ -1516,7 +1516,7 @@ void func_80103610(STAGE_ROOM *wp)
         pl                 = &Player_work;
         STAGE_PL.value_168 = 0;
         STAGE_PL.value_169 = 0;
-        pl->flags_0 &= ~2;
+        pl->be_flag &= ~2;
         func_80103744(wp);
     }
 }
@@ -1626,8 +1626,8 @@ void func_801038C4(STAGE_ROOM *wp)
             wp->routine_6++;
             // fall through
         case 1:
-            pl->routine_8 = 3;
-            pl->routine_9 = 1;
+            pl->routine_0 = 3;
+            pl->routine_1 = 1;
             pl->flags_BD |= 0x10;
             pl->pos_438   = pl->position;
             pl->fixed_428 = pl->position_fixed;

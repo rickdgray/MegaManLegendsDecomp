@@ -8,7 +8,7 @@
 
 void stcom05_func_0000(STCOM05_WORK *wp)
 {
-    stcom05_D_0000[wp->index_3](wp);
+    stcom05_D_0000[wp->type](wp);
 }
 
 void stcom05_func_003C(STCOM05_WORK *wp)
@@ -25,11 +25,11 @@ void stcom05_func_003C(STCOM05_WORK *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix, &scale);
     wp->pos_saved = wp->position;
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         func_80051B68(wp, 1, -1, 0x1000008);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x104, 0x200, 1);
     }
@@ -434,7 +434,7 @@ void stcom05_func_0938(STCOM05_WORK *wp)
             }
             else
             {
-                wp->index_3        = 1;
+                wp->type           = 1;
                 wp->velocity.v.x   = 0;
                 wp->routine_0      = 0;
                 wp->routine_1      = 0;
@@ -497,19 +497,19 @@ void stcom05_func_0E64(STCOM05_WORK *wp)
 
 void stcom05_func_0ED0(STCOM05_WORK *wp)
 {
-    if (wp->ctl.link[0]->kind_2 != 0x33)
+    if (wp->ctl.link[0]->id != 0x33)
     {
         wp->ctl.flags_22 &= ~1;
     }
-    if (wp->ctl.link[1]->kind_2 != 0x33)
+    if (wp->ctl.link[1]->id != 0x33)
     {
         wp->ctl.flags_22 &= ~2;
     }
-    if (wp->ctl.link[2]->kind_2 != 0x33)
+    if (wp->ctl.link[2]->id != 0x33)
     {
         wp->ctl.flags_22 &= ~4;
     }
-    if (wp->ctl.link[3]->kind_2 != 0x33)
+    if (wp->ctl.link[3]->id != 0x33)
     {
         wp->ctl.flags_22 &= ~8;
     }
@@ -529,11 +529,11 @@ void stcom05_func_0F78(STCOM05_WORK *wp)
     scale.z = 0x200;
     ScaleMatrix(&wp->matrix, &scale);
     wp->pos_saved = wp->position;
-    if (wp->flags_0 & 1)
+    if (wp->be_flag & 1)
     {
         func_80051B68(wp, 1, -1, 0x20000008);
     }
-    if (wp->flags_0 & 2)
+    if (wp->be_flag & 2)
     {
         Model_Shadow_Trans(wp, 0x104, 0x200, 1);
     }
@@ -549,7 +549,7 @@ void stcom05_func_10C0(STCOM05_WORK *wp)
     wp->value_64          = 0;
     wp->value_70          = 0;
     wp->value_74          = 0;
-    wp->flags_0 |= 6;
+    wp->be_flag |= 6;
     Model_work_init(wp, NULL);
     wp->data_78 = stcom05_D_00B0;
     wp->data_10 = stcom05_D_00BC;

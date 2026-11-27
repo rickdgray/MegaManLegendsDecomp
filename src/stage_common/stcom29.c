@@ -10,22 +10,22 @@
 // 0x60D is set.
 void stcom29_func_0000(STCOM29_WORK *wp)
 {
-    stcom29_D_00E0[wp->variant_3][wp->routine_0](wp);
+    stcom29_D_00E0[wp->type][wp->routine_0](wp);
 }
 
 void stcom29_func_0048(STCOM29_WORK *wp)
 {
-    wp->key_20 = Stage_hed_model_get(stcom29_D_0000[wp->variant_3]);
+    wp->key_20 = Stage_hed_model_get(stcom29_D_0000[wp->type]);
     if (wp->key_20 == 0)
     {
         Close_EVE_WORK(wp);
         return;
     }
-    if (wp->variant_3 == 0)
+    if (wp->type == 0)
     {
         wp->script_C = 0;
     }
-    else if (wp->variant_3 == 2)
+    else if (wp->type == 2)
     {
         wp->script_C = 3;
     }
@@ -87,7 +87,7 @@ void stcom29_func_013C(STCOM29_WORK *wp)
             break;
         case 5:
             func_80042314(pl);
-            pl->flags_0 |= 2;
+            pl->be_flag |= 2;
             Sce_flag_off(0x60D);
             wp->script_C  = 1;
             wp->step_D    = 0;
@@ -109,7 +109,7 @@ void stcom29_func_0294(STCOM29_WORK *wp)
     {
         return;
     }
-    unpack = func_8002DC84((void *)wp->key_20, 0, stcom29_D_010C[wp->variant_3]);
+    unpack = func_8002DC84((void *)wp->key_20, 0, stcom29_D_010C[wp->type]);
     if (--wp->timer_E == 0)
     {
         step++;
@@ -310,7 +310,7 @@ void stcom29_func_09A4(STCOM29_WORK *wp)
             {
                 func_80042314(&Player_work);
                 pl->target_184 = NULL;
-                pl->flags_0 |= 2;
+                pl->be_flag |= 2;
                 wp->routine_0 = 1;
                 wp->routine_1 = 0;
                 Sce_flag_off(0x60C);

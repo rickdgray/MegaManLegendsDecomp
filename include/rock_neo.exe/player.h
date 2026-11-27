@@ -33,22 +33,22 @@ typedef struct
 // Player work, 0x5F4 bytes. Tagged so code_8002E7A8.h can forward-declare it.
 typedef struct PL_WORK
 {
-    uint8 routine_0; // 0x00: as in every pool slot; bit 0: the player is live (lock_on_search)
-    uint8 kind_1;    // 0x01: pool kind (0) ORed with the player's index (Work_pools_init); copied to
-                     // the spawned shot's field_C (pl_shot_spawn)
-    uint8 id_2;      // 0x02: id_2 to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
-    uint8 type_3;
+    uint8 be_flag; // 0x00: as in every pool slot; bit 0: the player is live (lock_on_search)
+    uint8 slot;    // 0x01: pool kind (0) ORed with the player's index (Work_pools_init); copied to
+                   // the spawned shot's field_C (pl_shot_spawn)
+    uint8 id;      // 0x02: id to flag_5 set by two halfword stores from a SPAWN_ENT (Obj_spawn_tbl_set)
+    uint8 type;
     uint8 flag_4;
     uint8 flag_5;
-    uint8 flags_6; // 0x06: same as MODEL_WORK.flags; 3 or 0 with routine_0 (player_work_init)
+    uint8 flags; // 0x06: same as MODEL_WORK.flags; 3 or 0 with be_flag (player_work_init)
     uint8 unk07;
-    uint8 routine_8; // 0x08: 3 makes player_entry_set also set the saved position (pos_428 ...)
-    uint8 routine_9; // 0x09: player state; the state checks (func_800402C4, ...) set it and clear
-                     // field_A and field_B with one halfword store; 3 is the pad-driven state of
-                     // func_800482A8
-    uint8 field_A;   // 0x0A: step within the state; field_A >> 1 picks the joint_pos func_800424D4
-                     // copies
-    uint8 field_B;
+    uint8 routine_0; // 0x08: 3 makes player_entry_set also set the saved position (pos_428 ...)
+    uint8 routine_1; // 0x09: player state; the state checks (func_800402C4, ...) set it and clear
+                     // routine_2 and routine_3 with one halfword store; 3 is the pad-driven state
+                     // of func_800482A8
+    uint8 routine_2; // 0x0A: step within the state; routine_2 >> 1 picks the joint_pos
+                     // func_800424D4 copies
+    uint8 routine_3;
     uint32 field_C; // 0x0C: SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
     uint8 unk10[0x14 - 0x10];
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
@@ -198,9 +198,9 @@ typedef void (*PL_FUNC)(PL_WORK *pl);
 extern TBL_ROW *D_80089EAC[];    // 16 tables, one per Player_work.rec[n]
 extern PL_WORK Player_work[2];   // 0x800B51B0: two players, 0x5F4 apart
 extern PL_WORK *Player_work_ptr; // 0x80098A50
-extern PL_FUNC D_80089F94[4];    // handlers, indexed by PL_WORK.routine_8 (func_8003C418)
-extern PL_FUNC D_80089FA4[21];   // state handlers, indexed by routine_9; run second (func_8003C88C)
-extern PL_FUNC D_80089FF8[21];   // state handlers, indexed by routine_9; run first (func_8003C88C)
+extern PL_FUNC D_80089F94[4];    // handlers, indexed by PL_WORK.routine_0 (func_8003C418)
+extern PL_FUNC D_80089FA4[21];   // state handlers, indexed by routine_1; run second (func_8003C88C)
+extern PL_FUNC D_80089FF8[21];   // state handlers, indexed by routine_1; run first (func_8003C88C)
 extern HIT_ENT D_80097D90;       // the player's collision box (player_work_init)
 extern uint32 D_80097D9C;        // 2; passed to func_80039A38 when the player gets up (func_8003E860)
 // The pad bits the player sees during scenes (Player_exec copies them to pad_now ... pad_rep

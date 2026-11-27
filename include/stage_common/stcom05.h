@@ -7,9 +7,9 @@
 // The first bytes of another work slot (stcom05_func_0ED0 reads its kind).
 typedef struct
 {
-    uint8 flags_0;
-    uint8 reserved01;
-    uint8 kind_2;
+    uint8 be_flag;
+    uint8 slot;
+    uint8 id;
 } STCOM05_HEAD;
 
 // The block at +0xCC of the work slot.
@@ -34,9 +34,10 @@ typedef struct
 // The 0x10C-byte work slot stcom05 runs on (freed through ROCK_NEO's Close_SHL_WORK).
 typedef struct
 {
-    uint8 flags_0;                          // 00
-    uint8 reserved01[2];                    // 01
-    uint8 index_3;                          // 03: stcom05_D_0000 handler
+    uint8 be_flag;                          // 00
+    uint8 slot;                             // 01
+    uint8 reserved02;                       // 02
+    uint8 type;                             // 03: stcom05_D_0000 handler
     uint8 reserved04[4];                    // 04
     uint8 routine_0;                        // 08
     uint8 routine_1;                        // 09
@@ -72,7 +73,7 @@ typedef struct
 
 typedef void (*STCOM05_FUNC)(STCOM05_WORK *wp);
 
-extern STCOM05_FUNC stcom05_D_0000[];  // handlers by index_3 (stcom05_func_0000)
+extern STCOM05_FUNC stcom05_D_0000[];  // handlers by type (stcom05_func_0000)
 extern STCOM05_FUNC stcom05_D_0008[];  // routine_0 handlers (stcom05_func_003C)
 extern STCOM05_FUNC stcom05_D_0018[];  // routine_1 handlers (stcom05_func_029C)
 extern STCOM05_FUNC stcom05_D_002C[];  // routine_0 handlers (stcom05_func_0F78)

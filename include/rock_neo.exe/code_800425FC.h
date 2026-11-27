@@ -16,7 +16,7 @@ typedef struct
     uint8 flag_4;  // zero: func_80041044 answers 1 when the record's button is pressed
     uint8 flag_5;  // zero: func_800410D4 answers 1 for the record in use
     uint8 flag_6;  // zero: func_80041158 answers 1 for the record in use
-    uint8 id_7;    // id_2 of the object pl_shot_spawn spawns
+    uint8 id_7;    // id of the object pl_shot_spawn spawns
     uint8 shift_8; // weapon_gauge_draw draws the energy gauge one pixel per 1 << shift_8 units
     uint8 unk9[3];
 } PL_ACT_ENT;
