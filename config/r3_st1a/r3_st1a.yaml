@@ -59,10 +59,15 @@ segments:
       - [0x0, rodata, header]     # id word 0x2D
       - [0x4, .rodata, r3_st1a]     # entry table, jump tables, constants
       - [0xC, .rodata, r3_st1a_CBC]
+      - [0x20, .rodata, r3_st1a_3CB8]
+      - [0x3C, .rodata, r3_st1a_523C]
       - {start: 0x50, type: .rodata, name: stcom15, dir: ../stage_common}
       - [0x7C, .rodata, r3_st1a_BF50]
       - {start: 0xCC, type: .rodata, name: stcom09, dir: ../stage_common}
       - [0x134, .rodata, r3_st1a_FDE0]
+      - [0x1A8, .rodata, r3_st1a_13460]
+      - [0x30C, .rodata, r3_st1a_17910]
+      - [0x400, .rodata, r3_st1a_1C870]
       - [0x524, .rodata, r3_st1a_20FEC]
       - {start: 0x538, type: .rodata, name: stcom10, dir: ../stage_common}
       - [0x5B0, .rodata, r3_st1a_24AB4]
@@ -73,6 +78,8 @@ segments:
       - [0x6F8, c, r3_st1a]
       - {start: 0xCA4, type: c, name: stcom39, dir: ../stage_common}  # shared stage code
       - [0xCBC, c, r3_st1a_CBC]
+      - [0x3CB8, c, r3_st1a_3CB8]  # low; jump-table alignment restarts between func_80101D40 and func_80103CB8
+      - [0x523C, c, r3_st1a_523C]  # low; starts at a routine dispatcher; jump-table alignment restarts between func_80103ECC and func_80105278
       - {start: 0x7338, type: c, name: stcom15, dir: ../stage_common}  # shared stage code
       - {start: 0x9540, type: c, name: stcom01, dir: ../stage_common}  # shared stage code
       - [0xBF50, c, r3_st1a_BF50]
@@ -80,6 +87,9 @@ segments:
       - {start: 0xD7AC, type: c, name: stcom27, dir: ../stage_common}  # shared stage code
       - {start: 0xE6A8, type: c, name: stcom24, dir: ../stage_common}  # shared stage code
       - [0xFDE0, c, r3_st1a_FDE0]
+      - [0x13460, c, r3_st1a_13460]  # low; jump-table alignment restarts between func_80111BF0 and func_80113460
+      - [0x17910, c, r3_st1a_17910]  # low; code shared with r3_st13 ends here; jump-table alignment restarts between func_801165AC and func_80117BCC
+      - [0x1C870, c, r3_st1a_1C870]  # low; jump-table alignment restarts between func_8011BA74 and func_8011C870
       - {start: 0x1F4DC, type: c, name: stcom18, dir: ../stage_common}  # shared stage code
       - [0x1FA80, c, r3_st1a_1FA80]
       - {start: 0x1FCA4, type: c, name: stcom11, dir: ../stage_common}  # shared stage code

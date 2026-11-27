@@ -58,6 +58,7 @@ segments:
     subsegments:
       - [0x0, rodata, header]     # id word 0x30
       - [0x4, .rodata, r3_st1d]     # entry table, jump tables, constants
+      - [0x18, .rodata, r3_st1d_2F24]
       - {start: 0xDC, type: .rodata, name: stcom15, dir: ../stage_common}
       - {start: 0x108, type: .rodata, name: stcom16, dir: ../stage_common}
       - [0x11C, .rodata, r3_st1d_AD08]
@@ -68,6 +69,7 @@ segments:
       - [0x1F4, .rodata, r3_st1d_12B18]
       - {start: 0x220, type: .rodata, name: stcom09, dir: ../stage_common}
       - [0x288, c, r3_st1d]
+      - [0x2F24, c, r3_st1d_2F24]  # medium; code shared with r3_st09 starts here; its seven jump tables have the same layout there at the other alignment
       - {start: 0x5580, type: c, name: stcom15, dir: ../stage_common}  # shared stage code
       - [0x7788, c, r3_st1d_7788]
       - {start: 0x8498, type: c, name: stcom16, dir: ../stage_common}  # shared stage code

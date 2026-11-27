@@ -64,12 +64,16 @@ segments:
       - [0x3E4, .rodata, r3_st05_FE10]
       - {start: 0x3F8, type: .rodata, name: stcom04, dir: ../stage_common}
       - [0x434, .rodata, r3_st05_11898]
-      - [0x4E0, .sdata, r3_st05_11898]  # func_80115E98/func_801160F8 constant (cc1 -G8 puts it in .sdata)
+      - [0x4B8, .rodata, r3_st05_13E6C]
+      - [0x4E0, .sdata, r3_st05_13E6C]  # func_80115E98/func_801160F8 constant (cc1 -G8 puts it in .sdata)
       - [0x4E4, .rodata, r3_st05_16DA4]
+      - [0x4F8, .rodata, r3_st05_19BE0]
       - {start: 0x670, type: .rodata, name: stcom05, dir: ../stage_common}
       - [0x6A0, .rodata, r3_st05_24E28]
       - {start: 0x6F8, type: .rodata, name: stcom21, dir: ../stage_common}
       - [0x80C, .rodata, r3_st05_2A920]
+      - [0x860, .rodata, r3_st05_2B078]
+      - [0x874, .rodata, r3_st05_2BD2C]
       - [0x88C, c, r3_st05]
       - {start: 0x5BF0, type: c, name: stcom36, dir: ../stage_common}  # shared stage code
       - [0x5E2C, c, r3_st05_5E2C]
@@ -79,10 +83,12 @@ segments:
       - [0xFE10, c, r3_st05_FE10]
       - {start: 0x10B98, type: c, name: stcom04, dir: ../stage_common}  # shared stage code
       - [0x11898, c, r3_st05_11898]
+      - [0x13E6C, c, r3_st05_13E6C]  # low; jump-table alignment restarts between func_801137AC and func_80113E6C
       - {start: 0x16578, type: c, name: stcom08, dir: ../stage_common}  # shared stage code
       - [0x169F0, c, r3_st05_169F0]
       - {start: 0x16CD0, type: c, name: stcom37, dir: ../stage_common}  # shared stage code
       - [0x16DA4, c, r3_st05_16DA4]
+      - [0x19BE0, c, r3_st05_19BE0]  # low; code shared with r3_st0b ends here; jump-table alignment restarts between func_80117130 and func_8011A194
       - {start: 0x204C4, type: c, name: stcom18, dir: ../stage_common}  # shared stage code
       - {start: 0x20A68, type: c, name: stcom25, dir: ../stage_common}  # shared stage code
       - {start: 0x21A48, type: c, name: stcom06, dir: ../stage_common}  # shared stage code
@@ -95,6 +101,8 @@ segments:
       - {start: 0x27C48, type: c, name: stcom21, dir: ../stage_common}  # shared stage code
       - {start: 0x29A90, type: c, name: stcom26, dir: ../stage_common}  # shared stage code
       - [0x2A920, c, r3_st05_2A920]
+      - [0x2B078, c, r3_st05_2B078]  # low; starts at a routine dispatcher; jump-table alignment restarts between func_8012AFA0 and func_8012B314
+      - [0x2BD2C, c, r3_st05_2BD2C]  # low; jump-table alignment restarts between func_8012B44C and func_8012BD2C
       - {start: 0x2CC18, type: c, name: stcom14, dir: ../stage_common}  # shared stage code
       - {start: 0x2D4DC, type: c, name: stcom02, dir: ../stage_common}  # shared stage code
       - [0x2D8C4, data, data]

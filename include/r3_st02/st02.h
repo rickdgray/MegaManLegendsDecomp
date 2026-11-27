@@ -397,4 +397,7 @@ void func_80101C80(STAGE_ROOM *wp);
 // leaves a2 unset).
 void func_8001D494_2(sint32 arg0, sint32 arg1) __asm__("Cd_subcmd");
 
+// Called from another file of this stage.
+void func_801035F4(STAGE_OBJ *wp);
+
 #endif // ST02_H

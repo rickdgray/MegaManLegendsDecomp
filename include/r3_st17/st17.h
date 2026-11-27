@@ -48,18 +48,6 @@ typedef struct
     uint8 reserved30[8];    // 30
 } ST17_MODEL;
 
-// One zero word of .rodata at this point of the file (INCLUDE_ASM's wrapper, so maspsx drops
-// everything else). Retail starts a function's jump tables 8-aligned when it has more than one;
-// tools/cc.sh's jt_align only pads between a function's own tables, so the pad before the
-// first one comes from here.
-#define ST17_RODATA_PAD(NAME)                                                                                                              \
-    void __maspsx_include_asm_hack_##NAME()                                                                                                \
-    {                                                                                                                                      \
-        __asm__(".section .rodata # maspsx-keep\n"                                                                                         \
-                "    .word 0 # maspsx-keep\n"                                                                                              \
-                ".text # maspsx-keep\n");                                                                                                  \
-    }
-
 // The absolute value with the positive test first: GCC 2.7 reserves a stack temporary for it.
 #define ST17_ABS(x)    ((x) >= 0 ? (x) : -(x))
 #define ST17_MODEL_TBL ((ST17_MODEL *)0x800BBA90)

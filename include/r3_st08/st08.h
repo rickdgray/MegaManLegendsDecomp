@@ -555,4 +555,7 @@ extern uint8 D_80118510;
 void func_8005C23C(sint32 hits);
 void func_800425FC(void *pl, sint32 arg);
 
+// ROCK_NEO functions this stage calls.
+void func_80053AA4(sint32 arg);
+
 #endif // ST08_H

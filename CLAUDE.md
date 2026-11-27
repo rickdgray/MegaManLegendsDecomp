@@ -210,11 +210,14 @@ later.
   `tools/cc.sh` (their constants sit in `.rodata`), and no `-G` to maspsx: overlay code never
   addresses anything through `$gp`. A blanket `-G0` breaks `r3_st00`, so the per-file choices are
   real.
-- **Known hack, don't extend it:** `tools/cc.sh` also has a per-file and per-function table
-  (`JT_ALIGN`, `JT_PACKED`, `JT_PAD_AFTER`, ...) that rewrites `cc1`'s jump-table alignment and
-  inserts pad words in about 30 overlay files. It most likely stands in for wrong file
-  boundaries (each Capcom object aligns its own `.rodata`) and is to be removed. If an overlay
-  file needs a new entry there to match, stop and report it instead.
+- **Overlay jump tables take `cc1`'s own alignment.** `cc1` aligns each jump table to 8 bytes
+  within its object's `.rodata`. In an overlay an object's `.rodata` starts at any 4-byte address
+  (the 8-byte rule in `notes/toolchain.md` is for the executables).
+  Where retail restarts that alignment, a new source file starts (`notes/overlays.md`, "File
+  boundaries from jump-table alignment"). `tools/cc.sh` rewrites the alignment for one file only,
+  `r3_st03_A594.c`, where no file boundary explains the pad word (the open point in that notes
+  section). If another overlay file needs a pad word to match, look for the file boundary
+  instead and report it; do not add a setting.
 
 ### Small data (`$gp`) in ROCK_NEO
 

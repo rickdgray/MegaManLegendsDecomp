@@ -2537,4 +2537,13 @@ sint32 func_8012AFA0(void);
 
 extern ST05_PROP_FUNC D_801323C0[]; // routine_1 handlers (func_80125880)
 
+// Called from another file of this stage.
+void func_8012B544(STAGE_OBJ50 *wp);
+void func_8012B680(STAGE_OBJ50 *wp);
+sint32 func_8012B788(ST05_RACE *wp);
+uint8 func_8012BA14(STAGE_OBJ50 *wp);
+
+// ROCK_NEO functions this stage calls.
+void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
+
 #endif
