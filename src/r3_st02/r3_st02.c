@@ -426,7 +426,7 @@ void func_80100C90(STAGE_ROOM *wp)
         func_801002C8(0);
         child      = wp->child_2C;
         D_8010A5E4 = 0;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         child = wp->child_30;
         child->be_flag |= TRANS;
         Obj_work_flag_change(0x40, 0x80);
@@ -466,7 +466,7 @@ void func_80100D78(STAGE_ROOM *wp)
         child->u_C.b.work_0 = 1;
         child->be_flag |= TRANS;
         other = wp->child_30;
-        other->be_flag &= 0xFD;
+        other->be_flag &= ~TRANS;
         other = wp->child_34;
         other->be_flag |= TRANS;
         Obj_work_flag_change(0x40, 0x80);
@@ -510,7 +510,7 @@ void func_80100EE4(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_24;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         child                 = wp->child_28;
         child->routine_1      = 2;
         child->routine_2      = 0;

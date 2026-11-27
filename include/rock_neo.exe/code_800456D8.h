@@ -125,7 +125,7 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3;
-    uint32 field_C;
+    uint32 field_C; // Capcom: work_0 ... work_3, used here as one word
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour

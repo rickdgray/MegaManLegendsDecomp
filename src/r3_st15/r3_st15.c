@@ -251,7 +251,7 @@ void func_80100758(STAGE_ROOM_WORK *wp)
         child->routine_2 = 0;
         child->work_1    = 1;
         child            = wp->child_30;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
     }
     if (wp->frame_10 == 0xA)
     {
@@ -386,7 +386,7 @@ void func_80100B34(STAGE_ROOM_WORK *wp)
             pl = &Player_work;
             if (func_80042238(pl) != 0)
             {
-                pl->be_flag &= 0xFC;
+                pl->be_flag &= ~(MOVE | TRANS);
                 Cd_xa_play_id(0x2001000A);
                 wp->routine_4++;
             }

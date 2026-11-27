@@ -487,7 +487,7 @@ void func_80100ED0(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         func_80100D38(5);
-        wp->child_24->be_flag &= 0xFD;
+        wp->child_24->be_flag &= ~TRANS;
         // Signed here: the and takes -4, not 0xFC.
         *(sint8 *)&D_800BBA90[0].flags_0 &= ~3;
         *(sint8 *)&D_800BBB00 &= ~3;
@@ -711,7 +711,7 @@ void func_80101430(STAGE_ROOM *wp)
                 pl->routine_0 = 3;
                 pl->routine_1 = 1;
                 pl->flags_bd |= 0x10;
-                pl->be_flag &= 0xFC;
+                pl->be_flag &= ~(MOVE | TRANS);
                 Cd_xa_play_id(0x20000008);
                 wp->routine_4++;
             }
@@ -831,7 +831,7 @@ void func_80101810(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         func_80101678(5);
-        wp->child_24->be_flag &= 0xFD;
+        wp->child_24->be_flag &= ~TRANS;
         // Signed here: the and takes -4, not 0xFC.
         *(sint8 *)&D_800BBA90[0].flags_0 &= ~3;
         *(sint8 *)&D_800BBB00 &= ~3;
@@ -930,7 +930,7 @@ void func_80101AFC(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_30;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         child               = wp->child_28;
         child->routine_1    = 8;
         child->routine_2    = 0;
@@ -1089,7 +1089,7 @@ void func_80101E20(STAGE_ROOM *wp)
                 pl->routine_0 = 3;
                 pl->routine_1 = 1;
                 pl->flags_bd |= 0x10;
-                pl->be_flag &= 0xFC;
+                pl->be_flag &= ~(MOVE | TRANS);
                 Cd_xa_play_id(0x20000011);
                 wp->routine_4++;
             }

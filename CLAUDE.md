@@ -421,6 +421,7 @@ What decompilers show vs. what to write:
 | Header | Contents |
 |---|---|
 | `include/common.h` | Basic typedefs (`s8`…`u32`, `u_char`…`u_long`, Capcom's `uint8`…`sint32`); includes `include_asm.h` |
+| `include/work.h` | Shared: the work pool slot header (`be_flag`, `work_id`, `id`, `type`, `routine_0`…`routine_3`, `work_0`…`work_3`) and `be_flag`'s bits (`MOVE`, `TRANS`, `MODEL`) |
 | `include/psyq/*.h` | Self-written PsyQ declarations (`libgpu.h`: `RECT`, `DRAWENV`, `SPRT`, `addPrim`, …; `libcd.h`, `libsnd.h`, …; `inline_c.h`: GTE macros) |
 | `include/cd.h` | CD drive, file table and command queue (shared) |
 | `include/display.h`, `include/pad.h` | Shared: `DISP_ENV` double buffers, `Vsync_count`; `PAD_*` buttons, `Joy1`/`Joy2`, `Pad_update`; `PAD_WORK` itself is per program (`include/<target>/pad_work.h`: ROCK_NEO's adds the auto-repeat state) |
@@ -468,8 +469,8 @@ has a type, use it, and grow it: replace the `pad`/`unk` bytes with the field yo
 **Objects of several kinds.** A pool slot holds whichever kind of object was opened in it; the
 kind is the id byte at 2 (`id`, Capcom's `ep->id`), and the pool update calls `handler[id]`.
 Every slot starts with the same header, in Capcom's names: `be_flag` (0x00; bits `MOVE` = 1, live,
-run by the pool update; `TRANS` = 2; `MODEL` = 4, a model; the `#define`s are in
-`code_8002E7A8.h`, `stage_common/rock_neo.h` and `shl/shl.h`), `work_id` (0x01: pool kind
+run by the pool update; `TRANS` = 2; `MODEL` = 4, a model; the `#define`s are in `include/work.h`,
+shared by ROCK_NEO and every overlay), `work_id` (0x01: pool kind
 (0x10 * pool number) | slot index), `id` (0x02), `type` (0x03), `flags` (0x06),
 `routine_0`…`routine_3` (0x08-0x0B) and `work_0`…`work_3` (0x0C-0x0F). Write `be_flag`'s bits with
 the names (`wp->be_flag |= TRANS;`).

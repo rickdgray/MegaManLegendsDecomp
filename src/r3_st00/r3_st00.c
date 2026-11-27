@@ -318,7 +318,7 @@ void func_80100BE8(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_2C;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         child            = wp->child_24;
         child->routine_1 = 0xA;
         other            = wp->child_24;

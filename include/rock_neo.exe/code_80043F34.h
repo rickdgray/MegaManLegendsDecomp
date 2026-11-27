@@ -72,7 +72,7 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3; // also a timer: frames left, counted down (func_80044A00)
-    uint32 field_C;
+    uint32 field_C;  // Capcom: work_0 ... work_3, used here as one word
     uint32 field_10;
     uint8 *data_14; // model data of the EBD entry, set by Model_work_init
     MATRIX mtx;     // 0x18: rotation and scale (diagonal = pos_38.pad)
@@ -130,7 +130,7 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3; // also a timer: frames left, reloaded from D_80097DE4[type] (func_80044C94)
-    uint32 field_C;
+    uint32 field_C;  // Capcom: work_0 ... work_3, used here as one word
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour
@@ -191,7 +191,7 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2; // also a value: the brightness, counted down from 0x10 into rgbc_18
     uint8 routine_3;
-    uint32 field_C;
+    uint32 field_C; // Capcom: work_0 ... work_3, used here as one word
     uint32 field_10;
     uint32 code_14;   // packed start word
     uint32 rgbc_18;   // code and colour

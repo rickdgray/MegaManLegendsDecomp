@@ -597,7 +597,7 @@ void func_8010146C(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_28;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         child             = wp->child_2C;
         child->rotation.y = 0x872;
     }
@@ -612,7 +612,7 @@ void func_801014A8(STAGE_ROOM *wp)
         child = wp->child_28;
         child->be_flag |= TRANS;
         child = wp->child_2C;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
     }
 }
 
@@ -623,7 +623,7 @@ void func_801014F0(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_28;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
     }
     if (wp->frame_10 == 0x3C)
     {
@@ -852,7 +852,7 @@ void func_80101A60(STAGE_ROOM *wp)
             D_800C3571        = 0xFF;
             D_800C3570        = 2;
             STAGE_PL.value_76 = 0;
-            STAGE_PL.be_flag &= 0xFC;
+            STAGE_PL.be_flag &= ~(MOVE | TRANS);
             wp->flags_0 = 0;
             break;
     }

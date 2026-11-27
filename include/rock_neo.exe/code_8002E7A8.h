@@ -7,6 +7,7 @@
 #include "common.h"
 #include "psyq/libgte.h"
 #include "scratch.h"
+#include "work.h"
 
 // Keyframe table sets, loaded at fixed addresses (indexed by set number).
 #define Key_tbl_a ((KEY_ENT **)0x800D9D00)
@@ -47,11 +48,6 @@
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
-// Bits of a pool slot's be_flag (Capcom's names; see "Work pool slots" below).
-#define MOVE  0x01 // live: the pool update runs the slot (with bit 0 of flags)
-#define TRANS 0x02
-#define MODEL 0x04 // a model: the slot's EFC is EFC_MODEL
-
 // Store to a bogus address, done when func_8002FA38 finds no matching entry.
 #define Entry_missing_trap (*(sint32 *)0x87654321)
 
@@ -72,18 +68,7 @@ typedef struct
 struct PL_WORK;
 
 // ---- Work pool slots (Work_pools_init). ----
-// Every slot, and PL_WORK, starts with the same header (Capcom's names where known):
-// - 0x00 be_flag (Capcom's): status bits. Bit 0 (Capcom's MOVE): live, the pool update runs the
-//   slot (with flags bit 0); bit 1 (Capcom's TRANS); bit 2 (MODEL): a model, so the EFC is
-//   EFC_MODEL (Capcom sets TRANS | MODEL before Model_work_init); bit 6: Model_parts_draw and
-//   func_8002831C skip their distance cull while the object is nearer than Scratch_fog_0; bit 7:
-//   set by W48_80_WORK's variant_E.
-// - 0x01 work_id (Capcom's): pool kind (0x10 * pool number) | slot index.
-// - 0x02 id (the kind), 0x03 type (its variant).
-// - 0x06 flags: set to 3 on open, bits 0-1 changed by func_8002F3A8, bit 5 keeps the slot alive in
-//   func_8002F420 (moved instead of closed), bit 6 set by func_80033500/func_8003354C.
-// - 0x08 routine_0 to routine_3 (Capcom's): the state, cleared by one word store on open. Some
-//   kinds also use routine_2 or routine_3 as a timer or value (see each struct).
+// Every slot, and PL_WORK, starts with the same header: see work.h.
 
 // Object holding a bitmask of the slots it owns (see func_8003545C). An embedded block, not a
 // whole object: PL_WORK.owner_188, PL_SHL_WORK.owner_C4, D_800986D8, and the owner stored in each
@@ -288,7 +273,8 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3; // also a timer: counts down; routine_0 advances when it reaches 0
-    uint32 field_C;  // depends on the kind; cleared on open
+    uint32 field_C;  // depends on the kind; cleared on open. Capcom: work_0 ... work_3, used here as
+                     // one word
     uint32 field_10; // cleared on open
     EFC efc;         // 0x14: the kind's layout (model or sprite)
     uint32 field_44; // depends on the kind
@@ -425,7 +411,7 @@ typedef struct
     uint8 routine_2;
     uint8 routine_3;
     sint8 work_0; // work_0 to work_3 are cleared by one word store (on open)
-    sint8 slot_D; // Capcom: work_1
+    sint8 work_1;
     sint8 work_2; // set to -0x80 by the event step func_80068728
     uint8 work_3;
     HIT_ENT *box_10; // 0x10: box the player's search in front tests at efc's pos (front_box_search), or 0
@@ -586,7 +572,8 @@ typedef struct
     uint8 routine_1;
     uint8 routine_2;
     uint8 routine_3;
-    uint32 field_C; // set from SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
+    uint32 field_C; // set from SPAWN_ENT.field_8 (Obj_spawn_tbl_set). Capcom: work_0 ... work_3,
+                    // used here as one word
     uint32 field_10;
     SVECTOR pos;     // 0x14: position (vx and vz horizontal, vy the height)
     VECTOR pos_l;    // 0x1C: 16.16 fixed-point position; pos is its rounded copy (Obj_pos_set)

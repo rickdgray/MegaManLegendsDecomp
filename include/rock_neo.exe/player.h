@@ -49,7 +49,8 @@ typedef struct PL_WORK
     uint8 routine_2; // 0x0A: step within the state; routine_2 >> 1 picks the joint_pos
                      // func_800424D4 copies
     uint8 routine_3;
-    uint32 field_C; // 0x0C: SPAWN_ENT.field_8 (Obj_spawn_tbl_set)
+    uint32 field_C; // 0x0C: SPAWN_ENT.field_8 (Obj_spawn_tbl_set). Capcom: work_0 ... work_3, used
+                    // here as one word
     uint8 unk10[0x14 - 0x10];
     // 0x14-0x5C: the MODEL_WORK layout (names from Capcom's source: Player_work[0].pos_l, .ang.vy).
     SVECTOR pos;     // 0x14: position (vx and vz are the horizontal axes, vy the height)

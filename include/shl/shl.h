@@ -3,16 +3,12 @@
 
 #include "common.h"
 #include "psyq/libgte.h"
+#include "work.h" // the pool slot header and be_flag's bits
 
 // Shared by the special-weapon (SHL) modules r3_shl02 ... r3_shl0d, each loaded at 0x800D8800
 // when its weapon is equipped. ROCK_NEO.EXE's SHL table (0x80089A28) points every weapon at the
 // module's first function (0x800D8804), which runs one shot object per call: it dispatches on
 // routine_0 through the module's own table.
-
-// Bits of a pool slot's be_flag (Capcom's names, as ROCK_NEO's code_8002E7A8.h).
-#define MOVE  0x01 // live: the pool update runs the slot
-#define TRANS 0x02
-#define MODEL 0x04 // a model
 
 // A 16.16 fixed-point position; the halfword view reads the integer parts.
 typedef union

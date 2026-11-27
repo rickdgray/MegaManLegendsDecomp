@@ -1386,7 +1386,7 @@ void func_80117370(STAGE_ROOM *wp)
     if (wp->frame_10 == 0)
     {
         child = wp->child_28;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
         Scene_obj_ent_open(D_80121278);
         func_80117A40(0, 2);
     }

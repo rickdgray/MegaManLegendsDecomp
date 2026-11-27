@@ -298,7 +298,7 @@ void func_80101724(STAGE_ROOM *wp)
         child->routine_1 = 5;
         child->routine_2 = 0;
         child            = wp->child_38;
-        child->be_flag &= 0xFD;
+        child->be_flag &= ~TRANS;
     }
     if (wp->frame_10 == 0xC8)
     {
