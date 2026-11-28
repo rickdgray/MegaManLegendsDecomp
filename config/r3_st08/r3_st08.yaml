@@ -59,6 +59,7 @@ segments:
       - [0x0, rodata, header]     # id word 0x1B
       - [0x4, .sdata, r3_st08]      # func_80101424's local initializer (cc1 -G8 puts it in .sdata)
       - [0xC, .rodata, r3_st08]     # jump tables, constants
+      - [0x48, .rodata, r3_st08_1FA4]
       - {start: 0x80, type: .rodata, name: stcom04, dir: ../stage_common}
       - [0xBC, .rodata, r3_st08_7470]
       - {start: 0xDC, type: .rodata, name: stcom12, dir: ../stage_common}
@@ -67,6 +68,7 @@ segments:
       - {start: 0x1E0, type: .rodata, name: stcom21, dir: ../stage_common}
       - [0x2F4, .rodata, r3_st08_FE78]
       - [0x31C, c, r3_st08]
+      - [0x1FA4, c, r3_st08_1FA4]  # low; starts at a routine dispatcher; jump-table alignment restarts between func_80101F84 and func_80102498
       - {start: 0x2B94, type: c, name: stcom01, dir: ../stage_common}  # shared stage code
       - [0x55A4, c, r3_st08_55A4]
       - {start: 0x6770, type: c, name: stcom04, dir: ../stage_common}  # shared stage code

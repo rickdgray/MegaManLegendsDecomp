@@ -58,7 +58,9 @@ segments:
     subsegments:
       - [0x0, rodata, header]     # id word 0x15
       - [0x4, .rodata, r3_st02]     # entry table, jump tables, constants
+      - [0x20, .rodata, r3_st02_3704]
       - [0x48, c, r3_st02]
+      - [0x3704, c, r3_st02_3704]  # low; code shared with other stages lies between the two table functions; jump-table alignment restarts between func_80101FD8 and func_80103D8C
       - {start: 0x5D20, type: c, name: stcom02, dir: ../stage_common}  # shared stage code
       - [0x6108, c, r3_st02_6108]
       - [0x6740, data, data]

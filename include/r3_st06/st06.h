@@ -1773,4 +1773,16 @@ void func_8001D974(void); // ROCK_NEO.EXE
 void func_80039FFC(STCOM_FIXED_VECTOR *vec, sint32 arg1, sint32 arg2,
                    sint32 arg3); // ROCK_NEO.EXE: moves the camera
 
+// Called from another file of this stage.
+void func_8010338C(STAGE_ROOM *wp);
+void func_801033F8(STAGE_ROOM_WORK *wp);
+void func_80105C3C(STAGE_ROOM *wp);
+void func_80105CE0(STAGE_ROOM_WORK *wp);
+void func_80107AF0(STAGE_ROOM *wp);
+void func_80107B54(STAGE_ROOM_WORK *wp);
+
+// ROCK_NEO functions this stage calls.
+sint16 Angle_diff_clamp(sint32 goal, sint32 rot, sint32 speed);
+void func_80053AA4(sint32 arg);
+
 #endif

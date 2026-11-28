@@ -869,4 +869,8 @@ typedef struct
 
 #define ST03_SCENE_OBJ_0 (((ST03_SCENE_OBJS *)&Scene_work)->obj_24[0])
 
+// ROCK_NEO functions this stage calls.
+sint32 Obj_ceiling_height_get(void *wp);
+sint16 Angle_diff_clamp(sint32 goal, sint32 rot, sint32 speed);
+
 #endif

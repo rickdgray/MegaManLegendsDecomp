@@ -58,12 +58,15 @@ segments:
     subsegments:
       - [0x0, rodata, header]     # id word 0x1E
       - [0x4, .rodata, r3_st0b]     # entry table, jump tables, constants
+      - [0x18, .rodata, r3_st0b_1234]
       - [0x234, .rodata, r3_st0b_9CB0]
       - [0x284, .rodata, r3_st0b_116E0]
       - {start: 0x2AC, type: .sdata, name: stcom03, dir: ../stage_common}
       - {start: 0x2B4, type: .rodata, name: stcom03, dir: ../stage_common}
       - [0x2C8, .rodata, r3_st0b_166EC]
+      - [0x364, .rodata, r3_st0b_186E8]
       - [0x37C, c, r3_st0b]
+      - [0x1234, c, r3_st0b_1234]  # low; starts at a routine dispatcher; jump-table alignment restarts between func_80100A64 and func_80101270
       - {start: 0x72A0, type: c, name: stcom01, dir: ../stage_common}  # shared stage code
       - [0x9CB0, c, r3_st0b_9CB0]
       - {start: 0xE8A0, type: c, name: stcom23, dir: ../stage_common}  # shared stage code
@@ -76,5 +79,6 @@ segments:
       - [0x147FC, c, r3_st0b_147FC]
       - {start: 0x16304, type: c, name: stcom02, dir: ../stage_common}  # shared stage code
       - [0x166EC, c, r3_st0b_166EC]
+      - [0x186E8, c, r3_st0b_186E8]  # low; code shared with r3_st0c starts here; jump-table alignment restarts between func_80117830 and func_80118D40
       - [0x19050, data, data]
   - [0x20400]

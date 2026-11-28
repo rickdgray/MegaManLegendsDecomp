@@ -60,16 +60,22 @@ segments:
       - [0x0, rodata, header]     # id word 0x17
       - [0x4, .rodata, r3_st04_4B6C]
       - [0x34, .rodata, r3_st04_5474]
+      - [0xA0, .rodata, r3_st04_61D8]
       - [0x19C, .rodata, r3_st04_8FE0]
+      - [0x1B0, .rodata, r3_st04_9FA0]
+      - [0x1DC, .rodata, r3_st04_A248]
       - [0x200, c, r3_st04]
       - {start: 0x1E40, type: c, name: stcom36, dir: ../stage_common}  # shared stage code
       - [0x207C, c, r3_st04_207C]
       - {start: 0x215C, type: c, name: stcom01, dir: ../stage_common}  # shared stage code
       - [0x4B6C, c, r3_st04_4B6C]
       - [0x5474, c, r3_st04_5474]
+      - [0x61D8, c, r3_st04_61D8]  # low; jump-table alignment restarts between func_80106048 and func_801061D8
       - {start: 0x7CB8, type: c, name: stcom31, dir: ../stage_common}  # shared stage code
       - [0x83E4, c, r3_st04_83E4]
       - {start: 0x89B8, type: c, name: stcom07, dir: ../stage_common}  # shared stage code
       - [0x8FE0, c, r3_st04_8FE0]
+      - [0x9FA0, c, r3_st04_9FA0]  # medium; routine dispatcher where r3_st05 and r3_st08 start a file too; the shared code before it ends here in r3_st0d, r3_st10, r3_st19
+      - [0xA248, c, r3_st04_A248]  # low; starts at a routine dispatcher; jump-table alignment restarts between func_8010A248 and func_8010A32C
       - [0xA524, data, data]
   - [0x11DD8]

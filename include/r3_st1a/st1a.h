@@ -4463,4 +4463,8 @@ extern uint32 D_80133040[][4];         // of spheres 8-17
 
 void func_8012751C(ST1A_50 *wp);
 
+// Called from another file of this stage.
+void func_801039DC(sint32 index);
+void func_80103A14(sint32 index);
+
 #endif

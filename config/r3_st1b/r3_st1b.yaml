@@ -59,8 +59,10 @@ segments:
       - [0x0, rodata, header]     # id word 0x2E
       - [0x4, .rodata, r3_st1b]     # entry table, jump tables, constants
       - [0x24, .rodata, r3_st1b_E5C]
+      - [0x40, .rodata, r3_st1b_22D4]
       - {start: 0x5C, type: .rodata, name: stcom04, dir: ../stage_common}
       - [0x98, .rodata, r3_st1b_603C]
+      - [0xAC, .rodata, r3_st1b_6E14]
       - {start: 0xC0, type: .rodata, name: stcom12, dir: ../stage_common}
       - [0x18C, .rodata, r3_st1b_87C4]
       - {start: 0x1A8, type: .rodata, name: stcom05, dir: ../stage_common}
@@ -69,10 +71,12 @@ segments:
       - [0x21C, c, r3_st1b]
       - {start: 0xD70, type: c, name: stcom38, dir: ../stage_common}  # shared stage code
       - [0xE5C, c, r3_st1b_E5C]
+      - [0x22D4, c, r3_st1b_22D4]  # low; jump-table alignment restarts between func_80101EFC and func_801022D4
       - {start: 0x24E4, type: c, name: stcom01, dir: ../stage_common}  # shared stage code
       - [0x4EF4, c, r3_st1b_4EF4]
       - {start: 0x533C, type: c, name: stcom04, dir: ../stage_common}  # shared stage code
       - [0x603C, c, r3_st1b_603C]
+      - [0x6E14, c, r3_st1b_6E14]  # low; an edge of code shared with r3_st03; jump-table alignment restarts between func_80106A34 and func_80106F04
       - {start: 0x7244, type: c, name: stcom08, dir: ../stage_common}  # shared stage code
       - {start: 0x76BC, type: c, name: stcom12, dir: ../stage_common}  # shared stage code
       - [0x87C4, c, r3_st1b_87C4]

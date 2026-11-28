@@ -56,9 +56,12 @@ segments:
     vram: 0x80100000
     align: 1
     subsegments:
-      - [0x0, .rodata, r3_st16]     # id word 0x29 (in the first object), jump tables
+      - [0x0, rodata, header]     # id word 0x29
+      - [0x4, .rodata, r3_st16]     # jump tables
+      - [0x30, .rodata, r3_st16_C84]
       - [0x5C, .rodata, r3_st16_F68]
       - [0x9C, c, r3_st16]
+      - [0xC84, c, r3_st16_C84]  # low; jump-table alignment restarts between func_80100970 and func_80100C84
       - [0xF68, c, r3_st16_F68]
       - {start: 0x2D80, type: c, name: stcom02, dir: ../stage_common}  # shared stage code
       - [0x3168, data, data]

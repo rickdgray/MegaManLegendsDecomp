@@ -554,4 +554,12 @@ extern sint32 D_800BC778;
 extern ST1B_CAM Sce_camera_work;
 extern ST1B_CAMERA D_800C3558;
 
+// Called from another file of this stage.
+void func_801021BC(STAGE_ROOM *wp);
+void func_80102294(STAGE_ROOM_WORK *wp);
+
+// ROCK_NEO functions this stage calls.
+sint32 Obj_ceiling_height_get(void *wp);
+sint16 Angle_diff_clamp(sint32 goal, sint32 rot, sint32 speed);
+
 #endif

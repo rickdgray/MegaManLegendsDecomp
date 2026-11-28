@@ -58,11 +58,33 @@ segments:
     subsegments:
       - [0x0, rodata, header]     # id word 0x2A
       - [0x4, .rodata, r3_st17]     # entry table, jump tables, constants
+      - [0x18, .rodata, r3_st17_F10]
+      - [0x2C, .rodata, r3_st17_1130]
+      - [0x40, .rodata, r3_st17_1A14]
+      - [0x8C, .rodata, r3_st17_2D3C]
+      - [0xA0, .rodata, r3_st17_39E0]
+      - [0x204, .rodata, r3_st17_5638]
+      - [0x228, .rodata, r3_st17_6B70]
+      - [0x23C, .rodata, r3_st17_702C]
+      - [0x268, .rodata, r3_st17_8BD4]
+      - [0x29C, .rodata, r3_st17_9334]
+      - [0x2B8, .rodata, r3_st17_C36C]
       - [0x2D0, .rodata, r3_st17_C6A0]
       - [0x3B0, .rodata, r3_st17_F600]
       - [0x434, .rodata, r3_st17_1475C]
       - [0x510, .rodata, r3_st17_19474]  # its own unit: the jump table isn't 8-aligned from 0x434
       - [0x52C, c, r3_st17]
+      - [0xF10, c, r3_st17_F10]  # low; jump-table alignment restarts between func_80100828 and func_80100F10
+      - [0x1130, c, r3_st17_1130]  # low; jump-table alignment restarts at this function's table
+      - [0x1A14, c, r3_st17_1A14]  # medium; code shared with r3_st0a, r3_st0b and r3_st0d starts here, where r3_st0a and r3_st0b start a file too
+      - [0x2D3C, c, r3_st17_2D3C]  # low; jump-table alignment restarts at this function's table
+      - [0x39E0, c, r3_st17_39E0]  # low; jump-table alignment restarts between func_80102FD8 and func_801039E0
+      - [0x5638, c, r3_st17_5638]  # low; code shared with other stages ends here; jump-table alignment restarts between func_80104498 and func_80105A0C
+      - [0x6B70, c, r3_st17_6B70]  # low; jump-table alignment restarts between func_80105CF8 and func_80106B70
+      - [0x702C, c, r3_st17_702C]  # low; jump-table alignment restarts between func_80106E94 and func_8010702C
+      - [0x8BD4, c, r3_st17_8BD4]  # low; jump-table alignment restarts between func_8010787C and func_80108BD4
+      - [0x9334, c, r3_st17_9334]  # low; jump-table alignment restarts between func_8010919C and func_80109334
+      - [0xC36C, c, r3_st17_C36C]  # low; jump-table alignment restarts between func_8010971C and func_8010C36C
       - [0xC6A0, c, r3_st17_C6A0]
       - [0xF600, c, r3_st17_F600]
       - {start: 0x14374, type: c, name: stcom02, dir: ../stage_common}  # shared stage code

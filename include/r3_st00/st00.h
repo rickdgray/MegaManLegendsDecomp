@@ -2205,4 +2205,11 @@ sint32 func_80111634(ST00_OBJ *wp);
 
 void func_8011032C(ST00_PART *wp);
 
+// Called from another file of this stage.
+void func_80100EFC(ST00_ROOM_FX *wp);
+void func_8010102C(STAGE_ROOM_WORK *wp);
+
+// ROCK_NEO functions this stage calls.
+void func_80047228(void *wp, STCOM_SVECTOR *pos, sint32 arg2);
+
 #endif

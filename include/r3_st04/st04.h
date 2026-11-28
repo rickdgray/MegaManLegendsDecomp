@@ -600,4 +600,7 @@ extern uint16 D_800C0C26;
 extern STAGE_SCRIPT_ENTRY D_8010C9DC[]; // the villagers func_80100594 places
 ST04_ACTOR *func_8001EB98(STAGE_SCRIPT_ENTRY *entry);
 
+// ROCK_NEO functions this stage calls.
+sint32 Obj_ceiling_height_get(void *wp);
+
 #endif // ST04_H
